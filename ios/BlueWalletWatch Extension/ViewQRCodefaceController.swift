@@ -17,7 +17,7 @@ class ViewQRCodefaceController: WKInterfaceController {
   @IBOutlet weak var addressLabel: WKInterfaceLabel!
   var qrcodeData: String?
   private var interfaceMode = InterfaceMode.Address
-  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandOffUserInfoKey.Xpub.rawValue)
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.Xpub.rawValue)
     
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
