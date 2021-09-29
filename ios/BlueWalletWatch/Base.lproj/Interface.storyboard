@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="18122" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="19162" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="18022"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="19044"/>
     </dependencies>
     <scenes>
         <!--BlueWallet-->
@@ -64,6 +64,13 @@
                                     </items>
                                 </group>
                             </items>
+                            <gestureRecognizers>
+                                <tapGestureRecognizer id="amo-3m-JJX">
+                                    <connections>
+                                        <action selector="toggleBalanceVisibility:" destination="XWa-4i-Abg" id="UIu-9b-ksx"/>
+                                    </connections>
+                                </tapGestureRecognizer>
+                            </gestureRecognizers>
                         </group>
                         <button width="1" alignment="left" hidden="YES" title="Receive" id="bPO-h8-ccD">
                             <color key="titleColor" red="0.18431372549019609" green="0.37254901960784315" blue="0.70196078431372544" alpha="1" colorSpace="calibratedRGB"/>
@@ -71,6 +78,14 @@
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
                             <connections>
                                 <segue destination="egq-Yw-qK5" kind="push" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" hidden="YES" title="View XPUB" id="j0O-fq-mwp" userLabel="View XPUB">
+                            <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
+                            <connections>
+                                <action selector="viewXPubMenuItemTapped" destination="XWa-4i-Abg" id="bmF-2z-gzj"/>
                             </connections>
                         </button>
                         <button width="1" alignment="left" hidden="YES" title="Create Invoice" id="7bc-tt-Pab" userLabel="Create Invoice">
@@ -128,6 +143,7 @@
                         <outlet property="noTransactionsLabel" destination="pi4-Bk-Jiq" id="zft-Hw-KuZ"/>
                         <outlet property="receiveButton" destination="bPO-h8-ccD" id="xBq-42-9qP"/>
                         <outlet property="transactionsTable" destination="nyQ-lX-DX0" id="N1x-px-s08"/>
+                        <outlet property="viewXPubButton" destination="j0O-fq-mwp" id="5YN-ej-Ajr"/>
                         <outlet property="walletBalanceLabel" destination="WTr-jJ-w7L" id="kiU-ZS-2dh"/>
                         <outlet property="walletBasicsGroup" destination="275-K7-Qhe" id="nvB-rn-8Xn"/>
                         <outlet property="walletNameLabel" destination="PQi-JV-aYW" id="dfi-Ai-rOe"/>
