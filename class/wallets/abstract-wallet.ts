@@ -261,7 +261,9 @@ export class AbstractWallet {
         this.secret = parsedSecret.ExtPubKey;
         const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(mfp, 16);
-        this._derivationPath =  parsedSecret.AccountKeyPath.startsWith('m/') ? parsedSecret.AccountKeyPath : `m/${parsedSecret.AccountKeyPath}`;
+        this._derivationPath = parsedSecret.AccountKeyPath.startsWith('m/')
+          ? parsedSecret.AccountKeyPath
+          : `m/${parsedSecret.AccountKeyPath}`;
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
       }
     } catch (_) {}

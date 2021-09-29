@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { InteractionManager, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
@@ -46,10 +46,8 @@ const WalletXpub = () => {
             }
           }
           setParams({ xpub: wallet.getXpub() });
-          setXPubText(wallet.getXpub());
           setIsLoading(false);
         } else if (xpub) {
-          setXPubText(xpub);
           setIsLoading(false);
         }
       });
@@ -58,8 +56,12 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID, xpub]),
+    }, [goBack, walletID]),
   );
+
+  useEffect(() => {
+    setXPubText(xpub);
+  }, [xpub]);
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;

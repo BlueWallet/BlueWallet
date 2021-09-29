@@ -148,8 +148,9 @@ const LdkInfo = () => {
 
   useEffect(() => {
     if (psbt) {
-      setNewOpenChannelModalVisible(true);
+      sleep(650).then(() => setNewOpenChannelModalVisible(true));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [psbt]);
 
   useEffect(() => {
@@ -338,11 +339,21 @@ const LdkInfo = () => {
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     navigate('LDKOpenChannelRoot', { screen: 'SelectWallet', params: { chainType: Chain.ONCHAIN } });
-    // /** @type {AbstractWallet} */
-    // const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    // setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
-    // selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    // setNewOpenChannelModalVisible(true);
+    return;
+    closeModal();
+    setNewOpenChannelModalVisible(false);
+    await sleep(650);
+    const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
+    if (availableWallets.length === 0) {
+      return alert(loc.lnd.refill_create);
+    }
+
+    /** @type {AbstractWallet} */
+    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
+    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
+    selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
+    await sleep(650);
+    setNewOpenChannelModalVisible(true);
   };
   const closeNewOpenChannelModalPropsModal = async () => {
     setNewOpenChannelModalVisible(false);
@@ -390,13 +401,15 @@ const LdkInfo = () => {
               })
             }
             remoteHostWithPubkey={newOpenChannelModalProps?.remoteHostWithPubkey}
-            onRemoteHostWithPubkeyChange={pubkey => {
+            onRemoteHostWithPubkeyChange={async pubkey => {
               setNewOpenChannelModalProps((prevState: any) => {
                 return { ...prevState, remoteHostWithPubkey: pubkey };
               });
+              await sleep(650);
               setNewOpenChannelModalVisible(true);
             }}
-            onBarScannerDismissWithoutData={() => {
+            onBarScannerDismissWithoutData={async () => {
+              await sleep(650);
               setNewOpenChannelModalVisible(true);
             }}
           />

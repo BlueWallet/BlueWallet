@@ -19,6 +19,7 @@ const IsItMyAddress = () => {
 
   const [address, setAddress] = useState('');
   const [result, setResult] = useState('');
+  const [resultCleanAddress, setResultCleanAddress] = useState();
 
   const stylesHooks = StyleSheet.create({
     text: {
@@ -39,12 +40,14 @@ const IsItMyAddress = () => {
     const _result = [];
     for (const w of wallets) {
       if (w.weOwnAddress(cleanAddress)) {
+        setResultCleanAddress(cleanAddress);
         _result.push(loc.formatString(loc.is_it_my_address.owns, { label: w.getLabel(), address: cleanAddress }));
       }
     }
 
     if (_result.length === 0) {
       setResult(_result.push(loc.is_it_my_address.no_wallet_owns_address));
+      setResultCleanAddress();
     }
 
     setResult(_result.join('\n\n'));
@@ -52,6 +55,7 @@ const IsItMyAddress = () => {
 
   const onBarScanned = value => {
     setAddress(value);
+    setResultCleanAddress(value);
   };
 
   const importScan = () => {
@@ -72,6 +76,16 @@ const IsItMyAddress = () => {
   const clearAddressInput = () => {
     setAddress('');
     setResult();
+    setResultCleanAddress();
+  };
+
+  const viewQRCode = () => {
+    navigate('ReceiveDetailsRoot', {
+      screen: 'ReceiveDetails',
+      params: {
+        address: resultCleanAddress,
+      },
+    });
   };
 
   return (
@@ -105,6 +119,12 @@ const IsItMyAddress = () => {
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
             <BlueSpacing20 />
+            {resultCleanAddress && (
+              <>
+                <BlueButton title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+                <BlueSpacing20 />
+              </>
+            )}
             <BlueButton
               disabled={address.trim().length === 0}
               title={loc.is_it_my_address.check_address}
