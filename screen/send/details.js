@@ -103,7 +103,7 @@ const SendDetails = () => {
       setHeaderRightOptions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses]);
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable]);
 
   // keyboad effects
   useEffect(() => {
