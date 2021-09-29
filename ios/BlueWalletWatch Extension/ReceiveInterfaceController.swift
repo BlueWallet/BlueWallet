@@ -14,7 +14,15 @@ import EFQRCode
 class ReceiveInterfaceController: WKInterfaceController {
   
   static let identifier = "ReceiveInterfaceController"
-  private var wallet: Wallet?
+  private var wallet: Wallet? {
+    didSet {
+      if let address = wallet?.receiveAddress {
+        userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: address]
+        userActivity.isEligibleForHandoff = true;
+        userActivity.becomeCurrent()
+      }
+    }
+  }
   private var isRenderingQRCode: Bool?
   private var receiveMethod: String = "receive"
   private var interfaceMode: InterfaceMode = .Address
@@ -22,9 +30,12 @@ class ReceiveInterfaceController: WKInterfaceController {
   @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
   @IBOutlet weak var imageInterface: WKInterfaceImage!
   private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
-  
+
   override func willActivate() {
     super.willActivate()
+    userActivity.title = HandOffTitle.ReceiveOnchain.rawValue
+    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
+    userActivity.isEligibleForHandoff = true
     update(userActivity)
   }
 
@@ -50,7 +61,6 @@ class ReceiveInterfaceController: WKInterfaceController {
                 content: "lightning:\(invoice)", inputCorrectionLevel: .h, pointShape: .circle) else {
                   return
               }
-              self?.invalidateUserActivity()
               let image = UIImage(cgImage: cgImage)
               self?.loadingIndicator.setHidden(true)
               self?.imageInterface.setHidden(false)
@@ -70,12 +80,6 @@ class ReceiveInterfaceController: WKInterfaceController {
         })
       } else {
         guard let notificationObject = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let walletContext = self?.wallet, !walletContext.receiveAddress.isEmpty, let receiveAddress = self?.wallet?.receiveAddress else { return }
-        self?.userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: receiveAddress]
-        self?.userActivity.isEligibleForHandoff = true;
-        self?.userActivity.becomeCurrent()
-        if let userActivity = self?.userActivity {
-          self?.update(userActivity)
-        }
         
         var address = "bitcoin:\(receiveAddress)"
         
@@ -127,10 +131,6 @@ class ReceiveInterfaceController: WKInterfaceController {
          addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
        }
     addressLabel.setText(wallet.receiveAddress)
-    userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: wallet.receiveAddress]
-    userActivity.isEligibleForHandoff = true;
-    userActivity.becomeCurrent()
-    update(userActivity)
   }
   
   override func didAppear() {
