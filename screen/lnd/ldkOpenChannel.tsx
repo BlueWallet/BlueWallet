@@ -14,6 +14,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
+import Biometric from '../../class/biometrics';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -30,6 +31,7 @@ type LdkOpenChannelProps = RouteProp<
 
 const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { colors }: { colors: any } = useTheme();
   const { navigate } = useNavigation();
   const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute<LdkOpenChannelProps>().params;
@@ -89,7 +91,17 @@ const LdkOpenChannel = (props: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [psbt]);
 
+  useEffect(() => {
+    Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const finalizeOpenChannel = async () => {
+    if (isBiometricUseCapableAndEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
