@@ -13,7 +13,7 @@ import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = () => {
-const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
+  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { pop, navigate } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);

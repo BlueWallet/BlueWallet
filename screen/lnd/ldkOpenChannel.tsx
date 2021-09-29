@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -10,38 +10,27 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-import PropTypes from 'prop-types';
-import { SuccessView } from '../send/success';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 const currency = require('../../blue_modules/currency');
 
 const LdkOpenChannel = (props: any) => {
-  const {
-    closeContainerModal,
-    psbt,
-    onPsbtOpenChannelStartedTsChange,
-    psbtOpenChannelStartedTs,
-    onOpenChannelSuccess,
-    unit,
-    onUnitChange,
-    fundingAmount = { amount: null, amountSats: null },
-    onFundingAmountChange,
-    remoteHostWithPubkey = '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735', // lnd2.bluewallet.io
-    onRemoteHostWithPubkeyChange,
-    onBarScannerDismissWithoutData,
-  } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { colors }: { colors: any } = useTheme();
   const { navigate } = useNavigation();
-  const { fundingWalletID, isPrivateChannel, ldkWalletID } = useRoute().params;
+  const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute().params;
   const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
   const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
+  const [unit, setUnit] = useState(ldkWallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(false);
+  const psbtOpenChannelStartedTs = useRef();
+  const [remoteHostWithPubkey, setRemoteHostWithPubkey] = useState(
+    '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
+  ); // lnd2.bluewallet.io
   const name = useRoute().name;
+  const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
   const [verified, setVerified] = useState(false);
-  const [isOpenChannelSuccessful, setIsOpenChannelSuccessful] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -76,7 +65,7 @@ const LdkOpenChannel = (props: any) => {
   useEffect(() => {
     if (!psbt) return;
     (async () => {
-      if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+      if (+new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000) {
         // its 10 min actually, but lets check 5 min just for any case
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Channel opening expired. Please try again');
@@ -88,7 +77,7 @@ const LdkOpenChannel = (props: any) => {
   }, [psbt]);
 
   const finalizeOpenChannel = async () => {
-    if (+new Date() - psbtOpenChannelStartedTs >= 5 * 60 * 1000) {
+    if (+new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000) {
       // its 10 min actually, but lets check 5 min just for any case
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert('Channel opening expired. Please try again');
@@ -105,7 +94,7 @@ const LdkOpenChannel = (props: any) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
     fetchAndSaveWalletTransactions(fundingWalletID);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-    setIsOpenChannelSuccessful(true);
+    navigate('Success', { amount: undefined });
   };
 
   const openChannel = async () => {
@@ -132,8 +121,7 @@ const LdkOpenChannel = (props: any) => {
         return alert('Initiating channel open failed');
       }
 
-      onPsbtOpenChannelStartedTsChange(+new Date());
-      await closeContainerModal();
+      psbtOpenChannelStartedTs.current = +new Date();
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
@@ -158,7 +146,7 @@ const LdkOpenChannel = (props: any) => {
 
   const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
-    onRemoteHostWithPubkeyChange(ret.data);
+    setRemoteHostWithPubkey(ret.data);
   };
 
   const render = () => {
@@ -166,15 +154,6 @@ const LdkOpenChannel = (props: any) => {
       return (
         <View style={[styles.root, styles.justifyContentCenter, stylesHook.root]}>
           <BlueLoading style={{}} />
-        </View>
-      );
-    }
-
-    if (isOpenChannelSuccessful) {
-      return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <SuccessView />
-          <BlueButton onPress={onOpenChannelSuccess} title={loc.send.success_done} />
         </View>
       );
     }
@@ -192,8 +171,6 @@ const LdkOpenChannel = (props: any) => {
           <BlueText>{loc.lnd.are_you_sure_open_channel}</BlueText>
           <BlueSpacing20 />
           <View style={styles.horizontalButtons}>
-            <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
-            <BlueSpacing20 horizontal />
             <BlueButton onPress={finalizeOpenChannel} title={loc._.continue} />
           </View>
         </View>
@@ -226,8 +203,8 @@ const LdkOpenChannel = (props: any) => {
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(fundingAmount.amount));
                 break;
             }
-            onFundingAmountChange({ amount: fundingAmount.amount, amountSats });
-            onUnitChange(newUnit);
+            setFundingAmount({ amount: fundingAmount.amount, amountSats });
+            setUnit(newUnit);
           }}
           onChangeText={(text: string) => {
             let amountSats = fundingAmount.amountSats;
@@ -242,7 +219,7 @@ const LdkOpenChannel = (props: any) => {
                 amountSats = parseInt(text);
                 break;
             }
-            onFundingAmountChange({ amount: text, amountSats });
+            setFundingAmount({ amount: text, amountSats });
           }}
           unit={unit}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
@@ -253,10 +230,8 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={onRemoteHostWithPubkeyChange}
+          onChangeText={setRemoteHostWithPubkey}
           onBarScanned={onBarScanned}
-          scanButtonTapped={closeContainerModal}
-          onBarScannerDismissWithoutData={onBarScannerDismissWithoutData}
           launchedBy={name}
         />
         <BlueDismissKeyboardInputAccessory />
@@ -264,7 +239,7 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey]) onRemoteHostWithPubkeyChange(nodes[newKey]);
+            if (nodes[newKey]) setRemoteHostWithPubkey(nodes[newKey]);
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
@@ -369,24 +344,6 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
 });
-
-LdkOpenChannel.propTypes = {
-  fundingWalletID: PropTypes.string,
-  ldkWalletID: PropTypes.string.isRequired,
-  isPrivateChannel: PropTypes.bool,
-  closeContainerModal: PropTypes.func,
-  psbt: PropTypes.object,
-  onPsbtOpenChannelStartedTsChange: PropTypes.func,
-  psbtOpenChannelStartedTs: PropTypes.number,
-  onOpenChannelSuccess: PropTypes.func,
-  fundingAmount: PropTypes.shape({ amount: PropTypes.string, amountSats: PropTypes.number }),
-  onFundingAmountChange: PropTypes.func,
-  unit: PropTypes.string,
-  onUnitChange: PropTypes.func,
-  remoteHostWithPubkey: PropTypes.string,
-  onRemoteHostWithPubkeyChange: PropTypes.func,
-  onBarScannerDismissWithoutData: PropTypes.func,
-};
 
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
