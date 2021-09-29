@@ -30,8 +30,8 @@ afterAll(async () => {
 });
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
-  // fixme: temp mute
-  it.skip('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
+
+  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -78,7 +78,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(transaction.outs[0].value, 10000);
 
     // checking fee rate:
-    const totalIns = 100000; // we hardcode it since we know it in advance
+    const totalIns = 69909; // we hardcode it since we know it in advance
     const totalOuts = transaction.outs.map(el => el.value).reduce((a, b) => a + b, 0);
     const tx = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(Math.round((totalIns - totalOuts) / tx.virtualSize()), feeRate);
@@ -384,8 +384,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // fixme: temp mute
-  it.skip('can manage UTXO', async () => {
+  it('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
@@ -401,10 +400,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       .not.toExist()
       .withTimeout(300 * 1000);
 
-    // change note of 0.001 tx output
-    await element(by.text('0.001')).atIndex(0).tap();
+    // change note of 0.00069909 tx output
+    await element(by.text('0.00069909')).atIndex(0).tap();
     await element(by.text('Details')).tap();
-    await expect(element(by.text('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'))).toBeVisible();
+    await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('test1');
     await element(by.text('Save')).tap();
     await element(by.text('OK')).tap();
@@ -450,9 +449,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const tx1 = bitcoin.Transaction.fromHex(txhex1);
     assert.strictEqual(tx1.outs.length, 1);
     assert.strictEqual(tx1.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
-    assert.strictEqual(tx1.outs[0].value, 99888);
+    assert.strictEqual(tx1.outs[0].value, 69797);
     assert.strictEqual(tx1.ins.length, 1);
-    assert.strictEqual(tx1.ins[0].hash.toString('hex'), '88b8a8775a34f28b25910b80b4890ce63911bccd67196be3527991fe904e9449');
+    assert.strictEqual(tx1.ins[0].hash.toString('hex'), '20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b');
     assert.strictEqual(tx1.ins[0].index, 0);
 
     // back to wallet screen
@@ -480,10 +479,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     assert.strictEqual(tx2.outs.length, 1);
     assert.strictEqual(tx2.outs[0].script.toString('hex'), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
-    assert.strictEqual(tx2.outs[0].value, 5414);
-    assert.strictEqual(tx2.ins.length, 1);
-    assert.strictEqual(tx2.ins[0].hash.toString('hex'), '761aec51100404365f4078f1a1c728a833915b877d0db208e8b7bfd451d08aa5');
-    assert.strictEqual(tx2.ins[0].index, 1);
+    assert.strictEqual(tx2.outs[0].value, 35369);
+    assert.strictEqual(tx2.ins.length, 3);
+    assert.strictEqual(tx2.ins[0].hash.toString('hex'), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
+    assert.strictEqual(tx2.ins[0].index, 0);
 
     await device.pressBack();
     await device.pressBack();
