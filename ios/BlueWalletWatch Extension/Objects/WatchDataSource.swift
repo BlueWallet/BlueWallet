@@ -25,6 +25,11 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   
   override init() {
     super.init()
+    if let existingData = keychain.getData(Wallet.identifier), let walletData = ((try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet]) as [Wallet]??) {
+      guard let walletData = walletData, walletData != self.wallets  else { return }
+      wallets = walletData
+      WatchDataSource.postDataUpdatedNotification()
+    }
     if WCSession.isSupported() {
       print("Activating watch session")
       WCSession.default.delegate = self
@@ -123,11 +128,6 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     if activationState == .activated {
-      if let existingData = keychain.getData(Wallet.identifier), let walletData = ((try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet]) as [Wallet]??) {
-        guard let walletData = walletData, walletData != self.wallets  else { return }
-        wallets = walletData
-        WatchDataSource.postDataUpdatedNotification()
-      }
       WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: { (replyData) in
       }) { (error) in
         print(error)

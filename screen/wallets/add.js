@@ -11,6 +11,7 @@ import {
   StatusBar,
   TextInput,
   StyleSheet,
+  useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -258,7 +259,9 @@ const WalletsAdd = () => {
 
   return (
     <ScrollView style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar
+        barStyle={Platform.select({ ios: 'light-content', default: useColorScheme() === 'dark' ? 'light-content' : 'dark-content' })}
+      />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
@@ -288,7 +291,13 @@ const WalletsAdd = () => {
             style={styles.button}
           />
           {backdoorPressed > 10 ? (
-            <LdkButton active={selectedWalletType === ButtonSelected.LDK} onPress={handleOnLdkButtonPressed} style={styles.button} />
+            <LdkButton
+              active={selectedWalletType === ButtonSelected.LDK}
+              onPress={handleOnLdkButtonPressed}
+              style={styles.button}
+              subtext={LightningLdkWallet.getPackageVersion()}
+              text="LDK"
+            />
           ) : null}
           <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>

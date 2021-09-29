@@ -7,6 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
+import { LightningLdkWallet } from '../../class';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
@@ -85,7 +86,7 @@ const LdkViewLogs = () => {
         setGetInfo(info);
         const peers = await wallet.listPeers();
         const listChannels = await wallet.listChannels();
-        const version = await wallet.getVersion();
+        const version = await LightningLdkWallet.getVersion();
 
         let nfo = 'num peers: ' + peers.length;
         nfo += '\nnum channels: ' + listChannels.length;

@@ -4,8 +4,8 @@ import { Alert } from 'react-native';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
-import { isTorCapable } from './environment';
 import WidgetCommunication from './WidgetCommunication';
+import { isTorDaemonDisabled } from './environment';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -384,11 +384,17 @@ module.exports.getTransactionsFullByAddress = async function (address) {
         if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
           input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
         }
+        // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+        if (prevTxForVin.vout[input.vout]?.scriptPubKey?.address) {
+          input.addresses = [prevTxForVin.vout[input.vout].scriptPubKey.address];
+        }
       }
     }
 
     for (const output of full.vout) {
       if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+      // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+      if (output?.scriptPubKey?.address) output.addresses = [output.scriptPubKey.address];
     }
     full.inputs = full.vin;
     full.outputs = full.vout;
@@ -639,6 +645,13 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
     }
   }
 
+  // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+  for (const txid of Object.keys(ret) ?? []) {
+    for (const vout of ret[txid].vout ?? []) {
+      if (vout?.scriptPubKey?.address) vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+    }
+  }
+
   // saving cache:
   realm.write(() => {
     for (const txid of Object.keys(ret)) {
@@ -853,7 +866,7 @@ module.exports.testConnection = async function (host, tcpPort, sslPort) {
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && isTorCapable ? 21000 : 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && !isTorDisabled ? 21000 : 5000);
       }),
       client.connect(),
     ]);

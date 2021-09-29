@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useRoute, useTheme } from '@react-navigation/native';
+import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -15,6 +15,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const { pop, navigate } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   let data = chainType
@@ -95,6 +96,7 @@ const SelectWallet = () => {
   });
 
   useEffect(() => {
+    console.log('SelectWallet - useEffect');
     setIsLoading(false);
   }, []);
 
@@ -103,7 +105,7 @@ const SelectWallet = () => {
       <TouchableOpacity
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          onWalletSelect(item);
+          onWalletSelect(item, { navigation: { pop, navigate } });
         }}
         accessibilityRole="button"
       >

@@ -1,11 +1,10 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import {
   AppState,
   DeviceEventEmitter,
   NativeModules,
   NativeEventEmitter,
-  KeyboardAvoidingView,
   Linking,
   Platform,
   StyleSheet,
@@ -18,14 +17,12 @@ import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
-import BottomModal from './components/BottomModal';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { isDesktop } from './blue_modules/environment';
@@ -33,14 +30,17 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
-import WalletImport from './class/wallet-import';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import changeNavigationBarColor from 'react-native-navigation-bar-color';
+import ActionSheet from './screen/ActionSheet';
+import HandoffComponent from './components/handoff';
+import Privacy from './blue_modules/Privacy';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
 const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+const { EventEmitter } = NativeModules;
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -58,15 +58,8 @@ const App = () => {
     BlueStorageContext,
   );
   const appState = useRef(AppState.currentState);
-  const [isClipboardContentModalVisible, setIsClipboardContentModalVisible] = useState(false);
-  const [clipboardContentType, setClipboardContentType] = useState();
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
-  const stylesHook = StyleSheet.create({
-    modalContent: {
-      backgroundColor: colorScheme === 'dark' ? BlueDarkTheme.colors.elevated : BlueDefaultTheme.colors.elevated,
-    },
-  });
 
   const onNotificationReceived = async notification => {
     const payload = Object.assign({}, notification, notification.data);
@@ -87,6 +80,29 @@ const App = () => {
     );
   };
 
+  const onUserActivityOpen = data => {
+    switch (data.activityType) {
+      case HandoffComponent.activityTypes.ReceiveOnchain:
+        NavigationService.navigate('ReceiveDetailsRoot', {
+          screen: 'ReceiveDetails',
+          params: {
+            address: data.userInfo.address,
+          },
+        });
+        break;
+      case HandoffComponent.activityTypes.Xpub:
+        NavigationService.navigate('WalletXpubRoot', {
+          screen: 'WalletXpub',
+          params: {
+            xpub: data.userInfo.xpub,
+          },
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     if (walletsInitialized) {
       addListeners();
@@ -100,6 +116,7 @@ const App = () => {
       AppState.removeEventListener('change', handleAppStateChange);
       eventEmitter.removeAllListeners('onNotificationReceived');
       eventEmitter.removeAllListeners('openSettings');
+      eventEmitter.removeAllListeners('onUserActivityOpen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -120,6 +137,9 @@ const App = () => {
     AppState.addEventListener('change', handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
     DeviceQuickActions.popInitialAction().then(popInitialAction);
+    EventEmitter?.getMostRecentUserActivity()
+      .then(onUserActivityOpen)
+      .catch(() => console.log('No userActivity object sent'));
     handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;
@@ -127,6 +147,7 @@ const App = () => {
      */
     eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter.addListener('openSettings', openSettings);
+    eventEmitter.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
   const popInitialAction = async data => {
@@ -287,14 +308,15 @@ const App = () => {
         clipboardContent.current !== clipboard &&
         (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
       ) {
+        let contentType;
         if (isBitcoinAddress) {
-          setClipboardContentType(ClipboardContentType.BITCOIN);
+          contentType = ClipboardContentType.BITCOIN;
         } else if (isLightningInvoice || isLNURL) {
-          setClipboardContentType(ClipboardContentType.LIGHTNING);
+          contentType = ClipboardContentType.LIGHTNING;
         } else if (isBothBitcoinAndLightning) {
-          setClipboardContentType(ClipboardContentType.BITCOIN);
+          contentType = ClipboardContentType.BITCOIN;
         }
-        setIsClipboardContentModalVisible(true);
+        showClipboardAlert({ contentType });
       }
       clipboardContent.current = clipboard;
     }
@@ -307,41 +329,24 @@ const App = () => {
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
   };
 
-  const hideClipboardContentModal = () => {
-    setIsClipboardContentModalVisible(false);
-  };
-
-  const renderClipboardContentModal = () => {
-    return (
-      <BottomModal
-        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
-        isVisible={isClipboardContentModalVisible}
-        onClose={hideClipboardContentModal}
-      >
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <BlueTextCentered>
-              {clipboardContentType === ClipboardContentType.BITCOIN && loc.wallets.clipboard_bitcoin}
-              {clipboardContentType === ClipboardContentType.LIGHTNING && loc.wallets.clipboard_lightning}
-            </BlueTextCentered>
-            <View style={styles.modelContentButtonLayout}>
-              <SecondButton noMinWidth title={loc._.cancel} onPress={hideClipboardContentModal} />
-              <View style={styles.space} />
-              <BlueButton
-                noMinWidth
-                title={loc._.ok}
-                onPress={async () => {
-                  setIsClipboardContentModalVisible(false);
-                  const clipboard = await BlueClipboard.getClipboardContent();
-                  setTimeout(() => handleOpenURL({ url: clipboard }), 650);
-                }}
-              />
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </BottomModal>
+  const showClipboardAlert = ({ contentType }) => {
+    ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: [loc._.cancel, loc._.continue],
+        title: loc._.clipboard,
+        message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
+        cancelButtonIndex: 0,
+      },
+      async buttonIndex => {
+        if (buttonIndex === 1) {
+          const clipboard = await BlueClipboard.getClipboardContent();
+          handleOpenURL({ url: clipboard });
+        }
+      },
     );
   };
+
   return (
     <SafeAreaProvider>
       <View style={styles.root}>
@@ -349,14 +354,13 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
-          {renderClipboardContentModal()}
         </NavigationContainer>
         {walletsInitialized && !isDesktop && <WatchConnectivity />}
       </View>
       <DeviceQuickActions />
-      <WalletImport />
       <Biometric />
       <WidgetCommunication />
+      <Privacy />
     </SafeAreaProvider>
   );
 };

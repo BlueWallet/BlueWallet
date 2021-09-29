@@ -68,8 +68,8 @@ const AddressInput = ({
         <TouchableOpacity
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
-          onPress={() => {
-            scanButtonTapped();
+          onPress={async () => {
+            await scanButtonTapped();
             Keyboard.dismiss();
             if (isDesktop) {
               fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);

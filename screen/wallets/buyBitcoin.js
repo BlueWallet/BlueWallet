@@ -7,6 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as NavigationService from '../../NavigationService';
+import { FiatUnit } from '../../models/fiatUnit';
 
 const currency = require('../../blue_modules/currency');
 
@@ -25,7 +26,12 @@ export default class BuyBitcoin extends Component {
   }
 
   static async generateURL(wallet) {
-    let preferredCurrency = await currency.getPreferredCurrency();
+    let preferredCurrency;
+    try {
+      preferredCurrency = await currency.getPreferredCurrency();
+    } catch (_) {
+      preferredCurrency = FiatUnit.USD;
+    }
     preferredCurrency = preferredCurrency.endPointKey;
 
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */

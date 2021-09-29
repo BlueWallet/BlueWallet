@@ -12,58 +12,31 @@ export async function sup(text, timeout = 33000) {
     .withTimeout(timeout);
 }
 
-export async function helperImportWallet(importText, expectedWalletLabel, expectedBalance, passphrase) {
+export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
-  await element(by.id('MnemonicInput')).replaceText(importText);
-
-  let retries = 0;
-  while (true) {
-    retries = retries + 1;
-    try {
-      await element(by.id('DoImport')).tap();
-    } catch (_) {}
-
-    let passphraseAsked = false;
-    try {
-      await sup('Passphrase', 3000);
-      passphraseAsked = true;
-    } catch (e) {} // passphrase not asked
-
-    if (passphraseAsked) {
-      // enter passphrase if needed
-      if (passphrase) {
-        await element(by.type('android.widget.EditText')).typeText(passphrase);
-      }
-      await element(by.text('OK')).tap();
-    }
-
-    if (process.env.TRAVIS) await sleep(60000);
-
-    // waiting for import result
-    await sup('OK', 3 * 61000);
-    await element(by.text('OK')).tap();
-
-    try {
-      await expect(element(by.id('ImportError'))).not.toBeVisible();
-      break; // import succeded
-    } catch (e) {
-      // exit after two failed attempts
-      if (retries === 2) break;
-      // restart import
-      await element(by.id('ImportError')).tap();
-      await element(by.text('Try again')).tap();
-    }
+  // tapping 5 times invisible button is a backdoor:
+  for (let c = 0; c < 5; c++) {
+    await element(by.id('SpeedBackdoor')).tap();
+    await sleep(1000);
   }
+  await element(by.id('SpeedMnemonicInput')).replaceText(importText);
+  await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
+  if (passphrase) await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
+  await element(by.id('SpeedDoImport')).tap();
+
+  // waiting for import result
+  await sup('OK', 3 * 61000);
+  await element(by.text('OK')).tap();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
   // label might change in the future
-  expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
+  await expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
 }
 
 export async function sleep(ms) {
@@ -157,4 +130,12 @@ export async function helperCreateWallet(walletName) {
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
+}
+
+export async function helperSwitchAdvancedMode() {
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('GeneralSettings')).tap();
+  await element(by.id('AdvancedMode')).tap();
+  await device.pressBack();
+  await device.pressBack();
 }

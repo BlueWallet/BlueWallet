@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ScrollView, StyleSheet, StatusBar, Platform, View } from 'react-native';
+import { ScrollView, StyleSheet, Platform, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
@@ -22,7 +22,6 @@ const Settings = () => {
   return (
     <>
       <View />
-      <StatusBar barStyle="default" />
       <ScrollView style={styles.root}>
         {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.header} /> : <></>}
         <BlueListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />

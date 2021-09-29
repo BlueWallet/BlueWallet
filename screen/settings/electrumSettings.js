@@ -162,10 +162,6 @@ export default class ElectrumSettings extends Component {
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
 
-    if (host.endsWith('.onion') && !isTorCapable) {
-      return alert(loc.settings.tor_unsupported);
-    }
-
     this.setState({ isLoading: true }, async () => {
       try {
         if (!host && !port && !sslPort) {
@@ -306,7 +302,7 @@ export default class ElectrumSettings extends Component {
             <View style={styles.inputWrap}>
               <TextInput
                 placeholder={
-                  loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                  loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' }) +
                   (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
                 }
                 value={this.state.host}

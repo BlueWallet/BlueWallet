@@ -794,6 +794,18 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     if (this.howManySignaturesCanWeMake() === 0) skipSigning = true;
 
+    // overriding script length for proper vbytes calculation
+    for (const u of utxos) {
+      u.script = u.script || {};
+      if (this.isNativeSegwit()) {
+        u.script.length = u.script.length || Math.ceil((8 + this.getM() * 74 + this.getN() * 34) / 4);
+      } else if (this.isWrappedSegwit()) {
+        u.script.length = u.script.length || 35 + Math.ceil((8 + this.getM() * 74 + this.getN() * 34) / 4);
+      } else {
+        u.script.length = u.script.length || 9 + this.getM() * 74 + this.getN() * 34;
+      }
+    }
+
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
 
