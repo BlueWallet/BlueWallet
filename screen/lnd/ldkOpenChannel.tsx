@@ -92,12 +92,15 @@ const LdkOpenChannel = (props: any) => {
   }, [psbt]);
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const finalizeOpenChannel = async () => {
     if (isBiometricUseCapableAndEnabled) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (!(await Biometric.unlockWithBiometrics())) {
         return;
       }
