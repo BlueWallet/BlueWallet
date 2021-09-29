@@ -211,7 +211,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(txFound, 4);
 
     await hd.fetchUtxo();
-    assert.strictEqual(hd.getUtxo().length, 2);
+    assert.strictEqual(hd.getUtxo().length, 3);
     assert.strictEqual(hd.getDerivedUtxoFromOurTransaction().length, 2);
     const u1 = hd.getUtxo()[0];
     const u2 = hd.getDerivedUtxoFromOurTransaction()[0];
