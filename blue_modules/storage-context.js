@@ -29,11 +29,19 @@ export const BlueStorageProvider = ({ children }) => {
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isTorDisabled, setIsTorDisabled] = useState(false);
+  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     isTorDaemonDisabled().then(setIsTorDisabled);
   }, []);
+
+  useEffect(() => {
+    console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
+    if (!isPrivacyBlurEnabled) {
+      Alert.alert('', 'Privacy blur has been disabled.');
+    }
+  }, [isPrivacyBlurEnabled]);
 
   useEffect(() => {
     setIsTorDaemonDisabled(isTorDisabled);
@@ -266,6 +274,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsElectrumDisabled,
         isTorDisabled,
         setIsTorDisabled,
+        isPrivacyBlurEnabled,
+        setIsPrivacyBlurEnabled,
       }}
     >
       {children}

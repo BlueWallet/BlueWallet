@@ -13,15 +13,18 @@ import Foundation
 class InterfaceController: WKInterfaceController {
   
   @IBOutlet weak var walletsTable: WKInterfaceTable!
-  @IBOutlet weak var loadingIndicatorGroup: WKInterfaceGroup!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
-  
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
+
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
+    update(userActivity)
     
+    userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: "bc1q2uvss3v0qh5smluggyqrzjgnqdg5xmun6afwpz"]
+    userActivity.isEligibleForHandoff = true;
+    userActivity.becomeCurrent()
     if (WatchDataSource.shared.wallets.isEmpty) {
-      loadingIndicatorGroup.setHidden(true)
       noWalletsAvailableLabel.setHidden(false)
     } else {
       processWalletsTable()

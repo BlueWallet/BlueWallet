@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, Alert, LayoutAnimation, StatusBar, StyleSheet, Text, View, FlatList } from 'react-native';
+import { ActivityIndicator, Alert, LayoutAnimation, StyleSheet, Text, View, FlatList } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueButton, BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
@@ -57,7 +57,6 @@ const ImportWalletDiscovery = () => {
       try {
         subtitle = wallet.getDerivationPath?.();
       } catch (e) {}
-
       setWallets(wallets => [...wallets, { wallet, subtitle, id }]);
     };
 
@@ -82,6 +81,9 @@ const ImportWalletDiscovery = () => {
       .then(({ cancelled, wallets }) => {
         if (cancelled) return;
         if (wallets.length === 1) saveWallet(wallets[0]); // instantly save wallet if only one has been discovered
+        if (wallets.length === 0) {
+          ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+        }
       })
       .catch(e => {
         console.warn('import error', e);
@@ -108,18 +110,28 @@ const ImportWalletDiscovery = () => {
       title={item.wallet.typeReadable}
       subtitle={item.subtitle}
       active={selected === index}
-      onPress={() => setSelected(index)}
+      onPress={() => {
+        setSelected(index);
+        ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+      }}
     />
   );
 
+  const keyExtractor = w => w.id;
+
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
 
-      <FlatList data={wallets} keyExtractor={w => w.id} renderItem={renderItem} />
+      {!loading && wallets.length === 0 ? (
+        <View style={styles.noWallets}>
+          <BlueFormLabel>{loc.wallets.import_discovery_no_wallets}</BlueFormLabel>
+        </View>
+      ) : (
+        <FlatList contentContainerStyle={styles.flatListContainer} data={wallets} keyExtractor={keyExtractor} renderItem={renderItem} />
+      )}
 
       <View style={[styles.center, stylesHook.center]}>
         {loading && (
@@ -154,6 +166,8 @@ const ImportWalletDiscovery = () => {
 const styles = StyleSheet.create({
   root: {
     paddingTop: 40,
+  },
+  flatListContainer: {
     marginHorizontal: 16,
   },
   center: {
@@ -162,6 +176,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+  },
+  noWallets: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

@@ -543,13 +543,6 @@ const WalletTransactions = () => {
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
-      {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && (
-        <HandoffComponent
-          title={`Bitcoin Wallet ${wallet.getLabel()}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockpath.com/search/addr?q=${wallet.getXpub()}`}
-        />
-      )}
       <TransactionsNavigationHeader
         wallet={wallet}
         onWalletUnitChange={passedWallet =>

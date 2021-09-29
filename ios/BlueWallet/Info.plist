@@ -91,6 +91,11 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>io.bluewallet.bluewallet.receiveonchain</string>
+		<string>io.bluewallet.bluewallet.xpub</string>
+	</array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
