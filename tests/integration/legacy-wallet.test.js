@@ -134,18 +134,18 @@ describe('SegwitP2SHWallet', function () {
 describe('SegwitBech32Wallet', function () {
   it('can fetch balance', async () => {
     const w = new SegwitBech32Wallet();
-    w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
-    assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
-    assert.ok(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC'));
+    w._address = 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl';
+    assert.ok(w.weOwnAddress('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'));
+    assert.ok(w.weOwnAddress('BC1Q063CTU6JHE5K4V8KA99QAC8RCM2TZJJNUKTYRL'));
     assert.ok(!w.weOwnAddress('garbage'));
     assert.ok(!w.weOwnAddress(false));
     await w.fetchBalance();
-    assert.strictEqual(w.getBalance(), 100000);
+    assert.strictEqual(w.getBalance(), 69909);
   });
 
   it('can fetch UTXO', async () => {
     const w = new SegwitBech32Wallet();
-    w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
+    w._address = 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl';
     await w.fetchUtxo();
     const l1 = w.getUtxo().length;
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
