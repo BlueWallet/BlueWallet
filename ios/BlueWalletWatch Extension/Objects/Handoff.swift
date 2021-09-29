@@ -18,3 +18,8 @@ enum HandOffUserInfoKey: String {
   case ReceiveOnchain = "address"
   case Xpub = "xpub"
 }
+
+enum HandOffTitle: String {
+  case ReceiveOnchain = "View Address"
+  case Xpub = "View XPUB"
+}
