@@ -484,7 +484,7 @@
     "import_discovery_title": "Discovery",
     "import_discovery_subtitle": "Choose a discovered wallet",
     "import_discovery_derivation": "Use custom derivation path",
-    "import_discovery_no_wallets": "No wallets has been found.",
+    "import_discovery_no_wallets": "No wallets were found.",
     "import_derivation_found": "found",
     "import_derivation_found_not": "not found",
     "import_derivation_loading": "loading...",
@@ -607,7 +607,8 @@
     "owns": "{label} owns {address}",
     "enter_address": "Enter address",
     "check_address": "Check address",
-    "no_wallet_owns_address": "None of the available wallets own the provided address."
+    "no_wallet_owns_address": "None of the available wallets own the provided address.",
+    "view_qrcode": "View QRCode"
   },
   "cc": {
     "change": "Change",

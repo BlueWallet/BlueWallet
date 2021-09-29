@@ -484,7 +484,7 @@
     "import_discovery_title": "Treffer",
     "import_discovery_subtitle": "Wallet aus Trefferliste wählen",
     "import_discovery_derivation": "Eigener Ableitungspfad wählen",
-    "import_discovery_no_wallets": "Es wurde kein Wallet gefunden",
+    "import_discovery_no_wallets": "Es wurden keine Wallets gefunden.",
     "import_derivation_found": "gefunden",
     "import_derivation_found_not": "nicht gefunden",
     "import_derivation_loading": "lade...",

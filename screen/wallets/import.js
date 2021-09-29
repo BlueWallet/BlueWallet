@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Platform, View, Keyboard, StatusBar, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
+import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import {
@@ -112,7 +112,6 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>

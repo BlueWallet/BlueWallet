@@ -12,7 +12,6 @@ static EventEmitter *sharedInstance;
 
 @implementation EventEmitter
 
-
 RCT_EXPORT_MODULE();
 
 + (BOOL)requiresMainQueueSetup {
@@ -40,6 +39,13 @@ RCT_EXPORT_MODULE();
 - (void)sendUserActivity:(NSDictionary *)userInfo
 {
   [sharedInstance sendEventWithName:@"onUserActivityOpen" body:userInfo];
+}
+
+RCT_REMAP_METHOD(getMostRecentUserActivity, resolve: (RCTPromiseResolveBlock)resolve
+     reject:(RCTPromiseRejectBlock)reject)
+{
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  resolve([defaults valueForKey:@"onUserActivityOpen"]);
 }
 
 
