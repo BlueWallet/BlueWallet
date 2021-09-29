@@ -185,20 +185,18 @@ describe('SegwitBech32Wallet', function () {
     assert.ok(!w.weOwnAddress('garbage'));
     assert.ok(!w.weOwnAddress(false));
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 1);
-
-    for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.strictEqual(tx.value, 100000);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
-    }
+    assert.strictEqual(w.getTransactions().length, 2);
+    const tx = w.getTransactions()[1];
+    assert.ok(tx.hash);
+    assert.strictEqual(tx.value, 100000);
+    assert.ok(tx.received);
+    assert.ok(tx.confirmations > 1);
 
     const tx0 = w.getTransactions()[0];
     assert.ok(tx0.inputs);
     assert.ok(tx0.inputs.length === 1);
     assert.ok(tx0.outputs);
-    assert.ok(tx0.outputs.length === 3);
+    assert.ok(tx0.outputs.length === 2);
 
     assert.ok(w.weOwnTransaction('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'));
     assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
