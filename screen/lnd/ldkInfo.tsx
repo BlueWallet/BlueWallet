@@ -338,22 +338,30 @@ const LdkInfo = () => {
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    navigate('LDKOpenChannelRoot', { screen: 'SelectWallet', params: { chainType: Chain.ONCHAIN } });
-    return;
-    closeModal();
-    setNewOpenChannelModalVisible(false);
-    await sleep(650);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
-
-    /** @type {AbstractWallet} */
-    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
-    selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    await sleep(650);
-    setNewOpenChannelModalVisible(true);
+    navigate('LDKOpenChannelRoot', {
+      screen: 'SelectWallet',
+      params: {
+        availableWallets,
+        chainType: Chain.ONCHAIN,
+        onWalletSelect: (selectedWallet: AbstractWallet) => {
+          const selectedWalletID = selectedWallet.getID();
+          setNewOpenChannelModalProps({ fundingWalletID: selectedWalletID, isPrivateChannel });
+          selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
+          navigate('LDKOpenChannelRoot', {
+            screen: 'LDKOpenChannelSetAmount',
+            params: {
+              isPrivateChannel,
+              fundingWalletID: selectedWalletID,
+              ldkWalletID: walletID,
+            },
+          });
+        },
+      },
+    });
   };
   const closeNewOpenChannelModalPropsModal = async () => {
     setNewOpenChannelModalVisible(false);

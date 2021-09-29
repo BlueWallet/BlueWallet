@@ -19,9 +19,6 @@ const currency = require('../../blue_modules/currency');
 
 const LdkOpenChannel = (props: any) => {
   const {
-    fundingWalletID,
-    ldkWalletID,
-    isPrivateChannel,
     closeContainerModal,
     psbt,
     onPsbtOpenChannelStartedTsChange,
@@ -36,10 +33,11 @@ const LdkOpenChannel = (props: any) => {
     onBarScannerDismissWithoutData,
   } = props;
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
-  const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
   const { colors }: { colors: any } = useTheme();
   const { navigate } = useNavigation();
+  const { fundingWalletID, isPrivateChannel, ldkWalletID } = useRoute().params;
+  const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
+  const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
   const [isLoading, setIsLoading] = useState(false);
   const name = useRoute().name;
   const [verified, setVerified] = useState(false);
@@ -273,8 +271,6 @@ const LdkOpenChannel = (props: any) => {
         />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>
-          <BlueButton onPress={onOpenChannelSuccess} title={loc._.cancel} />
-          <BlueSpacing20 horizontal />
           <BlueButton onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
         </View>
       </View>
@@ -362,6 +358,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
+    padding: 16,
   },
   activeQrcode: {
     alignItems: 'center',
@@ -393,13 +390,14 @@ LdkOpenChannel.propTypes = {
 
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
-    title: '',
     closeButton: true,
     closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {
       ...options,
+      headerTitle: loc.lnd.new_channel,
+      headerLargeTitle: true,
     };
   },
 );

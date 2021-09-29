@@ -297,6 +297,7 @@ const LDKOpenChannelRoot = () => {
   return (
     <LDKOpenChannelStack.Navigator screenOptions={{ headerHideShadow: true }} initialRouteName="SelectWallet">
       <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LDKOpenChannelStack.Screen name="LDKOpenChannelSetAmount" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
       <LDKOpenChannelStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
       <LDKOpenChannelStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
     </LDKOpenChannelStack.Navigator>
