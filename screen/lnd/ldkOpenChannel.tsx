@@ -1,7 +1,7 @@
 /* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -13,23 +13,36 @@ import loc from '../../loc';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
+import { Psbt } from 'bitcoinjs-lib';
 const currency = require('../../blue_modules/currency');
+
+type LdkOpenChannelProps = RouteProp<
+  {
+    params: {
+      isPrivateChannel: boolean;
+      psbt: Psbt;
+      fundingWalletID: string;
+      ldkWalletID: string;
+    };
+  },
+  'params'
+>;
 
 const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { colors }: { colors: any } = useTheme();
   const { navigate } = useNavigation();
-  const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute().params;
+  const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute<LdkOpenChannelProps>().params;
   const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
   const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
-  const [unit, setUnit] = useState(ldkWallet.getPreferredBalanceUnit());
+  const [unit, setUnit] = useState<BitcoinUnit | string>(ldkWallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(false);
-  const psbtOpenChannelStartedTs = useRef();
+  const psbtOpenChannelStartedTs = useRef<number>();
   const [remoteHostWithPubkey, setRemoteHostWithPubkey] = useState(
     '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
   ); // lnd2.bluewallet.io
   const name = useRoute().name;
-  const [fundingAmount, setFundingAmount] = useState({ amount: null, amountSats: null });
+  const [fundingAmount, setFundingAmount] = useState<any>({ amount: null, amountSats: null });
   const [verified, setVerified] = useState(false);
 
   const stylesHook = StyleSheet.create({
@@ -65,7 +78,7 @@ const LdkOpenChannel = (props: any) => {
   useEffect(() => {
     if (!psbt) return;
     (async () => {
-      if (+new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000) {
+      if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
         // its 10 min actually, but lets check 5 min just for any case
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         return alert('Channel opening expired. Please try again');
@@ -77,7 +90,7 @@ const LdkOpenChannel = (props: any) => {
   }, [psbt]);
 
   const finalizeOpenChannel = async () => {
-    if (+new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000) {
+    if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert('Channel opening expired. Please try again');
@@ -136,7 +149,7 @@ const LdkOpenChannel = (props: any) => {
           isEditable: false,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert(error.message);
     } finally {
