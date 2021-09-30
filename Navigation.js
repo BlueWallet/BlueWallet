@@ -290,6 +290,23 @@ const ScanLndInvoiceRoot = () => {
   );
 };
 
+const LDKOpenChannelStack = createNativeStackNavigator();
+const LDKOpenChannelRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <LDKOpenChannelStack.Navigator name="LDKOpenChannelRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="SelectWallet">
+      <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LDKOpenChannelStack.Screen
+        name="LDKOpenChannelSetAmount"
+        component={LdkOpenChannel}
+        options={LdkOpenChannel.navigationOptions(theme)}
+      />
+      <LDKOpenChannelStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
+    </LDKOpenChannelStack.Navigator>
+  );
+};
+
 const AztecoRedeemStack = createNativeStackNavigator();
 const AztecoRedeemRoot = () => {
   const theme = useTheme();
@@ -514,6 +531,7 @@ const Navigation = () => {
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"

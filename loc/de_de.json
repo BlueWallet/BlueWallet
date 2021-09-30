@@ -484,7 +484,7 @@
     "import_discovery_title": "Treffer",
     "import_discovery_subtitle": "Wallet aus Trefferliste wählen",
     "import_discovery_derivation": "Eigener Ableitungspfad wählen",
-    "import_discovery_no_wallets": "Es wurde kein Wallet gefunden",
+    "import_discovery_no_wallets": "Es wurden keine Wallets gefunden.",
     "import_derivation_found": "gefunden",
     "import_derivation_found_not": "nicht gefunden",
     "import_derivation_loading": "lade...",
@@ -607,7 +607,8 @@
     "owns": "{label} besitzt {address}",
     "enter_address": "Adresse eingeben",
     "check_address": "Adresse prüfen",
-    "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse."
+    "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse.",
+    "view_qrcode": "QR-Code anzeigen"
   },
   "cc": {
     "change": "Ändern",

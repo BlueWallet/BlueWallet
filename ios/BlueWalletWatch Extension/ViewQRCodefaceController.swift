@@ -15,16 +15,29 @@ class ViewQRCodefaceController: WKInterfaceController {
   static let identifier = "ViewQRCodefaceController"
   @IBOutlet weak var imageInterface: WKInterfaceImage!
   @IBOutlet weak var addressLabel: WKInterfaceLabel!
-  var qrcodeData: String?
+  var address: String? {
+    didSet {
+      if let address = address, !address.isEmpty{
+        userActivity.userInfo = [HandOffUserInfoKey.Xpub.rawValue: address]
+        userActivity.becomeCurrent()
+      }
+    }
+  }
   private var interfaceMode = InterfaceMode.Address
-  
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.Xpub.rawValue)
+    
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
+    userActivity.title = HandOffTitle.Xpub.rawValue
+    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
+    userActivity.isEligibleForHandoff = true
     guard let passedContext = context as? String  else {
       pop()
       return
     }
+    address = passedContext
     addressLabel.setText(passedContext)
+
     DispatchQueue.main.async {
       guard let cgImage = EFQRCode.generate(
         content: passedContext) else {
@@ -75,4 +88,18 @@ class ViewQRCodefaceController: WKInterfaceController {
     }
     interfaceMode = interfaceMode == .QRCode ? .Address : .QRCode
   }
+  
+  override func willActivate() {
+    super.willActivate()
+    update(userActivity)
+  }
+
+  
+  override func didDeactivate() {
+    super.didDeactivate()
+    userActivity.invalidate()
+    invalidateUserActivity()
+  }
+  
+  
 }

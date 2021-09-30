@@ -14,15 +14,31 @@ import EFQRCode
 class ReceiveInterfaceController: WKInterfaceController {
   
   static let identifier = "ReceiveInterfaceController"
-  private var wallet: Wallet?
+  private var wallet: Wallet? {
+    didSet {
+      if let address = wallet?.receiveAddress {
+        userActivity.userInfo = [HandOffUserInfoKey.ReceiveOnchain.rawValue: address]
+        userActivity.isEligibleForHandoff = true;
+        userActivity.becomeCurrent()
+      }
+    }
+  }
   private var isRenderingQRCode: Bool?
   private var receiveMethod: String = "receive"
   private var interfaceMode: InterfaceMode = .Address
   @IBOutlet weak var addressLabel: WKInterfaceLabel!
   @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
   @IBOutlet weak var imageInterface: WKInterfaceImage!
-  
-  
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
+
+  override func willActivate() {
+    super.willActivate()
+    userActivity.title = HandOffTitle.ReceiveOnchain.rawValue
+    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
+    userActivity.isEligibleForHandoff = true
+    update(userActivity)
+  }
+
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
     guard let passedContext = context as? (Int, String), WatchDataSource.shared.wallets.count >= passedContext.0   else {
@@ -64,6 +80,7 @@ class ReceiveInterfaceController: WKInterfaceController {
         })
       } else {
         guard let notificationObject = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let walletContext = self?.wallet, !walletContext.receiveAddress.isEmpty, let receiveAddress = self?.wallet?.receiveAddress else { return }
+        
         var address = "bitcoin:\(receiveAddress)"
         
         var hasAmount = false
@@ -131,6 +148,9 @@ class ReceiveInterfaceController: WKInterfaceController {
   override func didDeactivate() {
     super.didDeactivate()
     NotificationCenter.default.removeObserver(self, name: SpecifyInterfaceController.NotificationName.createQRCode, object: nil)
+    userActivity.invalidate()
+    invalidateUserActivity()
+
   }
   
   @IBAction func specifyMenuItemTapped() {

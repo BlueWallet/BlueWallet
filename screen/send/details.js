@@ -103,7 +103,7 @@ const SendDetails = () => {
       setHeaderRightOptions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses]);
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable]);
 
   // keyboad effects
   useEffect(() => {
@@ -867,55 +867,59 @@ const SendDetails = () => {
   };
 
   const headerRightActions = () => {
-    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+    const actions = [];
+    if (isEditable) {
+      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
-    const actions = [{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }];
-    if (wallet.type === HDSegwitBech32Wallet.type) {
-      actions.push({ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable });
-    }
-    if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
-      actions.push(
-        {
-          id: SendDetails.actionKeys.ImportTransaction,
+      actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      if (wallet.type === HDSegwitBech32Wallet.type) {
+        actions.push({ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable });
+      }
+      if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
+        actions.push(
+          {
+            id: SendDetails.actionKeys.ImportTransaction,
+            text: loc.send.details_adv_import,
+            icon: SendDetails.actionIcons.ImportTransaction,
+          },
+          {
+            id: SendDetails.actionKeys.ImportTransactionQR,
+            text: loc.send.details_adv_import_qr,
+            icon: SendDetails.actionIcons.ImportTransactionQR,
+          },
+        );
+      }
+      if (wallet.type === MultisigHDWallet.type) {
+        actions.push({
+          id: SendDetails.actionKeys.ImportTransactionMultsig,
           text: loc.send.details_adv_import,
-          icon: SendDetails.actionIcons.ImportTransaction,
-        },
-        {
-          id: SendDetails.actionKeys.ImportTransactionQR,
-          text: loc.send.details_adv_import_qr,
-          icon: SendDetails.actionIcons.ImportTransactionQR,
-        },
-      );
-    }
-    if (wallet.type === MultisigHDWallet.type) {
+          icon: SendDetails.actionIcons.ImportTransactionMultsig,
+        });
+      }
+      if (wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
+        actions.push({
+          id: SendDetails.actionKeys.CoSignTransaction,
+          text: loc.multisig.co_sign_transaction,
+          icon: SendDetails.actionIcons.SignPSBT,
+        });
+      }
+      if (wallet.allowCosignPsbt()) {
+        actions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
+      }
       actions.push({
-        id: SendDetails.actionKeys.ImportTransactionMultsig,
-        text: loc.send.details_adv_import,
-        icon: SendDetails.actionIcons.ImportTransactionMultsig,
+        id: SendDetails.actionKeys.AddRecipient,
+        text: loc.send.details_add_rec_add,
+        icon: SendDetails.actionIcons.AddRecipient,
+        disabled: isSendMaxUsed,
+      });
+      actions.push({
+        id: SendDetails.actionKeys.RemoveRecipient,
+        text: loc.send.details_add_rec_rem,
+        disabled: addresses.length < 2,
+        icon: SendDetails.actionIcons.RemoveRecipient,
       });
     }
-    if (wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
-      actions.push({
-        id: SendDetails.actionKeys.CoSignTransaction,
-        text: loc.multisig.co_sign_transaction,
-        icon: SendDetails.actionIcons.SignPSBT,
-      });
-    }
-    if (wallet.allowCosignPsbt()) {
-      actions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
-    }
-    actions.push({
-      id: SendDetails.actionKeys.AddRecipient,
-      text: loc.send.details_add_rec_add,
-      icon: SendDetails.actionIcons.AddRecipient,
-      disabled: isSendMaxUsed,
-    });
-    actions.push({
-      id: SendDetails.actionKeys.RemoveRecipient,
-      text: loc.send.details_add_rec_rem,
-      disabled: addresses.length < 2,
-      icon: SendDetails.actionIcons.RemoveRecipient,
-    });
+
     actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
 
     return actions;
