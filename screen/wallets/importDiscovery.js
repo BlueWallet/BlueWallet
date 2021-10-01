@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, Alert, LayoutAnimation, StyleSheet, Text, View, FlatList } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -139,7 +139,7 @@ const ImportWalletDiscovery = () => {
             <BlueSpacing10 />
             <ActivityIndicator testID="Loading" />
             <BlueSpacing10 />
-            <Text>{progress}</Text>
+            <BlueFormLabel>{progress}</BlueFormLabel>
             <BlueSpacing10 />
           </>
         )}
