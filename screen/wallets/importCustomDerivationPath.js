@@ -132,6 +132,7 @@ const ImportCustomDerivationPath = () => {
         data={items}
         keyExtractor={w => path + w[0]}
         renderItem={renderItem}
+        contentContainerStyle={styles.flatListContainer}
         ListEmptyComponent={() => <BlueTextCentered>{loc.wallets.import_wrong_path}</BlueTextCentered>}
       />
 
@@ -152,6 +153,8 @@ const ImportCustomDerivationPath = () => {
 const styles = StyleSheet.create({
   root: {
     paddingTop: 10,
+  },
+  flatListContainer: {
     marginHorizontal: 16,
   },
   listContainer: {
@@ -168,6 +171,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderBottomWidth: 0.5,
+    marginHorizontal: 16,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
