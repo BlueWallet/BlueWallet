@@ -110,21 +110,8 @@ const WalletsImport = () => {
     });
   };
 
-  return (
-    <SafeBlueArea style={styles.root}>
-      <BlueSpacing20 />
-      <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
-        <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-      </TouchableWithoutFeedback>
-      <BlueSpacing20 />
-      <BlueFormMultiInput
-        value={importText}
-        contextMenuHidden={!isDesktop}
-        onChangeText={setImportText}
-        testID="MnemonicInput"
-        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-      />
-
+  const renderOptionsAndImportButton = (
+    <>
       {isAdvancedModeEnabledRender && (
         <>
           <View style={styles.row}>
@@ -151,6 +138,25 @@ const WalletsImport = () => {
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
         </>
       </View>
+    </>
+  );
+
+  return (
+    <SafeBlueArea style={styles.root}>
+      <BlueSpacing20 />
+      <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
+        <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      </TouchableWithoutFeedback>
+      <BlueSpacing20 />
+      <BlueFormMultiInput
+        value={importText}
+        contextMenuHidden={!isDesktop}
+        onChangeText={setImportText}
+        testID="MnemonicInput"
+        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+      />
+
+      {Platform.select({ android: !isToolbarVisibleForAndroid && renderOptionsAndImportButton, default: renderOptionsAndImportButton })}
       {Platform.select({
         ios: (
           <BlueDoneAndDismissKeyboardInputAccessory
