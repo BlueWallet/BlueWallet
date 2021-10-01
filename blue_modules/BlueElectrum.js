@@ -49,17 +49,12 @@ async function _getRealm() {
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
 const hardcodedPeers = [
-  // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
-  // { host: 'electrum.be', tcp: '50001' },
-  // { host: 'node.ispol.sk', tcp: '50001' }, // down
-  // { host: '139.162.14.142', tcp: '50001' },
-  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
-  // { host: 'Bitkoins.nl', tcp: '50001' }, // down
-  // { host: 'fullnode.coinkite.com', tcp: '50001' },
-  // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
   { host: 'electrum1.bluewallet.io', ssl: '443' },
   { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' },
+  { host: 'electrum.emzy.de', ssl: '50002' },
+  { host: 'electrum.acinq.co', ssl: '50002' },
+  { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+  { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];
 
 /** @type {ElectrumClient} */
@@ -69,6 +64,7 @@ let wasConnectedAtLeastOnce = false;
 let serverName = false;
 let disableBatching = false;
 let connectionAttempt = 0;
+let currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
 
 let latestBlockheight = false;
 let latestBlockheightTimestamp = false;
@@ -99,7 +95,7 @@ async function connectMain() {
     console.log('Electrum connection disabled by user. Skipping connectMain call');
     return;
   }
-  let usingPeer = await getRandomHardcodedPeer();
+  let usingPeer = await getNextPeer();
   const savedPeer = await getSavedPeer();
   if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
     usingPeer = savedPeer;
@@ -108,7 +104,7 @@ async function connectMain() {
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   try {
     if (usingPeer.host.endsWith('onion')) {
-      const randomPeer = await getRandomHardcodedPeer();
+      const randomPeer = await getCurrentPeer();
       await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
       await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp);
       await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl);
@@ -178,7 +174,8 @@ async function connectMain() {
       presentNetworkErrorAlert(usingPeer);
     } else {
       console.log('reconnection attempt #', connectionAttempt);
-      setTimeout(connectMain, 500);
+      await new Promise(resolve => setTimeout(resolve, 500)); // sleep
+      return connectMain();
     }
   }
 }
@@ -260,14 +257,20 @@ async function presentNetworkErrorAlert(usingPeer) {
   );
 }
 
+async function getCurrentPeer() {
+  return hardcodedPeers[currentPeerIndex];
+}
+
 /**
- * Returns random hardcoded electrum server guaranteed to work
- * at the time of writing.
+ * Returns NEXT hardcoded electrum server (increments index after use)
  *
- * @returns {Promise<{tcp, host}|*>}
+ * @returns {Promise<{tcp, host, ssl?}|*>}
  */
-async function getRandomHardcodedPeer() {
-  return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+async function getNextPeer() {
+  const peer = getCurrentPeer();
+  currentPeerIndex++;
+  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
+  return peer;
 }
 
 async function getSavedPeer() {
@@ -914,7 +917,6 @@ module.exports.connectMain = connectMain;
 module.exports.isDisabled = isDisabled;
 module.exports.setDisabled = setDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
-module.exports.getRandomHardcodedPeer = getRandomHardcodedPeer;
 module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
 module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
 module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
