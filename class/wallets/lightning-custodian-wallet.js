@@ -355,11 +355,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async allowOnchainAddress() {
-    if (this.getAddress() !== undefined) {
+    if (this.getAddress() !== undefined && this.getAddress() !== null) {
       return true;
     } else {
       await this.fetchBtcAddress();
-      return this.getAddress() !== undefined;
+      return this.getAddress() !== undefined && this.getAddress() !== null;
     }
   }
 

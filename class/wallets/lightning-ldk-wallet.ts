@@ -265,7 +265,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     } catch (error) {
-      alert(error.message);
+      alert('LDK init error: ' + error.message);
     }
   }
 
@@ -449,7 +449,18 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async fetchTransactions() {
-    if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
+    if (this.timeToCheckBlockchain()) {
+      try {
+        // exception might be in case of incompletely-started LDK
+        this._listChannels = await RnLdk.listChannels();
+        this._execInBackground(this.checkBlockchain);
+        //  ^^^ will be executed if above didnt throw exceptions, which means ldk fully started.
+        // we need this for a case when app returns from background if it was in bg for a really long time.
+        // ldk needs to update it's blockchain data, and this is practically the only place where it can
+        // do that (except on cold start)
+      } catch (_) {}
+    }
+
     await this.getUserInvoices(); // it internally updates paid user invoices
   }
 
@@ -618,7 +629,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       try {
         await func.call(that);
       } catch (error) {
-        alert(error.message);
+        alert('_execInBackground error:' + error.message);
       }
     })();
   }
