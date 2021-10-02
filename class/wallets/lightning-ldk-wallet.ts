@@ -106,6 +106,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.openChannelStep2(txhex);
   }
 
+  async getMaturingBalance(): Promise<number> {
+    return RnLdk.getMaturingBalance();
+  }
+
   /**
    * Probes getNodeId() call. if its available - LDK has started
    *
