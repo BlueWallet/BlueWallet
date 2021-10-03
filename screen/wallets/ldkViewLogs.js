@@ -66,7 +66,7 @@ const LdkViewLogs = () => {
   };
 
   const exportLogs = async () => {
-    return fs.writeFileAndExport('rn-ldk.log', info + '\n' + logs);
+    return fs.writeFileAndExport('rn-ldk.log', info + '\n' + (await wallet.getLogsWithTs()));
   };
 
   const selfTest = async () => {

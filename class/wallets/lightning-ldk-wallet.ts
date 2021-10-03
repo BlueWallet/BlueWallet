@@ -559,7 +559,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getLogs() {
-    return (RnLdk?.logs || []).map(log => log.line).join('\n');
+    return RnLdk.getLogs().map(log => log.line).join('\n');
+  }
+
+  async getLogsWithTs() {
+    return  RnLdk.getLogs().map(log => log.ts + ' ' + log.line).join('\n');
   }
 
   async fetchPendingTransactions() {}
