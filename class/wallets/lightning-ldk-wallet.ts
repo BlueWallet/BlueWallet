@@ -106,6 +106,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.openChannelStep2(txhex);
   }
 
+  async getMaturingBalance(): Promise<number> {
+    return RnLdk.getMaturingBalance();
+  }
+
   /**
    * Probes getNodeId() call. if its available - LDK has started
    *
@@ -555,7 +559,11 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getLogs() {
-    return (RnLdk?.logs || []).map(log => log.line).join('\n');
+    return RnLdk.getLogs().map(log => log.line).join('\n');
+  }
+
+  async getLogsWithTs() {
+    return  RnLdk.getLogs().map(log => log.ts + ' ' + log.line).join('\n');
   }
 
   async fetchPendingTransactions() {}

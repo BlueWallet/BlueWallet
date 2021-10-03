@@ -40,6 +40,7 @@ const LdkInfo = () => {
   const [inactiveChannels, setInactiveChannels] = useState<any[]>([]);
   const [pendingChannels, setPendingChannels] = useState<any[]>([]);
   const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
+  const [maturingBalance, setMaturingBalance] = useState(0);
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
   // Modals
@@ -115,6 +116,8 @@ const LdkInfo = () => {
       }
       const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
       setWalletBalance(walletBalance);
+
+      setMaturingBalance(await wallet.getMaturingBalance());
     } catch (e) {
       console.log(e);
     } finally {
@@ -409,7 +412,9 @@ const LdkInfo = () => {
             <BlueSpacing20 />
           </>
         ) : null}
+        {maturingBalance ? <Text style={[stylesHook.detailsText]}>Balance awaiting confirmations: {maturingBalance} sat</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
+        <BlueSpacing20 />
       </View>
     </SafeBlueArea>
   );
