@@ -97,7 +97,7 @@ npm run test
 
 I was not satisfied with existing iOS Bitcoin apps, especially with BreadWallet (the one I mainly used) where development stalled and they could not even deliver such features as SegWit, RBF and custom fees (at the times where custom fees were especially needed).
 So I knew I could create one to use myself and let others use it.
-I had experience with awesome bitcoin-js lib (javascript), and since I dont own any Macs, don't plan to and not going to learn ObjC/Swift - ReactNative (where you also write in javascript) was an obvious choice.
+I had experience with awesome bitcoin-js lib (javascript), and since I don't own any Macs, I don't plan to, and not going to learn ObjC/Swift - ReactNative (where you also write in javascript) was an obvious choice.
 
 
 ## LICENSE

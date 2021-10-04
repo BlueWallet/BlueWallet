@@ -30,7 +30,6 @@ afterAll(async () => {
 });
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
-
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
     if (process.env.TRAVIS) {
