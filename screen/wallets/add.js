@@ -201,7 +201,7 @@ const WalletsAdd = () => {
         const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
         if (isValidNodeAddress) {
           wallet.setBaseURI(lndhub);
-          wallet.init();
+          await wallet.init();
         } else {
           throw new Error('The provided node address is not valid LNDHub node.');
         }

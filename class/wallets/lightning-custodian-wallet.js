@@ -65,7 +65,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     return obj;
   }
 
-  init() {
+  async init() {
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
@@ -346,11 +346,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async allowOnchainAddress() {
-    if (this.getAddress() !== undefined) {
+    if (this.getAddress() !== undefined && this.getAddress() !== null) {
       return true;
     } else {
       await this.fetchBtcAddress();
-      return this.getAddress() !== undefined;
+      return this.getAddress() !== undefined && this.getAddress() !== null;
     }
   }
 
