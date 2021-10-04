@@ -367,7 +367,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.2.16):
+  - rn-ldk (0.3.0):
     - React-Core
   - RNCAsyncStorage (1.15.8):
     - React-Core
@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.3.3):
+  - RNDeviceInfo (8.4.0):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -765,12 +765,12 @@ SPEC CHECKSUMS:
   ReactCommon: 149906e01aa51142707a10665185db879898e966
   RealmJS: 7271bc9f8579716260511cb43b0fb6b0321ce206
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: 154c61e76904229ce339f2ca44c84ab59618be22
+  rn-ldk: 1c2f11f1dfb63f680b40964f2adb51f4df7b8578
   RNCAsyncStorage: 0f655864a81214d1c5a9bf0faf79d86dc25c383e
   RNCClipboard: 5df122bc31f95f2b37de9bbadc1dbef5a79cb1b0
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 0d6865ab0a57d9192bdd4e4f5894340b846c3e53
+  RNDeviceInfo: 99b0a4fc191808e58e0a045640706100fc3d771c
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
