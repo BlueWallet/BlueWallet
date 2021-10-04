@@ -10,18 +10,15 @@ import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueT
 import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
-import { BlueCurrentTheme, useTheme } from '../../components/themes';
+import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 
 const styles = StyleSheet.create({
   uri: {
     flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -59,6 +56,13 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   const { colors } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
+  const styleHook = StyleSheet.create({
+    uri: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+  });
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
@@ -144,7 +148,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
       />
 
       <BlueCard>
-        <View style={styles.uri}>
+        <View style={[styles.uri, styleHook.uri]}>
           <TextInput
             value={URI}
             placeholder={
