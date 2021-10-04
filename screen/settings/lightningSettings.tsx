@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
 import { Button } from 'react-native-elements';
@@ -13,6 +12,7 @@ import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
+import alert from '../../components/Alert';
 
 const styles = StyleSheet.create({
   uri: {

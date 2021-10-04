@@ -27,6 +27,9 @@
     "discard_changes": "Discard changes?",
     "discard_changes_detail": "You have unsaved changes. Are you sure to discard them and leave the screen?"
   },
+  "alert": {
+    "default": "Alert"
+  },
   "azteco": {
     "codeIs": "Your voucher code is",
     "errorBeforeRefeem": "Before redeeming, you must first add a Bitcoin wallet.",

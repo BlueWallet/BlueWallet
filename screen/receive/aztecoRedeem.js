@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
@@ -9,6 +8,7 @@ import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const styles = StyleSheet.create({
   loading: {

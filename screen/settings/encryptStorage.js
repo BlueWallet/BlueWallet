@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +9,7 @@ import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueListItem, BlueH
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const prompt = require('../../blue_modules/prompt');
 
 const EncryptStorage = () => {

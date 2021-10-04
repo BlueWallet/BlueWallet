@@ -1,4 +1,3 @@
-/* global alert */
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
@@ -8,6 +7,7 @@ import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -559,11 +559,15 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getLogs() {
-    return RnLdk.getLogs().map(log => log.line).join('\n');
+    return RnLdk.getLogs()
+      .map(log => log.line)
+      .join('\n');
   }
 
   async getLogsWithTs() {
-    return  RnLdk.getLogs().map(log => log.ts + ' ' + log.line).join('\n');
+    return RnLdk.getLogs()
+      .map(log => log.ts + ' ' + log.line)
+      .join('\n');
   }
 
   async fetchPendingTransactions() {}

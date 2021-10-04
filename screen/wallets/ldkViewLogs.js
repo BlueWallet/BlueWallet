@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -8,6 +7,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import { LightningLdkWallet } from '../../class';
+import alert from '../../components/Alert';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
