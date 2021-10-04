@@ -607,7 +607,8 @@
     "owns": "{label} besitzt {address}",
     "enter_address": "Adresse eingeben",
     "check_address": "Adresse prüfen",
-    "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse."
+    "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse.",
+    "view_qrcode": "QR-Code anzeigen"
   },
   "cc": {
     "change": "Ändern",

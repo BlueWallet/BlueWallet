@@ -294,7 +294,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.13.1):
+  - react-native-webview (11.14.0):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -387,7 +387,7 @@ PODS:
     - React
   - RNKeychain (7.0.0):
     - React-Core
-  - RNLocalize (2.1.4):
+  - RNLocalize (2.1.5):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -749,7 +749,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: 029f7bdaf113df22cbe07347cc65a19abaa9672d
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: cea67b82dd5fbdf0f5c821b4ca0ca0b01e954c0b
+  react-native-webview: a785c756d3968f09653b1c081e6f1cb9149a94ac
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
@@ -775,7 +775,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: f75b8c8b2f17d3b2aa1f25b4a0ac5b83d947ff8f
-  RNLocalize: 8bc7ebf44e0f18898cc62f0061561d07fabf6ff9
+  RNLocalize: 13a971fd888f2933504a745983f781dc52feeab6
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
