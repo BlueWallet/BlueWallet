@@ -4,6 +4,7 @@ import b58 from 'bs58check';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
+import network from '../network';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
@@ -866,7 +867,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-    let psbt = new bitcoin.Psbt();
+    let psbt = new bitcoin.Psbt({ network });
     let c = 0;
     const keypairs = {};
     const values = {};
@@ -875,7 +876,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
+        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), network);
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -959,7 +960,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address);
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network });
 
     psbt.addInput({
       hash: input.txId,
@@ -1014,12 +1015,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   static _nodeToBech32SegwitAddress(hdNode) {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
+      network,
     }).address;
   }
 
   static _nodeToLegacyAddress(hdNode) {
     return bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
+      network,
     }).address;
   }
 
@@ -1101,7 +1104,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const internal = +splt[splt.length - 2];
           const index = +splt[splt.length - 1];
           const wif = this._getWIFByIndex(internal, index);
-          const keyPair = bitcoin.ECPair.fromWIF(wif);
+          const keyPair = bitcoin.ECPair.fromWIF(wif, network);
           try {
             psbt.signInput(cc, keyPair);
           } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
@@ -1122,7 +1125,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed) {
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = bitcoin.bip32.fromSeed(seed, network);
     let hex = root.fingerprint.toString('hex');
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();

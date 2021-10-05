@@ -6,6 +6,8 @@ import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
 import { isTorDaemonDisabled } from './environment';
+import network from '../class/network';
+
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -47,14 +49,16 @@ async function _getRealm() {
 }
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
+const defaultPeer = { host: 'tn.not.fyi', ssl: '55002' };
 const hardcodedPeers = [
-  { host: 'electrum1.bluewallet.io', ssl: '443' },
-  { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum.emzy.de', ssl: '50002' },
-  { host: 'electrum.acinq.co', ssl: '50002' },
-  { host: 'bitcoin.lukechilds.co', ssl: '50002' },
-  { host: 'electrum.bitaroo.net', ssl: '50002' },
+  { host: 'tn.not.fyi', ssl: '55002' },
+  // { host: 'blockstream.info', ssl: '993' },
+  // { host: 'electrum1.bluewallet.io', ssl: '443' },
+  // { host: 'electrum2.bluewallet.io', ssl: '443' },
+  // { host: 'electrum.emzy.de', ssl: '50002' },
+  // { host: 'electrum.acinq.co', ssl: '50002' },
+  // { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+  // { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];
 
 /** @type {ElectrumClient} */
@@ -317,7 +321,7 @@ async function getRandomDynamicPeer() {
  */
 module.exports.getBalanceByAddress = async function (address) {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
+  const script = bitcoin.address.toOutputScript(address, network);
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   const balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
@@ -346,7 +350,7 @@ module.exports.getSecondsSinceLastRequest = function () {
  */
 module.exports.getTransactionsByAddress = async function (address) {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
+  const script = bitcoin.address.toOutputScript(address, network);
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   const history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
@@ -364,7 +368,7 @@ module.exports.getTransactionsByAddress = async function (address) {
  */
 module.exports.getMempoolTransactionsByAddress = async function (address) {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
+  const script = bitcoin.address.toOutputScript(address, network);
   const hash = bitcoin.crypto.sha256(script);
   const reversedHash = Buffer.from(reverse(hash));
   return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
@@ -435,7 +439,7 @@ module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) 
     const scripthashes = [];
     const scripthash2addr = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, network);
       const hash = bitcoin.crypto.sha256(script);
       let reversedHash = Buffer.from(reverse(hash));
       reversedHash = reversedHash.toString('hex');
@@ -481,7 +485,7 @@ module.exports.multiGetUtxoByAddress = async function (addresses, batchsize) {
     const scripthashes = [];
     const scripthash2addr = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, network);
       const hash = bitcoin.crypto.sha256(script);
       let reversedHash = Buffer.from(reverse(hash));
       reversedHash = reversedHash.toString('hex');
@@ -524,7 +528,7 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     const scripthashes = [];
     const scripthash2addr = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, network);
       const hash = bitcoin.crypto.sha256(script);
       let reversedHash = Buffer.from(reverse(hash));
       reversedHash = reversedHash.toString('hex');
