@@ -305,7 +305,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (!result) throw new Error('Failed');
 
     // ok, it was sent. now, waiting for an event that it was _actually_ paid:
-    for (let c = 0; c < 50; c++) {
+    for (let c = 0; c < 60; c++) {
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
       for (const sentPayment of RnLdk.sentPayments || []) {
         const paidHash = LightningLdkWallet.preimage2hash(sentPayment.payment_preimage);
@@ -314,7 +314,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
           this._listPayments.push(
             Object.assign({}, sentPayment, {
               memo: decoded.description || 'Lightning payment',
-              value: freeAmount || -1,
+              value: (freeAmount || decoded.num_satoshis) * -1,
               received: +new Date(),
               payment_preimage: sentPayment.payment_preimage,
               payment_hash: decoded.payment_hash,
