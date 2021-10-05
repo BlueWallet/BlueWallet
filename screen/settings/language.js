@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
@@ -8,6 +7,7 @@ import { BlueListItem } from '../../BlueComponents';
 import loc from '../../loc';
 import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const styles = StyleSheet.create({
   flex: {

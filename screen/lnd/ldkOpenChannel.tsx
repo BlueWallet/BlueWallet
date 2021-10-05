@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -15,6 +14,7 @@ import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
+import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
