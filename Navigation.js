@@ -32,6 +32,9 @@ import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
 import ImportWallet from './screen/wallets/import';
+import ImportWalletDiscovery from './screen/wallets/importDiscovery';
+import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
+import ImportSpeed from './screen/wallets/importSpeed';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
@@ -171,6 +174,17 @@ const AddWalletRoot = () => {
     <AddWalletStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
+      <AddWalletStack.Screen
+        name="ImportWalletDiscovery"
+        component={ImportWalletDiscovery}
+        options={ImportWalletDiscovery.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen
+        name="ImportCustomDerivationPath"
+        component={ImportCustomDerivationPath}
+        options={ImportCustomDerivationPath.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
       <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"
@@ -276,6 +290,23 @@ const ScanLndInvoiceRoot = () => {
   );
 };
 
+const LDKOpenChannelStack = createNativeStackNavigator();
+const LDKOpenChannelRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <LDKOpenChannelStack.Navigator name="LDKOpenChannelRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="SelectWallet">
+      <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LDKOpenChannelStack.Screen
+        name="LDKOpenChannelSetAmount"
+        component={LdkOpenChannel}
+        options={LdkOpenChannel.navigationOptions(theme)}
+      />
+      <LDKOpenChannelStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
+    </LDKOpenChannelStack.Navigator>
+  );
+};
+
 const AztecoRedeemStack = createNativeStackNavigator();
 const AztecoRedeemRoot = () => {
   const theme = useTheme();
@@ -329,11 +360,11 @@ function DrawerRoot() {
   const dimensions = useWindowDimensions();
   const isLargeScreen =
     Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
-  const drawerStyle = { width: '0%' };
+  const drawerStyle = { width: isLargeScreen ? 320 : '0%' };
 
   return (
     <Drawer.Navigator
-      drawerStyle={isLargeScreen ? null : drawerStyle}
+      drawerStyle={drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
       drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
       drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
@@ -459,7 +490,7 @@ const AOPPRoot = () => {
 
   return (
     <AOPPStack.Navigator screenOptions={{ headerHideShadow: true }}>
-      <AOPPStack.Screen name="SelectWalletAOPP" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <AOPPStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <AOPPStack.Screen name="AOPP" component={AOPP} options={AOPP.navigationOptions(theme)} />
       <AOPPStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
     </AOPPStack.Navigator>
@@ -467,7 +498,7 @@ const AOPPRoot = () => {
 };
 
 const RootStack = createNativeStackNavigator();
-const NavigationDefaultOptions = { headerShown: false, stackPresentation: 'modal' };
+const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const Navigation = () => {
   const theme = useTheme();
 
@@ -500,6 +531,7 @@ const Navigation = () => {
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="AOPPRoot" component={AOPPRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"

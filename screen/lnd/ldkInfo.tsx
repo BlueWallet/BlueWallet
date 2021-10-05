@@ -10,7 +10,6 @@ import loc, { formatBalance } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
-import LdkOpenChannel from './ldkOpenChannel';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
 const selectWallet = require('../../helpers/select-wallet');
@@ -28,25 +27,24 @@ type LdkInfoRouteProps = RouteProp<
 >;
 
 const LdkInfo = () => {
-  const { walletID, psbt } = useRoute<LdkInfoRouteProps>().params;
+  const { walletID } = useRoute<LdkInfoRouteProps>().params;
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
   const { colors }: { colors: any } = useTheme();
-  const { setOptions, setParams, navigate } = useNavigation();
+  const { setOptions, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState<any[]>([]);
   const [inactiveChannels, setInactiveChannels] = useState<any[]>([]);
   const [pendingChannels, setPendingChannels] = useState<any[]>([]);
   const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
+  const [maturingBalance, setMaturingBalance] = useState(0);
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState<any>();
-  const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState<any>();
-  const [newOpenChannelModalVisible, setNewOpenChannelModalVisible] = useState(false);
 
   //
   const stylesHook = StyleSheet.create({
@@ -118,6 +116,8 @@ const LdkInfo = () => {
       }
       const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
       setWalletBalance(walletBalance);
+
+      setMaturingBalance(await wallet.getMaturingBalance());
     } catch (e) {
       console.log(e);
     } finally {
@@ -145,12 +145,6 @@ const LdkInfo = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (psbt) {
-      setNewOpenChannelModalVisible(true);
-    }
-  }, [psbt]);
 
   useEffect(() => {
     setOptions({
@@ -321,92 +315,34 @@ const LdkInfo = () => {
     );
   };
 
-  const onNewOpenChannelModalBackdropPress = () => {
-    closeModal();
-    setNewOpenChannelModalVisible(false);
-    setTimeout(() => {
-      setNewOpenChannelModalProps(undefined);
-      setParams({ psbt: undefined });
-      refetchData(false);
-    }, 500);
-  };
-
   const navigateToOpenPrivateChannel = async () => {
     navigateToOpenChannel({ isPrivateChannel: true });
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    closeModal();
-    setNewOpenChannelModalVisible(false);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
-
-    /** @type {AbstractWallet} */
-    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
-    selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    setNewOpenChannelModalVisible(true);
-  };
-  const closeNewOpenChannelModalPropsModal = () => {
-    setNewOpenChannelModalVisible(false);
-  };
-
-  const onBackdropPress = async () => {
-    if (await confirm(loc.lnd.are_you_sure_exit_without_new_channel)) {
-      onNewOpenChannelModalBackdropPress();
-    }
-  };
-
-  const renderOpenChannelAmountAndNoteModal = () => {
-    return (
-      <BottomModal
-        isVisible={newOpenChannelModalVisible}
-        onClose={closeNewOpenChannelModalPropsModal}
-        onBackdropPress={onBackdropPress}
-        avoidKeyboard
-      >
-        <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
-          <LdkOpenChannel
-            psbt={psbt}
-            ldkWalletID={walletID}
-            fundingWalletID={newOpenChannelModalProps?.fundingWalletID}
-            isPrivateChannel={newOpenChannelModalProps?.isPrivateChannel}
-            closeContainerModal={closeNewOpenChannelModalPropsModal}
-            psbtOpenChannelStartedTs={newOpenChannelModalProps?.psbtOpenChannelStartedTs}
-            onPsbtOpenChannelStartedTsChange={psbtOpenChannelStartedTs =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, psbtOpenChannelStartedTs };
-              })
-            }
-            onOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
-            unit={newOpenChannelModalProps?.unit ?? wallet.getPreferredBalanceUnit()}
-            onUnitChange={unit =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, unit };
-              })
-            }
-            fundingAmount={newOpenChannelModalProps?.fundingAmount}
-            onFundingAmountChange={fundingAmount =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, fundingAmount };
-              })
-            }
-            remoteHostWithPubkey={newOpenChannelModalProps?.remoteHostWithPubkey}
-            onRemoteHostWithPubkeyChange={pubkey => {
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, remoteHostWithPubkey: pubkey };
-              });
-              setNewOpenChannelModalVisible(true);
-            }}
-            onBarScannerDismissWithoutData={() => {
-              setNewOpenChannelModalVisible(true);
-            }}
-          />
-        </View>
-      </BottomModal>
-    );
+    navigate('LDKOpenChannelRoot', {
+      screen: 'SelectWallet',
+      params: {
+        availableWallets,
+        chainType: Chain.ONCHAIN,
+        onWalletSelect: (selectedWallet: AbstractWallet) => {
+          const selectedWalletID = selectedWallet.getID();
+          selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
+          navigate('LDKOpenChannelRoot', {
+            screen: 'LDKOpenChannelSetAmount',
+            params: {
+              isPrivateChannel,
+              fundingWalletID: selectedWalletID,
+              ldkWalletID: walletID,
+            },
+          });
+        },
+      },
+    });
   };
 
   const itemSeparatorComponent = () => {
@@ -463,7 +399,6 @@ const LdkInfo = () => {
         ListEmptyComponent={isLoading ? <BlueLoading /> : <BlueTextCentered>{loc.lnd.no_channels}</BlueTextCentered>}
       />
       {renderModal()}
-      {renderOpenChannelAmountAndNoteModal()}
 
       <View style={styles.marginHorizontal16}>
         {wBalance && wBalance.confirmedBalance ? (
@@ -477,7 +412,9 @@ const LdkInfo = () => {
             <BlueSpacing20 />
           </>
         ) : null}
+        {maturingBalance ? <Text style={[stylesHook.detailsText]}>Balance awaiting confirmations: {maturingBalance} sat</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
+        <BlueSpacing20 />
       </View>
     </SafeBlueArea>
   );

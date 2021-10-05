@@ -113,6 +113,12 @@
       "locale": "hi-HN",
       "source": "CoinDesk"
     },
+    "IRT": {
+      "endPointKey": "IRT",
+      "symbol": "تومان",
+      "locale": "fa-IR",
+      "source": "Exir"
+    },
     "IRR": {
       "endPointKey": "IRR",
       "symbol": "﷼",

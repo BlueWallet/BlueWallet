@@ -292,6 +292,7 @@
     "electrum_connected_not": "Nincs kapcsolat",
     "electrum_connnected_not_description": "A pénztárca importálásához aktív Electrum kapcsolat szükséges. A kapcsolat létrejöttét a Beállításokon belül a Hálózat menüpontban ellenőrizheti.",
     "electrum_error_connect": "Nem tud csatlakozni a kiválasztott Electrum szerverhez",
+    "lndhub_uri": "Pl. {example}",
     "electrum_host": "Pl. {example}",
     "electrum_offline_mode": "Offline Mód",
     "electrum_offline_description": "Ha engedélyezve van, a Bitcoin pénztárcájai nem kísérelnek meg egyenlegek vagy tranzakciók lekérdezésével.",

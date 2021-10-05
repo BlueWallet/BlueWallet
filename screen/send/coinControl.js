@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import * as RNLocalize from 'react-native-localize';
 
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -24,21 +25,8 @@ import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } 
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
+import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import * as RNLocalize from 'react-native-localize';
-
-// https://levelup.gitconnected.com/debounce-in-javascript-improve-your-applications-performance-5b01855e086
-const debounce = (func, wait) => {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      timeout = null;
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
 
 const FrozenBadge = () => {
   const { colors } = useTheme();

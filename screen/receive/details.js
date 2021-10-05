@@ -29,7 +29,6 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
-import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
@@ -341,7 +340,6 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await saveToDisk();
@@ -409,11 +407,12 @@ const ReceiveDetails = () => {
           } else {
             obtainWalletAddress();
           }
+        } else if (!wallet && address) {
+          setAddressBIP21Encoded(address);
         }
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
@@ -510,9 +509,9 @@ const ReceiveDetails = () => {
       <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent
-          title={`Bitcoin Transaction ${address}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/address/${address}`}
+          title={loc.send.details_address}
+          type={HandoffComponent.activityTypes.ReceiveOnchain}
+          userInfo={{ address: address }}
         />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}

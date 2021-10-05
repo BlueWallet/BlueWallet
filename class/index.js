@@ -11,7 +11,6 @@ export * from './wallets/lightning-custodian-wallet';
 export * from './wallets/lightning-ldk-wallet';
 export * from './wallets/abstract-hd-wallet';
 export * from './wallets/hd-segwit-bech32-wallet';
-export * from './wallets/placeholder-wallet';
 export * from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 export * from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 export * from './wallets/hd-aezeed-wallet';

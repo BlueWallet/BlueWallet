@@ -13,8 +13,8 @@ last 4 digits of the build and announce it - this is now a RC. no need to fill r
 * `cd ios/` and then  run `DELIVER_USERNAME="my_itunes_email@example.com" DELIVER_PASSWORD="my_itunes_password" fastlane deliver --force  --skip_binary_upload --skip_screenshots --ignore_language_directory_validation -a io.bluewallet.bluewallet --app_version "6.6.6"`
 but replace `6.6.6` with your version number - this will upload release notes to all locales in itunes
 * go back to App Store Connect and press `Submit for Review`. choose Yes, we use identifiers - for installs tracking 
-* once its approved and released it is safe to cut a release tag: run `git tag -m "REL v6.6.6: 76ed479" v6.6.6` 
-where `76ed479` is a latest commit in this version. replace the version as well. then run `git push origin --tags`
+* once its approved and released it is safe to cut a release tag: run `git tag -m "REL v6.6.6: 76ed479" v6.6.6 -s` 
+where `76ed479` is a latest commit in this version. replace the version as well. then run `git push origin --tags`; alternative way to tag: `git tag -a v6.0.0 2e1a00609d5a0dbc91bcda2421df0f61bdfc6b10 -m "v6.0.0" -s`
 * you are awesome!
 
 ## Android

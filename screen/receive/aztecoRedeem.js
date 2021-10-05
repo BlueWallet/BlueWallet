@@ -7,7 +7,6 @@ import { Icon } from 'react-native-elements';
 import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
-import { PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -61,7 +60,7 @@ export default class AztecoRedeem extends Component {
     /** @type {AbstractWallet} */
     let toWallet = null;
 
-    const wallets = context.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const wallets = context.wallets;
 
     if (wallets.length === 0) {
       alert(loc.azteco.errorBeforeRefeem);

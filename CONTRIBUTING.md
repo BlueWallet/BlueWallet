@@ -4,10 +4,10 @@ Adding new feature is ADD, fixing a bug is FIX, something related to infrastruct
 Commits should be atomic: one commit - one feature, one commit - one bugfix etc.
 
 When you tag a new release, use the following example:
-`git tag -m "REL v1.4.0: 157c9c2" v1.4.0`
+`git tag -m "REL v1.4.0: 157c9c2" v1.4.0 -s`
 You may get the commit hash from git log. Don't forget to push tags `git push origin --tags`
 
-Alternative way to tag: `git tag -a v6.0.0 2e1a00609d5a0dbc91bcda2421df0f61bdfc6b10 -m "v6.0.0"`
+Alternative way to tag: `git tag -a v6.0.0 2e1a00609d5a0dbc91bcda2421df0f61bdfc6b10 -m "v6.0.0" -s`
 
 When tagging a new release, make sure to increment version in package.json and other files (we have a script for that: `./scripts/edit-version-number.sh`)  
 In the commit where you up version you can have the commit message as

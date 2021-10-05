@@ -263,6 +263,7 @@
     "electrum_connected_not": "Brez povezave",
     "electrum_connnected_not_description": "Za uvoz denarnice je potrebna aktivna povezava z Electrum strežnikom. Stanje povezave, lahko preverite v razdelku Omrežje v nastavitvah.",
     "electrum_error_connect": "Povezave s podanim Electrum strežnikom ni mogoče vzpostaviti",
+    "lndhub_uri": "Npr. {example}",
     "electrum_host": "Npr. {example}",
     "electrum_offline_mode": "Način brez povezave",
     "electrum_offline_description": "Ko je omogočen, vaše Bitcoin denarnice ne bodo pridobivale podatkov o stanju in transakcijah.",

@@ -26,8 +26,8 @@ export const LdkButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('../img/addWallet/lightning.png')} />
           </View>
           <View>
-            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>LDK</Text>
-            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>0.2.12</Text>
+            <Text style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18 }}>{props.text || '?'}</Text>
+            <Text style={{ color: colors.alternativeTextColor, fontSize: 13, fontWeight: '500' }}>{props.subtext || '?'}</Text>
           </View>
         </View>
       </View>
