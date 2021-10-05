@@ -18,6 +18,7 @@ xcuserdata
 *.moved-aside
 DerivedData
 *.hmap
+*.hprof
 *.ipa
 *.xcuserstate
 
