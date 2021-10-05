@@ -1,4 +1,3 @@
-/* global alert */
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { Platform, Alert } from 'react-native';
 import PasscodeAuth from 'react-native-passcode-auth';
@@ -8,6 +7,7 @@ import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import alert from '../components/Alert';
 
 function Biometric() {
   const { getItem, setItem } = useContext(BlueStorageContext);

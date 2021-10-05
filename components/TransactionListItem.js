@@ -287,40 +287,33 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           text: loc.transactions.details_copy_block_explorer_link,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
+        [
+          {
+            id: TransactionListItem.actionKeys.OpenInBlockExplorer,
+            text: loc.transactions.details_show_in_block_explorer,
+            icon: TransactionListItem.actionIcons.Link,
+          },
+        ],
       );
+    }
+
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push([
+        {
+          id: TransactionListItem.actionKeys.ExpandNote,
+          text: loc.transactions.expand_note,
+          icon: TransactionListItem.actionIcons.Note,
+        },
+      ]);
     }
 
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
 
-  const toolTipSubMenu = useMemo(() => {
-    const submenu = {
-      menuOptions: ['displayInline'], // <- set the `menuOptions` property
-      menuItems: [],
-      menuTitle: '',
-    };
-    if (item.hash) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.OpenInBlockExplorer,
-        actionTitle: loc.transactions.details_show_in_block_explorer,
-        icon: TransactionListItem.actionIcons.Link,
-      });
-    }
-    if (subtitle && subtitleNumberOfLines === 1) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.ExpandNote,
-        actionTitle: loc.transactions.expand_note,
-        icon: TransactionListItem.actionIcons.Note,
-      });
-    }
-    return submenu;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, subtitleNumberOfLines]);
-
   return (
     <View style={styles.container}>
-      <ToolTipMenu actions={toolTipActions} submenu={toolTipSubMenu} onPress={onToolTipPress}>
+      <ToolTipMenu actions={toolTipActions} onPress={onToolTipPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}

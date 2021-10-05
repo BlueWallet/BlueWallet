@@ -1,4 +1,3 @@
-/* global alert */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView } from 'react-native';
@@ -8,6 +7,7 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 export default class RBFCancel extends CPFP {
   static contextType = BlueStorageContext;

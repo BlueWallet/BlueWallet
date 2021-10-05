@@ -13,11 +13,18 @@ const ToolTipMenu = props => {
   };
 
   const showMenu = () => {
-    let actions = props.actions.map(action => ({ id: action.id, label: action.text }));
-    if (props.submenu) {
-      actions = actions.concat(props.submenu.menuItems.map(action => ({ id: action.actionKey, label: action.actionTitle })));
+    const menu = [];
+    for (const actions of props.actions) {
+      if (Array.isArray(actions)) {
+        for (const actionToMap of actions) {
+          menu.push({ id: actionToMap.id, label: actionToMap.text });
+        }
+      } else {
+        menu.push({ id: actions.id, label: actions.text });
+      }
     }
-    showPopupMenu(actions, handleToolTipSelection, ref.current);
+
+    showPopupMenu(menu, handleToolTipSelection, ref.current);
   };
 
   const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
@@ -36,7 +43,6 @@ export default ToolTipMenu;
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   children: PropTypes.node.isRequired,
-  submenu: PropTypes.any,
   onPress: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
 };

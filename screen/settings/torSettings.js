@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import { View, StyleSheet } from 'react-native';
 
@@ -6,6 +5,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const torrific = require('../../blue_modules/torrific');
 
