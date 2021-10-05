@@ -39,6 +39,7 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import network from '../../class/network'
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
 const currency = require('../../blue_modules/currency');
@@ -288,7 +289,7 @@ const SendDetails = () => {
       // replace wrong addresses with dump
       targets = targets.map(t => {
         try {
-          bitcoin.address.toOutputScript(t.address);
+          bitcoin.address.toOutputScript(t.address, network);
           return t;
         } catch (e) {
           return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
@@ -461,7 +462,7 @@ const SendDetails = () => {
 
       if (!error) {
         try {
-          bitcoin.address.toOutputScript(transaction.address);
+          bitcoin.address.toOutputScript(transaction.address, network);
         } catch (err) {
           console.log('validation error');
           console.log(err);

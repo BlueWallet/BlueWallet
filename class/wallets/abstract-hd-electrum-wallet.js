@@ -88,7 +88,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, network);
     const path = `${this.getDerivationPath()}/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -179,7 +179,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, network);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
@@ -876,6 +876,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
+        console.info('input.address', input.address)
+        console.info('Wif', this._getWifForAddress(input.address))
+        console.info('network', network)
         keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), network);
         keypairs[c] = keyPair;
       }
@@ -1091,7 +1094,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   cosignPsbt(psbt) {
     const seed = this._getSeed();
-    const hdRoot = HDNode.fromSeed(seed);
+    const hdRoot = HDNode.fromSeed(seed, network);
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
       try {
