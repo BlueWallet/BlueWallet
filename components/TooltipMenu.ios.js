@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import QRCodeComponent from './QRCodeComponent';
 
 const ToolTipMenu = props => {
-  const menuItems = props.actions.map(action => {
+  const menuItemMapped = ({ action, menuOptions }) => {
     const item = {
       actionKey: action.id,
       actionTitle: action.text,
       actionOnPress: action.onPress,
       icon: action.icon,
-      menuOptions: action.menuOptions,
+      menuOptions,
       menuTitle: action.menuTitle,
     };
     item.menuState = action.menuStateOn ? 'on' : 'off';
@@ -19,9 +19,25 @@ const ToolTipMenu = props => {
       item.menuAttributes = ['disabled'];
     }
     return item;
+  };
+
+  const menuItems = props.actions.map(action => {
+    if (Array.isArray(action)) {
+      const mapped = [];
+      for (const actionToMap of action) {
+        mapped.push(menuItemMapped({ action: actionToMap }));
+      }
+      const submenu = {
+        menuOptions: ['displayInline'],
+        menuItems: mapped,
+        menuTitle: '',
+      };
+      return submenu;
+    } else {
+      return menuItemMapped({ action });
+    }
   });
   const menuTitle = props.title ?? '';
-  const submenu = props.submenu;
   const isButton = !!props.isButton;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
   const previewQRCode = props.previewQRCode ?? false;
@@ -36,7 +52,7 @@ const ToolTipMenu = props => {
       isMenuPrimaryAction={isMenuPrimaryAction}
       menuConfig={{
         menuTitle,
-        menuItems: menuItems.concat(submenu),
+        menuItems,
       }}
       style={buttonStyle}
     >
@@ -49,7 +65,7 @@ const ToolTipMenu = props => {
       }}
       menuConfig={{
         menuTitle,
-        menuItems: menuItems.concat(submenu),
+        menuItems,
       }}
       {...(previewQRCode
         ? {
@@ -70,7 +86,6 @@ export default ToolTipMenu;
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   title: PropTypes.string,
-  submenu: PropTypes.object,
   children: PropTypes.node.isRequired,
   onPress: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
