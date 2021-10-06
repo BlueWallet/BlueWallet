@@ -531,7 +531,7 @@ const SendDetails = () => {
         memo: transactionMemo,
         fromWallet: wallet,
         psbt,
-        launchedBy: routeParams.launchedBy,
+        ...(routeParams?.launchedBy ? { launchedBy: routeParams.launchedBy } : {}),
       });
       setIsLoading(false);
       return;
@@ -542,7 +542,7 @@ const SendDetails = () => {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
         walletID: wallet.getID(),
-        launchedBy: routeParams.launchedBy,
+        ...(routeParams?.launchedBy ? { launchedBy: routeParams.launchedBy } : {}),
       });
       setIsLoading(false);
       return;
