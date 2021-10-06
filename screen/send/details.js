@@ -77,7 +77,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-  const { isEditable = true } = routeParams;
+  const isEditable = routeParams?.isEditable ?? true;
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -182,7 +182,7 @@ const SendDetails = () => {
       setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address]);
+  }, [routeParams?.uri, routeParams?.address]);
 
   useEffect(() => {
     // check if we have a suitable wallet
