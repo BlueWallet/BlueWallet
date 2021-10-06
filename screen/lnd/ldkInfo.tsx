@@ -11,6 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import alert from '../../components/Alert';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
@@ -33,7 +34,7 @@ const LdkInfo = () => {
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
   const { colors }: { colors: any } = useTheme();
-  const { setOptions, navigate } = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<any, any>>();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState<any[]>([]);
@@ -146,19 +147,6 @@ const LdkInfo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    setOptions({
-      headerStyle: {
-        backgroundColor: colors.customHeader,
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
-
   const showModal = (index: any) => {
     setSelectedChannelIndex(index);
   };
@@ -170,7 +158,7 @@ const LdkInfo = () => {
     const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
 
     const toWallet: AbstractWallet = await selectWallet(
-      navigate,
+      navigation.navigate,
       name,
       null,
       wallets2use,
@@ -200,7 +188,7 @@ const LdkInfo = () => {
   const claimBalance = async () => {
     const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
     const selectedWallet: AbstractWallet = await selectWallet(
-      navigate,
+      navigation.navigate,
       name,
       null,
       wallets2use,
@@ -324,7 +312,7 @@ const LdkInfo = () => {
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
-    navigate('LDKOpenChannelRoot', {
+    navigation.navigate('LDKOpenChannelRoot', {
       screen: 'SelectWallet',
       params: {
         availableWallets,
@@ -332,7 +320,7 @@ const LdkInfo = () => {
         onWalletSelect: (selectedWallet: AbstractWallet) => {
           const selectedWalletID = selectedWallet.getID();
           selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
-          navigate('LDKOpenChannelRoot', {
+          navigation.navigate('LDKOpenChannelRoot', {
             screen: 'LDKOpenChannelSetAmount',
             params: {
               isPrivateChannel,

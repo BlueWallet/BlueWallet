@@ -13,6 +13,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
@@ -33,7 +34,7 @@ const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { colors }: { colors: any } = useTheme();
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation<NativeStackNavigationProp<any, any>>();
   const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute<LdkOpenChannelProps>().params;
   const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
   const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);

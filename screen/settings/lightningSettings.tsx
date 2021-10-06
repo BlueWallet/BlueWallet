@@ -13,6 +13,7 @@ import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 import alert from '../../components/Alert';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 const styles = StyleSheet.create({
   uri: {
@@ -55,7 +56,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const route = useRoute();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<any, any>>();
   const styleHook = StyleSheet.create({
     uri: {
       borderColor: colors.formBorder,
