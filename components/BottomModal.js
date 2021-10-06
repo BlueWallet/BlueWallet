@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
 const BottomModal = ({
   onBackButtonPress = undefined,
   onBackdropPress = undefined,
-  onClose = undefined,
+  onClose,
   windowHeight = undefined,
   windowWidth = undefined,
   doneButton = undefined,

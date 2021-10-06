@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -38,6 +37,7 @@ import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -161,10 +161,6 @@ export default class ElectrumSettings extends Component {
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
-
-    if (host.endsWith('.onion') && !isTorCapable) {
-      return alert(loc.settings.tor_unsupported);
-    }
 
     this.setState({ isLoading: true }, async () => {
       try {

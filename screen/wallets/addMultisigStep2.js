@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,7 +7,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -41,6 +39,7 @@ import MultipleStepsListItem, {
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import alert from '../../components/Alert';
 
 const prompt = require('../../blue_modules/prompt');
 const A = require('../../blue_modules/analytics');
@@ -628,8 +627,6 @@ const WalletsAddMultisigStep2 = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
-
       {renderHelp()}
       <View style={[styles.wrapBox]}>
         <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />

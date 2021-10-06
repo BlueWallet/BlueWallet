@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useRef, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
@@ -43,6 +42,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { isMacCatalina } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import alert from '../../components/Alert';
 const fs = require('../../blue_modules/fs');
 
 const ViewEditMultisigCosigners = () => {

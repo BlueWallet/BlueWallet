@@ -207,4 +207,22 @@ describe('P2SH Segwit HD (BIP49)', () => {
     assert.strictEqual(hd._getInternalAddressByIndex(0), '3EJctafkUBvcSHYhunQRa2iYUHjrMGLXBV');
     assert.strictEqual(hd._getExternalWIFByIndex(0), 'L489rJZvUMrFsNop9EyuG2XdEmyKNTbjC1DWkg9WGEc1ddK6jgDg');
   });
+
+  it('can create with custom derivation path', async () => {
+    const hd = new HDSegwitP2SHWallet();
+    hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    hd.setDerivationPath("m/49'/0'/1'");
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'ypub6Ww3ibxVfGzLtJR4F9SRBicspAfvmvw54yern9Q6qZWFC9T6FYA34K57La5Sgs8pXuyvpDfEHX5KNZRiZRukUWaVPyL4NxA69sEAqdoV8ve',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), '35eszW2wmZ4hn7hfG5LGqxw5xCPjZcEJPM');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), '35gZZo6xPJEPgcz1cj1mTQHRMiPP97NGRY');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'KxTxanpst8612uDETejiDfSfbC2paXJi7teZ1ZfW5RpNfXbXnszw');
+
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0)), "m/49'/0'/1'/0/0");
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/49'/0'/1'/1/0");
+  });
 });

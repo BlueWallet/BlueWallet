@@ -168,19 +168,14 @@ export default class TransactionsNavigationHeader extends Component {
       text: loc.lnd.refill_card,
       icon: TransactionsNavigationHeader.actionIcons.RefillWithBank,
     },
-  ];
-
-  toolTipSubmenuActions = {
-    menuOptions: ['displayInline'], // <- set the `menuOptions` property
-    menuTitle: '',
-    menuItems: [
+    [
       {
-        actionKey: TransactionsNavigationHeader.actionKeys.Exchange,
-        actionTitle: loc.lnd.exchange,
+        id: TransactionsNavigationHeader.actionKeys.Exchange,
+        text: loc.lnd.exchange,
         icon: TransactionsNavigationHeader.actionIcons.Exchange,
       },
     ],
-  };
+  ];
 
   render() {
     const balance =
@@ -258,7 +253,6 @@ export default class TransactionsNavigationHeader extends Component {
             isButton
             onPress={this.manageFundsPressed}
             actions={this.toolTipMenuActions}
-            submenu={this.toolTipSubmenuActions}
             buttonStyle={styles.manageFundsButton}
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>

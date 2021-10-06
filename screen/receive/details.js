@@ -407,6 +407,8 @@ const ReceiveDetails = () => {
           } else {
             obtainWalletAddress();
           }
+        } else if (!wallet && address) {
+          setAddressBIP21Encoded(address);
         }
       });
       return () => {
@@ -507,9 +509,9 @@ const ReceiveDetails = () => {
       <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent
-          title={`Bitcoin Transaction ${address}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/address/${address}`}
+          title={loc.send.details_address}
+          type={HandoffComponent.activityTypes.ReceiveOnchain}
+          userInfo={{ address: address }}
         />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}

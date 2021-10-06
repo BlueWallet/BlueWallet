@@ -1,4 +1,3 @@
-/* global alert */
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -9,6 +8,7 @@ import { presentCameraNotAuthorizedAlert } from '../class/camera';
 import { isDesktop } from '../blue_modules/environment';
 import ActionSheet from '../screen/ActionSheet';
 import BlueClipboard from './clipboard';
+import alert from '../components/Alert';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
@@ -115,16 +115,18 @@ const showImagePickerAndReadImage = () => {
         selectionLimit: 1,
       },
       response => {
-        const asset = response.assets[0];
-        if (asset.uri) {
-          const uri = asset.uri.toString().replace('file://', '');
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              resolve(result);
-            } else {
-              reject(new Error(loc.send.qr_error_no_qrcode));
-            }
-          });
+        if (!response.didCancel) {
+          const asset = response.assets[0];
+          if (asset.uri) {
+            const uri = asset.uri.toString().replace('file://', '');
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                resolve(result);
+              } else {
+                reject(new Error(loc.send.qr_error_no_qrcode));
+              }
+            });
+          }
         }
       },
     ),

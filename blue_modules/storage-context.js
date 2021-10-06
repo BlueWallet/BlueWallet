@@ -1,11 +1,18 @@
 /* eslint-disable react/prop-types */
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { Alert } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit } from '../models/fiatUnit';
+import Notifications from '../blue_modules/notifications';
 import loc from '../loc';
+import { LegacyWallet } from '../class';
+import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
+import alert from '../components/Alert';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 const currency = require('../blue_modules/currency');
+const A = require('../blue_modules/analytics');
 
 const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
 
@@ -13,7 +20,6 @@ export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [isImportingWallet, setIsImportingWallet] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState('');
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
@@ -23,10 +29,24 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
+  const [isTorDisabled, setIsTorDisabled] = useState(false);
+  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
+    isTorDaemonDisabled().then(setIsTorDisabled);
   }, []);
+
+  useEffect(() => {
+    console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
+    if (!isPrivacyBlurEnabled) {
+      alert('Privacy blur has been disabled.');
+    }
+  }, [isPrivacyBlurEnabled]);
+
+  useEffect(() => {
+    setIsTorDaemonDisabled(isTorDisabled);
+  }, [isTorDisabled]);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -157,6 +177,26 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets([...BlueApp.getWallets()]);
   };
 
+  const addAndSaveWallet = async w => {
+    if (wallets.some(i => i.getID() === w.getID())) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      Alert.alert('', 'This wallet has been previously imported.');
+      return;
+    }
+    const emptyWalletLabel = new LegacyWallet().getLabel();
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
+    w.setUserHasSavedExport(true);
+    addWallet(w);
+    await saveToDisk();
+    A(A.ENUM.CREATED_WALLET);
+    Alert.alert('', loc.wallets.import_success);
+    Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+    // start balance fetching at the background
+    await w.fetchBalance();
+    setWallets([...BlueApp.getWallets()]);
+  };
+
   let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
   const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
@@ -188,8 +228,6 @@ export const BlueStorageProvider = ({ children }) => {
       value={{
         wallets,
         setWalletsWithNewOrder,
-        isImportingWallet,
-        setIsImportingWallet,
         txMetadata,
         saveToDisk,
         getTransactions,
@@ -197,6 +235,7 @@ export const BlueStorageProvider = ({ children }) => {
         setSelectedWallet,
         addWallet,
         deleteWallet,
+        addAndSaveWallet,
         setItem,
         getItem,
         getHodlHodlContracts,
@@ -234,6 +273,10 @@ export const BlueStorageProvider = ({ children }) => {
         isDoNotTrackEnabled,
         isElectrumDisabled,
         setIsElectrumDisabled,
+        isTorDisabled,
+        setIsTorDisabled,
+        isPrivacyBlurEnabled,
+        setIsPrivacyBlurEnabled,
       }}
     >
       {children}

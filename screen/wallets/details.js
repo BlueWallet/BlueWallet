@@ -1,5 +1,4 @@
-/* global alert */
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -44,6 +43,7 @@ import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { Chain } from '../../models/bitcoinUnits';
+import alert from '../../components/Alert';
 
 const prompt = require('../../blue_modules/prompt');
 
@@ -128,6 +128,13 @@ const WalletDetails = () => {
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const derivationPath = useMemo(() => {
+    try {
+      return wallet.getDerivationPath();
+    } catch (e) {
+      return null;
+    }
+  }, [wallet]);
   const [lightningWalletInfo, setLightningWalletInfo] = useState({});
 
   useEffect(() => {
@@ -478,7 +485,6 @@ const WalletDetails = () => {
               <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
                 <View style={[styles.input, stylesHook.input]}>
                   <TextInput
-                    placeholder={loc.send.details_note_placeholder}
                     value={walletName}
                     onChangeText={setWalletName}
                     onBlur={walletNameTextInputOnBlur}
@@ -577,10 +583,10 @@ const WalletDetails = () => {
                       </View>
                     )}
 
-                    {!!wallet.getDerivationPath() && (
+                    {derivationPath && (
                       <View>
                         <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                        <BlueText>{wallet.getDerivationPath()}</BlueText>
+                        <BlueText testID="DerivationPath">{derivationPath}</BlueText>
                       </View>
                     )}
                   </View>

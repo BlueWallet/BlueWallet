@@ -19,6 +19,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   @IBOutlet weak var createInvoiceButton: WKInterfaceButton!
   @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet weak var receiveButton: WKInterfaceButton!
+  @IBOutlet weak var viewXPubButton: WKInterfaceButton!
   @IBOutlet weak var noTransactionsLabel: WKInterfaceLabel!
   @IBOutlet weak var transactionsTable: WKInterfaceTable!
   
@@ -40,25 +41,24 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   walletNameLabel.setText(wallet.label)
   walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     createInvoiceButton.setHidden(!(wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue))
+  receiveButton.setHidden(wallet.receiveAddress.isEmpty)
+      viewXPubButton.setHidden(!((wallet.type != WalletGradient.LightningCustodial.rawValue ||  wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty))
   processWalletsTable()
-  addMenuItems()
   }
   
-  func addMenuItems() {
+  
+  @IBAction func toggleBalanceVisibility(_ sender: Any) {
     guard let wallet = wallet else {
        return
     }
-    
-    clearAllMenuItems()
-    if (wallet.type != WalletGradient.LightningCustodial.rawValue ||  wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty {
-      addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
-    }
+
     if wallet.hideBalance {
-      addMenuItem(with: .accept, title: "Show Balance", action: #selector(showBalanceMenuItemTapped))
-    }else{
-      addMenuItem(with: .decline, title: "Hide Balance", action: #selector(hideBalanceMenuItemTapped))
+      showBalanceMenuItemTapped()
+    } else{
+      hideBalanceMenuItemTapped()
     }
   }
+  
   
   @objc func showBalanceMenuItemTapped() {
     guard let identifier = wallet?.identifier else { return }
@@ -80,7 +80,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     }
   }
   
-  @objc func viewXPubMenuItemTapped() {
+  @IBAction func viewXPubMenuItemTapped() {
     guard let xpub = wallet?.xpub else {
       return
     }
@@ -91,7 +91,6 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     super.willActivate()
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
-    receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
   }
   
   @IBAction func receiveMenuItemTapped() {

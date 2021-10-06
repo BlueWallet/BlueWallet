@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { PlaceholderWallet, LightningCustodianWallet, MultisigHDWallet, LightningLdkWallet } from '../../class';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -110,8 +110,7 @@ const ReorderWallets = () => {
   }, [navigation, hasMovedARow]);
 
   useEffect(() => {
-    const loadWallets = wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
-    setData(loadWallets);
+    setData(wallets);
     setIsLoading(false);
   }, [wallets]);
 

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { View, StyleSheet, ScrollView, BackHandler, StatusBar } from 'react-native';
+import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
 import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -51,7 +51,6 @@ const PleaseBackupLNDHub = () => {
   };
   return (
     <SafeBlueArea style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle="light-content" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>

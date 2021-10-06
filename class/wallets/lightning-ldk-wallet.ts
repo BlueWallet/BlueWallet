@@ -1,4 +1,3 @@
-/* global alert */
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
@@ -8,6 +7,7 @@ import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -104,6 +104,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   async fundingStateStepFinalize(txhex: string) {
     return RnLdk.openChannelStep2(txhex);
+  }
+
+  async getMaturingBalance(): Promise<number> {
+    return RnLdk.getMaturingBalance();
   }
 
   /**
@@ -265,7 +269,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     } catch (error) {
-      alert(error.message);
+      alert('LDK init error: ' + error.message);
     }
   }
 
@@ -301,7 +305,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (!result) throw new Error('Failed');
 
     // ok, it was sent. now, waiting for an event that it was _actually_ paid:
-    for (let c = 0; c < 50; c++) {
+    for (let c = 0; c < 60; c++) {
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
       for (const sentPayment of RnLdk.sentPayments || []) {
         const paidHash = LightningLdkWallet.preimage2hash(sentPayment.payment_preimage);
@@ -310,7 +314,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
           this._listPayments.push(
             Object.assign({}, sentPayment, {
               memo: decoded.description || 'Lightning payment',
-              value: freeAmount || -1,
+              value: (freeAmount || decoded.num_satoshis) * -1,
               received: +new Date(),
               payment_preimage: sentPayment.payment_preimage,
               payment_hash: decoded.payment_hash,
@@ -377,6 +381,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       await this.reestablishChannels();
       await this.waitForAtLeastOneChannelBecomeActive();
     }
+
+    if (this.getReceivableBalance() < amtSat) throw new Error('You dont have enough inbound capacity');
 
     const bolt11 = await RnLdk.addInvoice(amtSat * 1000, memo);
     if (!bolt11) return false;
@@ -447,7 +453,18 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async fetchTransactions() {
-    if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
+    if (this.timeToCheckBlockchain()) {
+      try {
+        // exception might be in case of incompletely-started LDK
+        this._listChannels = await RnLdk.listChannels();
+        this._execInBackground(this.checkBlockchain);
+        //  ^^^ will be executed if above didnt throw exceptions, which means ldk fully started.
+        // we need this for a case when app returns from background if it was in bg for a really long time.
+        // ldk needs to update it's blockchain data, and this is practically the only place where it can
+        // do that (except on cold start)
+      } catch (_) {}
+    }
+
     await this.getUserInvoices(); // it internally updates paid user invoices
   }
 
@@ -542,7 +559,15 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getLogs() {
-    return (RnLdk?.logs || []).map(log => log.line).join('\n');
+    return RnLdk.getLogs()
+      .map(log => log.line)
+      .join('\n');
+  }
+
+  async getLogsWithTs() {
+    return RnLdk.getLogs()
+      .map(log => log.ts + ' ' + log.line)
+      .join('\n');
   }
 
   async fetchPendingTransactions() {}
@@ -595,8 +620,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
   }
 
-  async getVersion() {
+  static async getVersion() {
     return RnLdk.getVersion();
+  }
+
+  static getPackageVersion() {
+    return RnLdk.getPackageVersion();
   }
 
   /**
@@ -612,7 +641,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       try {
         await func.call(that);
       } catch (error) {
-        alert(error.message);
+        alert('_execInBackground error:' + error.message);
       }
     })();
   }
