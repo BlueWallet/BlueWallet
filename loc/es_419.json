@@ -27,6 +27,9 @@
     "discard_changes": "¿Descartar cambios?",
     "discard_changes_detail": "Tienes cambios no guardados. ¿Estás seguro de descartarlos y salir de la pantalla?"
   },
+  "alert": {
+    "default": "Alerta"
+  },
   "azteco": {
     "codeIs": "Tu código de cupón es",
     "errorBeforeRefeem": "Antes de canjear, primero debes agregar una billetera Bitcoin.",
