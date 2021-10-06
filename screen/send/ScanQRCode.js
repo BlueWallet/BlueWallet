@@ -122,6 +122,8 @@ const ScanQRCode = () => {
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
           navigation.navigate(launchedBy);
+        } else {
+          navigation.getParent().pop();
         }
         onBarScanned({ data });
       } else {
@@ -167,6 +169,8 @@ const ScanQRCode = () => {
         }
         if (launchedBy) {
           navigation.navigate(launchedBy);
+        } else {
+          navigation.getParent().pop();
         }
         onBarScanned({ data });
       } else {
@@ -218,6 +222,8 @@ const ScanQRCode = () => {
 
       if (launchedBy) {
         navigation.navigate(launchedBy);
+      } else {
+        navigation.getParent().pop();
       }
       onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
@@ -228,6 +234,8 @@ const ScanQRCode = () => {
       try {
         if (launchedBy) {
           navigation.navigate(launchedBy);
+        } else {
+          navigation.getParent().pop();
         }
         onBarScanned(ret.data);
       } catch (e) {

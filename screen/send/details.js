@@ -1387,7 +1387,6 @@ const SendDetails = () => {
           address={item.address}
           isLoading={isLoading}
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-          launchedBy={name}
           editable={isEditable}
         />
         {addresses.length > 1 && (
