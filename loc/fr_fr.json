@@ -255,7 +255,10 @@
     "no_tx_signing_in_progress": "Il n'y a pas de signature de transaction en cours.",
     "psbt_tx_open": "Ouvrir la transaction signée",
     "psbt_tx_scan": "Scanner la transaction signée",
+    "qr_error_no_qrcode": "Impossible de trouver un QR code dans l'image sélectionnée. Assurez-vous que l'image contienne uniquement un QR code et pas de contenu additionnel comme du texte ou des boutons.",
     "qr_error_no_wallet": "Le fichier sélectionné ne contient pas de portefeuille à importer.",
+    "reset_amount": "Annuler le montant",
+    "reset_amount_confirm": "Voulez vous réinitialiser le montant ?",
     "success_done": "Terminé",
     "txSaved": "Le fichier de transaction ({filePath}) a été enregistré dans votre dossier Téléchargements.",
     "problem_with_psbt": "Problème avec PSBT"
@@ -288,6 +291,7 @@
     "default_wallets": "Voir tous les portefeuilles",
     "electrum_connected": "Connecté",
     "electrum_connected_not": "Déconnecté",
+    "electrum_connnected_not_description": "Une connexion à Electrum est requise pour importer un wallet. Vous pouvez vérifier si une connexion est établie en allant dans la section \"Réseau\" depuis \"Settings\".",
     "electrum_error_connect": "Impossible de se connecter au serveur Electrum fourni",
     "electrum_port": "Port, en général {example}",
     "use_ssl": "Utiliser SSL",
