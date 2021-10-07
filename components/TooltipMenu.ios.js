@@ -1,14 +1,13 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
 import QRCodeComponent from './QRCodeComponent';
 
-const ToolTipMenu = props => {
+const ToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
     const item = {
       actionKey: action.id,
       actionTitle: action.text,
-      actionOnPress: action.onPress,
       icon: action.icon,
       menuOptions,
       menuTitle: action.menuTitle,
@@ -46,8 +45,9 @@ const ToolTipMenu = props => {
   const buttonStyle = props.buttonStyle;
   return isButton ? (
     <ContextMenuButton
+      ref={ref}
       onPressMenuItem={({ nativeEvent }) => {
-        props.onPress(nativeEvent.actionKey);
+        props.onPressMenuItem(nativeEvent.actionKey);
       }}
       isMenuPrimaryAction={isMenuPrimaryAction}
       menuConfig={{
@@ -60,8 +60,9 @@ const ToolTipMenu = props => {
     </ContextMenuButton>
   ) : (
     <ContextMenuView
+      ref={ref}
       onPressMenuItem={({ nativeEvent }) => {
-        props.onPress(nativeEvent.actionKey);
+        props.onPressMenuItem(nativeEvent.actionKey);
       }}
       menuConfig={{
         menuTitle,
@@ -82,12 +83,12 @@ const ToolTipMenu = props => {
   );
 };
 
-export default ToolTipMenu;
+export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   title: PropTypes.string,
   children: PropTypes.node.isRequired,
-  onPress: PropTypes.func.isRequired,
+  onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,
   previewQRCode: PropTypes.bool,

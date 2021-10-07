@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -35,6 +35,7 @@ const TransactionsDetails = () => {
   const [tx, setTX] = useState();
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
+  const menuRef = useRef();
   const stylesHooks = StyleSheet.create({
     txLink: {
       color: colors.alternativeTextColor2,
@@ -110,6 +111,8 @@ const TransactionsDetails = () => {
   };
 
   const handleOnOpenTransactionOnBlockExporerTapped = () => {
+    menuRef.current?.dismissMenu();
+
     const url = `https://mempool.space/tx/${tx.hash}`;
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
@@ -213,6 +216,7 @@ const TransactionsDetails = () => {
           )}
           <ToolTipMenu
             isButton
+            ref={menuRef}
             actions={[
               {
                 id: TransactionsDetails.actionKeys.CopyToClipboard,
@@ -220,7 +224,7 @@ const TransactionsDetails = () => {
                 icon: TransactionsDetails.actionIcons.Clipboard,
               },
             ]}
-            onPress={handleCopyPress}
+            onPressMenuItem={handleCopyPress}
           >
             <TouchableOpacity
               accessibilityRole="button"
