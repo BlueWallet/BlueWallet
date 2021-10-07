@@ -102,7 +102,7 @@
     "@keystonehq/bc-ur-registry": "https://github.com/BlueWallet/ur-registry",
     "@ngraveio/bc-ur": "https://github.com/BlueWallet/bc-ur",
     "@react-native-async-storage/async-storage": "1.15.9",
-    "@react-native-clipboard/clipboard": "1.8.4",
+    "@react-native-clipboard/clipboard": "1.9.0",
     "@react-native-community/push-notification-ios": "1.10.1",
     "@react-navigation/drawer": "5.12.5",
     "@react-navigation/native": "5.9.4",
