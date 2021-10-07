@@ -27,6 +27,9 @@
     "discard_changes": "Odrzucić zmiany?",
     "discard_changes_detail": "Masz niezapisane zmiany. Czy jesteś pewien, że chcesz je odrzucić i opuścić ten ekran?"
   },
+  "alert": {
+    "default": "Uwaga"
+  },
   "azteco": {
     "codeIs": "Twój kod vouchera to",
     "errorBeforeRefeem": "Zanim wykorzystasz kod rabatowy, musisz dodać najpierw portfel Bitcoinowy",
