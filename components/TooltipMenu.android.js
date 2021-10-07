@@ -13,7 +13,7 @@ const ToolTipMenu = (props, ref) => {
   };
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref && ref.current) {
       ref.current.dismissMenu = dismissMenu;
     }
   }, [ref]);
