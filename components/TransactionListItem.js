@@ -243,22 +243,31 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
   }, [item.hash]);
 
-  const onToolTipPress = useCallback(id => {
-    if (id === TransactionListItem.actionKeys.CopyAmount) {
-      handleOnCopyAmountTap();
-    } else if (id === TransactionListItem.actionKeys.CopyNote) {
-      handleOnCopyNote();
-    } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
-      handleOnViewOnBlockExplorer();
-    } else if (id === TransactionListItem.actionKeys.ExpandNote) {
-      handleOnExpandNote();
-    } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
-      handleCopyOpenInBlockExplorerPress();
-    } else if (id === TransactionListItem.actionKeys.CopyTXID) {
-      handleOnCopyTransactionID();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onToolTipPress = useCallback(
+    id => {
+      if (id === TransactionListItem.actionKeys.CopyAmount) {
+        handleOnCopyAmountTap();
+      } else if (id === TransactionListItem.actionKeys.CopyNote) {
+        handleOnCopyNote();
+      } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
+        handleOnViewOnBlockExplorer();
+      } else if (id === TransactionListItem.actionKeys.ExpandNote) {
+        handleOnExpandNote();
+      } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
+        handleCopyOpenInBlockExplorerPress();
+      } else if (id === TransactionListItem.actionKeys.CopyTXID) {
+        handleOnCopyTransactionID();
+      }
+    },
+    [
+      handleCopyOpenInBlockExplorerPress,
+      handleOnCopyAmountTap,
+      handleOnCopyNote,
+      handleOnCopyTransactionID,
+      handleOnExpandNote,
+      handleOnViewOnBlockExplorer,
+    ],
+  );
 
   const toolTipActions = useMemo(() => {
     const actions = [];
