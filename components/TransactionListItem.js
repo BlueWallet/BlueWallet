@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off" */
-import React, { useState, useMemo, useCallback, useContext, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -25,6 +25,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const menuRef = useRef();
   const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
@@ -181,6 +182,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   }, [subtitle]);
 
   const onPress = useCallback(async () => {
+    menuRef?.current?.dismissMenu();
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
@@ -313,7 +315,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
   return (
     <View style={styles.container}>
-      <ToolTipMenu actions={toolTipActions} onPress={onToolTipPress}>
+      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}

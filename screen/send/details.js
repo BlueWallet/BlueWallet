@@ -931,7 +931,7 @@ const SendDetails = () => {
     navigation.setOptions({
       headerRight: Platform.select({
         ios: () => (
-          <ToolTipMenu isButton isMenuPrimaryAction onPress={headerRightOnPress} actions={headerRightActions()}>
+          <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} style={styles.advancedOptions} />
           </ToolTipMenu>
         ),

@@ -1,15 +1,25 @@
-import React, { useRef, cloneElement } from 'react';
+import React, { useRef, cloneElement, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import showPopupMenu from 'react-native-popup-menu-android';
 import { Pressable, TouchableOpacity } from 'react-native';
 
-const ToolTipMenu = props => {
-  const ref = useRef();
+const ToolTipMenu = (props, ref) => {
+  const menuRef = useRef();
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
   // eslint-disable-next-line react/prop-types
   const buttonStyle = props.buttonStyle ?? {};
   const handleToolTipSelection = selection => {
-    props.onPress(selection.id);
+    props.onPressMenuItem(selection.id);
+  };
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.dismissMenu = dismissMenu;
+    }
+  }, [ref]);
+
+  const dismissMenu = () => {
+    console.log('dismissMenu Not implemented');
   };
 
   const showMenu = () => {
@@ -24,25 +34,25 @@ const ToolTipMenu = props => {
       }
     }
 
-    showPopupMenu(menu, handleToolTipSelection, ref.current);
+    showPopupMenu(menu, handleToolTipSelection, menuRef.current);
   };
 
   const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
   return isMenuPrimaryAction ? (
-    <TouchableOpacity style={buttonStyle} ref={ref} onPress={showMenu}>
+    <TouchableOpacity style={buttonStyle} ref={menuRef} onPress={showMenu}>
       {child}
     </TouchableOpacity>
   ) : (
-    <Pressable ref={ref} onLongPress={showMenu}>
+    <Pressable ref={menuRef} onLongPress={showMenu}>
       {child && cloneElement(child, { onLongPress: showMenu })}
     </Pressable>
   );
 };
 
-export default ToolTipMenu;
+export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
   actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
   children: PropTypes.node.isRequired,
-  onPress: PropTypes.func.isRequired,
+  onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
 };
