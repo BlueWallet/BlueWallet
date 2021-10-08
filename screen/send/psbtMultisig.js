@@ -96,7 +96,7 @@ const PsbtMultisig = () => {
   };
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64, isShowOpenScanner: isConfirmEnabled() });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
   const _renderItemUnsigned = el => {
