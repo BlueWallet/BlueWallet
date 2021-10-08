@@ -1,11 +1,12 @@
 import React, { useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import Share from 'react-native-share';
 import loc from '../loc';
 import PropTypes from 'prop-types';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const QRCodeComponent = ({
   value,
@@ -28,6 +29,31 @@ const QRCodeComponent = ({
     });
   };
 
+  const onPressMenuItem = id => {
+    if (id === QRCodeComponent.actionKeys.Share) {
+      handleShareQRCode();
+    } else if (id === QRCodeComponent.actionKeys.Copy) {
+      qrCode.current.toDataURL(Clipboard.setImage);
+    }
+  };
+
+  const menuActions = () => {
+    const actions = [];
+    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+      actions.push({
+        id: QRCodeComponent.actionKeys.Copy,
+        text: loc.transactions.details_copy,
+        icon: QRCodeComponent.actionIcons.Copy,
+      });
+    }
+    actions.push({
+      id: QRCodeComponent.actionKeys.Share,
+      text: loc.receive.details_share,
+      icon: QRCodeComponent.actionIcons.Share,
+    });
+    return actions;
+  };
+
   const renderQRCode = (
     <QRCode
       value={value}
@@ -46,16 +72,7 @@ const QRCodeComponent = ({
   return (
     <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
       {isMenuAvailable ? (
-        <ToolTipMenu
-          actions={[
-            {
-              id: QRCodeComponent.actionKeys.Share,
-              text: loc.receive.details_share,
-              icon: QRCodeComponent.actionIcons.Share,
-            },
-          ]}
-          onPress={handleShareQRCode}
-        >
+        <ToolTipMenu actions={menuActions()} onPressMenuItem={onPressMenuItem}>
           {renderQRCode}
         </ToolTipMenu>
       ) : (
@@ -73,12 +90,17 @@ const styles = StyleSheet.create({
 
 QRCodeComponent.actionKeys = {
   Share: 'share',
+  Copy: 'copy',
 };
 
 QRCodeComponent.actionIcons = {
   Share: {
     iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
+  },
+  Copy: {
+    iconType: 'SYSTEM',
+    iconValue: 'doc.on.doc',
   },
 };
 
