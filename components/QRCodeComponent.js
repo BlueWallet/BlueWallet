@@ -54,7 +54,7 @@ const QRCodeComponent = ({
               icon: QRCodeComponent.actionIcons.Share,
             },
           ]}
-          onPress={handleShareQRCode}
+          onPressMenuItem={handleShareQRCode}
         >
           {renderQRCode}
         </ToolTipMenu>
