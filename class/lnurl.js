@@ -11,7 +11,7 @@ const torrific = require('../blue_modules/torrific');
 export default class Lnurl {
   static TAG_PAY_REQUEST = 'payRequest'; // type of LNURL
   static TAG_WITHDRAW_REQUEST = 'withdrawRequest'; // type of LNURL
-  static ONION_REGEX = /^(http:\/\/[^/:@]+\.onion)(.*)$/; // regex for onion URL
+  static ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 
   constructor(url, AsyncStorage) {
     this._lnurl = url;
