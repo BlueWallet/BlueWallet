@@ -125,6 +125,12 @@
       "locale": "fa-IR",
       "source": "Exir"
     },
+    "ISK": {
+      "endPointKey": "ISK",
+      "symbol": "kr",
+      "locale": "is-IS",
+      "source": "CoinDesk"
+    },
     "JPY": {
       "endPointKey": "JPY",
       "symbol": "¥",
