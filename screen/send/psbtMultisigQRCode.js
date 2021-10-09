@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
@@ -10,6 +9,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 

@@ -74,6 +74,8 @@ export default class TransactionsNavigationHeader extends Component {
     };
   }
 
+  menuRef = React.createRef();
+
   handleCopyPress = _item => {
     Clipboard.setString(formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
@@ -119,6 +121,7 @@ export default class TransactionsNavigationHeader extends Component {
   };
 
   changeWalletBalanceUnit = () => {
+    this.menuRef.current?.dismissMenu();
     let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
     const wallet = this.state.wallet;
     if (walletPreviousPreferredUnit === BitcoinUnit.BTC) {
@@ -144,7 +147,7 @@ export default class TransactionsNavigationHeader extends Component {
     this.props.onManageFundsPressed(id);
   };
 
-  onPress = id => {
+  onPressMenuItem = id => {
     if (id === TransactionsNavigationHeader.actionKeys.WalletBalanceVisibility) {
       this.handleBalanceVisibility();
     } else if (id === TransactionsNavigationHeader.actionKeys.CopyToClipboard) {
@@ -168,19 +171,14 @@ export default class TransactionsNavigationHeader extends Component {
       text: loc.lnd.refill_card,
       icon: TransactionsNavigationHeader.actionIcons.RefillWithBank,
     },
-  ];
-
-  toolTipSubmenuActions = {
-    menuOptions: ['displayInline'], // <- set the `menuOptions` property
-    menuTitle: '',
-    menuItems: [
+    [
       {
-        actionKey: TransactionsNavigationHeader.actionKeys.Exchange,
-        actionTitle: loc.lnd.exchange,
+        id: TransactionsNavigationHeader.actionKeys.Exchange,
+        text: loc.lnd.exchange,
         icon: TransactionsNavigationHeader.actionIcons.Exchange,
       },
     ],
-  };
+  ];
 
   render() {
     const balance =
@@ -210,8 +208,9 @@ export default class TransactionsNavigationHeader extends Component {
           {this.state.wallet.getLabel()}
         </Text>
         <ToolTipMenu
+          ref={this.menuRef}
           title={loc.wallets.balance}
-          onPress={this.onPress}
+          onPressMenuItem={this.onPressMenuItem}
           actions={
             this.state.wallet.hideBalance
               ? [
@@ -255,9 +254,8 @@ export default class TransactionsNavigationHeader extends Component {
           <ToolTipMenu
             isMenuPrimaryAction
             isButton
-            onPress={this.manageFundsPressed}
+            onPressMenuItem={this.manageFundsPressed}
             actions={this.toolTipMenuActions}
-            submenu={this.toolTipSubmenuActions}
             buttonStyle={styles.manageFundsButton}
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>

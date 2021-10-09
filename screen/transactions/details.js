@@ -1,14 +1,14 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from '../../components/TooltipMenu';
+import alert from '../../components/Alert';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -127,112 +127,110 @@ const TransactionsDetails = () => {
   }
 
   return (
-    <SafeBlueArea>
+    <ScrollView style={styles.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <HandoffComponent
         title={loc.transactions.details_title}
         type={HandoffComponent.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
       <StatusBar barStyle="default" />
-      <ScrollView style={styles.scroll}>
-        <BlueCard>
-          <View>
-            <TextInput
-              placeholder={loc.send.details_note_placeholder}
-              value={memo}
-              placeholderTextColor="#81868e"
-              style={[styles.memoTextInput, stylesHooks.memoTextInput]}
-              onChangeText={setMemo}
-            />
-            <BlueSpacing20 />
-          </View>
+      <BlueCard>
+        <View>
+          <TextInput
+            placeholder={loc.send.details_note_placeholder}
+            value={memo}
+            placeholderTextColor="#81868e"
+            style={[styles.memoTextInput, stylesHooks.memoTextInput]}
+            onChangeText={setMemo}
+          />
+          <BlueSpacing20 />
+        </View>
 
-          {from && (
-            <>
-              <View style={styles.rowHeader}>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
-                <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
-              </View>
-              <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
-            </>
-          )}
+        {from && (
+          <>
+            <View style={styles.rowHeader}>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
+            </View>
+            <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
+          </>
+        )}
 
-          {to && (
-            <>
-              <View style={styles.rowHeader}>
-                <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
-                <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
-              </View>
-              <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
-            </>
-          )}
+        {to && (
+          <>
+            <View style={styles.rowHeader}>
+              <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
+            </View>
+            <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
+          </>
+        )}
 
-          {tx.fee && (
-            <>
-              <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
-              <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
-            </>
-          )}
+        {tx.fee && (
+          <>
+            <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
+            <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
+          </>
+        )}
 
-          {tx.hash && (
-            <>
-              <View style={styles.rowHeader}>
-                <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
-                <BlueCopyToClipboardButton stringToCopy={tx.hash} />
-              </View>
-              <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
-            </>
-          )}
+        {tx.hash && (
+          <>
+            <View style={styles.rowHeader}>
+              <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={tx.hash} />
+            </View>
+            <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
+          </>
+        )}
 
-          {tx.received && (
-            <>
-              <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
-              <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
-            </>
-          )}
+        {tx.received && (
+          <>
+            <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
+            <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
+          </>
+        )}
 
-          {tx.block_height > 0 && (
-            <>
-              <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
-              <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
-            </>
-          )}
+        {tx.block_height > 0 && (
+          <>
+            <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
+            <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
+          </>
+        )}
 
-          {tx.inputs && (
-            <>
-              <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
-              <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
-            </>
-          )}
+        {tx.inputs && (
+          <>
+            <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
+            <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
+          </>
+        )}
 
-          {tx.outputs?.length > 0 && (
-            <>
-              <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
-              <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
-            </>
-          )}
-          <ToolTipMenu
-            isButton
-            actions={[
-              {
-                id: TransactionsDetails.actionKeys.CopyToClipboard,
-                text: loc.transactions.copy_link,
-                icon: TransactionsDetails.actionIcons.Clipboard,
-              },
-            ]}
-            onPress={handleCopyPress}
+        {tx.outputs?.length > 0 && (
+          <>
+            <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
+            <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
+          </>
+        )}
+        <ToolTipMenu
+          isButton
+          actions={[
+            {
+              id: TransactionsDetails.actionKeys.CopyToClipboard,
+              text: loc.transactions.copy_link,
+              icon: TransactionsDetails.actionIcons.Clipboard,
+            },
+          ]}
+          onPressMenuItem={handleCopyPress}
+        >
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={handleOnOpenTransactionOnBlockExporerTapped}
+            style={[styles.greyButton, stylesHooks.greyButton]}
           >
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={handleOnOpenTransactionOnBlockExporerTapped}
-              style={[styles.greyButton, stylesHooks.greyButton]}
-            >
-              <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-            </TouchableOpacity>
-          </ToolTipMenu>
-        </BlueCard>
-      </ScrollView>
-    </SafeBlueArea>
+            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
+          </TouchableOpacity>
+        </ToolTipMenu>
+      </BlueCard>
+    </ScrollView>
   );
 };
 

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Text,
@@ -32,6 +31,7 @@ import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const A = require('../../blue_modules/analytics');
 
 const ButtonSelected = Object.freeze({

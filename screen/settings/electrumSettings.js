@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -38,6 +37,7 @@ import { isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -9,6 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const currency = require('../../blue_modules/currency');
@@ -96,7 +96,7 @@ const PsbtMultisig = () => {
   };
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64, isShowOpenScanner: isConfirmEnabled() });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
   const _renderItemUnsigned = el => {

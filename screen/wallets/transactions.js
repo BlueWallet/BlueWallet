@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -35,6 +34,7 @@ import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import alert from '../../components/Alert';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
