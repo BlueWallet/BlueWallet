@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, PermissionsAndroid, Alert } from 'react-native';
@@ -15,6 +14,7 @@ import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 

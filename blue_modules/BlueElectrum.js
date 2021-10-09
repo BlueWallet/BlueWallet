@@ -1,4 +1,3 @@
-/* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
@@ -6,6 +5,7 @@ import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
 import { isTorDaemonDisabled } from './environment';
+import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -52,7 +52,6 @@ const hardcodedPeers = [
   { host: 'electrum2.bluewallet.io', ssl: '443' },
   { host: 'electrum.emzy.de', ssl: '50002' },
   { host: 'electrum.acinq.co', ssl: '50002' },
-  { host: 'bitcoin.lukechilds.co', ssl: '50002' },
   { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];
 

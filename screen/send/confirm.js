@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
@@ -16,6 +15,7 @@ import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Psbt } from 'bitcoinjs-lib';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');

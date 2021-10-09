@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import PropTypes from 'prop-types';
@@ -11,6 +10,7 @@ import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking, View, TextInput } from 'react-native';
 import { useTheme } from '@react-navigation/native';
@@ -9,6 +8,7 @@ import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoad
 import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
+import alert from '../../components/Alert';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
