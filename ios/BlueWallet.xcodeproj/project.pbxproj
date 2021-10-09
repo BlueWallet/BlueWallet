@@ -1368,7 +1368,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
@@ -1389,7 +1389,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1417,7 +1417,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -1432,7 +1432,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1462,7 +1462,7 @@
 				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1473,7 +1473,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
@@ -1501,7 +1501,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1512,7 +1512,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
 				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
@@ -1538,13 +1538,13 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
@@ -1570,13 +1570,13 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = Stickers/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.Stickers;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1603,7 +1603,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1614,7 +1614,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
@@ -1648,7 +1648,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1659,7 +1659,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.MarketWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1794,7 +1794,7 @@
 				CODE_SIGN_ENTITLEMENTS = "BlueWalletWatch Extension/BlueWalletWatch Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1804,7 +1804,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
@@ -1834,7 +1834,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1844,7 +1844,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
@@ -1873,13 +1873,13 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWalletWatch/BlueWalletWatch.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
@@ -1911,13 +1911,13 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 654;
+				CURRENT_PROJECT_VERSION = 660;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
-				MARKETING_VERSION = 6.2.10;
+				MARKETING_VERSION = 6.2.11;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
