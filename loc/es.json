@@ -27,6 +27,9 @@
     "discard_changes": "¿Descartar cambios? ",
     "discard_changes_detail": "Tienes cambios sin guardar. ¿Estás seguro que quieres descartarlos y salir?"
   },
+  "alert": {
+    "default": "Atención"
+  },
   "azteco": {
     "codeIs": "El código de tu cupón es",
     "errorBeforeRefeem": "Para poder canjearlo, primero debes añadir una cartera de Bitcoin.",
@@ -553,7 +556,7 @@
     "wrapped_segwit_title": "Ofrece la mejor compatibilidad",
     "legacy_title": "La versión antigua",
     "co_sign_transaction": "Firmar una transacción",
-    "what_is_vault": "Un Vault es",
+    "what_is_vault": "Una Vault es",
     "what_is_vault_numberOfWallets": " {m}-of-{n} multifirma ",
     "what_is_vault_wallet": "Cartera",
     "vault_advanced_customize": "Configuración de la Vault",
@@ -577,7 +580,7 @@
     "i_wrote_it_down": "OK, ya la he anotado.",
     "type_your_mnemonics": "Introduce una semilla para importar la llave de tu Vault",
     "this_is_cosigners_xpub": "Este es el XPUB del co-firmante, listo para ser importado en otra cartera. Es seguro compartirla.",
-    "wallet_key_created": "La clave de tu Vault ha sido creada. Tómate un momento para anotar la semilla mnemotécnica",
+    "wallet_key_created": "La clave de tu Vault ha sido creada. Tómate un momento para anotar la semilla mnemotécnica.",
     "are_you_sure_seed_will_be_lost": "¿Estás seguro? Tu semilla mnemotécnica se perderá si no tienes una copia de seguridad",
     "forget_this_seed": "Olvida esta semilla y usa XPUB",
     "invalid_fingerprint": "La huella de esta semilla no encaja con la huella del co-firmante",
@@ -589,7 +592,7 @@
     "input_path": "Introduce la ruta de derivación",
     "input_path_explain": "Déjalo en blanco para usar el predeterminado ({default})",
     "ms_help": "Ayuda",
-    "ms_help_title": "Cómo funcionan la Vault multifirma: Consejos y trucos",
+    "ms_help_title": "Cómo funcionan las Vaults multifirma: Consejos y trucos",
     "ms_help_text": "Una cartera con múltiples claves, para aumentar exponencialmente la seguridad o para custodia compartida.",
     "ms_help_title1": "Se recomienda usar multiples dispositivos.",
     "ms_help_1": "La Vault funcionará con otras aplicaciones de BlueWallet y carteras compatibles con PSBT como Electrum, Spectre, Coldcard, Cobo Vault, etc.",
