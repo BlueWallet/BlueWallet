@@ -14,7 +14,7 @@ const DOICHAIN_MAINNET = {
 const DOICHAIN_TESTNET = {
   name: "testnet",
   messagePrefix: "\x19Doichain-Testnet Signed Message:\n",
-  bech32: "dt",
+  bech32: "td",
   bip32: {
     public: 0x043587cf,
     private: 0x04358394,
@@ -36,4 +36,4 @@ const DOICHAIN_REGTEST = {
   wif: 239,
 };
 
-export const DOICHAIN = DOICHAIN_MAINNET
+export const DOICHAIN = DOICHAIN_TESTNET;
