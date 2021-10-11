@@ -27,6 +27,9 @@
     "discard_changes": "Änderungen verwerfen?",
     "discard_changes_detail": "Die nicht gespeicherten Änderungen verwerfen und den Bildschirm verlassen?"
   },
+  "alert": {
+    "default": "Warnung"
+  },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
     "errorBeforeRefeem": "Vor der Einlösung muss eine Bitcoin Wallet hinzugefügt werden.",
