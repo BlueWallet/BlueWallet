@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
@@ -35,7 +35,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
 
   const { navigate } = useNavigation();
 
+  const menuRef = useRef();
   const navigateToReceive = () => {
+    menuRef.current?.dismissMenu();
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -46,6 +48,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
   };
 
   const navigateToSignVerify = () => {
+    menuRef.current?.dismissMenu();
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -102,7 +105,14 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
 
   const render = () => {
     return (
-      <TooltipMenu title={item.address} actions={getAvailableActions()} onPress={onToolTipPress} previewQRCode previewValue={item.address}>
+      <TooltipMenu
+        title={item.address}
+        ref={menuRef}
+        actions={getAvailableActions()}
+        onPressMenuItem={onToolTipPress}
+        previewQRCode
+        previewValue={item.address}
+      >
         <ListItem key={`${item.key}`} button onPress={navigateToReceive} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
             <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">

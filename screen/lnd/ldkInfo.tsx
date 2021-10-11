@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -12,6 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
+import alert from '../../components/Alert';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };

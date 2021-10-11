@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
@@ -10,6 +9,7 @@ import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
+import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');

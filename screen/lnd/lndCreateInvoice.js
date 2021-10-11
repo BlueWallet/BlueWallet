@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -28,6 +27,7 @@ import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 

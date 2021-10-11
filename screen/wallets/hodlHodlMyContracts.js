@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -23,6 +22,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 export default class HodlHodlMyContracts extends Component {
   static contextType = BlueStorageContext;
