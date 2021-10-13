@@ -85,14 +85,13 @@ async function updateExchangeRate() {
   let rate;
   try {
     rate = await getFiatRate(preferredFiatCurrency.endPointKey);
+    exchangeRates[LAST_UPDATED] = +new Date();
+    exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
+    await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
   } catch (Err) {
+    console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
-    return;
   }
-
-  exchangeRates[LAST_UPDATED] = +new Date();
-  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
-  await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
 }
 
 /**
