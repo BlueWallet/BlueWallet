@@ -7,7 +7,6 @@ import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueSpacing10 } from '.
 import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import dayjs from 'dayjs';
 dayjs.extend(require('dayjs/plugin/calendar'));
 const currency = require('../../blue_modules/currency');
@@ -43,16 +42,8 @@ const Currency = () => {
     } catch (_error) {
       setSelectedCurrency(preferredCurrency);
     }
-    AsyncStorage.getItem(currency.EXCHANGE_RATES).then(currencyInformation => {
-      const formatter = new Intl.NumberFormat(preferredCurrency.locale, {
-        style: 'currency',
-        currency: preferredCurrency.endPointKey,
-      });
-      setCurrencyRate({
-        LastUpdated: currencyInformation[currency.LAST_UPDATED],
-        Rate: formatter.format(JSON.parse(currencyInformation)[`BTC_${preferredCurrency.endPointKey}`]),
-      });
-    });
+    const mostRecentFetchedRate = await currency.mostRecentFetchedRate();
+    setCurrencyRate(mostRecentFetchedRate);
   };
 
   useEffect(() => {

@@ -159,6 +159,19 @@ function BTCToLocalCurrency(bitcoin) {
   return satoshiToLocalCurrency(sat);
 }
 
+async function mostRecentFetchedRate() {
+  const currencyInformation = await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY);
+
+  const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
+    style: 'currency',
+    currency: preferredFiatCurrency.endPointKey,
+  });
+  return {
+    LastUpdated: currencyInformation[LAST_UPDATED],
+    Rate: formatter.format(JSON.parse(currencyInformation)[`BTC_${preferredFiatCurrency.endPointKey}`]),
+  };
+}
+
 function satoshiToBTC(satoshi) {
   let b = new BigNumber(satoshi);
   b = b.dividedBy(100000000);
@@ -213,3 +226,4 @@ module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in
 module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY_STORAGE_KEY;
 module.exports.EXCHANGE_RATES = EXCHANGE_RATES_STORAGE_KEY;
 module.exports.LAST_UPDATED = LAST_UPDATED;
+module.exports.mostRecentFetchedRate = mostRecentFetchedRate;
