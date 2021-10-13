@@ -869,7 +869,9 @@ const SendDetails = () => {
   const headerRightActions = () => {
     const actions = [];
     if (isEditable) {
-      actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 }]);
+      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
+      actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
       if (wallet.type === HDSegwitBech32Wallet.type) {
         actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
       }
@@ -1169,6 +1171,8 @@ const SendDetails = () => {
   };
 
   const renderOptionsModal = () => {
+    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
@@ -1176,7 +1180,7 @@ const SendDetails = () => {
             {isEditable && (
               <BlueListItem
                 testID="sendMaxButton"
-                disabled={balance === 0}
+                disabled={balance === 0 || isSendMaxUsed}
                 title={loc.send.details_adv_full}
                 hideChevron
                 component={TouchableOpacity}
