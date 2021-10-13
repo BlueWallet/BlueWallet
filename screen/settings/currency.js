@@ -47,8 +47,6 @@ const Currency = () => {
       const formatter = new Intl.NumberFormat(preferredCurrency.locale, {
         style: 'currency',
         currency: preferredCurrency.endPointKey,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 8,
       });
       setCurrencyRate({
         LastUpdated: currencyInformation[currency.LAST_UPDATED],
