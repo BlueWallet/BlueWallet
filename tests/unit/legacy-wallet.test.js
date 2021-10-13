@@ -133,4 +133,13 @@ describe('Legacy wallet', () => {
     assert.strictEqual(signature, 'H9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=');
     assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
   });
+
+  it('can sign and verify messages with uncompressed key', async () => {
+    const l = new LegacyWallet();
+    l.setSecret('5JqSfbkoVDrzM5i7PH7939G5fwWVDWmnFTSMbVctAmet3tYMq2S');
+
+    const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
+    assert.strictEqual(signature, 'G19XLC0OYWN5ftv3N01s1PSt9Zpy0ZRKL2THZA46qGb0Jax29+SFmsdlsup0QKFeGJYN+m2HQTG1Na+YxcjU9ew=');
+    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
+  });
 });
