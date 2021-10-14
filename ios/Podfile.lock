@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.13.1):
+  - BugsnagReactNative (7.13.2):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -397,7 +397,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.11.0):
     - React-Core
-  - RNReanimated (2.2.2):
+  - RNReanimated (2.2.3):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -707,7 +707,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: cd36b6194946ec3618951140f2c3f2101e8edf21
+  BugsnagReactNative: 23b87aa38823caa0d962f98df089b672ef8cbba0
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -780,7 +780,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
   RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
-  RNReanimated: 241c586663f44f19a53883c63375fdd041253960
+  RNReanimated: 64c38d47ffcc29c97fc1d8cfde9e8a73d7be7cc8
   RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 0fec82bd2e67d09f895937ccb4f5a097e714dec2
