@@ -7,7 +7,7 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 
 function DeviceQuickActions() {
   DeviceQuickActions.STORAGE_KEY = 'DeviceQuickActionsEnabled';
-  const { wallets, walletsInitialized, isStorageEncrypted } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized, isStorageEncrypted, preferredFiatCurrency } = useContext(BlueStorageContext);
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -22,7 +22,7 @@ function DeviceQuickActions() {
         .catch(() => QuickActions.clearShortcutItems());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, walletsInitialized]);
+  }, [wallets, walletsInitialized, preferredFiatCurrency]);
 
   DeviceQuickActions.setEnabled = (enabled = true) => {
     return AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {
