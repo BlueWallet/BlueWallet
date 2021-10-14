@@ -628,6 +628,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.getPackageVersion();
   }
 
+  getChannelsClosedEvents() {
+    return RnLdk.channelsClosed;
+  }
+
   /**
    * executes async function in background, so calling code can return immediately, while catching all thrown exceptions
    * and showing them in alert() instead of propagating them up
