@@ -182,7 +182,6 @@ const SendCreate = () => {
   return (
     <FlatList
       contentContainerStyle={[styles.root, styleHooks.root]}
-      scrollEnabled={recipients.length > 1}
       extraData={recipients}
       data={recipients}
       renderItem={_renderItem}
