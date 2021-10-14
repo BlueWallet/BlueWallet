@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.4.0):
+  - RNDeviceInfo (8.4.1):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -770,7 +770,7 @@ SPEC CHECKSUMS:
   RNCClipboard: f49f3de56b40d0f4104680dabadc7a1f063f4fd4
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 99b0a4fc191808e58e0a045640706100fc3d771c
+  RNDeviceInfo: 1a8db52003ad76c066ed739259079efe5d2e7853
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
