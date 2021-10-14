@@ -145,8 +145,14 @@ const LdkOpenChannel = (props: any) => {
       console.warn('initiated channel opening');
 
       if (!fundingAddressTemp) {
+        let reason = '';
+        const channelsClosed = ldkWallet.getChannelsClosedEvents();
+        const event = channelsClosed.pop();
+        if (event) {
+          reason += event.reason + ' ' + event.text;
+        }
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        return alert('Initiating channel open failed');
+        return alert('Initiating channel open failed: ' + reason);
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
