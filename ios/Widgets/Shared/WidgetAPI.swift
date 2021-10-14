@@ -33,6 +33,8 @@ class WidgetAPI {
       urlString = "https://bitcoinduliban.org/api.php?key=lbpusd"
     case "Exir":
       urlString = "https://api.exir.io/v1/ticker?symbol=btc-irt"
+    case "wazirx":
+      urlString = "https://api.wazirx.com/api/v2/tickers/btcinr"
     default:
       urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
     }
@@ -67,6 +69,13 @@ class WidgetAPI {
       case "Exir":
         guard let rateDouble = json["last"] as? Double else { break }
         let rateString = String(rateDouble)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "wazirx":
+        guard let tickerDict = json["ticker"] as? [String: Any],
+              let rateString = tickerDict["buy"] as? String,
+              let rateDouble = Double(rateString)
+        else { break }
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       default:
