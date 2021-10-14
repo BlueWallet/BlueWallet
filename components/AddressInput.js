@@ -62,7 +62,7 @@ const AddressInput = ({
         onBlur={onBlurEditing}
         autoCapitalize="none"
         autoCorrect={false}
-        keyboardType="url"
+        keyboardType="default"
       />
       {editable ? (
         <TouchableOpacity
