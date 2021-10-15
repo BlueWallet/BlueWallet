@@ -240,7 +240,6 @@
     "details_advanced": "Rozšírené",
     "details_are_you_sure": "Ste si istý?",
     "details_connected_to": "Napojené na",
-    "details_del_wb": "Zostatok v peňaženke",
     "details_del_wb_err": "Napísaný zostatok nesedí so skutočným zostatkom v peňaženke. Skúste znovu",
     "details_del_wb_q": "Peňaženka má zostatok. Bez seed frázy nebude možné peňaženku obnoviť. Aby sme predišli vymazaniu peňaženky omylom, napíšte zostatok v peňaženke {balance} satoshi.",
     "details_delete": "Zmazaž",

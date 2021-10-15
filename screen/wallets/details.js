@@ -223,7 +223,7 @@ const WalletDetails = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     try {
       const walletBalanceConfirmation = await prompt(
-        loc.wallets.details_del_wb,
+        loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
         true,
         'plain-text',

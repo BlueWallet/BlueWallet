@@ -447,7 +447,6 @@
     "details_advanced": "Avancé",
     "details_are_you_sure": "Êtes vous sur?",
     "details_connected_to": "Connecté à",
-    "details_del_wb": "Solde du portefeuille",
     "details_del_wb_err": "Le solde ne correspond pas à celui du portefeuille. Veuillez réessayer",
     "details_del_wb_q": "Ce portefeuille a un solde non nul. Avant de continuer, veuillez noter que vous ne serez pas en mesure de récupérer vos fonds sans la phrase mnémonique du portefeuille. Pour éviter toute suppression accidentelle du portefeuille, veuillez entrer son solde de {balance} satoshis.",
     "details_delete": "Supprimer",

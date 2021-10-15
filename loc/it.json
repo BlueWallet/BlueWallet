@@ -411,7 +411,6 @@
     "details_advanced": "Avanzato",
     "details_are_you_sure": "Sei sicuro?",
     "details_connected_to": "Connesso a",
-    "details_del_wb": "Saldo del portafoglio",
     "details_del_wb_q": "Questo portafoglio ha un saldo. Prima di procedere, tieni presente che non potrai recuperare i fondi senza la frase seed di questo portafoglio. Al fine di evitare la rimozione accidentale di questo portafoglio, inserisci il saldo del tuo portafoglio di {balance} satoshis.",
     "details_delete": "Elimina",
     "details_delete_wallet": "Rimuovi portafoglio",
