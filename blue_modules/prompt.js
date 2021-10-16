@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
+import loc from '../loc';
 
-module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDestructive = false) => {
+module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDestructive = false, continueButtonText = loc._.ok) => {
   const keyboardType = type === 'numeric' ? 'numeric' : 'default';
 
   if (Platform.OS === 'ios' && type === 'numeric') {
@@ -13,14 +14,14 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDe
     const buttons = isCancelable
       ? [
           {
-            text: 'Cancel',
+            text: loc._.cancel,
             onPress: () => {
               reject(Error('Cancel Pressed'));
             },
             style: 'cancel',
           },
           {
-            text: 'OK',
+            text: continueButtonText,
             onPress: password => {
               console.log('OK Pressed');
               resolve(password);
@@ -30,7 +31,7 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDe
         ]
       : [
           {
-            text: 'OK',
+            text: continueButtonText,
             onPress: password => {
               console.log('OK Pressed');
               resolve(password);

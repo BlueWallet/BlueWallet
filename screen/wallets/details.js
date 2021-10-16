@@ -228,6 +228,7 @@ const WalletDetails = () => {
         true,
         'plain-text',
         true,
+        loc.wallets.details_delete,
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
