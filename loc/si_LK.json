@@ -18,7 +18,7 @@
     "seed": "බීජ",
     "success": "සාර්ථකයි",
     "wallet_key": "පසුබිම් යතුර",
-    "invalid_animated_qr_code_fragment" : "වලංගු නොවන සජීවිකරණ QR කේත ඛණ්ඩයකි. කරුණාකර නැවත උත්සාහ කරන්න.",
+    "invalid_animated_qr_code_fragment": "වලංගු නොවන සජීවිකරණ QR කේත ඛණ්ඩයකි. කරුණාකර නැවත උත්සාහ කරන්න.",
     "file_saved": "ගොනුව {filePath} ඔබේ සුරැකුම් ස්ථානයේ සුරැකී ඇත {destination}.",
     "file_save_title": "ගොනුව සුරකින්න",
     "file_save_location": "සුරකින්නේ කොහේද යන්න තෝරන්න {filePath}",
@@ -26,6 +26,9 @@
     "external_storage": "බාහිර ගබඩාව",
     "discard_changes": "වෙනස් කිරීම් ඉවත් කරන්නද?",
     "discard_changes_detail": "සුරැකිව නැති වෙනස්කම් ඔබ සතුව ඇත. ඔබට ඒවා ඉවත දමා තිරයෙන් ඉවත් වීමට අවශ්‍යද?"
+  },
+  "alert": {
+    "default": "අවදියෙන්"
   },
   "azteco": {
     "codeIs": "ඔබේ වවුචර් කේතය",
@@ -99,13 +102,13 @@
     "p2p": "සම සම හුවමාරු යටතේ බිට්  කොයින් මිලදී ගන්න"
   },
   "lnd": {
-    "active":"ක්‍රියාකාරී",
-    "inactive":"අක්‍රීය",
+    "active": "ක්‍රියාකාරී",
+    "inactive": "අක්‍රීය",
     "channels": "නාලිකා",
     "no_channels": "නාලිකා කිසිවක් නැත",
     "claim_balance": "ශේෂය ඉල්ලන්න {balance}",
     "close_channel": "නාලිකාව වසන්න",
-    "new_channel" : "නව නාලිකාව",
+    "new_channel": "නව නාලිකාව",
     "errorInvoiceExpired": "ඉන්වොයිසිය කල් ඉකුත් වී ඇත",
     "exchange": "හුවමාරුව",
     "force_close_channel": "කෙසේ හෝ නාලිකාව වසා දමන්නද?",
@@ -117,7 +120,7 @@
     "placeholder": "ඉන්වොයිසිය",
     "open_channel": "විවෘත නාලිකාව",
     "funding_amount_placeholder": "අරමුදල් ප්‍රරමාණය, උදාහරණයක් ලෙස 0.001",
-    "opening_channnel_for_from":"මුදල් පසුම්බිය සඳහා {forWalletLabel}, {fromWalletLabel} අරමුදල් මඟින් නාලිකාව විවෘත කිරීම",
+    "opening_channnel_for_from": "මුදල් පසුම්බිය සඳහා {forWalletLabel}, {fromWalletLabel} අරමුදල් මඟින් නාලිකාව විවෘත කිරීම",
     "are_you_sure_open_channel": "ඔබට මෙම නාලිකාව විවෘත කිරීමට අවශ්‍ය බව විශ්වාසද?",
     "are_you_sure_exit_without_new_channel": "ඔබට නාලිකාවක් විවෘත නොකර පිටවීමට අවශ්‍ය බව විශ්වාසද?",
     "public": "පොදු",
@@ -345,7 +348,7 @@
     "network_electrum": "ඉලෙක්ට්‍රම් සේවාදායකය",
     "not_a_valid_uri": "වලංගු නොවන යූ.ආර්.අයි",
     "notifications": "දැනුම්දීම්",
-    "open_link_in_explorer" : "එක්ස්ප්ලෝරර් තුළ සම්බන්ධකය විවෘත කරන්න",
+    "open_link_in_explorer": "එක්ස්ප්ලෝරර් තුළ සම්බන්ධකය විවෘත කරන්න",
     "password": "මුර පදය",
     "password_explain": "ආචයනය විකේතනය කිරීමට ඔබ භාවිතා කරන මුරපදය සාදන්න.",
     "passwords_do_not_match": "මුර පද ගැලපෙන්නේ නැත.",
@@ -364,7 +367,7 @@
     "selfTest": "ස්වයං පරීක්ෂණය",
     "save": "සුරකින්න",
     "saved": "සුරකින ලදි",
-    "success_transaction_broadcasted" : "සාර්ථකයි! ඔබේ ගනුදෙනුව විකාශනය වී ඇත!",
+    "success_transaction_broadcasted": "සාර්ථකයි! ඔබේ ගනුදෙනුව විකාශනය වී ඇත!",
     "total_balance": "මුළු ශේෂය",
     "total_balance_explanation": "ඔබේ මුදල් පසුම්බිවල මුළු ශේෂය ඔබේ මුල් තිරයේ විජට් වල පෙන්වන්න.",
     "widgets": "විජට්",
