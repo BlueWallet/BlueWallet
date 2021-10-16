@@ -338,6 +338,29 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.sendPayment(invoice, freeAmount);
   }
 
+  /**
+   * In case user initiated channel opening, and then lost peer connection (i.e. app went in background for an
+   * extended period of time), when user gets back to the app the channel might already have enough confirmations,
+   * but will never be acknowledged as 'established' by LDK until peer reconnects so that ldk & peer can negotiate and
+   * agree that channel is now established
+   */
+  async reconnectPeersWithPendingChannels() {
+    const peers = await this.listPeers();
+    const peers2reconnect: Record<string, boolean> = {};
+    if (this._listChannels) {
+      for (const channel of this._listChannels) {
+        if (!channel.is_funding_locked) { // pending channel
+          if (!peers.includes(channel.remote_node_id)) peers2reconnect[channel.remote_node_id] = true;
+        }
+      }
+    }
+
+    for (const pubkey of Object.keys(peers2reconnect)) {
+      const { host, port } = await this.lookupNodeConnectionDetailsByPubkey(pubkey);
+      await this.connectPeer(pubkey, host, port);
+    }
+  }
+
   async getUserInvoices(limit = false) {
     const newInvoices: any[] = [];
     let found = false;
@@ -462,6 +485,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         // we need this for a case when app returns from background if it was in bg for a really long time.
         // ldk needs to update it's blockchain data, and this is practically the only place where it can
         // do that (except on cold start)
+
+        await this.reconnectPeersWithPendingChannels();
       } catch (_) {}
     }
 
