@@ -41,8 +41,8 @@ const LdkOpenChannel = (props: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const psbtOpenChannelStartedTs = useRef<number>();
   const [remoteHostWithPubkey, setRemoteHostWithPubkey] = useState(
-    '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
-  ); // lnd2.bluewallet.io
+    '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
+  ); // Bitrefill
   const name = useRoute().name;
   const [fundingAmount, setFundingAmount] = useState<any>({ amount: null, amountSats: null });
   const [verified, setVerified] = useState(false);
@@ -145,8 +145,14 @@ const LdkOpenChannel = (props: any) => {
       console.warn('initiated channel opening');
 
       if (!fundingAddressTemp) {
+        let reason = '';
+        const channelsClosed = ldkWallet.getChannelsClosedEvents();
+        const event = channelsClosed.pop();
+        if (event) {
+          reason += event.reason + ' ' + event.text;
+        }
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        return alert('Initiating channel open failed');
+        return alert('Initiating channel open failed: ' + reason);
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
