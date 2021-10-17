@@ -270,7 +270,7 @@ const WalletsAdd = () => {
             testID="WalletNameInput"
             value={label}
             placeholderTextColor="#81868e"
-            placeholder="my first wallet"
+            placeholder={loc.wallets.add_placeholder}
             onChangeText={setLabel}
             style={styles.textInputCommon}
             editable={!isLoading}

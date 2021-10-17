@@ -438,6 +438,7 @@
     "add_lndhub_error": "The provided node address is an invalid LNDHub node.",
     "add_lndhub_placeholder": "Your Node Address",
     "add_or": "or",
+    "add_placeholder": "my first wallet",
     "add_title": "Add Wallet",
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
