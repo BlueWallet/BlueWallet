@@ -47,7 +47,6 @@ const BottomModal = ({
       onBackdropPress={handleBackdropPress}
       {...props}
       accessibilityViewIsModal
-      useNativeDriver
       avoidKeyboard={avoidKeyboard}
       useNativeDriverForBackdrop={Platform.OS === 'android'}
     >
