@@ -185,6 +185,7 @@
     "header": "Receive"
   },
   "send": {
+    "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
     "broadcastButton": "Broadcast",
     "broadcastError": "Error",
     "broadcastNone": "Insert Transaction Hex",
