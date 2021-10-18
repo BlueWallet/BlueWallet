@@ -185,6 +185,7 @@
     "header": "دریافت"
   },
   "send": {
+    "provided_address_is_invoice": "به‌نظر می‌آید این آدرس یک صورت‌حساب لایتنینگی است. جهت پرداخت این صورت‌حساب لطفاً به کیف پول لایتنینگ خود بروید.",
     "broadcastButton": "انتشار",
     "broadcastError": "خطا",
     "broadcastNone": "هگزادسیمال تراکنش را وارد کنید",
@@ -337,6 +338,7 @@
     "groundcontrol_explanation": "سرویس GroundControl یک سرور اعلانات متن‌باز و رایگان برای کیف پول‌های بیت‌کوین است. شما می‌توانید سرور GroundControl خود را نصب کرده و آدرس آن را اینجا قرار دهید تا به زیرساخت‌های BlueWallet متکی نباشید. برای استفاده از تنظیمات پیش‌فرض خالی بگذارید.",
     "header": "تنظیمات",
     "language": "زبان",
+    "last_updated": "آخرین به‌روزرسانی",
     "language_isRTL": "راه‌اندازی مجدد BlueWallet جهت اعمال تغییرات چینش زبان ضروری است.",
     "lightning_error_lndhub_uri": "یوآرآی LNDHub غیرمعتبر",
     "lightning_saved": "تغییرات شما با موفقیت ذخیره شدند.",
@@ -363,6 +365,7 @@
     "privacy_do_not_track": "غیرفعال‌کردن تحلیل",
     "privacy_do_not_track_explanation": "اطلاعات کارایی و پایداری جهت تحلیل ارسال نخواهد شد.",
     "push_notifications": "پوش نوتیفیکیشن",
+    "rate": "نرخ",
     "retype_password": "گذرواژه را دوباره بنویسید",
     "selfTest": "خودآزمایی",
     "save": "ذخیره",
@@ -437,6 +440,7 @@
     "add_lndhub_error": "آدرس گره ارائه‌شده گره LNDHub معتبری نیست.",
     "add_lndhub_placeholder": "آدرس گره شما",
     "add_or": "یا",
+    "add_placeholder": "کیف پول اول من",
     "add_title": "افزودن کیف پول",
     "add_wallet_name": "نام",
     "add_wallet_type": "نوع",
