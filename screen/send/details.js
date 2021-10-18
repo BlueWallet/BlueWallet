@@ -911,7 +911,6 @@ const SendDetails = () => {
           id: SendDetails.actionKeys.AddRecipient,
           text: loc.send.details_add_rec_add,
           icon: SendDetails.actionIcons.AddRecipient,
-          disabled: isSendMaxUsed,
         },
         {
           id: SendDetails.actionKeys.RemoveRecipient,
