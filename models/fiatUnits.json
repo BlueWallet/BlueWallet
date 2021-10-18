@@ -7,7 +7,7 @@
     },
     "AED": {
       "endPointKey": "AED",
-      "symbol": "د.إ",
+      "symbol": "د.إ.",
       "locale": "ar-AE",
       "source": "CoinDesk"
     },
