@@ -453,8 +453,7 @@ const SendDetails = () => {
       } else if (transaction.address) {
         const address = transaction.address.trim().toLowerCase();
         if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
-          error =
-            'This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.';
+          error = loc.send.provided_address_is_invoice;
           console.log('validation error');
         }
       }
