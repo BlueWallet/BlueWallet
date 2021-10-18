@@ -37,7 +37,7 @@
     },
     "BHD": {
       "endPointKey": "BHD",
-      "symbol": "د.ب",
+      "symbol": "د.ب.",
       "locale": "ar-BH",
       "source": "CoinDesk"
     },
