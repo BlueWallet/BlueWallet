@@ -330,6 +330,7 @@ const ScanLndInvoice = () => {
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
                 onBlur={onBlur}
+                keyboardType="email-address"
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>
