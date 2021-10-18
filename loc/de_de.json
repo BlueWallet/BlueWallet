@@ -447,7 +447,6 @@
     "details_advanced": "Fortgeschritten",
     "details_are_you_sure": "Bist du dir sicher?",
     "details_connected_to": "Verbunden mit",
-    "details_del_wb": "Wallet Guthaben",
     "details_del_wb_err": "Das angegebene Guthaben deckt sich nicht mit dem Guthaben des Wallet. Bitte versuche es erneut.",
     "details_del_wb_q": "Dieses Wallet enthält noch bitcoin. Ohne vorhandenes Backup der mnemonische Phrase sind diese unwiederbringlich verloren. Um ein versehentliches entfernen zu vermeiden, gib bitte das Wallet-Guthaben von {balance} satoshis ein.",
     "details_delete": "Löschen",

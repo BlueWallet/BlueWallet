@@ -349,7 +349,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     const peers2reconnect: Record<string, boolean> = {};
     if (this._listChannels) {
       for (const channel of this._listChannels) {
-        if (!channel.is_funding_locked) { // pending channel
+        if (!channel.is_funding_locked) {
+          // pending channel
           if (!peers.includes(channel.remote_node_id)) peers2reconnect[channel.remote_node_id] = true;
         }
       }

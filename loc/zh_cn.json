@@ -376,7 +376,6 @@
     "details_advanced": "进阶的",
     "details_are_you_sure": "你确认么?",
     "details_connected_to": "连接到",
-    "details_del_wb": "钱包余额",
     "details_del_wb_err": "提供的余额与此钱包的余额不匹配，请再试一遍。",
     "details_del_wb_q": "这个钱包有余额。 在继续操作之前，请注意，没有此钱包的种子(备份)短语，您将无法取回资金。 为了避免意外移除该钱包，请输入您的钱包余额{balance} 聪。",
     "details_delete": "删除",

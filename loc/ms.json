@@ -439,7 +439,6 @@
     "details_advanced": "Lanjut",
     "details_are_you_sure": "Adakah anda pasti?",
     "details_connected_to": "Terhububg kepada",
-    "details_del_wb": "Baki Dompet",
     "details_del_wb_err": "Jumlah baki yang diberi tidak sepadan dengan baki dompet ini. Sila cuba lagi.",
     "details_del_wb_q": "Dompet ini mempunyai baki. Sebelum meneruskan, sila ambil perhatian yang anda tidak akan dapat semula baki tersebut tanpa frasa benih dompet ini. Untuk mengelakkan dompet ini dibuang secara tidak sengaja, sila masukkan baki {balance} satoshi dompet anda.",
     "details_delete": "Padam",

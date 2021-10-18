@@ -399,7 +399,6 @@
     "details_advanced": "Pokročilé",
     "details_are_you_sure": "Jste si jistý?",
     "details_connected_to": "Připojeno k",
-    "details_del_wb": "Zůstatek v peněžence",
     "details_del_wb_err": "Poskytnutá částka zůstatku neodpovídá zůstatku této peněženky. Prosím zkuste to znovu",
     "details_del_wb_q": "Tato peněženka má zůstatek. Předtím, než budete pokračovat, mějte na paměti, že nebudete moci získat prostředky bez počáteční věty této peněženky. Chcete-li zabránit náhodnému odebrání této peněženky, zadejte zůstatek vaší peněženky {balance} satoshi.",
     "details_delete": "Smazat",

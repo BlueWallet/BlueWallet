@@ -447,7 +447,6 @@
     "details_advanced": "Avanzado",
     "details_are_you_sure": "¿Estás seguro?",
     "details_connected_to": "Conectado a",
-    "details_del_wb": "Balance de la cartera",
     "details_del_wb_err": "El balance introducido no coincide con el balance de esta cartera. Por favor, inténtelo de nuevo.",
     "details_del_wb_q": "Esta cartera tiene saldo. Antes de proceder, ten en cuenta que no podrás recuperar los fondos sin la semilla de esta cartera. Para evitar el borrado accidental, por favor introduce los {balance} satoshis que contiene esta cartera.",
     "details_delete": "Eliminar",
