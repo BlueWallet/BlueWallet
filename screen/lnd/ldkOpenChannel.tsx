@@ -98,16 +98,19 @@ const LdkOpenChannel = (props: any) => {
   }, []);
 
   const finalizeOpenChannel = async () => {
+    setIsLoading(true);
     if (isBiometricUseCapableAndEnabled) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
         return;
       }
     }
     if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
       return alert('Channel opening expired. Please try again');
     }
 
@@ -116,6 +119,7 @@ const LdkOpenChannel = (props: any) => {
     // const res = true; // debug
     if (!res) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(ldkWallet.getID());
@@ -123,6 +127,7 @@ const LdkOpenChannel = (props: any) => {
     fetchAndSaveWalletTransactions(fundingWalletID);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('Success', { amount: undefined });
+    setIsLoading(false);
   };
 
   const openChannel = async () => {
