@@ -395,7 +395,7 @@ PODS:
     - React
   - RNRate (1.2.9):
     - React-Core
-  - RNReactNativeHapticFeedback (1.11.0):
+  - RNReactNativeHapticFeedback (1.13.0):
     - React-Core
   - RNReanimated (2.2.3):
     - DoubleConversion
@@ -779,7 +779,7 @@ SPEC CHECKSUMS:
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
-  RNReactNativeHapticFeedback: 653a8c126a0f5e88ce15ffe280b3ff37e1fbb285
+  RNReactNativeHapticFeedback: b83bfb4b537bdd78eb4f6ffe63c6884f7b049ead
   RNReanimated: 64c38d47ffcc29c97fc1d8cfde9e8a73d7be7cc8
   RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
