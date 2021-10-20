@@ -1,7 +1,7 @@
 import React, { useRef, cloneElement, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Pressable, TouchableOpacity } from 'react-native';
-import showPopupMenu from '../class/showPopupMenuAndroid';
+import showPopupMenu from '../blue_modules/showPopupMenu';
 
 const ToolTipMenu = (props, ref) => {
   const menuRef = useRef();
