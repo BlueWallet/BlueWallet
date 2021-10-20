@@ -1,4 +1,4 @@
-/* eslint-disable */
+// @ts-ignore: Ignore
 import type { Element } from 'react';
 import { Text, TouchableNativeFeedback, TouchableWithoutFeedback, View, findNodeHandle, UIManager } from 'react-native';
 
@@ -14,12 +14,14 @@ function showPopupMenu(
   { onCancel }: PopupMenuOptions = {},
 ): void {
   UIManager.showPopupMenu(
+    // @ts-ignore: Ignore
     findNodeHandle(anchor),
     items.map(item => item.label),
-    function (err) {
+    function () {
       if (onCancel) onCancel();
     },
     function (eventName: 'dismissed' | 'itemSelected', selectedIndex?: number) {
+      // @ts-ignore: Ignore
       if (eventName === 'itemSelected') onSelect(items[selectedIndex]);
       else onCancel && onCancel();
     },
