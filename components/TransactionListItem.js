@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off" */
 import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
-import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import * as NavigationService from '../NavigationService';
@@ -324,16 +324,14 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
   return (
     <View style={styles.container}>
-      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress}>
+      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
           subtitleProps={subtitleProps}
-          onPress={onPress}
           chevron={false}
-          Component={TouchableOpacity}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           containerStyle={containerStyle}

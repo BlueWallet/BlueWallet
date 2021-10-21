@@ -112,8 +112,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
         onPressMenuItem={onToolTipPress}
         previewQRCode
         previewValue={item.address}
+        onPress={navigateToReceive}
       >
-        <ListItem key={`${item.key}`} button onPress={navigateToReceive} containerStyle={stylesHook.container}>
+        <ListItem key={`${item.key}`} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
             <ListItem.Title style={stylesHook.list} numberOfLines={1} ellipsizeMode="middle">
               <Text style={[styles.index, stylesHook.index]}>{item.index + 1}</Text>{' '}

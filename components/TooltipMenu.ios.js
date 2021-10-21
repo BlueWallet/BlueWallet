@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
 import QRCodeComponent from './QRCodeComponent';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const ToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
@@ -56,7 +57,7 @@ const ToolTipMenu = (props, ref) => {
       }}
       style={buttonStyle}
     >
-      {props.children}
+      {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuButton>
   ) : (
     <ContextMenuView
@@ -78,7 +79,7 @@ const ToolTipMenu = (props, ref) => {
           }
         : {})}
     >
-      {props.children}
+      {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuView>
   );
 };
@@ -92,5 +93,6 @@ ToolTipMenu.propTypes = {
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,
   previewQRCode: PropTypes.bool,
+  onPress: PropTypes.func,
   previewValue: PropTypes.string,
 };
