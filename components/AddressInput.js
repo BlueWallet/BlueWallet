@@ -24,6 +24,7 @@ const AddressInput = ({
   inputAccessoryViewID,
   onBlur = () => {},
   allowBatch = false,
+  keyboardType = 'default',
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -63,7 +64,7 @@ const AddressInput = ({
         onBlur={onBlurEditing}
         autoCapitalize="none"
         autoCorrect={false}
-        keyboardType="url"
+        keyboardType={keyboardType}
       />
       {editable ? (
         <TouchableOpacity
@@ -147,6 +148,7 @@ AddressInput.propTypes = {
   onBarScannerDismissWithoutData: PropTypes.func,
   onBlur: PropTypes.func,
   allowBatch: PropTypes.bool,
+  keyboardType: PropTypes.string,
 };
 
 export default AddressInput;

@@ -55,6 +55,7 @@
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		849047CA2702A32A008EE567 /* Handoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849047C92702A32A008EE567 /* Handoff.swift */; };
+		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
 		8CBB9CC9ACE4B44B45C28DF8 /* libPods-WidgetsExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7E45F9A25C15BEA362225C9B /* libPods-WidgetsExtension.a */; };
 		906451CAD44154C2950030EC /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 731973BA0AC6EA78962CE5B6 /* libPods-BlueWallet.a */; };
 		B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E32225841EC00428FCC /* Interface.storyboard */; };
@@ -292,6 +293,7 @@
 		7E45F9A25C15BEA362225C9B /* libPods-WidgetsExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WidgetsExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ToolTipMenuTests.xctest; sourceTree = "<group>"; };
 		849047C92702A32A008EE567 /* Handoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Handoff.swift; sourceTree = "<group>"; };
+		84E05A832721191B001A0D3A /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		8637D4B5E14D443A9031DA95 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		8C30FBCA42C6BF0B45757763 /* Pods-WidgetsExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetsExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WidgetsExtension/Pods-WidgetsExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		90F86BC5194548CA87D729A9 /* libToolTipMenu.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libToolTipMenu.a; sourceTree = "<group>"; };
@@ -437,6 +439,7 @@
 				6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */,
 				6D32C5C42596CE2F008C077C /* EventEmitter.h */,
 				6D32C5C52596CE3A008C077C /* EventEmitter.m */,
+				84E05A832721191B001A0D3A /* Settings.bundle */,
 			);
 			name = BlueWallet;
 			sourceTree = "<group>";
@@ -922,7 +925,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */,
+				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -944,6 +947,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */,
+				84E05A842721191B001A0D3A /* Settings.bundle in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2002,7 +2006,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */ = {
+		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -2015,7 +2019,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */;
+			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */

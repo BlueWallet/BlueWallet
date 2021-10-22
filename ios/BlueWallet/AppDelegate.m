@@ -42,7 +42,6 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [Bugsnag start];
-
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
@@ -71,13 +70,12 @@ static void InitializeFlipper(UIApplication *application) {
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
   
+  
   /* For debugging purposes since iOS Simulator does not support handoff
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   [defaults setValue:@{@"activityType": @"io.bluewallet.bluewallet.receiveonchain", @"userInfo": @{@"address": @""}} forKey:@"onUserActivityOpen"];
   */
-  
   return YES;
-  
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     fontSize: 16,
     fontWeight: '500',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   secret: {
     flexWrap: 'wrap',

@@ -377,7 +377,6 @@
     "details_advanced": "Edistynyt",
     "details_are_you_sure": "Oletko varma?",
     "details_connected_to": "Yhdistetty",
-    "details_del_wb": "Lompakon saldo",
     "details_del_wb_err": "Annettu saldo ei vastaa tämän lompakon saldoa. Yritä uudelleen",
     "details_del_wb_q": "Tällä lompakolla on saldoa. Ennen kuin jatkat, huomaa, että et voi palauttaa varoja ilman tämän lompakon siemenlauseketta. Syötä lompakkosi saldo {balance} satoshia välttääksesi vahingossa tämän lompakon poistamisen.",
     "details_delete": "Poista",
