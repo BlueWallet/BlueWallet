@@ -5,6 +5,7 @@
     "continue": "Continua",
     "enter_password": "Inserisci password",
     "never": "Mai",
+    "disabled": "Disabilitato",
     "of": "{number} su {total}",
     "ok": "OK",
     "storage_is_encrypted": "Il tuo archivio è criptato. È necessaria una password per decriptarlo",
@@ -20,9 +21,13 @@
     "file_saved": "Il file {filepath} è stato salvato in {destination}.",
     "file_save_title": "Salva FIle",
     "file_save_location": "Seleziona dove salvare {filePath}",
+    "downloads_folder": "Cartella download",
     "external_storage": "Archiviazione Esterna",
     "discard_changes": "Annullare i cambiamenti?",
     "discard_changes_detail": "Ci sono dei cambiamenti non registrati. Sei sicuro di volerli scartare e di lasciare la schermata?"
+  },
+  "alert": {
+    "default": "Attenzione"
   },
   "azteco": {
     "codeIs": "Il codice del tuo voucher è",
@@ -98,6 +103,10 @@
   "lnd": {
     "active": "Attivo",
     "inactive": "Inattivo",
+    "channels": "Canali",
+    "no_channels": "Nessun canale",
+    "close_channel": "Chiudi il canale",
+    "new_channel": "Nuovo canale",
     "errorInvoiceExpired": "Fattura scaduta",
     "exchange": "Exchange",
     "expired": "Scaduto",
@@ -105,6 +114,7 @@
     "expiresIn": "Scade tra {time} minuti",
     "payButton": "Paga",
     "placeholder": "Fattura",
+    "open_channel": "Apri canale",
     "funding_amount_placeholder": "Quantità di fondi, ad esempio 0.001",
     "opening_channnel_for_from": "Apri canale per il wallet {forWalletLabel}, caricando fondi da {fromWalletLabel}",
     "are_you_sure_open_channel": "Sei sicuro di voler aprie questo canale?",
@@ -121,7 +131,9 @@
     "refill_external": "Ricarica con un wallet esterno",
     "refill_lnd_balance": "Ricarica saldo del portafoglio Lightning",
     "sameWalletAsInvoiceError": "Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.",
-    "title": "Gestisci fondi"
+    "title": "Gestisci fondi",
+    "can_send": "Puoi inviare",
+    "can_receive": "Puoi ricevere"
   },
   "lndViewInvoice": {
     "additional_info": "Ulteriori Informazioni",
@@ -166,6 +178,7 @@
     "header": "Ricevi"
   },
   "send": {
+    "provided_address_is_invoice": "Questo indirizzo sembra appartenere ad una invoice Lightning. Vai nel tuo wallet Lightning per effettuare il pagamento di questa invoice.",
     "broadcastButton": "Trasmetti",
     "broadcastError": "Errore",
     "broadcastNone": "Inserisci Hex di transazione",
@@ -278,8 +291,12 @@
     "electrum_connected_not": "Non connesso",
     "electrum_connnected_not_description": "Una connessione attiva a Electrum è richiesta per importare un wallet. Puoi verificare che una connessione sia stata stabilita entrando nella sezione Rete nelle Impostazioni.",
     "electrum_error_connect": "Impossibile connettersi al server Electrum specificato",
+    "lndhub_uri": "Es. (esempio)",
+    "electrum_host": "Es., (esempio)",
+    "electrum_offline_mode": "Modalità offline",
     "electrum_offline_description": "Quando attivo, i tuoi wallet Bitcoin non proveranno a reperire il saldo o le transazioni.",
     "electrum_port": "Porta, solitamente {example}",
+    "use_ssl": "Usa SSL",
     "electrum_saved": "Le tue modifiche sono state salvate con successo. Può essere necessario riavviare BlueWallet affinché le modifiche abbiano effetto.",
     "set_electrum_server_as_default": "Impostare {server} come il server Electrum di default?",
     "set_lndhub_as_default": "Impostare {url} come il server LNDHub?",
@@ -314,7 +331,9 @@
     "groundcontrol_explanation": "GroundControl è un server di notifiche push gratuito e open-source per i portafogli Bitcoin. Puoi installare il tuo server GroundControl e mettere il suo URL qui per non contare sull'infrastruttura di BlueWallet. Lascia il campo vuoto per usare il server predefinito di GroundControl.",
     "header": "Impostazioni",
     "language": "Lingua",
+    "last_updated": "Ultimo aggiornamento",
     "language_isRTL": "Il riavvio di BlueWallet è necessario affinché l'orientamento della lingua abbia effetto.",
+    "lightning_error_lndhub_uri": "LNDHub URI non valido",
     "lightning_saved": "I cambiamenti sono stati registrati con successo.",
     "lightning_settings": "Impostazioni Lightning",
     "tor_settings": "Impostazioni Tor",
@@ -322,6 +341,7 @@
     "network": "Rete",
     "network_broadcast": "Trasmetti transazione",
     "network_electrum": "Server Electrum",
+    "not_a_valid_uri": "URI non valido",
     "notifications": "Notifiche",
     "open_link_in_explorer": "Apri il collegamento nel navigatore",
     "password": "Password",
@@ -358,7 +378,6 @@
     "cancel_no": "Questa transazione non può essere sostituita.",
     "cancel_title": "Cancella questa transazione (RBF)",
     "confirmations_lowercase": "{confirmations} conferme",
-    "note": "Note",
     "expand_note": "Espandi Nota",
     "cpfp_create": "Crea",
     "cpfp_exp": "Creeremo una nuova transazione che spende la tua transazione non ancora confermata. Le commissioni totali saranno più elevate rispetto alla transazione originale, quindi dovrebbe venir confermata pi?u rapidamente. Questa tecnica si chiama CPFP—Child Pays for Parent.",
@@ -368,6 +387,8 @@
     "details_balance_show": "Mostra il saldo",
     "details_block": "Altezza del blocco",
     "details_copy": "Copia",
+    "details_copy_amount": "Copia importo",
+    "details_copy_note": "Copia Nota",
     "details_from": "Da",
     "details_inputs": "Input",
     "details_outputs": "Output",
@@ -381,6 +402,9 @@
     "list_conf": "Conferme: {number}",
     "pending": "Pendente",
     "pending_with_amount": "In attesa {amt1} ({amt2})",
+    "eta_10m": "ETA: In ~10 minuti",
+    "eta_3h": "ETA: In ~3 ore",
+    "eta_1d": "ETA: In ~1 giorno",
     "list_title": "Transazioni",
     "rbf_explain": "Sostituiremo questa transazione con una con una commissione più elevata in modo che venga confermata più rapidamente. Questa tecnica è chiamata RBF—Replace by Fee.",
     "rbf_title": "Aumenta la commissione (RBF)",
@@ -402,6 +426,7 @@
     "add_lndhub": "Connetti al tuo LNDHub",
     "add_lndhub_placeholder": "L'indirizzo del tuo nodo",
     "add_or": "o",
+    "add_placeholder": "Il mio primo wallet",
     "add_title": "Aggiungi Portafoglio",
     "add_wallet_name": "Nome Portafoglio",
     "add_wallet_type": "Tipo",
@@ -411,7 +436,6 @@
     "details_advanced": "Avanzato",
     "details_are_you_sure": "Sei sicuro?",
     "details_connected_to": "Connesso a",
-    "details_del_wb_q": "Questo portafoglio ha un saldo. Prima di procedere, tieni presente che non potrai recuperare i fondi senza la frase seed di questo portafoglio. Al fine di evitare la rimozione accidentale di questo portafoglio, inserisci il saldo del tuo portafoglio di {balance} satoshis.",
     "details_delete": "Elimina",
     "details_delete_wallet": "Rimuovi portafoglio",
     "details_derivation_path": "derivation path",
@@ -425,6 +449,7 @@
     "details_no_cancel": "No, annulla",
     "details_save": "Salva",
     "details_show_xpub": "Mostra XPUB del portafoglio",
+    "details_show_addresses": "Mostra indirizzi",
     "details_title": "Portafoglio",
     "details_type": "Tipo",
     "details_wallet_updated": "Portafoglio aggiornato",
@@ -432,14 +457,21 @@
     "enter_bip38_password": "Inserisci la password per decriptare",
     "export_title": "Esporta portafoglio",
     "import_do_import": "Importa",
+    "import_passphrase": "Passphrase",
+    "import_passphrase_title": "Passphrase",
     "import_error": "Importazione fallita. Assicurati che le informazioni fornite siano valide.",
     "import_imported": "Importato",
     "import_scan_qr": "o scansionare un codice QR?",
     "import_success": "Fatto",
     "import_title": "Importa",
+    "import_derivation_found": "trovato",
+    "import_derivation_found_not": "non trovato",
+    "import_derivation_loading": "caricamento...",
+    "import_derivation_unknown": "sconosciuto",
     "list_create_a_button": "Aggiungi ora",
     "list_create_a_wallet": "Aggiungi un portafoglio",
     "list_empty_txs1": "Le tue transazioni appariranno qui,",
+    "list_empty_txs2": "Inizia con il tuo wallet.",
     "list_latest_transaction": "Transazioni recenti",
     "list_long_clipboard": "Copia dagli appunti",
     "list_long_scan": "Scansiona un codice QR",
@@ -482,8 +514,12 @@
     "ms_help": "Aiuto",
     "ms_help_title5": "Modo avanzato"
   },
+  "is_it_my_address": {
+    "view_qrcode": "Visualizza QRCode"
+  },
   "cc": {
     "change": "Resto",
+    "empty": "Questo wallet non contiene monete al momento.",
     "freeze": "Congela",
     "freezeLabel": "Congela",
     "freezeLabel_un": "Scongela"
@@ -491,14 +527,19 @@
   "units": {
     "BTC": "BTC",
     "MAX": "Max",
+    "sat_vbyte": "sat/vByte",
     "sats": "sat"
   },
   "addresses": {
     "sign_title": "Firma/Verifica messaggio",
     "sign_sign": "Firma",
+    "sign_sign_submit": "Firma e invia",
     "sign_verify": "Verifica",
+    "sign_signature_incorrect": "Verifica fallita!",
     "sign_placeholder_address": "Indirizzo",
     "sign_placeholder_message": "Messaggio",
-    "sign_placeholder_signature": "Firma"
+    "sign_placeholder_signature": "Firma",
+    "addresses_title": "Indirizzi",
+    "transactions": "Transazioni"
   }
 }
