@@ -42,7 +42,6 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [Bugsnag start];
-  [self registerDefaultsFromSettingsBundle];
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
@@ -77,19 +76,6 @@ static void InitializeFlipper(UIApplication *application) {
   [defaults setValue:@{@"activityType": @"io.bluewallet.bluewallet.receiveonchain", @"userInfo": @{@"address": @""}} forKey:@"onUserActivityOpen"];
   */
   return YES;
-}
-
-#pragma NSUserDefaults
-- (void)registerDefaultsFromSettingsBundle {
-    // this function writes default settings as settings
-    NSString *settingsBundle = [[NSBundle mainBundle] pathForResource:@"Settings" ofType:@"bundle"];
-    if(!settingsBundle) {
-        NSLog(@"Could not find Settings.bundle");
-        return;
-    }
-
-    [[NSUserDefaults standardUserDefaults] setValue:UIDevice.currentDevice.identifierForVendor.UUIDString forKey:@"uniqueid"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

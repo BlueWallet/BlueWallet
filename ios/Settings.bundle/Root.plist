@@ -20,7 +20,7 @@
 			<key>Title</key>
 			<string>Unique ID</string>
 			<key>Key</key>
-			<string>uniqueid</string>
+			<string>deviceUID</string>
 		</dict>
 	</array>
 </dict>
