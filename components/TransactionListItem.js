@@ -330,6 +330,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
+          Component={View}
           subtitleProps={subtitleProps}
           chevron={false}
           rightTitle={rowTitle}
