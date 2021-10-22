@@ -1,6 +1,6 @@
-import React, { useRef, cloneElement, useEffect, forwardRef } from 'react';
+import React, { useRef, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { Pressable, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import showPopupMenu from '../blue_modules/showPopupMenu';
 
 const ToolTipMenu = (props, ref) => {
@@ -38,14 +38,14 @@ const ToolTipMenu = (props, ref) => {
   };
 
   const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
-  return isMenuPrimaryAction ? (
-    <TouchableOpacity style={buttonStyle} ref={menuRef} onPress={showMenu}>
+  return (
+    <TouchableOpacity
+      style={buttonStyle}
+      ref={menuRef}
+      {...(isMenuPrimaryAction ? { onPress: showMenu } : { onPress: props.onPress, onLongPress: showMenu })}
+    >
       {child}
     </TouchableOpacity>
-  ) : (
-    <Pressable ref={menuRef} onLongPress={showMenu}>
-      {child && cloneElement(child, { onLongPress: showMenu })}
-    </Pressable>
   );
 };
 
@@ -55,4 +55,5 @@ ToolTipMenu.propTypes = {
   children: PropTypes.node.isRequired,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
+  onPress: PropTypes.func,
 };

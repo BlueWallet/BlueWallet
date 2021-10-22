@@ -209,6 +209,7 @@ export default class TransactionsNavigationHeader extends Component {
           {this.state.wallet.getLabel()}
         </Text>
         <ToolTipMenu
+          onPress={this.changeWalletBalanceUnit}
           ref={this.menuRef}
           title={loc.wallets.balance}
           onPressMenuItem={this.onPressMenuItem}
@@ -235,7 +236,7 @@ export default class TransactionsNavigationHeader extends Component {
                 ]
           }
         >
-          <TouchableOpacity accessibilityRole="button" style={styles.balance} onPress={this.changeWalletBalanceUnit}>
+          <View style={styles.balance}>
             {this.state.wallet.hideBalance ? (
               <BluePrivateBalance />
             ) : (
@@ -249,13 +250,13 @@ export default class TransactionsNavigationHeader extends Component {
                 {balance}
               </Text>
             )}
-          </TouchableOpacity>
+          </View>
         </ToolTipMenu>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <ToolTipMenu
             isMenuPrimaryAction
             isButton
-            onPressMenuItem={this.manageFundsPressed}
+            onPress={this.manageFundsPressed}
             actions={this.toolTipMenuActions}
             buttonStyle={styles.manageFundsButton}
           >
