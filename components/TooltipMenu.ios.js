@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
 import QRCodeComponent from './QRCodeComponent';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 
 const ToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
