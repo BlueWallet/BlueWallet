@@ -42,6 +42,50 @@ describe('LNURL', function () {
     assert.ok(!Lnurl.isLnurl('bs'));
   });
 
+  it('can parseOnionUrl()', () => {
+    const vectors = [
+      {
+        test: 'http://abc.onion/path',
+        expected: ['http://abc.onion', '/path'],
+      },
+      {
+        test: 'http://abc.onion:12345/path',
+        expected: ['http://abc.onion:12345', '/path'],
+      },
+      {
+        test: 'http://abc.onion/',
+        expected: ['http://abc.onion', '/'],
+      },
+      {
+        test: 'http://abc.onion',
+        expected: ['http://abc.onion', undefined],
+      },
+      {
+        test: 'https://abc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://abc.com',
+        expected: null,
+      },
+      {
+        test: 'http://a@bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a/bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a:bc.onion',
+        expected: null,
+      },
+    ];
+    for (const { test, expected } of vectors) {
+      assert.deepStrictEqual(Lnurl.parseOnionUrl(test), expected);
+    }
+  });
+
   it('can callLnurlPayService() and requestBolt11FromLnurlPayService()', async () => {
     const LN = new Lnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58');
 
@@ -168,6 +212,7 @@ describe('LNURL', function () {
 describe('lightning address', function () {
   it('can getUrlFromLnurl()', () => {
     assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@zbd.gg'), 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+    assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@hidden.onion'), 'http://hidden.onion/.well-known/lnurlp/lnaddress');
   });
 
   it('can detect', async () => {

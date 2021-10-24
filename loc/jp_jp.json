@@ -375,7 +375,6 @@
     "details_advanced": "上級設定",
     "details_are_you_sure": "実行しますか?",
     "details_connected_to": "接続",
-    "details_del_wb": "ウォレット残高",
     "details_del_wb_err": "提供された残高は、このウォレットの残高と一致しません。もう一度お試しください。",
     "details_del_wb_q": "このウォレットには残高があります。先に進む前に、このウォレットのシードフレーズがないと資金を回収できない点に注意してください。誤ってこのウォレットを削除しないようにするために、このウォレットの残高 {balance} satoshisを入力してください。",
     "details_delete": "削除",

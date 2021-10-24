@@ -134,7 +134,7 @@ export const BitcoinButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
               {loc.wallets.add_bitcoin}
             </Text>
@@ -175,7 +175,7 @@ export const VaultButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text
               style={{
                 color: colors.foregroundColor,
@@ -224,7 +224,7 @@ export const LightningButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text
               style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}
             >

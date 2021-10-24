@@ -389,6 +389,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       if (require('fs').existsSync(lockFile))
         return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
     }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();

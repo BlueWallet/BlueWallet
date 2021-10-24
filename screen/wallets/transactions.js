@@ -723,7 +723,6 @@ const styles = StyleSheet.create({
     minHeight: 130,
   },
   walletDetails: {
-    minWidth: 150,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
