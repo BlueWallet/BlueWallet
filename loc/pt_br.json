@@ -444,7 +444,6 @@
     "details_advanced": "Avançado",
     "details_are_you_sure": "Tem certeza?",
     "details_connected_to": "Conectado a",
-    "details_del_wb": "Saldo da carteira",
     "details_del_wb_err": "O valor do saldo fornecido não corresponde ao saldo desta carteira. Tente novamente.",
     "details_del_wb_q": "Esta carteira tem um saldo. Antes de prosseguir, esteja ciente de que você não poderá recuperar os fundos sem a frase de backup desta carteira. Para evitar a remoção acidental desta carteira, insira o saldo de {balance} satoshis da carteira.",
     "details_delete": "Apagar",

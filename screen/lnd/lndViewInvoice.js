@@ -184,11 +184,16 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     if (invoice.ispaid && invoiceStatusChanged) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       setInvoiceStatusChanged(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice]);
+
+  useEffect(() => {
+    if (invoiceStatusChanged) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    }
+  }, [invoiceStatusChanged]);
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;

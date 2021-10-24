@@ -536,7 +536,7 @@ const Navigation = () => {
         component={ScanQRCodeRoot}
         options={{
           headerShown: false,
-          stackPresentation: 'fullScreenModal',
+          stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal',
         }}
       />
     </RootStack.Navigator>

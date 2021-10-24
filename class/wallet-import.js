@@ -159,7 +159,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
         lnd.setBaseURI(split[1]);
         lnd.setSecret(split[0]);
       }
-      lnd.init();
+      await lnd.init();
       await lnd.authorize();
       await lnd.fetchTransactions();
       await lnd.fetchUserInvoices();

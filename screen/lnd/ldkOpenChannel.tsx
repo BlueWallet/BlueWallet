@@ -41,8 +41,8 @@ const LdkOpenChannel = (props: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const psbtOpenChannelStartedTs = useRef<number>();
   const [remoteHostWithPubkey, setRemoteHostWithPubkey] = useState(
-    '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
-  ); // lnd2.bluewallet.io
+    '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
+  ); // Bitrefill
   const name = useRoute().name;
   const [fundingAmount, setFundingAmount] = useState<any>({ amount: null, amountSats: null });
   const [verified, setVerified] = useState(false);
@@ -98,16 +98,19 @@ const LdkOpenChannel = (props: any) => {
   }, []);
 
   const finalizeOpenChannel = async () => {
+    setIsLoading(true);
     if (isBiometricUseCapableAndEnabled) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
         return;
       }
     }
     if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
       return alert('Channel opening expired. Please try again');
     }
 
@@ -116,6 +119,7 @@ const LdkOpenChannel = (props: any) => {
     // const res = true; // debug
     if (!res) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      setIsLoading(false);
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(ldkWallet.getID());
@@ -123,6 +127,7 @@ const LdkOpenChannel = (props: any) => {
     fetchAndSaveWalletTransactions(fundingWalletID);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigate('Success', { amount: undefined });
+    setIsLoading(false);
   };
 
   const openChannel = async () => {
@@ -145,8 +150,14 @@ const LdkOpenChannel = (props: any) => {
       console.warn('initiated channel opening');
 
       if (!fundingAddressTemp) {
+        let reason = '';
+        const channelsClosed = ldkWallet.getChannelsClosedEvents();
+        const event = channelsClosed.pop();
+        if (event) {
+          reason += event.reason + ' ' + event.text;
+        }
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        return alert('Initiating channel open failed');
+        return alert('Initiating channel open failed: ' + reason);
       }
 
       psbtOpenChannelStartedTs.current = +new Date();

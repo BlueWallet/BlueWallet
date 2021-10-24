@@ -375,7 +375,6 @@
     "details_advanced": "進階的",
     "details_are_you_sure": "你確定嗎?",
     "details_connected_to": "連接到",
-    "details_del_wb": "錢包結餘",
     "details_del_wb_err": "提供的結餘與此錢包的結餘不匹配，請再試一遍。",
     "details_del_wb_q": "這個錢包有結餘。 在繼續操作之前，請注意，沒有此錢包的種子(備份)短語，您將無法取回資金。 為了避免意外移除該錢包，請輸入您的錢包結餘{balance} 聰。",
     "details_delete": "移除",
