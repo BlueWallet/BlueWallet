@@ -13,7 +13,6 @@ import Biometric from '../../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { Psbt } from 'bitcoinjs-lib';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
@@ -22,7 +21,7 @@ const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 
 const Confirm = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDisabled } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;

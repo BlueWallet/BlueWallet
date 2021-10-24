@@ -24,7 +24,6 @@ import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
