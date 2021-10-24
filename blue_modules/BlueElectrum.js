@@ -4,7 +4,6 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
-import { isTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
@@ -868,7 +867,7 @@ module.exports.testConnection = async function (host, tcpPort, sslPort) {
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && !isTorDisabled ? 21000 : 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), 5000);
       }),
       client.connect(),
     ]);

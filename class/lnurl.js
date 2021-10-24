@@ -1,6 +1,5 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
-import { isTorDaemonDisabled } from '../blue_modules/environment';
 const CryptoJS = require('crypto-js');
 const createHash = require('create-hash');
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
