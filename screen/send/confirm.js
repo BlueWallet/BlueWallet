@@ -118,37 +118,12 @@ const Confirm = () => {
       } else {
         const payJoinWallet = new PayjoinTransaction(psbt, txHex => broadcast(txHex), wallet);
         const paymentScript = getPaymentScript();
-        let payjoinClient;
-        if (!isTorDisabled && payjoinUrl.includes('.onion')) {
-          console.warn('trying TOR....');
-          // working through TOR - crafting custom requester that will handle TOR http request
-          const customPayjoinRequester = {
-            requestPayjoin: async function (psbt) {
-              console.warn('requesting payjoin with psbt:', psbt.toBase64());
-              const api = new torrific.Torsbee();
-              const torResponse = await api.post(payjoinUrl, {
-                headers: {
-                  'Content-Type': 'text/plain',
-                },
-                body: psbt.toBase64(),
-              });
-              console.warn('got torResponse.body');
-              if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
-              return Psbt.fromBase64(torResponse.body);
-            },
-          };
-          payjoinClient = new PayjoinClient({
-            paymentScript,
-            payJoinWallet,
-            payjoinRequester: customPayjoinRequester,
-          });
-        } else {
-          payjoinClient = new PayjoinClient({
-            paymentScript,
-            payJoinWallet,
-            payjoinUrl,
-          });
-        }
+        const payjoinClient = new PayjoinClient({
+          paymentScript,
+          payJoinWallet,
+          payjoinUrl,
+        });
+
         await payjoinClient.run();
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
