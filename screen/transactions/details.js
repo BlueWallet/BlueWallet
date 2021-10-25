@@ -220,14 +220,11 @@ const TransactionsDetails = () => {
             },
           ]}
           onPressMenuItem={handleCopyPress}
+          onPress={handleOnOpenTransactionOnBlockExporerTapped}
         >
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={handleOnOpenTransactionOnBlockExporerTapped}
-            style={[styles.greyButton, stylesHooks.greyButton]}
-          >
+          <View style={[styles.greyButton, stylesHooks.greyButton]}>
             <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-          </TouchableOpacity>
+          </View>
         </ToolTipMenu>
       </BlueCard>
     </ScrollView>
