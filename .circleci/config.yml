@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.24.1
+      - image: circleci/node:17.0.1
 
     working_directory: ~/repo
 
