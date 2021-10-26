@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.4.1):
+  - RNDeviceInfo (8.4.3):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -435,7 +435,7 @@ PODS:
     - React-Core
   - RNSVG (12.1.1):
     - React
-  - RNVectorIcons (8.1.0):
+  - RNVectorIcons (9.0.0):
     - React-Core
   - RNWatch (1.0.4):
     - React
@@ -770,7 +770,7 @@ SPEC CHECKSUMS:
   RNCClipboard: f49f3de56b40d0f4104680dabadc7a1f063f4fd4
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 1a8db52003ad76c066ed739259079efe5d2e7853
+  RNDeviceInfo: b930fb5d20b1aa43c93a09a22af00f601a87a286
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -785,7 +785,7 @@ SPEC CHECKSUMS:
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 70356a1bb406bc46ae03196a5d3048c702bb71a7
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
-  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
+  RNVectorIcons: 4143ba35feebab8fdbe6bc43d1e776b393d47ac8
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac

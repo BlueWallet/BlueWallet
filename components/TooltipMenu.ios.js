@@ -42,11 +42,13 @@ const ToolTipMenu = (props, ref) => {
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
   const previewQRCode = props.previewQRCode ?? false;
   const previewValue = props.previewValue;
+  const disabled = props.disabled ?? false;
   // eslint-disable-next-line react/prop-types
   const buttonStyle = props.buttonStyle;
   return isButton ? (
     <ContextMenuButton
       ref={ref}
+      disabled={disabled}
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
@@ -95,4 +97,5 @@ ToolTipMenu.propTypes = {
   previewQRCode: PropTypes.bool,
   onPress: PropTypes.func,
   previewValue: PropTypes.string,
+  disabled: PropTypes.bool,
 };
