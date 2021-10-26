@@ -256,7 +256,7 @@ export default class TransactionsNavigationHeader extends Component {
           <ToolTipMenu
             isMenuPrimaryAction
             isButton
-            onPress={this.manageFundsPressed}
+            onPressMenuItem={this.manageFundsPressed}
             actions={this.toolTipMenuActions}
             buttonStyle={styles.manageFundsButton}
           >
