@@ -51,7 +51,7 @@ const ToolTipMenu = (props, ref) => {
 
 export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  actions: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
