@@ -9,10 +9,11 @@ const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = {};
+let exchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled = 0;
 
 const LAST_UPDATED = 'LAST_UPDATED';
+const LAST_UPDATED_ERROR = false;
 
 /**
  * Saves to storage preferred currency, whole object
@@ -40,9 +41,10 @@ async function getPreferredCurrency() {
 async function _restoreSavedExchangeRatesFromStorage() {
   try {
     exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    if (!exchangeRates) exchangeRates = {};
+    exchangeRates.LAST_UPDATED_ERROR = false;
+    if (!exchangeRates) exchangeRates = { LAST_UPDATED_ERROR: false };
   } catch (_) {
-    exchangeRates = {};
+    exchangeRates = { LAST_UPDATED_ERROR: false };
   }
 }
 
@@ -88,10 +90,17 @@ async function updateExchangeRate() {
     exchangeRates[LAST_UPDATED] = +new Date();
     exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
     await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
+    exchangeRates[LAST_UPDATED_ERROR] = false;
   } catch (Err) {
     console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
+    exchangeRates[LAST_UPDATED_ERROR] = true;
+    throw Err;
   }
+}
+
+function isRateOutdated() {
+  return exchangeRates[LAST_UPDATED_ERROR] || new Date() - exchangeRates[LAST_UPDATED] >= 31 * 60 * 1000;
 }
 
 /**
@@ -167,7 +176,7 @@ async function mostRecentFetchedRate() {
     currency: preferredFiatCurrency.endPointKey,
   });
   return {
-    LastUpdated: currencyInformation[LAST_UPDATED],
+    LastUpdated: isRateOutdated() ? exchangeRates[LAST_UPDATED] : currencyInformation[LAST_UPDATED],
     Rate: formatter.format(JSON.parse(currencyInformation)[`BTC_${preferredFiatCurrency.endPointKey}`]),
   };
 }
@@ -227,3 +236,4 @@ module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY_STORAGE_KEY;
 module.exports.EXCHANGE_RATES = EXCHANGE_RATES_STORAGE_KEY;
 module.exports.LAST_UPDATED = LAST_UPDATED;
 module.exports.mostRecentFetchedRate = mostRecentFetchedRate;
+module.exports.isRateOutdated = isRateOutdated;

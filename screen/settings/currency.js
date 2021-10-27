@@ -4,10 +4,11 @@ import { useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
-import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
+import { FiatUnit, FiatUnitSource, getFiatRate } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import dayjs from 'dayjs';
+import alert from '../../components/Alert';
 dayjs.extend(require('dayjs/plugin/calendar'));
 const currency = require('../../blue_modules/currency');
 const data = Object.values(FiatUnit);
@@ -67,12 +68,19 @@ const Currency = () => {
                 checkmark={selectedCurrency.endPointKey === item.endPointKey}
                 onPress={async () => {
                   setIsSavingNewPreferredCurrency(true);
-                  setSelectedCurrency(item);
-                  await currency.setPrefferedCurrency(item);
-                  await currency.init(true);
-                  setIsSavingNewPreferredCurrency(false);
-                  setPreferredFiatCurrency();
-                  fetchCurrency();
+                  try {
+                    await getFiatRate(item.endPointKey);
+                    await currency.setPrefferedCurrency(item);
+                    await currency.init(true);
+                    await fetchCurrency();
+                    setSelectedCurrency(item);
+                    setPreferredFiatCurrency();
+                  } catch (error) {
+                    console.log(error);
+                    alert(loc.settings.currency_fetch_error);
+                  } finally {
+                    setIsSavingNewPreferredCurrency(false);
+                  }
                 }}
               />
             );
