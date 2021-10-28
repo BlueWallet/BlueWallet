@@ -5,6 +5,7 @@ import showPopupMenu from '../blue_modules/showPopupMenu';
 
 const ToolTipMenu = (props, ref) => {
   const menuRef = useRef();
+  const disabled = props.disabled ?? false;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
   // eslint-disable-next-line react/prop-types
   const buttonStyle = props.buttonStyle ?? {};
@@ -37,23 +38,24 @@ const ToolTipMenu = (props, ref) => {
     showPopupMenu(menu, handleToolTipSelection, menuRef.current);
   };
 
-  const child = (Array.isArray(props.children) ? props.children[0] : props.children) || null;
   return (
     <TouchableOpacity
       style={buttonStyle}
       ref={menuRef}
+      disabled={disabled}
       {...(isMenuPrimaryAction ? { onPress: showMenu } : { onPress: props.onPress, onLongPress: showMenu })}
     >
-      {child}
+      {props.children}
     </TouchableOpacity>
   );
 };
 
 export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
-  actions: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  actions: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   onPress: PropTypes.func,
+  disabled: PropTypes.bool,
 };
