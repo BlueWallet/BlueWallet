@@ -263,7 +263,7 @@ const ScanLndInvoice = () => {
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity accessibilityRole="button" style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" disabled={isLoading} style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}
