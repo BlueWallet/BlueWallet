@@ -62,7 +62,7 @@ class AmountInput extends Component {
         this.setState({ mostRecentFetchedRate });
       })
       .finally(() => {
-        this.setState({ isRateOutdated: currency.isRateOutdated() });
+        currency.isRateOutdated().then(isRateOutdated => this.setState({ isRateOutdated }));
       });
   }
 
@@ -198,7 +198,7 @@ class AmountInput extends Component {
         });
       } finally {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        this.setState({ isRateBeingUpdated: false, isRateOutdated: currency.isRateOutdated() });
+        this.setState({ isRateBeingUpdated: false, isRateOutdated: await currency.isRateOutdated() });
       }
     });
   };
