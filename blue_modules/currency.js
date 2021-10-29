@@ -40,7 +40,6 @@ async function getPreferredCurrency() {
 async function _restoreSavedExchangeRatesFromStorage() {
   try {
     exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    exchangeRates.LAST_UPDATED_ERROR = false;
     if (!exchangeRates) exchangeRates = { LAST_UPDATED_ERROR: false };
   } catch (_) {
     exchangeRates = { LAST_UPDATED_ERROR: false };
@@ -77,10 +76,10 @@ async function updateExchangeRate() {
   }
   lastTimeUpdateExchangeRateWasCalled = +new Date();
 
-  if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
-    // not updating too often
-    return;
-  }
+  // if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
+  //   // not updating too often
+  //   return;
+  // }
   console.log('updating exchange rate...');
 
   let rate;
@@ -93,7 +92,10 @@ async function updateExchangeRate() {
   } catch (Err) {
     console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
+    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    rate.LAST_UPDATED_ERROR = true;
     exchangeRates.LAST_UPDATED_ERROR = true;
+    await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
     throw Err;
   }
 }
@@ -101,9 +103,7 @@ async function updateExchangeRate() {
 async function isRateOutdated() {
   try {
     const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    console.warn(exchangeRates);
-    console.warn(rate);
-    return exchangeRates.LAST_UPDATED_ERROR || +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000;
+    return rate.LAST_UPDATED_ERROR || +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000;
   } catch {
     return true;
   }
@@ -175,7 +175,7 @@ function BTCToLocalCurrency(bitcoin) {
 }
 
 async function mostRecentFetchedRate() {
-  const currencyInformation = await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY);
+  const currencyInformation = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
 
   const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
     style: 'currency',
@@ -183,7 +183,7 @@ async function mostRecentFetchedRate() {
   });
   return {
     LastUpdated: currencyInformation[LAST_UPDATED],
-    Rate: formatter.format(JSON.parse(currencyInformation)[`BTC_${preferredFiatCurrency.endPointKey}`]),
+    Rate: formatter.format(currencyInformation[`BTC_${preferredFiatCurrency.endPointKey}`]),
   };
 }
 
