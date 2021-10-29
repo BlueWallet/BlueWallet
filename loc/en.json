@@ -420,6 +420,7 @@
     "eta_3h": "ETA: In ~3 hours",
     "eta_1d": "ETA: In ~1 day",
     "list_title": "Transactions",
+    "open_url_error": "Unable to open URL with the default browser. Please change your default browser and try again",
     "rbf_explain": "We will replace this transaction with one with a higher fee, so it should be mined faster. This is called RBF—Replace by Fee.",
     "rbf_title": "Bump Fee (RBF)",
     "status_bump": "Bump Fee",
