@@ -386,8 +386,6 @@ const SendDetails = () => {
         return [...addresses];
       });
       setIsLoading(false);
-      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
