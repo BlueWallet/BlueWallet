@@ -76,10 +76,10 @@ async function updateExchangeRate() {
   }
   lastTimeUpdateExchangeRateWasCalled = +new Date();
 
-  // if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
-  //   // not updating too often
-  //   return;
-  // }
+  if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
+    // not updating too often
+    return;
+  }
   console.log('updating exchange rate...');
 
   let rate;
