@@ -67,7 +67,7 @@
     "tslint": "tsc",
     "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components",
     "lint:fix": "npm run lint -- --fix",
-    "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
+    "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest -b tests/unit/*",
     "windows": "react-native run-windows"
   },
