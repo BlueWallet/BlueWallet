@@ -40,7 +40,7 @@
   "description": "A package for encoding, decoding, and generating mnemonics of the aezeed specification.",
   "devDependencies": {
     "@types/jest": "^26.0.10",
-    "@types/node": "^14.6.0",
+    "@types/node": "^16.0.0",
     "@types/randombytes": "^2.0.0",
     "@types/scryptsy": "^2.0.0",
     "jest": "^26.4.2",

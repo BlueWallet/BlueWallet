@@ -24,6 +24,7 @@ type LdkOpenChannelProps = RouteProp<
       psbt: Psbt;
       fundingWalletID: string;
       ldkWalletID: string;
+      remoteHostWithPubkey: string;
     };
   },
   'params'
@@ -33,16 +34,19 @@ const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { colors }: { colors: any } = useTheme();
-  const { navigate } = useNavigation();
-  const { fundingWalletID, isPrivateChannel, ldkWalletID, psbt } = useRoute<LdkOpenChannelProps>().params;
+  const { navigate, setParams } = useNavigation();
+  const {
+    fundingWalletID,
+    isPrivateChannel,
+    ldkWalletID,
+    psbt,
+    remoteHostWithPubkey = '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735' /* Bitrefill */,
+  } = useRoute<LdkOpenChannelProps>().params;
   const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
   const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
   const [unit, setUnit] = useState<BitcoinUnit | string>(ldkWallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(false);
   const psbtOpenChannelStartedTs = useRef<number>();
-  const [remoteHostWithPubkey, setRemoteHostWithPubkey] = useState(
-    '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
-  ); // Bitrefill
   const name = useRoute().name;
   const [fundingAmount, setFundingAmount] = useState<any>({ amount: null, amountSats: null });
   const [verified, setVerified] = useState(false);
@@ -185,7 +189,7 @@ const LdkOpenChannel = (props: any) => {
 
   const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
-    setRemoteHostWithPubkey(ret.data);
+    setParams({ remoteHostWithPubkey: ret.data });
   };
 
   const render = () => {
@@ -269,7 +273,7 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={setRemoteHostWithPubkey}
+          onChangeText={(text) => setParams({ remoteHostWithPubkey: text })}
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
@@ -278,7 +282,7 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey]) setRemoteHostWithPubkey(nodes[newKey]);
+            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey]});
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}

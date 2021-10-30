@@ -51,7 +51,6 @@ const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
 const hardcodedPeers = [
   { host: 'electrum1.bluewallet.io', ssl: '443' },
   { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum.emzy.de', ssl: '50002' },
   { host: 'electrum.acinq.co', ssl: '50002' },
   { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];

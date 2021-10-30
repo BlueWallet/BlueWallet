@@ -133,11 +133,15 @@ const LdkInfo = () => {
     allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
 
+  // do we even need periodic sync when user stares at this screen..?
   useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
         refetchData(false);
-        if (wallet.timeToCheckBlockchain()) wallet.checkBlockchain();
+        if (wallet.timeToCheckBlockchain()) {
+          wallet.checkBlockchain();
+          wallet.reconnectPeersWithPendingChannels();
+        }
       }, 2000);
     });
     return () => {
