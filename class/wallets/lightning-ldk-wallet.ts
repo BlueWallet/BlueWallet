@@ -268,7 +268,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
-    } catch (error) {
+    } catch (error: any) {
       alert('LDK init error: ' + error.message);
     }
   }
@@ -491,7 +491,9 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
     try {
       await this.reconnectPeersWithPendingChannels();
-    } finally {
+    } catch (error: any) {
+      console.log('fetchTransactions failed');
+      console.log(error.message);
     }
 
     await this.getUserInvoices(); // it internally updates paid user invoices
@@ -673,7 +675,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     (async () => {
       try {
         await func.call(that);
-      } catch (error) {
+      } catch (error: any) {
         alert('_execInBackground error:' + error.message);
       }
     })();
