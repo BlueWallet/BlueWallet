@@ -279,6 +279,56 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     assert.strictEqual(transaction.outs[1].value, 10000);
 
+    /* now, testing batch address add */
+
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('SendButton')).tap();
+
+    await yo('Transaction0');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction0'))).typeText('0.0002\n');
+
+    await element(by.id('BlueAddressInputScanQrButton')).tap();
+    // tapping 5 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+
+    // enter magic string to provide array of addresses
+    const e2eArrayTestText = 'e2eArrayTest';
+    await element(by.id('scanQrBackdoorInput')).replaceText(e2eArrayTestText);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    await yo('Transaction1');
+    await expect(
+      element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).toHaveText('bc1qtvh8mjcfdg9224nx4wu3sw7fmmtmy2k3jhdeul'),
+    );
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
+
+    await element(by.id('RecipientsList')).swipe('right', 'fast', 1);
+    await yo('Transaction0');
+    await expect(
+      element(by.id('AddressInput').withAncestor(by.id('Transaction0'))).toHaveText('bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw'),
+    );
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionDetailsButton');
+    await element(by.id('TransactionDetailsButton')).tap();
+    const txhex = await extractTextFromElementById('TxhexInput');
+    const transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw');
+    assert.ok(transaction.outs[0].value > 50000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1qtvh8mjcfdg9224nx4wu3sw7fmmtmy2k3jhdeul');
+    assert.strictEqual(transaction.outs[1].value, 20000);
+
+    /* done testing batch address add */
+
     // now, testing cosign psbt:
 
     await device.pressBack();

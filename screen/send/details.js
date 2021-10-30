@@ -388,7 +388,7 @@ const SendDetails = () => {
         return addresses;
       });
       setIsLoading(false);
-      return;
+      return setTimeout(() => scrollView.current.scrollToEnd({ animated: false }), 50);
     } else {
       if (!data.replace) {
         // user probably scanned PSBT and got an object instead of string..?
@@ -1452,6 +1452,7 @@ const SendDetails = () => {
               scrollEventThrottle={200}
               scrollIndicatorInsets={styles.scrollViewIndicator}
               contentContainerStyle={styles.scrollViewContent}
+              testID="RecipientsList"
             />
             <View style={[styles.memo, stylesHook.memo]}>
               <TextInput

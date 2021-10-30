@@ -87,6 +87,12 @@ const styles = StyleSheet.create({
   },
 });
 
+// Providing array as const since inserting it as backdoorText causes odd stringify that fails to parse.
+const e2eArrayTest = {
+  text: 'e2eArrayTest',
+  array: ['bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw', 'bc1qtvh8mjcfdg9224nx4wu3sw7fmmtmy2k3jhdeul'],
+};
+
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
@@ -405,9 +411,8 @@ const ScanQRCode = () => {
             testID="scanQrBackdoorOkButton"
             onPress={() => {
               setBackdoorVisible(false);
+              if (backdoorText) onBarCodeRead({ data: backdoorText === e2eArrayTest.text ? e2eArrayTest.array : backdoorText });
               setBackdoorText('');
-
-              if (backdoorText) onBarCodeRead({ data: backdoorText });
             }}
           />
         </View>
