@@ -273,7 +273,7 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={(text) => setParams({ remoteHostWithPubkey: text })}
+          onChangeText={text => setParams({ remoteHostWithPubkey: text })}
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
@@ -282,7 +282,7 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey]});
+            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey] });
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
