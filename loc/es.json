@@ -185,6 +185,7 @@
     "header": "Recibir"
   },
   "send": {
+    "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu cartera Lightning para realizar el pago de esta factura.",
     "broadcastButton": "Emitir",
     "broadcastError": "Error",
     "broadcastNone": "Introduce el hash de la transacción",
@@ -337,6 +338,7 @@
     "groundcontrol_explanation": "GroundControl es un servidor gratuito y de código abierto de notificaciones push para carteras Bitcoin. Puedes instalar tu propio servidor de GroundControl y poner su URL aquí para no depender del de BlueWallet. Déjalo en blanco para usar el predeterminado.",
     "header": "Ajustes",
     "language": "Idioma",
+    "last_updated": "Última actualización",
     "language_isRTL": "Al seleccionar otro idioma, será necesario reiniciar BlueWallet para mostrar los cambios.",
     "lightning_error_lndhub_uri": "LndHub URI no válida",
     "lightning_saved": "Tus cambios se han guardado correctamente",
@@ -363,6 +365,7 @@
     "privacy_do_not_track": "Desabilitar Analytics",
     "privacy_do_not_track_explanation": "Los datos sobre funcionamiento y fiabilidad no serán enviados para ser analizados.",
     "push_notifications": "Notificaciones push",
+    "rate": "Tasa",
     "retype_password": "Introduce la contraseña otra vez",
     "selfTest": "Self-Test",
     "save": "Guardar",
@@ -415,6 +418,7 @@
     "eta_3h": "Tiempo estimado: En ~3 horas",
     "eta_1d": "Tiempo estimado: En ~1 día",
     "list_title": "Transacciones",
+    "open_url_error": "No se puede abrir la URL con el navegador predeterminado. Cambia tu navegador predeterminado y vuelve a intentarlo.",
     "rbf_explain": "Reemplazaremos esta transacción por la de mayor comisión, lo cual debería hacer que sea minada en menos tiempo. Esto se denomina RBF—Replace By Fee.",
     "rbf_title": "Incrementar comisión (RBF)",
     "status_bump": "Aumentar comisón",
@@ -437,6 +441,7 @@
     "add_lndhub_error": "La dirección proporcionada no es válida para un nodo LNDHub.",
     "add_lndhub_placeholder": "La dirección de tu nodo",
     "add_or": "o",
+    "add_placeholder": "Mi primera cartera",
     "add_title": "Añadir cartera",
     "add_wallet_name": "Nombre",
     "add_wallet_type": "Tipo de cartera",
@@ -476,7 +481,7 @@
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Introduce la passphrase si has usado una",
     "import_error": "Error al importar. Por favor, asegúrate de que los datos introducidos son correctos.",
-    "import_explanation": "Por favor, introduce tus palabra semilla, llave pública, WIF, o cualquier otra cosa que tengas. BlueWallet hará lo posible para descifrar el formato correcto e importar tu cartera. ",
+    "import_explanation": "Introduce las palabras de tu semilla, llave pública, WIF, o cualquier otra cosa que tengas. BlueWallet hará lo posible para descifrar el formato correcto e importar tu cartera. ",
     "import_file": "Importar archivo",
     "import_imported": "Importado",
     "import_scan_qr": "Escanear o importar un archivo",
@@ -602,7 +607,7 @@
     "ms_help_title4": "Importando Vaults",
     "ms_help_4": "Para importar una Vault multifirma, selecciona la opción de importar y usa la copia de seguridad. Si solo tienes claves extendidas y semillas, puedes usar los campos de importación individuales durante el proceso de crear una Vault.",
     "ms_help_title5": "Opciones avanzadas",
-    "ms_help_5": "Por defecto, BlueWallet creará una Vault 2-de-3. Para crear una con diferente quórum o para cambiar el tipo de dirección, activa las opciones avanzadas en Ajustes."
+    "ms_help_5": "Por defecto, BlueWallet creará una Vault 2-de-3. Para crear una con diferente quórum o para cambiar el tipo de dirección, activa las opciones avanzadas en Ajustes - General."
   },
   "is_it_my_address": {
     "title": "¿Es esta mi dirección?",
