@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
-import { Text } from 'react-native-elements';
-import { Image, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Badge, Icon, Text } from 'react-native-elements';
+import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import confirm from '../helpers/confirm';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros } from '../loc';
+import { BlueText } from '../BlueComponents';
+import dayjs from 'dayjs';
 const currency = require('../blue_modules/currency');
+dayjs.extend(require('dayjs/plugin/localizedFormat'));
 
 class AmountInput extends Component {
   static propTypes = {
@@ -46,6 +49,22 @@ class AmountInput extends Component {
   static setCachedSatoshis = (amount, sats) => {
     AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
   };
+
+  constructor() {
+    super();
+    this.state = { mostRecentFetchedRate: Date(), isRateOutdated: false, isRateBeingUpdated: false };
+  }
+
+  componentDidMount() {
+    currency
+      .mostRecentFetchedRate()
+      .then(mostRecentFetchedRate => {
+        this.setState({ mostRecentFetchedRate });
+      })
+      .finally(() => {
+        currency.isRateOutdated().then(isRateOutdated => this.setState({ isRateOutdated }));
+      });
+  }
 
   /**
    * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
@@ -168,6 +187,22 @@ class AmountInput extends Component {
     }
   };
 
+  updateRate = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ isRateBeingUpdated: true }, async () => {
+      try {
+        await currency.updateExchangeRate();
+        currency.mostRecentFetchedRate().then(mostRecentFetchedRate => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          this.setState({ mostRecentFetchedRate });
+        });
+      } finally {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        this.setState({ isRateBeingUpdated: false, isRateOutdated: await currency.isRateOutdated() });
+      }
+    });
+  };
+
   render() {
     const { colors, disabled, unit } = this.props;
     const amount = this.props.amount || 0;
@@ -205,63 +240,82 @@ class AmountInput extends Component {
 
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
-        <View style={styles.root}>
-          {!disabled && <View style={[styles.center, stylesHook.center]} />}
-          <View style={styles.flex}>
-            <View style={styles.container}>
-              {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{currency.getCurrencySymbol() + ' '}</Text>
-              )}
-              {amount !== BitcoinUnit.MAX ? (
-                <TextInput
-                  {...this.props}
-                  testID="BitcoinAmountInput"
-                  keyboardType="numeric"
-                  adjustsFontSizeToFit
-                  onChangeText={this.handleChangeText}
-                  onBlur={() => {
-                    if (this.props.onBlur) this.props.onBlur();
-                  }}
-                  onFocus={() => {
-                    if (this.props.onFocus) this.props.onFocus();
-                  }}
-                  placeholder="0"
-                  maxLength={this.maxLength()}
-                  ref={textInput => (this.textInput = textInput)}
-                  editable={!this.props.isLoading && !disabled}
-                  value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
-                  placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                  style={[styles.input, stylesHook.input]}
-                />
-              ) : (
-                <Pressable onPress={this.resetAmount}>
-                  <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
-                </Pressable>
-              )}
-              {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
-              )}
+        <>
+          <View style={styles.root}>
+            {!disabled && <View style={[styles.center, stylesHook.center]} />}
+            <View style={styles.flex}>
+              <View style={styles.container}>
+                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+                  <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{currency.getCurrencySymbol() + ' '}</Text>
+                )}
+                {amount !== BitcoinUnit.MAX ? (
+                  <TextInput
+                    {...this.props}
+                    testID="BitcoinAmountInput"
+                    keyboardType="numeric"
+                    adjustsFontSizeToFit
+                    onChangeText={this.handleChangeText}
+                    onBlur={() => {
+                      if (this.props.onBlur) this.props.onBlur();
+                    }}
+                    onFocus={() => {
+                      if (this.props.onFocus) this.props.onFocus();
+                    }}
+                    placeholder="0"
+                    maxLength={this.maxLength()}
+                    ref={textInput => (this.textInput = textInput)}
+                    editable={!this.props.isLoading && !disabled}
+                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                    placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
+                    style={[styles.input, stylesHook.input]}
+                  />
+                ) : (
+                  <Pressable onPress={this.resetAmount}>
+                    <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                  </Pressable>
+                )}
+                {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+                  <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
+                )}
+              </View>
+              <View style={styles.secondaryRoot}>
+                <Text style={styles.secondaryText}>
+                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
+                    ? removeTrailingZeros(secondaryDisplayCurrency)
+                    : secondaryDisplayCurrency}
+                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
+                </Text>
+              </View>
             </View>
-            <View style={styles.secondaryRoot}>
-              <Text style={styles.secondaryText}>
-                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                  ? removeTrailingZeros(secondaryDisplayCurrency)
-                  : secondaryDisplayCurrency}
-                {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
-              </Text>
-            </View>
+            {!disabled && amount !== BitcoinUnit.MAX && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                testID="changeAmountUnitButton"
+                style={styles.changeAmountUnit}
+                onPress={this.changeAmountUnit}
+              >
+                <Image source={require('../img/round-compare-arrows-24-px.png')} />
+              </TouchableOpacity>
+            )}
           </View>
-          {!disabled && amount !== BitcoinUnit.MAX && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              testID="changeAmountUnitButton"
-              style={styles.changeAmountUnit}
-              onPress={this.changeAmountUnit}
-            >
-              <Image source={require('../img/round-compare-arrows-24-px.png')} />
-            </TouchableOpacity>
+          {this.state.isRateOutdated && (
+            <View style={styles.outdatedRateContainer}>
+              <Badge status="warning" />
+              <View style={styles.spacing8} />
+              <BlueText>
+                {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('LT') })}
+              </BlueText>
+              <View style={styles.spacing8} />
+              <TouchableOpacity
+                onPress={this.updateRate}
+                disabled={this.state.isRateBeingUpdated}
+                style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}
+              >
+                <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
+              </TouchableOpacity>
+            </View>
           )}
-        </View>
+        </>
       </TouchableWithoutFeedback>
     );
   }
@@ -277,6 +331,21 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  spacing8: {
+    width: 8,
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  enabledButton: {
+    opacity: 1,
+  },
+  outdatedRateContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 8,
   },
   container: {
     flexDirection: 'row',
