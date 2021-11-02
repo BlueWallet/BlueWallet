@@ -110,6 +110,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return RnLdk.getMaturingBalance();
   }
 
+  async getMaturingHeight(): Promise<number> {
+    return RnLdk.getMaturingHeight();
+  }
+
   /**
    * Probes getNodeId() call. if its available - LDK has started
    *
