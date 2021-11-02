@@ -876,9 +876,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        console.info('input.address', input.address)
-        console.info('Wif', this._getWifForAddress(input.address))
-        console.info('network', network)
         keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address), network);
         keypairs[c] = keyPair;
       }
