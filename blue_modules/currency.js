@@ -9,7 +9,7 @@ const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = {};
+let exchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled = 0;
 
 const LAST_UPDATED = 'LAST_UPDATED';
@@ -40,9 +40,9 @@ async function getPreferredCurrency() {
 async function _restoreSavedExchangeRatesFromStorage() {
   try {
     exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    if (!exchangeRates) exchangeRates = {};
+    if (!exchangeRates) exchangeRates = { LAST_UPDATED_ERROR: false };
   } catch (_) {
-    exchangeRates = {};
+    exchangeRates = { LAST_UPDATED_ERROR: false };
   }
 }
 
@@ -87,10 +87,25 @@ async function updateExchangeRate() {
     rate = await getFiatRate(preferredFiatCurrency.endPointKey);
     exchangeRates[LAST_UPDATED] = +new Date();
     exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
+    exchangeRates.LAST_UPDATED_ERROR = false;
     await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
   } catch (Err) {
     console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
+    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    rate.LAST_UPDATED_ERROR = true;
+    exchangeRates.LAST_UPDATED_ERROR = true;
+    await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
+    throw Err;
+  }
+}
+
+async function isRateOutdated() {
+  try {
+    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    return rate.LAST_UPDATED_ERROR || +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000;
+  } catch {
+    return true;
   }
 }
 
@@ -160,7 +175,7 @@ function BTCToLocalCurrency(bitcoin) {
 }
 
 async function mostRecentFetchedRate() {
-  const currencyInformation = await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY);
+  const currencyInformation = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
 
   const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
     style: 'currency',
@@ -168,7 +183,7 @@ async function mostRecentFetchedRate() {
   });
   return {
     LastUpdated: currencyInformation[LAST_UPDATED],
-    Rate: formatter.format(JSON.parse(currencyInformation)[`BTC_${preferredFiatCurrency.endPointKey}`]),
+    Rate: formatter.format(currencyInformation[`BTC_${preferredFiatCurrency.endPointKey}`]),
   };
 }
 
@@ -227,3 +242,4 @@ module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY_STORAGE_KEY;
 module.exports.EXCHANGE_RATES = EXCHANGE_RATES_STORAGE_KEY;
 module.exports.LAST_UPDATED = LAST_UPDATED;
 module.exports.mostRecentFetchedRate = mostRecentFetchedRate;
+module.exports.isRateOutdated = isRateOutdated;

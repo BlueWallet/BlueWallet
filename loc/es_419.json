@@ -418,6 +418,7 @@
     "eta_3h": "TEA: en ~ 3 horas",
     "eta_1d": "TEA: en ~ 1 día",
     "list_title": "Transacciones",
+    "open_url_error": "No se puede abrir la URL con el navegador predeterminado. Cambia tu navegador predeterminado y vuelve a intentarlo.",
     "rbf_explain": "Reemplazaremos esta transacción con la que tenga una tarifa más alta, por lo que debería extraerse más rápido. Esto se llama RBF - Reemplazar por tarifa.",
     "rbf_title": "Aumentar Comisión (RBF)",
     "status_bump": "Aumentar Comisión",
