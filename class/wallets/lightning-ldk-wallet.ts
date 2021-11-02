@@ -349,7 +349,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
    * agree that channel is now established
    */
   async reconnectPeersWithPendingChannels() {
-    const peers = await this.listPeers();
+    const peers = await RnLdk.listPeers();
     const peers2reconnect: Record<string, boolean> = {};
     if (this._listChannels) {
       for (const channel of this._listChannels) {
