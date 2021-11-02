@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import bitcoinMessage from 'bitcoinjs-message';
 import { randomBytes } from '../rng';
+import network from '../network';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -503,7 +504,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   isAddressValid(address: string): boolean {
     try {
-      bitcoin.address.toOutputScript(address);
+      bitcoin.address.toOutputScript(address, network);
       return true;
     } catch (e) {
       return false;

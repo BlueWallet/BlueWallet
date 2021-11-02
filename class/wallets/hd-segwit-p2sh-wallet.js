@@ -1,4 +1,5 @@
 import b58 from 'bs58check';
+import network from '../network';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
@@ -90,7 +91,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(seed, network);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();

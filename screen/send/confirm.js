@@ -10,6 +10,7 @@ import { BlueButton, BlueText, SafeBlueArea, BlueCard } from '../../BlueComponen
 import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
+import network from '../../class/network';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -107,7 +108,7 @@ const Confirm = () => {
    * @return {string}
    */
   const getPaymentScript = () => {
-    return bitcoin.address.toOutputScript(recipients[0].address);
+    return bitcoin.address.toOutputScript(recipients[0].address, network);
   };
 
   const send = async () => {

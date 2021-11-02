@@ -1,5 +1,6 @@
 import b58 from 'bs58check';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import network from '../network';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');
@@ -32,7 +33,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     }
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args), network);
     const xpub = root.derivePath("m/0'").neutered().toBase58();
 
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
@@ -74,7 +75,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (!this.secret) return false;
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args), network);
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 

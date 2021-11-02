@@ -1,6 +1,7 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import * as bip39 from 'bip39';
 import b58 from 'bs58check';
+import network from '../network';
 import { decodeUR } from '../../blue_modules/ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
@@ -301,7 +302,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       seed = bip39.mnemonicToSeedSync(mnemonic);
     }
 
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = bitcoin.bip32.fromSeed(seed, network);
     const child = root.derivePath(path).neutered();
     return child.toBase58();
   }
@@ -852,7 +853,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner);
             }
 
-            const hdRoot = bitcoin.bip32.fromSeed(seed);
+            const hdRoot = bitcoin.bip32.fromSeed(seed, network);
             psbt.signInputHD(cc, hdRoot);
             signaturesMade++;
           }
@@ -897,7 +898,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static isPathValid(path) {
-    const root = bitcoin.bip32.fromSeed(Buffer.alloc(32));
+    const root = bitcoin.bip32.fromSeed(Buffer.alloc(32), network);
     try {
       root.derivePath(path);
       return true;
@@ -996,7 +997,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         if (!MultisigHDWallet.isXpubString(cosigner)) {
           // ok this is a mnemonic, lets try to sign
           const seed = bip39.mnemonicToSeedSync(cosigner);
-          const hdRoot = bitcoin.bip32.fromSeed(seed);
+          const hdRoot = bitcoin.bip32.fromSeed(seed, network);
           try {
             psbt.signInputHD(cc, hdRoot);
           } catch (_) {} // protects agains duplicate cosignings
@@ -1012,7 +1013,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               // match it to the one provided in PSBT's input, and if we have a match - we are in luck! we can sign
               // with this private key.
               const seed = bip39.mnemonicToSeedSync(cosigner);
-              const root = HDNode.fromSeed(seed);
+              const root = HDNode.fromSeed(seed, network);
               const splt = derivation.path.split('/');
               const internal = +splt[splt.length - 2];
               const index = +splt[splt.length - 1];

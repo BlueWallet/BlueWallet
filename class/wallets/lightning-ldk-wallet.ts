@@ -3,6 +3,7 @@ import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import SyncedAsyncStorage from '../synced-async-storage';
 import { randomBytes } from '../rng';
+import network from '../network';
 import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
@@ -646,7 +647,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async setRefundAddress(address: string) {
-    const script = bitcoin.address.toOutputScript(address);
+    const script = bitcoin.address.toOutputScript(address, network);
     this._refundAddressScriptHex = script.toString('hex');
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
   }

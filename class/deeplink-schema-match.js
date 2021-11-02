@@ -5,6 +5,7 @@ import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
+import network from './network';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 
@@ -375,7 +376,7 @@ class DeeplinkSchemaMatch {
     address = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     let isValidBitcoinAddress = false;
     try {
-      bitcoin.address.toOutputScript(address);
+      bitcoin.address.toOutputScript(address, network);
       isValidBitcoinAddress = true;
     } catch (err) {
       isValidBitcoinAddress = false;
