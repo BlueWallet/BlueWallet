@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Text,
@@ -40,6 +39,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
+import alert from '../../components/Alert';
 const A = require('../../blue_modules/analytics');
 
 const ButtonSelected = Object.freeze({
@@ -270,7 +270,7 @@ const WalletsAdd = () => {
             testID="WalletNameInput"
             value={label}
             placeholderTextColor="#81868e"
-            placeholder="my first wallet"
+            placeholder={loc.wallets.add_placeholder}
             onChangeText={setLabel}
             style={styles.textInputCommon}
             editable={!isLoading}

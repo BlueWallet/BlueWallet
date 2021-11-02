@@ -411,7 +411,6 @@
     "details_advanced": "Napredno",
     "details_are_you_sure": "Ali ste prepričani?",
     "details_connected_to": "Povezano z",
-    "details_del_wb": "Stanje",
     "details_del_wb_err": "Navedeni znesek stanja se ne ujema s stanjem v tej denarnici. Prosimo poskusite ponovno.",
     "details_del_wb_q": "Ta denarnica ima pozitivno stanje. Preden nadaljujete, se zavedajte, da sredstev ne boste mogli obnoviti brez seznama besed te denarnice (mnemonično seme). Da se izognete nenamerni odstranitvi te denarnice, vnesite stanje svoje denarnice {balance} satošijev.",
     "details_delete": "Izbriši",

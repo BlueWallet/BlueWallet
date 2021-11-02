@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off" */
-import React, { useState, useMemo, useCallback, useContext, useEffect } from 'react';
-import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
+import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import * as NavigationService from '../NavigationService';
@@ -25,6 +25,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const menuRef = useRef();
   const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
@@ -181,6 +182,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   }, [subtitle]);
 
   const onPress = useCallback(async () => {
+    menuRef?.current?.dismissMenu();
     if (item.hash) {
       navigate('TransactionStatus', { hash: item.hash });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
@@ -241,22 +243,31 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
   }, [item.hash]);
 
-  const onToolTipPress = useCallback(id => {
-    if (id === TransactionListItem.actionKeys.CopyAmount) {
-      handleOnCopyAmountTap();
-    } else if (id === TransactionListItem.actionKeys.CopyNote) {
-      handleOnCopyNote();
-    } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
-      handleOnViewOnBlockExplorer();
-    } else if (id === TransactionListItem.actionKeys.ExpandNote) {
-      handleOnExpandNote();
-    } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
-      handleCopyOpenInBlockExplorerPress();
-    } else if (id === TransactionListItem.actionKeys.CopyTXID) {
-      handleOnCopyTransactionID();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onToolTipPress = useCallback(
+    id => {
+      if (id === TransactionListItem.actionKeys.CopyAmount) {
+        handleOnCopyAmountTap();
+      } else if (id === TransactionListItem.actionKeys.CopyNote) {
+        handleOnCopyNote();
+      } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
+        handleOnViewOnBlockExplorer();
+      } else if (id === TransactionListItem.actionKeys.ExpandNote) {
+        handleOnExpandNote();
+      } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
+        handleCopyOpenInBlockExplorerPress();
+      } else if (id === TransactionListItem.actionKeys.CopyTXID) {
+        handleOnCopyTransactionID();
+      }
+    },
+    [
+      handleCopyOpenInBlockExplorerPress,
+      handleOnCopyAmountTap,
+      handleOnCopyNote,
+      handleOnCopyTransactionID,
+      handleOnExpandNote,
+      handleOnViewOnBlockExplorer,
+    ],
+  );
 
   const toolTipActions = useMemo(() => {
     const actions = [];
@@ -287,49 +298,41 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           text: loc.transactions.details_copy_block_explorer_link,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
+        [
+          {
+            id: TransactionListItem.actionKeys.OpenInBlockExplorer,
+            text: loc.transactions.details_show_in_block_explorer,
+            icon: TransactionListItem.actionIcons.Link,
+          },
+        ],
       );
+    }
+
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push([
+        {
+          id: TransactionListItem.actionKeys.ExpandNote,
+          text: loc.transactions.expand_note,
+          icon: TransactionListItem.actionIcons.Note,
+        },
+      ]);
     }
 
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
 
-  const toolTipSubMenu = useMemo(() => {
-    const submenu = {
-      menuOptions: ['displayInline'], // <- set the `menuOptions` property
-      menuItems: [],
-      menuTitle: '',
-    };
-    if (item.hash) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.OpenInBlockExplorer,
-        actionTitle: loc.transactions.details_show_in_block_explorer,
-        icon: TransactionListItem.actionIcons.Link,
-      });
-    }
-    if (subtitle && subtitleNumberOfLines === 1) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.ExpandNote,
-        actionTitle: loc.transactions.expand_note,
-        icon: TransactionListItem.actionIcons.Note,
-      });
-    }
-    return submenu;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, subtitleNumberOfLines]);
-
   return (
     <View style={styles.container}>
-      <ToolTipMenu actions={toolTipActions} submenu={toolTipSubMenu} onPress={onToolTipPress}>
+      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
+          Component={View}
           subtitleProps={subtitleProps}
-          onPress={onPress}
           chevron={false}
-          Component={TouchableOpacity}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           containerStyle={containerStyle}

@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+    marginBottom: 16,
   },
   noWallets: {
     flexGrow: 1,

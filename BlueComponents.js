@@ -134,7 +134,7 @@ export const BitcoinButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
               {loc.wallets.add_bitcoin}
             </Text>
@@ -175,7 +175,7 @@ export const VaultButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text
               style={{
                 color: colors.foregroundColor,
@@ -224,7 +224,7 @@ export const LightningButton = props => {
           <View>
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
           </View>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text
               style={{ color: colors.lnborderColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}
             >
@@ -305,10 +305,12 @@ export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false })
 export class BlueCopyTextToClipboard extends Component {
   static propTypes = {
     text: PropTypes.string,
+    truncated: PropTypes.bool,
   };
 
   static defaultProps = {
     text: '',
+    truncated: false,
   };
 
   constructor(props) {
@@ -318,9 +320,9 @@ export class BlueCopyTextToClipboard extends Component {
 
   static getDerivedStateFromProps(props, state) {
     if (state.hasTappedText) {
-      return { hasTappedText: state.hasTappedText, address: state.address };
+      return { hasTappedText: state.hasTappedText, address: state.address, truncated: props.truncated };
     } else {
-      return { hasTappedText: state.hasTappedText, address: props.text };
+      return { hasTappedText: state.hasTappedText, address: props.text, truncated: props.truncated };
     }
   }
 
@@ -344,7 +346,11 @@ export class BlueCopyTextToClipboard extends Component {
           disabled={this.state.hasTappedText}
           testID="BlueCopyTextToClipboard"
         >
-          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0} testID="AddressValue">
+          <Animated.Text
+            style={styleCopyTextToClipboard.address}
+            {...(this.props.truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
+            testID="AddressValue"
+          >
             {this.state.address}
           </Animated.Text>
         </TouchableOpacity>

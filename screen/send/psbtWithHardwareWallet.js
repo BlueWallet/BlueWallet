@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -26,6 +25,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
+import alert from '../../components/Alert';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');

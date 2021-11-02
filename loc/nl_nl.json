@@ -432,7 +432,6 @@
     "details_advanced": "Geavenceerd",
     "details_are_you_sure": "Weet u het zeker?",
     "details_connected_to": "Verbonden met",
-    "details_del_wb": "Wallet saldo",
     "details_del_wb_err": "Het opgegeven saldo komt niet overeen met het saldo van deze wallet. Probeer het a.u.b. opnieuw",
     "details_del_wb_q": "Deze wallet heeft een saldo. Voordat u verder gaat, moet u er rekening mee houden dat u de tegoeden niet kunt terugkrijgen zonder de seed phrase van deze wallet. Om te voorkomen dat deze wallet per ongeluk wordt verwijderd, moet u het saldo van {balance} satoshis in uw wallet invoeren.",
     "details_delete": "Verwijderen",

@@ -8,6 +8,7 @@ import Notifications from '../blue_modules/notifications';
 import loc from '../loc';
 import { LegacyWallet } from '../class';
 import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
+import alert from '../components/Alert';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 const currency = require('../blue_modules/currency');
@@ -39,7 +40,7 @@ export const BlueStorageProvider = ({ children }) => {
   useEffect(() => {
     console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
     if (!isPrivacyBlurEnabled) {
-      Alert.alert('', 'Privacy blur has been disabled.');
+      alert('Privacy blur has been disabled.');
     }
   }, [isPrivacyBlurEnabled]);
 

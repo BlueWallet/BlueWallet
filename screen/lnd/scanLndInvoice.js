@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Text,
@@ -25,6 +24,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -263,7 +263,7 @@ const ScanLndInvoice = () => {
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity accessibilityRole="button" style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" disabled={isLoading} style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}
@@ -330,6 +330,7 @@ const ScanLndInvoice = () => {
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
                 onBlur={onBlur}
+                keyboardType="email-address"
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -12,6 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
+import alert from '../../components/Alert';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -133,11 +133,15 @@ const LdkInfo = () => {
     allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
 
+  // do we even need periodic sync when user stares at this screen..?
   useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
         refetchData(false);
-        if (wallet.timeToCheckBlockchain()) wallet.checkBlockchain();
+        if (wallet.timeToCheckBlockchain()) {
+          wallet.checkBlockchain();
+          wallet.reconnectPeersWithPendingChannels();
+        }
       }, 2000);
     });
     return () => {

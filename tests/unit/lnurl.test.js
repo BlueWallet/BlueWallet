@@ -42,6 +42,50 @@ describe('LNURL', function () {
     assert.ok(!Lnurl.isLnurl('bs'));
   });
 
+  it('can parseOnionUrl()', () => {
+    const vectors = [
+      {
+        test: 'http://abc.onion/path',
+        expected: ['http://abc.onion', '/path'],
+      },
+      {
+        test: 'http://abc.onion:12345/path',
+        expected: ['http://abc.onion:12345', '/path'],
+      },
+      {
+        test: 'http://abc.onion/',
+        expected: ['http://abc.onion', '/'],
+      },
+      {
+        test: 'http://abc.onion',
+        expected: ['http://abc.onion', undefined],
+      },
+      {
+        test: 'https://abc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://abc.com',
+        expected: null,
+      },
+      {
+        test: 'http://a@bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a/bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a:bc.onion',
+        expected: null,
+      },
+    ];
+    for (const { test, expected } of vectors) {
+      assert.deepStrictEqual(Lnurl.parseOnionUrl(test), expected);
+    }
+  });
+
   it('can callLnurlPayService() and requestBolt11FromLnurlPayService()', async () => {
     const LN = new Lnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58');
 
@@ -168,10 +212,12 @@ describe('LNURL', function () {
 describe('lightning address', function () {
   it('can getUrlFromLnurl()', () => {
     assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@zbd.gg'), 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+    assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@hidden.onion'), 'http://hidden.onion/.well-known/lnurlp/lnaddress');
   });
 
   it('can detect', async () => {
     assert.ok(Lnurl.isLightningAddress('lnaddress@zbd.gg'));
+    assert.ok(Lnurl.isLightningAddress('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion'));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@8.8.8.8 '));
@@ -181,7 +227,9 @@ describe('lightning address', function () {
     assert.ok(!Lnurl.isLightningAddress('@'));
     assert.ok(!Lnurl.isLightningAddress('@a'));
     assert.ok(!Lnurl.isLightningAddress('a@'));
+  });
 
+  it('works', async () => {
     const LN = new Lnurl('lnaddress@zbd.gg');
 
     // poor-man's mock:
@@ -214,5 +262,45 @@ describe('lightning address', function () {
     });
 
     assert.strictEqual(requestedUri, 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+  });
+
+  it('works with onion', async () => {
+    assert.ok(Lnurl.isLightningAddress('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion'));
+
+    const LN = new Lnurl('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion');
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    let requestedUri = -1;
+    LN.fetchGet = actuallyRequestedUri => {
+      requestedUri = actuallyRequestedUri;
+      return {
+        status: 'OK',
+        callback: 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar',
+        tag: 'payRequest',
+        maxSendable: 100000000,
+        minSendable: 1000,
+        metadata:
+          '[["text/identifier", "avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"], ["text/plain", "Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"]]',
+        commentAllowed: 0,
+      };
+    };
+
+    const lnurlpayPayload = await LN.callLnurlPayService();
+    assert.deepStrictEqual(lnurlpayPayload, {
+      amount: 1,
+      callback: 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar',
+      commentAllowed: 0,
+      description: 'Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion',
+      domain: 'st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion',
+      fixed: false,
+      image: undefined,
+      max: 100000,
+      metadata:
+        '[["text/identifier", "avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"], ["text/plain", "Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"]]',
+      min: 1,
+    });
+
+    assert.strictEqual(requestedUri, 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar');
   });
 });

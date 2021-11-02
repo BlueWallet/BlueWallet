@@ -440,7 +440,6 @@
     "details_advanced": "Haladó",
     "details_are_you_sure": "Biztos vagy benne?",
     "details_connected_to": "Kapcsolódva: ",
-    "details_del_wb": "Tárca Egyenlege",
     "details_del_wb_err": "A megadott egyenleg összege nem egyezik a tárca egyenlegével. Próbáld újra. ",
     "details_del_wb_q": "Ennek a tárcának pozitív az egyenlege. Mielőtt tovább mennél, ne felejtsd, hogy a tárca jelszó sorozata nélkül nem lehetséges a tárca helyreállítása. A tárca véletlen törlésének elkerülése érdekében, add meg a tárca {balance} egyenlegét satoshi-ban.",
     "details_delete": "Törlés",

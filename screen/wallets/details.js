@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import {
   View,
@@ -44,6 +43,7 @@ import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { Chain } from '../../models/bitcoinUnits';
+import alert from '../../components/Alert';
 
 const prompt = require('../../blue_modules/prompt');
 
@@ -223,11 +223,12 @@ const WalletDetails = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     try {
       const walletBalanceConfirmation = await prompt(
-        loc.wallets.details_del_wb,
+        loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
         true,
         'plain-text',
         true,
+        loc.wallets.details_delete,
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
@@ -485,7 +486,6 @@ const WalletDetails = () => {
               <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
                 <View style={[styles.input, stylesHook.input]}>
                   <TextInput
-                    placeholder={loc.send.details_note_placeholder}
                     value={walletName}
                     onChangeText={setWalletName}
                     onBlur={walletNameTextInputOnBlur}

@@ -1,4 +1,3 @@
-/* global alert */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import * as Keychain from 'react-native-keychain';
@@ -22,6 +21,7 @@ import {
   SLIP39SegwitBech32Wallet,
 } from './';
 import { randomBytes } from './rng';
+import alert from '../components/Alert';
 const encryption = require('../blue_modules/encryption');
 const Realm = require('realm');
 const createHash = require('create-hash');

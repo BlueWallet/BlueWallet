@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import LottieView from 'lottie-react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
@@ -31,7 +30,6 @@ const Success = () => {
   });
   useEffect(() => {
     console.log('send/success - useEffect');
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

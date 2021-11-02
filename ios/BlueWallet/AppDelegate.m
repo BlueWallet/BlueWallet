@@ -42,7 +42,16 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [Bugsnag start];
-
+  [self copyDeviceUID];
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUID"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUIDCopy"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
+  
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
@@ -71,13 +80,27 @@ static void InitializeFlipper(UIApplication *application) {
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
   
+  
   /* For debugging purposes since iOS Simulator does not support handoff
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   [defaults setValue:@{@"activityType": @"io.bluewallet.bluewallet.receiveonchain", @"userInfo": @{@"address": @""}} forKey:@"onUserActivityOpen"];
   */
-  
   return YES;
-  
+}
+
+- (void)observeValueForKeyPath:(NSString *) keyPath ofObject:(id) object change:(NSDictionary *) change context:(void *) context
+{
+    if([keyPath isEqual:@"deviceUID"] || [keyPath isEqual:@"deviceUIDCopy"])
+    {
+      [self copyDeviceUID];
+    }
+}
+
+- (void)copyDeviceUID {
+  NSString *deviceUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"deviceUID"];
+  if (deviceUID && deviceUID.length > 0) {
+    [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
+  }
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
@@ -88,7 +111,6 @@ static void InitializeFlipper(UIApplication *application) {
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler

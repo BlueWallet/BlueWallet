@@ -376,7 +376,6 @@
     "details_advanced": "Avansat",
     "details_are_you_sure": "Ești sigur(ă)?",
     "details_connected_to": "Conectat la",
-    "details_del_wb": "Balanță Portofel",
     "details_del_wb_err": "Balanța furnizată nu se potrivește cu balanța acestui portofel. Încearcă din nou.",
     "details_del_wb_q": "Acest portofel are o balanță. Înainte de a merge mai departe, ia la cunoștință că nu vei putea să recuperezi fondurile fără seed phrase-ul acestui portofel. Pentru a evita înlăturarea accidentală a acestui portofel, introdu balanța portofelului în valoare de {number} satoshi. ",
     "details_delete": "Șterge",

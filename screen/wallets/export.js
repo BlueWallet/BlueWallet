@@ -28,10 +28,13 @@ const styles = StyleSheet.create({
   },
   secret: {
     alignSelf: 'stretch',
-    alignItems: 'center',
+    textAlign: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
     lineHeight: 24,
+  },
+  secretWritingDirection: {
+    writingDirection: 'ltr',
   },
 });
 
@@ -53,7 +56,7 @@ const WalletExport = () => {
       backgroundColor: colors.elevated,
     },
     type: { ...styles.type, color: colors.foregroundColor },
-    secret: { ...styles.secret, color: colors.foregroundColor },
+    secret: { color: colors.foregroundColor },
     warning: { ...styles.secret, color: colors.failedColor },
   };
 
@@ -124,7 +127,7 @@ const WalletExport = () => {
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
               <BlueCopyTextToClipboard text={wallet.getSecret()} />
             ) : (
-              <BlueText style={stylesHook.secret} testID="Secret">
+              <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
                 {wallet.getSecret()}
               </BlueText>
             )}
