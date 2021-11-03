@@ -60,10 +60,6 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return false;
   }
 
-  async start(entropyHex: string) {
-    return RnLdk.start(entropyHex);
-  }
-
   async stop() {
     return RnLdk.stop();
   }
@@ -231,6 +227,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     let ret = bip39.mnemonicToEntropy(this.secret.replace('ldk://', ''));
     while (ret.length < 64) ret = '0' + ret;
     return ret;
+  }
+
+  getStorageNamespace() {
+    return RnLdk.getStorage().namespace;
   }
 
   static async _decodeInvoice(invoice: string) {

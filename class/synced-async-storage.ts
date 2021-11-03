@@ -138,7 +138,8 @@ export default class SyncedAsyncStorage {
     if (+remoteSeqNum > +localSeqNum) {
       console.log('remote storage is ahead, need to sync;', +remoteSeqNum, '>', +localSeqNum);
 
-      for (const key of await this.getAllKeysRemote()) {
+      // sort to ensure channel_manager comes first
+      for (const key of (await this.getAllKeysRemote()).sort()) {
         const value = await this.getItemRemote(key);
         await AsyncStorage.setItem(this.namespace + '_' + key, value);
         console.log('synced', key, 'to', value);

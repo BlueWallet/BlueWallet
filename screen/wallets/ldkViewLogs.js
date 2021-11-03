@@ -91,6 +91,7 @@ const LdkViewLogs = () => {
         let nfo = 'num peers: ' + peers.length;
         nfo += '\nnum channels: ' + listChannels.length;
         nfo += '\nldk binary version: ' + version;
+        nfo += '\nstorage namespace: ' + wallet.getStorageNamespace();
         setInfo(nfo);
       })
       .finally(() => {
