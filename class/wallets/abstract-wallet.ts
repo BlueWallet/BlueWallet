@@ -1,7 +1,7 @@
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
-import network from '../network';
+import network, { bip32Versions } from '../network';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 type WalletStatics = {
@@ -385,7 +385,7 @@ export class AbstractWallet {
    */
   static _ypubToXpub(ypub: string): string {
     let data = b58.decode(ypub);
-    if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
+    if (data.readUInt32BE() !== bip32Versions.ypub.public) throw new Error('Not a valid ypub extended key!');
     data = data.slice(4);
     const version = Buffer.alloc(4);
     version.writeInt32BE(network.bip32.public);
