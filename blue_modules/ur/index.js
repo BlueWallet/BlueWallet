@@ -12,6 +12,7 @@ import {
 } from '@keystonehq/bc-ur-registry/dist';
 import { decodeUR as origDecodeUr, encodeUR as origEncodeUR, extractSingleWorkload as origExtractSingleWorkload } from '../bc-ur/dist';
 import { MultisigCosigner, MultisigHDWallet } from '../../class';
+import { bip32Versions } from '../../class/network';
 import { Psbt } from 'bitcoinjs-lib';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -97,11 +98,7 @@ function encodeURv2(str, len) {
             isMaster: false,
             key: Buffer.from(cosigner.getKeyHex(), 'hex'),
             chainCode: Buffer.from(cosigner.getChainCodeHex(), 'hex'),
-            origin: new CryptoKeypath(
-              cryptoKeyPathComponents,
-              Buffer.from(cosigner.getFp(), 'hex'),
-              cosigner.getDepthNumber(),
-            ),
+            origin: new CryptoKeypath(cryptoKeyPathComponents, Buffer.from(cosigner.getFp(), 'hex'), cosigner.getDepthNumber()),
             parentFingerprint: Buffer.from(cosigner.getParentFingerprintHex(), 'hex'),
           }),
         ),
@@ -186,7 +183,8 @@ function decodeUR(arg) {
     derivationPath === MultisigHDWallet.PATH_LEGACY ||
     derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
     derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
-  const version = Buffer.from(isMultisig ? '02aa7ed3' : '04b24746', 'hex');
+  const version = Buffer.alloc(4);
+  version.writeInt32BE(isMultisig ? bip32Versions.Zpub.public : bip32Versions.zpub.public);
   const parentFingerprint = hdKey.getParentFingerprint();
   const depth = hdKey.getOrigin().getDepth();
   const depthBuf = Buffer.alloc(1);

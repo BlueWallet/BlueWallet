@@ -1,5 +1,5 @@
 import b58 from 'bs58check';
-import network from '../network';
+import network, { bip32Versions } from '../network';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
@@ -100,7 +100,9 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     // bitcoinjs does not support ypub yet, so we just convert it from xpub
     let data = b58.decode(xpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]);
+    const version = Buffer.alloc(4);
+    version.writeInt32BE(bip32Versions.ypub.public);
+    data = Buffer.concat([version, data]);
     this._xpub = b58.encode(data);
 
     return this._xpub;

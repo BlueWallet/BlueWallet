@@ -1,6 +1,6 @@
 import b58 from 'bs58check';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import network from '../network';
+import network, { bip32Versions } from '../network';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');
@@ -39,7 +39,9 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
     let data = b58.decode(xpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
+    const version = Buffer.alloc(4);
+    version.writeInt32BE(bip32Versions.zpub.public);
+    data = Buffer.concat([version, data]);
     this._xpub = b58.encode(data);
 
     return this._xpub;

@@ -1,7 +1,7 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import * as bip39 from 'bip39';
 import b58 from 'bs58check';
-import network from '../network';
+import network, { bip32Versions } from '../network';
 import { decodeUR } from '../../blue_modules/ur';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
@@ -325,9 +325,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7ed3', 'hex'), data]));
+      const version = Buffer.alloc(4);
+      version.writeInt32BE(bip32Versions.Zpub.public);
+      return b58.encode(Buffer.concat([version, data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b43f', 'hex'), data]));
+      const version = Buffer.alloc(4);
+      version.writeInt32BE(bip32Versions.Ypub.public);
+      return b58.encode(Buffer.concat([version, data]));
     }
 
     return xpub;
@@ -337,9 +341,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     if (this.isNativeSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('02aa7a99', 'hex'), data]));
+      const version = Buffer.alloc(4);
+      version.writeInt32BE(bip32Versions.Zpub.private);
+      return b58.encode(Buffer.concat([version, data]));
     } else if (this.isWrappedSegwit()) {
-      return b58.encode(Buffer.concat([Buffer.from('0295b005', 'hex'), data]));
+      const version = Buffer.alloc(4);
+      version.writeInt32BE(bip32Versions.Ypub.private);
+      return b58.encode(Buffer.concat([version, data]));
     }
 
     return xpub;
