@@ -1,4 +1,5 @@
 import b58 from 'bs58check';
+import network from './network';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 const HDNode = require('bip32');
 
@@ -125,8 +126,10 @@ export class MultisigCosigner {
 
   static _zpubToXpub(zpub) {
     let data = b58.decode(zpub);
+    const version = Buffer.alloc(4);
+    version.writeInt32BE(network.bip32.public);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+    data = Buffer.concat([version, data]);
 
     return b58.encode(data);
   }
@@ -136,7 +139,7 @@ export class MultisigCosigner {
 
     try {
       xpub = MultisigCosigner._zpubToXpub(key);
-      HDNode.fromBase58(xpub);
+      HDNode.fromBase58(xpub, network);
       return true;
     } catch (_) {}
 

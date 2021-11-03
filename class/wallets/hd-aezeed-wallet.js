@@ -102,6 +102,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node1.derive(index).publicKey,
+      network,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);
@@ -115,6 +116,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
 
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node0.derive(index).publicKey,
+      network,
     }).address;
 
     return (this.external_addresses_cache[index] = address);

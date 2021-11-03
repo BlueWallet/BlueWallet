@@ -51,13 +51,13 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, network);
       this._node0 = hdNode.derive(0);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, network);
       this._node1 = hdNode.derive(1);
     }
 
@@ -109,8 +109,8 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address);
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
-    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network });
+    const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network });
 
     psbt.addInput({
       hash: input.txid,
@@ -140,7 +140,8 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
    */
   static _nodeToP2shSegwitAddress(hdNode) {
     const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey, network }),
+      network,
     });
     return address;
   }

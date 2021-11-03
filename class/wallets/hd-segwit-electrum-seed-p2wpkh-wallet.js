@@ -50,9 +50,10 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
     const xpub = this.constructor._zpubToXpub(this.getXpub());
-    const node = bitcoin.bip32.fromBase58(xpub);
+    const node = bitcoin.bip32.fromBase58(xpub, network);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(1).derive(index).publicKey,
+      network,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);
@@ -63,9 +64,10 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
     const xpub = this.constructor._zpubToXpub(this.getXpub());
-    const node = bitcoin.bip32.fromBase58(xpub);
+    const node = bitcoin.bip32.fromBase58(xpub, network);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(0).derive(index).publicKey,
+      network,
     }).address;
 
     return (this.external_addresses_cache[index] = address);
@@ -87,13 +89,13 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, network);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub, network);
       this._node1 = hdNode.derive(node);
     }
 

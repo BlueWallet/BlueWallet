@@ -86,6 +86,7 @@ export class LegacyWallet extends AbstractWallet {
       const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
+        network,
       }).address;
     } catch (err) {
       return false;
@@ -523,7 +524,7 @@ export class LegacyWallet extends AbstractWallet {
       return (
         bitcoin.payments.p2pkh({
           output: scriptPubKey2,
-          network: bitcoin.networks.bitcoin,
+          network,
         }).address ?? false
       );
     } catch (_) {

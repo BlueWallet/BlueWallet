@@ -1,6 +1,7 @@
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
+import network from '../network';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 type WalletStatics = {
@@ -370,7 +371,9 @@ export class AbstractWallet {
   static _zpubToXpub(zpub: string): string {
     let data = b58.decode(zpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+    const version = Buffer.alloc(4);
+    version.writeInt32BE(network.bip32.public);
+    data = Buffer.concat([version, data]);
 
     return b58.encode(data);
   }
@@ -384,7 +387,9 @@ export class AbstractWallet {
     let data = b58.decode(ypub);
     if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+    const version = Buffer.alloc(4);
+    version.writeInt32BE(network.bip32.public);
+    data = Buffer.concat([version, data]);
 
     return b58.encode(data);
   }
