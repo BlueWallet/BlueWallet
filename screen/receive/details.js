@@ -447,7 +447,15 @@ const ReceiveDetails = () => {
         }
         break;
     }
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
+    const properties = {};
+    if (String(customLabel).replace(' ', '').length > 0) {
+      properties.label = customLabel;
+    }
+    if (Number(amount) > 0) {
+      properties.amount = amount;
+    }
+
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, properties));
     setShowAddress(true);
   };
 
@@ -493,15 +501,19 @@ const ReceiveDetails = () => {
    * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
    */
   const getDisplayAmount = () => {
-    switch (customUnit) {
-      case BitcoinUnit.BTC:
-        return customAmount + ' BTC';
-      case BitcoinUnit.SATS:
-        return currency.satoshiToBTC(customAmount) + ' BTC';
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.fiatToBTC(customAmount) + ' BTC';
+    if (Number(customAmount) > 0) {
+      switch (customUnit) {
+        case BitcoinUnit.BTC:
+          return customAmount + ' BTC';
+        case BitcoinUnit.SATS:
+          return currency.satoshiToBTC(customAmount) + ' BTC';
+        case BitcoinUnit.LOCAL_CURRENCY:
+          return currency.fiatToBTC(customAmount) + ' BTC';
+      }
+      return customAmount + ' ' + customUnit;
+    } else {
+      return null;
     }
-    return customAmount + ' ' + customUnit;
   };
 
   return (
