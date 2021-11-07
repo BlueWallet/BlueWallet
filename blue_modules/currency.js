@@ -131,7 +131,7 @@ async function init(clearLastUpdatedTime = false) {
   return updateExchangeRate();
 }
 
-function satoshiToLocalCurrency(satoshi) {
+function satoshiToLocalCurrency(satoshi, format = true) {
   if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
     updateExchangeRate();
     return '...';
@@ -144,6 +144,8 @@ function satoshiToLocalCurrency(satoshi) {
   } else {
     b = b.toPrecision(2);
   }
+
+  if (format === false) return b;
 
   let formatter;
   try {

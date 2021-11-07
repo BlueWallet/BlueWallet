@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
 import {
@@ -20,7 +21,6 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import alert from '../../components/Alert';
 const prompt = require('../../blue_modules/prompt');
 const currency = require('../../blue_modules/currency');
@@ -73,9 +73,18 @@ const LnurlPay = () => {
 
   useEffect(() => {
     if (payload) {
-      setAmount(payload.min);
+      let newAmount = payload.min;
+      switch (unit) {
+        case BitcoinUnit.BTC:
+          newAmount = currency.satoshiToBTC(newAmount);
+          break;
+        case BitcoinUnit.LOCAL_CURRENCY:
+          newAmount = currency.satoshiToLocalCurrency(newAmount, false);
+          break;
+      }
+      setAmount(newAmount);
     }
-  }, [payload]);
+  }, [payload]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onWalletSelect = wallet => {
     setParams({ walletID: wallet.getID() });
