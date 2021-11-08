@@ -311,12 +311,16 @@ const ReceiveDetails = () => {
         <View style={stylesHook.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
-                {getDisplayAmount()}
-              </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
+              {getDisplayAmount() && (
+                <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
+                  {getDisplayAmount()}
+                </BlueText>
+              )}
+              {customLabel?.length > 0 && (
+                <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
+                  {customLabel}
+                </BlueText>
+              )}
             </>
           )}
 
@@ -447,15 +451,7 @@ const ReceiveDetails = () => {
         }
         break;
     }
-    const properties = {};
-    if (String(customLabel).replace(' ', '').length > 0) {
-      properties.label = customLabel;
-    }
-    if (Number(amount) > 0) {
-      properties.amount = amount;
-    }
-
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, properties));
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
     setShowAddress(true);
   };
 
