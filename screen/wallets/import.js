@@ -15,7 +15,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
-import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
 
