@@ -217,7 +217,7 @@ const ScanLndInvoice = () => {
       amountUnit: BitcoinUnit.SATS,
       invoiceDescription: decoded.description,
     });
-    fetchAndSaveWalletTransactions(walletID);
+    fetchAndSaveWalletTransactions(wallet.getID());
   };
 
   const processTextForInvoice = text => {
