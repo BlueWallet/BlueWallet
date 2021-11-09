@@ -150,7 +150,6 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <BlueFormMultiInput
         value={importText}
-        contextMenuHidden={!isDesktop}
         onChangeText={setImportText}
         testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}

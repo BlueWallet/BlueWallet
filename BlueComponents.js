@@ -516,7 +516,6 @@ export const BlueFormMultiInput = props => {
       autoCorrect={false}
       autoCapitalize="none"
       spellCheck={false}
-      {...props}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />
