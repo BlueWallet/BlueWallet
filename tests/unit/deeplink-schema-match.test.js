@@ -365,6 +365,14 @@ describe('unit - DeepLinkSchemaMatch', function () {
     assert.strictEqual(encoded, 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar');
   });
 
+  it('encodes bip21 and discards empty arguments', () => {
+    const encoded = DeeplinkSchemaMatch.bip21encode('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH', {
+      label: ' ',
+      amoount: undefined,
+    });
+    assert.strictEqual(encoded, 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
+  });
+
   it('can decodeBitcoinUri', () => {
     assert.deepStrictEqual(
       DeeplinkSchemaMatch.decodeBitcoinUri(
