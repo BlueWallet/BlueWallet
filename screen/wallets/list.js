@@ -139,7 +139,7 @@ const WalletsList = () => {
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     if (isElectrumDisabled) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
+    refreshAllWalletTransactions(false, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
