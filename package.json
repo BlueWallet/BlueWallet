@@ -155,7 +155,7 @@
     "react-native-handoff": "https://github.com/BlueWallet/react-native-handoff#31d005f93d31099d0e564590a3bbd052b8a02b39",
     "react-native-haptic-feedback": "1.13.0",
     "react-native-idle-timer": "https://github.com/BlueWallet/react-native-idle-timer#8587876d68ab5920e79619726aeca9e672beaf2b",
-    "react-native-image-picker": "4.1.2",
+    "react-native-image-picker": "4.2.0",
     "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#v1.3.0",
     "react-native-keychain": "8.0.0",
     "react-native-level-fs": "3.0.1",

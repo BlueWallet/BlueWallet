@@ -303,7 +303,7 @@ class AmountInput extends Component {
               <Badge status="warning" />
               <View style={styles.spacing8} />
               <BlueText>
-                {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('LT') })}
+                {loc.formatString(loc.send.outdated_rate, { date: dayjs(this.state.mostRecentFetchedRate.LastUpdated).format('l LT') })}
               </BlueText>
               <View style={styles.spacing8} />
               <TouchableOpacity
