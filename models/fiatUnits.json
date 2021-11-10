@@ -83,6 +83,12 @@
       "locale": "zh-CN",
       "source": "CoinDesk"
     },
+    "DKK": {
+    "endPointKey": "DKK",
+    "symbol": "kr",
+    "locale": "da-DK",
+    "source": "CoinDesk"
+    },
     "EUR": {
       "endPointKey": "EUR",
       "symbol": "€",

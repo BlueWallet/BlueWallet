@@ -1,7 +1,7 @@
 /* global it, describe */
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 
 describe('AbstractHDElectrumWallet.cosign', () => {
   it('different descendants of AbstractHDElectrumWallet can cosign one transaction', async () => {
@@ -198,5 +198,58 @@ describe('AbstractHDElectrumWallet.cosign', () => {
     const { tx } = w.cosignPsbt(psbtWithCorrectFp);
     assert.ok(tx && tx.toHex());
     assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbtWithCorrectFp), 1);
+  });
+
+  it('can cosign with non-zero account', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    const signerWallet = new HDSegwitBech32Wallet();
+    signerWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
+    signerWallet.setDerivationPath("m/84'/0'/1'"); // account 1
+
+    // setting up watch-only wallet that tracks signer wallet, with the same fp & path:
+    const watchOnlyWallet = new WatchOnlyWallet();
+    watchOnlyWallet.setSecret(
+      `{"ExtPubKey":"${signerWallet.getXpub()}","MasterFingerprint":"${signerWallet.getMasterFingerprintHex()}","AccountKeyPath":"${signerWallet.getDerivationPath()}"}`,
+    );
+    watchOnlyWallet.init();
+
+    // hardcoding valid utxo (unspent at the momend of coding):
+    const utxos = [
+      {
+        height: 707112,
+        value: 10000,
+        address: 'bc1q79hsqzg9q6d36ftyncwv2drg7pyt66pamghn9n',
+        txId: 'e598c705bef463e2e12d7bebc15e3cf0a34477679c3c21de9693987c6de8f15e',
+        vout: 0,
+        txid: 'e598c705bef463e2e12d7bebc15e3cf0a34477679c3c21de9693987c6de8f15e',
+        amount: 10000,
+        wif: false,
+        confirmations: 1,
+      },
+    ];
+
+    // creating a tx on watch-only wallet:
+    const { psbt } = watchOnlyWallet.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 1000 }],
+      1,
+      watchOnlyWallet._getInternalAddressByIndex(0),
+    );
+    assert.strictEqual(psbt.data.outputs.length, 2);
+    assert.strictEqual(psbt.data.inputs.length, 1);
+
+    // signing this tx with signer wallet
+    const { tx } = signerWallet.cosignPsbt(psbt);
+    assert.ok(tx);
+    assert.ok(tx.toHex());
+
+    assert.strictEqual(
+      tx.toHex(),
+      '020000000001015ef1e86d7c989396de213c9c677744a3f03c5ec1eb7b2de1e263f4be05c798e500000000000000008002e8030000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac9622000000000000160014063e495b0228ad29d537f90586ff0965718ee78602483045022100f56f9337a7c4f2e4176852131a6176bdf72daab1a64c6c00d1e4ae8a53c0caf50220159f36793bad0bbacdff5660991c3246d9930796a0a34a9d7a8f4bc3da67c9d90121024328b820f06c591b1a8790a4a3ee7a8679f672879b750a205d6e2c02660e19ac00000000',
+    );
   });
 });

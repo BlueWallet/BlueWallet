@@ -274,7 +274,7 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.for} {invoice.description}
               </BlueText>
             )}
-            <BlueCopyTextToClipboard text={invoice.payment_request} />
+            <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
 
             <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
 

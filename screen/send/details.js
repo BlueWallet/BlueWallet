@@ -103,7 +103,7 @@ const SendDetails = () => {
       setHeaderRightOptions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable]);
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
 
   // keyboad effects
   useEffect(() => {
@@ -386,8 +386,6 @@ const SendDetails = () => {
         return [...addresses];
       });
       setIsLoading(false);
-      // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
@@ -929,13 +927,20 @@ const SendDetails = () => {
     navigation.setOptions({
       headerRight: Platform.select({
         ios: () => (
-          <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
+          <ToolTipMenu
+            disabled={isLoading}
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={headerRightOnPress}
+            actions={headerRightActions()}
+          >
             <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} style={styles.advancedOptions} />
           </ToolTipMenu>
         ),
         default: () => (
           <TouchableOpacity
             accessibilityRole="button"
+            disabled={isLoading}
             style={styles.advancedOptions}
             onPress={() => {
               Keyboard.dismiss();
@@ -1302,7 +1307,7 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
-            disabled={!isEditable}
+            disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
           </TouchableOpacity>

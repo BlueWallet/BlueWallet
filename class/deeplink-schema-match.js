@@ -446,7 +446,16 @@ class DeeplinkSchemaMatch {
   }
 
   static bip21encode() {
-    return bip21.encode.apply(bip21, arguments);
+    const argumentsArray = Array.from(arguments);
+    for (const argument of argumentsArray) {
+      if (String(argument.label).replace(' ', '').length === 0) {
+        delete argument.label;
+      }
+      if (!(Number(argument.amount) > 0)) {
+        delete argument.amount;
+      }
+    }
+    return bip21.encode.apply(bip21, argumentsArray);
   }
 
   static decodeBitcoinUri(uri) {
