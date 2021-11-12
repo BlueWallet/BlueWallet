@@ -308,7 +308,7 @@ const AztecoRedeemRoot = () => {
 
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, stackPresentation: 'fullScreenModal' }}>
+  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
     <RootStack.Screen name="ScanQRCode" component={ScanQRCode} />
   </ScanQRCodeStack.Navigator>
 );
@@ -423,7 +423,7 @@ const InitRoot = () => (
     <InitStack.Screen
       name="ReorderWallets"
       component={ReorderWalletsStackRoot}
-      options={{ headerShown: false, gestureEnabled: false, stackPresentation: 'fullScreenModal' }}
+      options={{ headerShown: false, gestureEnabled: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}
     />
     <InitStack.Screen
       name={isHandset ? 'Navigation' : 'DrawerRoot'}
