@@ -3,7 +3,6 @@ import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-men
 import PropTypes from 'prop-types';
 import QRCodeComponent from './QRCodeComponent';
 import { TouchableOpacity } from 'react-native';
-import { isMacCatalina } from '../blue_modules/environment';
 
 const ToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
@@ -59,7 +58,6 @@ const ToolTipMenu = (props, ref) => {
         menuItems,
       }}
       style={buttonStyle}
-      useActionSheetFallback={isMacCatalina}
     >
       {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuButton>
@@ -82,7 +80,6 @@ const ToolTipMenu = (props, ref) => {
             renderPreview: () => <QRCodeComponent value={previewValue} isMenuAvailable={false} />,
           }
         : {})}
-      useActionSheetFallback={isMacCatalina}
     >
       {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuView>
