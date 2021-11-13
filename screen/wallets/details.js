@@ -130,7 +130,8 @@ const WalletDetails = () => {
   const [masterFingerprint, setMasterFingerprint] = useState();
   const derivationPath = useMemo(() => {
     try {
-      return wallet.getDerivationPath();
+      const path = wallet.getDerivationPath();
+      return path.length > 0 ? path : null;
     } catch (e) {
       return null;
     }
