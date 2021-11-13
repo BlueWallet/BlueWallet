@@ -15,7 +15,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
-import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
 
@@ -52,6 +52,11 @@ const WalletsImport = () => {
     },
   });
 
+  const _setImportText = value => {
+    const valueWithSingleWhitespace = value.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+    setImportText(valueWithSingleWhitespace);
+  };
+
   useEffect(() => {
     Privacy.enableBlur();
     Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true));
@@ -82,7 +87,7 @@ const WalletsImport = () => {
 
   const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
-    setImportText(value);
+    _setImportText(value);
     setTimeout(() => importMnemonic(value), 500);
   };
 
@@ -150,8 +155,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <BlueFormMultiInput
         value={importText}
-        contextMenuHidden={!isDesktop}
-        onChangeText={setImportText}
+        onChangeText={_setImportText}
         testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
@@ -161,7 +165,7 @@ const WalletsImport = () => {
         ios: (
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
-              setImportText('');
+              _setImportText('');
             }}
             onPasteTapped={text => {
               setImportText(text);
@@ -172,11 +176,11 @@ const WalletsImport = () => {
         android: isToolbarVisibleForAndroid && (
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
-              setImportText('');
+              _setImportText('');
               Keyboard.dismiss();
             }}
             onPasteTapped={text => {
-              setImportText(text);
+              _setImportText(text);
               Keyboard.dismiss();
             }}
           />
