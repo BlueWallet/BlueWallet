@@ -55,6 +55,7 @@ const WalletsImport = () => {
   const onBlur = () => {
     const valueWithSingleWhitespace = importText.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
     setImportText(valueWithSingleWhitespace);
+    return valueWithSingleWhitespace;
   };
 
   useEffect(() => {
@@ -75,10 +76,11 @@ const WalletsImport = () => {
   }, []);
 
   const importButtonPressed = () => {
-    if (importText.trim().length === 0) {
+    const textToImport = onBlur();
+    if (textToImport.trim().length === 0) {
       return;
     }
-    importMnemonic(importText);
+    importMnemonic(textToImport);
   };
 
   const importMnemonic = importText => {
