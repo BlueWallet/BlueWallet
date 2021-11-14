@@ -52,8 +52,8 @@ const WalletsImport = () => {
     },
   });
 
-  const _setImportText = value => {
-    const valueWithSingleWhitespace = value.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+  const onBlur = () => {
+    const valueWithSingleWhitespace = importText.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
     setImportText(valueWithSingleWhitespace);
   };
 
@@ -87,7 +87,7 @@ const WalletsImport = () => {
 
   const onBarScanned = value => {
     if (value && value.data) value = value.data + ''; // no objects here, only strings
-    _setImportText(value);
+    setImportText(value);
     setTimeout(() => importMnemonic(value), 500);
   };
 
@@ -155,7 +155,8 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <BlueFormMultiInput
         value={importText}
-        onChangeText={_setImportText}
+        onBlur={onBlur}
+        onChangeText={setImportText}
         testID="MnemonicInput"
         inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
       />
@@ -165,7 +166,7 @@ const WalletsImport = () => {
         ios: (
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
-              _setImportText('');
+              setImportText('');
             }}
             onPasteTapped={text => {
               setImportText(text);
@@ -176,11 +177,11 @@ const WalletsImport = () => {
         android: isToolbarVisibleForAndroid && (
           <BlueDoneAndDismissKeyboardInputAccessory
             onClearTapped={() => {
-              _setImportText('');
+              setImportText('');
               Keyboard.dismiss();
             }}
             onPasteTapped={text => {
-              _setImportText(text);
+              setImportText(text);
               Keyboard.dismiss();
             }}
           />
