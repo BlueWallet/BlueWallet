@@ -53,7 +53,7 @@ const WalletsImport = () => {
   });
 
   const onBlur = () => {
-    const valueWithSingleWhitespace = importText.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+    const valueWithSingleWhitespace = importText.replace(/^\s+|\s+$|(\r\n|\r|\n)|\s+(?=\s)/g, '');
     setImportText(valueWithSingleWhitespace);
     return valueWithSingleWhitespace;
   };
