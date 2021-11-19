@@ -21,7 +21,7 @@ const ImportCustomDerivationPath = () => {
   const { colors } = useTheme();
   const route = useRoute();
   const importText = route.params.importText;
-  const passphrase = route.params.passphrase;
+  const password = route.params.password;
   const { addAndSaveWallet } = useContext(BlueStorageContext);
   const [path, setPath] = useState("m/84'/0'/0'");
   const [wallets, setWallets] = useState({});
@@ -41,7 +41,7 @@ const ImportCustomDerivationPath = () => {
       for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet]) {
         const wallet = new Wallet();
         wallet.setSecret(importText);
-        wallet.setPassphrase(passphrase);
+        wallet.setPassphrase(password);
         wallet.setDerivationPath(path);
         wallets[Wallet.type] = wallet;
       }
