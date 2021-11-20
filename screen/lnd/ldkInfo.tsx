@@ -427,7 +427,11 @@ const LdkInfo = () => {
             <BlueSpacing20 />
           </>
         ) : null}
-        {maturingBalance ? <Text style={[stylesHook.detailsText]}>Balance awaiting confirmations: {maturingBalance} sat</Text> : null}
+        {maturingBalance ? (
+          <Text style={[stylesHook.detailsText]}>
+            Balance awaiting confirmations: {formatBalance(Number(maturingBalance), wallet.getPreferredBalanceUnit(), true)}
+          </Text>
+        ) : null}
         {maturingEta ? <Text style={[stylesHook.detailsText]}>ETA: {maturingEta}</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
         <BlueSpacing20 />
