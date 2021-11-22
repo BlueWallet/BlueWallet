@@ -257,7 +257,7 @@
     "psbt_this_is_psbt": "Dies ist eine partiell signierte Bitcoin-Transaktion (PSBT). Signiere sie mithilfe Deiner Hardware-Wallet final.",
     "psbt_tx_export": "In Datei exportieren",
     "no_tx_signing_in_progress": "Keine Transaktionsignierung in Arbeit",
-    "outdated_rate": "Wechselkurs zuletzt aktualisiert am {date}",
+    "outdated_rate": "Kurs zuletzt aktualisiert: {date}",
     "psbt_tx_open": "Öffne signierte Transaktion.",
     "psbt_tx_scan": "Signierte Transaktion scannen",
     "qr_error_no_qrcode": "Der QR-Code konnte nicht ausgelesen werden. Achte darauf, dass er ohne zusätzliche Inhalte wie Text, Grafiken oder Bilder vorliegt.",

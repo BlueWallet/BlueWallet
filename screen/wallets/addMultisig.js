@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -101,9 +101,9 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
+      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton propagateSwipe>
+        <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
+          <ScrollView>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
             <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
@@ -162,8 +162,8 @@ const WalletsAddMultisig = () => {
               checkmark={isP2sh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-          </View>
-        </KeyboardAvoidingView>
+          </ScrollView>
+        </View>
       </BottomModal>
     );
   };
@@ -245,7 +245,8 @@ const styles = StyleSheet.create({
     flex: 0.8,
   },
   modalContentShort: {
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
     justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
