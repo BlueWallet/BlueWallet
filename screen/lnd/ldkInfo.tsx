@@ -41,6 +41,7 @@ const LdkInfo = () => {
   const [pendingChannels, setPendingChannels] = useState<any[]>([]);
   const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
   const [maturingBalance, setMaturingBalance] = useState(0);
+  const [maturingEta, setMaturingEta] = useState('');
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
   // Modals
@@ -118,6 +119,16 @@ const LdkInfo = () => {
       setWalletBalance(walletBalance);
 
       setMaturingBalance(await wallet.getMaturingBalance());
+      const maturingHeight = await wallet.getMaturingHeight();
+
+      if (maturingHeight > 0) {
+        const result = await fetch('https://blockstream.info/api/blocks/tip/height');
+        const tip = await result.text();
+        const hrs = Math.ceil((maturingHeight - +tip) / 6); // convert blocks to hours
+        setMaturingEta(`${hrs} hours`);
+      } else {
+        setMaturingEta('');
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -133,11 +144,15 @@ const LdkInfo = () => {
     allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
 
+  // do we even need periodic sync when user stares at this screen..?
   useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
         refetchData(false);
-        if (wallet.timeToCheckBlockchain()) wallet.checkBlockchain();
+        if (wallet.timeToCheckBlockchain()) {
+          wallet.checkBlockchain();
+          wallet.reconnectPeersWithPendingChannels();
+        }
       }, 2000);
     });
     return () => {
@@ -412,7 +427,12 @@ const LdkInfo = () => {
             <BlueSpacing20 />
           </>
         ) : null}
-        {maturingBalance ? <Text style={[stylesHook.detailsText]}>Balance awaiting confirmations: {maturingBalance} sat</Text> : null}
+        {maturingBalance ? (
+          <Text style={[stylesHook.detailsText]}>
+            Balance awaiting confirmations: {formatBalance(Number(maturingBalance), wallet.getPreferredBalanceUnit(), true)}
+          </Text>
+        ) : null}
+        {maturingEta ? <Text style={[stylesHook.detailsText]}>ETA: {maturingEta}</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
         <BlueSpacing20 />
       </View>

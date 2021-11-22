@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, Platform, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { BlueButton, BlueSpacing40 } from '../BlueComponents';
+import { BlueButton, BlueSpacing10 } from '../BlueComponents';
 import loc from '../loc';
 import { useTheme } from '@react-navigation/native';
 
@@ -54,7 +54,7 @@ const BottomModal = ({
       {doneButton && (
         <View style={[styles.hasDoneButton, stylesHook.hasDoneButton]}>
           <BlueButton title={loc.send.input_done} onPress={onClose} />
-          <BlueSpacing40 />
+          <BlueSpacing10 />
         </View>
       )}
     </Modal>

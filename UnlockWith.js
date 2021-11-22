@@ -75,7 +75,6 @@ const UnlockWith = () => {
     if (await Biometric.unlockWithBiometrics()) {
       setIsAuthenticating(false);
       await startAndDecrypt();
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       return successfullyAuthenticated();
     }
     setIsAuthenticating(false);

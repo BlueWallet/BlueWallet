@@ -311,12 +311,16 @@ const ReceiveDetails = () => {
         <View style={stylesHook.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
-                {getDisplayAmount()}
-              </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
+              {getDisplayAmount() && (
+                <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
+                  {getDisplayAmount()}
+                </BlueText>
+              )}
+              {customLabel?.length > 0 && (
+                <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
+                  {customLabel}
+                </BlueText>
+              )}
             </>
           )}
 
@@ -493,15 +497,19 @@ const ReceiveDetails = () => {
    * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
    */
   const getDisplayAmount = () => {
-    switch (customUnit) {
-      case BitcoinUnit.BTC:
-        return customAmount + ' BTC';
-      case BitcoinUnit.SATS:
-        return currency.satoshiToBTC(customAmount) + ' BTC';
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.fiatToBTC(customAmount) + ' BTC';
+    if (Number(customAmount) > 0) {
+      switch (customUnit) {
+        case BitcoinUnit.BTC:
+          return customAmount + ' BTC';
+        case BitcoinUnit.SATS:
+          return currency.satoshiToBTC(customAmount) + ' BTC';
+        case BitcoinUnit.LOCAL_CURRENCY:
+          return currency.fiatToBTC(customAmount) + ' BTC';
+      }
+      return customAmount + ' ' + customUnit;
+    } else {
+      return null;
     }
-    return customAmount + ' ' + customUnit;
   };
 
   return (

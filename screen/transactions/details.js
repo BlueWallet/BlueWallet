@@ -111,11 +111,24 @@ const TransactionsDetails = () => {
 
   const handleOnOpenTransactionOnBlockExporerTapped = () => {
     const url = `https://mempool.space/tx/${tx.hash}`;
-    Linking.canOpenURL(url).then(supported => {
-      if (supported) {
-        Linking.openURL(url);
-      }
-    });
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          Linking.openURL(url).catch(e => {
+            console.log('openURL failed in handleOnOpenTransactionOnBlockExporerTapped');
+            console.log(e.message);
+            alert(e.message);
+          });
+        } else {
+          console.log('canOpenURL supported is false in handleOnOpenTransactionOnBlockExporerTapped');
+          alert(loc.transactions.open_url_error);
+        }
+      })
+      .catch(e => {
+        console.log('canOpenURL failed in handleOnOpenTransactionOnBlockExporerTapped');
+        console.log(e.message);
+        alert(e.message);
+      });
   };
 
   const handleCopyPress = () => {
