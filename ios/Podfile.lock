@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.13.2):
+  - BugsnagReactNative (7.13.3):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -281,7 +281,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.1.2):
+  - react-native-image-picker (4.2.0):
     - React-Core
   - react-native-ios-context-menu (1.3.0):
     - React-Core
@@ -294,7 +294,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.14.2):
+  - react-native-webview (11.14.3):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -362,7 +362,7 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RealmJS (10.9.1):
+  - RealmJS (10.10.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.4.5):
+  - RNDeviceInfo (8.4.7):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -397,7 +397,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.13.0):
     - React-Core
-  - RNReanimated (2.2.3):
+  - RNReanimated (2.2.4):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -707,7 +707,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: 23b87aa38823caa0d962f98df089b672ef8cbba0
+  BugsnagReactNative: 6d83bb92e167d9c82f68000bfe5a970def438696
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -743,13 +743,13 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: f45729c43d4f854508ab25c0d0f0f711a2a8a267
+  react-native-image-picker: 4c785f9e04f9b34c9f57a291891f4dd3a59146bc
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: 01791db11d056b9e880db8232809b9ee3e10e9cf
+  react-native-webview: 1bd31adaa34e9c360271373ce66cc67a956c13ff
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
@@ -763,14 +763,14 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RealmJS: db77f07dbb7bde3754ee19aa3ce16c050b972751
+  RealmJS: 804c58c40ba17988188a25373f181eaf34c39b58
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: 226ee19483257c6eef96dc243483c0908cb54e8f
   RNCAsyncStorage: b4d70dc4bd735a92ce32b6943450c0822a802f04
   RNCClipboard: f49f3de56b40d0f4104680dabadc7a1f063f4fd4
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
-  RNDeviceInfo: 3b3bbe00f478907223daa580b6882f0bae162f72
+  RNDeviceInfo: 9e80b72833d82d6fc57831352c09b539abe92ea7
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -780,7 +780,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
   RNReactNativeHapticFeedback: b83bfb4b537bdd78eb4f6ffe63c6884f7b049ead
-  RNReanimated: 64c38d47ffcc29c97fc1d8cfde9e8a73d7be7cc8
+  RNReanimated: 024eff8202342abf4b24e11575a16afc441dabfe
   RNScreens: 4d79118be80f79fa1f4aa131909a1d6e86280af3
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: edd621a71124961e29a7ba43a84bd1c6f9980d88
