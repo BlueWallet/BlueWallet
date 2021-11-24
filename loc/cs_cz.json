@@ -257,7 +257,7 @@
     "psbt_this_is_psbt": "Toto je částečně podepsaná bitcoinová transakce (PSBT). Dokončete podepisování pomocí hardwarové peněženky.",
     "psbt_tx_export": "Export do souboru",
     "no_tx_signing_in_progress": "Neprobíhá žádné podepisování transakcí",
-    "outdated_rate": "Sazba byla naposledy aktualizována k datu {date}",
+    "outdated_rate": "Kurz byl naposledy aktualizován: {date}",
     "psbt_tx_open": "Otevřít podepsanou transakci",
     "psbt_tx_scan": "Skenovat podepsanou transakci",
     "qr_error_no_qrcode": "Ve vybraném obrázku se nám nepodařilo najít kód QR. Ujistěte se, že obrázek obsahuje pouze QR kód a žádný další obsah, například text nebo tlačítka.",
