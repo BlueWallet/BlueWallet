@@ -1,6 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import alert from '../components/Alert';
+import { ECPair } from 'ecpair';
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -22,7 +23,7 @@ export default class PayjoinTransaction {
 
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
       const wif = this._wallet._getWifForAddress(address);
-      const keyPair = bitcoin.ECPair.fromWIF(wif);
+      const keyPair = ECPair.fromWIF(wif);
 
       unfinalized.signInput(index, keyPair);
     });
@@ -45,7 +46,7 @@ export default class PayjoinTransaction {
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
       try {
         const wif = this._wallet._getWifForAddress(address);
-        const keyPair = bitcoin.ECPair.fromWIF(wif);
+        const keyPair = ECPair.fromWIF(wif);
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
       } catch (e) {}
     });

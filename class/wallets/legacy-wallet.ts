@@ -8,6 +8,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import coinSelect from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { Signer, ECPair } from 'ecpair';
 
 type CoinselectUtxo = {
   vout: number;
@@ -56,7 +57,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async generate(): Promise<void> {
     const buf = await randomBytes(32);
-    this.secret = bitcoin.ECPair.makeRandom({ rng: () => buf }).toWIF();
+    this.secret = ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
   async generateFromEntropy(user: Buffer): Promise<void> {
@@ -66,7 +67,7 @@ export class LegacyWallet extends AbstractWallet {
       const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
       const buf = Buffer.concat([user, random], 32);
       try {
-        this.secret = bitcoin.ECPair.fromPrivateKey(buf).toWIF();
+        this.secret = ECPair.fromPrivateKey(buf).toWIF();
         return;
       } catch (e) {
         if (i === 5) throw e;
@@ -82,7 +83,7 @@ export class LegacyWallet extends AbstractWallet {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
       }).address;
@@ -434,12 +435,12 @@ export class LegacyWallet extends AbstractWallet {
     const psbt = new bitcoin.Psbt();
     let c = 0;
     const values: Record<number, number> = {};
-    let keyPair: bitcoin.ECPair.Signer | null = null;
+    let keyPair: Signer | null = null;
 
     inputs.forEach(input => {
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this.secret); // secret is WIF
+        keyPair = ECPair.fromWIF(this.secret); // secret is WIF
       }
       values[c] = input.value;
       c++;
@@ -584,7 +585,7 @@ export class LegacyWallet extends AbstractWallet {
   signMessage(message: string, address: string, useSegwit = true): string {
     const wif = this._getWIFbyAddress(address);
     if (wif === null) throw new Error('Invalid address');
-    const keyPair = bitcoin.ECPair.fromWIF(wif);
+    const keyPair = ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
     const options = this.segwitType && useSegwit ? { segwitType: this.segwitType } : undefined;

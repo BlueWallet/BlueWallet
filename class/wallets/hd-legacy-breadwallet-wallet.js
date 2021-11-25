@@ -2,6 +2,7 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
+const bip32 = require('bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -20,10 +21,10 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   _calcNodeAddressByIndex(node, index, p2wpkh = false) {
     let _node;
     if (node === 0) {
-      _node = this._node0 || (this._node0 = bitcoinjs.bip32.fromBase58(this.getXpub()).derive(node));
+      _node = this._node0 || (this._node0 = bip32.fromBase58(this.getXpub()).derive(node));
     }
     if (node === 1) {
-      _node = this._node1 || (this._node1 = bitcoinjs.bip32.fromBase58(this.getXpub()).derive(node));
+      _node = this._node1 || (this._node1 = bip32.fromBase58(this.getXpub()).derive(node));
     }
     const pubkey = _node.derive(index).publicKey;
     const address = p2wpkh ? bitcoinjs.payments.p2wpkh({ pubkey }).address : bitcoinjs.payments.p2pkh({ pubkey }).address;
