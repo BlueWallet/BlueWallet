@@ -1,4 +1,5 @@
 import { LegacyWallet } from '../../class';
+import { ECPair } from 'ecpair';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
@@ -118,7 +119,7 @@ describe('Legacy wallet', () => {
     await l.generateFromEntropy(Buffer.from(values));
     assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
     assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
-    const keyPair = bitcoin.ECPair.fromWIF(l.getSecret());
+    const keyPair = ECPair.fromWIF(l.getSecret());
     assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);

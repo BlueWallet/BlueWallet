@@ -32,7 +32,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     }
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = HDNode.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
     const xpub = root.derivePath("m/0'").neutered().toBase58();
 
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
@@ -49,7 +49,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
     const xpub = this.constructor._zpubToXpub(this.getXpub());
-    const node = bitcoin.bip32.fromBase58(xpub);
+    const node = HDNode.fromBase58(xpub);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(1).derive(index).publicKey,
     }).address;
@@ -62,7 +62,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
     const xpub = this.constructor._zpubToXpub(this.getXpub());
-    const node = bitcoin.bip32.fromBase58(xpub);
+    const node = HDNode.fromBase58(xpub);
     const address = bitcoin.payments.p2wpkh({
       pubkey: node.derive(0).derive(index).publicKey,
     }).address;
@@ -74,7 +74,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (!this.secret) return false;
     const args = { prefix: PREFIX };
     if (this.passphrase) args.passphrase = this.passphrase;
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
+    const root = HDNode.fromSeed(mn.mnemonicToSeedSync(this.secret, args));
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
