@@ -18,7 +18,7 @@ import {
 import startImport from '../../class/wallet-import';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
