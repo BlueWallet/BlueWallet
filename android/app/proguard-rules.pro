@@ -12,3 +12,5 @@
 -keep class com.sifir.** { *;}
 -keep interface com.sifir.** { *;}
 -keep enum com.sifir.** { *;}
+-keep class com.facebook.hermes.unicode.** { *; }
+-keep class com.facebook.jni.** { *; }
