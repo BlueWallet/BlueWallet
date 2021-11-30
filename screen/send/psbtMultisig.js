@@ -276,7 +276,7 @@ const PsbtMultisig = () => {
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 130 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
@@ -286,7 +286,7 @@ const PsbtMultisig = () => {
                 renderItem={_renderItem}
                 keyExtractor={(_item, index) => `${index}`}
                 ListHeaderComponent={header}
-                scrollEnabled={false}
+                ListFooterComponent={footer}
               />
               {isConfirmEnabled() && (
                 <View style={styles.height80}>
@@ -305,7 +305,6 @@ const PsbtMultisig = () => {
             </BlueCard>
           </View>
         </View>
-        {footer}
       </View>
     </SafeBlueArea>
   );
