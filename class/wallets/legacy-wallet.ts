@@ -9,6 +9,7 @@ import coinSelect from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { Signer, ECPair } from 'ecpair';
+const ecc = require('tiny-secp256k1');
 
 type CoinselectUtxo = {
   vout: number;
@@ -499,12 +500,25 @@ export class LegacyWallet extends AbstractWallet {
   /**
    * Validates any address, including legacy, p2sh and bech32
    *
+   * p2tr addresses have extra logic, rejecting all versions >1
+   * @see https://github.com/BlueWallet/BlueWallet/issues/3394
+   * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/1750
+   * @see https://github.com/bitcoin/bips/blob/edffe529056f6dfd33d8f716fb871467c3c09263/bip-0350.mediawiki#Addresses_for_segregated_witness_outputs
+   *
    * @param address
    * @returns {boolean}
    */
   isAddressValid(address: string): boolean {
     try {
-      bitcoin.address.toOutputScript(address);
+      bitcoin.address.toOutputScript(address); // throws, no?
+
+      if (!address.toLowerCase().startsWith('bc1')) return true;
+      const decoded = bitcoin.address.fromBech32(address);
+      if (decoded.version === 0) return true;
+      if (decoded.version === 1 && decoded.data.length !== 32) return false;
+      if (decoded.version === 1 && !ecc.isPoint(Buffer.concat([Buffer.from([2]), decoded.data]))) return false;
+      if (decoded.version > 1) return false;
+      // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
       return true;
     } catch (e) {
       return false;
