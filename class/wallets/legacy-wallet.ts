@@ -499,13 +499,22 @@ export class LegacyWallet extends AbstractWallet {
   /**
    * Validates any address, including legacy, p2sh and bech32
    *
+   * p2tr addresses have extra logic, rejecting all versions >1
+   * @see https://github.com/BlueWallet/BlueWallet/issues/3394
+   * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/1750
+   * @see https://github.com/bitcoin/bips/blob/edffe529056f6dfd33d8f716fb871467c3c09263/bip-0350.mediawiki#Addresses_for_segregated_witness_outputs
+   *
    * @param address
    * @returns {boolean}
    */
   isAddressValid(address: string): boolean {
     try {
-      bitcoin.address.toOutputScript(address);
-      return true;
+      bitcoin.address.toOutputScript(address); // throws, no?
+
+      if (!address.toLowerCase().startsWith('bc1')) return true;
+      const decoded = bitcoin.address.fromBech32(address);
+      return decoded.version <= 1;
+      // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
     } catch (e) {
       return false;
     }
