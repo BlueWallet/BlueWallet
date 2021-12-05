@@ -287,11 +287,10 @@ const SendDetails = () => {
 
       // replace wrong addresses with dump
       targets = targets.map(t => {
-        try {
-          bitcoin.address.toOutputScript(t.address);
-          return t;
-        } catch (e) {
+        if (!wallet.isAddressValid(t.address)) {
           return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+        } else {
+          return t;
         }
       });
 
@@ -457,11 +456,8 @@ const SendDetails = () => {
       }
 
       if (!error) {
-        try {
-          bitcoin.address.toOutputScript(transaction.address);
-        } catch (err) {
+        if (!wallet.isAddressValid(transaction.address)) {
           console.log('validation error');
-          console.log(err);
           error = loc.send.details_address_field_is_not_valid;
         }
       }

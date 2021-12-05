@@ -9,6 +9,7 @@ import coinSelect from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { Signer, ECPair } from 'ecpair';
+const ecc = require('tiny-secp256k1');
 
 type CoinselectUtxo = {
   vout: number;
@@ -513,8 +514,12 @@ export class LegacyWallet extends AbstractWallet {
 
       if (!address.toLowerCase().startsWith('bc1')) return true;
       const decoded = bitcoin.address.fromBech32(address);
-      return decoded.version <= 1;
+      if (decoded.version === 0) return true;
+      if (decoded.version === 1 && decoded.data.length !== 32) return false;
+      if (decoded.version === 1 && !ecc.isPoint(Buffer.concat([Buffer.from([2]), decoded.data]))) return false;
+      if (decoded.version > 1) return false;
       // ^^^ some day, when versions above 1 will be actually utilized, we would need to unhardcode this
+      return true;
     } catch (e) {
       return false;
     }
