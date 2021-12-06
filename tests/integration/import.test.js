@@ -1,5 +1,4 @@
 import assert from 'assert';
-
 import {
   HDSegwitElectrumSeedP2WPKHWallet,
   HDLegacyBreadwalletWallet,
@@ -18,7 +17,7 @@ import {
 import startImport from '../../class/wallet-import';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate

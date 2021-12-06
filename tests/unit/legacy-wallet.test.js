@@ -20,6 +20,10 @@ describe('Legacy wallet', () => {
     assert.ok(!w.isAddressValid('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd')); // P2TR example with errors (using Bech32 instead of Bech32m)
     assert.ok(!w.isAddressValid('bc1p38j9r5y49hruaue7wxjce0updqjuyyx0kh56v8s25huc6995vvpql3jow4')); // invalid char
     assert.ok(!w.isAddressValid('BC130XLXVLHEMJA6C4DQV22UAPCTQUPFHLXM9H8Z3K2E72Q4K9HCZ7VQ7ZWS8R')); // invalid char
+    assert.ok(!w.isAddressValid('bc1pllllllllllllllllllllllllllllllllllllllllllllallllscqlhrddu')); // X is modulo P + 1 (invalid X, but 1 is valid, testing if wrapped modulo (P+1 mod P === 1) will pass)
+    assert.ok(!w.isAddressValid('bc1pllllllllllllllllllllllllllllllllllllllllllllallllshqcgyklh')); // X is modulo P - 1 (invalid X)
+    assert.ok(!w.isAddressValid('bc1pqtllllllllllllllllllllllllllllllllllllllllllllhlll7zcsqylfl')); // data length is 33 (valid point in compressed DER format (33 bytes))
+    assert.ok(!w.isAddressValid('bc1plllllllllllllllllllllllllllllllllllllllllll0lllu9cegrnmx')); // data is length 31 (valid X value with leading 0x00 trimmed)
 
     assert.ok(w.isAddressValid('bc1pw38ttcljvgv9x64xpsq99dl9auy8vv50n25xcstuj2cagzcpx3us2m25kg'));
     assert.ok(w.isAddressValid('bc1pqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqsyjer9e'));
