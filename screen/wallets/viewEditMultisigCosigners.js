@@ -256,7 +256,6 @@ const ViewEditMultisigCosigners = () => {
           />
           <BlueSpacing20 />
           <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
-          <BlueSpacing40 />
         </View>
       </BottomModal>
     );
@@ -520,11 +519,11 @@ const ViewEditMultisigCosigners = () => {
 
   const renderShareModal = () => {
     return (
-      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal}>
+      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
-            <QRCodeComponent value={exportStringURv2} size={260} />
+            <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
               <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />

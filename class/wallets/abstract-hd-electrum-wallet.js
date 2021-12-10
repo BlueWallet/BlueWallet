@@ -4,6 +4,7 @@ import b58 from 'bs58check';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
+import { ECPair } from 'ecpair';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
@@ -875,7 +876,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
+        keyPair = ECPair.fromWIF(this._getWifForAddress(input.address));
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -1101,7 +1102,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const internal = +splt[splt.length - 2];
           const index = +splt[splt.length - 1];
           const wif = this._getWIFByIndex(internal, index);
-          const keyPair = bitcoin.ECPair.fromWIF(wif);
+          const keyPair = ECPair.fromWIF(wif);
           try {
             psbt.signInput(cc, keyPair);
           } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
@@ -1122,7 +1123,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed) {
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = HDNode.fromSeed(seed);
     let hex = root.fingerprint.toString('hex');
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();

@@ -19,6 +19,7 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
+const bip32 = require('bip32');
 
 const styles = StyleSheet.create({
   center: {
@@ -153,7 +154,7 @@ export default class Selftest extends Component {
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
       const seed = bip39.mnemonicToSeedSync(mnemonic);
-      const root = bitcoin.bip32.fromSeed(seed);
+      const root = bip32.fromSeed(seed);
 
       const path = "m/49'/0'/0'/0/0";
       const child = root.derivePath(path);

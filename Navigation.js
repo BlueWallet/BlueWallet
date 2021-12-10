@@ -518,7 +518,7 @@ const Navigation = () => {
       <RootStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
         component={ExportMultisigCoordinationSetupRoot}
-        options={{ headerShown: false }}
+        options={NavigationDefaultOptions}
       />
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={NavigationDefaultOptions} />
