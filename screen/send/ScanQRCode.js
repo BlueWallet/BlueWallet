@@ -196,6 +196,10 @@ const ScanQRCode = () => {
     }
     scannedCache[h] = +new Date();
 
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-ACCOUNT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
       return _onReadUniformResourceV2(ret.data);
     }

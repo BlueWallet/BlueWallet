@@ -1,5 +1,4 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -38,7 +37,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
       return this._xpub; // cache hit
     }
     const seed = this._getSeed();
-    const root = bitcoin.bip32.fromSeed(seed);
+    const root = HDNode.fromSeed(seed);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
