@@ -7,9 +7,7 @@
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.org.doichain.doiwallet</string>
-	</array>
+	<array/>
 	<key>com.apple.security.device.camera</key>
 	<true/>
 	<key>com.apple.security.files.user-selected.read-write</key>

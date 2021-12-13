@@ -1536,7 +1536,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
     });
   }, [item.hash]);
   const handleCopyOpenInBlockExplorerPress = useCallback(() => {
-    Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
+    Clipboard.setString(`https://explorer.doichain.org/tx/${item.hash}`);
   }, [item.hash]);
   const toolTipActions = useMemo(() => {
     const actions = [

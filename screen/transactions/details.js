@@ -134,7 +134,7 @@ const TransactionsDetails = () => {
   };
 
   const handleCopyPress = () => {
-    Clipboard.setString(`https://mempool.space/tx/${tx.hash}`);
+    Clipboard.setString(`https://explorer.doichain.org/tx/${tx.hash}`);
   };
 
   const showToolTipMenu = () => {
