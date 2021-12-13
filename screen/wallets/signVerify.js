@@ -146,7 +146,6 @@ const SignVerify = () => {
   return (
     <SafeBlueArea style={[styles.root, stylesHooks.root]}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <StatusBar barStyle="light-content" />
         <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
           {!isKeyboardVisible && (
             <>
@@ -262,6 +261,7 @@ const SignVerify = () => {
               />
             ),
           })}
+          <StatusBar barStyle="light-content" />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </SafeBlueArea>
