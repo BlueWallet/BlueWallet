@@ -760,8 +760,10 @@ export class AppStorage {
     let txs = [];
     for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
       const walletTransactions = wallet.getTransactions();
+      const walletID = wallet.getID();
       for (const t of walletTransactions) {
         t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
+        t.walletID = walletID;
       }
       txs = txs.concat(walletTransactions);
     }

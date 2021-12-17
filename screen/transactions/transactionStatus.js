@@ -31,11 +31,11 @@ const buttonStatus = Object.freeze({
 });
 
 const TransactionsStatus = () => {
-  const { setSelectedWallet, wallets, txMetadata, getTransactions, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const { hash } = useRoute().params;
+  const { setSelectedWallet, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { hash, walletID } = useRoute().params;
   const { navigate, setOptions, goBack } = useNavigation();
   const { colors } = useTheme();
-  const wallet = useRef();
+  const wallet = useRef(wallets.find(w => w.getID() === walletID));
   const [isCPFPPossible, setIsCPFPPossible] = useState();
   const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState();
   const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
@@ -85,17 +85,7 @@ const TransactionsStatus = () => {
   }, [colors, tx]);
 
   useEffect(() => {
-    for (const w of wallets) {
-      for (const t of w.getTransactions()) {
-        if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
-          wallet.current = w;
-          break;
-        }
-      }
-    }
-
-    for (const tx of getTransactions(null, Infinity, true)) {
+    for (const tx of wallet.current.getTransactions()) {
       if (tx.hash === hash) {
         setTX(tx);
         break;
@@ -103,7 +93,11 @@ const TransactionsStatus = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash]);
+  }, [hash, wallet.current]);
+
+  useEffect(() => {
+    wallet.current = wallets.find(w => w.getID() === walletID);
+  }, [walletID, wallets]);
 
   // re-fetching tx status periodically
   useEffect(() => {
