@@ -1,7 +1,9 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import alert from '../components/Alert';
-import { ECPair } from 'ecpair';
+import { ECPairFactory } from 'ecpair';
+const ecc = require('tiny-secp256k1');
+const ECPair = ECPairFactory(ecc);
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
