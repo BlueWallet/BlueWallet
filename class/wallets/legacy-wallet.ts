@@ -8,8 +8,9 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import coinSelect from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { Signer, ECPair } from 'ecpair';
+import { Signer, ECPairFactory, ECPairAPI } from 'ecpair';
 const ecc = require('tiny-secp256k1');
+const ECPair: ECPairAPI = ECPairFactory(ecc);
 
 type CoinselectUtxo = {
   vout: number;

@@ -1,6 +1,8 @@
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
-import { ECPair } from 'ecpair';
+import { ECPairFactory } from 'ecpair';
+const ecc = require('tiny-secp256k1');
+const ECPair = ECPairFactory(ecc);
 
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
