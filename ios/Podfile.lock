@@ -281,7 +281,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.4.1):
+  - react-native-image-picker (4.6.0):
     - React-Core
   - react-native-ios-context-menu (1.3.0):
     - React-Core
@@ -387,7 +387,7 @@ PODS:
     - React
   - RNKeychain (8.0.0):
     - React-Core
-  - RNLocalize (2.1.5):
+  - RNLocalize (2.1.6):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -426,7 +426,7 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.10.0):
+  - RNScreens (3.10.1):
     - React-Core
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
@@ -743,7 +743,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: 7ae594ce7e369f7893916ff0deeda1a3ba15a7f5
+  react-native-image-picker: 66c0f718c18edab67b6c7b2c63c6566060066127
   react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
@@ -775,13 +775,13 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNLocalize: 13a971fd888f2933504a745983f781dc52feeab6
+  RNLocalize: 1eef69bd5381453aba05acadc26dc7c5bd450091
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
   RNReactNativeHapticFeedback: b83bfb4b537bdd78eb4f6ffe63c6884f7b049ead
   RNReanimated: 024eff8202342abf4b24e11575a16afc441dabfe
-  RNScreens: 03ba504f8c98607ad1f07808e71040e0afa335ec
+  RNScreens: 522705f2e5c9d27efb17f24aceb2bf8335bc7b8e
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: d76b8c9c6e6ffb38fc18f40b4338c9d867592ed3
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
