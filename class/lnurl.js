@@ -12,6 +12,7 @@ const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex 
 export default class Lnurl {
   static TAG_PAY_REQUEST = 'payRequest'; // type of LNURL
   static TAG_WITHDRAW_REQUEST = 'withdrawRequest'; // type of LNURL
+  static TAG_LOGIN_REQUEST = 'login'; // type of LNURL
 
   constructor(url, AsyncStorage) {
     this._lnurl = url;
