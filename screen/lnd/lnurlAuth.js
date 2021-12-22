@@ -53,7 +53,7 @@ const AuthState = {
 const LnurlAuth = () => {
   const { wallets } = useContext(BlueStorageContext);
   const { walletID, lnurl } = useRoute().params;
-  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID, [walletID]));
+  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID]);
   const lnurlObj = useMemo(() => 
     lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {} // eslint-disable-line node/no-deprecated-api
   , [lnurl]);
