@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext, useMemo } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,7 +17,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -25,7 +25,7 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading } from '../../BlueComponents';
+import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -74,6 +74,7 @@ const SendDetails = () => {
   const [feeUnit, setFeeUnit] = useState();
   const [amountUnit, setAmountUnit] = useState();
   const [utxo, setUtxo] = useState(null);
+  const [frozenBalance, setFrozenBlance] = useState(false);
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
@@ -252,6 +253,14 @@ const SendDetails = () => {
     const changeAddress = getChangeAddressFast();
     const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
+    let frozen = 0;
+    if (!utxo) {
+      // if utxo is not limited search for frozen outputs and calc it's balance
+      frozen = wallet
+        .getUtxo(true)
+        .filter(o => !lutxo.some(i => i.txid === o.txid && i.vout === o.vout))
+        .reduce((prev, curr) => prev + curr.value, 0);
+    }
 
     const options = [
       { key: 'current', fee: requestedSatPerByte },
@@ -315,8 +324,13 @@ const SendDetails = () => {
       }
     }
 
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setFeePrecalc(newFeePrecalc);
+    setFrozenBlance(frozen);
   }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // we need to re-calculate fees if user opens-closes coin control
+  useFocusEffect(useCallback(() => setDumb(v => !v), []));
 
   const getChangeAddressFast = () => {
     if (changeAddress) return changeAddress; // cache
@@ -445,7 +459,7 @@ const SendDetails = () => {
         console.log('validation error');
       } else if (balance - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
-        error = loc.send.details_total_exceeds_balance;
+        error = frozenBalance > 0 ? loc.send.details_total_exceeds_balance_frozen : loc.send.details_total_exceeds_balance;
         console.log('validation error');
       } else if (transaction.address) {
         const address = transaction.address.trim().toLowerCase();
@@ -977,9 +991,10 @@ const SendDetails = () => {
 
   const onUseAllPressed = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning');
+    const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
       loc.send.details_adv_full,
-      loc.send.details_adv_full_sure,
+      message,
       [
         {
           text: loc._.ok,
@@ -1368,6 +1383,15 @@ const SendDetails = () => {
           disabled={!isEditable}
           inputAccessoryViewID={InputAccessoryAllFunds.InputAccessoryViewID}
         />
+
+        {frozenBalance > 0 && (
+          <TouchableOpacity style={styles.frozenContainer} onPress={handleCoinControl}>
+            <BlueText>
+              {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
+            </BlueText>
+          </TouchableOpacity>
+        )}
+
         <AddressInput
           onChangeText={text => {
             text = text.trim();
@@ -1636,6 +1660,12 @@ const styles = StyleSheet.create({
     minWidth: 40,
     height: 40,
     justifyContent: 'center',
+  },
+  frozenContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 8,
   },
 });
 
