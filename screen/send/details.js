@@ -324,13 +324,17 @@ const SendDetails = () => {
       }
     }
 
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setFeePrecalc(newFeePrecalc);
     setFrozenBlance(frozen);
   }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // we need to re-calculate fees if user opens-closes coin control
-  useFocusEffect(useCallback(() => setDumb(v => !v), []));
+  useFocusEffect(
+    useCallback(() => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setDumb(v => !v);
+    }, []),
+  );
 
   const getChangeAddressFast = () => {
     if (changeAddress) return changeAddress; // cache
