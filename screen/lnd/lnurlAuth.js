@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
