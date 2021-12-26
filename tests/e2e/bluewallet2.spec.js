@@ -63,7 +63,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // created. verifying:
     await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
+    await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     const transactionFee = await extractTextFromElementById('TransactionFee');
     assert.ok(transactionFee.startsWith('Fee: 0.00000292 BTC'), 'Unexpected tx fee: ' + transactionFee);
     await element(by.id('TransactionDetailsButton')).tap();
@@ -373,8 +373,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // created. verifying:
     await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
-    expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+    await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
+    await expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
 
     await device.pressBack();
     await device.pressBack();
