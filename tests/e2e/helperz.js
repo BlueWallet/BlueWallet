@@ -1,12 +1,12 @@
 const createHash = require('create-hash');
 
-export async function yo(id, timeout = 33000) {
+export function yo(id, timeout = 33000) {
   return waitFor(element(by.id(id)))
     .toBeVisible()
     .withTimeout(timeout);
 }
 
-export async function sup(text, timeout = 33000) {
+export function sup(text, timeout = 33000) {
   return waitFor(element(by.text(text)))
     .toBeVisible()
     .withTimeout(timeout);
