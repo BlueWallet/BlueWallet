@@ -1,18 +1,10 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import  { createHmac } from 'crypto';
+import { createHmac } from 'crypto';
 import secp256k1 from 'secp256k1';
 
-import {
-  BlueButton,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
 
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
@@ -24,38 +16,38 @@ import LottieView from 'lottie-react-native';
 import url from 'url';
 
 const AuthState = {
-    USER_PROMPT: 0,
-    IN_PROGRESS: 1,
-    SUCCESS: 2,
-    ERROR: 3,
-  }
-  const lnurlAuthMsgs = serviceDoman => ({
-    register: {
-      q: `Register an account at `,
-      s: `Sucessfully registered an account at ${serviceDoman}!`
-    },
-    login: {
-      q: `Login at `,
-      s: `Sucessfully logged in at ${serviceDoman}!`
-    },
-    link: {
-      q: `Link your LN wallet to your account at `,
-      s: `Your LN wallet was sucessfully linked to your account at ${serviceDoman}!`
-    },
-    auth: {
-      q: `Do you want to authenticate at `,
-      s: `Sucessfully authenticated at ${serviceDoman}!`
-    },
-  });
-
+  USER_PROMPT: 0,
+  IN_PROGRESS: 1,
+  SUCCESS: 2,
+  ERROR: 3,
+};
+const lnurlAuthMsgs = serviceDoman => ({
+  register: {
+    q: `Register an account at `,
+    s: `Sucessfully registered an account at ${serviceDoman}!`,
+  },
+  login: {
+    q: `Login at `,
+    s: `Sucessfully logged in at ${serviceDoman}!`,
+  },
+  link: {
+    q: `Link your LN wallet to your account at `,
+    s: `Your LN wallet was sucessfully linked to your account at ${serviceDoman}!`,
+  },
+  auth: {
+    q: `Do you want to authenticate at `,
+    s: `Sucessfully authenticated at ${serviceDoman}!`,
+  },
+});
 
 const LnurlAuth = () => {
   const { wallets } = useContext(BlueStorageContext);
   const { walletID, lnurl } = useRoute().params;
-  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID]);
-  const lnurlObj = useMemo(() => 
-    lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {} // eslint-disable-line node/no-deprecated-api
-  , [lnurl]);
+  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
+  const lnurlObj = useMemo(
+    () => (lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line node/no-deprecated-api
+    [lnurl],
+  );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const { setParams, pop, navigate } = useNavigation();
   const { colors } = useTheme();
@@ -65,7 +57,7 @@ const LnurlAuth = () => {
     },
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
-    }
+    },
   });
 
   const authenticate = useCallback(() => {
@@ -73,22 +65,20 @@ const LnurlAuth = () => {
 
     hmac.on('readable', async () => {
       try {
-        setAuthState(AuthState.IN_PROGRESS)
+        setAuthState(AuthState.IN_PROGRESS);
 
         const privateKey = hmac.read();
-        const privateKeyBuf = Buffer.from(privateKey, "hex");
+        const privateKeyBuf = Buffer.from(privateKey, 'hex');
         const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-        const signatureObj = secp256k1.sign(Buffer.from(lnurlObj.query.k1, "hex"), privateKeyBuf);
+        const signatureObj = secp256k1.sign(Buffer.from(lnurlObj.query.k1, 'hex'), privateKeyBuf);
         const derSignature = secp256k1.signatureExport(signatureObj.signature);
 
         const response = await fetch(`${lnurlObj.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
         const res = await response.json();
 
-        setAuthState(res.status === "OK" ? AuthState.SUCCESS : AuthState.ERROR);
-      }
-      catch (err)
-      {
-        console.log(err)
+        setAuthState(res.status === 'OK' ? AuthState.SUCCESS : AuthState.ERROR);
+      } catch (err) {
+        console.log(err);
         setAuthState(AuthState.ERROR);
       }
     });
@@ -100,17 +90,19 @@ const LnurlAuth = () => {
     */
     hmac.write(lnurlObj.hostname);
     hmac.end();
-  }, [wallet])
+  }, [wallet, lnurlObj.hostname, lnurlObj.href, lnurlObj.query.k1]);
 
   const onWalletSelect = wallet => {
     setParams({ walletID: wallet.getID() });
     pop();
   };
 
-  if (!lnurlObj || !wallet || authState ===  AuthState.IN_PROGRESS)
-    return <View style={[styles.root, stylesHook.root]}>
-      <BlueLoading />
-    </View>;
+  if (!lnurlObj || !wallet || authState === AuthState.IN_PROGRESS)
+    return (
+      <View style={[styles.root, stylesHook.root]}>
+        <BlueLoading />
+      </View>
+    );
 
   const renderWalletSelectionButton = authState === AuthState.USER_PROMPT && (
     <View style={styles.walletSelectRoot}>
@@ -138,50 +130,39 @@ const LnurlAuth = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      {
-        authState ===  AuthState.USER_PROMPT && (
-          <>
-            <ScrollView>
-              <BlueCard>
-                <BlueText style={styles.alignSelfCenter}>
-                  {lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || "auth"].q}
-                </BlueText>
-                <BlueText style={styles.domainName}>
-                  {lnurlObj.hostname}
-                </BlueText>
-                <BlueText style={styles.alignSelfCenter}>
-                  with your LN wallet?
-                </BlueText>
-                <BlueSpacing40 />
-                <BlueButton title="Authenticate" onPress={authenticate}/>
-                <BlueSpacing40 />
-              </BlueCard>
-            </ScrollView>
-            {renderWalletSelectionButton}
-          </>      
+      {authState === AuthState.USER_PROMPT && (
+        <>
+          <ScrollView>
+            <BlueCard>
+              <BlueText style={styles.alignSelfCenter}>{lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || 'auth'].q}</BlueText>
+              <BlueText style={styles.domainName}>{lnurlObj.hostname}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>with your LN wallet?</BlueText>
+              <BlueSpacing40 />
+              <BlueButton title="Authenticate" onPress={authenticate} />
+              <BlueSpacing40 />
+            </BlueCard>
+          </ScrollView>
+          {renderWalletSelectionButton}
+        </>
       )}
 
-      {
-        authState ===  AuthState.SUCCESS && (
-          <BlueCard>
-            <View style={styles.iconContainer}>        
-              <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
-            </View>
-            <BlueSpacing20 />
-            <BlueText style={styles.alignSelfCenter}>
-                {lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || "auth"].s}
-            </BlueText>
-            <BlueSpacing20 />
-          </BlueCard>
+      {authState === AuthState.SUCCESS && (
+        <BlueCard>
+          <View style={styles.iconContainer}>
+            <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          </View>
+          <BlueSpacing20 />
+          <BlueText style={styles.alignSelfCenter}>{lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || 'auth'].s}</BlueText>
+          <BlueSpacing20 />
+        </BlueCard>
       )}
 
-      {
-        authState ===  AuthState.ERROR && (
-          <BlueCard>
-            <BlueSpacing20 />          
-            <BlueText style={styles.alignSelfCenter}>{`Could not authenticate to ${lnurlObj.hostname}.`}</BlueText>
-            <BlueSpacing20 />
-          </BlueCard>
+      {authState === AuthState.ERROR && (
+        <BlueCard>
+          <BlueSpacing20 />
+          <BlueText style={styles.alignSelfCenter}>{`Could not authenticate to ${lnurlObj.hostname}.`}</BlueText>
+          <BlueSpacing20 />
+        </BlueCard>
       )}
     </SafeBlueArea>
   );
@@ -197,7 +178,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontWeight: 'bold',
     fontSize: 25,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   root: {
     flex: 1,
@@ -243,11 +224,11 @@ const styles = StyleSheet.create({
   },
   walletWrapLabel: {
     fontSize: 14,
-  }
+  },
 });
 
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop()
+  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
 });

@@ -224,8 +224,8 @@ const LNDCreateInvoice = () => {
 
     // decoding the lnurl
     const parsedUrl = Lnurl.getUrlFromLnurl(data);
-    const {query} = url.parse(parsedUrl, true); // eslint-disable-line node/no-deprecated-api
-    
+    const { query } = url.parse(parsedUrl, true); // eslint-disable-line node/no-deprecated-api
+
     if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
       navigate('LnurlAuth', {
         lnurl: data,
