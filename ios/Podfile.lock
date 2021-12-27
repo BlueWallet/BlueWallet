@@ -275,8 +275,8 @@ PODS:
     - React-Core
   - react-native-camera/RN (4.2.1):
     - React-Core
-  - react-native-document-picker (3.5.4):
-    - React
+  - react-native-document-picker (7.1.3):
+    - React-Core
   - react-native-fingerprint-scanner (6.0.0):
     - React
   - react-native-idle-timer (2.1.6):
@@ -362,7 +362,7 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - RealmJS (10.10.1):
+  - RealmJS (10.11.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -387,7 +387,7 @@ PODS:
     - React
   - RNKeychain (8.0.0):
     - React-Core
-  - RNLocalize (2.1.6):
+  - RNLocalize (2.1.7):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -740,7 +740,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cc614ec18a9ca96fd275100c16d74d62ee11f0ae
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-camera: 210a872c84d3aa0982a9223047ef9e743ed694fa
-  react-native-document-picker: c5752781fbc0c126c627c1549b037c139444a4cf
+  react-native-document-picker: 644b4c5658f9d781a2ac4c4625ef414c8f797083
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
   react-native-image-picker: 66c0f718c18edab67b6c7b2c63c6566060066127
@@ -763,7 +763,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  RealmJS: 2925b36a86fc179b0b58ad48386e43eb95188e9a
+  RealmJS: de65cc7c3ea041750d66beaa28b30585222c3d94
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: 226ee19483257c6eef96dc243483c0908cb54e8f
   RNCAsyncStorage: 4b6538222ce3f01f61011f512226ba3aaa0dc336
@@ -775,7 +775,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNLocalize: 1eef69bd5381453aba05acadc26dc7c5bd450091
+  RNLocalize: b8980509fc4db6895953aa95b90c8d81cb984603
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 622db602051b6abf6ec467cdcc3c5e3112076745
