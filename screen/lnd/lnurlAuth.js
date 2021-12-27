@@ -90,7 +90,7 @@ const LnurlAuth = () => {
     */
     hmac.write(lnurlObj.hostname);
     hmac.end();
-  }, [wallet, lnurlObj.hostname, lnurlObj.href, lnurlObj.query.k1]);
+  }, [wallet, lnurlObj]);
 
   const onWalletSelect = wallet => {
     setParams({ walletID: wallet.getID() });
