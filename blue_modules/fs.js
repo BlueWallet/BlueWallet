@@ -74,7 +74,7 @@ const writeFileAndExport = async function (filename, contents) {
  */
 const openSignedTransaction = async function () {
   try {
-    const res = await DocumentPicker.pick({
+    const res = await DocumentPicker.pickSingle({
       type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
 
@@ -161,7 +161,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
 
 const showFilePickerAndReadFile = async function () {
   try {
-    const res = await DocumentPicker.pick({
+    const res = await DocumentPicker.pickSingle({
       type:
         Platform.OS === 'ios'
           ? [
