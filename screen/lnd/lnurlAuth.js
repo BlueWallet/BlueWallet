@@ -123,9 +123,9 @@ const LnurlAuth = () => {
         <>
           <ScrollView>
             <BlueCard>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].q}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[lnurlObj.query.action || 'auth'].q}</BlueText>
               <BlueText style={styles.domainName}>{lnurlObj.hostname}</BlueText>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].w}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[lnurlObj.query.action || 'auth'].w}</BlueText>
               <BlueSpacing40 />
               <BlueButton title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
@@ -142,7 +142,7 @@ const LnurlAuth = () => {
           </View>
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
-            {loc.formatString(loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].s, { hostname: lnurlObj.hostname })}
+            {loc.formatString(loc.lnurl_auth[lnurlObj.query.action || 'auth'].s, { hostname: lnurlObj.hostname })}
           </BlueText>
           <BlueSpacing20 />
         </BlueCard>

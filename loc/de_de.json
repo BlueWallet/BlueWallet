@@ -665,28 +665,25 @@
     "send_error": "Fehler beim Senden der Signatur"
   },
   "lnurl_auth": {
-    "Note to translators:": "{q} {hostname} {w} forms a single sentence",
-    "prompt": {
-      "register": {
-        "q": "Möchten Sie ein Konto bei",
-        "w": "mit Ihrem LN-Wallet registrieren?",
-        "s": "Konto bei {hostname} erfolgreich registriert!"
-      },
-      "login": {
-        "q": "Möchten Sie sich mit Ihrem LN-Wallet auf",
-        "w": "anmelden?",
-        "s": "Erfolgreich angemeldet bei {hostname}!"
-      },
-      "link": {
-        "q": "Möchten Sie Ihr Konto auf",
-        "w": "mit Ihrem LN-Wallet verknüpfen?",
-        "s": "Ihr LN-Wallet wurde erfolgreich mit Ihrem Konto bei {hostname} verknüpft!"
-      },
-      "auth": {
-        "q": "Möchten Sie sich mit Ihrem LN-Wallet bei",
-        "w": "authentifizieren?",
-        "s": "Erfolgreich authentifiziert bei {hostname}!"
-      }
+    "register": {
+      "q": "Möchten Sie ein Konto bei",
+      "w": "mit Ihrem LN-Wallet registrieren?",
+      "s": "Konto bei {hostname} erfolgreich registriert!"
+    },
+    "login": {
+      "q": "Möchten Sie sich mit Ihrem LN-Wallet auf",
+      "w": "anmelden?",
+      "s": "Erfolgreich angemeldet bei {hostname}!"
+    },
+    "link": {
+      "q": "Möchten Sie Ihr Konto auf",
+      "w": "mit Ihrem LN-Wallet verknüpfen?",
+      "s": "Ihr LN-Wallet wurde erfolgreich mit Ihrem Konto bei {hostname} verknüpft!"
+    },
+    "auth": {
+      "q": "Möchten Sie sich mit Ihrem LN-Wallet bei",
+      "w": "authentifizieren?",
+      "s": "Erfolgreich authentifiziert bei {hostname}!"
     },
     "could_not_auth": "Authentifizierung bei {hostname} fehlgeschlagen.",
     "response": "Antwort vom Server: {errMsg}.",
