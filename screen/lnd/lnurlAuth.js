@@ -21,24 +21,6 @@ const AuthState = {
   SUCCESS: 2,
   ERROR: 3,
 };
-const lnurlAuthMsgs = serviceDoman => ({
-  register: {
-    q: `Register an account at `,
-    s: `Sucessfully registered an account at ${serviceDoman}!`,
-  },
-  login: {
-    q: `Login at `,
-    s: `Sucessfully logged in at ${serviceDoman}!`,
-  },
-  link: {
-    q: `Link your LN wallet to your account at `,
-    s: `Your LN wallet was sucessfully linked to your account at ${serviceDoman}!`,
-  },
-  auth: {
-    q: `Do you want to authenticate at `,
-    s: `Sucessfully authenticated at ${serviceDoman}!`,
-  },
-});
 
 const LnurlAuth = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -49,6 +31,7 @@ const LnurlAuth = () => {
     [lnurl],
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
+  const [errMsg, setErrMsg] = useState('');
   const { setParams, pop, navigate } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -76,10 +59,16 @@ const LnurlAuth = () => {
         const response = await fetch(`${lnurlObj.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
         const res = await response.json();
 
-        setAuthState(res.status === 'OK' ? AuthState.SUCCESS : AuthState.ERROR);
+        if (res.status === 'OK') {
+          setAuthState(AuthState.SUCCESS);
+          setErrMsg('');
+        } else {
+          setAuthState(AuthState.ERROR);
+          setErrMsg(res.reason);
+        }
       } catch (err) {
-        console.log(err);
         setAuthState(AuthState.ERROR);
+        setErrMsg(err);
       }
     });
 
@@ -134,11 +123,11 @@ const LnurlAuth = () => {
         <>
           <ScrollView>
             <BlueCard>
-              <BlueText style={styles.alignSelfCenter}>{lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || 'auth'].q}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].q}</BlueText>
               <BlueText style={styles.domainName}>{lnurlObj.hostname}</BlueText>
-              <BlueText style={styles.alignSelfCenter}>with your LN wallet?</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].w}</BlueText>
               <BlueSpacing40 />
-              <BlueButton title="Authenticate" onPress={authenticate} />
+              <BlueButton title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
             </BlueCard>
           </ScrollView>
@@ -152,7 +141,9 @@ const LnurlAuth = () => {
             <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
           </View>
           <BlueSpacing20 />
-          <BlueText style={styles.alignSelfCenter}>{lnurlAuthMsgs(lnurlObj.hostname)[lnurlObj.query.action || 'auth'].s}</BlueText>
+          <BlueText style={styles.alignSelfCenter}>
+            {loc.formatString(loc.lnurl_auth.prompt[lnurlObj.query.action || 'auth'].s, { hostname: lnurlObj.hostname })}
+          </BlueText>
           <BlueSpacing20 />
         </BlueCard>
       )}
@@ -160,7 +151,10 @@ const LnurlAuth = () => {
       {authState === AuthState.ERROR && (
         <BlueCard>
           <BlueSpacing20 />
-          <BlueText style={styles.alignSelfCenter}>{`Could not authenticate to ${lnurlObj.hostname}.`}</BlueText>
+          <BlueText style={styles.alignSelfCenter}>
+            {loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: lnurlObj.hostname })}
+          </BlueText>
+          <BlueText style={styles.alignSelfCenter}>{loc.formatString(loc.lnurl_auth.response, { errMsg: errMsg })}</BlueText>
           <BlueSpacing20 />
         </BlueCard>
       )}

@@ -663,5 +663,33 @@
     "title": "Select Address",
     "send_success": "Signature sent successfully",
     "send_error": "Signature sending error"
+  },
+  "lnurl_auth": {
+    "Note to translators:": "{q} {hostname} {w} forms a single sentence",
+    "prompt": {
+      "register": {
+        "q": "Do you want to register an account at ",
+        "w": "using your LN wallet?",
+        "s": "Sucessfully registered an account at {hostname}!"
+      },
+      "login": {
+        "q": "Do you want to login at ",
+        "w": "using your LN wallet?",
+        "s": "Sucessfully logged in at {hostname}!"
+      },
+      "link": {
+        "q": "Link your account at ",
+        "w": "to your LN wallet?",
+        "s": "Your LN wallet was sucessfully linked to your account at {hostname}!"
+      },
+      "auth": {
+        "q": "Do you want to authenticate at ",
+        "w": "using your LN wallet?",
+        "s": "Sucessfully authenticated at {hostname}!"
+      }
+    },
+    "could_not_auth": "Could not authenticate to {hostname}.",
+    "response": "Response from server: {errMsg}.",
+    "authenticate": "Authenticate"
   }
 }
