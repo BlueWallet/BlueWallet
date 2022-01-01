@@ -1,5 +1,7 @@
 import { LegacyWallet } from '../../class';
-import { ECPair } from 'ecpair';
+import { ECPairFactory } from 'ecpair';
+const ecc = require('tiny-secp256k1');
+const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 

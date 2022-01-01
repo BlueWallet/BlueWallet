@@ -21,7 +21,7 @@ import {
   BlueTransactionPendingIcon,
 } from '../BlueComponents';
 
-export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
+export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
@@ -184,7 +184,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   const onPress = useCallback(async () => {
     menuRef?.current?.dismissMenu();
     if (item.hash) {
-      navigate('TransactionStatus', { hash: item.hash });
+      navigate('TransactionStatus', { hash: item.hash, walletID });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {

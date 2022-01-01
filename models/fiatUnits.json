@@ -179,6 +179,12 @@
       "locale": "ar-LB",
       "source": "BitcoinduLiban"
     },
+    "MZN": {
+      "endPointKey": "MZN",
+      "symbol": "MTn",
+      "locale": "seh-MZ",
+      "source": "CoinDesk"
+    },
     "MXN": {
       "endPointKey": "MXN",
       "symbol": "$",
