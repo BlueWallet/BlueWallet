@@ -554,7 +554,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // created. verifying:
     await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
+    await expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
     await element(by.id('TransactionDetailsButton')).tap();
 
     const txhex = await extractTextFromElementById('TxhexInput');

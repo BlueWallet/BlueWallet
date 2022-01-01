@@ -207,7 +207,7 @@ const WalletsList = () => {
   const renderTransactionListsRow = data => {
     return (
       <View style={styles.transaction}>
-        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
+        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} walletID={data.item.walletID} />
       </View>
     );
   };
