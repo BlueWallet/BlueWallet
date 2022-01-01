@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import loc from '../../loc';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
@@ -33,7 +32,7 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isTorCapable } from '../../blue_modules/environment';
+import { isDesktop, isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -162,7 +161,7 @@ export default class ElectrumSettings extends Component {
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
 
-    if (!isTorCapable && host.endsWith('.onion')) {
+    if (isDesktop && host.endsWith('.onion')) {
       alert(loc.settings.tor_unsupported);
       return;
     }
