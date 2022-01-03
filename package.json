@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "6.2.16",
+  "version": "6.2.17",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -96,7 +96,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.16.5",
+    "@babel/preset-env": "7.16.7",
     "@bugsnag/react-native": "7.14.1",
     "@bugsnag/source-maps": "2.3.0",
     "@keystonehq/bc-ur-registry": "0.4.4",
@@ -125,7 +125,7 @@
     "coinselect": "3.1.12",
     "crypto-js": "4.1.1",
     "dayjs": "1.10.7",
-    "detox": "19.3.1",
+    "detox": "19.4.1",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
     "electrum-client": "https://github.com/BlueWallet/rn-electrum-client#99ebcc649d91a8dc39bea7964b02dd9ead464aa4",
@@ -156,7 +156,7 @@
     "react-native-handoff": "https://github.com/BlueWallet/react-native-handoff#31d005f93d31099d0e564590a3bbd052b8a02b39",
     "react-native-haptic-feedback": "1.13.0",
     "react-native-idle-timer": "https://github.com/BlueWallet/react-native-idle-timer#8587876d68ab5920e79619726aeca9e672beaf2b",
-    "react-native-image-picker": "4.6.0",
+    "react-native-image-picker": "4.6.1",
     "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#v1.3.0",
     "react-native-keychain": "8.0.0",
     "react-native-level-fs": "3.0.1",
