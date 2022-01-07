@@ -102,6 +102,8 @@
     "p2p": "Kupite Bitcoin na P2P menjalnici"
   },
   "lnd": {
+    "active": "Aktivno",
+    "inactive": "Neaktivno",
     "channels": "Kanali",
     "no_channels": "Ni odprtih kanalov",
     "close_channel": "Zapri kanal",
@@ -120,9 +122,13 @@
     "opening_channnel_for_from": "Odpiranje kanala denarnice {forWalletLabel}, z uporabo sredstev iz {fromWalletLabel}",
     "are_you_sure_open_channel": "Ali ste prepričani, da želite odpreti ta kanal?",
     "are_you_sure_exit_without_new_channel": "Ali ste prepričani, da želite končati, ne da bi odprli kanal?",
+    "public": "Javno",
+    "private": "Zasebno",
     "potentialFee": "Morebitna omrežnina: {fee}",
+    "remote_host": "Oddaljeni gostitelj",
     "refill": "Napolni",
     "refill_card": "Napolni z bančno kartico",
+    "reconnect_peer": "Ponovna vzpostavitev povezave",
     "refill_create": "Če želite nadaljevati, ustvarite Bitcoin denarnico, s katero boste napolnili.",
     "refill_external": "Napolni z zunanjo denarnico",
     "refill_lnd_balance": "Napolni stanje Lightning denarnice",
