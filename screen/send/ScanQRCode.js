@@ -7,7 +7,6 @@ import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modul
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import alert from '../../components/Alert';
 
@@ -77,12 +76,8 @@ const styles = StyleSheet.create({
     height: '50%',
     marginTop: 5,
     marginHorizontal: 20,
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderRadius: 4,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-    color: BlueCurrentTheme.colors.foregroundColor,
     textAlignVertical: 'top',
   },
 });
@@ -108,6 +103,12 @@ const ScanQRCode = () => {
       backgroundColor: colors.brandingColor,
     },
     progressWrapper: { backgroundColor: colors.brandingColor, borderColor: colors.foregroundColor, borderWidth: 4 },
+    backdoorInput: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+      color: colors.foregroundColor,
+    },
   });
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
@@ -354,7 +355,7 @@ const ScanQRCode = () => {
             testID="scanQrBackdoorInput"
             multiline
             underlineColorAndroid="transparent"
-            style={styles.backdoorInput}
+            style={[styles.backdoorInput, stylesHook.backdoorInput]}
             autoCorrect={false}
             autoCapitalize="none"
             spellCheck={false}
