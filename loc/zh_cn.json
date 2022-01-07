@@ -377,7 +377,6 @@
     "details_are_you_sure": "你确认么?",
     "details_connected_to": "连接到",
     "details_del_wb_err": "提供的余额与此钱包的余额不匹配，请再试一遍。",
-    "details_del_wb_q": "这个钱包有余额。 在继续操作之前，请注意，没有此钱包的种子(备份)短语，您将无法取回资金。 为了避免意外移除该钱包，请输入您的钱包余额{balance} 聪。",
     "details_delete": "删除",
     "details_delete_wallet": "删除钱包",
     "details_derivation_path": "推导路径",
@@ -409,6 +408,7 @@
     "import_scan_qr": "扫描或导入一个档案",
     "import_success": "你的钱包已成功导入。",
     "import_title": "导入",
+    "import_derivation_unknown": "未知",
     "list_create_a_button": "现在添加",
     "list_create_a_wallet": "添加钱包",
     "list_create_a_wallet_text": "这是免费的，您可以创建\n喜欢多少就多少。",
@@ -521,7 +521,8 @@
     "owns": "{label}拥有{address}",
     "enter_address": "输入地址",
     "check_address": "检查地址",
-    "no_wallet_owns_address": "没有可用的钱包拥有提供的地址。"
+    "no_wallet_owns_address": "没有可用的钱包拥有提供的地址。",
+    "view_qrcode": "查看二维码"
   },
   "cc": {
     "change": "更变",
@@ -549,6 +550,12 @@
     "sign_signature_incorrect": "验证失败！",
     "sign_placeholder_address": "地址",
     "sign_placeholder_message": "信息",
-    "sign_placeholder_signature": "签名"
+    "sign_placeholder_signature": "签名",
+    "addresses_title": "地址",
+    "type_change": "改变",
+    "type_receive": "接收"
+  },
+  "aopp": {
+    "title": "选择地址"
   }
 }

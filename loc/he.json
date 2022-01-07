@@ -24,7 +24,7 @@
     "downloads_folder": "תיקיית הורדות",
     "external_storage": "אחסון חיצוני",
     "discard_changes": "ביטול שינויים?",
-    "discard_changes_detail": "יש לכם שינויים לא שמורים. האם להיפטר משינויים אלה ולעזוב את המסך?"
+    "discard_changes_detail": "יש לך שינויים לא שמורים. האם להיפטר משינויים אלה ולעזוב את המסך?"
   },
   "alert": {
     "default": "אזהרה"
@@ -208,6 +208,7 @@
     "details_adv_fee_bump": "אפשר הקפצת עמלה",
     "details_adv_full": "שימוש בכל היתרה",
     "details_adv_full_sure": "האם אתם בטוחים שתרצו להשתמש בכל יתרת הארנק בשביל פעולה זאת?",
+    "details_adv_full_sure_frozen": "האם אתם בטוחים שברצונכם להשתמש ביתרה המלאה של ארנקכם לפעולה זאת? שימו לב שמטבעות מוקפאים אינם מוכללים.",
     "details_adv_import": "יבוא פעולה",
     "details_adv_import_qr": "יבוא פעולה (QR)",
     "details_amount_field_is_not_valid": "שדה סכום אינו תקין",
@@ -221,6 +222,7 @@
     "details_scan": "סריקה",
     "details_scan_hint": "לחיצה כפולה לסריקה או יבוא יעד",
     "details_total_exceeds_balance": "הסכום לשליחה חורג מהיתרה הזמינה.",
+    "details_total_exceeds_balance_frozen": "הסכום הנשלח חורג מהיתרה הזמינה. שימו לב שמטבעות מוקפאים מוחרגים.",
     "details_unrecognized_file_format": "פורמט קובץ לא מזוהה",
     "details_wallet_before_tx": "לפני יצירת פעולה, עליך להוסיף ארנק ביטקוין.",
     "dynamic_init": "איתחול",
