@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { MultisigHDWallet } from '../../class/';
+import { MultisigHDWallet, ELECTRUM_SEED_PREFIX } from '../../class/';
 import { decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
@@ -1417,6 +1417,59 @@ describe('multisig-wallet (native segwit)', () => {
     }
   });
 
+  it('can import electrum json file format with seeds and passphrase', () => {
+    const json = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
+    const w = new MultisigHDWallet();
+    w.setSecret(JSON.stringify(json));
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 2);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q7n8twph2zlfw6w0p5ms9vkvj9klxqhpjy5mv5tnqpcf2pl3d3qrst2pjz7');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q2ltyvkrs0uay39acfk4y0gmw7flghd3403p94x26tc8579t9adwsjp83yz');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1q24rc4v9r6fjtkrwfp4j57ufef56ez46rrpyjtdkhjpr687f5de0sa7ryv5');
+
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(!w.isLegacy());
+
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
+
+    assert.strictEqual(w.getFingerprint(1), '8de7b2c3'.toUpperCase());
+    assert.strictEqual(w.getFingerprint(2), '84431270'.toUpperCase());
+
+    const utxos = [
+      {
+        address: 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u',
+        amount: 68419,
+        height: 0,
+        txId: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        txhex:
+          '02000000000101d7bf498a92b19bab8a58260efedd7e6cd3b7713ff1e9d2603ff9f06a64f66291000000001716001440512e04b685a0cd66a03bea0896c27000c828dcffffffff01430b010000000000220020d848363349dd9952d465058b3ffc9c24d0b04b4a491d8fa8c2cc208724a040e10247304402201ad742ffee74e5ae4b3867d9818b8ad6505ca5239280138f9da3f93e4c27ee0802202918fa6034485077596bf64501ae6954371e91d250ee98f5a3c5889d4dee923e012103a681da832358050bd9b197aaa55d921f1447025b999eadb018aa67c5b8f64a0900000000',
+        txid: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        value: 68419,
+        vout: 0,
+        wif: false,
+      },
+    ];
+    const { psbt } = w.createTransaction(
+      utxos,
+      [{ address: '39RXMPjwKwoEGJeABJvdG1N4nQAzfEgcos' }],
+      1,
+      w._getInternalAddressByIndex(3),
+      false,
+      true,
+    );
+    assert.ok(psbt);
+    // we are using .cosignPsbt for now, because .createTransaction throws
+    // Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint
+    // https://github.com/BlueWallet/BlueWallet/pull/2466
+    const { tx } = w.cosignPsbt(psbt);
+    assert.ok(tx);
+  });
+
   it('cant import garbage', () => {
     const w = new MultisigHDWallet();
     w.setSecret('garbage');
@@ -1828,6 +1881,30 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt.data.inputs.length, 2);
     assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('can generate proper addresses for wallets with passphrases', () => {
+    // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
+    const path = "m/48'/0'/0'/2'";
+    const w = new MultisigHDWallet();
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    w.addCosigner('chaos word void picture gas update shop wave task blossom close inner', undefined, undefined, 'E5jMAzsf464Hgwns');
+    w.addCosigner(
+      'plate inform scissors pill asset scatter people emotion dose primary together expose',
+      undefined,
+      undefined,
+      'RyBFfLr7weK3nDUG',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q8rks34ypj5edxx82f7z7yzy4qy6dynfhcftjs9axzr2ml37p4pfs7j4uvm');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qjpjgumzs2afrr3mk85anwdnzd9qg5hc5p6f62un4umpyf4ccde5q4cywgy');
   });
 });
 
