@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { MultisigHDWallet, ELECTRUM_SEED_PREFIX } from '../../class/';
+import { MultisigHDWallet } from '../../class/';
 import { decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');

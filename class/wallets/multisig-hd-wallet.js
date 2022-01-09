@@ -22,7 +22,7 @@ const electrumStandart = passphrase => ({
   ...(passphrase ? { passphrase } : {}),
 });
 
-export const ELECTRUM_SEED_PREFIX = 'electrumseed:';
+const ELECTRUM_SEED_PREFIX = 'electrumseed:';
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static type = 'HDmultisig';
@@ -445,7 +445,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               this._cosignersPassphrases[index],
             ),
           );
-          const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index]);
+          const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
           ret += fingerprint + ': ' + xpub + '\n';
         } else {
           ret += 'seed: ' + this._cosigners[index] + '\n';
