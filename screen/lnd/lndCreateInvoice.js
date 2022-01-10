@@ -28,7 +28,7 @@ import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
-import url from 'url';
+import { parse } from 'url';
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 
@@ -223,8 +223,8 @@ const LNDCreateInvoice = () => {
     }
 
     // decoding the lnurl
-    const parsedUrl = Lnurl.getUrlFromLnurl(data);
-    const { query } = url.parse(parsedUrl, true); // eslint-disable-line node/no-deprecated-api
+    const url = Lnurl.getUrlFromLnurl(data);
+    const { query } = parse(url, true); // eslint-disable-line node/no-deprecated-api
 
     if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
       navigate('LnurlAuth', {
@@ -234,16 +234,16 @@ const LNDCreateInvoice = () => {
       return;
     }
 
-    // calling the parsedUrl
+    // calling the url
     let reply;
     try {
-      if (!isTorDisabled && parsedUrl.includes('.onion')) {
+      if (!isTorDisabled && url.includes('.onion')) {
         const api = new torrific.Torsbee();
-        const torResponse = await api.get(parsedUrl);
+        const torResponse = await api.get(url);
         reply = torResponse.body;
         if (reply && typeof reply === 'string') reply = JSON.parse(reply);
       } else {
-        const resp = await fetch(parsedUrl, { method: 'GET' });
+        const resp = await fetch(url, { method: 'GET' });
         if (resp.status >= 300) {
           throw new Error('Bad response from server');
         }
