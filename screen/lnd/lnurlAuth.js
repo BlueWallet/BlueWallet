@@ -12,6 +12,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import selectWallet from '../../helpers/select-wallet';
 import LottieView from 'lottie-react-native';
 import url from 'url';
 
@@ -24,6 +25,7 @@ const AuthState = {
 
 const LnurlAuth = () => {
   const { wallets } = useContext(BlueStorageContext);
+  const { name } = useRoute();
   const { walletID, lnurl } = useRoute().params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
   const lnurlObj = useMemo(
@@ -32,7 +34,7 @@ const LnurlAuth = () => {
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
-  const { setParams, pop, navigate } = useNavigation();
+  const { setParams, navigate } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {
@@ -42,6 +44,10 @@ const LnurlAuth = () => {
       color: colors.buttonAlternativeTextColor,
     },
   });
+
+  const showSelectWalletScreen = useCallback(() => {
+    selectWallet(navigate, name, Chain.OFFCHAIN).then(wallet => setParams({ walletID: wallet.getID() }));
+  }, [navigate, name, setParams]);
 
   const authenticate = useCallback(() => {
     const hmac = createHmac('sha256', wallet.secret);
@@ -81,11 +87,6 @@ const LnurlAuth = () => {
     hmac.end();
   }, [wallet, lnurlObj]);
 
-  const onWalletSelect = wallet => {
-    setParams({ walletID: wallet.getID() });
-    pop();
-  };
-
   if (!lnurlObj || !wallet || authState === AuthState.IN_PROGRESS)
     return (
       <View style={[styles.root, stylesHook.root]}>
@@ -96,21 +97,13 @@ const LnurlAuth = () => {
   const renderWalletSelectionButton = authState === AuthState.USER_PROMPT && (
     <View style={styles.walletSelectRoot}>
       {authState !== AuthState.IN_PROGRESS && (
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={styles.walletSelectTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
-        >
+        <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={showSelectWalletScreen}>
           <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
           <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
         </TouchableOpacity>
       )}
       <View style={styles.walletWrap}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={styles.walletWrapTouch}
-          onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
-        >
+        <TouchableOpacity accessibilityRole="button" style={styles.walletWrapTouch} onPress={showSelectWalletScreen}>
           <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{wallet.getLabel()}</Text>
         </TouchableOpacity>
       </View>
