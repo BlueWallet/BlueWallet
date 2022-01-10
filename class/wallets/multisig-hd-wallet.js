@@ -132,6 +132,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return this._cosigners[index];
   }
 
+  getPassphrase(index) {
+    if (index === 0) throw new Error('cosigners indexation starts from 1');
+    return this._cosignersPassphrases[index - 1];
+  }
+
   static isXpubValid(key) {
     let xpub;
 
@@ -159,6 +164,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @param key {string} Either xpub or mnemonic phrase
    * @param fingerprint {string} Fingerprint for cosigner that is added as xpub
    * @param path {string} Custom path (if any) for cosigner that is added as mnemonics
+   * @param passphrase {string} BIP38 Passphrase (if any)
    */
   addCosigner(key, fingerprint, path, passphrase) {
     if (MultisigHDWallet.isXpubString(key) && !fingerprint) {
@@ -448,8 +454,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
           ret += fingerprint + ': ' + xpub + '\n';
         } else {
-          ret += 'seed: ' + this._cosigners[index] + '\n';
-          ret += '# warning! sensitive information, do not disclose ^^^ \n';
+          ret += 'seed: ' + this._cosigners[index];
+          if (this._cosignersPassphrases[index]) ret += ' - ' + this._cosignersPassphrases[index];
+          ret += '\n# warning! sensitive information, do not disclose ^^^ \n';
         }
       }
 
@@ -542,7 +549,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           } else if (key.replace('#', '').trim() === 'derivation') {
             customPathForCurrentCosigner = value.trim();
           } else if (key === 'seed') {
-            this.addCosigner(value.trim(), false, customPathForCurrentCosigner);
+            const [seed, passphrase] = value.split(' - ');
+            this.addCosigner(seed.trim(), false, customPathForCurrentCosigner, passphrase);
           }
           break;
       }

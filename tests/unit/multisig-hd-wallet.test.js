@@ -1883,7 +1883,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(psbt.data.outputs.length, 1);
   });
 
-  it('can generate proper addresses for wallets with passphrases', () => {
+  it('can generate proper addresses for wallets with passphrases. Export and import such wallet', () => {
     // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
     const path = "m/48'/0'/0'/2'";
     const w = new MultisigHDWallet();
@@ -1903,8 +1903,20 @@ describe('multisig-wallet (native segwit)', () => {
     w.setDerivationPath(path);
     w.setM(2);
 
+    assert.strictEqual(w.getPassphrase(1), '9WDdFSZX4d6mPxkr');
+    assert.strictEqual(w.getPassphrase(2), 'E5jMAzsf464Hgwns');
+    assert.strictEqual(w.getPassphrase(3), 'RyBFfLr7weK3nDUG');
     assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q8rks34ypj5edxx82f7z7yzy4qy6dynfhcftjs9axzr2ml37p4pfs7j4uvm');
     assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qjpjgumzs2afrr3mk85anwdnzd9qg5hc5p6f62un4umpyf4ccde5q4cywgy');
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w.getPassphrase(1), w2.getPassphrase(1));
+    assert.strictEqual(w.getPassphrase(2), w2.getPassphrase(2));
+    assert.strictEqual(w.getPassphrase(3), w2.getPassphrase(3));
   });
 });
 
