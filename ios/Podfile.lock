@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.14.1):
+  - BugsnagReactNative (7.14.2):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -281,9 +281,9 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.6.1):
+  - react-native-image-picker (4.7.0):
     - React-Core
-  - react-native-ios-context-menu (1.3.0):
+  - react-native-ios-context-menu (1.7.2):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -294,7 +294,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.15.0):
+  - react-native-webview (11.16.0):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -369,7 +369,7 @@ PODS:
     - React
   - rn-ldk (0.6.3):
     - React-Core
-  - RNCAsyncStorage (1.15.14):
+  - RNCAsyncStorage (1.15.15):
     - React-Core
   - RNCClipboard (1.9.0):
     - React-Core
@@ -707,7 +707,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: d6988f685aae2de5ecda1f5ca39f03661759d416
+  BugsnagReactNative: 74c4786cdf6eca1e9c41509f60f6600761189e11
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -743,13 +743,13 @@ SPEC CHECKSUMS:
   react-native-document-picker: 644b4c5658f9d781a2ac4c4625ef414c8f797083
   react-native-fingerprint-scanner: c68136ca57e3704d7bdf5faa554ea535ce15b1d0
   react-native-idle-timer: 97b8283237d45146a7a5c25bdebe9e1e85f3687b
-  react-native-image-picker: febf8b5e300bedb47c9157b2b6434dc4f6137ab5
-  react-native-ios-context-menu: c787c9a764525d07dff9bd75a191f67de7176e9f
+  react-native-image-picker: 3dd0a0ba81e50e3da98009e6c5e2e06a44e6206d
+  react-native-ios-context-menu: 6c6b88da89b8d89c1afbcb4b223108a38f99dc2b
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: 5cf05f49df9d17261e40e518481f2e334c6cd4b5
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 4f389f5719dad633542b57ea32744e954730e7ef
-  react-native-webview: fcadb5d977e7098e14eb3b27d339feae16c549ff
+  react-native-webview: e9e45ecf842acae5117ea6d3d91612540bebe36b
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5
@@ -766,7 +766,7 @@ SPEC CHECKSUMS:
   RealmJS: de65cc7c3ea041750d66beaa28b30585222c3d94
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: 226ee19483257c6eef96dc243483c0908cb54e8f
-  RNCAsyncStorage: 4b6538222ce3f01f61011f512226ba3aaa0dc336
+  RNCAsyncStorage: 69b1e4d51107f5f0847d086c23513465869d046e
   RNCClipboard: f49f3de56b40d0f4104680dabadc7a1f063f4fd4
   RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
