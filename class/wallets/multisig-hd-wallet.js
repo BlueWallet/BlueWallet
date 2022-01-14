@@ -1116,6 +1116,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       return index !== foundIndex;
     });
 
+    this._cosignersPassphrases = this._cosignersPassphrases.filter((el, index) => {
+      return index !== foundIndex;
+    });
+
     /* const newCosigners = [];
     for (let c = 0; c < this._cosignersFingerprints.length; c++) {
       if (c !== index)  newCosigners.push(this._cosignersFingerprints[c]);

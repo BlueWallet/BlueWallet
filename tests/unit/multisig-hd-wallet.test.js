@@ -1757,6 +1757,21 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getN(), 2);
+    w.deleteCosigner('2C0908B6');
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.ok(!w.getPassphrase(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
