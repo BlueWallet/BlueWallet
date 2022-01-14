@@ -678,7 +678,6 @@
     "auth_question_part_2": "authentifizieren?",
     "auth_answer": "Erfolgreich authentifiziert bei {hostname}!",
     "could_not_auth": "Authentifizierung bei {hostname} fehlgeschlagen.",
-    "response": "Antwort vom Server: {errMsg}.",
     "authenticate": "Authentifizieren"
   }
 }

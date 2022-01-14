@@ -678,7 +678,6 @@
     "auth_question_part_2": "using your LN wallet?",
     "auth_answer": "Sucessfully authenticated at {hostname}!",
     "could_not_auth": "Could not authenticate to {hostname}.",
-    "response": "Response from server: {errMsg}.",
     "authenticate": "Authenticate"
   }
 }
