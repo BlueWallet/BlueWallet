@@ -1,6 +1,9 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
 import { isTorDaemonDisabled } from '../blue_modules/environment';
+import { parse } from 'url'; // eslint-disable-line node/no-deprecated-api
+import { createHmac } from 'crypto';
+import secp256k1 from 'secp256k1';
 const CryptoJS = require('crypto-js');
 const createHash = require('create-hash');
 const torrific = require('../blue_modules/torrific');
@@ -284,6 +287,41 @@ export default class Lnurl {
 
   getCommentAllowed() {
     return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed) : false;
+  }
+
+  authenticate(secret) {
+    return new Promise((resolve, reject) => {
+      if (!this._lnurl) throw new Error('this._lnurl is not set');
+
+      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl), true); // eslint-disable-line node/no-deprecated-api
+
+      const hmac = createHmac('sha256', secret);
+      hmac.on('readable', async () => {
+        try {
+          const privateKey = hmac.read();
+          const privateKeyBuf = Buffer.from(privateKey, 'hex');
+          const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
+          const signatureObj = secp256k1.sign(Buffer.from(url.query.k1, 'hex'), privateKeyBuf);
+          const derSignature = secp256k1.signatureExport(signatureObj.signature);
+
+          fetch(`${url.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`)
+            .then(response =>
+              response.json().then(res => {
+                if (res.status === 'OK') {
+                  resolve();
+                } else {
+                  reject(res.reason);
+                }
+              }),
+            )
+            .catch(reject);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      hmac.write(url.hostname);
+      hmac.end();
+    });
   }
 
   static isLightningAddress(address) {

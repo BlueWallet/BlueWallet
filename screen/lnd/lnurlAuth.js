@@ -1,8 +1,6 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { createHmac } from 'crypto';
-import secp256k1 from 'secp256k1';
 
 import { BlueButton, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
 
@@ -28,7 +26,8 @@ const LnurlAuth = () => {
   const { name } = useRoute();
   const { walletID, lnurl } = useRoute().params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
-  const lnurlObj = useMemo(
+  const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
+  const parsedLnurl = useMemo(
     () => (lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line node/no-deprecated-api
     [lnurl],
   );
@@ -50,44 +49,19 @@ const LnurlAuth = () => {
   }, [navigate, name, setParams]);
 
   const authenticate = useCallback(() => {
-    const hmac = createHmac('sha256', wallet.secret);
-
-    hmac.on('readable', async () => {
-      try {
-        setAuthState(AuthState.IN_PROGRESS);
-
-        const privateKey = hmac.read();
-        const privateKeyBuf = Buffer.from(privateKey, 'hex');
-        const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
-        const signatureObj = secp256k1.sign(Buffer.from(lnurlObj.query.k1, 'hex'), privateKeyBuf);
-        const derSignature = secp256k1.signatureExport(signatureObj.signature);
-
-        const response = await fetch(`${lnurlObj.href}&sig=${derSignature.toString('hex')}&key=${publicKey.toString('hex')}`);
-        const res = await response.json();
-
-        if (res.status === 'OK') {
-          setAuthState(AuthState.SUCCESS);
-          setErrMsg('');
-        } else {
-          setAuthState(AuthState.ERROR);
-          setErrMsg(res.reason);
-        }
-      } catch (err) {
+    wallet
+      .authenticate(LN)
+      .then(() => {
+        setAuthState(AuthState.SUCCESS);
+        setErrMsg('');
+      })
+      .catch(err => {
         setAuthState(AuthState.ERROR);
         setErrMsg(err);
-      }
-    });
+      });
+  }, [wallet, LN]);
 
-    /* 
-        The spec requires that we generate a private key for each login domain.
-        We use hmac_sha256(wallet.secret, domain)
-        This should stay consistent among wallet versions, else the user will loose account access.
-    */
-    hmac.write(lnurlObj.hostname);
-    hmac.end();
-  }, [wallet, lnurlObj]);
-
-  if (!lnurlObj || !wallet || authState === AuthState.IN_PROGRESS)
+  if (!parsedLnurl || !wallet || authState === AuthState.IN_PROGRESS)
     return (
       <View style={[styles.root, stylesHook.root]}>
         <BlueLoading />
@@ -116,9 +90,9 @@ const LnurlAuth = () => {
         <>
           <ScrollView>
             <BlueCard>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${lnurlObj.query.action || 'auth'}_question_part_1`]}</BlueText>
-              <BlueText style={styles.domainName}>{lnurlObj.hostname}</BlueText>
-              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${lnurlObj.query.action || 'auth'}_question_part_2`]}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_1`]}</BlueText>
+              <BlueText style={styles.domainName}>{parsedLnurl.hostname}</BlueText>
+              <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_2`]}</BlueText>
               <BlueSpacing40 />
               <BlueButton title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
@@ -135,7 +109,7 @@ const LnurlAuth = () => {
           </View>
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
-            {loc.formatString(loc.lnurl_auth[`${lnurlObj.query.action || 'auth'}_answer`], { hostname: lnurlObj.hostname })}
+            {loc.formatString(loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_answer`], { hostname: parsedLnurl.hostname })}
           </BlueText>
           <BlueSpacing20 />
         </BlueCard>
@@ -145,7 +119,7 @@ const LnurlAuth = () => {
         <BlueCard>
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
-            {loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: lnurlObj.hostname })}
+            {loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: parsedLnurl.hostname })}
           </BlueText>
           <BlueText style={styles.alignSelfCenter}>{loc.formatString(loc.lnurl_auth.response, { errMsg: errMsg })}</BlueText>
           <BlueSpacing20 />
