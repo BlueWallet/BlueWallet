@@ -420,15 +420,7 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const handleUseMnemonicPhrase = () => {
-    return _handleUseMnemonicPhrase(importText);
-  };
-
-  const _handleUseMnemonicPhrase = async mnemonic => {
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonic);
-    if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
-
+  const handleUseMnemonicPhrase = async () => {
     let passphrase;
     if (askPassphrase) {
       try {
@@ -441,7 +433,13 @@ const ViewEditMultisigCosigners = () => {
         throw e;
       }
     }
+    return _handleUseMnemonicPhrase(importText, passphrase);
+  };
 
+  const _handleUseMnemonicPhrase = (mnemonic, passphrase) => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(mnemonic);
+    if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
     try {
       wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
     } catch (e) {
