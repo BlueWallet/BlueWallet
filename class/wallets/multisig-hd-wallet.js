@@ -1074,30 +1074,38 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   /**
-   * Looks up cosigner by Fingerprint, and repalces all its data with new data
+   * Looks up xpub cosigner by index, and repalces it with seed + passphrase
    *
-   * @param oldFp {string} Looks up cosigner by this fp
-   * @param newCosigner {string}
-   * @param newFp {string}
-   * @param newPath {string}
+   * @param externalIndex {number}
+   * @param mnemonic {string}
+   * @param passphrase {string}
    */
-  replaceCosigner(oldFp, newCosigner, newFp, newPath) {
-    const index = this._cosignersFingerprints.indexOf(oldFp);
-    if (index === -1) return;
-    if (!MultisigHDWallet.isXpubValid(newCosigner)) {
-      // its not an xpub, so lets derive fingerprint ourselves
-      newFp = MultisigHDWallet.mnemonicToFingerprint(newCosigner);
-      if (oldFp !== newFp) {
-        throw new Error('Fingerprint of new seed doesnt match');
-      }
+  replaceCosignerXpubWithSeed(externalIndex, mnemonic, passphrase) {
+    const index = externalIndex - 1;
+    const fingerprint = this._cosignersFingerprints[index];
+    if (!MultisigHDWallet.isXpubValid(this._cosigners[index])) throw new Error('This cosigner doesnt contain valid xpub');
+    if (!bip39.validateMnemonic(mnemonic)) throw new Error('Not a valid mnemonic phrase');
+    if (fingerprint !== MultisigHDWallet.mnemonicToFingerprint(mnemonic, passphrase)) {
+      throw new Error('Fingerprint of new seed doesnt match');
     }
+    this._cosigners[index] = mnemonic.trim();
+    this._cosignersPassphrases[index] = passphrase || undefined;
+  }
 
-    this._cosignersFingerprints[index] = newFp;
-    this._cosigners[index] = newCosigner;
-
-    if (newPath && this.getDerivationPath() !== newPath) {
-      this._cosignersCustomPaths[index] = newPath;
-    }
+  /**
+   * Looks up cosigner with seed by index, and repalces it with xpub
+   *
+   * @param externalIndex {number}
+   */
+  replaceCosignerSeedWithXpub(externalIndex) {
+    const index = externalIndex - 1;
+    const mnemonics = this._cosigners[index];
+    if (!bip39.validateMnemonic(mnemonics)) throw new Error('This cosigner doesnt contain valid xpub mnemonic phrase');
+    const passphrase = this._cosignersPassphrases[index];
+    const path = this._cosignersCustomPaths[index] || this._derivationPath;
+    const xpub = this.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonics, path, passphrase));
+    this._cosigners[index] = xpub;
+    this._cosignersPassphrases[index] = undefined;
   }
 
   deleteCosigner(fp) {

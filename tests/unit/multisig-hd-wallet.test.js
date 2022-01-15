@@ -1721,14 +1721,12 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
 
-    w.replaceCosigner(fp2coldcard, Zpub2, fp2coldcard, path); // <-------------------
-
+    w.replaceCosignerSeedWithXpub(2);
     assert.strictEqual(w.getCosigner(2), Zpub2);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
-    w.replaceCosigner(fp2coldcard, process.env.MNEMONICS_COLDCARD); // <---------------------------
-
+    w.replaceCosignerXpubWithSeed(2, process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
@@ -1765,6 +1763,27 @@ describe('multisig-wallet (native segwit)', () => {
       '9WDdFSZX4d6mPxkr',
     );
     assert.strictEqual(w.getN(), 2);
+
+    w.replaceCosignerSeedWithXpub(2);
+    assert.strictEqual(
+      w.getCosigner(2),
+      'Zpub752NRx3S4ax3S5oLHLB2DAQx9X3Ek4EGvtsyYTpzQ2VRdXB6DjL5ZKiHhcUqfZM6M2KCVB5vSXEQ4jMosHWuF4dD5pwowfzL4fmJz5FaJHh',
+    );
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.ok(!w.getPassphrase(2));
+
+    w.replaceCosignerXpubWithSeed(
+      2,
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getCosigner(2), 'salon smoke bubble dolphin powder govern rival sport better arrest certain manual');
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.strictEqual(w.getPassphrase(2), '9WDdFSZX4d6mPxkr');
+
+    // test that after deleting cosinger with passphrase, it has been cleaned out properly
     w.deleteCosigner('2C0908B6');
     assert.ok(!w.getCosigner(2));
     assert.ok(!w.getFingerprint(2));
@@ -1772,6 +1791,13 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getPassphrase(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+
+    // after chaning first cosigner, make sure that he changed, not the second one
+    w.replaceCosignerXpubWithSeed(1, process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getCosigner(1), process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getFingerprint(1), fp1cobo);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
+    assert.strictEqual(w.getPassphrase(1), undefined);
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {

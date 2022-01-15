@@ -1,8 +1,7 @@
-import React, { useContext, useRef, useState, useCallback } from 'react';
+import React, { useContext, useRef, useState, useCallback, useEffect } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  findNodeHandle,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -11,8 +10,10 @@ import {
   Platform,
   StatusBar,
   StyleSheet,
+  Switch,
   Text,
   View,
+  findNodeHandle,
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -24,6 +25,7 @@ import {
   BlueSpacing10,
   BlueSpacing20,
   BlueSpacing40,
+  BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -44,11 +46,12 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 const fs = require('../../blue_modules/fs');
+const prompt = require('../../blue_modules/prompt');
 
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdancedModeEnabled } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
@@ -67,6 +70,8 @@ const ViewEditMultisigCosigners = () => {
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
+  const [askPassphrase, setAskPassphrase] = useState(false);
+  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef();
   const stylesHook = StyleSheet.create({
     root: {
@@ -134,6 +139,11 @@ const ViewEditMultisigCosigners = () => {
       color: colors.buttonTextColor,
     },
   });
+
+  useEffect(() => {
+    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const exportCosigner = () => {
     setIsShareModalVisible(false);
@@ -274,6 +284,7 @@ const ViewEditMultisigCosigners = () => {
       const secret = wallet.getCosigner(el.index + 1).split(' ');
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
     }
+
     return (
       <View>
         <MultipleStepsListItem
@@ -413,41 +424,52 @@ const ViewEditMultisigCosigners = () => {
     return _handleUseMnemonicPhrase(importText);
   };
 
-  const _handleUseMnemonicPhrase = mnemonic => {
+  const _handleUseMnemonicPhrase = async mnemonic => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonic);
     if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
 
-    const newFp = MultisigHDWallet.mnemonicToFingerprint(hd.getSecret());
-    if (newFp !== wallet.getFingerprint(currentlyEditingCosignerNum)) return alert(loc.multisig.invalid_fingerprint);
+    let passphrase;
+    if (askPassphrase) {
+      try {
+        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+      } catch (e) {
+        if (e.message === 'Cancel Pressed') {
+          setIsLoading(false);
+          return;
+        }
+        throw e;
+      }
+    }
 
-    wallet.deleteCosigner(newFp);
-    wallet.addCosigner(hd.getSecret());
+    try {
+      wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
+    } catch (e) {
+      console.log(e);
+      return alert(e.message);
+    }
+
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
     setIsProvideMnemonicsModalVisible(false);
     setIsSaveButtonDisabled(false);
+    setImportText('');
+    setAskPassphrase(false);
   };
 
   const xpubInsteadOfSeed = index => {
     return new Promise((resolve, reject) => {
       InteractionManager.runAfterInteractions(() => {
         try {
-          const mnemonics = wallet.getCosigner(index);
-          const newFp = MultisigHDWallet.mnemonicToFingerprint(mnemonics);
-          const path = wallet.getCustomDerivationPathForCosigner(index);
-          const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonics, path));
-          wallet.deleteCosigner(newFp);
-          wallet.addCosigner(xpub, newFp, path);
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          setWallet(wallet);
-          setIsSaveButtonDisabled(false);
-          resolve();
+          wallet.replaceCosignerSeedWithXpub(index);
         } catch (e) {
-          alert(e.message);
-          console.log(e);
           reject(e);
+          return alert(e.message);
         }
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setWallet(wallet);
+        setIsSaveButtonDisabled(false);
+        resolve();
       });
     });
   };
@@ -486,6 +508,7 @@ const ViewEditMultisigCosigners = () => {
     Keyboard.dismiss();
     setIsProvideMnemonicsModalVisible(false);
     setImportText('');
+    setAskPassphrase(false);
   };
 
   const hideShareModal = () => {
@@ -500,7 +523,16 @@ const ViewEditMultisigCosigners = () => {
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            <BlueSpacing40 />
+            {isAdvancedModeEnabledRender && (
+              <>
+                <BlueSpacing10 />
+                <View style={styles.row}>
+                  <BlueText>{loc.wallets.import_passphrase}</BlueText>
+                  <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+                </View>
+              </>
+            )}
+            <BlueSpacing20 />
             {isLoading ? (
               <ActivityIndicator />
             ) : (
@@ -710,6 +742,12 @@ const styles = StyleSheet.create({
   },
   tipLabelText: {
     fontWeight: '500',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    justifyContent: 'space-between',
   },
 });
 
