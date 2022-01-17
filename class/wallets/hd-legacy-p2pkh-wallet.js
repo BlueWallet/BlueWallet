@@ -1,5 +1,7 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-const HDNode = require('bip32');
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+const bip32 = BIP32Factory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
@@ -37,7 +39,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
       return this._xpub; // cache hit
     }
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
@@ -58,13 +60,13 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
