@@ -286,17 +286,26 @@ const WalletsAddMultisigStep2 = () => {
       alert(loc.multisig.not_a_multisignature_xpub);
       return;
     }
-    let fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, false, 'plain-text');
-    fp = (fp + '').toUpperCase();
-    if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
-
-    let path = await prompt(
-      loc.multisig.input_path,
-      loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
-      false,
-      'plain-text',
-    );
-    if (!MultisigHDWallet.isPathValid(path)) path = getPath();
+    let fp;
+    try {
+      fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+      fp = (fp + '').toUpperCase();
+      if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
+    } catch {
+      return setIsLoading(false);
+    }
+    let path;
+    try {
+      path = await prompt(
+        loc.multisig.input_path,
+        loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
+        true,
+        'plain-text',
+      );
+      if (!MultisigHDWallet.isPathValid(path)) path = getPath();
+    } catch {
+      return setIsLoading(false);
+    }
 
     setIsProvideMnemonicsModalVisible(false);
     setIsLoading(false);

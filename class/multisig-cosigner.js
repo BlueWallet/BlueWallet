@@ -1,6 +1,8 @@
 import b58 from 'bs58check';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
-const HDNode = require('bip32');
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+const bip32 = BIP32Factory(ecc);
 
 export class MultisigCosigner {
   constructor(data) {
@@ -136,7 +138,7 @@ export class MultisigCosigner {
 
     try {
       xpub = MultisigCosigner._zpubToXpub(key);
-      HDNode.fromBase58(xpub);
+      bip32.fromBase58(xpub);
       return true;
     } catch (_) {}
 

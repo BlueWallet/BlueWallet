@@ -1,16 +1,17 @@
 import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { ECPairFactory } from 'ecpair';
-const ecc = require('tiny-secp256k1');
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const HDNode = require('bip32');
 const reverse = require('buffer-reverse');
+const bip32 = BIP32Factory(ecc);
 
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
@@ -90,7 +91,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
     const path = `${this.getDerivationPath()}/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -109,13 +110,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
@@ -142,13 +143,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._zpubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
@@ -181,7 +182,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
@@ -1091,7 +1092,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   cosignPsbt(psbt) {
     const seed = this._getSeed();
-    const hdRoot = HDNode.fromSeed(seed);
+    const hdRoot = bip32.fromSeed(seed);
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
       try {
@@ -1125,7 +1126,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed) {
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
     let hex = root.fingerprint.toString('hex');
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();

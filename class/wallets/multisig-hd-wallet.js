@@ -3,10 +3,11 @@ import * as bip39 from 'bip39';
 import b58 from 'bs58check';
 import { decodeUR } from '../../blue_modules/ur';
 import { ECPairFactory } from 'ecpair';
-const ecc = require('tiny-secp256k1');
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 const ECPair = ECPairFactory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const HDNode = require('bip32');
+const bip32 = BIP32Factory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const createHash = require('create-hash');
 const reverse = require('buffer-reverse');
@@ -142,7 +143,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
     try {
       xpub = super._zpubToXpub(key);
-      HDNode.fromBase58(xpub);
+      bip32.fromBase58(xpub);
       return true;
     } catch (_) {}
 
@@ -152,7 +153,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static isXprvValid(xprv) {
     try {
       xprv = MultisigHDWallet.convertMultisigXprvToRegularXprv(xprv);
-      HDNode.fromBase58(xprv);
+      bip32.fromBase58(xprv);
       return true;
     } catch (_) {
       return false;
@@ -219,7 +220,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static convertXprvToXpub(xprv) {
-    const restored = HDNode.fromBase58(MultisigHDWallet.convertMultisigXprvToRegularXprv(xprv));
+    const restored = bip32.fromBase58(MultisigHDWallet.convertMultisigXprvToRegularXprv(xprv));
     return restored.neutered().toBase58();
   }
 
@@ -263,7 +264,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       if (!this._nodes[nodeIndex][cosignerIndex]) {
         const xpub = this._getXpubFromCosigner(cosigner);
-        const hdNode = HDNode.fromBase58(xpub);
+        const hdNode = bip32.fromBase58(xpub);
         _node = hdNode.derive(nodeIndex);
         this._nodes[nodeIndex][cosignerIndex] = _node;
       } else {
@@ -316,7 +317,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     }
 
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
     const child = root.derivePath(path).neutered();
     return child.toBase58();
   }
@@ -666,7 +667,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
 
       const xpub = this._getXpubFromCosigner(cosigner);
-      const hdNode0 = HDNode.fromBase58(xpub);
+      const hdNode0 = bip32.fromBase58(xpub);
       const splt = path.split('/');
       const internal = +splt[splt.length - 2];
       const index = +splt[splt.length - 1];
@@ -759,7 +760,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const masterFingerprint = Buffer.from(this._cosignersFingerprints[cosignerIndex], 'hex');
 
       const xpub = this._getXpubFromCosigner(cosigner);
-      const hdNode0 = HDNode.fromBase58(xpub);
+      const hdNode0 = bip32.fromBase58(xpub);
       const splt = path.split('/');
       const internal = +splt[splt.length - 2];
       const index = +splt[splt.length - 1];
@@ -875,7 +876,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             seed = MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner, passphrase);
           }
 
-          const hdRoot = HDNode.fromSeed(seed);
+          const hdRoot = bip32.fromSeed(seed);
           psbt.signInputHD(cc, hdRoot);
           signaturesMade++;
         }
@@ -919,7 +920,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static isPathValid(path) {
-    const root = HDNode.fromSeed(Buffer.alloc(32));
+    const root = bip32.fromSeed(Buffer.alloc(32));
     try {
       root.derivePath(path);
       return true;
@@ -1020,13 +1021,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         let hdRoot;
         if (MultisigHDWallet.isXprvString(cosigner)) {
           const xprv = MultisigHDWallet.convertMultisigXprvToRegularXprv(cosigner);
-          hdRoot = HDNode.fromBase58(xprv);
+          hdRoot = bip32.fromBase58(xprv);
         } else {
           const passphrase = this._cosignersPassphrases[cosignerIndex];
           const seed = cosigner.startsWith(ELECTRUM_SEED_PREFIX)
             ? MultisigHDWallet.convertElectrumMnemonicToSeed(cosigner, passphrase)
             : bip39.mnemonicToSeedSync(cosigner, passphrase);
-          hdRoot = HDNode.fromSeed(seed);
+          hdRoot = bip32.fromSeed(seed);
         }
 
         try {
