@@ -1,7 +1,29 @@
+import http from 'http';
 import assert from 'assert';
 
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import AOPP from '../../class/aopp';
+
+let server;
+let POST = '';
+
+beforeAll(async () => {
+  // start https server, wait for POST requests and decode them
+  server = http
+    .createServer((req, res) => {
+      if (req.method !== 'POST') return;
+      let body = '';
+      req.on('data', data => (body += data));
+      req.on('end', () => (POST = JSON.parse(body)));
+      res.writeHead(200);
+      res.end('ok');
+    })
+    .listen(19616);
+});
+
+afterAll(() => {
+  server.close();
+});
 
 describe('AOPP', () => {
   it('can validate uri', async () => {
@@ -31,32 +53,33 @@ describe('AOPP', () => {
     assert.strictEqual(AOPP.getSegwitByAddressFormat('p2pkh'), undefined);
   });
 
-  // these tests depends on unstable https://testing.21analytics.ch/ ( link can be found at https://testing.aopp.group/) so we don't want to run chem all the time
-  it.skip('can sign and send signature using legacy address', async () => {
-    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-    const hd = new HDLegacyP2PKHWallet();
-    hd.setSecret(mnemonic);
-    const address = hd._getExternalAddressByIndex(0);
-
-    const a = new AOPP(
-      'aopp:?v=0&msg=I+confirm+that+this+Bitcoin+%28BTC%29+address+is+controlled+by+Thomas+Turner%2C+Poststrasse+22%2C+Zug%2C+Switzerland.+Unique+Identifier%3A+24a37b6a555311c&asset=btc&format=any&callback=https%3A%2F%2Ftesting.21analytics.ch%2Fproofs%2F31e05ce3-bd03-47cb-aa0e-be37505bec5f',
-    );
-    const signature = hd.signMessage(a.msg, address);
-
-    await a.send({ address, signature });
-  });
-
-  it.skip('can sign and send signature using segwit address', async () => {
+  it('can sign and send signature using segwit address', async () => {
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDSegwitP2SHWallet();
     hd.setSecret(mnemonic);
     const address = hd._getExternalAddressByIndex(0);
 
-    const a = new AOPP(
-      'aopp:?v=0&msg=I+confirm+that+this+Bitcoin+%28BTC%29+address+is+controlled+by+Thomas+Turner%2C+Poststrasse+22%2C+Zug%2C+Switzerland.+Unique+Identifier%3A+24a37b6a555311c&asset=btc&format=any&callback=https%3A%2F%2Ftesting.21analytics.ch%2Fproofs%2F31e05ce3-bd03-47cb-aa0e-be37505bec5f',
-    );
+    const a = new AOPP('aopp:?v=0&msg=Vires+in+Numeris&asset=btc&format=any&callback=http%3A%2F%2Flocalhost:19616');
     const signature = hd.signMessage(a.msg, address);
-
     await a.send({ address, signature });
+
+    assert.strictEqual(POST.version, 0);
+    assert.strictEqual(POST.address, address);
+    assert.ok(POST.signature);
+  });
+
+  it('can sign and send signature using legacy address', async () => {
+    const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+    const hd = new HDLegacyP2PKHWallet();
+    hd.setSecret(mnemonic);
+    const address = hd._getExternalAddressByIndex(0);
+
+    const a = new AOPP('aopp:?v=0&msg=Vires+in+Numeris&asset=btc&format=any&callback=http%3A%2F%2Flocalhost:19616');
+    const signature = hd.signMessage(a.msg, address);
+    await a.send({ address, signature });
+
+    assert.strictEqual(POST.version, 0);
+    assert.strictEqual(POST.address, address);
+    assert.ok(POST.signature);
   });
 });
