@@ -625,6 +625,7 @@
   "cc": {
     "change": "Change",
     "coins_selected": "Coins Selected ({number})",
+    "selected_summ": "{value} selected",
     "empty": "This wallet doesn’t have any coins at the moment.",
     "freeze": "Freeze",
     "freezeLabel": "Freeze",
