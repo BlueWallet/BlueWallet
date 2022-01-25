@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, I18nManager, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, useContext, useState } from 'react';
+import { View, Image, Text, StyleSheet, StatusBar, I18nManager, Pressable } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
-import SortableList from 'react-native-sortable-list';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
@@ -39,6 +39,12 @@ const styles = StyleSheet.create({
   transparentText: {
     backgroundColor: 'transparent',
   },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
+  },
   label: {
     backgroundColor: 'transparent',
     fontSize: 19,
@@ -68,13 +74,9 @@ const styles = StyleSheet.create({
 });
 
 const ReorderWallets = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState([]);
-  const [hasMovedARow, setHasMovedARow] = useState(false);
   const sortableList = useRef();
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -82,115 +84,107 @@ const ReorderWallets = () => {
     loading: {
       backgroundColor: colors.elevated,
     },
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
+    },
   };
+  const [walletData, setWalletData] = useState([]);
 
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={() => {
-            if (sortableList.current?.state.data.length === data.length && hasMovedARow) {
-              const newWalletsOrderArray = [];
-              sortableList.current.state.order.forEach(element => {
-                newWalletsOrderArray.push(data[element]);
-              });
-              setWalletsWithNewOrder(newWalletsOrderArray);
-            }
-            navigation.goBack();
-          }}
-          testID="NavigationCloseButton"
-        >
-          <Image source={closeImage} />
-        </TouchableOpacity>
-      ),
-    });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation, hasMovedARow]);
-
-  useEffect(() => {
-    setData(wallets);
-    setIsLoading(false);
+    setWalletData(wallets);
   }, [wallets]);
 
-  const renderItem = (item, _active) => {
-    if (!item.data) {
-      return;
-    }
-    item = item.data;
-
+  const renderItem = ({ item, drag, isActive }) => {
     return (
-      <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
-        <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
-          <Image
-            source={(() => {
-              switch (item.type) {
-                case LightningLdkWallet.type:
-                case LightningCustodianWallet.type:
-                  return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
-                case MultisigHDWallet.type:
-                  return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
-                default:
-                  return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
-              }
-            })()}
-            style={styles.image}
-          />
+      <ScaleDecorator>
+        <Pressable
+          disabled={isActive}
+          onLongPress={drag}
+          shadowOpacity={40 / 100}
+          shadowOffset={{ width: 0, height: 0 }}
+          shadowRadius={5}
+          style={styles.itemRoot}
+        >
+          <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
+            <Image
+              source={(() => {
+                switch (item.type) {
+                  case LightningLdkWallet.type:
+                  case LightningCustodianWallet.type:
+                    return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
+                  case MultisigHDWallet.type:
+                    return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
+                  default:
+                    return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
+                }
+              })()}
+              style={styles.image}
+            />
 
-          <Text style={styles.transparentText} />
-          <Text numberOfLines={1} style={styles.label}>
-            {item.getLabel()}
-          </Text>
-          {item.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-              {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+            <Text style={styles.transparentText} />
+            <Text numberOfLines={1} style={styles.label}>
+              {item.getLabel()}
             </Text>
-          )}
-          <Text style={styles.transparentText} />
-          <Text numberOfLines={1} style={styles.latestTxLabel}>
-            {loc.wallets.list_latest_transaction}
-          </Text>
-          <Text numberOfLines={1} style={styles.latestTxValue}>
-            {item.getTransactions().find(tx => tx.confirmations === 0)
-              ? loc.transactions.pending.toLowerCase()
-              : transactionTimeToReadable(item.getLatestTransactionTime())}
-          </Text>
-        </LinearGradient>
-      </View>
+            {item.hideBalance ? (
+              <BluePrivateBalance />
+            ) : (
+              <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
+                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              </Text>
+            )}
+            <Text style={styles.transparentText} />
+            <Text numberOfLines={1} style={styles.latestTxLabel}>
+              {loc.wallets.list_latest_transaction}
+            </Text>
+            <Text numberOfLines={1} style={styles.latestTxValue}>
+              {item.getTransactions().find(tx => tx.confirmations === 0)
+                ? loc.transactions.pending.toLowerCase()
+                : transactionTimeToReadable(item.getLatestTransactionTime())}
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      </ScaleDecorator>
     );
   };
 
   const onChangeOrder = () => {
     ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
-    setHasMovedARow(true);
   };
 
-  const onActivateRow = () => {
+  const onDragBegin = () => {
     ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
   };
 
-  const onReleaseRow = () => {
+  const onRelease = () => {
     ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
   };
 
-  return isLoading ? (
-    <View style={[styles.loading, stylesHook.loading]}>
-      <ActivityIndicator />
+  const onDragEnd = ({ data }) => {
+    setWalletsWithNewOrder(data);
+    setWalletData(data);
+  };
+
+  const _keyExtractor = (_item, index) => index.toString();
+
+  const ListHeaderComponent = (
+    <View style={[styles.tip, stylesHook.tip]}>
+      <Text style={{ color: colors.foregroundColor }}>{loc.wallets.reorder_instructions}</Text>
     </View>
-  ) : (
+  );
+  return (
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
-      <SortableList
+      <DraggableFlatList
+        ListHeaderComponent={ListHeaderComponent}
         ref={sortableList}
-        data={data}
-        renderRow={renderItem}
+        data={walletData}
+        keyExtractor={_keyExtractor}
+        renderItem={renderItem}
         onChangeOrder={onChangeOrder}
-        onActivateRow={onActivateRow}
-        onReleaseRow={onReleaseRow}
-        style={styles.root}
+        onDragBegin={onDragBegin}
+        onRelease={onRelease}
+        onDragEnd={onDragEnd}
+        containerStyle={styles.root}
       />
     </View>
   );
@@ -199,6 +193,8 @@ const ReorderWallets = () => {
 ReorderWallets.navigationOptions = navigationStyle(
   {
     headerHideBackButton: true,
+    headerLargeTitle: true,
+    closeButton: true,
   },
   opts => ({ ...opts, headerTitle: loc.wallets.reorder_title }),
 );
