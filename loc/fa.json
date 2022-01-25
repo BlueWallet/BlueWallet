@@ -625,6 +625,7 @@
   "cc": {
     "change": "باقی‌مانده (change)",
     "coins_selected": "کوین‌های انتخاب‌شده ({number})",
+    "selected_summ": "انتخاب‌شده: {value}",
     "empty": "این کیف پول درحال‌حاضر هیچ کوینی ندارد.",
     "freeze": "مسدود",
     "freezeLabel": "مسدودکردن",
