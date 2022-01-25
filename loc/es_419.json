@@ -625,6 +625,7 @@
   "cc": {
     "change": "Cambio",
     "coins_selected": "Monedas Seleccionadas ({number})",
+    "selected_summ": "{value} seleccionado",
     "empty": "Esta billetera no tiene monedas en este momento.",
     "freeze": "Congelar",
     "freezeLabel": "Congelar",
