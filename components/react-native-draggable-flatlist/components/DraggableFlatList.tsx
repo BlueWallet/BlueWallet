@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // @ts-ignore: Ignore
-import React, { ForwardedRef, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 // @ts-ignore: Ignore
 import { ListRenderItem, FlatListProps, NativeScrollEvent, NativeSyntheticEvent, LayoutChangeEvent } from 'react-native';
 import {
@@ -31,11 +31,19 @@ type RNGHFlatListProps<T> = Animated.AnimateProps<
   }
 >;
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList) as unknown as <T>(props: RNGHFlatListProps<T>) => React.ReactElement;
+const AnimatedFlatList = (Animated.createAnimatedComponent(FlatList) as unknown) as <T>(props: RNGHFlatListProps<T>) => React.ReactElement;
 
 function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
-  const { cellDataRef, containerRef, flatListRef, isTouchActiveRef, keyToIndexRef, panGestureHandlerRef, propsRef, scrollOffsetRef } =
-    useRefs<T>();
+  const {
+    cellDataRef,
+    containerRef,
+    flatListRef,
+    isTouchActiveRef,
+    keyToIndexRef,
+    panGestureHandlerRef,
+    propsRef,
+    scrollOffsetRef,
+  } = useRefs<T>();
   const {
     activationDistance,
     activeCellOffset,
