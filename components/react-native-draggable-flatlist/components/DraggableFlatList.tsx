@@ -1,4 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+// @ts-ignore: Ignore
 import React, { ForwardedRef, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+// @ts-ignore: Ignore
 import { ListRenderItem, FlatListProps, NativeScrollEvent, NativeSyntheticEvent, LayoutChangeEvent } from 'react-native';
 import {
   PanGestureHandler,
@@ -9,7 +12,7 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { and, block, call, cond, eq, event, greaterThan, neq, not, onChange, or, set, sub } from 'react-native-reanimated';
 import CellRendererComponent from './CellRendererComponent';
-import { DEFAULT_PROPS, isReanimatedV2, isWeb } from '../constants';
+import { DEFAULT_PROPS, isWeb } from '../constants';
 import PlaceholderItem from './PlaceholderItem';
 import RowItem from './RowItem';
 import ScrollOffsetListener from './ScrollOffsetListener';
@@ -140,6 +143,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   );
 
   const renderItem: ListRenderItem<T> = useCallback(
+    // @ts-ignore: Ignore
     ({ item, index }) => {
       const key = keyExtractor(item, index);
       if (index !== keyToIndexRef.current.get(key)) keyToIndexRef.current.set(key, index);
@@ -269,7 +273,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
           onLayout={onContainerLayout}
           onTouchEnd={onContainerTouchEnd}
           onStartShouldSetResponderCapture={onContainerTouchStart}
-          // @ts-ignore
+          // @ts-ignore Ignore
           onClick={onContainerTouchEnd}
         >
           <ScrollOffsetListener

@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import Animated, { add, and, block, greaterThan, max, min, set, sub, useValue } from 'react-native-reanimated';
+import { add, and, block, greaterThan, max, min, set, sub, useValue } from 'react-native-reanimated';
 import { State as GestureState } from 'react-native-gesture-handler';
 import { useNode } from '../hooks/useNode';
 import { useProps } from './propsContext';
@@ -11,6 +11,7 @@ if (!useValue) {
 const AnimatedValueContext = React.createContext<ReturnType<typeof useSetupAnimatedValues> | undefined>(undefined);
 
 export default function AnimatedValueProvider({ children }: { children: React.ReactNode }) {
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const value = useSetupAnimatedValues();
   return <AnimatedValueContext.Provider value={value}>{children}</AnimatedValueContext.Provider>;
 }

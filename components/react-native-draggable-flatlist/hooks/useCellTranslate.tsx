@@ -62,7 +62,7 @@ export function useCellTranslate({ cellIndex, cellSize, cellOffset }: Params) {
       activeCellSize,
       cellHoverOffset,
       spacerIndexAnim,
-      // @ts-ignore
+      // @ts-ignore Ignore
       config.toValue,
       state.position,
       state.time,

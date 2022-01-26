@@ -1,6 +1,8 @@
+// @ts-ignore: Ignore
 import { Platform } from 'react-native';
 import { PanGestureHandlerProperties } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, WithSpringConfig } from 'react-native-reanimated';
+// @ts-ignore: Ignore
+import { useSharedValue, WithSpringConfig } from 'react-native-reanimated';
 
 // Fire onScrollComplete when within this many px of target offset
 export const SCROLL_POSITION_TOLERANCE = 2;

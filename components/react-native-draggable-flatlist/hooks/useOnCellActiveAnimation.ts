@@ -1,3 +1,4 @@
+// @ts-ignore: Ignore
 import Animated, { block, clockRunning, cond, onChange, set, startClock, stopClock, useCode } from 'react-native-reanimated';
 import { useAnimatedValues } from '../context/animatedValueContext';
 import { useIsActive } from '../context/cellContext';
@@ -18,7 +19,7 @@ export function useOnCellActiveAnimation({ animationConfig }: Params = { animati
     () =>
       block([
         onChange(isDraggingCell, [
-          // @ts-ignore
+          // @ts-ignore Ignore
           set(config.toValue, cond(isDraggingCell, 1, 0)),
           startClock(clock),
         ]),

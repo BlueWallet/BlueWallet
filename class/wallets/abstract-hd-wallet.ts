@@ -29,7 +29,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
   constructor() {
     super();
-    const Constructor = (this.constructor as unknown) as AbstractHDWalletStatics;
+    const Constructor = this.constructor as unknown as AbstractHDWalletStatics;
     this.next_free_address_index = 0;
     this.next_free_change_address_index = 0;
     this.internal_addresses_cache = {}; // index => address

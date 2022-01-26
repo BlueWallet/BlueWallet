@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useRef } from 'react';
-import Animated, {
+import {
   abs,
   add,
   and,
@@ -38,6 +39,7 @@ export function useAutoScroll<T>() {
   const distToBottomEdge = useNode(max(0, sub(containerSize, add(hoverAnim, activeCellSize))));
 
   const isAtTopEdge = useNode(lessOrEq(distToTopEdge, autoscrollThreshold));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const isAtBottomEdge = useNode(lessOrEq(distToBottomEdge, autoscrollThreshold!));
 
   const isAtEdge = useNode(or(isAtBottomEdge, isAtTopEdge));

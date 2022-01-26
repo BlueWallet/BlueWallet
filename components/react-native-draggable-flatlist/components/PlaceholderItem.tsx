@@ -1,3 +1,4 @@
+// @ts-ignore: Ignore
 import React, { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { call, useCode, onChange, greaterThan, cond, sub, block } from 'react-native-reanimated';

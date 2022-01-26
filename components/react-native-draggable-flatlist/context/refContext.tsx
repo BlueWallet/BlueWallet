@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useContext, useMemo, useRef } from 'react';
 import { FlatList, PanGestureHandler } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';

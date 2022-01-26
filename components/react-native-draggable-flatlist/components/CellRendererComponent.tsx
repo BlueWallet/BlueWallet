@@ -1,4 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+// @ts-ignore Ignore
 import { findNodeHandle, LayoutChangeEvent, MeasureLayoutOnSuccessCallback, StyleProp, ViewStyle } from 'react-native';
 import Animated, { cond, useValue } from 'react-native-reanimated';
 import { useDraggableFlatListContext } from '../context/draggableFlatListContext';
@@ -77,11 +79,11 @@ function CellRendererComponent<T>(props: Props<T>) {
     // remove once v1 is no longer supported
     const containerNode = containerRef.current;
     const viewNode = isReanimatedV2 ? viewRef.current : viewRef.current?.getNode();
-    // @ts-ignore
+    // @ts-ignore Ignore
     const nodeHandle = isReanimatedV2 ? containerNode : findNodeHandle(containerNode);
 
     if (viewNode && nodeHandle) {
-      // @ts-ignore
+      // @ts-ignore Ignore
       viewNode.measureLayout(nodeHandle, onSuccess, onFail);
     }
   }, [cellDataRef, horizontal, index, key, offset, propsRef, size, scrollOffsetRef, containerRef]);

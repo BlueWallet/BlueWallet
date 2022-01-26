@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unused-prop-types */
+// @ts-ignore: Ignore
 import React, { useCallback, useRef } from 'react';
 import { useDraggableFlatListContext } from '../context/draggableFlatListContext';
 import { useRefs } from '../context/refContext';
