@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
 import { View, Image, Text, StyleSheet, StatusBar, I18nManager, Pressable } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
-import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
+import DraggableFlatList, { ScaleDecorator } from '../../components/react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme } from '@react-navigation/native';
@@ -10,6 +10,7 @@ import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
   loading: {
@@ -99,7 +100,7 @@ const ReorderWallets = () => {
       <ScaleDecorator>
         <Pressable
           disabled={isActive}
-          onLongPress={drag}
+          onPressIn={drag}
           shadowOpacity={40 / 100}
           shadowOffset={{ width: 0, height: 0 }}
           shadowRadius={5}
@@ -172,8 +173,9 @@ const ReorderWallets = () => {
     </View>
   );
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="default" />
+
       <DraggableFlatList
         ListHeaderComponent={ListHeaderComponent}
         ref={sortableList}
@@ -186,7 +188,7 @@ const ReorderWallets = () => {
         onDragEnd={onDragEnd}
         containerStyle={styles.root}
       />
-    </View>
+    </GestureHandlerRootView>
   );
 };
 

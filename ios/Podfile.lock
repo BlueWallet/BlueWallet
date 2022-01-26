@@ -294,7 +294,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.7):
     - React
-  - react-native-webview (11.17.0):
+  - react-native-webview (11.17.1):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -749,7 +749,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 6a64351e96ccd6a49941989703f63ec81fc1ae7c
-  react-native-webview: 10996be8bcc5e37a30dbc139fc544bb651dc8612
+  react-native-webview: 162b6453d074e0b1c7025242bb7a939b6f72b9e7
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
   React-RCTActionSheet: af7796ba49ffe4ca92e7277a5d992d37203f7da5

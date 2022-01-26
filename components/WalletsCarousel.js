@@ -314,7 +314,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
   };
 
   const { width } = useWindowDimensions();
-  const sliderHeight = 190;
+  const sliderHeight = 195;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
   return (
     <FlatList
@@ -332,7 +332,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
       ListHeaderComponent={ListHeaderComponent}
-      style={props.horizontal ? { height: sliderHeight + 9 } : {}}
+      style={props.horizontal ? { minHeight: sliderHeight + 9 } : {}}
       onScrollToIndexFailed={onScrollToIndexFailed}
       {...props}
     />

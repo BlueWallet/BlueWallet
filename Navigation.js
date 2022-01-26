@@ -436,7 +436,7 @@ const InitRoot = () => (
     <InitStack.Screen
       name="ReorderWallets"
       component={ReorderWalletsStackRoot}
-      options={{ headerShown: false, gestureEnabled: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}
+      options={{ headerShown: false, gestureEnabled: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' }}
     />
     <InitStack.Screen
       name={isHandset ? 'Navigation' : 'DrawerRoot'}
