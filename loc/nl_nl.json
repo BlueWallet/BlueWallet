@@ -651,17 +651,10 @@
     "sign_placeholder_address": "Adres",
     "sign_placeholder_message": "Bericht",
     "sign_placeholder_signature": "Ondertekening",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Wil je een ondertekende boodschap sturen naar {hostname}",
     "addresses_title": "Adressen",
     "type_change": "Wisselgeld",
     "type_receive": "Ontvang",
     "type_used": "Gebruikt",
     "transactions": "Transacties"
-  },
-  "aopp": {
-    "title": "Selecteer adres",
-    "send_success": "Ondertekening succesvol verstuurd",
-    "send_error": "Fout bij versturen van Ondertekening"
   }
 }

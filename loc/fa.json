@@ -652,17 +652,10 @@
     "sign_placeholder_address": "آدرس",
     "sign_placeholder_message": "پیام",
     "sign_placeholder_signature": "امضا",
-    "sign_aopp_title": "پروتکل اثبات مالکیت آدرس (AOPP)",
-    "sign_aopp_confirm": "آیا مایل به ارسال پیام امضاشده به {hostname} هستید؟",
     "addresses_title": "آدرس‌ها",
     "type_change": "باقی‌مانده",
     "type_receive": "دریافت",
     "type_used": "استفاده‌شده",
     "transactions": "تراکنش‌ها"
-  },
-  "aopp": {
-    "title": "انتخاب آدرس",
-    "send_success": "امضا با موفقیت ارسال شد.",
-    "send_error": "خطا در ارسال امضا"
   }
 }

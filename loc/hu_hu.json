@@ -628,16 +628,10 @@
     "sign_placeholder_address": "Cím",
     "sign_placeholder_message": "Üzenet",
     "sign_placeholder_signature": "Szignatúra",
-    "sign_aopp_title": "AOPP",
     "addresses_title": "Címek",
     "type_change": "Váltópénz",
     "type_receive": "Fogadás",
     "type_used": "Használt",
     "transactions": "Tranzakciók"
-  },
-  "aopp": {
-    "title": "Cím kiválasztása",
-    "send_success": "Szignatúra sikeresen elküldve",
-    "send_error": "Hiba a szignatúra küldésekor"
   }
 }

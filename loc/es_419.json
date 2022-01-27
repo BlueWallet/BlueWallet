@@ -652,17 +652,10 @@
     "sign_placeholder_address": "Dirección",
     "sign_placeholder_message": "Mensaje",
     "sign_placeholder_signature": "Firma",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "¿Quieres enviar un mensaje firmado a {hostname}?",
     "addresses_title": "Direcciones",
     "type_change": "Cambio",
     "type_receive": "Recibir",
     "type_used": "Usado",
     "transactions": "Transacciones"
-  },
-  "aopp": {
-    "title": "Seleccionar dirección",
-    "send_success": "Firma enviada con éxito",
-    "send_error": "Error de envío de firma"
   }
 }

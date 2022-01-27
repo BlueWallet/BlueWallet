@@ -651,17 +651,10 @@
     "sign_placeholder_address": "Адрес",
     "sign_placeholder_message": "Сообщение",
     "sign_placeholder_signature": "Подпись",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Отправить подписанное сообщение на {hostname}?",
     "addresses_title": "Адреса",
     "type_change": "Сдача",
     "type_receive": "Получение",
     "type_used": "Использован",
     "transactions": "Транзакции"
-  },
-  "aopp": {
-    "title": "Выберите адрес",
-    "send_success": "Подпись успешно отправлена",
-    "send_error": "Ошибка отправки подписи"
   }
 }

@@ -651,17 +651,10 @@
     "sign_placeholder_address": "Adresse",
     "sign_placeholder_message": "Meldung",
     "sign_placeholder_signature": "Signatur",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Senden der signierten Nachricht nach {hostname}?",
     "addresses_title": "Adressen",
     "type_change": "Wechsel",
     "type_receive": "Empfang",
     "type_used": "Verwendet",
     "transactions": "Transaktionen"
-  },
-  "aopp": {
-    "title": "Adresse wählen",
-    "send_success": "Signatur erfolgreich gesendet",
-    "send_error": "Fehler beim Senden der Signatur"
   }
 }
