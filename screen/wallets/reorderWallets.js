@@ -100,7 +100,7 @@ const ReorderWallets = () => {
       <ScaleDecorator>
         <Pressable
           disabled={isActive}
-          onPressIn={drag}
+          onLongPress={drag}
           shadowOpacity={40 / 100}
           shadowOffset={{ width: 0, height: 0 }}
           shadowRadius={5}
