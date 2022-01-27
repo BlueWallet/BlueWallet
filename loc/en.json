@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38).",
     "reorder_title": "Re-order Wallets",
+    "reorder_instructions": "Tap and hold a wallet to drag it across the list.",
     "please_continue_scanning": "Please continue scanning.",
     "scan_error": "Scan Error",
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",

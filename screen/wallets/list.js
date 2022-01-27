@@ -36,9 +36,8 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } = useContext(
-    BlueStorageContext,
-  );
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
+    useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage, barStyle } = useTheme();
   const { navigate, setOptions } = useNavigation();

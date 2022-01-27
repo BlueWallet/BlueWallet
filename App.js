@@ -54,9 +54,8 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
-    BlueStorageContext,
-  );
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
+    useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
