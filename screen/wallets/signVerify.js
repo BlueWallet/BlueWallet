@@ -69,7 +69,7 @@ const SignVerify = () => {
     await sleep(10); // wait for loading indicator to appear
     let newSignature;
     try {
-      newSignature = wallet.signMessage(message, address, false);
+      newSignature = wallet.signMessage(message, address);
       setSignature(newSignature);
       setIsShareVisible(true);
     } catch (e) {
