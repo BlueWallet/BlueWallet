@@ -47,13 +47,9 @@ const LdkInfo = () => {
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState<any>();
 
-  //
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
-    },
-    valueText: {
-      color: colors.alternativeTextColor2,
     },
     listHeaderText: {
       color: colors.foregroundColor,
@@ -62,26 +58,8 @@ const LdkInfo = () => {
     listHeaderBack: {
       backgroundColor: colors.background,
     },
-    valueRoot: {
-      backgroundColor: colors.background,
-    },
-    textHeader: {
-      color: colors.outputValue,
-    },
-    valueSats: {
-      color: colors.alternativeTextColor2,
-    },
-    paidMark: {
-      backgroundColor: colors.success,
-    },
     detailsText: {
       color: colors.alternativeTextColor,
-    },
-    expired: {
-      backgroundColor: colors.success,
-    },
-    additionalInfo: {
-      backgroundColor: colors.brandingColor,
     },
     modalContent: {
       backgroundColor: colors.elevated,
@@ -257,10 +235,10 @@ const LdkInfo = () => {
     return (
       <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
-          <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
+          <Text style={stylesHook.detailsText}>{loc.lnd.node_alias}</Text>
           <BlueSpacing10 />
           {channelData && (
-            <Text style={[stylesHook.detailsText]}>
+            <Text style={stylesHook.detailsText}>
               {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
                 ' (' +
                 channelData.remote_node_id.substr(0, 10) +
@@ -279,7 +257,7 @@ const LdkInfo = () => {
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
           />
 
-          <Text style={[stylesHook.detailsText]}>
+          <Text style={stylesHook.detailsText}>
             {status === LdkNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
               : channelData?.is_usable
@@ -428,11 +406,11 @@ const LdkInfo = () => {
           </>
         ) : null}
         {maturingBalance ? (
-          <Text style={[stylesHook.detailsText]}>
+          <Text style={stylesHook.detailsText}>
             Balance awaiting confirmations: {formatBalance(Number(maturingBalance), wallet.getPreferredBalanceUnit(), true)}
           </Text>
         ) : null}
-        {maturingEta ? <Text style={[stylesHook.detailsText]}>ETA: {maturingEta}</Text> : null}
+        {maturingEta ? <Text style={stylesHook.detailsText}>ETA: {maturingEta}</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
         <BlueSpacing20 />
       </View>
@@ -445,78 +423,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  height100: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   marginHorizontal16: {
     marginHorizontal: 16,
   },
   contentContainerStyle: {
     marginHorizontal: 16,
-  },
-  justifyContentCenter: {
-    justifyContent: 'center',
-  },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-  valueAmount: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 8,
-  },
-  valueText: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  valueSats: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 3,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  memo: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '400',
-    alignSelf: 'center',
-  },
-  paid: {
-    flex: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paidMark: {
-    marginTop: -100,
-    marginBottom: 16,
-  },
-  detailsRoot: {
-    justifyContent: 'flex-end',
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  detailsTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailsText: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  expired: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  activeRoot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   listHeaderText: {
     marginTop: 8,
@@ -529,14 +440,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  activeQrcode: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
-  },
   modalContent: {
     minHeight: 418,
     borderTopLeftRadius: 16,
@@ -544,28 +447,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     padding: 24,
   },
-  newChannelModalContent: {
-    padding: 24,
-    minHeight: 350,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  fundingNewChannelModalContent: {
-    padding: 24,
-    paddingTop: 24,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    height: 400,
-  },
   separator: {
     height: 1,
     marginTop: 16,
-  },
-  textHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 

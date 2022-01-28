@@ -13,10 +13,6 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
   root: {
     flex: 1,
   },
@@ -80,9 +76,6 @@ const ReorderWallets = () => {
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const stylesHook = {
     root: {
-      backgroundColor: colors.elevated,
-    },
-    loading: {
       backgroundColor: colors.elevated,
     },
     tip: {

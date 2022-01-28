@@ -125,10 +125,6 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
   },
-  copyToClipboard: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   exportButton: {
     height: 48,
     borderRadius: 8,
