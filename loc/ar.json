@@ -651,17 +651,10 @@
     "sign_placeholder_address": "العنوان",
     "sign_placeholder_message": "الرسالة",
     "sign_placeholder_signature": "التوقيع",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "هل تريد إرسال رسالة موقعة إلى {hostname}؟",
     "addresses_title": "العنوان",
     "type_change": "تغيير",
     "type_receive": "استلام",
     "type_used": "مستخدم",
     "transactions": "الحوالات"
-  },
-  "aopp": {
-    "title": "اختر عنوانًا",
-    "send_success": "تم إرسال التوقيع بنجاح",
-    "send_error": "خطأ في إرسال التوقيع"
   }
 }

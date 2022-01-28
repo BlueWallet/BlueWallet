@@ -70,7 +70,6 @@
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
-          <data android:scheme="aopp" />
           <data android:scheme="bankid" />
           <data android:scheme="swish" />
           <data android:scheme="http" />

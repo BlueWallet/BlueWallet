@@ -653,17 +653,10 @@
     "sign_placeholder_address": "Address",
     "sign_placeholder_message": "Message",
     "sign_placeholder_signature": "Signature",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Do you want to send a signed message to {hostname}?",
     "addresses_title": "Addresses",
     "type_change": "Change",
     "type_receive": "Receive",
     "type_used": "Used",
     "transactions": "Transactions"
-  },
-  "aopp": {
-    "title": "Select Address",
-    "send_success": "Signature sent successfully",
-    "send_error": "Signature sending error"
   }
 }

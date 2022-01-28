@@ -642,17 +642,10 @@
     "sign_placeholder_address": "Naslov",
     "sign_placeholder_message": "Sporočilo",
     "sign_placeholder_signature": "Podpis",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Ali želite podpisano sporočilo poslati na {hostname}?",
     "addresses_title": "Naslovi",
     "type_change": "Vračilo",
     "type_receive": "Prejemni",
     "type_used": "Uporabljen",
     "transactions": "Transakcije"
-  },
-  "aopp": {
-    "title": "Izberite Naslov",
-    "send_success": "Podpis uspešno poslan",
-    "send_error": "Napaka pri pošiljanju podpisa"
   }
 }

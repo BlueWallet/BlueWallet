@@ -651,17 +651,10 @@
     "sign_placeholder_address": "Adresa",
     "sign_placeholder_message": "Zpráva",
     "sign_placeholder_signature": "Podpis",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Chcete odeslat podepsanou zprávu na adresu {hostname}?",
     "addresses_title": "Adresy",
     "type_change": "Změnit",
     "type_receive": "Příjmout",
     "type_used": "Použité",
     "transactions": "Transakce"
-  },
-  "aopp": {
-    "title": "Vybrat adresu",
-    "send_success": "Podpis byl úspěšně odeslán",
-    "send_error": "Chyba při odesílání podpisu"
   }
 }
