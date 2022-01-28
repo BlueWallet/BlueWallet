@@ -4,7 +4,7 @@ import { BluePrivateBalance } from '../../BlueComponents';
 import DraggableFlatList, { ScaleDecorator } from '../../components/react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
@@ -74,6 +74,8 @@ const ReorderWallets = () => {
   const sortableList = useRef();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
+
+  const { navigate } = useNavigation();
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -88,12 +90,22 @@ const ReorderWallets = () => {
     setWalletData(wallets);
   }, [wallets]);
 
+  const navigateToWallet = wallet => {
+    const walletID = wallet.getID();
+    navigate('WalletTransactions', {
+      walletID,
+      walletType: wallet.type,
+      key: `WalletTransactions-${walletID}`,
+    });
+  };
+
   const renderItem = ({ item, drag, isActive }) => {
     return (
       <ScaleDecorator>
         <Pressable
           disabled={isActive}
           onLongPress={drag}
+          onPress={() => navigateToWallet(item)}
           shadowOpacity={40 / 100}
           shadowOffset={{ width: 0, height: 0 }}
           shadowRadius={5}
