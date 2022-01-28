@@ -55,27 +55,6 @@ const LdkOpenChannel = (props: any) => {
     root: {
       backgroundColor: colors.elevated,
     },
-    valueText: {
-      color: colors.alternativeTextColor2,
-    },
-    valueRoot: {
-      backgroundColor: colors.background,
-    },
-    valueSats: {
-      color: colors.alternativeTextColor2,
-    },
-    paidMark: {
-      backgroundColor: colors.success,
-    },
-    detailsText: {
-      color: colors.alternativeTextColor,
-    },
-    expired: {
-      backgroundColor: colors.success,
-    },
-    additionalInfo: {
-      backgroundColor: colors.brandingColor,
-    },
   });
 
   /**
@@ -307,84 +286,18 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  contentContainerStyle: {
-    flexGrow: 1,
-  },
   justifyContentCenter: {
     justifyContent: 'center',
-  },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-  valueAmount: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 8,
   },
   horizontalButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-  },
-  valueText: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  valueSats: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 3,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  memo: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '400',
-    alignSelf: 'center',
-  },
-  paid: {
-    flex: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paidMark: {
-    marginTop: -100,
-    marginBottom: 16,
-  },
-  detailsRoot: {
-    justifyContent: 'flex-end',
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  detailsTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailsText: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  expired: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
   },
   activeRoot: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-  },
-  activeQrcode: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
 });
 

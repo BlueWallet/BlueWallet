@@ -48,9 +48,6 @@ import alert from '../../components/Alert';
 const prompt = require('../../blue_modules/prompt');
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
   },

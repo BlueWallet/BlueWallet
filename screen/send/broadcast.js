@@ -40,12 +40,6 @@ const Broadcast = () => {
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
 
   const stylesHooks = StyleSheet.create({
-    blueArea: {
-      backgroundColor: colors.background,
-    },
-    text: {
-      color: colors.foregroundColor,
-    },
     input: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,

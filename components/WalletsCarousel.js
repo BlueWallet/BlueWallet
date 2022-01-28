@@ -24,7 +24,6 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 import { isHandset, isTablet, isDesktop } from '../blue_modules/environment';
 
 const nStyles = StyleSheet.create({
-  root: {},
   container: {
     borderRadius: 10,
     minHeight: Platform.OS === 'ios' ? 164 : 181,
@@ -117,9 +116,6 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontSize: 19,
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  activity: {
-    marginTop: 40,
   },
   balance: {
     backgroundColor: 'transparent',
@@ -258,17 +254,16 @@ WalletCarouselItem.propTypes = {
 };
 
 const cStyles = StyleSheet.create({
-  loading: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
   content: {
     paddingTop: 16,
   },
   contentLargeScreen: {
     paddingHorizontal: 16,
   },
-  separatorStyle: { width: 16, height: 20 },
+  separatorStyle: {
+    width: 16,
+    height: 20,
+  },
 });
 
 const WalletsCarousel = forwardRef((props, ref) => {

@@ -131,12 +131,6 @@ const ReceiveDetails = () => {
       textAlign: 'center',
       paddingBottom: 24,
     },
-    loading: {
-      alignItems: 'center',
-      width: 300,
-      height: 300,
-      backgroundColor: colors.elevated,
-    },
     modalButton: {
       backgroundColor: colors.modalButton,
       paddingVertical: 14,
