@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     opacity: 0.5,
   },
-  enabledButton: {
+  enabledButon: {
     opacity: 1,
   },
   outdatedRateContainer: {

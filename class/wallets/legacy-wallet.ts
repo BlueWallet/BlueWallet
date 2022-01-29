@@ -620,7 +620,7 @@ export class LegacyWallet extends AbstractWallet {
     // undefined, true so it can verify Electrum signatures without errors
     try {
       return bitcoinMessage.verify(message, address, signature, undefined, true);
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === 'checkSegwitAlways can only be used with a compressed pubkey signature flagbyte') {
         // If message created with uncompressed private key, it will throw this error
         // in this case we should re-try with checkSegwitAlways flag off

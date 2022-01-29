@@ -352,10 +352,6 @@ const styles = StyleSheet.create({
   createButton: {
     flex: 1,
   },
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
   label: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -405,9 +401,6 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
-  },
-  typeMargin: {
-    marginTop: 8,
   },
 });
 

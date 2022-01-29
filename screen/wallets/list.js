@@ -36,9 +36,8 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } = useContext(
-    BlueStorageContext,
-  );
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
+    useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage, barStyle } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -61,16 +60,6 @@ const WalletsList = () => {
     },
     listHeaderText: {
       color: colors.foregroundColor,
-    },
-    ltRoot: {
-      backgroundColor: colors.ballOutgoingExpired,
-    },
-
-    ltTextBig: {
-      color: colors.foregroundColor,
-    },
-    ltTextSmall: {
-      color: colors.alternativeTextColor,
     },
   });
 
@@ -411,27 +400,8 @@ const styles = StyleSheet.create({
     bottom: 60,
     right: 0,
   },
-  wrapper: {
-    flex: 1,
-  },
   walletsListWrapper: {
     flex: 1,
-  },
-  headerStyle: {
-    ...Platform.select({
-      ios: {
-        marginTop: 44,
-        height: 32,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-      android: {
-        marginTop: 8,
-        height: 44,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-    }),
   },
   headerTouch: {
     height: 48,
@@ -448,28 +418,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 16,
   },
-  ltRoot: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    padding: 16,
-    borderRadius: 6,
-  },
-  ltTextWrap: {
-    flexDirection: 'column',
-  },
-  ltTextBig: {
-    fontSize: 16,
-    fontWeight: '600',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  ltTextSmall: {
-    fontSize: 13,
-    fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
   footerRoot: {
     top: 80,
     height: 160,
@@ -485,9 +433,6 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
     fontWeight: '600',
-  },
-  listHeader: {
-    backgroundColor: '#FFFFFF',
   },
   transaction: {
     marginHorizontal: 0,

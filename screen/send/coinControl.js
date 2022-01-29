@@ -299,12 +299,23 @@ const CoinControl = () => {
   });
 
   const tipCoins = () => {
+    if (utxo.length === 0) return null;
+
+    let text = loc.cc.tip;
+    if (selected.length > 0) {
+      // show summ of coins if any selected
+      const summ = selected.reduce((prev, curr) => {
+        return prev + utxo.find(({ txid, vout }) => `${txid}:${vout}` === curr).value;
+      }, 0);
+
+      const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
+      text = loc.formatString(loc.cc.selected_summ, { value });
+    }
+
     return (
-      utxo.length >= 1 && (
-        <View style={[styles.tip, stylesHook.tip]}>
-          <Text style={{ color: colors.foregroundColor }}>{loc.cc.tip}</Text>
-        </View>
-      )
+      <View style={[styles.tip, stylesHook.tip]}>
+        <Text style={{ color: colors.foregroundColor }}>{text}</Text>
+      </View>
     );
   };
 

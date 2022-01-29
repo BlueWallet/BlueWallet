@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -8,12 +8,6 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 
 const torrific = require('../../blue_modules/torrific');
-
-const styles = StyleSheet.create({
-  torSupported: {
-    color: '#81868e',
-  },
-});
 
 /*
   TorSettings is not displayed in Settings menu if isTorCapable is false. No need to provide code protection.
@@ -77,7 +71,7 @@ const TorSettings = () => {
 
   if (isLoading) {
     return (
-      <View style={[styles.root]}>
+      <View>
         <BlueLoading />
       </View>
     );

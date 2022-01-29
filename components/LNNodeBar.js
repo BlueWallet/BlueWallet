@@ -61,9 +61,6 @@ const styles = StyleSheet.create({
   nodeAlias: {
     marginVertical: 16,
   },
-  pending: {
-    marginVertical: 8,
-  },
   canSendBar: {
     height: 14,
     maxHeight: 14,

@@ -229,9 +229,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 44,
   },
-  safeBack: {
-    marginHorizontal: 8,
-  },
   safeURL: {
     flex: 1,
     marginHorizontal: 8,
@@ -281,6 +278,7 @@ const styles = StyleSheet.create({
   colorRed: {
     color: 'red',
   },
+  // eslint-disable-next-line react-native/no-unused-styles
   colorGray: {
     color: 'gray',
   },
