@@ -18,6 +18,8 @@
     "react/jsx-handler-names": "off", // activated by standard-react config
     "react/display-name": "off",
     "react-native/no-inline-styles": "error",
+    "react-native/no-unused-styles": "error",
+    "react-native/no-single-element-style-arrays": "error",
     "prettier/prettier": [
       "warn",
       {

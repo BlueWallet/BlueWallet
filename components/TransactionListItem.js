@@ -2,24 +2,23 @@
 import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BitcoinUnit } from '../models/bitcoinUnits';
-import * as NavigationService from '../NavigationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
+
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import * as NavigationService from '../NavigationService';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import Lnurl from '../class/lnurl';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
-import {
-  BlueListItem,
-  BlueTransactionExpiredIcon,
-  BlueTransactionIncomingIcon,
-  BlueTransactionOffchainIcon,
-  BlueTransactionOffchainIncomingIcon,
-  BlueTransactionOnchainIcon,
-  BlueTransactionOutgoingIcon,
-  BlueTransactionPendingIcon,
-} from '../BlueComponents';
+import { BlueListItem } from '../BlueComponents';
+import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
+import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
+import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
+import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffchainIncomingIcon';
+import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
+import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
+import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
@@ -114,7 +113,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.category === 'receive' && item.confirmations < 3) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionPendingIcon />
+          <TransactionPendingIcon />
         </View>
       );
     }
@@ -122,7 +121,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.type && item.type === 'bitcoind_tx') {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOnchainIcon />
+          <TransactionOnchainIcon />
         </View>
       );
     }
@@ -130,7 +129,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
       // is it lightning offchain payment?
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOffchainIcon />
+          <TransactionOffchainIcon />
         </View>
       );
     }
@@ -143,14 +142,14 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         if (invoiceExpiration < now) {
           return (
             <View style={styles.iconWidth}>
-              <BlueTransactionExpiredIcon />
+              <TransactionExpiredIcon />
             </View>
           );
         }
       } else {
         return (
           <View style={styles.iconWidth}>
-            <BlueTransactionOffchainIncomingIcon />
+            <TransactionOffchainIncomingIcon />
           </View>
         );
       }
@@ -159,19 +158,19 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (!item.confirmations) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionPendingIcon />
+          <TransactionPendingIcon />
         </View>
       );
     } else if (item.value < 0) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOutgoingIcon />
+          <TransactionOutgoingIcon />
         </View>
       );
     } else {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionIncomingIcon />
+          <TransactionIncomingIcon />
         </View>
       );
     }

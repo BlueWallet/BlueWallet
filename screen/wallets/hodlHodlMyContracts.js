@@ -408,7 +408,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: BlueCurrentTheme.colors.feeText,
   },
-  loading: { backgroundColor: BlueCurrentTheme.colors.elevated },
   emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16, backgroundColor: BlueCurrentTheme.colors.elevated },
   itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
   flexDirectionRow: { flexDirection: 'row' },

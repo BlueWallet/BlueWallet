@@ -2,27 +2,19 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import {
-  BlueButton,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueText,
-  BlueTransactionIncomingIcon,
-  BlueTransactionOutgoingIcon,
-  BlueTransactionPendingIcon,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
+import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
+import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import navigationStyle from '../../components/navigationStyle';
+import HandoffComponent from '../../components/handoff';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffComponent from '../../components/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -391,19 +383,19 @@ const TransactionsStatus = () => {
                 if (!tx.confirmations) {
                   return (
                     <View style={styles.icon}>
-                      <BlueTransactionPendingIcon />
+                      <TransactionPendingIcon />
                     </View>
                   );
                 } else if (tx.value < 0) {
                   return (
                     <View style={styles.icon}>
-                      <BlueTransactionOutgoingIcon />
+                      <TransactionOutgoingIcon />
                     </View>
                   );
                 } else {
                   return (
                     <View style={styles.icon}>
-                      <BlueTransactionIncomingIcon />
+                      <TransactionIncomingIcon />
                     </View>
                   );
                 }
@@ -428,7 +420,7 @@ const TransactionsStatus = () => {
             </Text>
           </View>
           {eta ? (
-            <View style={[styles.eta]}>
+            <View style={styles.eta}>
               <BlueSpacing10 />
               <Text style={styles.confirmationsText}>{eta}</Text>
             </View>

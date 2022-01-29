@@ -26,12 +26,6 @@ const LdkViewLogs = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    text: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-      color: colors.foregroundColor,
-    },
   });
 
   useEffect(() => {
@@ -140,31 +134,6 @@ export default LdkViewLogs;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  text: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    marginTop: 5,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    borderRadius: 4,
-    textAlignVertical: 'top',
-  },
-  textMessage: {
-    minHeight: 50,
-  },
-  flex: {
-    flex: 1,
-  },
-  loading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   button: {
     alignItems: 'center',

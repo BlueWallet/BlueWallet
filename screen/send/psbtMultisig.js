@@ -37,14 +37,8 @@ const PsbtMultisig = () => {
     textBtc: {
       color: colors.buttonAlternativeTextColor,
     },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
     textBtcUnitValue: {
       color: colors.buttonAlternativeTextColor,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
     },
     textFiat: {
       color: colors.alternativeTextColor,
@@ -330,10 +324,6 @@ const styles = StyleSheet.create({
     flex: 90,
     marginLeft: '-11%',
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
   container: {
     flexDirection: 'column',
     paddingTop: 24,
@@ -399,8 +389,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  textDestinationSpacingRight: { marginRight: 4 },
-  textDestinationSpacingLeft: { marginLeft: 4 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },

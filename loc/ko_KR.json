@@ -648,17 +648,10 @@
     "sign_placeholder_address": "주소",
     "sign_placeholder_message": "메시지",
     "sign_placeholder_signature": "서명",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "서명된 메시지를 {hostname}으로 보내겠습니까?",
     "addresses_title": "주소",
     "type_change": "변경",
     "type_receive": "받기",
     "type_used": "사용됨",
     "transactions": "트랜잭션"
-  },
-  "aopp": {
-    "title": "주소 선택",
-    "send_success": "서명 전송이 성공적으로 이루어졌습니다. ",
-    "send_error": "서명 보내기 에러"
   }
 }

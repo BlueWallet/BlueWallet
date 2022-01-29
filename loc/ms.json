@@ -618,17 +618,10 @@
     "sign_placeholder_address": "Alamat",
     "sign_placeholder_message": "Pesanan",
     "sign_placeholder_signature": "Tandatangan",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Adakah anda mahu menghantar pesanan bertanda tangan kepada {hostname}?",
     "addresses_title": "Alamat",
     "type_change": "Ubah",
     "type_receive": "Terima",
     "type_used": "Digunakan",
     "transactions": "Urus Niaga"
-  },
-  "aopp": {
-    "title": "Pilih Alamat",
-    "send_success": "Tandatangan berjaya dihantar",
-    "send_error": "Ralat Penghantaran Tandatangan"
   }
 }

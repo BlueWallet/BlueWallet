@@ -218,10 +218,6 @@ const styles = StyleSheet.create({
     height: 0.5,
     marginVertical: 16,
   },
-  card: {
-    alignItems: 'center',
-    flex: 1,
-  },
   cardText: {
     fontWeight: '500',
   },

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 
 import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
@@ -19,7 +21,7 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
-const bip32 = require('bip32');
+const bip32 = BIP32Factory(ecc);
 
 const styles = StyleSheet.create({
   center: {

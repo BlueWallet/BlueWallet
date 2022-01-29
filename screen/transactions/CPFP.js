@@ -62,20 +62,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'center',
   },
-  doneWrap: {
-    flex: 1,
-    paddingTop: 19,
-  },
-  doneCard: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 76,
-    paddingBottom: 16,
-  },
-  blueBigCheckmark: {
-    marginTop: 43,
-    marginBottom: 53,
-  },
 });
 
 export default class CPFP extends Component {

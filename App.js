@@ -54,9 +54,8 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
-    BlueStorageContext,
-  );
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
+    useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
@@ -386,25 +385,6 @@ const App = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  space: {
-    marginHorizontal: 8,
-  },
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  modelContentButtonLayout: {
-    flexDirection: 'row',
-    margin: 16,
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
   },
 });
 

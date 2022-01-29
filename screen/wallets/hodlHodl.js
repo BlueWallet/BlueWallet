@@ -939,13 +939,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  allOffersText: {
-    fontSize: 12,
-    color: '#9AA0AA',
-    position: 'absolute',
-    top: 0,
-    left: 15,
-  },
   locationText: {
     top: 0,
     left: 5,
