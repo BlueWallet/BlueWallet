@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "Vor Bezahlung einer Lightning Rechnung zuerst ein Lightning wallet eröffnen.",
     "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
     "reorder_title": "Wallets neu ordnen",
+    "reorder_instructions": "Tippen und halten Sie eine Wallet, um sie umzuplatzieren.",
     "please_continue_scanning": "Bitte Scanvorgang fortsetzten",
     "scan_error": "Scanfehler",
     "select_no_bitcoin": "Es sind momentan keine Bitcoin Wallets verfügbar.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "Ändern",
     "coins_selected": "Anz. gewählte Münzen ({number})",
+    "selected_summ": "{value} ausgewählt",
     "empty": "Dieses Wallet hat aktuell keine Münzen",
     "freeze": "einfrieren",
     "freezeLabel": "Einfrieren",
