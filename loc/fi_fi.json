@@ -446,11 +446,11 @@
     "xpub_title": "lompakon XPUB"
   },
   "multisig": {
-    "multisig_vault": "Vault",
-    "default_label": "Multisig Vault",
+    "multisig_vault": "Holvi",
+    "default_label": "Multisig holvi",
     "multisig_vault_explain": "Paras turvallisuus suurille summille",
     "provide_signature": "Toimita allekirjoitus",
-    "vault_key": "Vault-avain {number}",
+    "vault_key": "Holvin avain {number}",
     "required_keys_out_of_total": "Vaaditut avaimet kokonaismäärästä",
     "fee": "Siirtokulu: {number}",
     "fee_btc": "{number} BTC",
@@ -543,8 +543,8 @@
   "units": {
     "BTC": "BTC",
     "MAX": "MAX",
-    "sat_byte": "sat/bitti",
-    "sats": "sattia"
+    "sat_byte": "sat/tavu",
+    "sats": "satoshia"
   },
   "addresses": {
     "sign_title": "Allekirjoita/Varmenna viesti",
