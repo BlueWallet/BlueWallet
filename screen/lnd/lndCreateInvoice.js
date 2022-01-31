@@ -405,6 +405,7 @@ const LNDCreateInvoice = () => {
             />
             <View style={[styles.fiat, styleHooks.fiat]}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={setDescription}
                 placeholder={loc.receive.details_label}
                 value={description}

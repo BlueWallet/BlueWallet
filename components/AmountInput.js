@@ -239,7 +239,11 @@ class AmountInput extends Component {
     });
 
     return (
-      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
+      <TouchableWithoutFeedback
+        accessibilityRole="button"
+        disabled={this.props.pointerEvents === 'none'}
+        onPress={() => this.textInput.focus()}
+      >
         <>
           <View style={styles.root}>
             {!disabled && <View style={[styles.center, stylesHook.center]} />}
@@ -270,7 +274,7 @@ class AmountInput extends Component {
                     style={[styles.input, stylesHook.input]}
                   />
                 ) : (
-                  <Pressable onPress={this.resetAmount}>
+                  <Pressable accessibilityRole="button" onPress={this.resetAmount}>
                     <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
                   </Pressable>
                 )}
@@ -307,6 +311,7 @@ class AmountInput extends Component {
               </BlueText>
               <View style={styles.spacing8} />
               <TouchableOpacity
+                accessibilityRole="button"
                 onPress={this.updateRate}
                 disabled={this.state.isRateBeingUpdated}
                 style={this.state.isRateBeingUpdated ? styles.disabledButton : styles.enabledButon}

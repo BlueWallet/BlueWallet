@@ -121,6 +121,7 @@ const ImportCustomDerivationPath = () => {
       <BlueFormLabel>{loc.wallets.import_derivation_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
       <TextInput
+        accessibilityLabel="Text input field"
         testID="DerivationPathInput"
         placeholder={loc.send.details_note_placeholder}
         value={path}

@@ -409,6 +409,7 @@ const ReceiveDetails = () => {
             <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
             <View style={[styles.customAmount, stylesHook.customAmount]}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
                 placeholder={loc.receive.details_label}

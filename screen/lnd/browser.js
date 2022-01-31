@@ -457,6 +457,7 @@ export default class Browser extends Component {
           <View style={styles.safeURL}>
             <View style={styles.safeURLTextWrap}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={text => this.setState({ stateURL: text })}
                 value={this.state.stateURL}
                 numberOfLines={1}

@@ -342,6 +342,7 @@ export default class HodlHodl extends Component {
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
+                  accessibilityRole="button"
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
                   onPress={() => this._onSidePress(item)}
@@ -391,6 +392,7 @@ export default class HodlHodl extends Component {
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
+                  accessibilityRole="button"
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
                   onPress={() => {
@@ -477,6 +479,7 @@ export default class HodlHodl extends Component {
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={text => this.setState({ countrySearchInput: text })}
                 placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
@@ -493,6 +496,7 @@ export default class HodlHodl extends Component {
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
+                  accessibilityRole="button"
                   onPress={() => this._onCountryPress(item)}
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
@@ -551,6 +555,7 @@ export default class HodlHodl extends Component {
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={text => this.setState({ currencySearchInput: text })}
                 placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
@@ -567,6 +572,7 @@ export default class HodlHodl extends Component {
               keyExtractor={(item, index) => item.code}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
+                  accessibilityRole="button"
                   onPress={() => this._onCurrencyPress(item)}
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
@@ -625,6 +631,7 @@ export default class HodlHodl extends Component {
           <View style={styles.modalContent}>
             <View style={styles.searchInputContainer}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={text => this.setState({ methodSearchInput: text })}
                 placeholder={loc.hodl.filter_search + '..'}
                 placeholderTextColor="#9AA0AA"
@@ -641,6 +648,7 @@ export default class HodlHodl extends Component {
               keyExtractor={(item, index) => item.id}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
+                  accessibilityRole="button"
                   onPress={() => this._onMethodPress(item)}
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
@@ -691,6 +699,7 @@ export default class HodlHodl extends Component {
           <View style={styles.flexRow}>
             <Text style={styles.Title}>{loc.hodl.local_trader} </Text>
             <TouchableOpacity
+              accessibilityRole="button"
               style={styles.grayDropdownTextContainer}
               onPress={() => {
                 this.setState({ isChooseSideModalVisible: true });
@@ -747,6 +756,7 @@ export default class HodlHodl extends Component {
     return (
       <View style={styles.marginHorizontal20}>
         <TouchableHighlight
+          accessibilityRole="button"
           onPress={() => this._onPress(item)}
           onShowUnderlay={separators.highlight}
           onHideUnderlay={separators.unhighlight}

@@ -1389,7 +1389,7 @@ const SendDetails = () => {
         />
 
         {frozenBalance > 0 && (
-          <TouchableOpacity style={styles.frozenContainer} onPress={handleCoinControl}>
+          <TouchableOpacity accessibilityRole="button" style={styles.frozenContainer} onPress={handleCoinControl}>
             <BlueText>
               {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
             </BlueText>
@@ -1455,6 +1455,7 @@ const SendDetails = () => {
             />
             <View style={[styles.memo, stylesHook.memo]}>
               <TextInput
+                accessibilityLabel="Text input field"
                 onChangeText={setTransactionMemo}
                 placeholder={loc.send.details_note_placeholder}
                 placeholderTextColor="#81868e"

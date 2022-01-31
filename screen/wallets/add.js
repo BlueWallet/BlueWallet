@@ -267,6 +267,7 @@ const WalletsAdd = () => {
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
         <View style={[styles.label, stylesHook.label]}>
           <TextInput
+            accessibilityLabel="Text input field"
             testID="WalletNameInput"
             value={label}
             placeholderTextColor="#81868e"
@@ -341,6 +342,7 @@ const WalletsAdd = () => {
                   <BlueText>{loc.wallets.add_lndhub}</BlueText>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
                     <TextInput
+                      accessibilityLabel="Text input field"
                       value={walletBaseURI}
                       onChangeText={setWalletBaseURI}
                       onSubmitEditing={Keyboard.dismiss}

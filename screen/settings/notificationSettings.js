@@ -122,6 +122,7 @@ const NotificationSettings = () => {
       <BlueCard>
         <View style={styles.uri}>
           <TextInput
+            accessibilityLabel="Text input field"
             placeholder={Notifications.getDefaultUri()}
             value={URI}
             onChangeText={setURI}

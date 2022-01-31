@@ -775,6 +775,7 @@ export class BlueReplaceFeeSuggestions extends Component {
           </View>
           <View style={{ justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
             <TextInput
+              accessibilityLabel="Text input field"
               onChangeText={this.onCustomFeeTextChange}
               keyboardType="numeric"
               value={this.state.customFeeValue}

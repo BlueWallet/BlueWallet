@@ -78,9 +78,21 @@ const WalletsImportSpeed = () => {
       <BlueSpacing20 />
       <BlueFormMultiInput testID="SpeedMnemonicInput" value={importText} onChangeText={setImportText} />
       <BlueFormLabel>Wallet type</BlueFormLabel>
-      <TextInput testID="SpeedWalletTypeInput" value={walletType} style={styles.pathInput} onChangeText={setWalletType} />
+      <TextInput
+        accessibilityLabel="Text input field"
+        testID="SpeedWalletTypeInput"
+        value={walletType}
+        style={styles.pathInput}
+        onChangeText={setWalletType}
+      />
       <BlueFormLabel>Passphrase</BlueFormLabel>
-      <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
+      <TextInput
+        accessibilityLabel="Text input field"
+        testID="SpeedPassphraseInput"
+        value={passphrase}
+        style={styles.pathInput}
+        onChangeText={setPassphrase}
+      />
       <BlueSpacing20 />
       <View style={styles.center}>
         <BlueButton testID="SpeedDoImport" title="Import" onPress={importMnemonic} />

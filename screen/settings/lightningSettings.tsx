@@ -147,6 +147,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
       <BlueCard>
         <View style={[styles.uri, styleHook.uri]}>
           <TextInput
+            accessibilityLabel="Text input field"
             value={URI}
             placeholder={
               loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' }) +

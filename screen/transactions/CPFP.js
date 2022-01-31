@@ -183,7 +183,14 @@ export default class CPFP extends Component {
       <View style={styles.root}>
         <BlueCard style={styles.center}>
           <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
+          <TextInput
+            accessibilityLabel="Text input field"
+            style={styles.hexInput}
+            height={112}
+            multiline
+            editable
+            value={this.state.txhex}
+          />
 
           <TouchableOpacity accessibilityRole="button" style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
             <Text style={styles.actionText}>{loc.send.create_copy}</Text>

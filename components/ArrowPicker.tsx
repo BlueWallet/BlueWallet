@@ -30,6 +30,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
       <Pressable
+        accessibilityRole="button"
         onPress={() => {
           Keyboard.dismiss();
           let newIndex = keyIndex;
@@ -54,6 +55,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
         <Text style={[styles.text, stylesHook.text]}>{props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}</Text>
       </View>
       <Pressable
+        accessibilityRole="button"
         onPress={() => {
           Keyboard.dismiss();
           let newIndex = keyIndex;

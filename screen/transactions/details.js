@@ -147,6 +147,7 @@ const TransactionsDetails = () => {
       <BlueCard>
         <View>
           <TextInput
+            accessibilityLabel="Text input field"
             placeholder={loc.send.details_note_placeholder}
             value={memo}
             placeholderTextColor="#81868e"

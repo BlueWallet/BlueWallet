@@ -484,6 +484,7 @@ const WalletDetails = () => {
               <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
                 <View style={[styles.input, stylesHook.input]}>
                   <TextInput
+                    accessibilityLabel="Text input field"
                     value={walletName}
                     onChangeText={setWalletName}
                     onBlur={walletNameTextInputOnBlur}

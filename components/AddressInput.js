@@ -50,6 +50,7 @@ const AddressInput = ({
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
+        accessibilityLabel="Text input field"
         testID="AddressInput"
         onChangeText={onChangeText}
         placeholder={placeholder}

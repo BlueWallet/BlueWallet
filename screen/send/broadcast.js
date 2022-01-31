@@ -126,6 +126,7 @@ const Broadcast = () => {
 
               <View style={[styles.input, stylesHooks.input]}>
                 <TextInput
+                  accessibilityLabel="Text input field"
                   style={styles.text}
                   maxHeight={100}
                   minHeight={100}

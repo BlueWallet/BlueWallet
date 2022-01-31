@@ -145,7 +145,15 @@ const SendCreate = () => {
     <View>
       {showAnimatedQr && psbt ? <DynamicQRCode value={psbt.toHex()} /> : null}
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
-      <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable={false} value={tx} />
+      <TextInput
+        accessibilityLabel="Text input field"
+        testID="TxhexInput"
+        style={styles.cardTx}
+        height={72}
+        multiline
+        editable={false}
+        value={tx}
+      />
 
       <TouchableOpacity accessibilityRole="button" style={styles.actionTouch} onPress={() => Clipboard.setString(tx)}>
         <Text style={styles.actionText}>{loc.send.create_copy}</Text>

@@ -305,6 +305,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
+                accessibilityLabel="Text input field"
                 placeholder={
                   loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' }) +
                   (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
@@ -335,6 +336,7 @@ export default class ElectrumSettings extends Component {
             <View style={styles.portWrap}>
               <View style={styles.inputWrap}>
                 <TextInput
+                  accessibilityLabel="Text input field"
                   placeholder={loc.formatString(loc.settings.electrum_port, { example: '50001' })}
                   value={this.state.sslPort?.trim() === '' || this.state.sslPort === null ? this.state.port : this.state.sslPort}
                   onChangeText={text =>

@@ -73,6 +73,7 @@ export default class HodlHodlMyContracts extends Component {
           data={this.state.contracts}
           renderItem={({ item: contract, index, separators }) => (
             <TouchableHighlight
+              accessibilityRole="button"
               onShowUnderlay={separators.highlight}
               onHideUnderlay={separators.unhighlight}
               onPress={() => this._onContractPress(contract)}

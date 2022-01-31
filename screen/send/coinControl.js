@@ -216,6 +216,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
       <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
       <BlueSpacing20 />
       <TextInput
+        accessibilityLabel="Text input field"
         testID="OutputMemo"
         placeholder={loc.send.details_note_placeholder}
         value={memo}

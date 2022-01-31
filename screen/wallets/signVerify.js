@@ -125,6 +125,7 @@ const SignVerify = () => {
           )}
 
           <TextInput
+            accessibilityLabel="Text input field"
             multiline
             textAlignVertical="top"
             blurOnSubmit
@@ -142,6 +143,7 @@ const SignVerify = () => {
           <BlueSpacing10 />
 
           <TextInput
+            accessibilityLabel="Text input field"
             multiline
             textAlignVertical="top"
             blurOnSubmit
@@ -159,6 +161,7 @@ const SignVerify = () => {
           <BlueSpacing10 />
 
           <TextInput
+            accessibilityLabel="Text input field"
             multiline
             placeholder={loc.addresses.sign_placeholder_message}
             placeholderTextColor="#81868e"
