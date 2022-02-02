@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "6.2.17",
+  "version": "6.2.18",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -161,7 +161,7 @@
     "react-native-keychain": "8.0.0",
     "react-native-level-fs": "3.0.1",
     "react-native-linear-gradient": "2.5.6",
-    "react-native-localize": "2.1.7",
+    "react-native-localize": "2.1.9",
     "react-native-modal": "12.1.0",
     "react-native-navigation-bar-color": "https://github.com/BlueWallet/react-native-navigation-bar-color#3b2894ae62fbce99a3bd24105f0921cebaef5c94",
     "react-native-obscure": "https://github.com/BlueWallet/react-native-obscure.git#f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb",
@@ -177,7 +177,7 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "3.10.2",
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
-    "react-native-share": "7.3.3",
+    "react-native-share": "7.3.4",
     "react-native-svg": "12.1.1",
     "react-native-tcp-socket": "5.5.0",
     "react-native-vector-icons": "9.0.0",

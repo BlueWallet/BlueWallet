@@ -40,14 +40,14 @@ A partire da 1 Satoshi. Deciso da te, l'utente
 Replace-By-Fee
 (RBF) Velocizza le tue transazioni aumentando le commissioni (BIP125)
 
-Watch-only wallets
-Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+Portafoglio watch-only
+Il portafoglio watch-only ti permette di visualizzare il tuo cold wallet senza dover inserire la seed phrase o usare l'hardware wallet
 
 Lightning Network
 Wallet per Lightning Network con zero configurazioni necessarie. Per transazioni incredibilmente economiche e veloci con la miglior esperienza utente.
 
 Acquista Bitcoin
-Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
+Partecipa alla rivoluzione finanziaria con la possibilità di comprare Bitcoin direttamente dal tuo wallet.
 
 Local Trader
-A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
+Una piattaforma Bitcoin p2p, che ti permette di comprare e vendere bitcoin direttamente ad altri utenti senza il bisogno di 3º parti.
