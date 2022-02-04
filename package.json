@@ -98,7 +98,7 @@
   "dependencies": {
     "@babel/preset-env": "7.16.11",
     "@bugsnag/react-native": "7.16.1",
-    "@bugsnag/source-maps": "2.3.0",
+    "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.4.4",
     "@ngraveio/bc-ur": "1.1.6",
     "@react-native-async-storage/async-storage": "1.15.17",
