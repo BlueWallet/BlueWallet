@@ -85,7 +85,7 @@ const QRCodeComponent = ({
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF', backgroundColor: '#FFFFFF' },
+  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF', borderStyle: 'solid' },
 });
 
 QRCodeComponent.actionKeys = {
