@@ -12,7 +12,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  PlatformColor,
   SafeAreaView,
   StyleSheet,
   Switch,
