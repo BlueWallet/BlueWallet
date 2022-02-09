@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BugsnagReactNative (7.16.0):
+  - BugsnagReactNative (7.16.1):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -281,7 +281,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.7.1):
+  - react-native-image-picker (4.7.3):
     - React-Core
   - react-native-ios-context-menu (1.3.0):
     - React-Core
@@ -387,7 +387,7 @@ PODS:
     - React
   - RNKeychain (8.0.0):
     - React-Core
-  - RNLocalize (2.1.7):
+  - RNLocalize (2.1.9):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -431,7 +431,7 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.3.3):
+  - RNShare (7.3.5):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -707,7 +707,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BugsnagReactNative: eee8e62a0d5b7ee72bba1ffa0eb3353c5d0b43bf
+  BugsnagReactNative: bd1c905fb868fae8448a913b87356dbf2b02dc80
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
@@ -743,7 +743,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: ec07866a30707f23660c0f3ae591d669d3e89096
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: 5fe0a96bef4935bbdfb02f59b910bf40d5526109
+  react-native-image-picker: 4e6008ad8c2321622affa2c85432a5ebd02d480c
   react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
@@ -775,7 +775,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNLocalize: f567ea0e35116a641cdffe6683b0d212d568f32a
+  RNLocalize: 291e5e21b53cd30b5205c10ed95d31b0dc9b8d63
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
@@ -783,7 +783,7 @@ SPEC CHECKSUMS:
   RNReanimated: 024eff8202342abf4b24e11575a16afc441dabfe
   RNScreens: d6da2b9e29cf523832c2542f47bf1287318b1868
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: 3185c074441b7e8897014d95ba982434a0a024a1
+  RNShare: 730a2773b1e0007425f2f111dcf75208a919c902
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 4143ba35feebab8fdbe6bc43d1e776b393d47ac8
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
