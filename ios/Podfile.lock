@@ -292,7 +292,7 @@ PODS:
   - react-native-tcp-socket (5.5.0):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-tor (0.1.7):
+  - react-native-tor (0.1.8):
     - React
   - react-native-webview (11.17.1):
     - React-Core
@@ -377,7 +377,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.4.8):
+  - RNDeviceInfo (8.4.9):
     - React-Core
   - RNFS (2.18.0):
     - React
@@ -748,7 +748,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
-  react-native-tor: 6a64351e96ccd6a49941989703f63ec81fc1ae7c
+  react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 162b6453d074e0b1c7025242bb7a939b6f72b9e7
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 25373e382fed75ce768a443822f07098a15ab737
@@ -770,7 +770,7 @@ SPEC CHECKSUMS:
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
-  RNDeviceInfo: 0400a6d0c94186d1120c3cbd97b23abc022187a9
+  RNDeviceInfo: 4944cf8787b9c5bffaf301fda68cc1a2ec003341
   RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
