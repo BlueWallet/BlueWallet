@@ -48,12 +48,10 @@ export type RenderItemParams<T> = {
 export type RenderItem<T> = (params: RenderItemParams<T>) => React.ReactNode;
 
 export type AnimatedFlatListType = <T>(
-  props: Animated.AnimateProps<
-    FlatListProps<T> & {
-      ref: React.Ref<FlatList<T>>;
-      simultaneousHandlers?: React.Ref<any> | React.Ref<any>[];
-    }
-  >,
+  props: Animated.AnimateProps<{
+    ref: React.Ref<FlatList<T>>;
+    simultaneousHandlers?: React.Ref<any> | React.Ref<any>[];
+  }>,
 ) => React.ReactElement;
 
 export type CellData = {

@@ -2,7 +2,7 @@
 // @ts-ignore: Ignore
 import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 // @ts-ignore: Ignore
-import { ListRenderItem, FlatListProps, NativeScrollEvent, NativeSyntheticEvent, LayoutChangeEvent } from 'react-native';
+import { ListRenderItem, NativeScrollEvent, NativeSyntheticEvent, LayoutChangeEvent } from 'react-native';
 import {
   PanGestureHandler,
   State as GestureState,
@@ -24,12 +24,10 @@ import AnimatedValueProvider, { useAnimatedValues } from '../context/animatedVal
 import RefProvider, { useRefs } from '../context/refContext';
 import DraggableFlatListProvider from '../context/draggableFlatListContext';
 
-type RNGHFlatListProps<T> = Animated.AnimateProps<
-  FlatListProps<T> & {
-    ref: React.Ref<FlatList<T>>;
-    simultaneousHandlers?: React.Ref<any> | React.Ref<any>[];
-  }
->;
+type RNGHFlatListProps<T> = Animated.AnimateProps<{
+  ref: React.Ref<FlatList<T>>;
+  simultaneousHandlers?: React.Ref<any> | React.Ref<any>[];
+}>;
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList) as unknown as <T>(props: RNGHFlatListProps<T>) => React.ReactElement;
 
@@ -286,6 +284,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
           {!!props.renderPlaceholder && <PlaceholderItem renderPlaceholder={props.renderPlaceholder} />}
           <AnimatedFlatList
             {...props}
+            // @ts-ignore: Ignore
             CellRendererComponent={CellRendererComponent}
             ref={flatListRef}
             onContentSizeChange={onListContentSizeChange}
