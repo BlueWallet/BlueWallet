@@ -12,5 +12,3 @@
 -keep class com.sifir.** { *;}
 -keep interface com.sifir.** { *;}
 -keep enum com.sifir.** { *;}
--keep class com.swmansion.reanimated.** { *; }
--keep class com.facebook.react.turbomodule.** { *; }
