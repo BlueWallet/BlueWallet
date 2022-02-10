@@ -101,7 +101,7 @@
     "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.4.4",
     "@ngraveio/bc-ur": "1.1.6",
-    "@react-native-async-storage/async-storage": "1.16.0",
+    "@react-native-async-storage/async-storage": "1.16.1",
     "@react-native-clipboard/clipboard": "1.9.0",
     "@react-native-community/push-notification-ios": "1.10.1",
     "@react-navigation/drawer": "5.12.5",
