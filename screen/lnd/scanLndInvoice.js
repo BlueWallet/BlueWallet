@@ -65,7 +65,8 @@ const ScanLndInvoice = () => {
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeAllListeners();
+      Keyboard.removeAllListeners('keyboardDidShow');
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

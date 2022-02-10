@@ -78,7 +78,8 @@ const LNDCreateInvoice = () => {
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeAllListeners();
+      Keyboard.removeAllListeners('keyboardDidShow');
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
   }, []);
 
