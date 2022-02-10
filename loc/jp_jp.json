@@ -491,10 +491,5 @@
     "addresses_title": "アドレス",
     "type_change": "チェンジ",
     "type_receive": "受取り"
-  },
-  "aopp": {
-    "title": "アドレス選択",
-    "send_success": "署名は正常に送信されました",
-    "send_error": "署名送信エラー"
   }
 }

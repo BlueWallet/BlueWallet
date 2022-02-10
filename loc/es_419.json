@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "Antes de pagar una factura Lightning, primero debes agregar una billetera Lightning.",
     "looks_like_bip38": "Esto parece una clave privada protegida por contraseña (BIP38).",
     "reorder_title": "Reorganizar Billeteras",
+    "reorder_instructions": "Toca y mantén presionada una billetera para arrastrarla por la lista.",
     "please_continue_scanning": "Por favor continúa escaneando.",
     "scan_error": "Error de Escaneo",
     "select_no_bitcoin": "Actualmente no hay billeteras Bitcoin disponibles.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "Cambio",
     "coins_selected": "Monedas Seleccionadas ({number})",
+    "selected_summ": "{value} seleccionado",
     "empty": "Esta billetera no tiene monedas en este momento.",
     "freeze": "Congelar",
     "freezeLabel": "Congelar",
@@ -651,17 +653,10 @@
     "sign_placeholder_address": "Dirección",
     "sign_placeholder_message": "Mensaje",
     "sign_placeholder_signature": "Firma",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "¿Quieres enviar un mensaje firmado a {hostname}?",
     "addresses_title": "Direcciones",
     "type_change": "Cambio",
     "type_receive": "Recibir",
     "type_used": "Usado",
     "transactions": "Transacciones"
-  },
-  "aopp": {
-    "title": "Seleccionar dirección",
-    "send_success": "Firma enviada con éxito",
-    "send_error": "Error de envío de firma"
   }
 }

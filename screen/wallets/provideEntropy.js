@@ -220,9 +220,6 @@ const Entropy = () => {
     entropyText: {
       color: colors.foregroundColor,
     },
-    coinBody: {
-      borderColor: colors.lightButton,
-    },
   });
 
   const push = v => v && dispatch({ type: 'push', value: v.value, bits: v.bits });

@@ -12,24 +12,20 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import { useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
-
-import AOPP from '../../class/aopp';
 import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
-import confirm from '../../helpers/confirm';
 
 const SignVerify = () => {
   const { colors } = useTheme();
   const { wallets, sleep } = useContext(BlueStorageContext);
   const { params } = useRoute();
-  const navigation = useNavigation();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [address, setAddress] = useState(params.address ?? '');
   const [message, setMessage] = useState(params.message ?? '');
@@ -72,41 +68,13 @@ const SignVerify = () => {
     setLoading(true);
     await sleep(10); // wait for loading indicator to appear
     let newSignature;
-    const useSegwit = Boolean(params.aoppURI);
     try {
-      newSignature = wallet.signMessage(message, address, useSegwit);
+      newSignature = wallet.signMessage(message, address);
       setSignature(newSignature);
       setIsShareVisible(true);
     } catch (e) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Alert.alert(loc.errors.error, e.message);
-    }
-
-    if (!params.aoppURI) return setLoading(false);
-
-    let aopp;
-    try {
-      aopp = new AOPP(params.aoppURI);
-    } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(loc.errors.error, e.message);
-    }
-
-    if (
-      !(await confirm(
-        loc.addresses.sign_aopp_title,
-        loc.formatString(loc.addresses.sign_aopp_confirm, { hostname: aopp.callbackHostname }),
-      ))
-    )
-      return setLoading(false);
-
-    try {
-      await aopp.send({ address, signature: newSignature });
-      Alert.alert(loc._.success, loc.aopp.send_success);
-      navigation.dangerouslyGetParent().pop();
-    } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(loc.errors.error, loc.aopp.send_error);
     }
 
     setLoading(false);
@@ -228,11 +196,7 @@ const SignVerify = () => {
           {!isKeyboardVisible && (
             <>
               <FContainer inline>
-                <FButton
-                  onPress={handleSign}
-                  text={params.aoppURI ? loc.addresses.sign_sign_submit : loc.addresses.sign_sign}
-                  disabled={loading}
-                />
+                <FButton onPress={handleSign} text={loc.addresses.sign_sign} disabled={loading} />
                 <FButton onPress={handleVerify} text={loc.addresses.sign_verify} disabled={loading} />
               </FContainer>
               <BlueSpacing10 />

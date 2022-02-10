@@ -61,9 +61,6 @@ const WalletTransactions = () => {
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
-    advancedTransactionOptionsModalContent: {
-      backgroundColor: colors.elevated,
-    },
     listHeaderText: {
       color: colors.foregroundColor,
     },
@@ -271,7 +268,7 @@ const WalletTransactions = () => {
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
           </View>
         )}
-        <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
+        <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
             accessibilityRole="button"
@@ -723,24 +720,6 @@ const styles = StyleSheet.create({
   },
   marginBottom18: {
     marginBottom: 18,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  advancedTransactionOptionsModalContent: {
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
   },
   walletDetails: {
     justifyContent: 'center',

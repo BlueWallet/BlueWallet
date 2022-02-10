@@ -2,9 +2,11 @@ import { LegacyWallet } from './legacy-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
 
 const bitcoin = require('bitcoinjs-lib');
-const HDNode = require('bip32');
+const bip32 = BIP32Factory(ecc);
 
 export class WatchOnlyWallet extends LegacyWallet {
   static type = 'watchOnly';
@@ -268,7 +270,7 @@ export class WatchOnlyWallet extends LegacyWallet {
         xpub = this.secret;
       }
 
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       hdNode.derive(0);
       return true;
     } catch (_) {}

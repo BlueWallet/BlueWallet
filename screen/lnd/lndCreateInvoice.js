@@ -494,10 +494,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'bottom',
     marginTop: 2,
   },
-  error: {
-    flex: 1,
-    paddingTop: 20,
-  },
   root: {
     flex: 1,
     justifyContent: 'space-between',

@@ -641,17 +641,10 @@
     "sign_placeholder_address": "Adresse",
     "sign_placeholder_message": "Message",
     "sign_placeholder_signature": "Signature",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Voulez vous envoyer un message signé a {hostname}?",
     "addresses_title": "Adresses",
     "type_change": "Monnaie",
     "type_receive": "Réception",
     "type_used": "Utilisé",
     "transactions": "Transactions"
-  },
-  "aopp": {
-    "title": "Sélectionner l'adresse",
-    "send_success": "Signature envoyée avec succès",
-    "send_error": "Erreur lors de l'envoi de la signature"
   }
 }

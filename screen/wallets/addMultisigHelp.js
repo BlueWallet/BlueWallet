@@ -44,7 +44,7 @@ const WalletsAddMultisigHelp = () => {
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>
           <Text style={[styles.introText, stylesHook.introText]}>{loc.multisig.ms_help_text}</Text>
-          <Image style={[styles.introImage]} source={require('../../img/mshelp/mshelp-intro.png')} />
+          <Image style={styles.introImage} source={require('../../img/mshelp/mshelp-intro.png')} />
         </View>
         <View style={[styles.tip, stylesHook.tip]}>
           <Text style={[styles.introTip, stylesHook.introTip]} />
@@ -54,22 +54,22 @@ const WalletsAddMultisigHelp = () => {
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_1}</Text>
         </View>
         <View style={[styles.tips, stylesHook.tips]}>
-          <Image style={[styles.imageTip]} source={require('../../img/mshelp/tip2.png')} />
+          <Image style={styles.imageTip} source={require('../../img/mshelp/tip2.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title2}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_2}</Text>
         </View>
         <View style={[styles.tips, stylesHook.tips]}>
-          <Image style={[styles.imageTip]} source={require('../../img/mshelp/tip3.png')} />
+          <Image style={styles.imageTip} source={require('../../img/mshelp/tip3.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title3}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_3}</Text>
         </View>
         <View style={[styles.tips, stylesHook.tips]}>
-          <Image style={[styles.imageTip]} source={require('../../img/mshelp/tip4.png')} />
+          <Image style={styles.imageTip} source={require('../../img/mshelp/tip4.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title4}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_4}</Text>
         </View>
         <View style={[styles.tips, stylesHook.tips]}>
-          <Image style={[styles.imageTip]} source={require('../../img/mshelp/tip5.png')} />
+          <Image style={styles.imageTip} source={require('../../img/mshelp/tip5.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title5}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_5}</Text>
         </View>

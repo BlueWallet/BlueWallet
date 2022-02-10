@@ -512,11 +512,6 @@ const styles = StyleSheet.create({
     marginBottom: -24,
     flexShrink: 1,
   },
-  flexShrink: {
-    flexShrink: 1,
-    marginRight: 8,
-    alignItems: 'flex-start',
-  },
   inputWrap: {
     flex: 1,
     flexDirection: 'row',

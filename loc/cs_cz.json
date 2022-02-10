@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "Před zaplacením Lightning faktury musíte nejprve přidat Lightning peněženku.",
     "looks_like_bip38": "Tohle vypadá jako soukromý klíč chráněný heslem (BIP38)",
     "reorder_title": "Seřadit peěženky",
+    "reorder_instructions": "Klepněte a podržte peněženku a přetáhněte ji po seznamu.",
     "please_continue_scanning": "Pokračujte ve skenování",
     "scan_error": "Chyba skenování",
     "select_no_bitcoin": "V současné době nejsou k dispozici žádné bitcoinové peněženky.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "změnit",
     "coins_selected": "Vybrané mince ({number})",
+    "selected_summ": "{value} vybráno",
     "empty": "Tato peněženka nemá v tuto chvíli žádné mince",
     "freeze": "zmrazit",
     "freezeLabel": "Zmrazit",
@@ -651,17 +653,10 @@
     "sign_placeholder_address": "Adresa",
     "sign_placeholder_message": "Zpráva",
     "sign_placeholder_signature": "Podpis",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Chcete odeslat podepsanou zprávu na adresu {hostname}?",
     "addresses_title": "Adresy",
     "type_change": "Změnit",
     "type_receive": "Příjmout",
     "type_used": "Použité",
     "transactions": "Transakce"
-  },
-  "aopp": {
-    "title": "Vybrat adresu",
-    "send_success": "Podpis byl úspěšně odeslán",
-    "send_error": "Chyba při odesílání podpisu"
   }
 }

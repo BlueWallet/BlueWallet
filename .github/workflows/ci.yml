@@ -15,7 +15,7 @@ jobs:
     - name: Specify node version
       uses: actions/setup-node@v2-beta
       with:
-        node-version: 14
+        node-version: 16
 
     - name: Use npm caches
       uses: actions/cache@v2
@@ -58,7 +58,7 @@ jobs:
     - name: Specify node version
       uses: actions/setup-node@v2-beta
       with:
-        node-version: 14
+        node-version: 16
 
     - name: Use gradle caches
       uses: actions/cache@v2

@@ -22,9 +22,6 @@ const IsItMyAddress = () => {
   const [resultCleanAddress, setResultCleanAddress] = useState();
 
   const stylesHooks = StyleSheet.create({
-    text: {
-      color: colors.foregroundColor,
-    },
     input: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
@@ -152,32 +149,12 @@ const styles = StyleSheet.create({
   blueArea: {
     paddingTop: 19,
   },
-  broadcastResultWrapper: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-  },
   mainCard: {
     padding: 0,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-  },
-  topFormRow: {
-    flex: 0.1,
-    flexBasis: 0.1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingTop: 0,
-    paddingRight: 100,
-    height: 30,
-    maxHeight: 30,
   },
   input: {
     flexDirection: 'row',

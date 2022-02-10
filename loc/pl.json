@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "Musisz najpierw dodać portfel Lightning, zanim zapłacisz fakturę.",
     "looks_like_bip38": "To wygląda na klucz prywatny chroniony hasłem (BIP38).",
     "reorder_title": "Zmień kolejność portfeli",
+    "reorder_instructions": "Stuknij i przytrzmaj portfel aby go przeciągnąć na liście.",
     "please_continue_scanning": "Proszę skanuj dalej.",
     "scan_error": "Błąd skanowania",
     "select_no_bitcoin": "Nie ma dostępnych portfeli Bitcoin.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "Reszta",
     "coins_selected": "Wybrano monet ({number})",
+    "selected_summ": "{value} wybrano",
     "empty": "Ten portfel nie ma żadnych monet w tej chwili.",
     "freeze": "Zamrożona",
     "freezeLabel": "Zamroź",
@@ -651,17 +653,10 @@
     "sign_placeholder_address": "Adres",
     "sign_placeholder_message": "Wiadomość",
     "sign_placeholder_signature": "Podpis",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "Czy chcesz przesłać podpisaną wiadomość do {hostname}?",
     "addresses_title": "Adresy",
     "type_change": "Reszta",
     "type_receive": "Otrzymaj",
     "type_used": "Używany",
     "transactions": "Transakcje"
-  },
-  "aopp": {
-    "title": "Wybierz adres",
-    "send_success": "Podpis wysłany z powodzeniem",
-    "send_error": "Błąd wysyłania podpisu"
   }
 }

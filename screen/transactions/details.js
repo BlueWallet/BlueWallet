@@ -36,9 +36,6 @@ const TransactionsDetails = () => {
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
-    txLink: {
-      color: colors.alternativeTextColor2,
-    },
     saveText: {
       color: colors.alternativeTextColor2,
     },
@@ -277,10 +274,6 @@ const styles = StyleSheet.create({
   txId: {
     fontSize: 16,
     fontWeight: '500',
-  },
-  txHash: {
-    marginBottom: 8,
-    color: 'grey',
   },
   Link: {
     fontWeight: '600',

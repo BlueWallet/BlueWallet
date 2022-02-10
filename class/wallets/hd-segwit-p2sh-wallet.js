@@ -1,7 +1,9 @@
 import b58 from 'bs58check';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+const bip32 = BIP32Factory(ecc);
 const bitcoin = require('bitcoinjs-lib');
-const HDNode = require('bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -50,13 +52,13 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(1);
     }
 
@@ -90,7 +92,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = HDNode.fromSeed(seed);
+    const root = bip32.fromSeed(seed);
 
     const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();

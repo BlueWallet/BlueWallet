@@ -637,16 +637,10 @@
     "sign_placeholder_address": "כתובת",
     "sign_placeholder_message": "הודעה",
     "sign_placeholder_signature": "חתימה",
-    "sign_aopp_confirm": "האם ברצונך לשלוח הודעה חתומה אל {hostname}?",
     "addresses_title": "כתובות",
     "type_change": "עודף",
     "type_receive": "קבלה",
     "type_used": "שומש",
     "transactions": "פעולות"
-  },
-  "aopp": {
-    "title": "בחירת כתובת",
-    "send_success": "חתימה נשלחה בהצלחה",
-    "send_error": "שגיאת שליחת חתימה"
   }
 }
