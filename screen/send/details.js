@@ -121,8 +121,8 @@ const SendDetails = () => {
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
-      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+      Keyboard.removeAllListeners('keyboardDidShow');
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -775,12 +775,11 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut, () => scrollView.current.scrollToEnd());
     setAddresses(addresses => [...addresses, { address: '', key: String(Math.random()) }]);
     setOptionsVisible(false);
+    await sleep(200); // wait for animation
     scrollView.current.scrollToEnd();
     if (addresses.length === 0) return;
-    await sleep(200); // wait for animation
     scrollView.current.flashScrollIndicators();
   };
 

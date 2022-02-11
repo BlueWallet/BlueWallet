@@ -92,7 +92,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 29
-        emulator-build: 6110076 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+        emulator-build: 6885378 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
         target: google_apis
         avd-name: Pixel_API_29_AOSP
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
