@@ -241,7 +241,7 @@ describe('lightning address', function () {
       };
     };
 
-    assert.doesNotReject(() => LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'));
+    await assert.doesNotReject(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'));
     assert.strictEqual(
       requestedUri,
       'https://lightninglogin.live/login?k1=2191be568cfe6d2a8e8a90ce04c15edf70fdcae6c1b9faff684acab6f400fa0d&tag=login&sig=304502210093ab4ead8dd619f2ddb3d52bd4bb01725badcb2a3daa3870fb41a38096f9a37d0220464a32e94e13dcec20ea94b94df0fa52f45cd88b01d7247042136ad0c71752d2&key=03e7b61e57efff1925ab9082625400cae2c8ad88a984e7aa4987abb77818570018',
@@ -262,12 +262,10 @@ describe('lightning address', function () {
       };
     };
 
-    assert.rejects(
-      () => LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'),
-      err => {
-        assert.ok(err.includes('Invalid signature'));
-      },
-    );
+    await assert.rejects(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'), err => {
+      assert.strictEqual(err, 'Invalid signature');
+      return true;
+    });
   });
 
   it('works', async () => {
