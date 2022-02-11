@@ -299,6 +299,7 @@ export default class Lnurl {
       hmac.on('readable', async () => {
         try {
           const privateKey = hmac.read();
+          if (!privateKey) return;
           const privateKeyBuf = Buffer.from(privateKey, 'hex');
           const publicKey = secp256k1.publicKeyCreate(privateKeyBuf);
           const signatureObj = secp256k1.sign(Buffer.from(url.query.k1, 'hex'), privateKeyBuf);
