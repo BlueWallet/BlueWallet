@@ -28,6 +28,7 @@ import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
+import { parse } from 'url'; // eslint-disable-line node/no-deprecated-api
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 
@@ -223,6 +224,15 @@ const LNDCreateInvoice = () => {
 
     // decoding the lnurl
     const url = Lnurl.getUrlFromLnurl(data);
+    const { query } = parse(url, true); // eslint-disable-line node/no-deprecated-api
+
+    if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
+      navigate('LnurlAuth', {
+        lnurl: data,
+        walletID: walletID ?? wallet.current.getID(),
+      });
+      return;
+    }
 
     // calling the url
     let reply;
