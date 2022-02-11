@@ -669,7 +669,7 @@
     "link_question_part_1": "Would you like to link your account at ",
     "link_question_part_2": "to your Lightning wallet?",
     "link_answer": "Your Lightning wallet was successfully linked to your account at {hostname}!",
-    "auth_question_part_1": "Would you like to authenticate at ",
+    "auth_question_part_1": "Would you like to be authenticated at ",
     "auth_question_part_2": "using your Lightning wallet?",
     "auth_answer": "You have successfully authenticated at {hostname}!",
     "could_not_auth": "We couldn’t authenticate to {hostname}.",
