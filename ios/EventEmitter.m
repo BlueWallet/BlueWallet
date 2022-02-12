@@ -22,6 +22,10 @@ RCT_EXPORT_MODULE();
     return sharedInstance;
 }
 
+- (void)removeListeners:(double)count {
+  
+}
+
 - (instancetype)init {
     sharedInstance = [super init];
     return sharedInstance;
