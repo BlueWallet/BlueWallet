@@ -185,7 +185,7 @@
     "header": "دریافت"
   },
   "send": {
-    "provided_address_is_invoice": "به‌نظر می‌آید این آدرس یک صورت‌حساب لایتنینگی است. جهت پرداخت این صورت‌حساب لطفاً به کیف پول لایتنینگ خود بروید.",
+    "provided_address_is_invoice": "به‌نظر می‌آید این آدرس یک صورت‌حساب لایتنینگ است. جهت پرداخت این صورت‌حساب لطفاً به کیف پول لایتنینگ خود بروید.",
     "broadcastButton": "انتشار",
     "broadcastError": "خطا",
     "broadcastNone": "هگزادسیمال تراکنش را وارد کنید",
@@ -658,5 +658,21 @@
     "type_receive": "دریافت",
     "type_used": "استفاده‌شده",
     "transactions": "تراکنش‌ها"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "آیا می‌خواهید حسابی در",
+    "register_question_part_2": "با استفاده از کیف پول لایتنینگ خود بسازید؟",
+    "register_answer": "حساب در {hostname} با موفقیت ساخته شد!",
+    "login_question_part_1": "آیا می‌خواهید در",
+    "login_question_part_2": "با استفاده از کیف پول لایتنینگ خود وارد شوید؟",
+    "login_answer": "با موفقیت در {hostname} وارد شدید!",
+    "link_question_part_1": "حسابتان در",
+    "link_question_part_2": "به کیف پول لایتنینگ شما متصل شود؟",
+    "link_answer": "کیف پول لایتنینگ شما با موفقیت به حسابتان در {hostname} متصل شد!",
+    "auth_question_part_1": "آیا می‌خواهید در",
+    "auth_question_part_2": "با استفاده از کیف پول لایتنینگ خود احراز کنید؟",
+    "auth_answer": "احراز در {hostname} با موفقیت انجام شد!",
+    "could_not_auth": "احراز در {hostname} انجام نشد.",
+    "authenticate": "احراز"
   }
 }

@@ -226,6 +226,48 @@ describe('lightning address', function () {
     assert.ok(!Lnurl.isLightningAddress('a@'));
   });
 
+  it('can authenticate', async () => {
+    const LN = new Lnurl(
+      'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+    );
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    let requestedUri = -1;
+    LN.fetchGet = actuallyRequestedUri => {
+      requestedUri = actuallyRequestedUri;
+      return {
+        status: 'OK',
+      };
+    };
+
+    await assert.doesNotReject(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'));
+    assert.strictEqual(
+      requestedUri,
+      'https://lightninglogin.live/login?k1=2191be568cfe6d2a8e8a90ce04c15edf70fdcae6c1b9faff684acab6f400fa0d&tag=login&sig=304502210093ab4ead8dd619f2ddb3d52bd4bb01725badcb2a3daa3870fb41a38096f9a37d0220464a32e94e13dcec20ea94b94df0fa52f45cd88b01d7247042136ad0c71752d2&key=03e7b61e57efff1925ab9082625400cae2c8ad88a984e7aa4987abb77818570018',
+    );
+  });
+
+  it('returns the server error response as the reject error from lnurl-auth', async () => {
+    const LN = new Lnurl(
+      'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+    );
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    LN.fetchGet = () => {
+      return {
+        reason: 'Invalid signature',
+        status: 'ERROR',
+      };
+    };
+
+    await assert.rejects(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'), err => {
+      assert.strictEqual(err, 'Invalid signature');
+      return true;
+    });
+  });
+
   it('works', async () => {
     const LN = new Lnurl('lnaddress@zbd.gg');
 

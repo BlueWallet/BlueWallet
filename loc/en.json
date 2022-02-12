@@ -658,5 +658,21 @@
     "type_receive": "Receive",
     "type_used": "Used",
     "transactions": "Transactions"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "Do you want to register an account at ",
+    "register_question_part_2": "using your LN wallet?",
+    "register_answer": "Sucessfully registered an account at {hostname}!",
+    "login_question_part_1": "Do you want to login at ",
+    "login_question_part_2": "using your LN wallet?",
+    "login_answer": "Sucessfully logged in at {hostname}!",
+    "link_question_part_1": "Link your account at ",
+    "link_question_part_2": "to your LN wallet?",
+    "link_answer": "Your LN wallet was sucessfully linked to your account at {hostname}!",
+    "auth_question_part_1": "Do you want to authenticate at ",
+    "auth_question_part_2": "using your LN wallet?",
+    "auth_answer": "Sucessfully authenticated at {hostname}!",
+    "could_not_auth": "Could not authenticate to {hostname}.",
+    "authenticate": "Authenticate"
   }
 }
