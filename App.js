@@ -39,7 +39,7 @@ import Privacy from './blue_modules/Privacy';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
-const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { EventEmitter } = NativeModules;
 
 const ClipboardContentType = Object.freeze({
@@ -113,9 +113,9 @@ const App = () => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
-      eventEmitter.removeAllListeners('onNotificationReceived');
-      eventEmitter.removeAllListeners('openSettings');
-      eventEmitter.removeAllListeners('onUserActivityOpen');
+      eventEmitter?.removeAllListeners('onNotificationReceived');
+      eventEmitter?.removeAllListeners('openSettings');
+      eventEmitter?.removeAllListeners('onUserActivityOpen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -144,9 +144,9 @@ const App = () => {
       When a notification on iOS is shown while the app is on foreground;
       On willPresent on AppDelegate.m
      */
-    eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter.addListener('openSettings', openSettings);
-    eventEmitter.addListener('onUserActivityOpen', onUserActivityOpen);
+    eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
+    eventEmitter?.addListener('openSettings', openSettings);
+    eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
   const popInitialAction = async data => {
