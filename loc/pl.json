@@ -28,7 +28,7 @@
     "discard_changes_detail": "Masz niezapisane zmiany. Czy jesteś pewien, że chcesz je odrzucić i opuścić ten ekran?"
   },
   "alert": {
-    "default": "Uwaga"
+    "default": "Powiadomienie"
   },
   "azteco": {
     "codeIs": "Twój kod vouchera to",
@@ -173,7 +173,7 @@
     "ok": "OK, zapisałem",
     "ok_lnd": "OK, zapisałem ",
     "text": "Poświęć chwilę by zapisać tę frazę mnemoniczną na kartce papieru\nTo Twoja kopia zapasowa, której możesz użyć później by odtworzyć portfel.",
-    "text_lnd": "Proszę, poświęć chwilę, żeby zapisać to uwierzytelnienie LNDHub. To twoja kopia zapasowa, możesz użyć jej, aby odtworzyć portfel na innym urządzeniu.",
+    "text_lnd": "Zachowaj tę kopię zapasową portfela. Umożliwi Ci odtworzenie portfela w przypadku utraty.",
     "text_lnd2": "Ten portfel jest obsługiwany przez BlueWallet.",
     "title": "Twój portfel został utworzony"
   },
@@ -295,8 +295,8 @@
     "currency": "Waluta",
     "currency_source": "Kurs jest pozyskiwany z",
     "currency_fetch_error": "Wystąpił błąd podczas pobierania kursu dla wybranej waluty.",
-    "default_desc": "Po uruchomieniu BlueWallet natychmiast otworzy wcześniej wybrany domyślny portfel.",
-    "default_info": "Informacje domyślne",
+    "default_desc": "Gdy jest wyłączone, BlueWallet natychmiast otworzy wybrany domyślny portfel.",
+    "default_info": "Domyślny portfel",
     "default_title": "Po uruchomieniu",
     "default_wallets": "Wyświetl wszystkie portfele",
     "electrum_connected": "Połączony",
@@ -340,7 +340,7 @@
     "general_adv_mode_e": "Gdy włączone, zobaczysz zaawansowane ustawienia takie jak np. różne typy portfeli, zdolność do określenia instancji LNDHub, z którą chcesz się połączyć oraz niestandardowej entropii w trakcie tworzenia portfela.",
     "general_continuity": "Funkcja Continuity",
     "general_continuity_e": "Gdy włączone, będziesz miał podgląd do wybranych portfeli i transakcji przy użyciu swoich urządzeń zalogowanych do Apple iCloud. ",
-    "groundcontrol_explanation": "GroundControl jest darmową opcją serwera powiadamień push dla portfeli bitcoin. Możesz zainstalować swój własny serwer GroundControl i podać jego URL tutaj, tak aby nie polegać na infrastrukturze BlueWallet. Zostaw puste by użyć domyślnej wartości.",
+    "groundcontrol_explanation": "GroundControl jest darmowym, open source'owym serwerem powiadomień push dla portfeli bitcoin. Możesz zainstalować swój własny serwer GroundControl i podać jego URL tutaj aby nie polegać na infrastrukturze BlueWallet. Zostaw puste by użyć domyślnej wartości.",
     "header": "Ustawienia",
     "language": "Język",
     "last_updated": "Ostatnia aktualizacja",
@@ -370,7 +370,7 @@
     "privacy_do_not_track": "Wyłącz analitykę",
     "privacy_do_not_track_explanation": "Informacje dotyczące wydajności i niezawodności nie będą przesyłane do analizy.",
     "push_notifications": "Powiadomienia Push",
-    "rate": "Stawka",
+    "rate": "Kurs",
     "retype_password": "Wprowadź Ponownie hasło",
     "selfTest": "Autotest",
     "save": "Zapisz",
@@ -658,5 +658,21 @@
     "type_receive": "Otrzymaj",
     "type_used": "Używany",
     "transactions": "Transakcje"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "Czy chcesz zarejestrować konto w ",
+    "register_question_part_2": "używając Twojego portfela Lightning Network?",
+    "register_answer": "Konto w {hostname} zarejestrowane pomyślnie!",
+    "login_question_part_1": "Czy chcesz się zalogować w ",
+    "login_question_part_2": "używając Twojego portfela Lightning Network?",
+    "login_answer": "Zalogowano pomyślnie w {hostname}!",
+    "link_question_part_1": "Połączyć Twoje konto w ",
+    "link_question_part_2": "z portfelem Lightning Network?",
+    "link_answer": "Konto w {hostname} pomyślnie połączone z Twoim portfelem Lightning Network!",
+    "auth_question_part_1": "Czy chcesz się uwierzytelnić w ",
+    "auth_question_part_2": "używając Twojego portfela Lightning Network?",
+    "auth_answer": "Uwierzytelnienie z {hostname} pomyślne!",
+    "could_not_auth": "Nie można uwierzytelnić z {hostname}.",
+    "authenticate": "Uwierzytelnianie"
   }
 }
