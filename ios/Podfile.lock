@@ -383,7 +383,7 @@ PODS:
     - React-jsi (= 0.67.2)
     - React-logger (= 0.67.2)
     - React-perflogger (= 0.67.2)
-  - RealmJS (10.12.0):
+  - RealmJS (10.13.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -799,7 +799,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 99c7f67fba7a5ade46e98e870c6ff2444484f995
   React-runtimeexecutor: 2450b43df7ffe8e805a0b3dcb2abd4282f1f1836
   ReactCommon: d98c6c96b567f9b3a15f9fd4cc302c1eda8e3cf2
-  RealmJS: b6097dab8af3bcf1cd5fa0ac39a4e4c54980c719
+  RealmJS: 9ca55cce37eedc14f6f3db233ba3d3ad52838c6f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: 94bc90bf928598dd2684a58e6949e40bb3d45c7b
   RNCAsyncStorage: b49b4e38a1548d03b74b30e558a1d18465b94be7
