@@ -23,7 +23,7 @@ import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
@@ -45,6 +45,7 @@ const LNDCreateInvoice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
   const [lnurlParams, setLNURLParams] = useState();
+
   const styleHooks = StyleSheet.create({
     scanRoot: {
       backgroundColor: colors.scanLabel,
@@ -160,6 +161,28 @@ const LNDCreateInvoice = () => {
           // trying to fetch cached sat equivalent for this fiat amount
           invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
           break;
+      }
+
+      if (lnurlParams) {
+        const { min, max } = lnurlParams;
+        if (invoiceAmount < min || invoiceAmount > min) {
+          let text;
+          if (invoiceAmount < min) {
+            text =
+              unit === BitcoinUnit.SATS
+                ? loc.formatString(loc.receive.minSats, { min })
+                : loc.formatString(loc.receive.minSatsFull, { min, currency: formatBalance(min, unit) });
+          } else {
+            text =
+              unit === BitcoinUnit.SATS
+                ? loc.formatString(loc.receive.maxSats, { max })
+                : loc.formatString(loc.receive.maxSatsFull, { max, currency: formatBalance(max, unit) });
+          }
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          alert(text);
+          setIsLoading(false);
+          return;
+        }
       }
 
       const invoiceRequest = await wallet.current.addInvoice(invoiceAmount, description);
@@ -395,20 +418,7 @@ const LNDCreateInvoice = () => {
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
-              onChangeText={text => {
-                if (lnurlParams) {
-                  // in this case we prevent the user from changing the amount to < min or > max
-                  const { min, max } = lnurlParams;
-                  const nextAmount = parseInt(text);
-                  if (nextAmount < min) {
-                    text = min.toString();
-                  } else if (nextAmount > max) {
-                    text = max.toString();
-                  }
-                }
-
-                setAmount(text);
-              }}
+              onChangeText={setAmount}
               disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
               unit={unit}
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}

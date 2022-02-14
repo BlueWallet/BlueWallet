@@ -182,7 +182,11 @@
     "details_label": "Description",
     "details_setAmount": "Receive with amount",
     "details_share": "Share",
-    "header": "Receive"
+    "header": "Receive",
+    "maxSats": "Maximum amount is {max} sats",
+    "maxSatsFull": "Maximum amount is {max} sats or {currency}",
+    "minSats": "Minimal amount is {min} sats",
+    "minSatsFull": "Minimal amount is {min} sats or {currency}"
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
