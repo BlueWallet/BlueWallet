@@ -307,6 +307,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // let's test wallet details screens
     await element(by.id('WalletDetails')).tap();
 
+    await sleep(1000);
     // rename test
     await element(by.id('WalletNameInput')).replaceText('testname\n');
     await element(by.id('Save')).tap();
@@ -314,6 +315,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('OK')).tap();
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
+    await sleep(1000);
 
     // rename back
     await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');

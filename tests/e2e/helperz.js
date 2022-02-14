@@ -50,6 +50,7 @@ export function hashIt(s) {
 export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.text(label)).tap();
   await element(by.id('WalletDetails')).tap();
+  await sleep(1000);
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await element(by.id('DeleteButton')).tap();
   await sup('Yes, delete');
