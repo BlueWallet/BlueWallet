@@ -660,19 +660,19 @@
     "transactions": "Transactions"
   },
   "lnurl_auth": {
-    "register_question_part_1": "Would you like to register an account at ",
+    "register_question_part_1": "Would you like to register an account at",
     "register_question_part_2": "using your Lightning wallet?",
     "register_answer": "You have successfully registered an account at {hostname}!",
-    "login_question_part_1": "Would you like to log in at ",
+    "login_question_part_1": "Would you like to log in at",
     "login_question_part_2": "using your Lightning wallet?",
     "login_answer": "You have successfully logged in at {hostname}!",
-    "link_question_part_1": "Would you like to link your account at ",
+    "link_question_part_1": "Would you like to link your account at",
     "link_question_part_2": "to your Lightning wallet?",
     "link_answer": "Your Lightning wallet was successfully linked to your account at {hostname}!",
-    "auth_question_part_1": "Would you like to be authenticated at ",
+    "auth_question_part_1": "Would you like to be authenticated at",
     "auth_question_part_2": "using your Lightning wallet?",
     "auth_answer": "You have successfully authenticated at {hostname}!",
-    "could_not_auth": "We couldn’t authenticate to {hostname}.",
+    "could_not_auth": "We couldn’t authenticate you to {hostname}.",
     "authenticate": "Authenticate"
   }
 }
