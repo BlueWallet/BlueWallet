@@ -75,7 +75,7 @@ class AmountInput extends Component {
    */
   onAmountUnitChange(previousUnit, newUnit) {
     const amount = this.props.amount || 0;
-    console.log('was:', amount, previousUnit, '; converting to', newUnit);
+    const log = `${amount}(${previousUnit}) ->`;
     let sats = 0;
     switch (previousUnit) {
       case BitcoinUnit.BTC:
@@ -92,10 +92,9 @@ class AmountInput extends Component {
       // cache hit! we reuse old value that supposedly doesnt have rounding errors
       sats = AmountInput.conversionCache[amount + previousUnit];
     }
-    console.log('so, in sats its', sats);
 
     const newInputValue = formatBalancePlain(sats, newUnit, false);
-    console.log('and in', newUnit, 'its', newInputValue);
+    console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
       // we cache conversion, so when we will need reverse conversion there wont be a rounding error
