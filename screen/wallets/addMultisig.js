@@ -33,10 +33,6 @@ const WalletsAddMultisig = () => {
     textdesc: {
       color: colors.alternativeTextColor,
     },
-    whiteBackground: { backgroundColor: colors.background },
-    itemNameWrapper: { backgroundColor: colors.elevated },
-    nativeName: { color: colors.foregroundColor },
-    filteTextWrapper: { color: colors.foregroundColor, right: 0, position: 'absolute' },
     modalContentShort: {
       backgroundColor: colors.elevated,
     },
@@ -211,7 +207,7 @@ const WalletsAddMultisig = () => {
         </Text>
       </View>
       {isAdvancedModeEnabledRender && (
-        <View style={styles.advancedOptionsContainer}>
+        <View>
           <BlueListItem
             onPress={showAdvancedOptionsModal}
             title={loc.multisig.vault_advanced_customize}
@@ -229,13 +225,6 @@ const WalletsAddMultisig = () => {
 };
 
 const styles = StyleSheet.create({
-  modalFlatList: { width: '100%' },
-  itemNameWrapper: { flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
-  textWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  nativeName: { fontSize: 16 },
-  filteTextWrapper: { right: 0, position: 'absolute' },
-  filterText: { fontSize: 16, color: 'gray' },
-  advancedOptionsContainer: {},
   item: {
     paddingHorizontal: 0,
   },
@@ -253,29 +242,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 350,
   },
-  formatSelectorTextWrapper: {
-    borderRadius: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderColor: 0,
-  },
   borderRadius6: {
     borderRadius: 6,
   },
-  formatSelectorTextWrapperSelected: {
-    backgroundColor: '#EEF0F4',
-    borderRadius: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderColor: 0,
-  },
   buttonContainer: {
     padding: 24,
-  },
-  formatSelectorText: {
-    color: '#13244D',
-    fontSize: 16,
-    fontWeight: '500',
   },
   column: {
     paddingRight: 20,

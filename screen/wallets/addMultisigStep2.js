@@ -83,59 +83,26 @@ const WalletsAddMultisigStep2 = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    textBtc: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textBtcUnitValue: {
-      color: colors.buttonAlternativeTextColor,
-    },
     textDestination: {
       color: colors.foregroundColor,
-    },
-    modalContentShort: {
-      backgroundColor: colors.modal,
     },
     modalContent: {
       backgroundColor: colors.modal,
     },
-    textFiat: {
-      color: colors.alternativeTextColor,
-    },
-    provideKeyButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
     exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    provideKeyButtonText: {
-      color: colors.buttonTextColor,
-    },
-    vaultKeyCircle: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     vaultKeyText: {
       color: colors.alternativeTextColor,
     },
-    feeFiatText: {
-      color: colors.alternativeTextColor,
-    },
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
-    },
-    vaultKeyTextSigned: {
-      color: colors.msSuccessBG,
     },
     word: {
       backgroundColor: colors.inputBackgroundColor,
     },
     wordText: {
       color: colors.labelText,
-    },
-    headerText: {
-      color: colors.foregroundColor,
     },
     helpButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -678,7 +645,7 @@ const WalletsAddMultisigStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       {renderHelp()}
-      <View style={[styles.wrapBox]}>
+      <View style={styles.wrapBox}>
         <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
       </View>
       {renderMnemonicsModal()}
@@ -696,11 +663,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  mainBlock: {
-    height: '100%',
-    marginHorizontal: 20,
-    marginVertical: 24,
-  },
   wrapBox: {
     flex: 1,
     marginVertical: 24,
@@ -711,42 +673,9 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     justifyContent: 'flex-end',
   },
-
   itemKeyUnprovidedWrapper: { flexDirection: 'row' },
-  vaultKeyCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  provideKeyButton: {
-    marginTop: 4,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  grayButton: {
-    marginTop: 24,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginVertical: 24,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   textDestination: { fontWeight: '600' },
   modalContent: {
     paddingHorizontal: 22,
@@ -791,8 +720,6 @@ const styles = StyleSheet.create({
   wordText: {
     fontWeight: 'bold',
   },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   exportButton: {
     height: 48,
     borderRadius: 8,
@@ -801,11 +728,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 15, color: '#13244D' },
-  header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-
   helpButtonWrapper: {
     alignItems: 'flex-end',
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',

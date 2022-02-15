@@ -29,7 +29,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
   constructor() {
     super();
-    const Constructor = (this.constructor as unknown) as AbstractHDWalletStatics;
+    const Constructor = this.constructor as unknown as AbstractHDWalletStatics;
     this.next_free_address_index = 0;
     this.next_free_change_address_index = 0;
     this.internal_addresses_cache = {}; // index => address
@@ -133,7 +133,7 @@ export class AbstractHDWallet extends LegacyWallet {
       let txs = [];
       try {
         txs = await BlueElectrum.getTransactionsByAddress(address);
-      } catch (Err) {
+      } catch (Err: any) {
         console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
       }
       if (txs.length === 0) {
@@ -171,7 +171,7 @@ export class AbstractHDWallet extends LegacyWallet {
       let txs = [];
       try {
         txs = await BlueElectrum.getTransactionsByAddress(address);
-      } catch (Err) {
+      } catch (Err: any) {
         console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
       }
       if (txs.length === 0) {

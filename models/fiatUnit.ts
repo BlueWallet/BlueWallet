@@ -14,7 +14,7 @@ const RateExtractors = {
     try {
       const res = await fetch(`https://api.coindesk.com/v1/bpi/currentprice/${ticker}.json`);
       json = await res.json();
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.bpi?.[ticker]?.rate_float; // eslint-disable-line
@@ -30,7 +30,7 @@ const RateExtractors = {
     try {
       const res = await fetch(`https://api.yadio.io/json/${ticker}`);
       json = await res.json();
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.[ticker]?.price;
@@ -46,7 +46,7 @@ const RateExtractors = {
     try {
       const res = await fetch('https://bitcoinduliban.org/api.php?key=lbpusd');
       json = await res.json();
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.[`BTC/${ticker}`];
@@ -62,7 +62,7 @@ const RateExtractors = {
     try {
       const res = await fetch('https://api.exir.io/v1/ticker?symbol=btc-irt');
       json = await res.json();
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.last;
@@ -78,7 +78,7 @@ const RateExtractors = {
     try {
       const res = await fetch(`https://api.wazirx.com/api/v2/tickers/btcinr`);
       json = await res.json();
-    } catch (e) {
+    } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
     let rate = json?.ticker?.buy; // eslint-disable-line

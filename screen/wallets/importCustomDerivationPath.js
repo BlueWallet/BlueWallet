@@ -157,9 +157,6 @@ const styles = StyleSheet.create({
   flatListContainer: {
     marginHorizontal: 16,
   },
-  listContainer: {
-    minHeight: 100,
-  },
   center: {
     marginHorizontal: 16,
     alignItems: 'center',

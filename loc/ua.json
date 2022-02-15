@@ -405,16 +405,10 @@
     "sign_placeholder_address": "Адреса",
     "sign_placeholder_message": "Повідомлення",
     "sign_placeholder_signature": "Підпис",
-    "sign_aopp_confirm": "Ви хочете надіслати підписане повідомлення на адресу {hostname}?",
     "addresses_title": "Адреси",
     "type_change": "Здача",
     "type_receive": "Отримати",
     "type_used": "Використаний",
     "transactions": "Транзакцій"
-  },
-  "aopp": {
-    "title": "Виберіть Адреси",
-    "send_success": "Підпис успішно надіслано",
-    "send_error": "Помилка надсилання підпису"
   }
 }

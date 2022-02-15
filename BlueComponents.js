@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Input, Text, Header, ListItem, Avatar } from 'react-native-elements';
+import { Icon, Text, Header, ListItem, Avatar } from 'react-native-elements';
 import {
   ActivityIndicator,
   Alert,
@@ -11,9 +11,7 @@ import {
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
-  PixelRatio,
   Platform,
-  PlatformColor,
   SafeAreaView,
   StyleSheet,
   Switch,
@@ -28,6 +26,7 @@ import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeTyp
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from './components/themes';
+import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 
 const { height, width } = Dimensions.get('window');
@@ -38,8 +37,6 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
-// eslint-disable-next-line no-unused-expressions
-Platform.OS === 'android' ? (ActivityIndicator.defaultProps.color = PlatformColor('?attr/colorControlActivated')) : null;
 
 export const BlueButton = props => {
   const { colors } = useTheme();
@@ -389,6 +386,7 @@ export const BlueTextCentered = props => {
   const { colors } = useTheme();
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
+
 export const BlueListItem = React.memo(props => {
   const { colors } = useTheme();
 
@@ -472,24 +470,6 @@ export const BlueFormLabel = props => {
   );
 };
 
-export const BlueFormInput = props => {
-  const { colors } = useTheme();
-  return (
-    <Input
-      {...props}
-      inputStyle={{ color: colors.foregroundColor, maxWidth: width - 105 }}
-      containerStyle={{
-        marginTop: 5,
-        borderColor: colors.inputBorderColor,
-        borderBottomColor: colors.inputBorderColor,
-        borderWidth: 0.5,
-        borderBottomWidth: 0.5,
-        backgroundColor: colors.inputBackgroundColor,
-      }}
-    />
-  );
-};
-
 export const BlueFormMultiInput = props => {
   const { colors } = useTheme();
 
@@ -519,19 +499,6 @@ export const BlueFormMultiInput = props => {
       {...props}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
-    />
-  );
-};
-
-export const BlueHeader = props => {
-  return (
-    <Header
-      {...props}
-      backgroundColor="transparent"
-      outerContainerStyles={{
-        borderBottomColor: 'transparent',
-        borderBottomWidth: 0,
-      }}
     />
   );
 };
@@ -592,7 +559,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <BluePlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />
+      <PlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />
     </View>
   );
 };
@@ -603,14 +570,6 @@ export const BlueSpacing = props => {
 
 export const BlueSpacing40 = props => {
   return <View {...props} style={{ height: 50 }} />;
-};
-
-export const BlueSpacingVariable = props => {
-  if (isIpad) {
-    return <BlueSpacing40 {...props} />;
-  } else {
-    return <BlueSpacing {...props} />;
-  }
 };
 
 export class is {
@@ -687,299 +646,6 @@ export const BlueLoading = props => {
     <View style={{ flex: 1, justifyContent: 'center' }} {...props}>
       <ActivityIndicator />
     </View>
-  );
-};
-
-const stylesBlueIcon = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  box1: {
-    position: 'relative',
-    top: 15,
-  },
-  box: {
-    alignSelf: 'flex-end',
-    paddingHorizontal: 14,
-    paddingTop: 8,
-  },
-  boxIncoming: {
-    position: 'relative',
-  },
-  ball: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  ballIncoming: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    transform: [{ rotate: '-45deg' }],
-    justifyContent: 'center',
-  },
-  ballIncomingWithoutRotate: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  ballReceive: {
-    width: 30,
-    height: 30,
-    borderBottomLeftRadius: 15,
-    transform: [{ rotate: '-45deg' }],
-  },
-  ballOutgoing: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    transform: [{ rotate: '225deg' }],
-    justifyContent: 'center',
-  },
-  ballOutgoingWithoutRotate: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-  },
-  ballOutgoingExpired: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-  },
-  ballTransparrent: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'transparent',
-  },
-  ballDimmed: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'gray',
-  },
-});
-
-export const BluePlusIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ball: {
-      backgroundColor: colors.buttonBackgroundColor,
-    },
-  });
-  return (
-    <Avatar
-      rounded
-      containerStyle={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}
-      icon={{ name: 'add', size: 22, type: 'ionicons', color: colors.foregroundColor }}
-      {...props}
-    />
-  );
-};
-
-export const BlueTransactionIncomingIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballIncoming: {
-      backgroundColor: colors.ballReceive,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballIncoming, stylesBlueIconHooks.ballIncoming]}>
-          <Icon {...props} name="arrow-down" size={16} type="font-awesome" color={colors.incomingForegroundColor} />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionPendingIcon = props => {
-  const { colors } = useTheme();
-
-  const stylesBlueIconHooks = StyleSheet.create({
-    ball: {
-      backgroundColor: colors.buttonBackgroundColor,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ball, stylesBlueIconHooks.ball]}>
-          <Icon
-            {...props}
-            name="kebab-horizontal"
-            size={16}
-            type="octicon"
-            color={colors.foregroundColor}
-            iconStyle={{ left: 0, top: 7 }}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionExpiredIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballOutgoingExpired: {
-      backgroundColor: colors.ballOutgoingExpired,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballOutgoingExpired, stylesBlueIconHooks.ballOutgoingExpired]}>
-          <Icon {...props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 0 }} />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionOnchainIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballIncoming: {
-      backgroundColor: colors.ballReceive,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballIncoming, stylesBlueIconHooks.ballIncoming]}>
-          <Icon
-            {...props}
-            name="link"
-            size={16}
-            type="font-awesome"
-            color={colors.incomingForegroundColor}
-            iconStyle={{ left: 0, top: 0, transform: [{ rotate: '-45deg' }] }}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionOffchainIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballOutgoingWithoutRotate: {
-      backgroundColor: colors.ballOutgoing,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballOutgoingWithoutRotate, stylesBlueIconHooks.ballOutgoingWithoutRotate]}>
-          <Icon
-            {...props}
-            name="bolt"
-            size={16}
-            type="font-awesome"
-            color={colors.outgoingForegroundColor}
-            iconStyle={{ left: 0, marginTop: 6 }}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionOffchainIncomingIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballIncomingWithoutRotate: {
-      backgroundColor: colors.ballReceive,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballIncomingWithoutRotate, stylesBlueIconHooks.ballIncomingWithoutRotate]}>
-          <Icon
-            {...props}
-            name="bolt"
-            size={16}
-            type="font-awesome"
-            color={colors.incomingForegroundColor}
-            iconStyle={{ left: 0, marginTop: 6 }}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-export const BlueTransactionOutgoingIcon = props => {
-  const { colors } = useTheme();
-  const stylesBlueIconHooks = StyleSheet.create({
-    ballOutgoing: {
-      backgroundColor: colors.ballOutgoing,
-    },
-  });
-  return (
-    <View {...props}>
-      <View style={stylesBlueIcon.boxIncoming}>
-        <View style={[stylesBlueIcon.ballOutgoing, stylesBlueIconHooks.ballOutgoing]}>
-          <Icon {...props} name="arrow-down" size={16} type="font-awesome" color={colors.outgoingForegroundColor} />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const sendReceiveScanButtonFontSize =
-  PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
-    ? 22
-    : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
-export const BlueReceiveButtonIcon = props => {
-  const { colors } = useTheme();
-
-  return (
-    <TouchableOpacity accessibilityRole="button" {...props} style={{ flex: 1 }}>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: colors.buttonBackgroundColor,
-        }}
-      >
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-          <View
-            style={{
-              left: 5,
-              backgroundColor: 'transparent',
-              transform: [{ rotate: '-45deg' }],
-              alignItems: 'center',
-              marginRight: 8,
-            }}
-          >
-            <Icon
-              {...props}
-              name="arrow-down"
-              size={sendReceiveScanButtonFontSize}
-              type="font-awesome"
-              color={colors.buttonAlternativeTextColor}
-            />
-          </View>
-          <Text
-            style={{
-              color: colors.buttonAlternativeTextColor,
-              fontWeight: '500',
-              fontSize: sendReceiveScanButtonFontSize,
-              left: 5,
-              backgroundColor: 'transparent',
-            }}
-          >
-            {formatStringAddTwoWhiteSpaces(loc.receive.header)}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
   );
 };
 

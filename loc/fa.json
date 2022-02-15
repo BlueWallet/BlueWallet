@@ -185,7 +185,7 @@
     "header": "دریافت"
   },
   "send": {
-    "provided_address_is_invoice": "به‌نظر می‌آید این آدرس یک صورت‌حساب لایتنینگی است. جهت پرداخت این صورت‌حساب لطفاً به کیف پول لایتنینگ خود بروید.",
+    "provided_address_is_invoice": "به‌نظر می‌آید این آدرس یک صورت‌حساب لایتنینگ است. جهت پرداخت این صورت‌حساب لطفاً به کیف پول لایتنینگ خود بروید.",
     "broadcastButton": "انتشار",
     "broadcastError": "خطا",
     "broadcastNone": "هگزادسیمال تراکنش را وارد کنید",
@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "قبل از پرداخت یک صورت‌حساب لایتنینگ، ابتدا باید یک کیف پول لایتنینگ اضافه کنید.",
     "looks_like_bip38": "این به کلید خصوصی محافظت‌شده با گذرواژه (BIP38) شباهت دارد.",
     "reorder_title": "بازچینی کیف پول‌ها",
+    "reorder_instructions": "روی یک کیف پول بزنید و نگه دارید تا آن را در لیست جابه‌جا کنید.",
     "please_continue_scanning": "لطفاً به اسکن‌کردن ادامه دهید.",
     "scan_error": "خطا در اسکن",
     "select_no_bitcoin": "هیچ کیف پول بیت‌کوینی درحال‌حاضر دردسترس نیست.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "باقی‌مانده (change)",
     "coins_selected": "کوین‌های انتخاب‌شده ({number})",
+    "selected_summ": "انتخاب‌شده: {value}",
     "empty": "این کیف پول درحال‌حاضر هیچ کوینی ندارد.",
     "freeze": "مسدود",
     "freezeLabel": "مسدودکردن",
@@ -651,17 +653,26 @@
     "sign_placeholder_address": "آدرس",
     "sign_placeholder_message": "پیام",
     "sign_placeholder_signature": "امضا",
-    "sign_aopp_title": "پروتکل اثبات مالکیت آدرس (AOPP)",
-    "sign_aopp_confirm": "آیا مایل به ارسال پیام امضاشده به {hostname} هستید؟",
     "addresses_title": "آدرس‌ها",
     "type_change": "باقی‌مانده",
     "type_receive": "دریافت",
     "type_used": "استفاده‌شده",
     "transactions": "تراکنش‌ها"
   },
-  "aopp": {
-    "title": "انتخاب آدرس",
-    "send_success": "امضا با موفقیت ارسال شد.",
-    "send_error": "خطا در ارسال امضا"
+  "lnurl_auth": {
+    "register_question_part_1": "آیا می‌خواهید حسابی در",
+    "register_question_part_2": "با استفاده از کیف پول لایتنینگ خود بسازید؟",
+    "register_answer": "حساب در {hostname} با موفقیت ساخته شد!",
+    "login_question_part_1": "آیا می‌خواهید در",
+    "login_question_part_2": "با استفاده از کیف پول لایتنینگ خود وارد شوید؟",
+    "login_answer": "با موفقیت در {hostname} وارد شدید!",
+    "link_question_part_1": "حسابتان در",
+    "link_question_part_2": "به کیف پول لایتنینگ شما متصل شود؟",
+    "link_answer": "کیف پول لایتنینگ شما با موفقیت به حسابتان در {hostname} متصل شد!",
+    "auth_question_part_1": "آیا می‌خواهید در",
+    "auth_question_part_2": "با استفاده از کیف پول لایتنینگ خود احراز کنید؟",
+    "auth_answer": "احراز در {hostname} با موفقیت انجام شد!",
+    "could_not_auth": "احراز در {hostname} انجام نشد.",
+    "authenticate": "احراز"
   }
 }

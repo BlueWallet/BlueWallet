@@ -648,17 +648,10 @@
     "sign_placeholder_address": "ලිපිනය",
     "sign_placeholder_message": "පණිවිඩය",
     "sign_placeholder_signature": "අත්සන",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "ඔබට {hostname} වෙත අත්සන් කළ පණිවිඩයක් යැවීමට අවශ්‍යද?",
     "addresses_title": "ලිපිනයන්",
     "type_change": "වෙනස් කරන්න",
     "type_receive": "පිළිගන්න",
     "type_used": "භාවිතා කර ඇත",
     "transactions": "ගනුදෙනු"
-  },
-  "aopp": {
-    "title": "ලිපිනය තෝරන්න",
-    "send_success": "අත්සන සාර්ථකව යවන ලදි",
-    "send_error": "අත්සන යැවීමේ දෝෂයකි"
   }
 }

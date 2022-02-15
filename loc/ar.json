@@ -120,7 +120,7 @@
     "placeholder": "فاتورة",
     "open_channel": "فتح قناة",
     "funding_amount_placeholder": "مبلغ التمويل، على سبيل المثال 0.001",
-    "opening_channnel_for_from":"جاري فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
+    "opening_channnel_for_from":"جارِ فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
     "are_you_sure_open_channel": "هل أنت متأكد أنك تريد فتح هذه القناة؟",
     "are_you_sure_exit_without_new_channel": "هل أنت متأكد أنك تريد الخروج دون فتح قناة؟",
     "public": "علني",
@@ -525,6 +525,7 @@
     "no_ln_wallet_error": "قبل دفع فاتورة برق (Lightning) ، يجب عليك أولاً إضافة محفظة برق (Lightning).",
     "looks_like_bip38": "يبدوا ان هذا مفتاح خاص محمي بكلمة مرور (BIP38).",
     "reorder_title": "إعادة ترتيب المحافظ",
+    "reorder_instructions": "اضغط باستمرار على اي محفظة لتحريكها عبر القائمة",
     "please_continue_scanning": "الرجاء متابعة الفحص.",
     "scan_error": "خطأ في الفحص",
     "select_no_bitcoin": "لا توجد محافظ Bitcoin متاحة حاليًا.",
@@ -625,6 +626,7 @@
   "cc": {
     "change": "تغيير",
     "coins_selected": "العملات المحددة ({number})",
+    "selected_summ": "{value} مختاره",
     "empty": "لا تحتوي هذه المحفظة على أي عملات في الوقت الحالي.",
     "freeze": "تجميد",
     "freezeLabel": "تجميد",
@@ -651,17 +653,10 @@
     "sign_placeholder_address": "العنوان",
     "sign_placeholder_message": "الرسالة",
     "sign_placeholder_signature": "التوقيع",
-    "sign_aopp_title": "AOPP",
-    "sign_aopp_confirm": "هل تريد إرسال رسالة موقعة إلى {hostname}؟",
     "addresses_title": "العنوان",
     "type_change": "تغيير",
     "type_receive": "استلام",
     "type_used": "مستخدم",
     "transactions": "الحوالات"
-  },
-  "aopp": {
-    "title": "اختر عنوانًا",
-    "send_success": "تم إرسال التوقيع بنجاح",
-    "send_error": "خطأ في إرسال التوقيع"
   }
 }

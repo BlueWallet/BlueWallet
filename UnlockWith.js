@@ -31,10 +31,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
   },
-  encrypted: {
-    width: 0.5,
-    height: 20,
-  },
 });
 
 const UnlockWith = () => {

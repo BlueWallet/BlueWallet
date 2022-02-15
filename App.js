@@ -39,7 +39,7 @@ import Privacy from './blue_modules/Privacy';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
-const eventEmitter = new NativeEventEmitter(NativeModules.EventEmitter);
+const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { EventEmitter } = NativeModules;
 
 const ClipboardContentType = Object.freeze({
@@ -54,9 +54,8 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useContext(
-    BlueStorageContext,
-  );
+  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
+    useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
@@ -114,9 +113,9 @@ const App = () => {
     return () => {
       Linking.removeEventListener('url', handleOpenURL);
       AppState.removeEventListener('change', handleAppStateChange);
-      eventEmitter.removeAllListeners('onNotificationReceived');
-      eventEmitter.removeAllListeners('openSettings');
-      eventEmitter.removeAllListeners('onUserActivityOpen');
+      eventEmitter?.removeAllListeners('onNotificationReceived');
+      eventEmitter?.removeAllListeners('openSettings');
+      eventEmitter?.removeAllListeners('onUserActivityOpen');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -145,9 +144,9 @@ const App = () => {
       When a notification on iOS is shown while the app is on foreground;
       On willPresent on AppDelegate.m
      */
-    eventEmitter.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter.addListener('openSettings', openSettings);
-    eventEmitter.addListener('onUserActivityOpen', onUserActivityOpen);
+    eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
+    eventEmitter?.addListener('openSettings', openSettings);
+    eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
   const popInitialAction = async data => {
@@ -386,25 +385,6 @@ const App = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  space: {
-    marginHorizontal: 8,
-  },
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  modelContentButtonLayout: {
-    flexDirection: 'row',
-    margin: 16,
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
   },
 });
 

@@ -211,7 +211,11 @@ const WalletsAdd = () => {
     } catch (Err) {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
-      return alert(Err);
+      if (Err.message) {
+        return alert(Err.message);
+      } else {
+        return alert(loc.wallets.add_lndhub_error);
+      }
       // giving app, not adding anything
     }
     A(A.ENUM.CREATED_LIGHTNING_WALLET);
@@ -401,10 +405,6 @@ const styles = StyleSheet.create({
   createButton: {
     flex: 1,
   },
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
   label: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -454,9 +454,6 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
-  },
-  typeMargin: {
-    marginTop: 8,
   },
 });
 

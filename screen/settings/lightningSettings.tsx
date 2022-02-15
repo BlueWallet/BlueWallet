@@ -35,9 +35,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
-  torSupported: {
-    color: '#81868e',
-  },
 });
 
 type LightingSettingsRouteProps = RouteProp<

@@ -77,56 +77,20 @@ const ViewEditMultisigCosigners = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    textBtc: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textBtcUnitValue: {
-      color: colors.buttonAlternativeTextColor,
-    },
     textDestination: {
       color: colors.foregroundColor,
-    },
-    modalContentShort: {
-      backgroundColor: colors.elevated,
     },
     modalContent: {
       backgroundColor: colors.elevated,
     },
-    textFiat: {
-      color: colors.alternativeTextColor,
-    },
-    provideKeyButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
     exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    provideKeyButtonText: {
-      color: colors.buttonTextColor,
-    },
-    vaultKeyCircle: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     vaultKeyText: {
       color: colors.alternativeTextColor,
     },
-    feeFiatText: {
-      color: colors.alternativeTextColor,
-    },
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
-    },
-    vaultKeyTextSigned: {
-      color: colors.msSuccessBG,
-    },
-    word: {
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    wordText: {
-      color: colors.labelText,
     },
     tipKeys: {
       color: colors.alternativeTextColor,
@@ -639,37 +603,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  vaultKeyCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textDestination: { fontWeight: '600' },
   vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  provideKeyButton: {
-    marginTop: 4,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-
-  grayButton: {
-    marginTop: 24,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  provideKeyButtonText: { fontWeight: '600', fontSize: 15 },
   newKeyModalContent: {
     paddingHorizontal: 22,
     paddingVertical: 32,
@@ -687,25 +623,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     minHeight: 400,
   },
-  word: {
-    width: 'auto',
-    marginRight: 8,
-    marginBottom: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderRadius: 4,
-  },
-  secretContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-  },
-  wordText: {
-    fontWeight: 'bold',
-  },
-  flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
@@ -713,8 +630,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   exportButton: {
     height: 48,
     borderRadius: 8,
@@ -724,7 +639,6 @@ const styles = StyleSheet.create({
   },
   headerText: { fontSize: 15, color: '#13244D' },
   mainBlock: { marginHorizontal: 16 },
-  header2Text: { color: '#9AA0AA', fontSize: 14, paddingBottom: 20 },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
   tipKeys: {
