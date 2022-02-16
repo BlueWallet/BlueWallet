@@ -182,7 +182,11 @@
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
     "details_share": "Compartir",
-    "header": "Recibir"
+    "header": "Recibir",
+    "maxSats": "La cantidad máxima es {max} sats",
+    "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
+    "minSats": "La cantidad mínima es {min} sats",
+    "minSatsFull": "La cantidad mínima es {min} sats o {currency}"
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
@@ -658,5 +662,21 @@
     "type_receive": "Recibir",
     "type_used": "Usado",
     "transactions": "Transacciones"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "¿Quieres registrar una cuenta en",
+    "register_question_part_2": "usando tu billetera LN?",
+    "register_answer": "¡Registraste con éxito una cuenta en {hostname}!",
+    "login_question_part_1": "¿Quieres iniciar sesión en",
+    "login_question_part_2": "usando tu billetera LN?",
+    "login_answer": "¡Iniciaste sesión con éxito en {hostname}!",
+    "link_question_part_1": "Vincula tu cuenta en",
+    "link_question_part_2": "a tu billetera LN?",
+    "link_answer": "¡Tu billetera LN se vinculó correctamente a tu cuenta en {hostname}!",
+    "auth_question_part_1": "¿Quieres autentificarte en",
+    "auth_question_part_2": "usando tu billetera LN?",
+    "auth_answer": "¡Autenticado con éxito en {hostname}!",
+    "could_not_auth": "No se pudo autenticar en {hostname}.",
+    "authenticate": "Autenticar"
   }
 }
