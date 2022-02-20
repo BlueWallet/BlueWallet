@@ -307,7 +307,7 @@ PODS:
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (3.4.0):
+  - react-native-safe-area-context (3.4.1):
     - React-Core
   - react-native-tcp-socket (5.5.0):
     - CocoaAsyncSocket
@@ -400,15 +400,15 @@ PODS:
     - React
   - RNDeviceInfo (8.4.9):
     - React-Core
-  - RNFS (2.18.0):
-    - React
+  - RNFS (2.19.0):
+    - React-Core
   - RNGestureHandler (2.2.0):
     - React-Core
   - RNHandoff (0.0.3):
     - React
   - RNKeychain (8.0.0):
     - React-Core
-  - RNLocalize (2.1.9):
+  - RNLocalize (2.2.0):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -782,7 +782,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 4e6008ad8c2321622affa2c85432a5ebd02d480c
   react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: f4f7cc09d81ae2d39dfd13e764d718969af07080
+  react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 380c1a03ec94b7ed764dac8db1e7c9952d08c93a
@@ -807,11 +807,11 @@ SPEC CHECKSUMS:
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
   RNDeviceInfo: 4944cf8787b9c5bffaf301fda68cc1a2ec003341
-  RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
+  RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
   RNGestureHandler: bf572f552ea324acd5b5464b8d30755b2d8c1de6
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNLocalize: 291e5e21b53cd30b5205c10ed95d31b0dc9b8d63
+  RNLocalize: 6571ea792a7dcb6d217c98c14d9147e9417cef62
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
