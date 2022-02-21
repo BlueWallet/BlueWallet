@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import { useRoute, useTheme, useNavigation, useNavigationState } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -15,9 +15,10 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
-  const { pop, navigate } = useNavigation();
+  const { pop, navigate, setOptions, dangerouslyGetParent } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
+  const isModal = useNavigationState(state => state.routes.length) === 1;
   let data = chainType
     ? wallets.filter(item => item.chain === chainType && item.allowSend())
     : wallets.filter(item => item.allowSend()) || [];
@@ -99,6 +100,28 @@ const SelectWallet = () => {
     console.log('SelectWallet - useEffect');
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    setOptions(
+      isModal
+        ? {
+            headerLeft: () => (
+              <TouchableOpacity
+                accessibilityRole="button"
+                style={styles.button}
+                onPress={() => {
+                  dangerouslyGetParent().pop();
+                }}
+                testID="NavigationCloseButton"
+              >
+                <Image source={closeImage} />
+              </TouchableOpacity>
+            ),
+          }
+        : {},
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [closeImage, isModal, styles.button]);
 
   const renderItem = ({ item }) => {
     return (
