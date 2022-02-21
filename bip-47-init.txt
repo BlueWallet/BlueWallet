@@ -1,0 +1,22 @@
+According to the BIP47 document, the following core functionality is required:
+
+Generate payment code from seed
+Initialize a payment code from base58 payment code
+Derive notification addresses
+Derive public keys from a payment code and a notification private key
+Derive public keys from a payment code and a notification public key
+Derive P2PKH addresses from a payment code and notification private key
+Derive P2Pkh addresses from a payment code and notification public key
+
+Fortunately, Dojo full node source code has implemented all the above functionally. Specifically in these projects bip-47-tool and bip47-js.
+We could directly make use of bip47-js functions and use the bip47-tool project to double-check our implementation. We may implement any other behavioral functionality that we may need independently.
+
+We will be able to derive BIP-47 compatible addresses from BIP-39 Mnemonic Seeds which should be enough to enable portability among other wallets like SamuraiWallet.
+
+Paynyms which are implemented by SamuraiWallet will not be implemented here. Instead, users will be able to simply share their unique “Payment Code”. If paynym-like behavior is desired, a separate public directory needs to be developed.
+
+
+We are a team of 3, working together for around 4 years and doing research and contribution to blockchain projects for around a year
+Our team consists of an experienced designer (https://dribbble.com/Beigi) an experienced Frontend and React Native developer (https://github.com/alimahdiyar) and a backend developer(https://github.com/spsina/)
+
+
