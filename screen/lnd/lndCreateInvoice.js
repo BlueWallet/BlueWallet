@@ -228,7 +228,6 @@ const LNDCreateInvoice = () => {
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
         walletID: wallet.current.getID(),
-        isModal: true,
       });
     } catch (Err) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -531,7 +530,7 @@ const styles = StyleSheet.create({
 });
 
 export default LNDCreateInvoice;
-
+LNDCreateInvoice.routeName = 'LNDCreateInvoice';
 LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,

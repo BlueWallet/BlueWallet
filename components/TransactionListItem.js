@@ -213,7 +213,6 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         navigate('LNDViewInvoice', {
           invoice: item,
           walletID: lightningWallet[0].getID(),
-          isModal: false,
         });
       }
     }
