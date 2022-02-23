@@ -11,8 +11,8 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import selectWallet from '../../helpers/select-wallet';
-import LottieView from 'lottie-react-native';
 import url from 'url';
+import { SuccessView } from '../send/success';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -105,7 +105,7 @@ const LnurlAuth = () => {
       {authState === AuthState.SUCCESS && (
         <BlueCard>
           <View style={styles.iconContainer}>
-            <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+            <SuccessView />
           </View>
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
@@ -156,10 +156,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  icon: {
-    width: 400,
-    height: 400,
   },
   walletSelectRoot: {
     alignItems: 'center',

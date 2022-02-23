@@ -65,12 +65,17 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
   });
 
   useEffect(() => {
-    if (shouldAnimate) {
-      animationRef.current.reset();
-      animationRef.current.resume();
+    if (shouldAnimate && animationRef.current) {
+      /*
+      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
+      Temporary workaround until Lottie is fixed.
+      */
+      setTimeout(() => {
+        animationRef.current?.reset();
+        animationRef.current?.play();
+      }, 50);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
+  }, [colors, shouldAnimate]);
 
   return (
     <View style={styles.root}>
