@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import LottieView from 'lottie-react-native';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Icon } from 'react-native-elements';
@@ -9,6 +8,7 @@ import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueT
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
+import { SuccessView } from '../send/success';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -77,7 +77,7 @@ export default class LnurlPaySuccess extends Component {
         <ScrollView>
           {justPaid ? (
             <View style={styles.iconContainer}>
-              <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+              <SuccessView />
             </View>
           ) : (
             <View style={styles.iconContainer}>
@@ -176,10 +176,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  icon: {
-    width: 400,
-    height: 400,
   },
   successContainer: {
     marginTop: 10,
