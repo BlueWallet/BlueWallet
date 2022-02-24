@@ -38,6 +38,10 @@ if (aspectRatio > 1.6) {
   isIpad = true;
 }
 
+if (1==1){
+  
+}
+
 export const BlueButton = props => {
   const { colors } = useTheme();
 
