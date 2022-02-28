@@ -15,7 +15,7 @@
     "@types/create-hash": "^1.2.2",
     "@types/jest": "^26.0.24",
     "@types/react": "^17.0.14",
-    "@types/react-native": "^0.66.15",
+    "@types/react-native": "^0.67.0",
     "@types/react-test-renderer": "^17.0.1",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
