@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-10.15 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
     steps:
     - name: Checkout project
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Specify node version
       uses: actions/setup-node@v2-beta
@@ -53,7 +53,7 @@ jobs:
 
     steps:
     - name: Checkout project
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Specify node version
       uses: actions/setup-node@v2-beta
