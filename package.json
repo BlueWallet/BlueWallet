@@ -189,7 +189,7 @@
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.13.0",
-    "rn-ldk": "git+https://github.com/BlueWallet/rn-ldk.git#v0.6.4",
+    "rn-ldk": "github:BlueWallet/rn-ldk#v0.7.0",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
     "secure-random": "1.1.2",

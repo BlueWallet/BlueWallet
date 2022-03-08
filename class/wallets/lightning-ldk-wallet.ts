@@ -1,3 +1,4 @@
+import RNFS from 'react-native-fs';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
@@ -268,7 +269,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         const address = this.unwrapFirstExternalAddressFromMnemonics();
         await this.setRefundAddress(address);
       }
-      await RnLdk.start(this.getEntropyHex());
+      await RnLdk.start(this.getEntropyHex(), RNFS.DocumentDirectoryPath);
 
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
@@ -339,7 +340,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async sendPayment(invoice: string, freeAmount: number) {
-    return RnLdk.sendPayment(invoice, freeAmount);
+    return RnLdk.payInvoice(invoice, freeAmount);
   }
 
   /**
