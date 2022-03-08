@@ -340,7 +340,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async sendPayment(invoice: string, freeAmount: number) {
-    return RnLdk.sendPayment(invoice, freeAmount);
+    return RnLdk.payInvoice(invoice, freeAmount);
   }
 
   /**
