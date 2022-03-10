@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.16.1):
+  - BugsnagReactNative (7.16.2):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -388,7 +388,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.7.2):
+  - rn-ldk (0.7.3):
     - React-Core
   - RNCAsyncStorage (1.16.1):
     - React-Core
@@ -739,7 +739,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  BugsnagReactNative: bd1c905fb868fae8448a913b87356dbf2b02dc80
+  BugsnagReactNative: 8ccbb937bc8001cd3a5ed18ef0691d23cca8a748
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
@@ -801,7 +801,7 @@ SPEC CHECKSUMS:
   ReactCommon: 650e33cde4fb7d36781cd3143f5276da0abb2f96
   RealmJS: 9ca55cce37eedc14f6f3db233ba3d3ad52838c6f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: 1126f53523bb7eb126dcc739f1a6a56e175f0793
+  rn-ldk: b567ba7e60b8c1be19154361fd16eb939b732cb2
   RNCAsyncStorage: b49b4e38a1548d03b74b30e558a1d18465b94be7
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
