@@ -1,18 +1,35 @@
 {
   "_": {
-    "bad_password": "Incorrect password. Please try again.",
+    "bad_password": "Nesprávne heslo! Skúste to znovu.",
     "cancel": "Zrušiť",
     "continue": "Pokračovať",
     "enter_password": "Zadajte heslo",
-    "never": "nikdy",
+    "never": "Nikdy",
+    "disabled": "Vypnuté",
     "of": "{number} z {total}",
     "ok": "OK",
-    "storage_is_encrypted": "Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu",
+    "storage_is_encrypted": "Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu.",
     "allow": "Povoliť",
     "dont_allow": "Nepovoliť",
     "yes": "Áno",
     "no": "Nie",
-    "invalid_animated_qr_code_fragment": "Neplatný animovaný fragment QR kódu. Skúste to znovu, prosím."
+    "save": "Uložiť",
+    "seed": "Semienko",
+    "success": "Správne",
+    "wallet_key": "Peňaženkový kľúč",
+    "invalid_animated_qr_code_fragment": "Neplatný animovaný fragment QR kódu. Skúste to znovu, prosím.",
+    "file_saved": "Súbor {filePath} bol uložený v {destination}.",
+    "file_save_title": "Uložiť súbor",
+    "file_save_location": "Vyberte kde sa má súbor uložiť {filePath}",
+    "downloads_folder": "Priečinok so stiahnutými súbormi.",
+    "external_storage": "Externá pamäť",
+    "discard_changes": "Zahodiť zmeny?"
+  },
+  "alert": {
+    "default": "Varovanie"
+  },
+  "azteco": {
+    "codeIs": "Váš voucher kód je"
   },
   "entropy": {
     "save": "Uložiť",
@@ -44,6 +61,7 @@
     "filter_method": "Platobná metóda",
     "filter_search": "Hľadať",
     "item_minmax": "Min/Max",
+    "local_trader_new": "Nový",
     "login": "Prihlásiť sa",
     "mycont": "Moje kontrakty",
     "offer_accept": "Akceptovať ponuku",
@@ -58,19 +76,28 @@
     "p2p": "P2p burza"
   },
   "lnd": {
+    "active": "Aktívne",
+    "inactive": "Neaktívne",
+    "channels": "Kanály",
+    "close_channel": "Zatvoriť kanál",
+    "new_channel": "Nový kanál",
     "errorInvoiceExpired": "Faktúra je expirovaná",
     "exchange": "Burza",
     "expired": "Expirovaná",
     "expiredLow": "expirovaná",
+    "expiresIn": "Vyprší za {time} minút",
     "payButton": "Zaplatiť",
     "placeholder": "Faktúra",
+    "open_channel": "Otvoriť kanál",
+    "private": "Privátne",
     "refill": "Doplniť",
     "refill_card": "Doplniť bankovou kartou",
     "refill_create": "Pre pokračovanie, prosím, vytvorte si Bitcoinovú peňaženku",
     "refill_external": "Doplniť z externej peňaženky",
     "refill_lnd_balance": "Doplniť zostatok na Lightning peňaženke",
     "sameWalletAsInvoiceError": "Faktúra sa nedá uhradiť s rovnakou peňaženkou ako tá, ktorá ju vytvorila.",
-    "title": "spravovať zostatok"
+    "title": "spravovať zostatok",
+    "can_send": "Môže poslať"
   },
   "lndViewInvoice": {
     "additional_info": "Doplňujúce informácie",
@@ -93,7 +120,8 @@
   "pleasebackup": {
     "ask": "Zapísali ste si svoju zálohovaciu frázu? Táto fráza je nutná pre prístup k vašim prostriedkom v prípade straty či poruchy prístroja. Bez zálohovacej frázy by ste trvale prišli o svoje prostriedky.",
     "ask_no": "Ešte nie",
-    "ask_yes": "Áno"
+    "ask_yes": "Áno",
+    "title": "Tvoja peňaženka bola vytvorená!"
   },
   "receive": {
     "details_create": "Vytvoriť",
@@ -104,6 +132,7 @@
   },
   "send": {
     "broadcastError": "chyba",
+    "broadcastPending": "Čaká...",
     "confirm_header": "Potvrdiť",
     "confirm_sendNow": "Poslať teraz",
     "create_amount": "Čiastka",
@@ -130,6 +159,11 @@
     "details_scan": "Skenovať",
     "details_total_exceeds_balance": "Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.",
     "details_wallet_before_tx": "Pred vytvorením transakcie potrebujete najprv pridať Bitcoinovú peňaženku.",
+    "dynamic_next": "Ďalší",
+    "dynamic_prev": "Späť",
+    "dynamic_start": "Štart",
+    "dynamic_stop": "Stop",
+    "fee_fast": "Rýchlo",
     "header": "Poslať",
     "permission_camera_message": "Potrebujeme povolenie na použitie kamery",
     "permission_camera_title": "Povolenie na použitie kamery",
@@ -259,5 +293,13 @@
     "select_wallet": "Vyberte peňaženku",
     "xpub_copiedToClipboard": "Skopírované do schránky.",
     "xpub_title": "XPUB peňaženku"
+  },
+  "multisig": {
+    "view_key": "Zobraziť",
+    "create_new_key": "Vytvoriť novú",
+    "ms_help": "Pomoc"
+  },
+  "is_it_my_address": {
+    "title": "Je to moja adresa?"
   }
 }

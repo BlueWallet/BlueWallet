@@ -179,7 +179,11 @@
     "details_label": "תיאור",
     "details_setAmount": "קבלה עם סכום",
     "details_share": "שיתוף",
-    "header": "קבלה"
+    "header": "קבלה",
+    "maxSats": "סכום מקסימלי הינו {max} sats",
+    "maxSatsFull": "סכום מקסימלי הינו {max} sats או {currency}",
+    "minSats": "סכום מינימלי הינו {min} sats",
+    "minSatsFull": "סכום מינימלי הינו {min} sats או {currency}"
   },
   "send": {
     "provided_address_is_invoice": "נראה שכתובת זו היא חשבונית ברק. אנא עברו לארנק הברק שלכם כדי לבצע תשלום עבור חשבונית זו.",
@@ -196,6 +200,7 @@
     "create_details": "פרטים",
     "create_fee": "עמלה",
     "create_memo": "תזכיר",
+    "create_satoshi_per_vbyte": "סאטושי עבור vByte",
     "create_this_is_hex": "זוהי הפעולה שלך, חתומה ומוכנה לשידור לרשת.",
     "create_to": "עבור",
     "create_tx_size": "גודל הפעולה",
@@ -215,12 +220,14 @@
     "details_create": "יצירת קבלה",
     "details_error_decode": "לא ניתן לפענח כתובת ביטקוין",
     "details_fee_field_is_not_valid": "שדה עמלה אינו תקין",
+    "details_frozen": "{amount} ביטקוין מוקפא",
     "details_next": "הבא",
     "details_no_signed_tx": "הקובץ הנבחר אינו מכיל פעולה שניתן לייבא.",
     "details_note_placeholder": "הערה לעצמך",
     "details_scan": "סריקה",
     "details_scan_hint": "לחיצה כפולה לסריקה או יבוא יעד",
     "details_total_exceeds_balance": "הסכום לשליחה חורג מהיתרה הזמינה.",
+    "details_total_exceeds_balance_frozen": "סכום השליחה חרג מהיתרה הזמינה. אנא שימו לב שמטבעות מוקפאים מוחרגים.",
     "details_unrecognized_file_format": "פורמט קובץ לא מזוהה",
     "details_wallet_before_tx": "לפני יצירת פעולה, עליך להוסיף ארנק ביטקוין.",
     "dynamic_init": "איתחול",
@@ -234,6 +241,7 @@
     "fee_custom": "אחר",
     "fee_fast": "מהיר",
     "fee_medium": "בינוני",
+    "fee_replace_minvb": "שעור העמלה הכולל (סאטושי עבור vByte) שברצונך לשלם צריך להיות גבוה יותר מאשר {min} sat/vByte.",
     "fee_slow": "איטי",
     "header": "שליחה",
     "input_clear": "ניקוי",
@@ -379,6 +387,7 @@
     "ask_me_later": "שאל אותי מאוחר יותר"
   },
   "transactions": {
+    "cancel_explain": "אנחנו נחליף את העברה זאת עם העברה לעצמך עם עמלות גבוהות יותר. זה למעשה מבטל את ההעברה. זה נקרא RBF—Replace by Fee.",
     "cancel_no": "פעולה זאת אינה ניתנת להחלפה",
     "cancel_title": "בטל פעולה זאת (RBF)",
     "confirmations_lowercase": "{confirmations} אישורים",
@@ -413,6 +422,8 @@
     "eta_3h": "ETA: תוך ~3 שעות",
     "eta_1d": "ETA: תוך ~1 יום",
     "list_title": "תנועות",
+    "open_url_error": "לא ניתן לפתוח קישור עם דפדפן ברירת המחדל. אנא שנו את דפדפן ברירת המחדל שלכם ונסו שוב",
+    "rbf_explain": "אנו נחליף את פעולה זו בפעולה עם עמלה גבוהה יותר, כך שמהירות קבלת האישור אמורה לעלות. פעולה זאת נקראת RBF—Replace by Fee.",
     "rbf_title": "העלאת עמלה (RBF)",
     "status_bump": "העלאת עמלה",
     "status_cancel": "ביטול פעולה",
@@ -623,9 +634,13 @@
     "MAX": "מקס'"
   },
   "addresses": {
+    "sign_title": "חתימת/אימות הודעה",
+    "sign_help": "פה תוכלו ליצור או לאמת חתימה קריפטוגרפית מבוססת על כתובת ביטקוין.",
     "sign_sign": "חתימה",
     "sign_sign_submit": "חתימה ושליחה",
     "sign_verify": "אימות",
+    "sign_signature_correct": "אימות הצליח!",
+    "sign_signature_incorrect": "אימות נכשל!",
     "sign_placeholder_address": "כתובת",
     "sign_placeholder_message": "הודעה",
     "sign_placeholder_signature": "חתימה",
@@ -634,5 +649,21 @@
     "type_receive": "קבלה",
     "type_used": "שומש",
     "transactions": "פעולות"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "האם ברצונך ליצור חשבון ב- ",
+    "register_question_part_2": "באמצעות ארנק הברק שלך?",
+    "register_answer": "חשבון נוצר בהצלחה ב- {hostname}!",
+    "login_question_part_1": "האם ברצונך להתחבר ל- ",
+    "login_question_part_2": "באמצעות ארנק הברק שלך?",
+    "login_answer": "התחברת בהצלחה ל- {hostname}!",
+    "link_question_part_1": "האם ברצונך לקשר את חשבונך ב- ",
+    "link_question_part_2": "לארנק הברק שלך?",
+    "link_answer": "ארנק הברק שלך קושר בהצלחה לחשבונך ב- {hostname}!",
+    "auth_question_part_1": "האם ברצונך להתאמת ב- ",
+    "auth_question_part_2": "בעזרת ארנק הברק שלך?",
+    "auth_answer": "אומתת בהצלחה אצל {hostname}!",
+    "could_not_auth": "לא הצלחנו לאמת אותך אל {hostname}.",
+    "authenticate": "אימות"
   }
 }
