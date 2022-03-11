@@ -388,7 +388,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.7.3):
+  - rn-ldk (0.7.4):
     - React-Core
   - RNCAsyncStorage (1.16.1):
     - React-Core
@@ -452,7 +452,7 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.3.6):
+  - RNShare (7.3.7):
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
@@ -801,7 +801,7 @@ SPEC CHECKSUMS:
   ReactCommon: 650e33cde4fb7d36781cd3143f5276da0abb2f96
   RealmJS: 9ca55cce37eedc14f6f3db233ba3d3ad52838c6f
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: b567ba7e60b8c1be19154361fd16eb939b732cb2
+  rn-ldk: 6010e5da42141ead1e7495bc2da9e7020ae3d266
   RNCAsyncStorage: b49b4e38a1548d03b74b30e558a1d18465b94be7
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
@@ -819,7 +819,7 @@ SPEC CHECKSUMS:
   RNReanimated: e28dfaa950064b674fde0a9b736e62b9dff500a7
   RNScreens: fd535547baa4ef8aeaee1a8b1e3ffd17b8df44a4
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: b955e66f1af2849711f13c193debda72b94f8aa0
+  RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
