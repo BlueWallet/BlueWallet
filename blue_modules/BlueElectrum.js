@@ -382,11 +382,37 @@ module.exports.getTransactionsFullByAddress = async function (address) {
   const txs = await this.getTransactionsByAddress(address);
   const ret = [];
   for (const tx of txs) {
-    const full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    let full;
+    try {
+      full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    } catch (error) {
+      if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+        // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
+        // throwing a proper exception. lets fetch txhex manually and decode on our end
+        const txhex = await mainClient.blockchainTransaction_get(tx.tx_hash, false);
+        full = txhexToElectrumTransaction(txhex);
+      } else {
+        // nope, its something else
+        throw new Error(String(error?.message ?? error));
+      }
+    }
     full.address = address;
     for (const input of full.vin) {
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      const prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      let prevTxForVin;
+      try {
+        prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      } catch (error) {
+        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+          // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
+          // throwing a proper exception. lets fetch txhex manually and decode on our end
+          const txhex = await mainClient.blockchainTransaction_get(input.txid, false);
+          prevTxForVin = txhexToElectrumTransaction(txhex);
+        } else {
+          // nope, its something else
+          throw new Error(String(error?.message ?? error));
+        }
+      }
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
         input.value = prevTxForVin.vout[input.vout].value;
         // also, we extract destination address from prev output:
@@ -623,18 +649,33 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
           results.push({ result: tx, param: txid });
         }
       } catch (_) {
-        // fallback. pretty sure we are connected to EPS.  we try getting transactions one-by-one. this way we wont
-        // fail and only non-tracked by EPS transactions will be omitted
-        for (const txid of chunk) {
-          try {
-            let tx = await mainClient.blockchainTransaction_get(txid, verbose);
-            if (typeof tx === 'string' && verbose) {
-              // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
-              // lets decode it manually on our end then:
+        if (String(_?.message ?? _).startsWith('verbose transactions are currently unsupported')) {
+          // electrs-esplora. cant use verbose, so fetching txs one by one and decoding locally
+          for (const txid of chunk) {
+            try {
+              let tx = await mainClient.blockchainTransaction_get(txid, false);
               tx = txhexToElectrumTransaction(tx);
+              results.push({ result: tx, param: txid });
+            } catch (_) {
+              console.log(_);
             }
-            results.push({ result: tx, param: txid });
-          } catch (_) {}
+          }
+        } else {
+          // fallback. pretty sure we are connected to EPS.  we try getting transactions one-by-one. this way we wont
+          // fail and only non-tracked by EPS transactions will be omitted
+          for (const txid of chunk) {
+            try {
+              let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+              if (typeof tx === 'string' && verbose) {
+                // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
+                // lets decode it manually on our end then:
+                tx = txhexToElectrumTransaction(tx);
+              }
+              results.push({ result: tx, param: txid });
+            } catch (_) {
+              console.log(_);
+            }
+          }
         }
       }
     } else {
