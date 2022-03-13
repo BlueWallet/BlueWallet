@@ -212,4 +212,40 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.notStrictEqual(id2, id3);
     assert.notStrictEqual(id1, id3);
   });
+
+  it('cat createTransaction with a correct feerate (with lenghty segwit address)', () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    const utxo = [
+      {
+        value: 69909,
+        address: 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl',
+        txId: '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20',
+        vout: 0,
+        txid: '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20',
+        amount: 69909,
+        wif: '-',
+      },
+    ];
+
+    const { tx, psbt } = hd.createTransaction(
+      utxo,
+      [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp' }], // sendMAX
+      1,
+      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', // change wont actually be used
+    );
+
+    const actualFeerate = psbt.getFee() / tx.virtualSize();
+    assert.strictEqual(
+      actualFeerate >= 1.0,
+      true,
+      `bad feerate, got ${actualFeerate}, expected at least 1; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
+    );
+  });
 });
