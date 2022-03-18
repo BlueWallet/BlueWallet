@@ -142,7 +142,7 @@
     "prop-types": "15.8.1",
     "react": "17.0.2",
     "react-localization": "1.0.18",
-    "react-native": "0.67.3",
+    "react-native": "0.67.4",
     "react-native-blue-crypto": "https://github.com/BlueWallet/react-native-blue-crypto#fbc2e6beded0b7f61e0986ce98cca1230f84bc1c",
     "react-native-camera": "4.2.1",
     "react-native-crypto": "2.2.0",
