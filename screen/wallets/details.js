@@ -51,11 +51,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
   },
-  save: {
-    marginHorizontal: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   address: {
     alignItems: 'center',
     flex: 1,
@@ -109,6 +104,17 @@ const styles = StyleSheet.create({
   marginRight16: {
     marginRight: 16,
   },
+  save: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
+    borderRadius: 8,
+    height: 34,
+  },
+  saveText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });
 
 const WalletDetails = () => {
@@ -149,9 +155,6 @@ const WalletDetails = () => {
     textLabel2: {
       color: colors.feeText,
     },
-    saveText: {
-      color: colors.outputValue,
-    },
     textValue: {
       color: colors.outputValue,
     },
@@ -160,6 +163,12 @@ const WalletDetails = () => {
       borderBottomColor: colors.formBorder,
 
       backgroundColor: colors.inputBackgroundColor,
+    },
+    save: {
+      backgroundColor: colors.lightButton,
+    },
+    saveText: {
+      color: colors.buttonTextColor,
     },
   });
   useEffect(() => {
@@ -193,13 +202,19 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" testID="Save" disabled={isLoading} style={styles.save} onPress={setLabel}>
-          <Text style={stylesHook.saveText}>{loc.wallets.details_save}</Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          testID="Save"
+          disabled={isLoading}
+          style={[styles.save, stylesHook.save]}
+          onPress={setLabel}
+        >
+          <Text style={[styles.saveText, stylesHook.saveText]}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors.outputValue, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
+  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
 
   useEffect(() => {
     if (wallets.some(wallet => wallet.getID() === walletID)) {
