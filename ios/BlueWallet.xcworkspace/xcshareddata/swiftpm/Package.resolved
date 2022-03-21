@@ -1,23 +1,25 @@
 {
-  "pins" : [
-    {
-      "identity" : "efqrcode",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/EFPrefix/EFQRCode.git",
-      "state" : {
-        "revision" : "62eff300b439d0088007b4e2e2e8c600f4b2e515",
-        "version" : "5.1.8"
+  "object": {
+    "pins": [
+      {
+        "package": "EFQRCode",
+        "repositoryURL": "https://github.com/EFPrefix/EFQRCode.git",
+        "state": {
+          "branch": null,
+          "revision": "62eff300b439d0088007b4e2e2e8c600f4b2e515",
+          "version": "5.1.8"
+        }
+      },
+      {
+        "package": "swift_qrcodejs",
+        "repositoryURL": "https://github.com/ApolloZhu/swift_qrcodejs.git",
+        "state": {
+          "branch": null,
+          "revision": "f3fe9fdd39fa48e45b501000194b43a3883f732f",
+          "version": "1.1.4"
+        }
       }
-    },
-    {
-      "identity" : "swift_qrcodejs",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ApolloZhu/swift_qrcodejs.git",
-      "state" : {
-        "revision" : "f3fe9fdd39fa48e45b501000194b43a3883f732f",
-        "version" : "1.1.4"
-      }
-    }
-  ],
-  "version" : 2
+    ]
+  },
+  "version": 1
 }
