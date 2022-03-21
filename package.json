@@ -185,7 +185,7 @@
     "react-native-watch-connectivity": "1.0.4",
     "react-native-webview": "11.17.2",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#b1382bbe1ed631b50a8aa03390f64c50775bc9ff",
-    "react-native-windows": "0.67.4",
+    "react-native-windows": "0.67.5",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "realm": "10.13.0",
