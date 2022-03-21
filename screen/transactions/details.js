@@ -36,9 +36,6 @@ const TransactionsDetails = () => {
   const [memo, setMemo] = useState();
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
-    saveText: {
-      color: colors.alternativeTextColor2,
-    },
     memoTextInput: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
@@ -50,13 +47,24 @@ const TransactionsDetails = () => {
     Link: {
       color: colors.buttonTextColor,
     },
+    save: {
+      backgroundColor: colors.lightButton,
+    },
+    saveText: {
+      color: colors.buttonTextColor,
+    },
   });
 
   useEffect(() => {
     setOptions({
       headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" disabled={isLoading} style={styles.save} onPress={handleOnSaveButtonTapped}>
-          <Text style={stylesHooks.saveText}>{loc.wallets.details_save}</Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          disabled={isLoading}
+          style={[styles.save, stylesHooks.save]}
+          onPress={handleOnSaveButtonTapped}
+        >
+          <Text style={[styles.saveText, stylesHooks.saveText]}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
     });
@@ -280,8 +288,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   save: {
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
+    borderRadius: 8,
+    height: 34,
+  },
+  saveText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   memoTextInput: {
     flexDirection: 'row',
