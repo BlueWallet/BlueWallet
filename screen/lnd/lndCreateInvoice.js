@@ -165,7 +165,7 @@ const LNDCreateInvoice = () => {
 
       if (lnurlParams) {
         const { min, max } = lnurlParams;
-        if (invoiceAmount < min || invoiceAmount > max) {
+        if (invoiceAmount < min || invoiceAmount > min) {
           let text;
           if (invoiceAmount < min) {
             text =
