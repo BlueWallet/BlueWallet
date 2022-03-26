@@ -398,7 +398,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.5.0):
+  - RNDeviceInfo (8.5.1):
     - React-Core
   - RNFS (2.19.0):
     - React-Core
@@ -408,7 +408,7 @@ PODS:
     - React
   - RNKeychain (8.0.0):
     - React-Core
-  - RNLocalize (2.2.0):
+  - RNLocalize (2.2.1):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -806,12 +806,12 @@ SPEC CHECKSUMS:
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
-  RNDeviceInfo: a674f06c5a5bd496aebb809cbc3be61cfd612a65
+  RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
   RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNLocalize: 6571ea792a7dcb6d217c98c14d9147e9417cef62
+  RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
