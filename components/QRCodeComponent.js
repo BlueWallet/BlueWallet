@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import Share from 'react-native-share';
 import loc from '../loc';
 import PropTypes from 'prop-types';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useTheme } from '@react-navigation/native';
 
 const QRCodeComponent = ({
   value,

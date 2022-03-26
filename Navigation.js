@@ -323,7 +323,7 @@ const AztecoRedeemRoot = () => {
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
   <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
-    <RootStack.Screen name="ScanQRCode" component={ScanQRCode} />
+    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} />
   </ScanQRCodeStack.Navigator>
 );
 
@@ -381,7 +381,7 @@ const ReceiveDetailsStackRoot = () => {
 
   return (
     <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="ReceiveDetails">
-      <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
+      <ReceiveDetailsStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
     </ReceiveDetailsStack.Navigator>
   );
 };
