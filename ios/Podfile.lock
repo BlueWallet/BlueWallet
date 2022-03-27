@@ -318,7 +318,7 @@ PODS:
     - React
   - react-native-webview (11.17.2):
     - React-Core
-  - react-native-widget-center (0.0.7):
+  - react-native-widget-center (0.0.8):
     - React
   - React-perflogger (0.67.4)
   - React-RCTActionSheet (0.67.4):
@@ -792,7 +792,7 @@ SPEC CHECKSUMS:
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 380c1a03ec94b7ed764dac8db1e7c9952d08c93a
-  react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
+  react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
   React-RCTAnimation: aae4f4bed122e78bdab72f7118d291d70a932ce2
