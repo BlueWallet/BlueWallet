@@ -6,7 +6,6 @@
 	<string>development</string>
 	<key>com.apple.developer.nfc.readersession.formats</key>
 	<array>
-		<string>NDEF</string>
 		<string>TAG</string>
 	</array>
 	<key>com.apple.security.app-sandbox</key>
