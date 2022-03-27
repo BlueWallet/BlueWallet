@@ -180,4 +180,72 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qthe7wh5eplzxczslvthyrer36ph3kxpnfnxgjg');
     assert.strictEqual(hd._getExternalWIFByIndex(0), 'L1tfV6fbRjDNwGQdJqHC9fneM9bTHigApnWgoKoU8JwgziwbbE7i');
   });
+
+  it('can create with custom derivation path', async () => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    hd.setDerivationPath("m/84'/0'/1'");
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'zpub6rFR7y4Q2AijF6Gk1bofHLs1d66hKFamhXWdWBup1Em25wfabZqkDqvaieV63fDQFaYmaatCG7jVNUpUiM2hAMo6SAVHcrUpSnHDpNzucB7',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1qku0qh0mc00y8tk0n65x2tqw4trlspak0fnjmfz');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1qt0x83f5vmnapgl2gjj9r3d67rcghvjaqrvgpck');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'L4ouJZjss1Ua8LPhsJNkzN8V8uXrQpfADNsqzsaT5JHs1G752c9j');
+
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0)), "m/84'/0'/1'/0/0");
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/84'/0'/1'/1/0");
+  });
+
+  it('can generate ID', () => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    const id1 = hd.getID();
+    hd.setPassphrase('super secret passphrase');
+    const id2 = hd.getID();
+    hd.setDerivationPath("m/84'/0'/1'");
+    const id3 = hd.getID();
+
+    assert.notStrictEqual(id1, id2);
+    assert.notStrictEqual(id2, id3);
+    assert.notStrictEqual(id1, id3);
+  });
+
+  it('cat createTransaction with a correct feerate (with lenghty segwit address)', () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    const utxo = [
+      {
+        value: 69909,
+        address: 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl',
+        txId: '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20',
+        vout: 0,
+        txid: '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20',
+        amount: 69909,
+        wif: '-',
+      },
+    ];
+
+    const { tx, psbt } = hd.createTransaction(
+      utxo,
+      [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp' }], // sendMAX
+      1,
+      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', // change wont actually be used
+    );
+
+    const actualFeerate = psbt.getFee() / tx.virtualSize();
+    assert.strictEqual(
+      actualFeerate >= 1.0,
+      true,
+      `bad feerate, got ${actualFeerate}, expected at least 1; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
+    );
+  });
 });

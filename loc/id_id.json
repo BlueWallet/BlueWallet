@@ -252,6 +252,7 @@
     "electrum_connected": "Terhubung",
     "electrum_connected_not": "Tidak Terhubung",
     "electrum_error_connect": "Tidak dapat terhubung dengan server Electrum",
+    "lndhub_uri": "Contoh. {example}",
     "electrum_host": "Contoh. {example}",
     "general_adv_mode": "Enable advanced mode",
     "header": "setting",

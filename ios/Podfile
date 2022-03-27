@@ -16,9 +16,10 @@ target 'BlueWallet' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
-  use_flipper!()
+  use_flipper!({ "Flipper-DoubleConversion" => "1.1.7" })
   post_install do |installer|
       react_native_post_install(installer)
+      __apply_Xcode_12_5_M1_post_install_workaround(installer)
       pod 'Bugsnag'
       plugin 'cocoapods-bugsnag'
       installer.pods_project.targets.each do |target|

@@ -5,6 +5,12 @@
       "locale": "en-US",
       "source": "CoinDesk"
     },
+    "AED": {
+      "endPointKey": "AED",
+      "symbol": "د.إ.",
+      "locale": "ar-AE",
+      "source": "CoinDesk"
+    },
     "ANG": {
       "endPointKey": "ANG",
       "symbol": "ƒ",
@@ -27,6 +33,12 @@
       "endPointKey": "AWG",
       "symbol": "ƒ",
       "locale": "nl-AW",
+      "source": "CoinDesk"
+    },
+    "BHD": {
+      "endPointKey": "BHD",
+      "symbol": "د.ب.",
+      "locale": "ar-BH",
       "source": "CoinDesk"
     },
     "BRL": {
@@ -71,6 +83,12 @@
       "locale": "zh-CN",
       "source": "CoinDesk"
     },
+    "DKK": {
+    "endPointKey": "DKK",
+    "symbol": "kr",
+    "locale": "da-DK",
+    "source": "CoinDesk"
+    },
     "EUR": {
       "endPointKey": "EUR",
       "symbol": "€",
@@ -111,13 +129,25 @@
       "endPointKey": "INR",
       "symbol": "₹",
       "locale": "hi-HN",
-      "source": "CoinDesk"
+      "source": "wazirx"
+    },
+    "IRT": {
+      "endPointKey": "IRT",
+      "symbol": "تومان",
+      "locale": "fa-IR",
+      "source": "Exir"
     },
     "IRR": {
       "endPointKey": "IRR",
       "symbol": "﷼",
       "locale": "fa-IR",
       "source": "Exir"
+    },
+    "ISK": {
+      "endPointKey": "ISK",
+      "symbol": "kr",
+      "locale": "is-IS",
+      "source": "CoinDesk"
     },
     "JPY": {
       "endPointKey": "JPY",
@@ -137,11 +167,23 @@
       "locale": "ko-KR",
       "source": "CoinDesk"
     },
+    "KWD": {
+      "endPointKey": "KWD",
+      "symbol": "د.ك.",
+      "locale": "ar-KW",
+      "source": "CoinDesk"
+    },
     "LBP": {
       "endPointKey": "LBP",
       "symbol": "ل.ل.",
       "locale": "ar-LB",
       "source": "BitcoinduLiban"
+    },
+    "MZN": {
+      "endPointKey": "MZN",
+      "symbol": "MTn",
+      "locale": "seh-MZ",
+      "source": "CoinDesk"
     },
     "MXN": {
       "endPointKey": "MXN",
@@ -173,6 +215,12 @@
       "locale": "en-NZ",
       "source": "CoinDesk"
     },
+    "OMR": {
+      "endPointKey": "OMR",
+      "symbol": "ر.ع.",
+      "locale": "ar-OM",
+      "source": "CoinDesk"
+    },
     "PLN": {
       "endPointKey": "PLN",
       "symbol": "zł",
@@ -185,10 +233,22 @@
       "locale": "en-PH",
       "source": "CoinDesk"
     },
+    "QAR": {
+      "endPointKey": "QAR",
+      "symbol": "ر.ق.",
+      "locale": "ar-QA",
+      "source": "CoinDesk"
+    },
     "RUB": {
       "endPointKey": "RUB",
       "symbol": "₽",
       "locale": "ru-RU",
+      "source": "CoinDesk"
+    },
+    "SAR": {
+      "endPointKey": "SAR",
+      "symbol": "ر.س.",
+      "locale": "ar-SA",
       "source": "CoinDesk"
     },
     "SGD": {

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -7,6 +6,8 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
+import { LightningLdkWallet } from '../../class';
+import alert from '../../components/Alert';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
@@ -24,12 +25,6 @@ const LdkViewLogs = () => {
   const stylesHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-    },
-    text: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-      color: colors.foregroundColor,
     },
   });
 
@@ -65,7 +60,7 @@ const LdkViewLogs = () => {
   };
 
   const exportLogs = async () => {
-    return fs.writeFileAndExport('rn-ldk.log', info + '\n' + logs);
+    return fs.writeFileAndExport('rn-ldk.log', info + '\n' + (await wallet.getLogsWithTs()));
   };
 
   const selfTest = async () => {
@@ -85,11 +80,12 @@ const LdkViewLogs = () => {
         setGetInfo(info);
         const peers = await wallet.listPeers();
         const listChannels = await wallet.listChannels();
-        const version = await wallet.getVersion();
+        const version = await LightningLdkWallet.getVersion();
 
         let nfo = 'num peers: ' + peers.length;
         nfo += '\nnum channels: ' + listChannels.length;
         nfo += '\nldk binary version: ' + version;
+        nfo += '\nstorage namespace: ' + wallet.getStorageNamespace();
         setInfo(nfo);
       })
       .finally(() => {
@@ -138,31 +134,6 @@ export default LdkViewLogs;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  text: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    marginTop: 5,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    borderRadius: 4,
-    textAlignVertical: 'top',
-  },
-  textMessage: {
-    minHeight: 50,
-  },
-  flex: {
-    flex: 1,
-  },
-  loading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   button: {
     alignItems: 'center',

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
@@ -8,9 +7,9 @@ import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
-
 import loc from '../../loc';
 import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -149,10 +148,6 @@ const styles = StyleSheet.create({
   modalContentShort: {
     marginLeft: 20,
     marginRight: 20,
-  },
-  copyToClipboard: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   exportButton: {
     height: 48,

@@ -42,6 +42,50 @@ describe('LNURL', function () {
     assert.ok(!Lnurl.isLnurl('bs'));
   });
 
+  it('can parseOnionUrl()', () => {
+    const vectors = [
+      {
+        test: 'http://abc.onion/path',
+        expected: ['http://abc.onion', '/path'],
+      },
+      {
+        test: 'http://abc.onion:12345/path',
+        expected: ['http://abc.onion:12345', '/path'],
+      },
+      {
+        test: 'http://abc.onion/',
+        expected: ['http://abc.onion', '/'],
+      },
+      {
+        test: 'http://abc.onion',
+        expected: ['http://abc.onion', undefined],
+      },
+      {
+        test: 'https://abc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://abc.com',
+        expected: null,
+      },
+      {
+        test: 'http://a@bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a/bc.onion',
+        expected: null,
+      },
+      {
+        test: 'http://a:bc.onion',
+        expected: null,
+      },
+    ];
+    for (const { test, expected } of vectors) {
+      assert.deepStrictEqual(Lnurl.parseOnionUrl(test), expected);
+    }
+  });
+
   it('can callLnurlPayService() and requestBolt11FromLnurlPayService()', async () => {
     const LN = new Lnurl('LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58');
 
@@ -77,8 +121,7 @@ describe('LNURL', function () {
         status: 'OK',
         successAction: null,
         routes: [],
-        pr:
-          'lnbc20n1p03s853pp58v9lrqahj2zyuzsdqqm3wnt2damlnkkuzwm8s7jkmnauhtkq4fjshp5z766racq95ncpk27nksev2ntu8wte77zd46g8uvzlnm5hhwukjrqcqzysxq9p5hsqrzjq29zewx4rezd04lpprpwsz5cesrfz30qtfkjqfw0249a3pn0uv5exzdefqqqxecqqqqqqqlgqqqq03sq9qsp52guktgy9u0xpky06n7slhjcvkassj0xpc3t9wadfsa0sl5x4fz9s9qy9qsqff5ycjg6xh3cc0vf8wxzxdajrdl9pka3nl3v37vcqj0qrdkzhsqxs8atfnxm2xenlkz7fpghlnuypux7hdp63zct3fr9px2e349kyqspu3gswx',
+        pr: 'lnbc20n1p03s853pp58v9lrqahj2zyuzsdqqm3wnt2damlnkkuzwm8s7jkmnauhtkq4fjshp5z766racq95ncpk27nksev2ntu8wte77zd46g8uvzlnm5hhwukjrqcqzysxq9p5hsqrzjq29zewx4rezd04lpprpwsz5cesrfz30qtfkjqfw0249a3pn0uv5exzdefqqqxecqqqqqqqlgqqqq03sq9qsp52guktgy9u0xpky06n7slhjcvkassj0xpc3t9wadfsa0sl5x4fz9s9qy9qsqff5ycjg6xh3cc0vf8wxzxdajrdl9pka3nl3v37vcqj0qrdkzhsqxs8atfnxm2xenlkz7fpghlnuypux7hdp63zct3fr9px2e349kyqspu3gswx',
         disposable: false,
       };
     };
@@ -87,8 +130,7 @@ describe('LNURL', function () {
       status: 'OK',
       successAction: null,
       routes: [],
-      pr:
-        'lnbc20n1p03s853pp58v9lrqahj2zyuzsdqqm3wnt2damlnkkuzwm8s7jkmnauhtkq4fjshp5z766racq95ncpk27nksev2ntu8wte77zd46g8uvzlnm5hhwukjrqcqzysxq9p5hsqrzjq29zewx4rezd04lpprpwsz5cesrfz30qtfkjqfw0249a3pn0uv5exzdefqqqxecqqqqqqqlgqqqq03sq9qsp52guktgy9u0xpky06n7slhjcvkassj0xpc3t9wadfsa0sl5x4fz9s9qy9qsqff5ycjg6xh3cc0vf8wxzxdajrdl9pka3nl3v37vcqj0qrdkzhsqxs8atfnxm2xenlkz7fpghlnuypux7hdp63zct3fr9px2e349kyqspu3gswx',
+      pr: 'lnbc20n1p03s853pp58v9lrqahj2zyuzsdqqm3wnt2damlnkkuzwm8s7jkmnauhtkq4fjshp5z766racq95ncpk27nksev2ntu8wte77zd46g8uvzlnm5hhwukjrqcqzysxq9p5hsqrzjq29zewx4rezd04lpprpwsz5cesrfz30qtfkjqfw0249a3pn0uv5exzdefqqqxecqqqqqqqlgqqqq03sq9qsp52guktgy9u0xpky06n7slhjcvkassj0xpc3t9wadfsa0sl5x4fz9s9qy9qsqff5ycjg6xh3cc0vf8wxzxdajrdl9pka3nl3v37vcqj0qrdkzhsqxs8atfnxm2xenlkz7fpghlnuypux7hdp63zct3fr9px2e349kyqspu3gswx',
       disposable: false,
     });
 
@@ -143,8 +185,7 @@ describe('LNURL', function () {
       urlUsed = urlToFetch;
       return {
         disposable: true,
-        pr:
-          'lnbc100n1psj8g53pp50t7xmnvnzsm6y78kcvqqudlnnushc04sevtneessp463ndpf83qshp5nh0t5w4w5zh8jdnn5a03hk4pk279l3eex4nzazgkwmqpn7wga6hqcqzpgxqr23ssp5ddpxstde98ekccnvzms67h9uflxmpj939aj4rwc5xwru0x6nfkus9qyyssq55n5hn9gwmrzx2ekajlqshvu53u8h3p0npu7ng4d0lnttgueprzr4mtpwa83jrpz4skhdx3p0xnh9jc92ysnu8umuwa70hkxhp44svsq9u5uqr',
+        pr: 'lnbc100n1psj8g53pp50t7xmnvnzsm6y78kcvqqudlnnushc04sevtneessp463ndpf83qshp5nh0t5w4w5zh8jdnn5a03hk4pk279l3eex4nzazgkwmqpn7wga6hqcqzpgxqr23ssp5ddpxstde98ekccnvzms67h9uflxmpj939aj4rwc5xwru0x6nfkus9qyyssq55n5hn9gwmrzx2ekajlqshvu53u8h3p0npu7ng4d0lnttgueprzr4mtpwa83jrpz4skhdx3p0xnh9jc92ysnu8umuwa70hkxhp44svsq9u5uqr',
         successAction: null,
       };
     };
@@ -168,10 +209,12 @@ describe('LNURL', function () {
 describe('lightning address', function () {
   it('can getUrlFromLnurl()', () => {
     assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@zbd.gg'), 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+    assert.strictEqual(Lnurl.getUrlFromLnurl('lnaddress@hidden.onion'), 'http://hidden.onion/.well-known/lnurlp/lnaddress');
   });
 
   it('can detect', async () => {
     assert.ok(Lnurl.isLightningAddress('lnaddress@zbd.gg'));
+    assert.ok(Lnurl.isLightningAddress('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion'));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@zbd.gg '));
     assert.ok(Lnurl.isLightningAddress(' lnaddress@8.8.8.8 '));
@@ -181,7 +224,51 @@ describe('lightning address', function () {
     assert.ok(!Lnurl.isLightningAddress('@'));
     assert.ok(!Lnurl.isLightningAddress('@a'));
     assert.ok(!Lnurl.isLightningAddress('a@'));
+  });
 
+  it('can authenticate', async () => {
+    const LN = new Lnurl(
+      'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+    );
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    let requestedUri = -1;
+    LN.fetchGet = actuallyRequestedUri => {
+      requestedUri = actuallyRequestedUri;
+      return {
+        status: 'OK',
+      };
+    };
+
+    await assert.doesNotReject(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'));
+    assert.strictEqual(
+      requestedUri,
+      'https://lightninglogin.live/login?k1=2191be568cfe6d2a8e8a90ce04c15edf70fdcae6c1b9faff684acab6f400fa0d&tag=login&sig=304502210093ab4ead8dd619f2ddb3d52bd4bb01725badcb2a3daa3870fb41a38096f9a37d0220464a32e94e13dcec20ea94b94df0fa52f45cd88b01d7247042136ad0c71752d2&key=03e7b61e57efff1925ab9082625400cae2c8ad88a984e7aa4987abb77818570018',
+    );
+  });
+
+  it('returns the server error response as the reject error from lnurl-auth', async () => {
+    const LN = new Lnurl(
+      'LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NYVFEX93X2DFK8P3KVEFKVSEXZWR98PSNJVRRV5CRGCE3X4JKGE3HXPNXGCMPV5MXXVTZ89NXZENXXCURGCTRV93RVE35XQCXVCFSVSN8GCT884KX7EMFDCDKKXQ0',
+    );
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    LN.fetchGet = () => {
+      return {
+        reason: 'Invalid signature',
+        status: 'ERROR',
+      };
+    };
+
+    await assert.rejects(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'), err => {
+      assert.strictEqual(err, 'Invalid signature');
+      return true;
+    });
+  });
+
+  it('works', async () => {
     const LN = new Lnurl('lnaddress@zbd.gg');
 
     // poor-man's mock:
@@ -214,5 +301,45 @@ describe('lightning address', function () {
     });
 
     assert.strictEqual(requestedUri, 'https://zbd.gg/.well-known/lnurlp/lnaddress');
+  });
+
+  it('works with onion', async () => {
+    assert.ok(Lnurl.isLightningAddress('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion'));
+
+    const LN = new Lnurl('avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion');
+
+    // poor-man's mock:
+    LN._fetchGet = LN.fetchGet;
+    let requestedUri = -1;
+    LN.fetchGet = actuallyRequestedUri => {
+      requestedUri = actuallyRequestedUri;
+      return {
+        status: 'OK',
+        callback: 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar',
+        tag: 'payRequest',
+        maxSendable: 100000000,
+        minSendable: 1000,
+        metadata:
+          '[["text/identifier", "avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"], ["text/plain", "Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"]]',
+        commentAllowed: 0,
+      };
+    };
+
+    const lnurlpayPayload = await LN.callLnurlPayService();
+    assert.deepStrictEqual(lnurlpayPayload, {
+      amount: 1,
+      callback: 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar',
+      commentAllowed: 0,
+      description: 'Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion',
+      domain: 'st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion',
+      fixed: false,
+      image: undefined,
+      max: 100000,
+      metadata:
+        '[["text/identifier", "avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"], ["text/plain", "Sats for avatar@st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion"]]',
+      min: 1,
+    });
+
+    assert.strictEqual(requestedUri, 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar');
   });
 });

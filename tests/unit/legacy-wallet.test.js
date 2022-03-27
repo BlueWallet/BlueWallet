@@ -1,8 +1,41 @@
 import { LegacyWallet } from '../../class';
+import { ECPairFactory } from 'ecpair';
+const ecc = require('tiny-secp256k1');
+const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
 describe('Legacy wallet', () => {
+  it('can validate addresses', () => {
+    const w = new LegacyWallet();
+    assert.ok(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
+    assert.ok(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j'));
+    assert.ok(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'));
+    assert.ok(!w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUo'));
+    assert.ok(!w.isAddressValid('12345'));
+    assert.ok(w.isAddressValid('bc1quuafy8htjjj263cvpj7md84magzmc8svmh8lrm'));
+    assert.ok(w.isAddressValid('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7'));
+
+    // taproot:
+    assert.ok(!w.isAddressValid('bc1pw5dgrnzv')); // v1, data length != 32
+    assert.ok(!w.isAddressValid('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav253zgeav')); // v1, data length != 32
+    assert.ok(!w.isAddressValid('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd')); // P2TR example with errors (using Bech32 instead of Bech32m)
+    assert.ok(!w.isAddressValid('bc1p38j9r5y49hruaue7wxjce0updqjuyyx0kh56v8s25huc6995vvpql3jow4')); // invalid char
+    assert.ok(!w.isAddressValid('BC130XLXVLHEMJA6C4DQV22UAPCTQUPFHLXM9H8Z3K2E72Q4K9HCZ7VQ7ZWS8R')); // invalid char
+    assert.ok(!w.isAddressValid('bc1pllllllllllllllllllllllllllllllllllllllllllllallllscqlhrddu')); // X is modulo P + 1 (invalid X, but 1 is valid, testing if wrapped modulo (P+1 mod P === 1) will pass)
+    assert.ok(!w.isAddressValid('bc1pllllllllllllllllllllllllllllllllllllllllllllallllshqcgyklh')); // X is modulo P - 1 (invalid X)
+    assert.ok(!w.isAddressValid('bc1pqtllllllllllllllllllllllllllllllllllllllllllllhlll7zcsqylfl')); // data length is 33 (valid point in compressed DER format (33 bytes))
+    assert.ok(!w.isAddressValid('bc1plllllllllllllllllllllllllllllllllllllllllll0lllu9cegrnmx')); // data is length 31 (valid X value with leading 0x00 trimmed)
+
+    assert.ok(w.isAddressValid('bc1pw38ttcljvgv9x64xpsq99dl9auy8vv50n25xcstuj2cagzcpx3us2m25kg'));
+    assert.ok(w.isAddressValid('bc1pqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqsyjer9e'));
+    assert.ok(w.isAddressValid('bc1pmfr3p9j00pfxjh0zmgp99y8zftmd3s5pmedqhyptwy6lm87hf5sspknck9'));
+    assert.ok(w.isAddressValid('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0'));
+
+    assert.ok(!w.isAddressValid('BC1SW50QGDZ25J')); // v16, valid but unsafe
+    assert.ok(!w.isAddressValid('bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs')); // v2, valid but unsafe
+  });
+
   it('can create transaction', async () => {
     const l = new LegacyWallet();
     l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
@@ -118,7 +151,7 @@ describe('Legacy wallet', () => {
     await l.generateFromEntropy(Buffer.from(values));
     assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
     assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
-    const keyPair = bitcoin.ECPair.fromWIF(l.getSecret());
+    const keyPair = ECPair.fromWIF(l.getSecret());
     assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
     assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
@@ -131,6 +164,15 @@ describe('Legacy wallet', () => {
 
     const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
     assert.strictEqual(signature, 'H9L5yLFjti0QTHhPyFrZCT1V/MMnBtXKmoiKDZ78NDBjERki6ZTQZdSMCtkgoNmp17By9ItJr8o7ChX0XxY91nk=');
+    assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
+  });
+
+  it('can sign and verify messages with uncompressed key', async () => {
+    const l = new LegacyWallet();
+    l.setSecret('5JqSfbkoVDrzM5i7PH7939G5fwWVDWmnFTSMbVctAmet3tYMq2S');
+
+    const signature = l.signMessage('This is an example of a signed message.', l.getAddress());
+    assert.strictEqual(signature, 'G19XLC0OYWN5ftv3N01s1PSt9Zpy0ZRKL2THZA46qGb0Jax29+SFmsdlsup0QKFeGJYN+m2HQTG1Na+YxcjU9ew=');
     assert.strictEqual(l.verifyMessage('This is an example of a signed message.', l.getAddress(), signature), true);
   });
 });

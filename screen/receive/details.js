@@ -11,11 +11,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
-import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 
+import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
@@ -29,7 +28,6 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
-import Privacy from '../../blue_modules/Privacy';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
@@ -41,6 +39,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
+import { SuccessView } from '../send/success';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -69,85 +68,31 @@ const ReceiveDetails = () => {
   const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
-      padding: 22,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
       borderTopColor: colors.foregroundColor,
       borderWidth: colors.borderWidth,
-      minHeight: 350,
-      height: 350,
     },
     customAmount: {
-      flexDirection: 'row',
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
-      borderWidth: 1.0,
-      borderBottomWidth: 0.5,
       backgroundColor: colors.inputBackgroundColor,
-      minHeight: 44,
-      height: 44,
-      marginHorizontal: 20,
-      alignItems: 'center',
-      marginVertical: 8,
-      borderRadius: 4,
     },
     customAmountText: {
-      flex: 1,
-      marginHorizontal: 8,
       color: colors.foregroundColor,
-      minHeight: 33,
     },
     root: {
-      flexGrow: 1,
       backgroundColor: colors.elevated,
-      justifyContent: 'space-between',
     },
     rootBackgroundColor: {
       backgroundColor: colors.elevated,
     },
-    scrollBody: {
-      marginTop: 32,
-      flexGrow: 1,
-      alignItems: 'center',
-      paddingHorizontal: 16,
-    },
-    share: {
-      justifyContent: 'flex-end',
-      paddingVertical: 16,
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    link: {
-      marginVertical: 16,
-      paddingHorizontal: 32,
-    },
     amount: {
       color: colors.foregroundColor,
-      fontWeight: '600',
-      fontSize: 36,
-      textAlign: 'center',
     },
     label: {
       color: colors.foregroundColor,
-      fontWeight: '600',
-      textAlign: 'center',
-      paddingBottom: 24,
-    },
-    loading: {
-      alignItems: 'center',
-      width: 300,
-      height: 300,
-      backgroundColor: colors.elevated,
     },
     modalButton: {
       backgroundColor: colors.modalButton,
-      paddingVertical: 14,
-      paddingHorizontal: 70,
-      maxWidth: '80%',
-      borderRadius: 50,
-      fontWeight: '700',
     },
   });
 
@@ -252,16 +197,16 @@ const ReceiveDetails = () => {
   const renderConfirmedBalance = () => {
     return (
       <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
-        <View style={stylesHook.scrollBody}>
+        <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={stylesHook.label} numberOfLines={1}>
+              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
-          <BlueText style={stylesHook.label} numberOfLines={1}>
+          <SuccessView />
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
             {displayBalance}
           </BlueText>
         </View>
@@ -276,20 +221,20 @@ const ReceiveDetails = () => {
   const renderPendingBalance = () => {
     return (
       <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
-        <View style={stylesHook.scrollBody}>
+        <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={stylesHook.label} numberOfLines={1}>
+              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
           <TransactionPendingIconBig />
           <BlueSpacing40 />
-          <BlueText style={stylesHook.label} numberOfLines={1}>
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
             {displayBalance}
           </BlueText>
-          <BlueText style={stylesHook.label} numberOfLines={1}>
+          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
             {eta}
           </BlueText>
         </View>
@@ -315,26 +260,30 @@ const ReceiveDetails = () => {
 
   const renderReceiveDetails = () => {
     return (
-      <ScrollView contentContainerStyle={stylesHook.root} keyboardShouldPersistTaps="always">
-        <View style={stylesHook.scrollBody}>
+      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText testID="CustomAmountText" style={stylesHook.amount} numberOfLines={1}>
-                {getDisplayAmount()}
-              </BlueText>
-              <BlueText testID="CustomAmountDescriptionText" style={stylesHook.label} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
+              {getDisplayAmount() && (
+                <BlueText testID="CustomAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
+                  {getDisplayAmount()}
+                </BlueText>
+              )}
+              {customLabel?.length > 0 && (
+                <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
+                  {customLabel}
+                </BlueText>
+              )}
             </>
           )}
 
           <QRCodeComponent value={bip21encoded} />
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
-        <View style={stylesHook.share}>
+        <View style={styles.share}>
           <BlueCard>
             <BlueButtonLink
-              style={stylesHook.link}
+              style={styles.link}
               testID="SetCustomAmountButton"
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
@@ -355,7 +304,6 @@ const ReceiveDetails = () => {
   };
 
   const obtainWalletAddress = useCallback(async () => {
-    Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
     await saveToDisk();
@@ -424,11 +372,12 @@ const ReceiveDetails = () => {
           } else {
             obtainWalletAddress();
           }
+        } else if (!wallet && address) {
+          setAddressBIP21Encoded(address);
         }
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
@@ -471,16 +420,16 @@ const ReceiveDetails = () => {
     return (
       <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={stylesHook.modalContent}>
+          <View style={[styles.modalContent, stylesHook.modalContent]}>
             <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
-            <View style={stylesHook.customAmount}>
+            <View style={[styles.customAmount, stylesHook.customAmount]}>
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
                 placeholder={loc.receive.details_label}
                 value={customLabel || ''}
                 numberOfLines={1}
-                style={stylesHook.customAmountText}
+                style={[styles.customAmountText, stylesHook.customAmountText]}
                 testID="CustomAmountDescription"
               />
             </View>
@@ -488,7 +437,7 @@ const ReceiveDetails = () => {
             <View>
               <BlueButton
                 testID="CustomAmountSaveButton"
-                style={stylesHook.modalButton}
+                style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}
                 onPress={createCustomAmountAddress}
               />
@@ -509,25 +458,29 @@ const ReceiveDetails = () => {
    * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
    */
   const getDisplayAmount = () => {
-    switch (customUnit) {
-      case BitcoinUnit.BTC:
-        return customAmount + ' BTC';
-      case BitcoinUnit.SATS:
-        return currency.satoshiToBTC(customAmount) + ' BTC';
-      case BitcoinUnit.LOCAL_CURRENCY:
-        return currency.fiatToBTC(customAmount) + ' BTC';
+    if (Number(customAmount) > 0) {
+      switch (customUnit) {
+        case BitcoinUnit.BTC:
+          return customAmount + ' BTC';
+        case BitcoinUnit.SATS:
+          return currency.satoshiToBTC(customAmount) + ' BTC';
+        case BitcoinUnit.LOCAL_CURRENCY:
+          return currency.fiatToBTC(customAmount) + ' BTC';
+      }
+      return customAmount + ' ' + customUnit;
+    } else {
+      return null;
     }
-    return customAmount + ' ' + customUnit;
   };
 
   return (
-    <View style={stylesHook.root}>
+    <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent
-          title={`Bitcoin Transaction ${address}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/address/${address}`}
+          title={loc.send.details_address}
+          type={HandoffComponent.activityTypes.ReceiveOnchain}
+          userInfo={{ address: address }}
         />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
@@ -540,9 +493,67 @@ const ReceiveDetails = () => {
 };
 
 const styles = StyleSheet.create({
-  icon: {
-    width: 400,
-    height: 400,
+  modalContent: {
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    minHeight: 350,
+    height: 350,
+  },
+  customAmount: {
+    flexDirection: 'row',
+    borderWidth: 1.0,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  root: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  scrollBody: {
+    marginTop: 32,
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  share: {
+    justifyContent: 'flex-end',
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  link: {
+    marginVertical: 16,
+    paddingHorizontal: 32,
+  },
+  amount: {
+    fontWeight: '600',
+    fontSize: 36,
+    textAlign: 'center',
+  },
+  label: {
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingBottom: 24,
+  },
+  modalButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 70,
+    maxWidth: '80%',
+    borderRadius: 50,
+    fontWeight: '700',
+  },
+  customAmountText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
   },
 });
 

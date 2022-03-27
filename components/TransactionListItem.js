@@ -1,30 +1,30 @@
 /* eslint react/prop-types: "off" */
-import React, { useState, useMemo, useCallback, useContext, useEffect } from 'react';
-import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
+import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BitcoinUnit } from '../models/bitcoinUnits';
-import * as NavigationService from '../NavigationService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useTheme } from '@react-navigation/native';
+
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import * as NavigationService from '../NavigationService';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import Lnurl from '../class/lnurl';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
-import {
-  BlueListItem,
-  BlueTransactionExpiredIcon,
-  BlueTransactionIncomingIcon,
-  BlueTransactionOffchainIcon,
-  BlueTransactionOffchainIncomingIcon,
-  BlueTransactionOnchainIcon,
-  BlueTransactionOutgoingIcon,
-  BlueTransactionPendingIcon,
-} from '../BlueComponents';
+import { BlueListItem } from '../BlueComponents';
+import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
+import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
+import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
+import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffchainIncomingIcon';
+import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
+import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
+import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 
-export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
+export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const menuRef = useRef();
   const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const containerStyle = useMemo(
     () => ({
@@ -113,7 +113,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.category === 'receive' && item.confirmations < 3) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionPendingIcon />
+          <TransactionPendingIcon />
         </View>
       );
     }
@@ -121,7 +121,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.type && item.type === 'bitcoind_tx') {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOnchainIcon />
+          <TransactionOnchainIcon />
         </View>
       );
     }
@@ -129,7 +129,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
       // is it lightning offchain payment?
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOffchainIcon />
+          <TransactionOffchainIcon />
         </View>
       );
     }
@@ -142,14 +142,14 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         if (invoiceExpiration < now) {
           return (
             <View style={styles.iconWidth}>
-              <BlueTransactionExpiredIcon />
+              <TransactionExpiredIcon />
             </View>
           );
         }
       } else {
         return (
           <View style={styles.iconWidth}>
-            <BlueTransactionOffchainIncomingIcon />
+            <TransactionOffchainIncomingIcon />
           </View>
         );
       }
@@ -158,19 +158,19 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (!item.confirmations) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionPendingIcon />
+          <TransactionPendingIcon />
         </View>
       );
     } else if (item.value < 0) {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionOutgoingIcon />
+          <TransactionOutgoingIcon />
         </View>
       );
     } else {
       return (
         <View style={styles.iconWidth}>
-          <BlueTransactionIncomingIcon />
+          <TransactionIncomingIcon />
         </View>
       );
     }
@@ -181,8 +181,9 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   }, [subtitle]);
 
   const onPress = useCallback(async () => {
+    menuRef?.current?.dismissMenu();
     if (item.hash) {
-      navigate('TransactionStatus', { hash: item.hash });
+      navigate('TransactionStatus', { hash: item.hash, walletID });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {
@@ -212,7 +213,6 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         navigate('LNDViewInvoice', {
           invoice: item,
           walletID: lightningWallet[0].getID(),
-          isModal: false,
         });
       }
     }
@@ -241,29 +241,38 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     Clipboard.setString(`https://mempool.space/tx/${item.hash}`);
   }, [item.hash]);
 
-  const onToolTipPress = useCallback(id => {
-    if (id === TransactionListItem.actionKeys.CopyAmount) {
-      handleOnCopyAmountTap();
-    } else if (id === TransactionListItem.actionKeys.CopyNote) {
-      handleOnCopyNote();
-    } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
-      handleOnViewOnBlockExplorer();
-    } else if (id === TransactionListItem.actionKeys.ExpandNote) {
-      handleOnExpandNote();
-    } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
-      handleCopyOpenInBlockExplorerPress();
-    } else if (id === TransactionListItem.actionKeys.CopyTXID) {
-      handleOnCopyTransactionID();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onToolTipPress = useCallback(
+    id => {
+      if (id === TransactionListItem.actionKeys.CopyAmount) {
+        handleOnCopyAmountTap();
+      } else if (id === TransactionListItem.actionKeys.CopyNote) {
+        handleOnCopyNote();
+      } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
+        handleOnViewOnBlockExplorer();
+      } else if (id === TransactionListItem.actionKeys.ExpandNote) {
+        handleOnExpandNote();
+      } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
+        handleCopyOpenInBlockExplorerPress();
+      } else if (id === TransactionListItem.actionKeys.CopyTXID) {
+        handleOnCopyTransactionID();
+      }
+    },
+    [
+      handleCopyOpenInBlockExplorerPress,
+      handleOnCopyAmountTap,
+      handleOnCopyNote,
+      handleOnCopyTransactionID,
+      handleOnExpandNote,
+      handleOnViewOnBlockExplorer,
+    ],
+  );
 
   const toolTipActions = useMemo(() => {
     const actions = [];
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
         id: TransactionListItem.actionKeys.CopyAmount,
-        text: `${loc.transactions.details_copy} ${loc.send.create_amount}`,
+        text: loc.transactions.details_copy_amount,
         icon: TransactionListItem.actionIcons.Clipboard,
       });
     }
@@ -271,7 +280,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (subtitle) {
       actions.push({
         id: TransactionListItem.actionKeys.CopyNote,
-        text: `${loc.transactions.details_copy} ${loc.transactions.note}`,
+        text: loc.transactions.details_copy_note,
         icon: TransactionListItem.actionIcons.Clipboard,
       });
     }
@@ -279,57 +288,49 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
       actions.push(
         {
           id: TransactionListItem.actionKeys.CopyTXID,
-          text: `${loc.transactions.details_copy} ${loc.transactions.txid}`,
+          text: loc.transactions.details_copy_txid,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
         {
           id: TransactionListItem.actionKeys.CopyBlockExplorerLink,
-          text: `${loc.transactions.details_copy} ${loc.transactions.block_explorer_link}`,
+          text: loc.transactions.details_copy_block_explorer_link,
           icon: TransactionListItem.actionIcons.Clipboard,
         },
+        [
+          {
+            id: TransactionListItem.actionKeys.OpenInBlockExplorer,
+            text: loc.transactions.details_show_in_block_explorer,
+            icon: TransactionListItem.actionIcons.Link,
+          },
+        ],
       );
+    }
+
+    if (subtitle && subtitleNumberOfLines === 1) {
+      actions.push([
+        {
+          id: TransactionListItem.actionKeys.ExpandNote,
+          text: loc.transactions.expand_note,
+          icon: TransactionListItem.actionIcons.Note,
+        },
+      ]);
     }
 
     return actions;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
 
-  const toolTipSubMenu = useMemo(() => {
-    const submenu = {
-      menuOptions: ['displayInline'], // <- set the `menuOptions` property
-      menuItems: [],
-      menuTitle: '',
-    };
-    if (item.hash) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.OpenInBlockExplorer,
-        actionTitle: loc.transactions.details_show_in_block_explorer,
-        icon: TransactionListItem.actionIcons.Link,
-      });
-    }
-    if (subtitle && subtitleNumberOfLines === 1) {
-      submenu.menuItems.push({
-        actionKey: TransactionListItem.actionKeys.ExpandNote,
-        actionTitle: loc.transactions.expand_note,
-        icon: TransactionListItem.actionIcons.Note,
-      });
-    }
-    return submenu;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, subtitleNumberOfLines]);
-
   return (
     <View style={styles.container}>
-      <ToolTipMenu actions={toolTipActions} submenu={toolTipSubMenu} onPress={onToolTipPress}>
+      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <BlueListItem
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
           subtitle={subtitle}
+          Component={View}
           subtitleProps={subtitleProps}
-          onPress={onPress}
           chevron={false}
-          Component={TouchableOpacity}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           containerStyle={containerStyle}

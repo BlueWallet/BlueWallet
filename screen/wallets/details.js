@@ -1,5 +1,4 @@
-/* global alert */
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -44,20 +43,13 @@ import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { Chain } from '../../models/bitcoinUnits';
+import alert from '../../components/Alert';
 
 const prompt = require('../../blue_modules/prompt');
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
-  },
-  save: {
-    marginHorizontal: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   address: {
     alignItems: 'center',
@@ -112,6 +104,17 @@ const styles = StyleSheet.create({
   marginRight16: {
     marginRight: 16,
   },
+  save: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
+    borderRadius: 8,
+    height: 34,
+  },
+  saveText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });
 
 const WalletDetails = () => {
@@ -128,6 +131,14 @@ const WalletDetails = () => {
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const derivationPath = useMemo(() => {
+    try {
+      const path = wallet.getDerivationPath();
+      return path.length > 0 ? path : null;
+    } catch (e) {
+      return null;
+    }
+  }, [wallet]);
   const [lightningWalletInfo, setLightningWalletInfo] = useState({});
 
   useEffect(() => {
@@ -144,9 +155,6 @@ const WalletDetails = () => {
     textLabel2: {
       color: colors.feeText,
     },
-    saveText: {
-      color: colors.outputValue,
-    },
     textValue: {
       color: colors.outputValue,
     },
@@ -155,6 +163,12 @@ const WalletDetails = () => {
       borderBottomColor: colors.formBorder,
 
       backgroundColor: colors.inputBackgroundColor,
+    },
+    save: {
+      backgroundColor: colors.lightButton,
+    },
+    saveText: {
+      color: colors.buttonTextColor,
     },
   });
   useEffect(() => {
@@ -188,13 +202,19 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" testID="Save" disabled={isLoading} style={styles.save} onPress={setLabel}>
-          <Text style={stylesHook.saveText}>{loc.wallets.details_save}</Text>
+        <TouchableOpacity
+          accessibilityRole="button"
+          testID="Save"
+          disabled={isLoading}
+          style={[styles.save, stylesHook.save]}
+          onPress={setLabel}
+        >
+          <Text style={[styles.saveText, stylesHook.saveText]}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors.outputValue, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
+  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
 
   useEffect(() => {
     if (wallets.some(wallet => wallet.getID() === walletID)) {
@@ -216,11 +236,12 @@ const WalletDetails = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     try {
       const walletBalanceConfirmation = await prompt(
-        loc.wallets.details_del_wb,
+        loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance: wallet.getBalance() }),
         true,
         'plain-text',
         true,
+        loc.wallets.details_delete,
       );
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
@@ -478,7 +499,6 @@ const WalletDetails = () => {
               <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
                 <View style={[styles.input, stylesHook.input]}>
                   <TextInput
-                    placeholder={loc.send.details_note_placeholder}
                     value={walletName}
                     onChangeText={setWalletName}
                     onBlur={walletNameTextInputOnBlur}
@@ -577,10 +597,10 @@ const WalletDetails = () => {
                       </View>
                     )}
 
-                    {!!wallet.getDerivationPath() && (
+                    {derivationPath && (
                       <View>
                         <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_derivation_path}</Text>
-                        <BlueText>{wallet.getDerivationPath()}</BlueText>
+                        <BlueText testID="DerivationPath">{derivationPath}</BlueText>
                       </View>
                     )}
                   </View>

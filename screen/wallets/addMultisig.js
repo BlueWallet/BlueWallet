@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -33,10 +33,6 @@ const WalletsAddMultisig = () => {
     textdesc: {
       color: colors.alternativeTextColor,
     },
-    whiteBackground: { backgroundColor: colors.background },
-    itemNameWrapper: { backgroundColor: colors.elevated },
-    nativeName: { color: colors.foregroundColor },
-    filteTextWrapper: { color: colors.foregroundColor, right: 0, position: 'absolute' },
     modalContentShort: {
       backgroundColor: colors.elevated,
     },
@@ -53,6 +49,19 @@ const WalletsAddMultisig = () => {
       color: colors.outputValue,
     },
   });
+
+  useEffect(() => {
+    if (loadingAnimation.current) {
+      /*
+      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
+      Temporary workaround until Lottie is fixed.
+      */
+      setTimeout(() => {
+        loadingAnimation.current?.reset();
+        loadingAnimation.current?.play();
+      }, 100);
+    }
+  }, []);
 
   useEffect(() => {
     isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
@@ -101,9 +110,9 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
+      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton propagateSwipe>
+        <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
+          <ScrollView>
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
             <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
             <View style={styles.rowCenter}>
@@ -162,8 +171,8 @@ const WalletsAddMultisig = () => {
               checkmark={isP2sh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-          </View>
-        </KeyboardAvoidingView>
+          </ScrollView>
+        </View>
       </BottomModal>
     );
   };
@@ -185,7 +194,6 @@ const WalletsAddMultisig = () => {
 
   return (
     <SafeAreaView style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
           <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
@@ -212,7 +220,7 @@ const WalletsAddMultisig = () => {
         </Text>
       </View>
       {isAdvancedModeEnabledRender && (
-        <View style={styles.advancedOptionsContainer}>
+        <View>
           <BlueListItem
             onPress={showAdvancedOptionsModal}
             title={loc.multisig.vault_advanced_customize}
@@ -230,13 +238,6 @@ const WalletsAddMultisig = () => {
 };
 
 const styles = StyleSheet.create({
-  modalFlatList: { width: '100%' },
-  itemNameWrapper: { flexDirection: 'row', paddingTop: 20, paddingBottom: 0 },
-  textWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  nativeName: { fontSize: 16 },
-  filteTextWrapper: { right: 0, position: 'absolute' },
-  filterText: { fontSize: 16, color: 'gray' },
-  advancedOptionsContainer: {},
   item: {
     paddingHorizontal: 0,
   },
@@ -246,36 +247,19 @@ const styles = StyleSheet.create({
     flex: 0.8,
   },
   modalContentShort: {
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
     justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 350,
   },
-  formatSelectorTextWrapper: {
-    borderRadius: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderColor: 0,
-  },
   borderRadius6: {
     borderRadius: 6,
   },
-  formatSelectorTextWrapperSelected: {
-    backgroundColor: '#EEF0F4',
-    borderRadius: 6,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderColor: 0,
-  },
   buttonContainer: {
     padding: 24,
-  },
-  formatSelectorText: {
-    color: '#13244D',
-    fontSize: 16,
-    fontWeight: '500',
   },
   column: {
     paddingRight: 20,

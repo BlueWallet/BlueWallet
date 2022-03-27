@@ -69,9 +69,7 @@ export function getMempoolTransactionsByAddress(address: string): Promise<Mempoo
 
 export function estimateCurrentBlockheight(): number;
 
-export function multiGetHistoryByAddress(
-  addresses: string[],
-): Promise<
+export function multiGetHistoryByAddress(addresses: string[]): Promise<
   Record<
     string,
     {
@@ -85,3 +83,5 @@ export function multiGetHistoryByAddress(
 export function estimateFees(): Promise<{ fast: number; medium: number; slow: number }>;
 
 export function broadcastV2(txhex: string): Promise<string>;
+
+export function getTransactionsFullByAddress(address: string): Promise<Transaction[]>;

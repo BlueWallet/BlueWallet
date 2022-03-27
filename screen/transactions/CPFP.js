@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -23,6 +22,7 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import alert from '../../components/Alert';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -61,20 +61,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
-  },
-  doneWrap: {
-    flex: 1,
-    paddingTop: 19,
-  },
-  doneCard: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 76,
-    paddingBottom: 16,
-  },
-  blueBigCheckmark: {
-    marginTop: 43,
-    marginBottom: 53,
   },
 });
 

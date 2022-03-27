@@ -10,6 +10,7 @@ import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHW
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import HandoffComponent from '../../components/handoff';
 
 const styles = StyleSheet.create({
   loading: {
@@ -27,10 +28,13 @@ const styles = StyleSheet.create({
   },
   secret: {
     alignSelf: 'stretch',
-    alignItems: 'center',
+    textAlign: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
     lineHeight: 24,
+  },
+  secretWritingDirection: {
+    writingDirection: 'ltr',
   },
 });
 
@@ -52,7 +56,7 @@ const WalletExport = () => {
       backgroundColor: colors.elevated,
     },
     type: { ...styles.type, color: colors.foregroundColor },
-    secret: { ...styles.secret, color: colors.foregroundColor },
+    secret: { color: colors.foregroundColor },
     warning: { ...styles.secret, color: colors.failedColor },
   };
 
@@ -123,9 +127,16 @@ const WalletExport = () => {
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
               <BlueCopyTextToClipboard text={wallet.getSecret()} />
             ) : (
-              <BlueText style={stylesHook.secret} testID="Secret">
+              <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
                 {wallet.getSecret()}
               </BlueText>
+            )}
+            {wallet.type === WatchOnlyWallet.type && (
+              <HandoffComponent
+                title={loc.wallets.xpub_title}
+                type={HandoffComponent.activityTypes.Xpub}
+                userInfo={{ xpub: wallet.getSecret() }}
+              />
             )}
           </React.Fragment>
         ))}

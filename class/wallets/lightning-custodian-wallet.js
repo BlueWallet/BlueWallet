@@ -2,9 +2,8 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { isTorCapable } from '../../blue_modules/environment';
+import { isTorDaemonDisabled } from '../../blue_modules/environment';
 const torrific = require('../../blue_modules/torrific');
-
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
@@ -68,12 +67,13 @@ export class LightningCustodianWallet extends LegacyWallet {
     return obj;
   }
 
-  init() {
+  async init() {
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
+    const isTorDisabled = await isTorDaemonDisabled();
 
-    if (isTorCapable && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
+    if (!isTorDisabled && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
       this._api = new torrific.Torsbee({
         baseURI: this.baseURI,
       });
@@ -355,11 +355,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async allowOnchainAddress() {
-    if (this.getAddress() !== undefined) {
+    if (this.getAddress() !== undefined && this.getAddress() !== null) {
       return true;
     } else {
       await this.fetchBtcAddress();
-      return this.getAddress() !== undefined;
+      return this.getAddress() !== undefined && this.getAddress() !== null;
     }
   }
 
@@ -582,14 +582,16 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static async isValidNodeAddress(address) {
+    const isTorDisabled = await isTorDaemonDisabled();
     const isTor = address.indexOf('.onion') !== -1;
-    const apiCall = isTor
-      ? new torrific.Torsbee({
-          baseURI: address,
-        })
-      : new Frisbee({
-          baseURI: address,
-        });
+    const apiCall =
+      isTor && !isTorDisabled
+        ? new torrific.Torsbee({
+            baseURI: address,
+          })
+        : new Frisbee({
+            baseURI: address,
+          });
     const response = await apiCall.get('/getinfo', {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -664,6 +666,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     return false;
+  }
+
+  authenticate(lnurl) {
+    return lnurl.authenticate(this.secret);
   }
 }
 

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
 import {
   ActivityIndicator,
@@ -25,7 +24,6 @@ import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import HandoffComponent from '../../components/handoff';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -36,6 +34,7 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import alert from '../../components/Alert';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -62,9 +61,6 @@ const WalletTransactions = () => {
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
-    advancedTransactionOptionsModalContent: {
-      backgroundColor: colors.elevated,
-    },
     listHeaderText: {
       color: colors.foregroundColor,
     },
@@ -264,15 +260,15 @@ const WalletTransactions = () => {
             wallet.chain !== Chain.OFFCHAIN &&
             wallet.type !== LightningLdkWallet.type &&
             renderSellFiat()}
-          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && renderMarketplaceButton()}
-          {wallet.chain === Chain.OFFCHAIN && wallet.type !== LightningLdkWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
+          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
           </View>
         )}
-        <View style={[styles.listHeaderTextRow, stylesHook.listHeaderTextRow]}>
+        <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
             accessibilityRole="button"
@@ -401,7 +397,9 @@ const WalletTransactions = () => {
     });
   };
 
-  const renderItem = item => <TransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} />;
+  const renderItem = item => (
+    <TransactionListItem item={item.item} itemPriceUnit={itemPriceUnit} timeElapsed={timeElapsed} walletID={walletID} />
+  );
 
   const onBarCodeRead = ret => {
     if (!isLoading) {
@@ -560,13 +558,6 @@ const WalletTransactions = () => {
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
-      {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && (
-        <HandoffComponent
-          title={`Bitcoin Wallet ${wallet.getLabel()}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockpath.com/search/addr?q=${wallet.getXpub()}`}
-        />
-      )}
       <TransactionsNavigationHeader
         wallet={wallet}
         onWalletUnitChange={passedWallet =>
@@ -730,26 +721,7 @@ const styles = StyleSheet.create({
   marginBottom18: {
     marginBottom: 18,
   },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  advancedTransactionOptionsModalContent: {
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
-  },
   walletDetails: {
-    minWidth: 150,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

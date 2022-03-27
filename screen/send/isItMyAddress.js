@@ -19,11 +19,9 @@ const IsItMyAddress = () => {
 
   const [address, setAddress] = useState('');
   const [result, setResult] = useState('');
+  const [resultCleanAddress, setResultCleanAddress] = useState();
 
   const stylesHooks = StyleSheet.create({
-    text: {
-      color: colors.foregroundColor,
-    },
     input: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
@@ -39,12 +37,14 @@ const IsItMyAddress = () => {
     const _result = [];
     for (const w of wallets) {
       if (w.weOwnAddress(cleanAddress)) {
+        setResultCleanAddress(cleanAddress);
         _result.push(loc.formatString(loc.is_it_my_address.owns, { label: w.getLabel(), address: cleanAddress }));
       }
     }
 
     if (_result.length === 0) {
       setResult(_result.push(loc.is_it_my_address.no_wallet_owns_address));
+      setResultCleanAddress();
     }
 
     setResult(_result.join('\n\n'));
@@ -52,6 +52,7 @@ const IsItMyAddress = () => {
 
   const onBarScanned = value => {
     setAddress(value);
+    setResultCleanAddress(value);
   };
 
   const importScan = () => {
@@ -72,6 +73,16 @@ const IsItMyAddress = () => {
   const clearAddressInput = () => {
     setAddress('');
     setResult();
+    setResultCleanAddress();
+  };
+
+  const viewQRCode = () => {
+    navigate('ReceiveDetailsRoot', {
+      screen: 'ReceiveDetails',
+      params: {
+        address: resultCleanAddress,
+      },
+    });
   };
 
   return (
@@ -105,6 +116,12 @@ const IsItMyAddress = () => {
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearAddressInput} />
             <BlueSpacing20 />
+            {resultCleanAddress && (
+              <>
+                <BlueButton title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+                <BlueSpacing20 />
+              </>
+            )}
             <BlueButton
               disabled={address.trim().length === 0}
               title={loc.is_it_my_address.check_address}
@@ -132,32 +149,12 @@ const styles = StyleSheet.create({
   blueArea: {
     paddingTop: 19,
   },
-  broadcastResultWrapper: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-  },
   mainCard: {
     padding: 0,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-  },
-  topFormRow: {
-    flex: 0.1,
-    flexBasis: 0.1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingTop: 0,
-    paddingRight: 100,
-    height: 30,
-    maxHeight: 30,
   },
   input: {
     flexDirection: 'row',

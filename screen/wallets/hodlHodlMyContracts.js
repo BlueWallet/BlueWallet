@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -23,6 +22,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 export default class HodlHodlMyContracts extends Component {
   static contextType = BlueStorageContext;
@@ -408,7 +408,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: BlueCurrentTheme.colors.feeText,
   },
-  loading: { backgroundColor: BlueCurrentTheme.colors.elevated },
   emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16, backgroundColor: BlueCurrentTheme.colors.elevated },
   itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
   flexDirectionRow: { flexDirection: 'row' },

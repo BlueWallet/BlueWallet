@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
@@ -17,7 +16,6 @@ import {
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import loc from '../../loc';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
@@ -34,10 +32,11 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isTorCapable } from '../../blue_modules/environment';
+import { isDesktop, isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -162,8 +161,9 @@ export default class ElectrumSettings extends Component {
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
 
-    if (host.endsWith('.onion') && !isTorCapable) {
-      return alert(loc.settings.tor_unsupported);
+    if (isDesktop && host.endsWith('.onion')) {
+      alert(loc.settings.tor_unsupported);
+      return;
     }
 
     this.setState({ isLoading: true }, async () => {
@@ -306,7 +306,7 @@ export default class ElectrumSettings extends Component {
             <View style={styles.inputWrap}>
               <TextInput
                 placeholder={
-                  loc.formatString(loc.settings.electrum_host, { example: '111.222.333.111' }) +
+                  loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' }) +
                   (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
                 }
                 value={this.state.host}
@@ -511,11 +511,6 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.feeText,
     marginBottom: -24,
     flexShrink: 1,
-  },
-  flexShrink: {
-    flexShrink: 1,
-    marginRight: 8,
-    alignItems: 'flex-start',
   },
   inputWrap: {
     flex: 1,

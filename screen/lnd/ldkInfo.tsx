@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -10,9 +9,9 @@ import loc, { formatBalance } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button, { ButtonStyle } from '../../components/Button';
-import LdkOpenChannel from './ldkOpenChannel';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
+import alert from '../../components/Alert';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -28,33 +27,29 @@ type LdkInfoRouteProps = RouteProp<
 >;
 
 const LdkInfo = () => {
-  const { walletID, psbt } = useRoute<LdkInfoRouteProps>().params;
+  const { walletID } = useRoute<LdkInfoRouteProps>().params;
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
   const { colors }: { colors: any } = useTheme();
-  const { setOptions, setParams, navigate } = useNavigation();
+  const { setOptions, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
   const [channels, setChannels] = useState<any[]>([]);
   const [inactiveChannels, setInactiveChannels] = useState<any[]>([]);
   const [pendingChannels, setPendingChannels] = useState<any[]>([]);
   const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
+  const [maturingBalance, setMaturingBalance] = useState(0);
+  const [maturingEta, setMaturingEta] = useState('');
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
   // Modals
   const [selectedChannelIndex, setSelectedChannelIndex] = useState<any>();
-  const [newOpenChannelModalProps, setNewOpenChannelModalProps] = useState<any>();
-  const [newOpenChannelModalVisible, setNewOpenChannelModalVisible] = useState(false);
 
-  //
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
-    },
-    valueText: {
-      color: colors.alternativeTextColor2,
     },
     listHeaderText: {
       color: colors.foregroundColor,
@@ -63,26 +58,8 @@ const LdkInfo = () => {
     listHeaderBack: {
       backgroundColor: colors.background,
     },
-    valueRoot: {
-      backgroundColor: colors.background,
-    },
-    textHeader: {
-      color: colors.outputValue,
-    },
-    valueSats: {
-      color: colors.alternativeTextColor2,
-    },
-    paidMark: {
-      backgroundColor: colors.success,
-    },
     detailsText: {
       color: colors.alternativeTextColor,
-    },
-    expired: {
-      backgroundColor: colors.success,
-    },
-    additionalInfo: {
-      backgroundColor: colors.brandingColor,
     },
     modalContent: {
       backgroundColor: colors.elevated,
@@ -118,6 +95,18 @@ const LdkInfo = () => {
       }
       const walletBalance: { confirmedBalance?: number } = await wallet.walletBalance();
       setWalletBalance(walletBalance);
+
+      setMaturingBalance(await wallet.getMaturingBalance());
+      const maturingHeight = await wallet.getMaturingHeight();
+
+      if (maturingHeight > 0) {
+        const result = await fetch('https://blockstream.info/api/blocks/tip/height');
+        const tip = await result.text();
+        const hrs = Math.ceil((maturingHeight - +tip) / 6); // convert blocks to hours
+        setMaturingEta(`${hrs} hours`);
+      } else {
+        setMaturingEta('');
+      }
     } catch (e) {
       console.log(e);
     } finally {
@@ -133,11 +122,15 @@ const LdkInfo = () => {
     allChannelsAmount.current = channelsAvailable;
   }, [channels, pendingChannels, inactiveChannels]);
 
+  // do we even need periodic sync when user stares at this screen..?
   useEffect(() => {
     refetchData().then(() => {
       refreshDataInterval.current = setInterval(() => {
         refetchData(false);
-        if (wallet.timeToCheckBlockchain()) wallet.checkBlockchain();
+        if (wallet.timeToCheckBlockchain()) {
+          wallet.checkBlockchain();
+          wallet.reconnectPeersWithPendingChannels();
+        }
       }, 2000);
     });
     return () => {
@@ -145,12 +138,6 @@ const LdkInfo = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (psbt) {
-      setNewOpenChannelModalVisible(true);
-    }
-  }, [psbt]);
 
   useEffect(() => {
     setOptions({
@@ -248,10 +235,10 @@ const LdkInfo = () => {
     return (
       <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
-          <Text style={[stylesHook.detailsText]}>{loc.lnd.node_alias}</Text>
+          <Text style={stylesHook.detailsText}>{loc.lnd.node_alias}</Text>
           <BlueSpacing10 />
           {channelData && (
-            <Text style={[stylesHook.detailsText]}>
+            <Text style={stylesHook.detailsText}>
               {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
                 ' (' +
                 channelData.remote_node_id.substr(0, 10) +
@@ -270,7 +257,7 @@ const LdkInfo = () => {
             itemPriceUnit={wallet.getPreferredBalanceUnit()}
           />
 
-          <Text style={[stylesHook.detailsText]}>
+          <Text style={stylesHook.detailsText}>
             {status === LdkNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
               : channelData?.is_usable
@@ -321,92 +308,34 @@ const LdkInfo = () => {
     );
   };
 
-  const onNewOpenChannelModalBackdropPress = () => {
-    closeModal();
-    setNewOpenChannelModalVisible(false);
-    setTimeout(() => {
-      setNewOpenChannelModalProps(undefined);
-      setParams({ psbt: undefined });
-      refetchData(false);
-    }, 500);
-  };
-
   const navigateToOpenPrivateChannel = async () => {
     navigateToOpenChannel({ isPrivateChannel: true });
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    closeModal();
-    setNewOpenChannelModalVisible(false);
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
-
-    /** @type {AbstractWallet} */
-    const selectedWallet = await selectWallet(navigate, name, false, availableWallets);
-    setNewOpenChannelModalProps({ fundingWalletID: selectedWallet.getID(), isPrivateChannel });
-    selectedWallet.getAddressAsync().then(wallet.setRefundAddress);
-    setNewOpenChannelModalVisible(true);
-  };
-  const closeNewOpenChannelModalPropsModal = () => {
-    setNewOpenChannelModalVisible(false);
-  };
-
-  const onBackdropPress = async () => {
-    if (await confirm(loc.lnd.are_you_sure_exit_without_new_channel)) {
-      onNewOpenChannelModalBackdropPress();
-    }
-  };
-
-  const renderOpenChannelAmountAndNoteModal = () => {
-    return (
-      <BottomModal
-        isVisible={newOpenChannelModalVisible}
-        onClose={closeNewOpenChannelModalPropsModal}
-        onBackdropPress={onBackdropPress}
-        avoidKeyboard
-      >
-        <View style={[styles.fundingNewChannelModalContent, stylesHook.modalContent]}>
-          <LdkOpenChannel
-            psbt={psbt}
-            ldkWalletID={walletID}
-            fundingWalletID={newOpenChannelModalProps?.fundingWalletID}
-            isPrivateChannel={newOpenChannelModalProps?.isPrivateChannel}
-            closeContainerModal={closeNewOpenChannelModalPropsModal}
-            psbtOpenChannelStartedTs={newOpenChannelModalProps?.psbtOpenChannelStartedTs}
-            onPsbtOpenChannelStartedTsChange={psbtOpenChannelStartedTs =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, psbtOpenChannelStartedTs };
-              })
-            }
-            onOpenChannelSuccess={onNewOpenChannelModalBackdropPress}
-            unit={newOpenChannelModalProps?.unit ?? wallet.getPreferredBalanceUnit()}
-            onUnitChange={unit =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, unit };
-              })
-            }
-            fundingAmount={newOpenChannelModalProps?.fundingAmount}
-            onFundingAmountChange={fundingAmount =>
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, fundingAmount };
-              })
-            }
-            remoteHostWithPubkey={newOpenChannelModalProps?.remoteHostWithPubkey}
-            onRemoteHostWithPubkeyChange={pubkey => {
-              setNewOpenChannelModalProps((prevState: any) => {
-                return { ...prevState, remoteHostWithPubkey: pubkey };
-              });
-              setNewOpenChannelModalVisible(true);
-            }}
-            onBarScannerDismissWithoutData={() => {
-              setNewOpenChannelModalVisible(true);
-            }}
-          />
-        </View>
-      </BottomModal>
-    );
+    navigate('LDKOpenChannelRoot', {
+      screen: 'SelectWallet',
+      params: {
+        availableWallets,
+        chainType: Chain.ONCHAIN,
+        onWalletSelect: (selectedWallet: AbstractWallet) => {
+          const selectedWalletID = selectedWallet.getID();
+          selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
+          navigate('LDKOpenChannelRoot', {
+            screen: 'LDKOpenChannelSetAmount',
+            params: {
+              isPrivateChannel,
+              fundingWalletID: selectedWalletID,
+              ldkWalletID: walletID,
+            },
+          });
+        },
+      },
+    });
   };
 
   const itemSeparatorComponent = () => {
@@ -463,7 +392,6 @@ const LdkInfo = () => {
         ListEmptyComponent={isLoading ? <BlueLoading /> : <BlueTextCentered>{loc.lnd.no_channels}</BlueTextCentered>}
       />
       {renderModal()}
-      {renderOpenChannelAmountAndNoteModal()}
 
       <View style={styles.marginHorizontal16}>
         {wBalance && wBalance.confirmedBalance ? (
@@ -477,7 +405,14 @@ const LdkInfo = () => {
             <BlueSpacing20 />
           </>
         ) : null}
+        {maturingBalance ? (
+          <Text style={stylesHook.detailsText}>
+            Balance awaiting confirmations: {formatBalance(Number(maturingBalance), wallet.getPreferredBalanceUnit(), true)}
+          </Text>
+        ) : null}
+        {maturingEta ? <Text style={stylesHook.detailsText}>ETA: {maturingEta}</Text> : null}
         <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
+        <BlueSpacing20 />
       </View>
     </SafeBlueArea>
   );
@@ -488,78 +423,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  height100: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   marginHorizontal16: {
     marginHorizontal: 16,
   },
   contentContainerStyle: {
     marginHorizontal: 16,
-  },
-  justifyContentCenter: {
-    justifyContent: 'center',
-  },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
-  valueAmount: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 8,
-  },
-  valueText: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  valueSats: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 3,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  memo: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '400',
-    alignSelf: 'center',
-  },
-  paid: {
-    flex: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paidMark: {
-    marginTop: -100,
-    marginBottom: 16,
-  },
-  detailsRoot: {
-    justifyContent: 'flex-end',
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  detailsTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailsText: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  expired: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  activeRoot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   listHeaderText: {
     marginTop: 8,
@@ -572,14 +440,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  activeQrcode: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
-  },
   modalContent: {
     minHeight: 418,
     borderTopLeftRadius: 16,
@@ -587,28 +447,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0, 0, 0, 0.1)',
     padding: 24,
   },
-  newChannelModalContent: {
-    padding: 24,
-    minHeight: 350,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  fundingNewChannelModalContent: {
-    padding: 24,
-    paddingTop: 24,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    height: 400,
-  },
   separator: {
     height: 1,
     marginTop: 16,
-  },
-  textHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 

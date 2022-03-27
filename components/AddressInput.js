@@ -24,6 +24,7 @@ const AddressInput = ({
   editable = true,
   inputAccessoryViewID,
   onBlur = () => {},
+  keyboardType = 'default',
 }) => {
   const { colors } = useTheme();
   const scanButtonRef = useRef();
@@ -63,14 +64,14 @@ const AddressInput = ({
         onBlur={onBlurEditing}
         autoCapitalize="none"
         autoCorrect={false}
-        keyboardType="url"
+        keyboardType={keyboardType}
       />
       {editable ? (
         <TouchableOpacity
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
-          onPress={() => {
-            scanButtonTapped();
+          onPress={async () => {
+            await scanButtonTapped();
             Keyboard.dismiss();
             if (isDesktop) {
               fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
@@ -147,6 +148,7 @@ AddressInput.propTypes = {
   inputAccessoryViewID: PropTypes.string,
   onBarScannerDismissWithoutData: PropTypes.func,
   onBlur: PropTypes.func,
+  keyboardType: PropTypes.string,
 };
 
 export default AddressInput;

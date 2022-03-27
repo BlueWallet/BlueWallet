@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -9,6 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const currency = require('../../blue_modules/currency');
@@ -37,14 +37,8 @@ const PsbtMultisig = () => {
     textBtc: {
       color: colors.buttonAlternativeTextColor,
     },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
     textBtcUnitValue: {
       color: colors.buttonAlternativeTextColor,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
     },
     textFiat: {
       color: colors.alternativeTextColor,
@@ -96,7 +90,7 @@ const PsbtMultisig = () => {
   };
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64, isShowOpenScanner: isConfirmEnabled() });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
   const _renderItemUnsigned = el => {
@@ -276,7 +270,7 @@ const PsbtMultisig = () => {
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 130 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
@@ -286,7 +280,7 @@ const PsbtMultisig = () => {
                 renderItem={_renderItem}
                 keyExtractor={(_item, index) => `${index}`}
                 ListHeaderComponent={header}
-                scrollEnabled={false}
+                ListFooterComponent={footer}
               />
               {isConfirmEnabled() && (
                 <View style={styles.height80}>
@@ -305,7 +299,6 @@ const PsbtMultisig = () => {
             </BlueCard>
           </View>
         </View>
-        {footer}
       </View>
     </SafeBlueArea>
   );
@@ -330,10 +323,6 @@ const styles = StyleSheet.create({
   msright: {
     flex: 90,
     marginLeft: '-11%',
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
   },
   container: {
     flexDirection: 'column',
@@ -400,8 +389,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  textDestinationSpacingRight: { marginRight: 4 },
-  textDestinationSpacingLeft: { marginLeft: 4 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },

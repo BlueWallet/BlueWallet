@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
@@ -29,6 +28,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import BottomModal from '../../components/BottomModal';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const A = require('../../blue_modules/analytics');
 
 const CURRENCY_CODE_ANY = '_any';
@@ -938,13 +938,6 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.foregroundColor,
     fontSize: 15,
     fontWeight: '600',
-  },
-  allOffersText: {
-    fontSize: 12,
-    color: '#9AA0AA',
-    position: 'absolute',
-    top: 0,
-    left: 15,
   },
   locationText: {
     top: 0,

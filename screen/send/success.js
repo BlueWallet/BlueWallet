@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import LottieView from 'lottie-react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
@@ -31,7 +30,6 @@ const Success = () => {
   });
   useEffect(() => {
     console.log('send/success - useEffect');
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -67,12 +65,17 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
   });
 
   useEffect(() => {
-    if (shouldAnimate) {
-      animationRef.current.reset();
-      animationRef.current.resume();
+    if (shouldAnimate && animationRef.current) {
+      /*
+      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
+      Temporary workaround until Lottie is fixed.
+      */
+      setTimeout(() => {
+        animationRef.current?.reset();
+        animationRef.current?.play();
+      }, 50);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
+  }, [colors, shouldAnimate]);
 
   return (
     <View style={styles.root}>

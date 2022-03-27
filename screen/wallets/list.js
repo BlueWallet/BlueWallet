@@ -11,7 +11,6 @@ import {
   Dimensions,
   useWindowDimensions,
   findNodeHandle,
-  useColorScheme,
   I18nManager,
 } from 'react-native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
@@ -37,18 +36,10 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const colorScheme = useColorScheme();
-  const {
-    wallets,
-    getTransactions,
-    isImportingWallet,
-    getBalance,
-    refreshAllWalletTransactions,
-    setSelectedWallet,
-    isElectrumDisabled,
-  } = useContext(BlueStorageContext);
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
+    useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
-  const { colors, scanImage } = useTheme();
+  const { colors, scanImage, barStyle } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
@@ -70,16 +61,6 @@ const WalletsList = () => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
-    ltRoot: {
-      backgroundColor: colors.ballOutgoingExpired,
-    },
-
-    ltTextBig: {
-      color: colors.foregroundColor,
-    },
-    ltTextSmall: {
-      color: colors.alternativeTextColor,
-    },
   });
 
   useFocusEffect(
@@ -91,18 +72,16 @@ const WalletsList = () => {
   );
 
   useEffect(() => {
-    if (walletsCount.current < wallets.length) {
+    // new wallet added
+    if (wallets.length > walletsCount.current) {
       walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
+    }
+    // wallet has been deleted
+    if (wallets.length < walletsCount.current) {
+      walletsCarousel.current?.scrollToItem({ item: false });
     }
     walletsCount.current = wallets.length;
   }, [wallets]);
-
-  useEffect(() => {
-    if (isImportingWallet) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isImportingWallet]);
 
   const verifyBalance = () => {
     if (getBalance() !== 0) {
@@ -149,7 +128,7 @@ const WalletsList = () => {
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     if (isElectrumDisabled) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions(showLoadingIndicator, showUpdateStatusIndicator).finally(() => setIsLoading(false));
+    refreshAllWalletTransactions(false, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -167,7 +146,7 @@ const WalletsList = () => {
         walletType: wallet.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length && !isImportingWallet) {
+    } else if (index >= wallets.length) {
       navigate('AddWalletRoot');
     }
   };
@@ -207,7 +186,7 @@ const WalletsList = () => {
   };
 
   const handleLongPress = () => {
-    if (wallets.length > 1 && !isImportingWallet) {
+    if (wallets.length > 1) {
       navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -217,7 +196,7 @@ const WalletsList = () => {
   const renderTransactionListsRow = data => {
     return (
       <View style={styles.transaction}>
-        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
+        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} walletID={data.item.walletID} />
       </View>
     );
   };
@@ -226,7 +205,7 @@ const WalletsList = () => {
     return (
       <WalletsCarousel
         data={wallets.concat(false)}
-        extraData={[wallets, isImportingWallet]}
+        extraData={[wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
@@ -281,7 +260,7 @@ const WalletsList = () => {
   };
 
   const renderScanButton = () => {
-    if (wallets.length > 0 && !isImportingWallet) {
+    if (wallets.length > 0) {
       return (
         <FContainer ref={walletActionButtonsRef}>
           <FButton
@@ -384,7 +363,7 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent animated />
+      <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           contentInsetAdjustmentBehavior="automatic"
@@ -421,27 +400,8 @@ const styles = StyleSheet.create({
     bottom: 60,
     right: 0,
   },
-  wrapper: {
-    flex: 1,
-  },
   walletsListWrapper: {
     flex: 1,
-  },
-  headerStyle: {
-    ...Platform.select({
-      ios: {
-        marginTop: 44,
-        height: 32,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-      android: {
-        marginTop: 8,
-        height: 44,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-    }),
   },
   headerTouch: {
     height: 48,
@@ -458,28 +418,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 16,
   },
-  ltRoot: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    padding: 16,
-    borderRadius: 6,
-  },
-  ltTextWrap: {
-    flexDirection: 'column',
-  },
-  ltTextBig: {
-    fontSize: 16,
-    fontWeight: '600',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  ltTextSmall: {
-    fontSize: 13,
-    fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
   footerRoot: {
     top: 80,
     height: 160,
@@ -495,9 +433,6 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
     fontWeight: '600',
-  },
-  listHeader: {
-    backgroundColor: '#FFFFFF',
   },
   transaction: {
     marginHorizontal: 0,

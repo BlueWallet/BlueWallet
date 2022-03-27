@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +7,7 @@ import navigationStyle from '../components/navigationStyle';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import alert from '../components/Alert';
 const prompt = require('../blue_modules/prompt');
 
 const PlausibleDeniability = () => {

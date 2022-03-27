@@ -4,7 +4,7 @@ import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
   BlueText,
@@ -19,9 +19,10 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import LNDCreateInvoice from './lndCreateInvoice';
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID, isModal } = useRoute().params;
+  const { invoice, walletID } = useRoute().params;
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
@@ -31,21 +32,11 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
+  const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
-    },
-    valueText: {
-      color: colors.alternativeTextColor2,
-    },
-    valueRoot: {
-      backgroundColor: colors.background,
-    },
-    valueSats: {
-      color: colors.alternativeTextColor2,
-    },
-    paidMark: {
-      backgroundColor: colors.success,
     },
     detailsText: {
       color: colors.alternativeTextColor,
@@ -71,7 +62,7 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     setOptions(
-      isModal === true
+      isModal
         ? {
             headerStyle: {
               borderBottomWidth: 0,
@@ -184,11 +175,16 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     if (invoice.ispaid && invoiceStatusChanged) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       setInvoiceStatusChanged(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoice]);
+
+  useEffect(() => {
+    if (invoiceStatusChanged) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    }
+  }, [invoiceStatusChanged]);
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
@@ -269,7 +265,7 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.for} {invoice.description}
               </BlueText>
             )}
-            <BlueCopyTextToClipboard text={invoice.payment_request} />
+            <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
 
             <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
@@ -300,39 +296,6 @@ const styles = StyleSheet.create({
   },
   justifyContentCenter: {
     justifyContent: 'center',
-  },
-  valueAmount: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 8,
-  },
-  valueText: {
-    fontSize: 32,
-    fontWeight: '600',
-  },
-  valueSats: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 3,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  memo: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '400',
-    alignSelf: 'center',
-  },
-  paid: {
-    flex: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paidMark: {
-    marginTop: -100,
-    marginBottom: 16,
   },
   detailsRoot: {
     justifyContent: 'flex-end',

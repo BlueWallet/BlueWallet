@@ -31,10 +31,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
   },
-  encrypted: {
-    width: 0.5,
-    height: 20,
-  },
 });
 
 const UnlockWith = () => {
@@ -75,7 +71,6 @@ const UnlockWith = () => {
     if (await Biometric.unlockWithBiometrics()) {
       setIsAuthenticating(false);
       await startAndDecrypt();
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       return successfullyAuthenticated();
     }
     setIsAuthenticating(false);

@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
@@ -8,9 +7,9 @@ import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modul
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
+import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -88,12 +87,8 @@ const styles = StyleSheet.create({
     height: '50%',
     marginTop: 5,
     marginHorizontal: 20,
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderRadius: 4,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-    color: BlueCurrentTheme.colors.foregroundColor,
     textAlignVertical: 'top',
   },
 });
@@ -120,6 +115,12 @@ const ScanQRCode = () => {
       backgroundColor: colors.brandingColor,
     },
     progressWrapper: { backgroundColor: colors.brandingColor, borderColor: colors.foregroundColor, borderWidth: 4 },
+    backdoorInput: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+      color: colors.foregroundColor,
+    },
   });
   const nfcManagerRef = useRef();
   const HashIt = function (s) {
@@ -212,6 +213,10 @@ const ScanQRCode = () => {
       return;
     }
     scannedCache[h] = +new Date();
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-ACCOUNT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
       return _onReadUniformResourceV2(ret.data);
@@ -381,7 +386,7 @@ const ScanQRCode = () => {
             testID="scanQrBackdoorInput"
             multiline
             underlineColorAndroid="transparent"
-            style={styles.backdoorInput}
+            style={[styles.backdoorInput, stylesHook.backdoorInput]}
             autoCorrect={false}
             autoCapitalize="none"
             spellCheck={false}

@@ -1,4 +1,4 @@
-/* global alert */
+import RNFS from 'react-native-fs';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import RnLdk from 'rn-ldk/src/index';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
@@ -8,6 +8,7 @@ import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -21,14 +22,14 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   private _lastTimeBlockchainCheckedTs: number = 0;
   private _unwrapFirstExternalAddressFromMnemonicsCache: string = '';
   private static _predefinedNodes: any = {
+    Bitrefill: '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
+    'OpenNode.com': '028d98b9969fbed53784a36617eb489a59ab6dc9b9d77fcdca9ff55307cd98e3c4@18.222.70.85:9735',
+    Fold: '02816caed43171d3c9854e3b0ab2cf0c42be086ff1bd4005acc2a5f7db70d83774@35.238.153.25:9735',
+    'Moon (paywithmoon.com)': '025f1456582e70c4c06b61d5c8ed3ce229e6d0db538be337a2dc6d163b0ebc05a5@52.86.210.65:9735',
+    'coingate.com': '0242a4ae0c5bef18048fbecf995094b74bfb0f7391418d71ed394784373f41e4f3@3.124.63.44:9735',
+    'Blockstream Store': '02df5ffe895c778e10f7742a6c5b8a0cefbe9465df58b92fadeb883752c8107c8f@35.232.170.67:9735',
     'lnd2.bluewallet.io': '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
     ACINQ: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735',
-    Bitrefill: '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
-    'OpenNode.com': '03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e@18.221.23.28:9735',
-    'Moon (paywithmoon.com)': '025f1456582e70c4c06b61d5c8ed3ce229e6d0db538be337a2dc6d163b0ebc05a5@52.86.210.65:9735',
-    Fold: '02816caed43171d3c9854e3b0ab2cf0c42be086ff1bd4005acc2a5f7db70d83774@35.238.153.25:9735',
-    'Blockstream Store': '02df5ffe895c778e10f7742a6c5b8a0cefbe9465df58b92fadeb883752c8107c8f@35.232.170.67:9735',
-    'coingate.com': '0242a4ae0c5bef18048fbecf995094b74bfb0f7391418d71ed394784373f41e4f3@3.124.63.44:9735',
   };
 
   static getPredefinedNodes() {
@@ -58,10 +59,6 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     } catch (_) {}
 
     return false;
-  }
-
-  async start(entropyHex: string) {
-    return RnLdk.start(entropyHex);
   }
 
   async stop() {
@@ -104,6 +101,14 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   async fundingStateStepFinalize(txhex: string) {
     return RnLdk.openChannelStep2(txhex);
+  }
+
+  async getMaturingBalance(): Promise<number> {
+    return RnLdk.getMaturingBalance();
+  }
+
+  async getMaturingHeight(): Promise<number> {
+    return RnLdk.getMaturingHeight();
   }
 
   /**
@@ -173,7 +178,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   async lookupNodeConnectionDetailsByPubkey(pubkey: string) {
     // first, trying cache:
-    if (this._nodeConnectionDetailsCache[pubkey] && +new Date() - this._nodeConnectionDetailsCache[pubkey].ts < 2 * 14 * 24 * 3600 * 1000) {
+    if (this._nodeConnectionDetailsCache[pubkey] && +new Date() - this._nodeConnectionDetailsCache[pubkey].ts < 4 * 7 * 24 * 3600 * 1000) {
       // cache hit
       return this._nodeConnectionDetailsCache[pubkey];
     }
@@ -225,6 +230,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return ret;
   }
 
+  getStorageNamespace() {
+    return RnLdk.getStorage().namespace;
+  }
+
   static async _decodeInvoice(invoice: string) {
     return bolt11.decode(invoice);
   }
@@ -260,12 +269,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         const address = this.unwrapFirstExternalAddressFromMnemonics();
         await this.setRefundAddress(address);
       }
-      await RnLdk.start(this.getEntropyHex());
+      await RnLdk.start(this.getEntropyHex(), RNFS.DocumentDirectoryPath);
 
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
-    } catch (error) {
-      alert(error.message);
+    } catch (error: any) {
+      alert('LDK init error: ' + error.message);
     }
   }
 
@@ -301,8 +310,9 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (!result) throw new Error('Failed');
 
     // ok, it was sent. now, waiting for an event that it was _actually_ paid:
-    for (let c = 0; c < 50; c++) {
+    for (let c = 0; c < 60; c++) {
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
+
       for (const sentPayment of RnLdk.sentPayments || []) {
         const paidHash = LightningLdkWallet.preimage2hash(sentPayment.payment_preimage);
         if (paidHash === decoded.payment_hash) {
@@ -310,7 +320,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
           this._listPayments.push(
             Object.assign({}, sentPayment, {
               memo: decoded.description || 'Lightning payment',
-              value: freeAmount || -1,
+              value: (freeAmount || decoded.num_satoshis) * -1,
               received: +new Date(),
               payment_preimage: sentPayment.payment_preimage,
               payment_hash: decoded.payment_hash,
@@ -319,11 +329,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
           return;
         }
       }
-    }
 
-    // timeout. maybe it failed? lets lookup in a list of failed payments:
-    for (const failedPayment of RnLdk.failedPayments) {
-      if (failedPayment.payment_hash === decoded.payment_hash) throw new Error(JSON.stringify(failedPayment));
+      for (const failedPayment of RnLdk.failedPayments || []) {
+        if (failedPayment.payment_hash === decoded.payment_hash) throw new Error(JSON.stringify(failedPayment));
+      }
     }
 
     // no? lets just throw timeout error
@@ -331,7 +340,31 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async sendPayment(invoice: string, freeAmount: number) {
-    return RnLdk.sendPayment(invoice, freeAmount);
+    return RnLdk.payInvoice(invoice, freeAmount);
+  }
+
+  /**
+   * In case user initiated channel opening, and then lost peer connection (i.e. app went in background for an
+   * extended period of time), when user gets back to the app the channel might already have enough confirmations,
+   * but will never be acknowledged as 'established' by LDK until peer reconnects so that ldk & peer can negotiate and
+   * agree that channel is now established
+   */
+  async reconnectPeersWithPendingChannels() {
+    const peers = await RnLdk.listPeers();
+    const peers2reconnect: Record<string, boolean> = {};
+    if (this._listChannels) {
+      for (const channel of this._listChannels) {
+        if (!channel.is_funding_locked) {
+          // pending channel
+          if (!peers.includes(channel.remote_node_id)) peers2reconnect[channel.remote_node_id] = true;
+        }
+      }
+    }
+
+    for (const pubkey of Object.keys(peers2reconnect)) {
+      const { host, port } = await this.lookupNodeConnectionDetailsByPubkey(pubkey);
+      await this.connectPeer(pubkey, host, port);
+    }
   }
 
   async getUserInvoices(limit = false) {
@@ -377,6 +410,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       await this.reestablishChannels();
       await this.waitForAtLeastOneChannelBecomeActive();
     }
+
+    if (this.getReceivableBalance() < amtSat) throw new Error('You dont have enough inbound capacity');
 
     const bolt11 = await RnLdk.addInvoice(amtSat * 1000, memo);
     if (!bolt11) return false;
@@ -447,7 +482,25 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async fetchTransactions() {
-    if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
+    if (this.timeToCheckBlockchain()) {
+      try {
+        // exception might be in case of incompletely-started LDK
+        this._listChannels = await RnLdk.listChannels();
+        await this.checkBlockchain();
+        //  ^^^ will be executed if above didnt throw exceptions, which means ldk fully started.
+        // we need this for a case when app returns from background if it was in bg for a really long time.
+        // ldk needs to update it's blockchain data, and this is practically the only place where it can
+        // do that (except on cold start)
+      } catch (_) {}
+    }
+
+    try {
+      await this.reconnectPeersWithPendingChannels();
+    } catch (error: any) {
+      console.log('fetchTransactions failed');
+      console.log(error.message);
+    }
+
     await this.getUserInvoices(); // it internally updates paid user invoices
   }
 
@@ -542,7 +595,15 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   }
 
   async getLogs() {
-    return (RnLdk?.logs || []).map(log => log.line).join('\n');
+    return RnLdk.getLogs()
+      .map(log => log.line)
+      .join('\n');
+  }
+
+  async getLogsWithTs() {
+    return RnLdk.getLogs()
+      .map(log => log.ts + ' ' + log.line)
+      .join('\n');
   }
 
   async fetchPendingTransactions() {}
@@ -595,8 +656,16 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     await RnLdk.setRefundAddressScript(this._refundAddressScriptHex);
   }
 
-  async getVersion() {
+  static async getVersion() {
     return RnLdk.getVersion();
+  }
+
+  static getPackageVersion() {
+    return RnLdk.getPackageVersion();
+  }
+
+  getChannelsClosedEvents() {
+    return RnLdk.channelsClosed;
   }
 
   /**
@@ -611,8 +680,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     (async () => {
       try {
         await func.call(that);
-      } catch (error) {
-        alert(error.message);
+      } catch (error: any) {
+        alert('_execInBackground error:' + error.message);
       }
     })();
   }
