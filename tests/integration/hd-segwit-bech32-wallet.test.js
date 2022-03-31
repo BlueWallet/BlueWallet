@@ -96,7 +96,9 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
-  it('can catch up with externally modified wallet', async () => {
+  // skpped because its a very specific testcase, and slow
+  // unskip and test manually
+  it.skip('can catch up with externally modified wallet', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;

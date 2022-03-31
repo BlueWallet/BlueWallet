@@ -4,7 +4,8 @@ import Notifications from '../../blue_modules/notifications';
 Notifications.default = new Notifications();
 
 describe('notifications', () => {
-  it('can check groundcontrol server uri validity', async () => {
+  // yeah, lets rely less on external services...
+  it.skip('can check groundcontrol server uri validity', async () => {
     assert.ok(await Notifications.isGroundControlUriValid('https://groundcontrol-bluewallet.herokuapp.com'));
     assert.ok(!(await Notifications.isGroundControlUriValid('https://www.google.com')));
     await new Promise(resolve => setTimeout(resolve, 2000));
