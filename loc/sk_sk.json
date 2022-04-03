@@ -29,7 +29,8 @@
     "default": "Varovanie"
   },
   "azteco": {
-    "codeIs": "Váš voucher kód je"
+    "codeIs": "Váš voucher kód je",
+    "success": "Správne"
   },
   "entropy": {
     "save": "Uložiť",
@@ -42,6 +43,7 @@
   },
   "hodl": {
     "are_you_sure_you_want_to_logout": "Naozaj sa chcete odhlásiť z HodlHodl?",
+    "cont_address_to": "Cieľ",
     "cont_cancel": "Zrušiť kontrakt",
     "cont_cancel_q": "Naozaj chcete zrušiť tento kontrakt?",
     "cont_cancel_y": "Áno, zrušiť kontrakt",
@@ -115,7 +117,8 @@
     "help2": "Nové úložisko bude plne funkčné, môžete naň uložiť minimálnu čiastku, aby vyzeralo uveriteľnejšie.",
     "password_should_not_match": "Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku",
     "retype_password": "Heslo znovu",
-    "success": "Úspech"
+    "success": "Úspech",
+    "title": "Plausible deniability..."
   },
   "pleasebackup": {
     "ask": "Zapísali ste si svoju zálohovaciu frázu? Táto fráza je nutná pre prístup k vašim prostriedkom v prípade straty či poruchy prístroja. Bez zálohovacej frázy by ste trvale prišli o svoje prostriedky.",
@@ -131,8 +134,10 @@
     "header": "Prijať"
   },
   "send": {
+    "broadcastButton": "Odoslať",
     "broadcastError": "chyba",
     "broadcastPending": "Čaká...",
+    "broadcastSuccess": "Správne",
     "confirm_header": "Potvrdiť",
     "confirm_sendNow": "Poslať teraz",
     "create_amount": "Čiastka",
@@ -165,6 +170,7 @@
     "dynamic_stop": "Stop",
     "fee_fast": "Rýchlo",
     "header": "Poslať",
+    "input_done": "Hotovo",
     "permission_camera_message": "Potrebujeme povolenie na použitie kamery",
     "permission_camera_title": "Povolenie na použitie kamery",
     "permission_storage_later": "Požiadať neskôr",
@@ -187,7 +193,9 @@
     "currency": "Mena",
     "default_wallets": "Zobraziť všetky peňaženky",
     "electrum_saved": "Vaše zmeny boli úspešne uložené. Aby sa zmeny prejavili, môže byť potrebný reštart.",
+    "electrum_settings_server": "Electrum server",
     "electrum_status": "Stav",
+    "electrum_clear_alert_cancel": "Zrušiť",
     "encrypt_decrypt": "Dešifrovať úložisko",
     "encrypt_decrypt_q": "Naozaj chcete dešifrovať úložisko? Peňaženky budú prístupné bez hesla.",
     "encrypt_del_uninstall": "Zmazať, ak bude aplikácia BlueWallet odinštalovaná",
@@ -214,6 +222,9 @@
     "save": "Uložiť",
     "saved": "Uložené"
   },
+  "notifications": {
+    "ask_me_later": "Požiadať neskôr"
+  },
   "transactions": {
     "cancel_no": "Táto transakcia sa nedá nahradiť",
     "cancel_title": "Zrušiť transakciu (RBF)",
@@ -231,6 +242,7 @@
     "details_title": "Transakcia",
     "details_to": "Výstup",
     "details_transaction_details": "Detaily transakcie",
+    "pending": "Čaká...",
     "list_title": "transakcie",
     "rbf_title": "Navýšiť poplatok za transakciu (RBF)",
     "status_bump": "Navýšiť poplatok",
@@ -295,11 +307,25 @@
     "xpub_title": "XPUB peňaženku"
   },
   "multisig": {
+    "confirm": "Potvrdiť",
+    "header": "Poslať",
+    "share": "zdieľať",
+    "view": "Zobraziť",
+    "create": "Vytvoriť",
     "view_key": "Zobraziť",
     "create_new_key": "Vytvoriť novú",
-    "ms_help": "Pomoc"
+    "ms_help": "Pomoc",
+    "ms_help_title5": "Povoliť rozšírené nastavenia"
   },
   "is_it_my_address": {
     "title": "Je to moja adresa?"
+  },
+  "units": {
+    "sats": "sats"
+  },
+  "addresses": {
+    "sign_placeholder_address": "adresa",
+    "type_receive": "Prijať",
+    "transactions": "transakcie"
   }
 }

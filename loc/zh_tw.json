@@ -255,6 +255,7 @@
     "electrum_saved": "您的更變已成功儲存。要使更變生效，可能需要重新啟動BlueWallet。",
     "set_electrum_server_as_default": "將{server}設定為預設的Electrum伺服器？",
     "set_lndhub_as_default": "將{url}設定為預設的LNDHub伺服器？",
+    "electrum_settings_server": "Electrum伺服器",
     "electrum_status": "狀態",
     "electrum_clear_alert_title": "清除歷史記錄？",
     "electrum_clear_alert_message": "您是否要清除electrum 伺服器的歷史記錄？",
@@ -315,7 +316,6 @@
     "ask_me_later": "稍後問我"
   },
   "transactions": {
-    "cancel_explain": "我們將以較高費用的交易取代此交易，這有效地取消此交易。 這稱為RBF-按費用替換(Replace by Fee)。",
     "cancel_no": "此交易不可替換。",
     "cancel_title": "取消此交易（RBF）",
     "confirmations_lowercase": "{confirmations}個確認",
@@ -343,7 +343,6 @@
     "list_conf": "Conf: {number}",
     "pending": "等待中",
     "list_title": "交易",
-    "rbf_explain": "我們將以較高費用的交易取代此交易，因此應更快被礦工放進區塊鏈。 這稱為RBF-按費用替換。",
     "rbf_title": "對碰費用（RBF）",
     "status_bump": "對碰費用",
     "status_cancel": "取消交易",
@@ -541,18 +540,15 @@
     "sats": "聰"
   },
   "addresses": {
-    "sign_title": "簽署/驗證訊息",
-    "sign_help": "在這裡您可以根據比特幣地址來創建或驗證加密簽署",
     "sign_sign": "簽署",
     "sign_sign_submit": "簽名並提交",
     "sign_verify": "驗證",
-    "sign_signature_correct": "驗證成功！",
-    "sign_signature_incorrect": "驗證失敗！",
     "sign_placeholder_address": "地址",
     "sign_placeholder_message": "訊息",
     "sign_placeholder_signature": "簽署",
     "addresses_title": "地址",
     "type_change": "改變",
-    "type_receive": "接收"
+    "type_receive": "接收",
+    "transactions": "交易"
   }
 }

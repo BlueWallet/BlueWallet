@@ -13,6 +13,7 @@
     "no": "Não",
     "save": "Salvar",
     "seed": "Seed",
+    "success": "Sucesso",
     "wallet_key": "Chave da carteira",
     "discard_changes": "Descartar alterações?",
     "discard_changes_detail": "Tem alterações por guardar. Tem a certeza que deseja descartar e sair do ecrã?"
@@ -239,6 +240,7 @@
     "electrum_connected_not": "Desconectado",
     "electrum_error_connect": "Não é possível conectar ao servidor Electrum fornecido",
     "electrum_saved": "As alterações foram guardadas com sucesso. Pode ser necessário reiniciar para que as alterações tenham efeito.",
+    "electrum_settings_server": "Electrum server",
     "electrum_status": "Estado",
     "electrum_clear_alert_title": "Limpar histórico?",
     "electrum_clear_alert_message": "Você realmente deseja limpar o histórico de servidores electrum?",
@@ -311,7 +313,6 @@
     "details_transaction_details": "Detalhes da transacção",
     "pending": "Pendente",
     "list_title": "transacções",
-    "rbf_explain": "Substituiremos esta transacção por outra com uma taxa mais alta, portanto, ela deve ser confirmada mais rapidamente. Isto é chamado de RBF - Substituir por Taxa.",
     "rbf_title": "Aumento de taxa (RBF)",
     "status_bump": "Aumento de taxa",
     "status_cancel": "Cancelar transacção",
@@ -372,6 +373,7 @@
     "list_long_choose": "Escolher Foto",
     "list_long_clipboard": "Copiar da área de transferência",
     "list_long_scan": "Leia o código QR",
+    "list_marketplace": "Mercado",
     "list_tap_here_to_buy": "Adquirir Bitcoin",
     "list_title": "carteiras",
     "list_tryagain": "Tente novamente",
@@ -382,5 +384,21 @@
     "take_photo": "Tirar foto",
     "xpub_copiedToClipboard": "copiado para o clipboard",
     "xpub_title": "XPUB da wallet"
+  },
+  "multisig": {
+    "confirm": "Confirmar",
+    "header": "Enviar",
+    "share": "partilhar",
+    "create": "Criar",
+    "co_sign_transaction": "Assinar transação",
+    "ms_help_title5": "Ligar modo avançado"
+  },
+  "units": {
+    "sats": "sats"
+  },
+  "addresses": {
+    "sign_placeholder_address": "Endereço",
+    "type_receive": "receber",
+    "transactions": "transacções"
   }
 }

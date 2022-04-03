@@ -279,29 +279,43 @@
     "about_free": "BlueWallet एक बिटकोइन प्रयोगकर्ताहरू द्वारा बनाईएको नि:शुल्क र खुला स्रोत परियोजना हो।",
     "about_sm_telegram": "टेलिग्राम च्यानल",
     "biom_conf_identity": "आफ्नो पहिचान पुष्टि गर्नुहोस्।",
+    "currency": "मुद्रा",
     "currency_fetch_error": "चयन गरिएको मुद्राको लागि दर प्राप्त गर्दा एर्रोर भयो।",
     "default_wallets": "सबै वालेटहरू हेर्नुहोस्",
+    "electrum_clear_alert_cancel": "रद्द गर्नुहोस्",
+    "electrum_clear": "सफा",
     "encrypt_decrypt": "डिक्रिप्ट स्टोरेज",
     "encrypt_tstorage": "स्टोरेज",
     "encrypt_use_expl": "{type} लेनदेन, अनलक, निर्यात, वा वालेट मेटाउनु अघि तपाइँको पहिचान पुष्टि गर्न प्रयोग गरिनेछ। इन्क्रिप्टेड स्टोरेज अनलक गर्न {type} प्रयोग गरिने छैन।",
     "lightning_settings": "लाइटनिङ सेटिङहरू",
-    "privacy_quickactions": "वालेट सर्टकटहरू"
+    "plausible_deniability": "व्यावहारिक अस्वीकार्यता",
+    "privacy_quickactions": "वालेट सर्टकटहरू",
+    "retype_password": "पासवर्ड पुन: लेख्नुहोस",
+    "save": "सेव"
+  },
+  "notifications": {
+    "ask_me_later": "पछि सोध्नुहोस्"
   },
   "transactions": {
     "confirmations_lowercase": "{confirmations} पुष्टिकरणहरू",
-    "cpfp_exp": "हामी तपाईंको अपुष्ट लेनदेन खर्च गर्ने अर्को लेनदेन सिर्जना गर्नेछौं। कुल शुल्क मूल लेनदेन शुल्क भन्दा बढी हुनेछ, त्यसैले यसलाई छिटो खनन गर्नुपर्छ। यसलाई CPFP भनिन्छ—Child Pays for Parent।"
+    "cpfp_create": "सिर्जना गर्नुहोस्",
+    "cpfp_exp": "हामी तपाईंको अपुष्ट लेनदेन खर्च गर्ने अर्को लेनदेन सिर्जना गर्नेछौं। कुल शुल्क मूल लेनदेन शुल्क भन्दा बढी हुनेछ, त्यसैले यसलाई छिटो खनन गर्नुपर्छ। यसलाई CPFP भनिन्छ—Child Pays for Parent।",
+    "pending": "पेनदिंग"
   },
   "wallets": {
     "add_bitcoin": "बिटकोइन",
     "add_bitcoin_explain": "सजिलो र शक्तिशाली बिटकोइन वालेट",
+    "add_create": "सिर्जना गर्नुहोस्",
     "add_import_wallet": "वालेट आयात गर्नुहोस्",
     "add_lightning": "लाइटनिङ",
     "add_placeholder": "मेरो पहिलो वालेट",
     "add_title": "वालेट थप्नुहोस्",
     "clipboard_bitcoin": "तपाईको क्लिपबोर्डमा बिटकोइन ठेगाना छ। के तपाइँ यसलाई लेनदेनको लागि प्रयोग गर्न चाहनुहुन्छ?",
     "clipboard_lightning": "तपाईंको क्लिपबोर्डमा लाइटनिङ इनभ्वाइस छ। के तपाइँ यसलाई लेनदेनको लागि प्रयोग गर्न चाहनुहुन्छ?",
+    "details_address": "ठेगाना",
     "details_delete_wallet": "वालेट हटाउनुहोस्",
     "details_display": "वालेट सूचीमा देखाउनु होस्",
+    "details_save": "सेव",
     "details_show_xpub": "वालेटको XPUB देखाउनुहोस्",
     "details_title": "वालेट",
     "details_use_with_hardware_wallet": "हार्डवेयर वालेटको साथ प्रयोग गर्नुहोस्",
@@ -323,6 +337,10 @@
   },
   "multisig": {
     "confirm": "पक्का ",
+    "header": "पठाउनुहोस्",
+    "share": "सेयर गर्नुहोस्",
+    "create": "सिर्जना गर्नुहोस्",
+    "co_sign_transaction": "लेनदेनमा हस्ताक्षर गर्नुहोस्",
     "what_is_vault_wallet": "वालेट।",
     "wallet_type": "वालेट को प्रकार"
   },
@@ -332,6 +350,10 @@
     "header": "Coin Control",
     "use_coin": "कोइन प्रयोग गर्नुहोस्",
     "use_coins": "कोइनहरू प्रयोग गर्नुहोस्"
+  },
+  "addresses": {
+    "sign_placeholder_address": "ठेगाना",
+    "type_receive": "प्राप्त गर्नुहोस्"
   },
   "lnurl_auth": {
     "register_question_part_2": "तपाईको लाइटनिङ वालेट प्रयोग गर्दै हुनुहुन्छ?",

@@ -13,6 +13,7 @@
     "no": "ไม่",
     "save": "บันทึก",
     "seed": "ซีด",
+    "success": "สำเร็จ",
     "wallet_key": "กุญแจกระเป๋าเงิน"
   },
   "azteco": {
@@ -147,7 +148,6 @@
     "create_details": "รายละเอียด",
     "create_fee": "ค่าธรรมเนียม",
     "create_memo": "บันทึกช่วยจำ",
-    "create_satoshi_per_byte": "ซาโตชิต่อไบท์",
     "create_this_is_hex": "นี่คือ hex ของธุรกรรม, signed แล้วและพร้อมที่จะบรอดคาซท์ไปยังเน็ตเวิร์ค.",
     "create_to": "ถึง",
     "create_tx_size": "ขนาดธุรกรรม",
@@ -180,7 +180,6 @@
     "fee_custom": "กำหนดเอง",
     "fee_fast": "เร็ว",
     "fee_medium": "ปานกลาง",
-    "fee_satbyte": "ด้วยแซทต่อไบท์",
     "fee_slow": "ช้า",
     "header": "ส่ง",
     "input_clear": "ลบ",
@@ -189,6 +188,7 @@
     "input_total": "ยอดรวม:",
     "permission_camera_message": "ต้องการคำอนุญาตในการใช้กล้อง",
     "permission_camera_title": "อนุญาตในการใช้กล้อง",
+    "psbt_sign": "ลงชื่อในธุรกรรม",
     "open_settings": "เปิดการตั้งค่า",
     "permission_storage_later": "ถามฉันภายหลัง",
     "psbt_clipboard": "คัดลอกไปที่คลิ๊ปบอร์ด",
@@ -221,6 +221,7 @@
     "electrum_connected_not": "ไม่ได้เชื่อมต่อ",
     "electrum_error_connect": "ไม่สามารถเชื่อมต่อไปยังเซิร์ฟเวอร์ Electrum ได้",
     "electrum_saved": "บันทึกสำเร็จ  ท่านอาจจำเป็นต้องรีสตาร์ท",
+    "electrum_settings_server": "เซิร์ฟเวอร์ Electrum",
     "electrum_status": "สถานะ",
     "electrum_clear_alert_title": "ท่านต้องการลบประวัติการรใช้งานหรือไม่?",
     "electrum_clear_alert_message": "ท่านต้องการลบประวัติการใช้งานของ electrum server หรือไม่?",
@@ -245,7 +246,6 @@
     "network": "เน็ตเวิร์ค",
     "network_broadcast": "บอร์ดคาสต์ธุรกรรม",
     "network_electrum": "เซิร์ฟเวอร์ Electrum",
-    "not_a_valid_uri": "๊URI ไม่ถูกต้อง",
     "notifications": "แจ้งเตือน",
     "open_link_in_explorer": "ไปที่เอ๊กโพเลอร์",
     "password": "รหัสผ่าน",
@@ -259,7 +259,6 @@
     "retype_password": "ใส่รหัสผ่านอีกครั้ง",
     "save": "บันทึก",
     "saved": "บันทึกแล้ว",
-    "success_transaction_broadcasted": "สำเร็จ! รายการของท่านบอร์ดคาสต์แล้ว!",
     "total_balance": "ยอดรวม"
   },
   "notifications": {
@@ -298,7 +297,6 @@
     "add_import_wallet": "นำเข้ากระเป๋าสตางค์",
     "add_lightning": "ไลท์นิง",
     "add_lndhub": "เชื่อมต่ปไปที่ LNDHub ของท่าน",
-    "add_lndhub_error": "แอดเดรสของโหนดLNDHub ไม่ถูกต้อง",
     "add_lndhub_placeholder": "แอดเดรสของโหนดของท่าน",
     "add_or": "หรือ",
     "add_title": "เพิ่มกระเป๋าสตางค์",
@@ -329,8 +327,6 @@
     "import_error": "ไม่สามารถนำเข้าได้. กรุณาตรวจสอบข้อมูลให้ถูกต้อง.",
     "import_file": "นำเข้าไฟล์",
     "import_imported": "นำเข้าแล้ว",
-    "import_placeholder_fail": "นำเข้ากระเป๋าสตางค์",
-    "import_placeholder_inprogress": "กำลังนำเข้ากระเป๋าสตางค์...",
     "import_scan_qr": "หรือสแกนรหัสคิวอาร์แทน?",
     "import_success": "สำเร็จ",
     "import_title": "นำเข้า",
@@ -339,12 +335,12 @@
     "list_empty_txs1": "ธุรกรรมจะปรากฏที่นี่,",
     "list_empty_txs1_lightning": "ควรใช้ไลท์นิงเน็ตเวิร์คสำหรับธุรกรรมประจำวันเท่านั้น ธุรกรรมทันใจและมีค่าธรรมเนียมน้อยมาก",
     "list_empty_txs2_lightning": "\nแตะที่ \"จัดการเงิน\" เพื่อเริ่มใช้งาน และเติมเงิน",
-    "list_import_error": "เกิดข้อผิดพลาดในการนำเข้ากระเป๋าสตางค์",
     "list_import_problem": "มีปัญหาในการนำเข้ากระเป๋าสตางค์",
     "list_latest_transaction": "ธุรกรรมล่าสุด",
     "list_long_choose": "เลือกรูปภาพ",
     "list_long_clipboard": "คัดลอกจากคลิปบอร์ด",
     "list_long_scan": "สแกนคิวอาร์โค้ด",
+    "list_marketplace": "ตลาด",
     "list_tap_here_to_buy": "กดที่นี่เพื่อซื้อบิตคอยน์",
     "list_title": "กระเป๋าสตางค์",
     "list_tryagain": "พยายามอีกครั้ง",
@@ -395,7 +391,8 @@
     "ms_help": "ความช่วยเหลือ",
     "ms_help_title2": "แก้ไขกุญแจ",
     "ms_help_title3": "สำรองห้องนิรภัย",
-    "ms_help_title4": "นำเข้าห้องนิรภัย"
+    "ms_help_title4": "นำเข้าห้องนิรภัย",
+    "ms_help_title5": "โหมดขั้นสูง"
   },
   "is_it_my_address": {
     "title": "ใช่แอดเดรสของฉันหรือไม่?",
@@ -415,7 +412,12 @@
   },
   "units": {
     "BTC": "บิตคอยน์",
-    "sat_byte": "แซทต่อไบท์",
     "sats": "แซท"
+  },
+  "addresses": {
+    "sign_placeholder_address": "แอดเดรส",
+    "type_change": "เงินทอน",
+    "type_receive": "รับ",
+    "transactions": "ธุรกรรม"
   }
 }
