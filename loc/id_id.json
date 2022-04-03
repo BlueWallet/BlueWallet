@@ -161,7 +161,6 @@
     "create_details": "Detail",
     "create_fee": "Tarif",
     "create_memo": "Memo",
-    "create_satoshi_per_byte": "Satoshi per bit",
     "create_this_is_hex": "Ini adalah hex transaksi, siap untuk disiarkan ke jaringan.",
     "create_to": "Ke",
     "create_tx_size": "Ukuran TX",
@@ -197,8 +196,6 @@
     "fee_custom": "Custom",
     "fee_fast": "Cepat",
     "fee_medium": "Sedang",
-    "fee_replace_min": "Jumlah biaya (satoshi per byte) yang ingin anda bayarkan harus lebih tinggi dari {min} sat/byte",
-    "fee_satbyte": "dalam sat/byte",
     "fee_slow": "Lambat",
     "header": "Kirim",
     "input_clear": "Hapus",
@@ -211,7 +208,6 @@
     "open_settings": "Buka Setelan",
     "permission_storage_later": "Tanyakan saya nanti",
     "permission_storage_message": "BlueWallet membutuhkan izin anda untuk mengakses tempat penyimpanan anda untuk menyimpan file ini",
-    "permission_storage_denied_message": "BlueWallet tidak dapat menyimpan file ini. Mohon buka setelan perangkat anda dan perbolehkan Izin Penyimpanan.",
     "permission_storage_title": "Izin Akses Penyimpanan",
     "psbt_clipboard": "Salin ke Clipboard",
     "psbt_this_is_psbt": "Ini adalah Transaksi Bitcoin yang Ditandatangani Sebagian (PSBT). Harap selesaikan penandatanganan dengan dompet perangkat keras Anda.",
@@ -252,8 +248,8 @@
     "electrum_connected": "Terhubung",
     "electrum_connected_not": "Tidak Terhubung",
     "electrum_error_connect": "Tidak dapat terhubung dengan server Electrum",
-    "lndhub_uri": "Contoh. {example}",
-    "electrum_host": "Contoh. {example}",
+    "electrum_clear_alert_cancel": "Batalkan",
+    "electrum_clear": "Hapus",
     "general_adv_mode": "Enable advanced mode",
     "header": "setting",
     "language": "Bahasa",
@@ -265,11 +261,16 @@
     "retype_password": "Ulangi kata sandi",
     "save": "simpan"
   },
+  "notifications": {
+    "ask_me_later": "Tanyakan saya nanti"
+  },
   "transactions": {
+    "cpfp_create": "Buat",
     "details_copy": "Salin",
     "details_show_in_block_explorer": "Tampilkan di block explorer",
     "details_title": "Transaksi",
     "details_transaction_details": "Detail transaksi",
+    "pending": "tertunda",
     "list_title": "transaksi"
   },
   "wallets": {
@@ -307,9 +308,22 @@
     "xpub_copiedToClipboard": "Disalin ke clipboard.",
     "xpub_title": "XPUB dompet"
   },
+  "multisig": {
+    "confirm": "Konfirmasi",
+    "header": "Kirim",
+    "share": "bagikan",
+    "create": "Buat",
+    "co_sign_transaction": "Tanda tangani transaksi",
+    "ms_help_title5": "Enable advanced mode"
+  },
+  "units": {
+    "sats": "sats"
+  },
   "addresses": {
     "sign_placeholder_address": "Alamat",
     "sign_placeholder_message": "Pesan",
-    "sign_placeholder_signature": "Tanda Tangan"
+    "sign_placeholder_signature": "Tanda Tangan",
+    "type_receive": "Terima",
+    "transactions": "transaksi"
   }
 }

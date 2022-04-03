@@ -252,6 +252,7 @@
     "electrum_connected_not": "未连接",
     "electrum_error_connect": "无法连接到提供的Electrum服务器",
     "lndhub_uri": "举例：{example}",
+    "electrum_host": "举例：{example}",
     "electrum_offline_mode": "离线模式",
     "electrum_saved": "您的更变已成功保存。要使更变生效，可能需要重新启动BlueWallet。",
     "set_electrum_server_as_default": "将{server}设置为默认的Electrum服务器？",
@@ -317,7 +318,6 @@
     "ask_me_later": "待会问我"
   },
   "transactions": {
-    "cancel_explain": "我们将以较高费用的交易取代此交易，这有效地取消此交易。 这称为RBF-按费用替换(Replace by Fee)。",
     "cancel_no": "此交易不可替换。",
     "cancel_title": "取消此交易（RBF）",
     "confirmations_lowercase": "{confirmations}个确认",
@@ -346,7 +346,6 @@
     "list_conf": "Conf: {number}",
     "pending": "待办",
     "list_title": "交易",
-    "rbf_explain": "我们将以较高费用的交易取代此交易，因此应更快被矿工放进区块链。 这称为RBF-按费用替换。",
     "rbf_title": "碰撞费用（RBF）",
     "status_bump": "碰撞费用",
     "status_cancel": "取消交易",
@@ -401,6 +400,7 @@
     "export_title": "钱包导出",
     "import_do_import": "导入",
     "import_passphrase": "密语",
+    "import_passphrase_title": "密语",
     "import_error": "导入失败，请确认你提供的信息是有效的",
     "import_explanation": "输入你的种子短语、公钥、WIF或者任何你拥有的东西。BlueWallet将尽可能猜测正确的格式并导入您的钱包",
     "import_file": "导入文件",
@@ -542,17 +542,14 @@
     "sats": "聪"
   },
   "addresses": {
-    "sign_title": "签署/验证信息",
-    "sign_help": "在这里您可以根据比特币地址来创建或验证加密签名",
     "sign_sign": "签署",
     "sign_verify": "验证",
-    "sign_signature_correct": "验证成功！",
-    "sign_signature_incorrect": "验证失败！",
     "sign_placeholder_address": "地址",
     "sign_placeholder_message": "信息",
     "sign_placeholder_signature": "签名",
     "addresses_title": "地址",
     "type_change": "改变",
-    "type_receive": "接收"
+    "type_receive": "接收",
+    "transactions": "交易"
   }
 }

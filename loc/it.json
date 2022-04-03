@@ -198,7 +198,6 @@
     "create_details": "Dettagli",
     "create_fee": "Commissione",
     "create_memo": "Memo",
-    "create_satoshi_per_vbyte": "Satoshi per vbyte.",
     "create_this_is_hex": "Questo è l'hex della transazione, firmato e pronto per essere trasmesso sulla rete.",
     "create_to": "A",
     "create_tx_size": "Grandezza TX",
@@ -218,14 +217,12 @@
     "details_create": "Crea",
     "details_error_decode": "Impossibile decodificare l'indirizzo Bitcoin",
     "details_fee_field_is_not_valid": "Commissione non valida",
-    "details_frozen": "{amount} BTC sono congelati",
     "details_next": "Avanti",
     "details_no_signed_tx": "Il file selezionato non contiene una transazione che può essere importata.",
     "details_note_placeholder": "Nota",
     "details_scan": "Scansiona",
     "details_scan_hint": "Tocca due volte per scannerizzare o importare una destinazione",
     "details_total_exceeds_balance": "L'importo da inviare eccede i fondi disponibili.",
-    "details_total_exceeds_balance_frozen": "Il saldo che si vuole inviare è superiore al saldo disponibile. Notare che il saldo congelato è escluso.",
     "details_unrecognized_file_format": "Formato sconosciuto",
     "details_wallet_before_tx": "Prima di creare una transazione devi prima creare un portafoglio Bitcoin.",
     "dynamic_init": "Avviamento",
@@ -239,7 +236,6 @@
     "fee_custom": "Personalizzato",
     "fee_fast": "Rapido",
     "fee_medium": "Medio",
-    "fee_replace_minvb": "Il tasso di commissione totale (satoshi per vbyte) che desideri pagare dovrebbe essere superiore a {min} sat/vbyte.",
     "fee_satvbyte": "in sat/vByte",
     "fee_slow": "Lento",
     "header": "Invia",
@@ -386,7 +382,6 @@
     "ask_me_later": "Chiedimelo dopo"
   },
   "transactions": {
-    "cancel_explain": "Sostituiremo questa transazione con una che paga te stesso e ha una commissione più elevata. Di fatto questo annulla la transazione. Ciò è chiamato RBF — Replace by Fee.",
     "cancel_no": "Questa transazione non può essere sostituita.",
     "cancel_title": "Cancella questa transazione (RBF)",
     "confirmations_lowercase": "{confirmations} conferme",
@@ -421,8 +416,6 @@
     "eta_3h": "ETA: In ~3 ore",
     "eta_1d": "ETA: In ~1 giorno",
     "list_title": "Transazioni",
-    "open_url_error": "Impossibile aprire URL con il browser di default. È necessario cambiare il browser di default nelle impostazioni e riprovare.",
-    "rbf_explain": "Sostituiremo questa transazione con una con una commissione più elevata in modo che venga confermata più rapidamente. Questa tecnica è chiamata RBF—Replace by Fee.",
     "rbf_title": "Aumenta la commissione (RBF)",
     "status_bump": "Aumenta la commissione",
     "status_cancel": "Annulla transazione",
@@ -525,6 +518,7 @@
     "lets_start": "Iniziamo",
     "create": "Crea",
     "wrapped_segwit_title": "Miglior compatibilità",
+    "co_sign_transaction": "Firma una transazione",
     "what_is_vault": "Una cassaforte è un",
     "what_is_vault_numberOfWallets": "multisig {m}-su-{n} ",
     "what_is_vault_wallet": "portafoglio.",
@@ -552,15 +546,15 @@
     "sats": "sat"
   },
   "addresses": {
-    "sign_title": "Firma/Verifica messaggio",
     "sign_sign": "Firma",
     "sign_sign_submit": "Firma e invia",
     "sign_verify": "Verifica",
-    "sign_signature_incorrect": "Verifica fallita!",
     "sign_placeholder_address": "Indirizzo",
     "sign_placeholder_message": "Messaggio",
     "sign_placeholder_signature": "Firma",
     "addresses_title": "Indirizzi",
+    "type_change": "Resto",
+    "type_receive": "Ricevi",
     "transactions": "Transazioni"
   }
 }

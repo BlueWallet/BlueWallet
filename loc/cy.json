@@ -160,7 +160,8 @@
     "permission_camera_message": "Angen dy ganiatad i ddefnyddio dy gamera.",
     "permission_camera_title": "Caniatad i ddefnyddio'r camera",
     "psbt_sign": "Arwyddo trafodyn",
-    "open_settings": "Agor Gosodiadau"
+    "open_settings": "Agor Gosodiadau",
+    "success_done": "Wedi Cwblhau"
   },
   "settings": {
     "currency": "Arian",
@@ -192,7 +193,6 @@
     "retype_password": "Ail-deipio cyfrinair",
     "save": "Safio",
     "saved": "Wedi Safio",
-    "success_transaction_broadcasted": "Llwyddiant! Mae dy drafodyn wedi cael ei ddarlledu!",
     "total_balance": "Balans Llawn"
   },
   "transactions": {
@@ -239,8 +239,6 @@
     "import_do_import": "Mewnforio",
     "import_file": "Mewnforio ffeil",
     "import_imported": "Mewnforwyd",
-    "import_placeholder_fail": "Waled Mewnfor",
-    "import_placeholder_inprogress": "Mewnforio Waled...",
     "import_scan_qr": "Sganio neu fewnforio ffeil",
     "import_success": "Mae dy waled wedi cael ei fewnforio'n llwyddiannus.",
     "import_title": "Mewnforio",
@@ -266,23 +264,26 @@
     "header": "Anfon",
     "share": "Rhannu",
     "view": "Golwg",
+    "create": "Creu",
+    "co_sign_transaction": "Arwyddo trafodyn",
     "wallet_type": "Math o Waled",
     "view_key": "Golwg"
+  },
+  "cc": {
+    "change": "Newid"
   },
   "units": {
     "MAX": "Mwyafswm"
   },
   "addresses": {
-    "sign_title": "Arwyddo/Gwirio neges",
     "sign_sign": "Arwyddo",
     "sign_verify": "Gwirio",
-    "sign_signature_correct": "Gwirio Wedi Llwyddo!",
-    "sign_signature_incorrect": "Gwirio Wedi Methu!",
     "sign_placeholder_address": "Cyfeiriad",
     "sign_placeholder_message": "Neges",
     "sign_placeholder_signature": "Llofnod",
     "addresses_title": "Cyfeiriadau",
     "type_change": "Newid",
-    "type_receive": "Derbyn"
+    "type_receive": "Derbyn",
+    "transactions": "Trafodion"
   }
 }

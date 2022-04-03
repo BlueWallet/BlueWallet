@@ -14,6 +14,7 @@
     "no": "Nej",
     "save": "Spara",
     "seed": "Frö",
+    "success": "Framgång",
     "wallet_key": "Nyckel till plånbok",
     "invalid_animated_qr_code_fragment": "Felaktig animerad QR-kod. Vänligen försök igen."
   },
@@ -143,7 +144,6 @@
     "create_details": "Detaljer",
     "create_fee": "Avgift",
     "create_memo": "Memo",
-    "create_satoshi_per_byte": "Satoshis per byte",
     "create_this_is_hex": "Detta är transaktionens hex, signerad och redo att skickas ut på nätverket.",
     "create_to": "Till",
     "create_tx_size": "Transaktionsstorlek",
@@ -166,7 +166,6 @@
     "dynamic_prev": "Föregående",
     "dynamic_start": "Starta",
     "dynamic_stop": "Stoppa",
-    "fee_satbyte": "i sat/byte",
     "fee_slow": "Långsamt",
     "header": "Skicka",
     "input_clear": "Töm",
@@ -189,6 +188,9 @@
     "currency": "Valuta",
     "currency_source": "Priser hämtas från",
     "default_title": "Vid uppstart",
+    "electrum_settings_server": "Electrum server",
+    "electrum_clear_alert_cancel": "Avbryt",
+    "electrum_clear": "Töm",
     "encrypt_use": "Använd {type}",
     "general_adv_mode": "Enable advanced mode",
     "header": "inställningar",
@@ -217,6 +219,7 @@
     "details_show_in_block_explorer": "Visa i block explorer",
     "details_title": "Transaktion",
     "details_transaction_details": "Transaktionsdetaljer",
+    "pending": "Pågående",
     "list_title": "transaktioner",
     "status_cancel": "Avbryt transaction"
   },
@@ -247,6 +250,7 @@
     "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",
+    "import_title": "Importera",
     "list_create_a_button": "Ny plånbok",
     "list_create_a_wallet": "Ny plånbok",
     "list_empty_txs1": "Dina transaktioner kommer att visas här",
@@ -262,9 +266,22 @@
     "xpub_title": "plånbokens XPUB"
   },
   "multisig": {
-    "create": "Skapa"
+    "confirm": "Bekräfta",
+    "header": "Skicka",
+    "share": "dela",
+    "create": "Skapa",
+    "ms_help_title5": "Enable advanced mode"
   },
   "cc": {
     "change": "ändra"
+  },
+  "units": {
+    "sats": "sats"
+  },
+  "addresses": {
+    "sign_placeholder_address": "adress",
+    "type_change": "ändra",
+    "type_receive": "Ta emot",
+    "transactions": "transaktioner"
   }
 }
