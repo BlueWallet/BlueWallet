@@ -26,7 +26,7 @@ function arrDiff(a1, a2) {
 }
 
 const TransactionsDetails = () => {
-  const { setOptions } = useNavigation();
+  const { setOptions, navigate } = useNavigation();
   const { hash } = useRoute().params;
   const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
   const [from, setFrom] = useState();
@@ -136,13 +136,78 @@ const TransactionsDetails = () => {
       });
   };
 
-  const handleCopyPress = () => {
-    Clipboard.setString(`https://mempool.space/tx/${tx.hash}`);
+  const handleCopyPress = stringToCopy => {
+    Clipboard.setString(
+      stringToCopy !== TransactionsDetails.actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx.hash}`,
+    );
   };
 
   if (isLoading || !tx) {
     return <BlueLoading />;
   }
+
+  const weOwnAddress = address => {
+    for (const w of wallets) {
+      if (w.weOwnAddress(address)) {
+        return w;
+      }
+    }
+    return null;
+  };
+
+  const navigateToWallet = wallet => {
+    const walletID = wallet.getID();
+    navigate('WalletTransactions', {
+      walletID,
+      walletType: wallet.type,
+      key: `WalletTransactions-${walletID}`,
+    });
+  };
+
+  const renderSection = array => {
+    const fromArray = [];
+
+    for (const [index, address] of array.entries()) {
+      const actions = [];
+      actions.push({
+        id: TransactionsDetails.actionKeys.CopyToClipboard,
+        text: loc.transactions.details_copy,
+        icon: TransactionsDetails.actionIcons.Clipboard,
+      });
+      const isWeOwnAddress = weOwnAddress(address);
+      if (isWeOwnAddress) {
+        actions.push({
+          id: TransactionsDetails.actionKeys.GoToWallet,
+          text: loc.formatString(loc.transactions.view_wallet, { walletLabel: isWeOwnAddress.getLabel() }),
+          icon: TransactionsDetails.actionIcons.GoToWallet,
+        });
+      }
+
+      fromArray.push(
+        <ToolTipMenu
+          key={address}
+          isButton
+          title={address}
+          isMenuPrimaryAction
+          actions={actions}
+          onPressMenuItem={id => {
+            if (id === TransactionsDetails.actionKeys.CopyToClipboard) {
+              handleCopyPress(address);
+            } else if (id === TransactionsDetails.actionKeys.GoToWallet) {
+              navigateToWallet(isWeOwnAddress);
+            }
+          }}
+        >
+          <BlueText style={isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue}>
+            {address}
+            {index === array.length - 1 ? null : ','}
+          </BlueText>
+        </ToolTipMenu>,
+      );
+    }
+
+    return fromArray;
+  };
 
   return (
     <ScrollView style={styles.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
@@ -170,7 +235,8 @@ const TransactionsDetails = () => {
               <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
               <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
             </View>
-            <BlueText style={styles.rowValue}>{from.filter(onlyUnique).join(', ')}</BlueText>
+            {renderSection(from.filter(onlyUnique))}
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -180,7 +246,8 @@ const TransactionsDetails = () => {
               <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
               <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
             </View>
-            <BlueText style={styles.rowValue}>{arrDiff(from, to.filter(onlyUnique)).join(', ')}</BlueText>
+            {renderSection(arrDiff(from, to.filter(onlyUnique)))}
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -188,6 +255,7 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
             <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -198,6 +266,7 @@ const TransactionsDetails = () => {
               <BlueCopyToClipboardButton stringToCopy={tx.hash} />
             </View>
             <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -205,6 +274,7 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
             <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -212,6 +282,7 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
             <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -219,6 +290,7 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
             <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
 
@@ -226,6 +298,7 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
             <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
+            <View style={styles.marginBottom18} />
           </>
         )}
         <ToolTipMenu
@@ -251,12 +324,17 @@ const TransactionsDetails = () => {
 
 TransactionsDetails.actionKeys = {
   CopyToClipboard: 'copyToClipboard',
+  GoToWallet: 'goToWallet',
 };
 
 TransactionsDetails.actionIcons = {
   Clipboard: {
     iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
+  },
+  GoToWallet: {
+    iconType: 'SYSTEM',
+    iconValue: 'wallet.pass',
   },
 };
 
@@ -276,8 +354,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   rowValue: {
-    marginBottom: 26,
     color: 'grey',
+  },
+  marginBottom18: {
+    marginBottom: 18,
   },
   txId: {
     fontSize: 16,
@@ -286,6 +366,9 @@ const styles = StyleSheet.create({
   Link: {
     fontWeight: '600',
     fontSize: 15,
+  },
+  weOwnAddress: {
+    fontWeight: '600',
   },
   save: {
     alignItems: 'center',
@@ -325,18 +408,15 @@ const styles = StyleSheet.create({
 
 export default TransactionsDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle(
-  { headerTitle: loc.transactions.details_title },
-  (options, { theme, navigation, route }) => {
-    return {
-      ...options,
-      headerStyle: {
-        backgroundColor: theme.colors.customHeader,
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
-      },
-    };
-  },
-);
+TransactionsDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
+  return {
+    ...options,
+    headerStyle: {
+      backgroundColor: theme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+  };
+});
