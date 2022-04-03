@@ -314,7 +314,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.17.2):
+  - react-native-webview (11.18.1):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -383,14 +383,14 @@ PODS:
     - React-jsi (= 0.67.4)
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
-  - RealmJS (10.13.0):
+  - RealmJS (10.14.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
   - rn-ldk (0.7.5):
     - React-Core
-  - RNCAsyncStorage (1.17.0):
+  - RNCAsyncStorage (1.17.3):
     - React-Core
   - RNCClipboard (1.9.0):
     - React-Core
@@ -398,7 +398,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.3):
     - React
-  - RNDeviceInfo (8.5.1):
+  - RNDeviceInfo (8.7.0):
     - React-Core
   - RNFS (2.19.0):
     - React-Core
@@ -447,7 +447,7 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.11.0):
+  - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
@@ -785,7 +785,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 380c1a03ec94b7ed764dac8db1e7c9952d08c93a
+  react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -799,14 +799,14 @@ SPEC CHECKSUMS:
   React-RCTVibration: 3b52a7dced19cdb025b4f88ab26ceb2d85f30ba2
   React-runtimeexecutor: a9d3c82ddf7ffdad9fbe6a81c6d6f8c06385464d
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
-  RealmJS: 9ca55cce37eedc14f6f3db233ba3d3ad52838c6f
+  RealmJS: 5a939376f3bdd94708abe2326d33d8f935b9fb37
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: cd7e176c2cc131402cbeaa603f0e9991cd27a896
-  RNCAsyncStorage: 4efdcd2f7378421b29467c9de58f43552b60cf5b
+  RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
-  RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
+  RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
   RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -817,7 +817,7 @@ SPEC CHECKSUMS:
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
   RNReactNativeHapticFeedback: 4085973f5a38b40d3c6793a3ee5724773eae045e
   RNReanimated: e28dfaa950064b674fde0a9b736e62b9dff500a7
-  RNScreens: fd535547baa4ef8aeaee1a8b1e3ffd17b8df44a4
+  RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
