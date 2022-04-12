@@ -188,7 +188,7 @@
     "react-native-windows": "0.67.6",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
-    "realm": "10.14.0",
+    "realm": "10.16.0",
     "rn-ldk": "github:BlueWallet/rn-ldk#v0.7.5",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
