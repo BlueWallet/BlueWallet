@@ -426,6 +426,7 @@
     "eta_10m": "ETA: In ~10 minutes",
     "eta_3h": "ETA: In ~3 hours",
     "eta_1d": "ETA: In ~1 day",
+    "view_wallet": "View {walletLabel}",
     "list_title": "Transactions",
     "open_url_error": "Unable to open the link with the default browser. Please change your default browser and try again.",
     "rbf_explain": "We will replace this transaction with one with a higher fee so that it will be mined faster. This is called RBF—Replace by Fee.",
