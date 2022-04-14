@@ -374,7 +374,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.strictEqual(lNew.balance, 0);
 
     let invoices = await lNew.getUserInvoices();
-    let invoice = await lNew.addInvoice(1, 'test memo');
+    let invoice = await lNew.addInvoice(2, 'test memo');
     const decoded = lNew.decodeInvoice(invoice);
     let invoices2 = await lNew.getUserInvoices();
     assert.strictEqual(invoices2.length, invoices.length + 1);
@@ -384,7 +384,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(invoices2[0].payment_request);
     assert.ok(invoices2[0].timestamp);
     assert.ok(invoices2[0].expire_time);
-    assert.strictEqual(invoices2[0].amt, 1);
+    assert.strictEqual(invoices2[0].amt, 2);
     for (const inv of invoices2) {
       assert.strictEqual(inv.type, 'user_invoice');
     }
@@ -407,8 +407,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.strictEqual(oldBalance - lOld.balance, 1);
-    assert.strictEqual(lNew.balance, 1);
+    assert.strictEqual(oldBalance - lOld.balance, 2);
+    assert.strictEqual(lNew.balance, 2);
 
     await lOld.fetchTransactions();
     assert.strictEqual(lOld.transactions_raw.length, txLen + 1, 'internal invoice should also produce record in payer`s tx list');
@@ -427,7 +427,7 @@ describe.skip('LightningCustodianWallet', () => {
     await lOld.fetchBalance();
     await lNew.fetchBalance();
     assert.strictEqual(lOld.balance - oldBalance, 1);
-    assert.strictEqual(lNew.balance, 0);
+    assert.strictEqual(lNew.balance, 1); // ok, forfeit this 1, unrecoverable
 
     // now, paying same internal invoice. should fail:
 
@@ -451,7 +451,7 @@ describe.skip('LightningCustodianWallet', () => {
     await lNew.addInvoice(666, 'test memo 2');
     invoices = await lNew.getUserInvoices(1);
     assert.strictEqual(invoices.length, 2);
-    assert.strictEqual(invoices[0].amt, 1);
+    assert.strictEqual(invoices[0].amt, 2);
     assert.strictEqual(invoices[1].amt, 666);
   });
 
