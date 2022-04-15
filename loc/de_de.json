@@ -426,6 +426,7 @@
     "eta_10m": "In ca. 10 Min. verbucht.",
     "eta_3h": "In ca. 3 Std. verbucht.",
     "eta_1d": "In ca. 1 Tag verbucht.",
+    "view_wallet": "{walletLabel} anzeigen",
     "list_title": "Transaktionen",
     "open_url_error": "Der Standardbrowser kann die URL nicht öffnen. Bitte diesen ggf. ändern, um es erneut zu versuchen.",
     "rbf_explain": "BlueWallet ersetzt die aktuelle Transaktion zur schnelleren Überweisung durch eine Transaktion mit höherer Gebühr. Dieses Verfahren wird 'RBF - Replace By Fee' genannt.",
