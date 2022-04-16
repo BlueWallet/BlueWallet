@@ -426,6 +426,7 @@
     "eta_10m": "Szacowany czas: ~10 minut",
     "eta_3h": "Szacowany czas: ~3 godziny",
     "eta_1d": "Szacowany czas: ~1 dzień",
+    "view_wallet": "Pokaż {walletLabel}",
     "list_title": "Transakcje",
     "open_url_error": "Nie udało się otworzyć linku za pomocą domyślnej przeglądarki. Zmień swoją domyślną przeglądarkę i spróbój ponownie.",
     "rbf_explain": "Zastąpimy tę transakcję taką, która ma wyższą opłatę, aby została wykopana szybciej. To się nazywa RBF—Replace by Fee.",
