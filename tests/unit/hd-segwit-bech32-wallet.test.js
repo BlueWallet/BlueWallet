@@ -248,4 +248,13 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       `bad feerate, got ${actualFeerate}, expected at least 1; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
     );
   });
+
+  it('can use french seed', async () => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret('abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abeille');
+
+    assert.strictEqual(true, hd.validateMnemonic());
+    assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1q3gsf7a6es9603g9a2k50lqxxxtd7x9pt7r5z9s');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1q3ugpcustjrtt806uc5kqutlv5ue5sv0cfcr93c');
+  });
 });
