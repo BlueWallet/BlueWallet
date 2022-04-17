@@ -174,6 +174,19 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1EgDbwf5nXp9knoaWW6nV6N91EK3EFQ5vC');
   });
 
+  it('can import BIP44 with mnemonic in french', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      'abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abeille',
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+    assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
+    assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1JFdzwd8SqFn5LeeiDKcbYUfXxvButqXgX');
+  });
+
   it('can import BIP49', async () => {
     const store = createStore();
     const { promise } = startImport(
