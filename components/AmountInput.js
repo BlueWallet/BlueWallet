@@ -126,7 +126,7 @@ class AmountInput extends Component {
   maxLength = () => {
     switch (this.props.unit) {
       case BitcoinUnit.BTC:
-        return 10;
+        return 11;
       case BitcoinUnit.SATS:
         return 15;
       default:
