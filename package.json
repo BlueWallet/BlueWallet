@@ -179,7 +179,7 @@
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#63ab38c9d382a819844a086a69cc204c46aa93f9",
     "react-native-share": "7.3.9",
     "react-native-svg": "12.3.0",
-    "react-native-tcp-socket": "5.5.0",
+    "react-native-tcp-socket": "5.6.1",
     "react-native-tor": "0.1.8",
     "react-native-vector-icons": "9.1.0",
     "react-native-watch-connectivity": "1.0.4",
