@@ -426,6 +426,7 @@
     "eta_10m": "TEA: en ~ 10 minutos",
     "eta_3h": "TEA: en ~ 3 horas",
     "eta_1d": "TEA: en ~ 1 día",
+    "view_wallet": "Ver {walletLabel}",
     "list_title": "Transacciones",
     "open_url_error": "No se puede abrir el enlace con el navegador predeterminado. Cambia tu navegador predeterminado y vuelve a intentarlo.",
     "rbf_explain": "Reemplazaremos esta transacción con una con una tarifa más alta para que se extraiga más rápido. Esto se llama RBF—Replace by Fee.",
