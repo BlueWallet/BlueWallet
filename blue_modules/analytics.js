@@ -5,15 +5,15 @@ const BlueApp = require('../BlueApp');
 let userHasOptedOut = false;
 
 if (process.env.NODE_ENV !== 'development') {
-  Bugsnag.start({
-    collectUserIp: false,
-    user: {
-      id: getUniqueId(),
-    },
-    onError: function (event) {
-      return !userHasOptedOut;
-    },
-  });
+  // Bugsnag.start({
+  //   collectUserIp: false,
+  //   user: {
+  //     id: getUniqueId(),
+  //   },
+  //   onError: function (event) {
+  //     return !userHasOptedOut;
+  //   },
+  // });
 }
 
 BlueApp.isDoNotTrackEnabled().then(value => {
@@ -38,7 +38,7 @@ A.setOptOut = value => {
 
 A.logError = errorString => {
   console.error(errorString);
-  Bugsnag.notify(new Error(String(errorString)));
+  // Bugsnag.notify(new Error(String(errorString)));
 };
 
 module.exports = A;
