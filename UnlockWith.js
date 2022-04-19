@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
@@ -42,6 +42,7 @@ const UnlockWith = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [animationDidFinish, setAnimationDidFinish] = useState(false);
   const colorScheme = useColorScheme();
+  const animationRef = useRef();
 
   const initialRender = async () => {
     let biometricType = false;
@@ -55,6 +56,19 @@ const UnlockWith = () => {
   useEffect(() => {
     initialRender();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (animationRef.current) {
+      /*
+      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
+      Temporary workaround until Lottie is fixed.
+      */
+      setTimeout(() => {
+        animationRef.current?.reset();
+        animationRef.current?.play();
+      }, 100);
+    }
   }, []);
 
   const successfullyAuthenticated = () => {
@@ -132,7 +146,13 @@ const UnlockWith = () => {
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="default" />
       <View style={styles.container}>
-        <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
+        <LottieView
+          source={require('./img/bluewalletsplash.json')}
+          autoPlay
+          ref={animationRef}
+          loop={false}
+          onAnimationFinish={onAnimationFinish}
+        />
         <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
       </View>
     </SafeAreaView>
