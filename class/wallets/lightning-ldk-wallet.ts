@@ -21,15 +21,14 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   private _refundAddressScriptHex: string = '';
   private _lastTimeBlockchainCheckedTs: number = 0;
   private _unwrapFirstExternalAddressFromMnemonicsCache: string = '';
-  private static _predefinedNodes: any = {
-    Bitrefill: '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735',
-    'OpenNode.com': '028d98b9969fbed53784a36617eb489a59ab6dc9b9d77fcdca9ff55307cd98e3c4@18.222.70.85:9735',
+  private static _predefinedNodes: Record<string, string> = {
+    Bitrefill: '03d607f3e69fd032524a867b288216bfab263b6eaee4e07783799a6fe69bb84fac@3.237.23.179:9735',
+    'OpenNode.com': '03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e@3.132.230.42:9735',
     Fold: '02816caed43171d3c9854e3b0ab2cf0c42be086ff1bd4005acc2a5f7db70d83774@35.238.153.25:9735',
     'Moon (paywithmoon.com)': '025f1456582e70c4c06b61d5c8ed3ce229e6d0db538be337a2dc6d163b0ebc05a5@52.86.210.65:9735',
     'coingate.com': '0242a4ae0c5bef18048fbecf995094b74bfb0f7391418d71ed394784373f41e4f3@3.124.63.44:9735',
     'Blockstream Store': '02df5ffe895c778e10f7742a6c5b8a0cefbe9465df58b92fadeb883752c8107c8f@35.232.170.67:9735',
-    'lnd2.bluewallet.io': '037cc5f9f1da20ac0d60e83989729a204a33cc2d8e80438969fadf35c1c5f1233b@165.227.103.83:9735',
-    ACINQ: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@34.239.230.56:9735',
+    ACINQ: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f@3.33.236.230:9735',
   };
 
   static getPredefinedNodes() {
@@ -301,12 +300,16 @@ export class LightningLdkWallet extends LightningCustodianWallet {
   async payInvoice(invoice: string, freeAmount = 0) {
     const decoded = this.decodeInvoice(invoice);
 
+    // if its NOT zero amount invoice, we forcefully reset passed amount argument so underlying LDK code
+    // would extract amount from bolt11
+    if (decoded.num_satoshis && parseInt(decoded.num_satoshis) > 0) freeAmount = 0;
+
     if (await this.channelsNeedReestablish()) {
       await this.reestablishChannels();
       await this.waitForAtLeastOneChannelBecomeActive();
     }
 
-    const result = await this.sendPayment(invoice, freeAmount);
+    const result = await RnLdk.payInvoice(invoice, freeAmount);
     if (!result) throw new Error('Failed');
 
     // ok, it was sent. now, waiting for an event that it was _actually_ paid:
@@ -337,10 +340,6 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
     // no? lets just throw timeout error
     throw new Error('Payment timeout');
-  }
-
-  async sendPayment(invoice: string, freeAmount: number) {
-    return RnLdk.payInvoice(invoice, freeAmount);
   }
 
   /**
@@ -626,6 +625,14 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       await this.connectPeer(pubkey, host, port);
       connectedInThisRun[pubkey] = true;
     }
+
+    // now, reconnecting peers
+    for (const uri of Object.values(LightningLdkWallet._predefinedNodes)) {
+      const pk = uri.split('@')[0];
+      if (connectedInThisRun[pk]) continue;
+      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(pk);
+      await this.connectPeer(pubkey, host, port);
+    }
   }
 
   async channelsNeedReestablish() {
@@ -666,6 +673,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
   getChannelsClosedEvents() {
     return RnLdk.channelsClosed;
+  }
+
+  async purgeLocalStorage() {
+    return RnLdk.getStorage().purgeLocalStorage();
   }
 
   /**
