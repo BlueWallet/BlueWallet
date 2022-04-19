@@ -383,7 +383,7 @@ PODS:
     - React-jsi (= 0.67.4)
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
-  - RealmJS (10.14.0):
+  - RealmJS (10.16.0):
     - GCDWebServer
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
@@ -396,13 +396,13 @@ PODS:
     - React-Core
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
-  - RNDefaultPreference (1.4.3):
-    - React
+  - RNDefaultPreference (1.4.4):
+    - React-Core
   - RNDeviceInfo (8.7.0):
     - React-Core
   - RNFS (2.19.0):
     - React-Core
-  - RNGestureHandler (2.3.2):
+  - RNGestureHandler (2.4.0):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -452,7 +452,7 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.3.7):
+  - RNShare (7.3.9):
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
@@ -799,16 +799,16 @@ SPEC CHECKSUMS:
   React-RCTVibration: 3b52a7dced19cdb025b4f88ab26ceb2d85f30ba2
   React-runtimeexecutor: a9d3c82ddf7ffdad9fbe6a81c6d6f8c06385464d
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
-  RealmJS: 5a939376f3bdd94708abe2326d33d8f935b9fb37
+  RealmJS: 8a3478957315c29cdc0b3f958f2e370d22330b2d
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: cd7e176c2cc131402cbeaa603f0e9991cd27a896
   RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
-  RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
+  RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
-  RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
+  RNGestureHandler: 50e6ffee79932d14ea747d4ea4cc99aac0f24e86
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
@@ -819,7 +819,7 @@ SPEC CHECKSUMS:
   RNReanimated: e28dfaa950064b674fde0a9b736e62b9dff500a7
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
+  RNShare: 807d6f8231b8ebcf6dd839294b877342eb93d4e5
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
   RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
