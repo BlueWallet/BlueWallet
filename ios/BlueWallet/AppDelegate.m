@@ -1,4 +1,3 @@
-#import <Bugsnag/Bugsnag.h>
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
