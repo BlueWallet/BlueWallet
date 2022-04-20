@@ -309,7 +309,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
-  - react-native-tcp-socket (5.5.0):
+  - react-native-tcp-socket (5.6.1):
     - CocoaAsyncSocket
     - React-Core
   - react-native-tor (0.1.8):
@@ -388,7 +388,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.7.6):
+  - rn-ldk (0.8.1):
     - React-Core
   - RNCAsyncStorage (1.17.3):
     - React-Core
@@ -783,7 +783,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
-  react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
+  react-native-tcp-socket: e511a697bc850f504e65b454b5fc4422235407b1
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
@@ -801,7 +801,7 @@ SPEC CHECKSUMS:
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
   RealmJS: 8a3478957315c29cdc0b3f958f2e370d22330b2d
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: c820f3926e6df986ca30349a6a70b5ada86e4d82
+  rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
   RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
   RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
