@@ -1,6 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import * as bip39 from 'bip39';
 import { BIP32Interface } from 'bip32';
+import * as bip39custom from '../../blue_modules/bip39';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import { Transaction } from './types';
 
@@ -112,7 +113,7 @@ export class AbstractHDWallet extends LegacyWallet {
    * @return {Boolean} is mnemonic in `this.secret` valid
    */
   validateMnemonic(): boolean {
-    return bip39.validateMnemonic(this.secret);
+    return bip39custom.validateMnemonic(this.secret);
   }
 
   /**
