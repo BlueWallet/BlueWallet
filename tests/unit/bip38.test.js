@@ -17,7 +17,8 @@ it('bip38 decodes', async () => {
   );
 });
 
-it('bip38 decodes slow', async () => {
+// too slow, even on CI. unskip and manually run it if you need it
+it.skip('bip38 decodes slow', async () => {
   if (!(process.env.CI || process.env.TRAVIS)) {
     // run only on CI
     return;
