@@ -426,6 +426,7 @@
     "eta_10m": "Cca: Za ~10 minut",
     "eta_3h": "Cca: Za ~3 hodiny",
     "eta_1d": "Cca: Za ~1 den",
+    "view_wallet": "Zobrazit {walletLabel}",
     "list_title": "Transakce",
     "open_url_error": "Nebylo možné otevřít odkaz ve výchozím prohlížeči. Prosím, změňte svůj výchozí prohlížeč a zkuste to znovu.",
     "rbf_explain": "Tuto transakci nahradíme transakcí s vyšším poplatkem, aby byla těžena rychleji. Toto se nazývá RBF – Replace by Fee.",
