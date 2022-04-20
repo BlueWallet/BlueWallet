@@ -209,7 +209,7 @@ const LdkInfo = () => {
       try {
         const rez = await wallet.claimCoins(address);
         if (rez) {
-          alert(loc._.sucess);
+          alert(loc._.success);
           await refetchData();
         }
       } finally {
