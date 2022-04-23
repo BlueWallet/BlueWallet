@@ -12,17 +12,12 @@ import {
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
-jasmine.getEnv().addReporter({
-  specStarted: result => (jasmine.currentTest = result),
-  specDone: result => (jasmine.currentTest = result),
-});
-
 describe('BlueWallet UI Tests - no wallets', () => {
   it('selftest passes', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
@@ -43,10 +38,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('all settings screens work', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
 
@@ -179,10 +174,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label. Dismiss modal and go to WalletsList.', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
 
@@ -216,10 +211,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
 
@@ -370,10 +365,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can encrypt storage, and decrypt storage works', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     await yo('WalletsList');
     await helperCreateWallet();
@@ -447,10 +442,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
 
     await yo('WalletsList');
@@ -575,10 +570,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can discover wallet account and import it', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
 
     await yo('WalletsList');

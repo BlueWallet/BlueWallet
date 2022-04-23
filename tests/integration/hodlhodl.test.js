@@ -93,7 +93,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     const Hodl = new HodlHodlApi();
     const countries = await Hodl.getCountries();
     assert.ok(countries[0]);
@@ -154,7 +153,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_OFFER_ID) return;
     const Hodl = new HodlHodlApi();
     const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
@@ -177,7 +175,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
     const Hodl = new HodlHodlApi();
     const contract = await Hodl.getContract(process.env.HODLHODL_CONTRACT_ID);
@@ -191,7 +188,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
     const Hodl = new HodlHodlApi();
     const result = await Hodl.markContractAsConfirmed(process.env.HODLHODL_CONTRACT_ID);

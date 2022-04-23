@@ -2,11 +2,6 @@ import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo, extract
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
-jasmine.getEnv().addReporter({
-  specStarted: result => (jasmine.currentTest = result),
-  specDone: result => (jasmine.currentTest = result),
-});
-
 beforeAll(async () => {
   if (!process.env.HD_MNEMONIC_BIP84) {
     console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -31,10 +26,10 @@ afterAll(async () => {
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -344,10 +339,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   });
 
   it('should handle URL successfully', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -384,10 +379,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   });
 
   it('can manage UTXO', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');

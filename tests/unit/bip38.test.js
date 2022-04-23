@@ -23,7 +23,6 @@ it.skip('bip38 decodes slow', async () => {
     // run only on CI
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 3 * 60 * 1000;
 
   const encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;

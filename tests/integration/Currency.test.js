@@ -5,7 +5,6 @@ import { FiatUnit } from '../../models/fiatUnit';
 
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
     const currency = require('../../blue_modules/currency');
     await currency.init();
     let cur = await AsyncStorage.getItem(currency.EXCHANGE_RATES);
