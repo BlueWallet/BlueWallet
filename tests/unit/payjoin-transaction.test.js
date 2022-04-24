@@ -1,8 +1,8 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+import { PayjoinClient } from 'payjoin-client';
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import { PayjoinClient } from 'payjoin-client';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
 jest.useFakeTimers();
 
 const utxos = [
