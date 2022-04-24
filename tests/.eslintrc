@@ -9,7 +9,6 @@
     "device": false,
     "element": false,
     "expect": false,
-    "waitFor": false,
-    "detoxCircus": false
+    "waitFor": false
   }
 }
