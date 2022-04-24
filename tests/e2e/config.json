@@ -3,7 +3,7 @@
     "testEnvironment": "./environment",
     "testRunner": "jest-circus/runner",
     "testTimeout": 120000,
-    "testRegex": "\\.spez\\.js$",
+    "testRegex": "\\.spec\\.js$",
     "setupFilesAfterEnv": ["./init.js"],
     "reporters": ["detox/runners/jest/streamlineReporter"],
     "verbose": true
