@@ -75,10 +75,8 @@ PODS:
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
-  - GCDWebServer (3.5.4):
-    - GCDWebServer/Core (= 3.5.4)
-  - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
+  - hermes-engine (0.9.0)
   - libevent (2.1.12)
   - lottie-ios (3.2.3)
   - lottie-react-native (5.0.1):
@@ -98,6 +96,12 @@ PODS:
     - DoubleConversion
     - fmt (~> 6.2.1)
     - glog
+  - RCT-Folly/Futures (2021.06.28.00-v2):
+    - boost
+    - DoubleConversion
+    - fmt (~> 6.2.1)
+    - glog
+    - libevent
   - RCTRequired (0.67.4)
   - RCTTypeSafety (0.67.4):
     - FBLazyVector (= 0.67.4)
@@ -264,6 +268,17 @@ PODS:
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
     - React-runtimeexecutor (= 0.67.4)
+  - React-hermes (0.67.4):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2021.06.28.00-v2)
+    - RCT-Folly/Futures (= 2021.06.28.00-v2)
+    - React-cxxreact (= 0.67.4)
+    - React-jsi (= 0.67.4)
+    - React-jsiexecutor (= 0.67.4)
+    - React-jsinspector (= 0.67.4)
+    - React-perflogger (= 0.67.4)
   - React-jsi (0.67.4):
     - boost (= 1.76.0)
     - DoubleConversion
@@ -383,8 +398,7 @@ PODS:
     - React-jsi (= 0.67.4)
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
-  - RealmJS (10.16.0):
-    - GCDWebServer
+  - RealmJS (10.20.0-beta.5):
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
@@ -402,7 +416,7 @@ PODS:
     - React-Core
   - RNFS (2.19.0):
     - React-Core
-  - RNGestureHandler (2.4.0):
+  - RNGestureHandler (2.4.1):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -418,7 +432,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.13.1):
     - React-Core
-  - RNReanimated (2.2.4):
+  - RNReanimated (2.8.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -426,7 +440,6 @@ PODS:
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
-    - React
     - React-callinvoker
     - React-Core
     - React-Core/DevSupport
@@ -444,7 +457,6 @@ PODS:
     - React-RCTNetwork
     - React-RCTSettings
     - React-RCTText
-    - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
   - RNScreens (3.13.1):
@@ -495,6 +507,8 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (= 0.99.0)
   - FlipperKit/SKIOSNetworkPlugin (= 0.99.0)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - hermes-engine (~> 0.9.0)
+  - libevent (~> 2.1.12)
   - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - OpenSSL-Universal (= 1.1.180)
@@ -509,6 +523,7 @@ DEPENDENCIES:
   - React-Core/RCTWebSocket (from `../node_modules/react-native/`)
   - React-CoreModules (from `../node_modules/react-native/React/CoreModules`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
+  - React-hermes (from `../node_modules/react-native/ReactCommon/hermes`)
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
@@ -578,7 +593,7 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - fmt
-    - GCDWebServer
+    - hermes-engine
     - libevent
     - OpenSSL-Universal
     - YogaKit
@@ -620,6 +635,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/CoreModules"
   React-cxxreact:
     :path: "../node_modules/react-native/ReactCommon/cxxreact"
+  React-hermes:
+    :path: "../node_modules/react-native/ReactCommon/hermes"
   React-jsi:
     :path: "../node_modules/react-native/ReactCommon/jsi"
   React-jsiexecutor:
@@ -755,8 +772,8 @@ SPEC CHECKSUMS:
   Flipper-RSocket: d9d9ade67cbecf6ac10730304bf5607266dd2541
   FlipperKit: d8d346844eca5d9120c17d441a2f38596e8ed2b9
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
+  hermes-engine: bf7577d12ac6ccf53ab8b5af3c6ccf0dd8458c5c
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
   lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
@@ -770,6 +787,7 @@ SPEC CHECKSUMS:
   React-Core: af99b93aff83599485e0e0879879aafa35ceae32
   React-CoreModules: 137a054ce8c547e81dc3502933b1bc0fd08df05d
   React-cxxreact: ec5ee6b08664f5b8ac71d8ad912f54d540c4f817
+  React-hermes: 644e034cf9eb99c2f867c325c589c85b5c918ef7
   React-jsi: 3e084c80fd364cee64668d5df46d40c39f7973e1
   React-jsiexecutor: cbdf37cebdc4f5d8b3d0bf5ccaa6147fd9de9f3d
   React-jsinspector: f4775ea9118cbe1f72b834f0f842baa7a99508d8
@@ -799,7 +817,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 3b52a7dced19cdb025b4f88ab26ceb2d85f30ba2
   React-runtimeexecutor: a9d3c82ddf7ffdad9fbe6a81c6d6f8c06385464d
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
-  RealmJS: 8a3478957315c29cdc0b3f958f2e370d22330b2d
+  RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
   RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
@@ -808,7 +826,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
-  RNGestureHandler: 50e6ffee79932d14ea747d4ea4cc99aac0f24e86
+  RNGestureHandler: 4f4986408310a43f1606c391f38f76e0d6e790d5
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
@@ -816,7 +834,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
   RNReactNativeHapticFeedback: 4085973f5a38b40d3c6793a3ee5724773eae045e
-  RNReanimated: e28dfaa950064b674fde0a9b736e62b9dff500a7
+  RNReanimated: 46cdb89ca59ab7181334f4ed05a70e82ddb36751
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 807d6f8231b8ebcf6dd839294b877342eb93d4e5
@@ -827,6 +845,6 @@ SPEC CHECKSUMS:
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 53c058f42bf11a3d01891a40676ea8f9c6a9ecf9
+PODFILE CHECKSUM: e056a91ff745787a044144c595160803eca8ff20
 
 COCOAPODS: 1.10.1
