@@ -41,8 +41,8 @@
     "android.debug": {
       "device": "emulator",
       "app": "android.debug"
-    }
-    "android.debug": {
+    },
+    "android.release": {
       "device": "emulator",
       "app": "android.release"
     }
