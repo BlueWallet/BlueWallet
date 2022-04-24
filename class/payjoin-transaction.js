@@ -20,7 +20,7 @@ export default class PayjoinTransaction {
   async getPsbt() {
     // Nasty hack to get this working for now
     const unfinalized = this._psbt.clone();
-    unfinalized.data.inputs.forEach((input, index) => {
+    for (const [index, input] of unfinalized.data.inputs.entries()) {
       delete input.finalScriptWitness;
 
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
@@ -28,7 +28,7 @@ export default class PayjoinTransaction {
       const keyPair = ECPair.fromWIF(wif);
 
       unfinalized.signInput(index, keyPair);
-    });
+    }
 
     return unfinalized;
   }
@@ -44,15 +44,15 @@ export default class PayjoinTransaction {
 
   async signPsbt(payjoinPsbt) {
     // Do this without relying on private methods
-    payjoinPsbt.data.inputs.forEach((input, index) => {
+
+    for (const [index, input] of payjoinPsbt.data.inputs.entries()) {
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
       try {
         const wif = this._wallet._getWifForAddress(address);
         const keyPair = ECPair.fromWIF(wif);
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
       } catch (e) {}
-    });
-
+    }
     this._payjoinPsbt = payjoinPsbt;
     return this._payjoinPsbt;
   }

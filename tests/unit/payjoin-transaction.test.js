@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-jest.useFakeTimers();
+// jest.useFakeTimers();
 
 const utxos = [
   {
