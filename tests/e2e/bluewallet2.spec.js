@@ -26,10 +26,9 @@ afterAll(async () => {
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
+    const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -339,10 +338,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   });
 
   it('should handle URL successfully', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
+    const lockFile = '/tmp/travislock.' + hashIt('t22');
     if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t22'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -379,10 +377,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   });
 
   it('can manage UTXO', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(expect.getState().currentTestName);
+    const lockFile = '/tmp/travislock.' + hashIt('t23');
     if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(expect.getState().currentTestName), 'as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
     }
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
