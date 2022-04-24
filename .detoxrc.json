@@ -42,5 +42,9 @@
       "device": "emulator",
       "app": "android.debug"
     }
+    "android.debug": {
+      "device": "emulator",
+      "app": "android.release"
+    }
   }
 }
