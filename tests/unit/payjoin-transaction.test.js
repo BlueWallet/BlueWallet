@@ -3,7 +3,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-// jest.useFakeTimers();
 
 const utxos = [
   {
@@ -104,6 +103,8 @@ describe('PayjoinTransaction', () => {
       },
       w,
     );
+
+    wallet.scheduleBroadcastTx = async function () {}; // mock so no real timers are called
 
     const payjoinRequesterMock = {
       requestPayjoin: async function () {
