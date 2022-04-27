@@ -7,7 +7,6 @@ import { BlueHeaderDefaultSub } from '../../BlueComponents';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 jest.mock('react-native-qrcode-svg', () => 'Video');
-jest.retryTimes(3);
 
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect

@@ -2,7 +2,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
 import ElectrumClient from 'electrum-client';
 
-jest.retryTimes(3);
 jest.setTimeout(150 * 1000);
 
 const hardcodedPeers = [

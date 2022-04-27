@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { FiatUnit } from '../../models/fiatUnit';
 
-jest.retryTimes(3);
 jest.setTimeout(15 * 1000);
 
 describe('currency', () => {

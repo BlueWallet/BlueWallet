@@ -2,7 +2,6 @@ import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jest.retryTimes(3);
 jest.setTimeout(300 * 1000);
 
 afterAll(() => {

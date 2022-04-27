@@ -6,7 +6,6 @@ import { ECPairFactory } from 'ecpair';
 const ecc = require('tiny-secp256k1');
 const ECPair = ECPairFactory(ecc);
 
-jest.retryTimes(3);
 jest.setTimeout(200 * 1000);
 
 it.skip('can verify escrow address', () => {
