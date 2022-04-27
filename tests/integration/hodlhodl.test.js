@@ -1,11 +1,13 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { ECPairFactory } from 'ecpair';
 const ecc = require('tiny-secp256k1');
 const ECPair = ECPairFactory(ecc);
 
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
+jest.retryTimes(3);
+jest.setTimeout(200 * 1000);
 
 it.skip('can verify escrow address', () => {
   const encryptedSeed =

@@ -3,6 +3,8 @@ import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
+jest.setTimeout(10 * 1000);
+
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
@@ -249,7 +251,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
   });
 
-  it('wasEverUsed() works', async () => {
+  it.only('wasEverUsed() works', async () => {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;

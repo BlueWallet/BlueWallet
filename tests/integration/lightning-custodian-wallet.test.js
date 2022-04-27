@@ -1,7 +1,9 @@
+import assert from 'assert';
 import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class';
-const assert = require('assert');
 
+jest.retryTimes(3);
+jest.setTimeout(200 * 1000);
 const baseUri = 'https://lndhub-staging.herokuapp.com';
 
 describe.skip('LightningCustodianWallet', () => {

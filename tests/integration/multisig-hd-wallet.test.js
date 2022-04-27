@@ -2,6 +2,9 @@ import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
+jest.retryTimes(3);
+jest.setTimeout(300 * 1000);
+
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();

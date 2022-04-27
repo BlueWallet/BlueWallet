@@ -2,6 +2,8 @@ import assert from 'assert';
 import wif from 'wif';
 import bip38 from 'bip38';
 
+jest.setTimeout(180 * 1000);
+
 it('bip38 decodes', async () => {
   const encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
   const decryptedKey = await bip38.decryptAsync(

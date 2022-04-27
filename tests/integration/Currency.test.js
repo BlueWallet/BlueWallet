@@ -3,6 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { FiatUnit } from '../../models/fiatUnit';
 
+jest.retryTimes(3);
+jest.setTimeout(15 * 1000);
+
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {
     const currency = require('../../blue_modules/currency');
