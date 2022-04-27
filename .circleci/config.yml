@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:14.19.0
+      - image: cimg/node:14.19
 
     working_directory: ~/repo
 
