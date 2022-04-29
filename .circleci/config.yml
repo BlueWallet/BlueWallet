@@ -20,4 +20,6 @@ jobs:
             - node_modules
 
       # run tests!
-      - run: npm t || npm t || npm t
+      - run:
+          command: npm t || npm t || npm t
+          no_output_timeout: 60m
