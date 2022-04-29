@@ -1,0 +1,45 @@
+name: BuildReleaseApk
+on: [pull_request]
+
+jobs:
+  buildReleaseApk:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Specify node version
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 16
+
+      - name: Use npm caches
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Use specific Java version for sdkmanager to work
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+
+      - name: Install node_modules
+        run: npm install
+
+      - name: Build
+        env:
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: ./scripts/build-release-apk.sh
+
+      - uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: apk
+          path: ./android/app/build/outputs/apk/release/app-release.apk
