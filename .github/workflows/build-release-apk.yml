@@ -31,10 +31,11 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Use specific Java version for sdkmanager to work
-        uses: joschi/setup-jdk@v2
+        uses: actions/setup-java@v3
         with:
+          distribution: 'temurin'
           java-version: '11'
-          architecture: 'x64'
+          cache: 'gradle'
 
       - name: Install node_modules
         run: npm install

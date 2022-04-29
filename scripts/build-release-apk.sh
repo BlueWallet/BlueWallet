@@ -17,5 +17,5 @@ TIMESTAMP=$(date +%s)
 sed -i''  "s/versionCode 1/versionCode $TIMESTAMP/g" app/build.gradle
 ./gradlew assembleRelease
 mv ./app/build/outputs/apk/release/app-release-unsigned.apk ./app/build/outputs/apk/release/app-release.apk
-apksigner sign --ks ./bluewallet-release-key.keystore   --ks-pass=pass:$KEYSTORE_PASSWORD ./app/build/outputs/apk/release/app-release.apk
+$ANDROID_HOME/build-tools/30.0.2/apksigner sign --ks ./bluewallet-release-key.keystore   --ks-pass=pass:$KEYSTORE_PASSWORD ./app/build/outputs/apk/release/app-release.apk
 
