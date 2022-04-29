@@ -14,14 +14,6 @@ jobs:
         with:
           node-version: 16
 
-      - name: Use gradle caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Use npm caches
         uses: actions/cache@v2
         with:
