@@ -298,7 +298,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.7.3):
+  - react-native-image-picker (4.8.1):
     - React-Core
   - react-native-ios-context-menu (1.3.0):
     - React-Core
@@ -306,7 +306,7 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
-  - react-native-tcp-socket (5.6.1):
+  - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
   - react-native-tor (0.1.8):
@@ -388,7 +388,7 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.17.3):
     - React-Core
-  - RNCClipboard (1.9.0):
+  - RNCClipboard (1.10.0):
     - React-Core
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
@@ -771,11 +771,11 @@ SPEC CHECKSUMS:
   react-native-document-picker: ec07866a30707f23660c0f3ae591d669d3e89096
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: 4e6008ad8c2321622affa2c85432a5ebd02d480c
+  react-native-image-picker: 5640333245b448b0e64172576ea27760f4134099
   react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
-  react-native-tcp-socket: e511a697bc850f504e65b454b5fc4422235407b1
+  react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
@@ -795,7 +795,7 @@ SPEC CHECKSUMS:
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
   RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
-  RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
+  RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
