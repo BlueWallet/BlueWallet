@@ -15,7 +15,7 @@
     },
     "android.release": {
       "type": "android.apk",
-      "testBinaryPath": "android/app/build/outputs/apk/release/app-release.apk",
+      "testBinaryPath": "android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk",
       "binaryPath": "android/app/build/outputs/apk/release/app-release.apk",
       "build": "# deleting old artifacts\nfind | grep '\\.apk' --color=never | grep -v node_modules | xargs -l rm\n\n# creating fresh keystore\nrm detox.keystore\nkeytool -genkeypair -v -keystore detox.keystore -alias detox  -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname  'cn=Unknown, ou=Unknown, o=Unknown, c=Unknown'\n\n# building release APK\ncd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..\n\n# backup & sign apk1\ncp ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk.bak\njarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore detox.keystore ./android/app/build/outputs/apk/release/app-release-unsigned.apk  detox -storepass 123456\n\n# move apk1 to expected filename\nmv ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release.apk\n\n# backup and sign apk2\ncp android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk.bak\njarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore detox.keystore android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk   detox -storepass 123456"
     }
