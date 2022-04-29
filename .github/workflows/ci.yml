@@ -89,7 +89,7 @@ jobs:
       run: npm run e2e:release-build
 
     - name: find
-      run: find . -name '*.apk'
+      run: find / -name '*.apk'
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
