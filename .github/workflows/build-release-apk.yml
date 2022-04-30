@@ -1,6 +1,9 @@
 name: BuildReleaseApk
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   buildReleaseApk:
     runs-on: macos-latest
