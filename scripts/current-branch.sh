@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ -n "$GITHUB_HEAD_REF" ]; then
-  echo \"GITHUB_HEAD_REF\"
+  echo \"$GITHUB_HEAD_REF\"
   exit
 fi
 
