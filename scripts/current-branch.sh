@@ -11,3 +11,5 @@ echo e
 git symbolic-ref --short HEAD
 echo d
 git rev-parse --abbrev-ref HEAD
+echo e
+echo $GITHUB_REF_NAME
