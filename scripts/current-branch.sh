@@ -13,3 +13,7 @@ echo d
 git rev-parse --abbrev-ref HEAD
 echo e
 echo $GITHUB_REF_NAME
+echo f
+echo $GITHUB_HEAD_REF
+echo g
+echo $GITHUB_REF
