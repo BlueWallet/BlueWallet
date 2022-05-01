@@ -43,3 +43,17 @@ jobs:
         with:
           name: apk
           path: ./android/app/build/outputs/apk/release/app-release.apk
+
+  artifacts-url-comments:
+    name: add artifact links to pull request and related issues job
+    runs-on: windows-2019
+    steps:
+      - name: add artifact links to pull request and related issues step
+        uses: tonyhallett/artifacts-url-comments@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          prefix: Here are the artifacts
+          suffix: Have a nice day.
+          format: name
+          addTo: pullandissues
