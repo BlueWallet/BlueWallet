@@ -41,15 +41,11 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: apk
+          name: app-release.apk
           path: ./android/app/build/outputs/apk/release/app-release.apk
 
-      - name: add artifact links to pull request and related issues step
-        uses: tonyhallett/artifacts-url-comments@v1.1.0
+      - name: add artifact links to pull request
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          prefix: Here are the artifacts
-          suffix: Have a nice day.
-          format: name
-          addTo: pullandissues
+          GITHUB: ${{ secrets.GITHUB }}
+          APPETIZE: ${{ secrets.APPETIZE }}
+        run: ./scripts/ga-post-build.sh
