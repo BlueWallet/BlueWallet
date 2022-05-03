@@ -16,7 +16,7 @@ if [ -f $FILENAME ]; then
     PR=`node scripts/ga-post-build-get-pr-number.js`
     echo PR: $PR
 
-    DLOAD_APK="http://lambda-download-android-build.herokuapp.com/$BRANCH"
+    DLOAD_APK="http://lambda-download-android-build.herokuapp.com/downloadArtifactForBranch/$BRANCH"
 
     curl -X POST --data "{\"body\":\"♫ This was a triumph. I'm making a note here: HUGE SUCCESS ♫\n\n [android in browser] $APPURL\n\n[download apk]($DLOAD_APK) \"}"  -u "$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
 fi
