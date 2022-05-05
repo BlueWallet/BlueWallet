@@ -152,7 +152,7 @@
     "react-native-elements": "3.4.2",
     "react-native-fingerprint-scanner": "https://github.com/BlueWallet/react-native-fingerprint-scanner#ce644673681716335d786727bab998f7e632ab5e",
     "react-native-fs": "2.19.0",
-    "react-native-gesture-handler": "2.4.1",
+    "react-native-gesture-handler": "2.4.2",
     "react-native-handoff": "https://github.com/BlueWallet/react-native-handoff#31d005f93d31099d0e564590a3bbd052b8a02b39",
     "react-native-haptic-feedback": "1.13.1",
     "react-native-idle-timer": "https://github.com/BlueWallet/react-native-idle-timer#8587876d68ab5920e79619726aeca9e672beaf2b",
