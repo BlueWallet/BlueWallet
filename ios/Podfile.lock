@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.16.3):
+  - BugsnagReactNative (7.16.4):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -384,7 +384,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.8.3):
+  - rn-ldk (0.8.4):
     - React-Core
   - RNCAsyncStorage (1.17.3):
     - React-Core
@@ -394,11 +394,11 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (8.7.0):
+  - RNDeviceInfo (8.7.1):
     - React-Core
   - RNFS (2.19.0):
     - React-Core
-  - RNGestureHandler (2.4.1):
+  - RNGestureHandler (2.4.2):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -727,12 +727,12 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SwiftSocket:
-    :commit: 4a3af2cbbaef5b2fddbaff80f6767fecc0ce5fe2
+    :commit: 97b7599da90f9c07ecf65551718706dc30e6838e
     :git: https://github.com/swiftsocket/SwiftSocket.git
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  BugsnagReactNative: c4b321959cf9c0cf7f32de9d5b990f64a7f6ac72
+  BugsnagReactNative: b9f5f474d0a942cefc5d4811938a8a233666cb5e
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
@@ -793,14 +793,14 @@ SPEC CHECKSUMS:
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
   RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: af3286ce1622e31f4e79d26d34c9fc3bfb32cb52
+  rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
   RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: 36286df381fcaf1933ff9d2d3c34ba2abeb2d8d8
+  RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
-  RNGestureHandler: 4f4986408310a43f1606c391f38f76e0d6e790d5
+  RNGestureHandler: 61628a2c859172551aa2100d3e73d1e57878392f
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
