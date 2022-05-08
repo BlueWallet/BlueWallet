@@ -61,7 +61,9 @@ release-notes.json
 release-notes.txt
 current-branch.json
 
+# Ruby / CocoaPods
 ios/Pods/
+/vendor/bundle/
 
 artifacts/
 
