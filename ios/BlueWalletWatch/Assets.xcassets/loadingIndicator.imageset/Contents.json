@@ -1,0 +1,13 @@
+{
+  "images" : [
+    {
+      "idiom" : "watch",
+      "filename" : "group-copy-2@3x.png",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}

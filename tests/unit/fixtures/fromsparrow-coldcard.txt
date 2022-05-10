@@ -1,0 +1,10 @@
+# Coldcard Multisig setup file (created by Sparrow)
+#
+Name: name
+Policy: 2 of 3
+Derivation: m/48'/0'/0'/2'
+Format: P2WSH
+
+A3909080: xpub6EJoguJn6okK6ymxkU53BZgjf4kqrL19uvTwqVnPRaV8qYvx1RhGtyKZxLhzY4YLCYtvB6DsGk1uR3GFBMvwgc5qz19WAxm2nSXZcoyNftY
+7AB71DF0: xpub6FL52qF9cn2nL7T8gv6gStR8GcezKF4LgY53VLbi5sqRjc4PpBuYFp3nfep884hkuF9dC7KZ11mkthE1NVzbX98QmoJQqBFxQbHnpJ5vQKB
+F11B9FF2: xpub6ERjK6ubp5p7UUByXGadKvHcqEUMxvWPr7DkzqHz7GnnZEqdR9ffE3Y1DffYqRjJzeGWL1st1qH4kEaZCzjVnJoZ2PJUcnThi48D71zd6sJ

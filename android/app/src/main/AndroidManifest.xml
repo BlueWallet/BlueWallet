@@ -1,0 +1,103 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  android:installLocation="auto"
+  package="io.bluewallet.bluewallet">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <application
+      android:name=".MainApplication"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:allowBackup="false"
+      android:extractNativeLibs="true"
+      android:requestLegacyExternalStorage="true"
+      android:usesCleartextTraffic="true"
+      android:supportsRtl="true"
+      android:theme="@style/AppTheme">
+
+        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
+                    android:value="BlueWallet notifications"/> <!-- YOUR NOTIFICATION CHANNEL NAME -->
+        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_description"
+                    android:value="Notifications about incoming payments"/> <!-- YOUR NOTIFICATION CHANNEL DESCRIPTION -->
+
+        <!-- Change the value to true to enable pop-up for in foreground (remote-only, for local use ignoreInForeground) -->
+        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_foreground"
+                    android:value="true"/>
+        <!-- Change the value to false if you don't want the creation of the default channel -->
+        <meta-data  android:name="com.dieam.reactnativepushnotification.channel_create_default"
+                    android:value="true"/>
+        <!-- Change the resource name to your App's accent color - or any other color you want -->
+        <meta-data  android:name="com.dieam.reactnativepushnotification.notification_color"
+                    android:resource="@color/white"/> <!-- or @android:color/{name} to use a standard color -->
+
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
+        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+                android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
+                android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+      <activity
+        android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:launchMode="singleInstance"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
+        android:windowSoftInputMode="adjustResize">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        <intent-filter>
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data android:scheme="bitcoin" />
+          <data android:scheme="lightning" />
+          <data android:scheme="bluewallet" />
+          <data android:scheme="lapp" />
+          <data android:scheme="blue" />
+          <data android:scheme="bankid" />
+          <data android:scheme="swish" />
+          <data android:scheme="http" />
+          <data android:scheme="https" />
+        </intent-filter>
+        <intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <action android:name="android.intent.action.EDIT" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <data
+    android:mimeType="application/octet-stream"
+    android:host="*"
+    android:pathPattern=".*\\.psbt"
+  />
+</intent-filter>
+        <intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <action android:name="android.intent.action.EDIT" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <data
+    android:mimeType="text/plain"
+    android:host="*"
+    android:pathPattern=".*\\.psbt"
+  />
+</intent-filter>
+      </activity>
+
+      <meta-data android:name="com.bugsnag.android.API_KEY" android:value="17ba9059f676f1cc4f45d98182388b01" />
+    </application>
+
+</manifest>

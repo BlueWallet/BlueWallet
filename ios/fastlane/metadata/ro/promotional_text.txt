@@ -1,0 +1,10 @@
+Funcționalități
+
+Open Source
+Encriptare totală
+Negare plauzibilă
+Comisioane flexibile
+Replace-by-Fee (RBF)
+SegWit
+Portofele Watch-only (Sentinel)
+Rețeaua Lightning

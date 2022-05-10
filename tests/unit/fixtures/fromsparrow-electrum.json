@@ -1,0 +1,21 @@
+{
+  "x1/": {
+    "xpub": "Zpub74sRRUP3y8PeE9KaMr7GRpDYio5zwvfk4RA4KYqhZN5JZw8KH9QgEDVmoTae6K55FJCWYdR75H7WJn78uyuvRZZiZ9ekkBs1DcviysT968p",
+    "type": "bip32",
+    "pw_hash_version": 1
+  },
+  "x2/": {
+    "xpub": "Zpub75tgmQKRV6g7TGzkJJ8uh8wwLLz9Qqivq2m9yPf2DfRbTzFm5ucwb4DzWmgmgKEVwzTDZeWnoYsMnS4u77yaG6cHLwofQQMvqmgxBKiWEav",
+    "xprv": "ZprvAjNnvkiSoWRpoiQR4Jkr5TwqbRVtCUZHCDKwfZkjyaSzsY9NPEHKtXb7fCyoQn8nqNgvjasBQMSMooMM9KegJKc1kAsr2asWgpnYkRYFU1o",
+    "type": "bip32",
+    "pw_hash_version": 1
+  },
+  "x3/": {
+    "xpub": "Zpub74zM3fysgQTSbdjb8ecraApRtxoX4XAyzbusUtMJF4NxHd2zgsP4ZHiD4nYCPgG43Pa6hZ57pNNfdyRSwciUXGHRbXojC1Zg9EXNU3hjVG1",
+    "type": "bip32",
+    "pw_hash_version": 1
+  },
+  "wallet_type": "2of3",
+  "use_encryption": false,
+  "seed_type": "bip39"
+}

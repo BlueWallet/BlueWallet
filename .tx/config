@@ -1,0 +1,42 @@
+[main]
+host = https://www.transifex.com
+
+[bluewallet.loc-en-json--master]
+file_filter = loc/<lang>.json
+minimum_perc = 30
+source_file = loc/en.json
+source_lang = en
+type = KEYVALUEJSON
+lang_map = af_ZA: zar_afr, bg_BG: bg_bg, ca: ca, cs_CZ: cs_cz, cy: cy, da_DK: da_dk, de_DE: de_de, el: el, es_ES: es, fa_IR: fa, fi_FI: fi_fi, fr_FR: fr_fr, hr_HR: hr_hr, hu_HU: hu_hu, id_ID: id_id, ja_JP: jp_jp, nb_NO: nb_no, nl_NL: nl_nl, pt_BR: pt_br, pt_PT: pt_pt, ro: ro, sk_SK: sk_sk, sv_SE: sv_se, th_TH: th_th, tr_TR: tr_tr, uk_UA: ua, vi_VN: vi_vn, xh: zar_xho, zh_CN: zh_cn, zh_TW: zh_tw
+
+[bluewallet-fastlane.ios-fastlane-metadata-en-us-description-txt--master]
+file_filter = ios/fastlane/metadata/<lang>/description.txt
+minimum_perc = 10
+source_file = ios/fastlane/metadata/en-US/description.txt
+source_lang = en_US
+type = TXT
+lang_map = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
+
+[bluewallet-fastlane.ios-fastlane-metadata-en-us-keywords-txt--master]
+file_filter = ios/fastlane/metadata/<lang>/keywords.txt
+minimum_perc = 10
+source_file = ios/fastlane/metadata/en-US/keywords.txt
+source_lang = en_US
+type = TXT
+lang_map = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
+
+[bluewallet-fastlane.ios-fastlane-metadata-en-us-name-txt--master]
+file_filter = ios/fastlane/metadata/<lang>/name.txt
+minimum_perc = 10
+source_file = ios/fastlane/metadata/en-US/name.txt
+source_lang = en_US
+type = TXT
+lang_map = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
+
+[bluewallet-fastlane.ios-fastlane-metadata-en-us-promotional-text-txt--master]
+file_filter = ios/fastlane/metadata/<lang>/promotional_text.txt
+minimum_perc = 10
+source_file = ios/fastlane/metadata/en-US/promotional_text.txt
+source_lang = en_US
+type = TXT
+lang_map = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant

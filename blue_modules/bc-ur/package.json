@@ -1,0 +1,80 @@
+{
+  "_args": [
+    [
+      "bc-ur@0.1.6",
+      "/home/user/BlueWallet"
+    ]
+  ],
+  "_from": "bc-ur@0.1.6",
+  "_id": "bc-ur@0.1.6",
+  "_inBundle": false,
+  "_integrity": "sha512-k5jZLNgiCMQH5d/4lwsa6DJjH12vzdTEr9qVH1y9UPzJW32Ga1u8iC0KDAqtYnkvh8NR4DW8Fco6D2hphHZLzg==",
+  "_location": "/bc-ur",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "bc-ur@0.1.6",
+    "name": "bc-ur",
+    "escapedName": "bc-ur",
+    "rawSpec": "0.1.6",
+    "saveSpec": null,
+    "fetchSpec": "0.1.6"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_spec": "0.1.6",
+  "_where": "/home/user/BlueWallet",
+  "author": {
+    "name": "aaronisme",
+    "email": "aarondongchen@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/CoboVault/cobo-vault-blockchain-base/issues"
+  },
+  "description": "BlockChain Commons Uniform Resources",
+  "directories": {
+    "lib": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "gitHead": "2b6ffe86287ae1a58def5d8e485abc413fe1558f",
+  "homepage": "https://github.com/CoboVault/cobo-vault-blockchain-base#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "bc-ur",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CoboVault/cobo-vault-blockchain-base.git"
+  },
+  "scripts": {
+    "build": "npm run clean && npx tsc -p tsconfig.json -outDir ./dist",
+    "clean": "rm -rf ./dist",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "version": "0.1.6",
+  "react-native": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  }
+}
