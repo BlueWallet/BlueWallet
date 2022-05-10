@@ -244,6 +244,7 @@ export class AbstractWallet {
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
         } else if (parsedSecret.keystore.root_fingerprint) {
           masterFingerprint = Number(parsedSecret.keystore.root_fingerprint);
+          if (!masterFingerprint) masterFingerprint = this.getMasterFingerprintFromHex(parsedSecret.keystore.root_fingerprint);
         }
         if (parsedSecret.keystore.label) {
           this.setLabel(parsedSecret.keystore.label);
@@ -417,5 +418,15 @@ export class AbstractWallet {
 
   isSegwit() {
     return false;
+  }
+
+  getMasterFingerprintFromHex(hexValue: string): number {
+    if (hexValue.length < 8) hexValue = '0' + hexValue;
+    const b = Buffer.from(hexValue, 'hex')
+    if (b.length !== 4) throw new Error('invalid fingerprint hex');
+
+    hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
+
+    return parseInt(hexValue, 16);
   }
 }
