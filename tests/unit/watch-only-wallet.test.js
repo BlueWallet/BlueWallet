@@ -227,6 +227,57 @@ describe('Watch only wallet', () => {
     );
   });
 
+  it('can import Electrum compatible backup wallet, and create a tx with master fingerprint hex', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii'));
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 1455298230);
+    assert.strictEqual(w.getMasterFingerprintHex(), 'b616be56');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.ok(w.useWithHardwareWalletEnabled());
+  });
+
+  it('can import Electrum compatible backup wallet, and create a tx with master fingerprint hex with a length of 7', async () => {
+    const w = new WatchOnlyWallet();
+    let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
+    str = str.replace('b616be56', '616be56')
+    // console.log(str)
+    w.setSecret(str);
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 1455298054);
+    assert.strictEqual(w.getMasterFingerprintHex(), '0616be56');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.ok(w.useWithHardwareWalletEnabled());
+  });
+
+  it('will fail to import Electrum compatible backup wallet when fingerprint hex is less than 7', async () => {
+    const w = new WatchOnlyWallet();
+    let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
+    str = str.replace('b616be56', '16be56')
+    w.setSecret(str);
+    w.init();
+    assert.throws(w.valid, 'invalid fingerprint hex');
+  });
+
+  it('will fail to import Electrum compatible backup wallet when fingerprint is an invalid hex value', async () => {
+    const w = new WatchOnlyWallet();
+    let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
+    str = str.replace('b616be56', 'j16be56')
+    w.setSecret(str);
+    w.init();
+    assert.throws(w.valid, 'invalid fingerprint hex');
+  });
+
   it('can import cobo vault JSON skeleton wallet', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-cobo.txt', 'ascii'));
