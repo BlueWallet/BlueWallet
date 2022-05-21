@@ -251,7 +251,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
   });
 
-  it.only('wasEverUsed() works', async () => {
+  it('wasEverUsed() works', async () => {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
