@@ -88,12 +88,6 @@ jobs:
     - name: Build
       run: npm run e2e:release-build
 
-    - name: find
-      run: find ~ -name '*.apk' | grep apk || true
-
-    - name: find
-      run: find /tmp -name '*.apk' | grep apk || true
-
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
