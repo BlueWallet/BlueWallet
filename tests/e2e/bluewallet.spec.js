@@ -13,7 +13,7 @@ const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
 describe('BlueWallet UI Tests - no wallets', () => {
-  it('selftest passes', async () => {
+  it.only('selftest passes', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t1');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t1'), 'as it previously passed on Travis');

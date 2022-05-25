@@ -2,7 +2,7 @@ import { HDAezeedWallet, WatchOnlyWallet } from '../../class';
 const assert = require('assert');
 
 describe('HDAezeedWallet', () => {
-  it('can import mnemonics and generate addresses and WIFs', async function () {
+  it.only('can import mnemonics and generate addresses and WIFs', async function () {
     const aezeed = new HDAezeedWallet();
 
     aezeed.setSecret('bs');

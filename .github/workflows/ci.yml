@@ -79,7 +79,7 @@ jobs:
     - name: Use specific Java version for sdkmanager to work
       uses: joschi/setup-jdk@v2
       with:
-        java-version: '8'
+        java-version: '11'
         architecture: 'x64'
 
     - name: Install node_modules
@@ -96,7 +96,7 @@ jobs:
         target: google_apis
         avd-name: Pixel_API_29_AOSP
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
+        script: npm run e2e:release-test
       env:
         TRAVIS: 1
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
