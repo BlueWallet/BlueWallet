@@ -39,3 +39,9 @@ jobs:
           TRAVIS: 1
           HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
           HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: e2e-test-videos
+          path: ./artifacts/
