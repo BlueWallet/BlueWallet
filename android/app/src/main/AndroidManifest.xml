@@ -18,7 +18,8 @@
       android:requestLegacyExternalStorage="true"
       android:usesCleartextTraffic="true"
       android:supportsRtl="true"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+      android:networkSecurityConfig="@xml/network_security_config">
 
         <meta-data  android:name="com.dieam.reactnativepushnotification.notification_channel_name"
                     android:value="BlueWallet notifications"/> <!-- YOUR NOTIFICATION CHANNEL NAME -->
