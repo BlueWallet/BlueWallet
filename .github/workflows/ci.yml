@@ -6,7 +6,49 @@ name: Tests
 on: [pull_request]
 
 jobs:
-  test_e2e:
+  test:
+    runs-on: macos-10.15 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Specify node version
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 16
+
+      - name: Use npm caches
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Use node_modules caches
+        id: cache-nm
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
+
+      - name: Install node_modules
+        if: steps.cache-nm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Run tests
+        run: npm test || npm test || npm test
+        env:
+          HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+          HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+          HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
+          HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+          HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+          FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+          MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+          MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+
+  e2e:
     runs-on: macos-latest
     steps:
       - name: checkout
@@ -34,6 +76,7 @@ jobs:
         with:
           api-level: 29
           avd-name: Pixel_API_29_AOSP
+          arch: x86_64
           script: npm run e2e:release-test
         env:
           TRAVIS: 1
