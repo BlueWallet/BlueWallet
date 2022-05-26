@@ -25,7 +25,7 @@ afterAll(async () => {
 });
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
-  it.only('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
+  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');

@@ -59,14 +59,38 @@ jobs:
         with:
           node-version: 16
 
+      - name: Use gradle caches
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Use npm caches
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Use node_modules caches
+        id: cache-nm
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
+
+      - name: Install node_modules
+        if: steps.cache-nm.outputs.cache-hit != 'true'
+        run: npm install
+
       - name: Use specific Java version for sdkmanager to work
         uses: joschi/setup-jdk@v2
         with:
           java-version: '11'
           architecture: 'x64'
-
-      - name: Install node_modules
-        run: npm install
 
       - name: Build
         run: npm run e2e:release-build
