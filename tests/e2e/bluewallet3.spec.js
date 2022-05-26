@@ -10,7 +10,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
    * 5. provide fully signed psbt (UR)
    * 6. verify that we can see broadcast button and camera backdorr button is NOT visible
    */
-  it.only('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
+  it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t31');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
