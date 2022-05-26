@@ -75,15 +75,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-
 
-      - name: Use node_modules caches
-        id: cache-nm
-        uses: actions/cache@v2
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
-
       - name: Install node_modules
-        if: steps.cache-nm.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Use specific Java version for sdkmanager to work
