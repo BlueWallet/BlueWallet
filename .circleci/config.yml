@@ -1,25 +1,6 @@
 version: 2.1
 jobs:
 
-  build:
-    docker:
-      - image: cimg/node:16.15.0
-
-    working_directory: ~/repo
-
-    steps:
-      - checkout
-
-      - restore_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
-
-      - run: test -d node_modules || npm i
-
-      - save_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
-
   lint:
     docker:
       - image: cimg/node:16.15.0
@@ -97,7 +78,6 @@ jobs:
 workflows:
   build_and_test:
     jobs:
-      - build
       - lint
       - unit
       - integration
