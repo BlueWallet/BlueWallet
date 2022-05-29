@@ -59,6 +59,7 @@ describe('Localization', () => {
       currency._setPreferredFiatCurrency(FiatUnit.USD);
       if (shouldResetRate) {
         currency._setExchangeRate('BTC_USD', false);
+        currency._setSkipUpdateExchangeRate();
       }
       const actualResult = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
       assert.strictEqual(actualResult, expectedResult);
