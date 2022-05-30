@@ -85,7 +85,7 @@ jobs:
           arch: x86
           channel: canary
           profile: pixel
-          avd-name: Pixel_3a_API_30_AOSP
+          avd-name: Pixel_API_29_AOSP
           script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
         env:
           TRAVIS: 1
