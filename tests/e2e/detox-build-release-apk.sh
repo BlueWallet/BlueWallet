@@ -2,7 +2,7 @@
 # should be copied in .detoxrc.json - apps - android.release - build
 
 # deleting old artifacts
-find | grep '\.apk' --color=never | grep -v node_modules | xargs -l rm
+find android | grep '\.apk' --color=never | xargs -l rm
 
 # creating fresh keystore
 rm detox.keystore
