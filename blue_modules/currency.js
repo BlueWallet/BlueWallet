@@ -231,7 +231,7 @@ function _setExchangeRate(pair, rate) {
 }
 
 /**
- * Used in unit tests, so the `currency` module wont launch actual http request for
+ * Used in unit tests, so the `currency` module wont launch actual http request
  */
 function _setSkipUpdateExchangeRate() {
   skipUpdateExchangeRate = true;

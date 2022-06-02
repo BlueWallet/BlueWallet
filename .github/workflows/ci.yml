@@ -9,99 +9,99 @@ jobs:
   test:
     runs-on: macos-10.15 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
+    - name: Checkout project
+      uses: actions/checkout@v3
 
-      - name: Specify node version
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: 16
+    - name: Specify node version
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 16
 
-      - name: Use npm caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+    - name: Use npm caches
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
 
-      - name: Use node_modules caches
-        id: cache-nm
-        uses: actions/cache@v2
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
+    - name: Use node_modules caches
+      id: cache-nm
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
 
-      - name: Install node_modules
-        if: steps.cache-nm.outputs.cache-hit != 'true'
-        run: npm install
+    - name: Install node_modules
+      if: steps.cache-nm.outputs.cache-hit != 'true'
+      run: npm install
 
-      - name: Run tests
-        run: npm test || npm test || npm test
-        env:
-          HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-          HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
-          HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
-          HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
-          HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
-          FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
-          MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
-          MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+    - name: Run tests
+      run: npm test || npm test || npm test
+      env:
+        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+        HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+        HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
+        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+        HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
+        FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
+        MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
+        MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   e2e:
     runs-on: macos-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
+    - name: checkout
+      uses: actions/checkout@v3
 
-      - name: Specify node version
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: 16
+    - name: Specify node version
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: 16
 
-      - name: Use gradle caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+    - name: Use gradle caches
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
-      - name: Use npm caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+    - name: Use npm caches
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
 
-      - name: Install node_modules
-        run: npm install
+    - name: Install node_modules
+      run: npm install
 
-      - name: Use specific Java version for sdkmanager to work
-        uses: joschi/setup-jdk@v2
-        with:
-          java-version: '11'
-          architecture: 'x64'
+    - name: Use specific Java version for sdkmanager to work
+      uses: joschi/setup-jdk@v2
+      with:
+        java-version: '11'
+        architecture: 'x64'
 
-      - name: Build
-        run: npm run e2e:release-build
+    - name: Build
+      run: npm run e2e:release-build
 
-      - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          avd-name: Pixel_API_29_AOSP
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-          arch: x86_64
-          script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
-        env:
-          TRAVIS: 1
-          HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-          HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+    - name: run tests
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
+      env:
+        TRAVIS: 1
+        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
 
-      - uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: e2e-test-videos
-          path: ./artifacts/
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: e2e-test-videos
+        path: ./artifacts/
