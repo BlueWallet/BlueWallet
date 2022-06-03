@@ -157,7 +157,7 @@
     "react-native-haptic-feedback": "1.13.1",
     "react-native-idle-timer": "https://github.com/BlueWallet/react-native-idle-timer#8587876d68ab5920e79619726aeca9e672beaf2b",
     "react-native-image-picker": "4.8.1",
-    "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#v1.3.0",
+    "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#v1.7.4",
     "react-native-keychain": "8.0.0",
     "react-native-level-fs": "3.0.1",
     "react-native-linear-gradient": "2.5.6",
