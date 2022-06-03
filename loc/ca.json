@@ -362,11 +362,21 @@
     "share": "Compartir",
     "view": "Vista",
     "create": "Crear",
+    "co_sign_transaction": "Signar una transacció",
     "what_is_vault_wallet": "moneder",
     "of": "de",
     "view_key": "Vista",
     "create_new_key": "Crear nou",
     "scan_or_open_file": "Escanejar o obrir arxiu",
-    "ms_help": "Ajuda"
+    "ms_help": "Ajuda",
+    "ms_help_title5": "Habilitar el mode avançat"
+  },
+  "units": {
+    "sats": "sats"
+  },
+  "addresses": {
+    "sign_placeholder_address": "Adreça",
+    "type_receive": "Rebre",
+    "transactions": "transaccions"
   }
 }

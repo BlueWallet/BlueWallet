@@ -3,6 +3,8 @@ import assert from 'assert';
 import { WatchOnlyWallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
+jest.setTimeout(500 * 1000);
+
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
@@ -13,8 +15,6 @@ beforeAll(async () => {
   // while app starts up, but for tests we need to wait for it
   await BlueElectrum.connectMain();
 });
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 500 * 1000;
 
 describe('Watch only wallet', () => {
   it('can fetch balance', async () => {

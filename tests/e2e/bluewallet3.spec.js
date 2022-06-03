@@ -1,10 +1,5 @@
 import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo } from './helperz';
 
-jasmine.getEnv().addReporter({
-  specStarted: result => (jasmine.currentTest = result),
-  specDone: result => (jasmine.currentTest = result),
-});
-
 describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
   /**
    * test plan:
@@ -16,10 +11,9 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
    * 6. verify that we can see broadcast button and camera backdorr button is NOT visible
    */
   it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt(jasmine.currentTest.fullName);
+    const lockFile = '/tmp/travislock.' + hashIt('t31');
     if (process.env.TRAVIS) {
-      if (require('fs').existsSync(lockFile))
-        return console.warn('skipping', JSON.stringify(jasmine.currentTest.fullName), 'as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
     }
     await helperImportWallet(
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',

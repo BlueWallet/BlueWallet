@@ -2,6 +2,8 @@ import assert from 'assert';
 import wif from 'wif';
 import bip38 from 'bip38';
 
+jest.setTimeout(180 * 1000);
+
 it('bip38 decodes', async () => {
   const encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
   const decryptedKey = await bip38.decryptAsync(
@@ -23,7 +25,6 @@ it.skip('bip38 decodes slow', async () => {
     // run only on CI
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 3 * 60 * 1000;
 
   const encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;
