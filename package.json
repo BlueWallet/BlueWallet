@@ -9,11 +9,11 @@
   "devDependencies": {
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.14.6",
-    "@jest/reporters": "^26.4.1",
+    "@jest/reporters": "^27.5.1",
     "@react-native-community/eslint-config": "^3.0.0",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.5.1",
     "@types/react": "^17.0.14",
     "@types/react-native": "^0.67.0",
     "@types/react-test-renderer": "^17.0.1",
@@ -21,7 +21,7 @@
     "@typescript-eslint/parser": "^4.28.3",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^27.5.1",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-standard": "^16.0.2",
@@ -34,7 +34,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-standard": "^4.1.0",
-    "jest": "^26.1.0",
+    "jest": "^27.5.1",
     "node-fetch": "^2.6.2",
     "prettier": "^2.2.1",
     "react-test-renderer": "17.0.2",
@@ -59,16 +59,16 @@
     "jest": "jest -b tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
     "maccatalystpatches": "./scripts/maccatalystpatches/applypatchesformaccatalyst.sh",
-    "e2e:debug-build": "detox build -c android.emu.debug",
-    "e2e:debug-test": "detox test -c android.emu.debug -d 200000 -l info",
+    "e2e:debug-build": "detox build -c android.debug",
+    "e2e:debug-test": "detox test -c android.debug -d 200000 -l info",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
-    "e2e:release-build": "detox build -c android.emu.release",
-    "e2e:release-test": "detox test -c android.emu.release --record-videos all --take-screenshots all --headless -d 200000 --loglevel info",
+    "e2e:release-build": "detox build -c android.release",
+    "e2e:release-test": "detox test -c android.release --record-videos all --record-logs all --take-screenshots all --headless -d 200000",
     "tslint": "tsc",
     "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest -b tests/unit/*",
+    "unit": "jest -b -i tests/unit/*",
     "windows": "react-native run-windows"
   },
   "jest": {
@@ -125,7 +125,7 @@
     "coinselect": "3.1.12",
     "crypto-js": "4.1.1",
     "dayjs": "1.11.2",
-    "detox": "19.4.4",
+    "detox": "19.6.9",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
     "electrum-client": "https://github.com/BlueWallet/rn-electrum-client#99ebcc649d91a8dc39bea7964b02dd9ead464aa4",
@@ -209,36 +209,6 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify"
-  },
-  "detox": {
-    "configurations": {
-      "ios.sim.release": {
-        "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BlueWallet.app",
-        "build": "xcodebuild clean build -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -derivedDataPath ios/build -sdk iphonesimulator13.2",
-        "type": "ios.simulator",
-        "device": {
-          "type": "iPhone 11"
-        }
-      },
-      "android.emu.debug": {
-        "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
-        "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..",
-        "type": "android.emulator",
-        "device": {
-          "avdName": "Pixel_API_29_AOSP"
-        }
-      },
-      "android.emu.release": {
-        "binaryPath": "android/app/build/outputs/apk/release/app-release.apk",
-        "build": "# deleting old artifacts\nfind | grep '\\.apk' --color=never | grep -v node_modules | xargs -l rm\n\n# creating fresh keystore\nrm detox.keystore\nkeytool -genkeypair -v -keystore detox.keystore -alias detox  -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname  'cn=Unknown, ou=Unknown, o=Unknown, c=Unknown'\n\n# building release APK\ncd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..\n\n# backup & sign apk1\ncp ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release-unsigned.apk.bak\njarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore detox.keystore ./android/app/build/outputs/apk/release/app-release-unsigned.apk  detox -storepass 123456\n\n# move apk1 to expected filename\nmv ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release.apk\n\n# backup and sign apk2\ncp android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk.bak\njarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore detox.keystore android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk   detox -storepass 123456",
-        "type": "android.emulator",
-        "device": {
-          "avdName": "Pixel_API_29_AOSP"
-        }
-      }
-    },
-    "test-runner": "jest",
-    "runner-config": "tests/e2e/config.json"
   },
   "browser": {
     "crypto": "react-native-crypto",

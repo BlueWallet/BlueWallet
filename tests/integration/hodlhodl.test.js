@@ -1,11 +1,12 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { ECPairFactory } from 'ecpair';
 const ecc = require('tiny-secp256k1');
 const ECPair = ECPairFactory(ecc);
 
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
+jest.setTimeout(200 * 1000);
 
 it.skip('can verify escrow address', () => {
   const encryptedSeed =
@@ -93,7 +94,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     const Hodl = new HodlHodlApi();
     const countries = await Hodl.getCountries();
     assert.ok(countries[0]);
@@ -154,7 +154,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_OFFER_ID) return;
     const Hodl = new HodlHodlApi();
     const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
@@ -177,7 +176,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
     const Hodl = new HodlHodlApi();
     const contract = await Hodl.getContract(process.env.HODLHODL_CONTRACT_ID);
@@ -191,7 +189,6 @@ describe.skip('HodlHodl API', function () {
       // dont run here as it always fails
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
     const Hodl = new HodlHodlApi();
     const result = await Hodl.markContractAsConfirmed(process.env.HODLHODL_CONTRACT_ID);

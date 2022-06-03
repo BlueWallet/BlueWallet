@@ -1,6 +1,5 @@
+import assert from 'assert';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-const assert = require('assert');
-jest.useFakeTimers();
 
 describe('unit - DeepLinkSchemaMatch', function () {
   it('hasSchema', () => {

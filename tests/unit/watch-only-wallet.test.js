@@ -245,7 +245,7 @@ describe('Watch only wallet', () => {
   it('can import Electrum compatible backup wallet, and create a tx with master fingerprint hex with a length of 7', async () => {
     const w = new WatchOnlyWallet();
     let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
-    str = str.replace('b616be56', '616be56')
+    str = str.replace('b616be56', '616be56');
     // console.log(str)
     w.setSecret(str);
     w.init();
@@ -263,7 +263,7 @@ describe('Watch only wallet', () => {
   it('will fail to import Electrum compatible backup wallet when fingerprint hex is less than 7', async () => {
     const w = new WatchOnlyWallet();
     let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
-    str = str.replace('b616be56', '16be56')
+    str = str.replace('b616be56', '16be56');
     w.setSecret(str);
     w.init();
     assert.throws(w.valid, 'invalid fingerprint hex');
@@ -272,7 +272,7 @@ describe('Watch only wallet', () => {
   it('will fail to import Electrum compatible backup wallet when fingerprint is an invalid hex value', async () => {
     const w = new WatchOnlyWallet();
     let str = require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum-hex-only.txt', 'ascii');
-    str = str.replace('b616be56', 'j16be56')
+    str = str.replace('b616be56', 'j16be56');
     w.setSecret(str);
     w.init();
     assert.throws(w.valid, 'invalid fingerprint hex');

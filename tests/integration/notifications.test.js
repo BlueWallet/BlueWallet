@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import Notifications from '../../blue_modules/notifications';
-Notifications.default = new Notifications();
+// Notifications.default = new Notifications();
 
 describe('notifications', () => {
   // yeah, lets rely less on external services...
