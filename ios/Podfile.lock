@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.16.4):
+  - BugsnagReactNative (7.16.7):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -78,7 +78,7 @@ PODS:
   - glog (0.3.5)
   - libevent (2.1.12)
   - lottie-ios (3.2.3)
-  - lottie-react-native (5.0.1):
+  - lottie-react-native (5.1.2):
     - lottie-ios (~> 3.2.3)
     - React-Core
   - OpenSSL-Universal (1.1.180)
@@ -300,7 +300,7 @@ PODS:
     - React-Core
   - react-native-image-picker (4.8.1):
     - React-Core
-  - react-native-ios-context-menu (1.3.0):
+  - react-native-ios-context-menu (1.7.4):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -311,7 +311,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.18.1):
+  - react-native-webview (11.21.1):
     - React-Core
   - react-native-widget-center (0.0.7):
     - React
@@ -384,9 +384,9 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.8.4):
+  - rn-ldk (0.8.1):
     - React-Core
-  - RNCAsyncStorage (1.17.3):
+  - RNCAsyncStorage (1.17.6):
     - React-Core
   - RNCClipboard (1.10.0):
     - React-Core
@@ -446,13 +446,13 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.3.9):
+  - RNShare (7.4.1):
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
   - RNVectorIcons (9.1.0):
     - React-Core
-  - RNWatch (1.0.4):
+  - RNWatch (1.0.5):
     - React
   - SwiftSocket (2.0.2)
   - Yoga (1.14.0)
@@ -732,7 +732,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  BugsnagReactNative: b9f5f474d0a942cefc5d4811938a8a233666cb5e
+  BugsnagReactNative: e8a02c1d4da14f102fce40c8852b011253586e58
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
@@ -751,7 +751,7 @@ SPEC CHECKSUMS:
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
-  lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
+  lottie-react-native: fb56093c53bb36d0a7ce576e030b67af33ad6180
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 803a9cfd78114b2ec0f140cfa6fa2a6bafb2d685
@@ -772,12 +772,12 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: 5640333245b448b0e64172576ea27760f4134099
-  react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
+  react-native-ios-context-menu: 7bf49ec6006cc0c61d873419557b85eb1b9629fb
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 0b7bd2bffced115aefd393e1841babd9b9a557b1
+  react-native-webview: e6125da6d1cb245ff0692f545b0e5eb3572e12ab
   react-native-widget-center: 5e63193fce272aa3c2aa4f1a33e129b06a962f47
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -793,8 +793,8 @@ SPEC CHECKSUMS:
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
   RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: 005c0e2f09575360f142d0d1f1f15e4ec575b1af
+  rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
+  RNCAsyncStorage: 466b9df1a14bccda91da86e0b7d9a345d78e1673
   RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
@@ -811,10 +811,10 @@ SPEC CHECKSUMS:
   RNReanimated: 46cdb89ca59ab7181334f4ed05a70e82ddb36751
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: 807d6f8231b8ebcf6dd839294b877342eb93d4e5
+  RNShare: 2074af48908436c310847c6c47ebb6129db1dc89
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
   RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
-  RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
+  RNWatch: d3aa95cda8c6fd2098a02e6237493dc389bc42bb
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
