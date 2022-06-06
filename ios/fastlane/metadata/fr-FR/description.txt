@@ -1,8 +1,8 @@
-Un portefeuille Bitcoin vous permettant de stocker, envoyer, recevoir et acheter du Bitcoin avec un focus sur la sécurité et la simplicité.
+Un portefeuille Bitcoin vous permettant de stocker, envoyer, recevoir et acheter du Bitcoin en se concentrant sur la sécurité et la simplicité.
 
 Sur BlueWallet, un portefeuille Bitcoin où vous possédez vos clés privés. Un portefeuille Bitcoin fait par des utilisateurs de Bitcoin, pour la communauté.
 
-Vous pouvez faire une transaction instanément, vers n'importe où dans le monde, et transformer le système financier du bout de vos doigts.
+Vous pouvez faire une transaction instanément, vers n'importe où dans le monde, et transformer le système financier depuis votre poche.
 
 Créez gratuitement une infinité de portefeuilles Bitcoin ou importez votre portefeuille existant. C'est simple et rapide.
 
@@ -11,7 +11,7 @@ _____
 Voici ce que vous obtenez :
 
 
-1 - Sécurité par design
+1 - Sécurité dès la conception
 
 Open Source
 Sous license MIT, vous pouvez le compiler et le lancer dans votre coin ! Conçu avec ReactNative
@@ -49,5 +49,5 @@ Un portefeuille Lightning sans aucune configuration nécessaire. Des transaction
 Acheter du bitcoin
 Rejoignez la révolution la finance ouverte avec la possibilité d'acheter du bitcoin directement depuis votre portefeuille.
 
-Local Trader
+Trader Local
 Une plateforme de trading de Bitcoin pair-à-pair, vous permettant d'acheter et de vendre du bitcoin directement auprès d'autres utilisateurs, sans aucune tierce-partie.
