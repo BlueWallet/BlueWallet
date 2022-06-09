@@ -101,4 +101,14 @@
       <meta-data android:name="com.bugsnag.android.API_KEY" android:value="17ba9059f676f1cc4f45d98182388b01" />
     </application>
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http"/>
+        </intent>
+    </queries>
 </manifest>
