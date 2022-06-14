@@ -625,14 +625,6 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       await this.connectPeer(pubkey, host, port);
       connectedInThisRun[pubkey] = true;
     }
-
-    // now, reconnecting peers
-    for (const uri of Object.values(LightningLdkWallet._predefinedNodes)) {
-      const pk = uri.split('@')[0];
-      if (connectedInThisRun[pk]) continue;
-      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(pk);
-      await this.connectPeer(pubkey, host, port);
-    }
   }
 
   async channelsNeedReestablish() {
