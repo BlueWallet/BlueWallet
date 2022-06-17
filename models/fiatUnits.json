@@ -135,13 +135,13 @@
       "endPointKey": "IRT",
       "symbol": "تومان",
       "locale": "fa-IR",
-      "source": "Exir"
+      "source": "Nobitex"
     },
     "IRR": {
       "endPointKey": "IRR",
       "symbol": "﷼",
       "locale": "fa-IR",
-      "source": "Exir"
+      "source": "Nobitex"
     },
     "ISK": {
       "endPointKey": "ISK",
