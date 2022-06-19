@@ -11,15 +11,13 @@ import { AvailableLanguages } from './languages';
 import { I18nManager } from 'react-native';
 const currency = require('../blue_modules/currency');
 
-const LANG = 'lang';
+export const STORAGE_KEY = 'lang';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
-// first-time loading sequence
-
 const setDateTimeLocale = async () => {
-  let lang = await AsyncStorage.getItem('lang');
+  let lang = (await AsyncStorage.getItem(STORAGE_KEY)) ?? '';
   let localeForDayJSAvailable = true;
   switch (lang) {
     case 'ar':
@@ -148,51 +146,35 @@ const setDateTimeLocale = async () => {
   }
   if (localeForDayJSAvailable) {
     dayjs.locale(lang.split('_')[0]);
-    const language = AvailableLanguages.find(language => language.value === lang.replace('_', '-'));
-    /* I18n Manager breaks testing. Mocking built-in RN modules is not so straightforward.
-        Only run this conditional if its outside a testing environment.
-    */
-    if (process.env.JEST_WORKER_ID === undefined) {
-      if (language?.isRTL) {
-        I18nManager.allowRTL(true);
-        I18nManager.forceRTL(true);
-      } else {
-        I18nManager.allowRTL(false);
-        I18nManager.forceRTL(false);
-      }
-    }
   } else {
     dayjs.locale('en');
-    if (process.env.JEST_WORKER_ID === undefined) {
-      I18nManager.allowRTL(false);
-      I18nManager.forceRTL(false);
-    }
   }
 };
 
-const setLanguageLocale = async () => {
+const init = async () => {
   // finding out whether lang preference was saved
-  const lang = await AsyncStorage.getItem(LANG);
+  const lang = await AsyncStorage.getItem(STORAGE_KEY);
   if (lang) {
-    await strings.saveLanguage(lang);
-    await strings.setLanguage(lang);
+    await saveLanguage(lang);
+    await loc.setLanguage(lang);
     if (process.env.JEST_WORKER_ID === undefined) {
-      I18nManager.allowRTL(lang.isRTL ?? false);
-      I18nManager.forceRTL(lang.isRTL ?? false);
+      const foundLang = AvailableLanguages.find(language => language.value === lang);
+      I18nManager.allowRTL(foundLang?.isRTL ?? false);
+      I18nManager.forceRTL(foundLang?.isRTL ?? false);
     }
     await setDateTimeLocale();
   } else {
     const locales = RNLocalize.getLocales();
     if (Object.values(AvailableLanguages).some(language => language.value === locales[0].languageCode)) {
-      await strings.saveLanguage(locales[0].languageCode);
-      await strings.setLanguage(locales[0].languageCode);
+      await saveLanguage(locales[0].languageCode);
+      await loc.setLanguage(locales[0].languageCode);
       if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.allowRTL(locales[0].isRTL ?? false);
         I18nManager.forceRTL(locales[0].isRTL ?? false);
       }
     } else {
-      await strings.saveLanguage('en');
-      await strings.setLanguage('en');
+      await saveLanguage('en');
+      await loc.setLanguage('en');
       if (process.env.JEST_WORKER_ID === undefined) {
         I18nManager.allowRTL(false);
         I18nManager.forceRTL(false);
@@ -201,14 +183,9 @@ const setLanguageLocale = async () => {
     await setDateTimeLocale();
   }
 };
-setLanguageLocale();
+init();
 
-/**
- * TODO: remove this comment once this file gets properly converted to typescript.
- *
- * @type {any}
- */
-const strings = new Localization({
+const loc = new Localization({
   en: require('./en.json'),
   ar: require('./ar.json'),
   bg_bg: require('./bg_bg.json'),
@@ -253,18 +230,24 @@ const strings = new Localization({
   zh_tw: require('./zh_tw.json'),
 });
 
-strings.saveLanguage = async lang => {
-  await AsyncStorage.setItem(LANG, lang);
-  strings.setLanguage(lang);
+export const saveLanguage = async (lang: string) => {
+  await AsyncStorage.setItem(STORAGE_KEY, lang);
+  loc.setLanguage(lang);
+  // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
+  if (process.env.JEST_WORKER_ID === undefined) {
+    const foundLang = AvailableLanguages.find(language => language.value === lang);
+    I18nManager.allowRTL(foundLang?.isRTL ?? false);
+    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+  }
   await setDateTimeLocale();
 };
 
-export const transactionTimeToReadable = time => {
+export const transactionTimeToReadable = (time: number) => {
   if (time === -1) {
     return 'unknown';
   }
   if (time === 0) {
-    return strings._.never;
+    return loc._.never;
   }
   let ret;
   try {
@@ -276,34 +259,34 @@ export const transactionTimeToReadable = time => {
   return ret;
 };
 
-export const removeTrailingZeros = value => {
-  value = value.toString();
+export const removeTrailingZeros = (value: number | string) => {
+  let ret = value.toString();
 
-  if (value.indexOf('.') === -1) {
-    return value;
+  if (ret.indexOf('.') === -1) {
+    return ret;
   }
-  while ((value.slice(-1) === '0' || value.slice(-1) === '.') && value.indexOf('.') !== -1) {
-    value = value.substr(0, value.length - 1);
+  while ((ret.slice(-1) === '0' || ret.slice(-1) === '.') && ret.indexOf('.') !== -1) {
+    ret = ret.substr(0, ret.length - 1);
   }
-  return value;
+  return ret;
 };
 
 /**
  *
  * @param balance {number} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {string} Value from models/bitcoinUnits.js
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-export function formatBalance(balance, toUnit, withFormatting = false) {
+export function formatBalance(balance: number, toUnit: string, withFormatting = false) {
   if (toUnit === undefined) {
-    return balance + ' ' + strings.units[BitcoinUnit.BTC];
+    return balance + ' ' + loc.units[BitcoinUnit.BTC];
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + strings.units[BitcoinUnit.BTC];
+    return removeTrailingZeros(+value) + ' ' + loc.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + strings.units[BitcoinUnit.SATS];
+    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
@@ -311,12 +294,12 @@ export function formatBalance(balance, toUnit, withFormatting = false) {
 
 /**
  *
- * @param balance {Integer} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param balance {number} Satoshis
+ * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
+export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withFormatting = false) {
   if (toUnit === undefined) {
     return balance;
   }
@@ -336,17 +319,18 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting =
 /**
  * Should be used when we need a simple string to be put in text input, for example
  *
- * @param  balance {integer} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param  balance {number} Satoshis
+ * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
  * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-export function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
+export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return _leaveNumbersAndDots(newInputValue);
 }
 
-export function _leaveNumbersAndDots(newInputValue) {
+export function _leaveNumbersAndDots(newInputValue: string) {
   newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
   if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
 
@@ -359,10 +343,11 @@ export function _leaveNumbersAndDots(newInputValue) {
   return newInputValue;
 }
 
-// https://github.com/BlueWallet/BlueWallet/issues/3466
-export function formatStringAddTwoWhiteSpaces(text) {
+/**
+ * @see https://github.com/BlueWallet/BlueWallet/issues/3466
+ */
+export function formatStringAddTwoWhiteSpaces(text: string): string {
   return `${text}  `;
 }
 
-strings.LANG = LANG;
-export default strings;
+export default loc;

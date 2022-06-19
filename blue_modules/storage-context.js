@@ -5,7 +5,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit } from '../models/fiatUnit';
 import Notifications from '../blue_modules/notifications';
-import loc from '../loc';
+import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet } from '../class';
 import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
@@ -26,7 +26,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   const [language, _setLanguage] = useState();
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(currency.PREFERRED_CURRENCY).getItem;
-  const getLanguageAsyncStorage = useAsyncStorage(loc.LANG).getItem;
+  const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isTorDisabled, setIsTorDisabled] = useState(false);
