@@ -29,7 +29,7 @@ const TransactionPendingIcon = props => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ball, stylesHook.ball]}>
-        <Icon name="kebab-horizontal" size={16} type="octicon" color={colors.foregroundColor} iconStyle={styles.icon} />
+        <Icon name="more-horiz" type="material" size={16} color={colors.foregroundColor} iconStyle={styles.icon} />
       </View>
     </View>
   );
