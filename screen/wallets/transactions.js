@@ -689,7 +689,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
           })
         }
       >
-        <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
+        <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
       </TouchableOpacity>
     ),
     title: '',

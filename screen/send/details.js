@@ -947,7 +947,7 @@ const SendDetails = () => {
             onPressMenuItem={headerRightOnPress}
             actions={headerRightActions()}
           >
-            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} style={styles.advancedOptions} />
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
           </ToolTipMenu>
         ),
         default: () => (
@@ -961,7 +961,7 @@ const SendDetails = () => {
             }}
             testID="advancedOptionsMenuButton"
           >
-            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       }),
