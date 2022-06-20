@@ -149,6 +149,7 @@
     "please_pay_between_and": "אנא שלמו בין {min} לבין {max}",
     "please_pay": "אנא שלמו",
     "preimage": "Preimage",
+    "sats": "סאטושים",
     "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה"
   },
   "plausibledeniability": {
@@ -242,6 +243,7 @@
     "fee_fast": "מהיר",
     "fee_medium": "בינוני",
     "fee_replace_minvb": "שעור העמלה הכולל (סאטושי עבור vByte) שברצונך לשלם צריך להיות גבוה יותר מאשר {min} sat/vByte.",
+    "fee_satvbyte": "סאטושים/בייט-וירטואלי",
     "fee_slow": "איטי",
     "header": "שליחה",
     "input_clear": "ניקוי",
@@ -464,6 +466,7 @@
     "details_derivation_path": "נתיב גזירה",
     "details_display": "הצגה ברשימת ארנקים",
     "details_export_backup": "יצוא / גיבוי",
+    "details_marketplace": "שוק",
     "details_master_fingerprint": "טביעת אצבע ראשית",
     "details_ms_l": "{m} מתוך {n} legacy (p2sh)",
     "details_ms_ns": "{m} מתוך {n} native segwit (p2wsh)",
@@ -517,6 +520,7 @@
     "list_long_choose": "בחר תמונה",
     "list_long_clipboard": "העתקה מלוח",
     "list_long_scan": "סריקת קוד QR",
+    "list_marketplace": "שוק",
     "list_tap_here_to_buy": "קניית ביטקוין",
     "list_title": "ארנקים",
     "list_tryagain": "נסו שוב",
@@ -545,6 +549,7 @@
     "vault_key": "מפתח כספת {number}",
     "required_keys_out_of_total": " מפתחות נדרשים מתוך הסך הכולל",
     "fee": "עמלה: {number}",
+    "fee_btc": "מספר ביטקוין",
     "confirm": "אישור",
     "header": "שליחה",
     "share": "שיתוף",
@@ -561,6 +566,7 @@
     "provide_key": "ספקו מפתח",
     "native_segwit_title": "נוהג מומלץ",
     "wrapped_segwit_title": "תאימות גבוהה",
+    "legacy_title": "ישן",
     "co_sign_transaction": "חתימה על פעולה",
     "what_is_vault": "כספת היא ארנק ",
     "what_is_vault_numberOfWallets": "רב-חתימות {m}-מתוך-{n}",
@@ -633,7 +639,9 @@
     "tip": "מאפשר לך לראות, לתייג, להקפיא או לבחור מטבעות למען ניהול טוב יותר של הארנק."
   },
   "units": {
+    "BTC": "ביטקוין",
     "MAX": "מקס'",
+    "sat_vbyte": "סאטושים/בייט-וירטואלי",
     "sats": "סאטושים"
   },
   "addresses": {
@@ -649,7 +657,7 @@
     "sign_placeholder_signature": "חתימה",
     "addresses_title": "כתובות",
     "type_change": "עודף",
-    "type_receive": "קבלה",
+    "type_receive": "קבל",
     "type_used": "שומש",
     "transactions": "פעולות"
   },
