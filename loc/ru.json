@@ -182,7 +182,11 @@
     "details_label": "Описание",
     "details_setAmount": "Получить сумму",
     "details_share": "Отправить",
-    "header": "Получить"
+    "header": "Получить",
+    "maxSats": "Максимальная сумма {max} sats",
+    "maxSatsFull": "Максимальная сумма {max} sats или {currency}",
+    "minSats": "Минимальная сумма {min} sats",
+    "minSatsFull": "Минимальная сумма {min} sats или {currency}"
   },
   "send": {
     "provided_address_is_invoice": "Похоже, этот адрес предназначен для Лайтнинг инвойса. Пожалуйста, перейдите в свой кошелек Лайтнинг, чтобы оплатить этот счет.",
@@ -199,6 +203,7 @@
     "create_details": "Детали",
     "create_fee": "Комиссия",
     "create_memo": "Примечание",
+    "create_satoshi_per_vbyte": "Satoshi за vByte",
     "create_this_is_hex": "Это данные транзакции. Транзакция подписана и готова быть транслирована в сеть. Продолжить?",
     "create_to": "Куда",
     "create_tx_size": "Размер",
@@ -218,6 +223,7 @@
     "details_create": "Создать",
     "details_error_decode": "Нельзя декодировать Bitcoin адрес",
     "details_fee_field_is_not_valid": "Введенная комиссия неверна",
+    "details_frozen": "{amount} BTC заморожено",
     "details_next": "Дальше",
     "details_no_signed_tx": "В файле нет транзакций которые можно импортировать.",
     "details_note_placeholder": "примечание платежа",
@@ -618,6 +624,7 @@
   "cc": {
     "change": "сдача",
     "coins_selected": "Выбрано монет ({number})",
+    "selected_summ": "{value} выбрано",
     "empty": "В этом кошельке пока нет монет",
     "freeze": "заморозить",
     "freezeLabel": "Заморозить",
@@ -634,9 +641,12 @@
     "sats": "сатоши"
   },
   "addresses": {
+    "sign_title": "Подписать/Проверить Сообщение",
     "sign_sign": "Подписать",
     "sign_sign_submit": "Подписать и отправить",
     "sign_verify": "Проверить",
+    "sign_signature_correct": "Успешно верифицировано!",
+    "sign_signature_incorrect": "Верификация не удалась!",
     "sign_placeholder_address": "Адрес",
     "sign_placeholder_message": "Сообщение",
     "sign_placeholder_signature": "Подпись",
@@ -645,5 +655,11 @@
     "type_receive": "Получение",
     "type_used": "Использован",
     "transactions": "Транзакции"
+  },
+  "lnurl_auth": {
+    "register_question_part_2": "использовать ваш Lightning кошелёк?",
+    "login_question_part_2": "использовать ваш Lightning кошелёк?",
+    "auth_question_part_2": "использовать ваш Lightning кошелёк?",
+    "authenticate": "Аутентификация"
   }
 }
