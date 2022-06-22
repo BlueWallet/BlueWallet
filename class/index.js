@@ -2,6 +2,7 @@ export * from './app-storage';
 export * from './wallets/abstract-wallet';
 export * from './wallets/legacy-wallet';
 export * from './wallets/segwit-bech32-wallet';
+export * from './wallets/taproot-wallet';
 export * from './wallets/segwit-p2sh-wallet';
 export * from './wallets/hd-segwit-p2sh-wallet';
 export * from './wallets/hd-legacy-breadwallet-wallet';
