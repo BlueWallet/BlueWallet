@@ -867,6 +867,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         u.script = { length: 50 };
       }
     }
+
+    for (const t of targets) {
+      if (t.address.startsWith('bc1')) {
+        // in case address is non-typical and takes more bytes than coinselect library anticipates by default
+        t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
+      }
+    }
+
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
@@ -1136,8 +1144,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param mnemonic {string}  Mnemonic phrase (12 or 24 words)
    * @returns {string} Hex fingerprint
    */
-  static mnemonicToFingerprint(mnemonic) {
-    const seed = bip39.mnemonicToSeedSync(mnemonic);
+  static mnemonicToFingerprint(mnemonic, passphrase) {
+    const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 

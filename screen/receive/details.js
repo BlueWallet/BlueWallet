@@ -11,7 +11,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import LottieView from 'lottie-react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 
@@ -39,6 +38,7 @@ import Notifications from '../../blue_modules/notifications';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { SuccessView } from '../send/success';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -202,7 +202,7 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <SuccessView />
           <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
             {displayBalance}
           </BlueText>
@@ -538,10 +538,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
-  },
-  icon: {
-    width: 400,
-    height: 400,
   },
 });
 

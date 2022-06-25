@@ -4,7 +4,7 @@ import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
   BlueText,
@@ -19,9 +19,10 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import LNDCreateInvoice from './lndCreateInvoice';
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID, isModal } = useRoute().params;
+  const { invoice, walletID } = useRoute().params;
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
@@ -31,6 +32,8 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const fetchInvoiceInterval = useRef();
+  const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -59,7 +62,7 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     setOptions(
-      isModal === true
+      isModal
         ? {
             headerStyle: {
               borderBottomWidth: 0,

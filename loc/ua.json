@@ -48,6 +48,7 @@
   },
   "hodl": {
     "are_you_sure_you_want_to_logout": "Ви впевнені, що хочете вийти з Hodl Hodl?",
+    "cont_address_to": "Куди",
     "cont_cancel": "Відмінити контракт",
     "cont_cancel_y": "Так, відмінити контракт",
     "cont_how": "Як оплачувати",
@@ -63,6 +64,7 @@
     "filter_iamselling": "Я продаю біткоїни",
     "filter_method": "Методи Оплати",
     "filter_search": "Пошук",
+    "filter_selling": "Продаж",
     "item_minmax": "Мін/Макс",
     "item_rating_no": "Без рейтингу",
     "local_trader": "Місцевий Продавець",
@@ -178,7 +180,6 @@
     "fee_3h": "3г",
     "fee_fast": "Швидко",
     "fee_medium": "Середня",
-    "fee_replace_minvb": "Загальна комісія (satoshi за vbyte) яку ви хочете заплатити має бути більша, ніж {min} sat/vbyte",
     "fee_satvbyte": "в sat/vByte",
     "fee_slow": "Повільно",
     "header": "Надіслати",
@@ -264,6 +265,9 @@
     "widgets": "Віджети",
     "tools": "Інструменти"
   },
+  "notifications": {
+    "ask_me_later": "Запитати мене пізніше"
+  },
   "transactions": {
     "copy_link": "Копіювати Посилання",
     "cpfp_create": "Створити",
@@ -276,6 +280,7 @@
     "details_title": "Деталі транзакції",
     "details_to": "Кому",
     "details_transaction_details": "Деталі Транзакції",
+    "pending": "Очікування",
     "received_with_amount": "+{amt1} ({amt2})",
     "list_title": "Транзакції",
     "transactions_count": "Кількість Транзакцій",
@@ -374,7 +379,8 @@
     "export_signed_psbt": "Експортувати Підписаний PSBT",
     "input_fp_explain": "Пропустити, щоб використовувати стандартний (00000000)",
     "ms_help": "Допомога",
-    "ms_help_title3": "Резервні Копії Vault"
+    "ms_help_title3": "Резервні Копії Vault",
+    "ms_help_title5": "Enable advanced mode"
   },
   "is_it_my_address": {
     "view_qrcode": "Переглянути QR-код"
@@ -396,12 +402,9 @@
     "sat_vbyte": "sat/vByte"
   },
   "addresses": {
-    "sign_title": "Підписати/Перевірити повідомлення",
     "sign_sign": "Підписати",
     "sign_sign_submit": "Підписати і Відправити",
     "sign_verify": "Перевірити",
-    "sign_signature_correct": "Перевірка Успішна!",
-    "sign_signature_incorrect": "Помилка Перевірки!",
     "sign_placeholder_address": "Адреса",
     "sign_placeholder_message": "Повідомлення",
     "sign_placeholder_signature": "Підпис",

@@ -5,6 +5,12 @@ const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
+const consoleWarnOrig = console.warn;
+console.warn = function () {
+  if (arguments[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) return;
+  return consoleWarnOrig.apply(arguments);
+};
+
 describe('Legacy wallet', () => {
   it('can validate addresses', () => {
     const w = new LegacyWallet();

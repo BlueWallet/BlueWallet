@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-10.15 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
     steps:
     - name: Checkout project
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Specify node version
       uses: actions/setup-node@v2-beta
@@ -50,10 +50,9 @@ jobs:
 
   e2e:
     runs-on: macos-latest
-
     steps:
-    - name: Checkout project
-      uses: actions/checkout@v2
+    - name: checkout
+      uses: actions/checkout@v3
 
     - name: Specify node version
       uses: actions/setup-node@v2-beta
@@ -76,26 +75,25 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-npm-
 
+    - name: Install node_modules
+      run: npm install
+
     - name: Use specific Java version for sdkmanager to work
       uses: joschi/setup-jdk@v2
       with:
-        java-version: '8'
+        java-version: '11'
         architecture: 'x64'
-
-    - name: Install node_modules
-      run: npm install
 
     - name: Build
       run: npm run e2e:release-build
 
-    - name: Run tests
+    - name: run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 29
-        emulator-build: 6110076 # tmp fix for https://github.com/ReactiveCircus/android-emulator-runner/issues/160
-        target: google_apis
+        api-level: 31
         avd-name: Pixel_API_29_AOSP
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
         script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
       env:
         TRAVIS: 1

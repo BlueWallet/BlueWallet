@@ -23,11 +23,12 @@ import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
+import { parse } from 'url'; // eslint-disable-line node/no-deprecated-api
 const currency = require('../../blue_modules/currency');
 
 const LNDCreateInvoice = () => {
@@ -43,6 +44,7 @@ const LNDCreateInvoice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
   const [lnurlParams, setLNURLParams] = useState();
+
   const styleHooks = StyleSheet.create({
     scanRoot: {
       backgroundColor: colors.scanLabel,
@@ -77,8 +79,8 @@ const LNDCreateInvoice = () => {
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
-      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+      Keyboard.removeAllListeners('keyboardDidShow');
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
   }, []);
 
@@ -160,6 +162,28 @@ const LNDCreateInvoice = () => {
           break;
       }
 
+      if (lnurlParams) {
+        const { min, max } = lnurlParams;
+        if (invoiceAmount < min || invoiceAmount > max) {
+          let text;
+          if (invoiceAmount < min) {
+            text =
+              unit === BitcoinUnit.SATS
+                ? loc.formatString(loc.receive.minSats, { min })
+                : loc.formatString(loc.receive.minSatsFull, { min, currency: formatBalance(min, unit) });
+          } else {
+            text =
+              unit === BitcoinUnit.SATS
+                ? loc.formatString(loc.receive.maxSats, { max })
+                : loc.formatString(loc.receive.maxSatsFull, { max, currency: formatBalance(max, unit) });
+          }
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          alert(text);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const invoiceRequest = await wallet.current.addInvoice(invoiceAmount, description);
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
@@ -196,7 +220,6 @@ const LNDCreateInvoice = () => {
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
         walletID: wallet.current.getID(),
-        isModal: true,
       });
     } catch (Err) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -215,6 +238,15 @@ const LNDCreateInvoice = () => {
 
     // decoding the lnurl
     const url = Lnurl.getUrlFromLnurl(data);
+    const { query } = parse(url, true); // eslint-disable-line node/no-deprecated-api
+
+    if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
+      navigate('LnurlAuth', {
+        lnurl: data,
+        walletID: walletID ?? wallet.current.getID(),
+      });
+      return;
+    }
 
     // calling the url
     let reply;
@@ -370,20 +402,7 @@ const LNDCreateInvoice = () => {
               isLoading={isLoading}
               amount={amount}
               onAmountUnitChange={setUnit}
-              onChangeText={text => {
-                if (lnurlParams) {
-                  // in this case we prevent the user from changing the amount to < min or > max
-                  const { min, max } = lnurlParams;
-                  const nextAmount = parseInt(text);
-                  if (nextAmount < min) {
-                    text = min.toString();
-                  } else if (nextAmount > max) {
-                    text = max.toString();
-                  }
-                }
-
-                setAmount(text);
-              }}
+              onChangeText={setAmount}
               disabled={isLoading || (lnurlParams && lnurlParams.fixed)}
               unit={unit}
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
@@ -496,7 +515,7 @@ const styles = StyleSheet.create({
 });
 
 export default LNDCreateInvoice;
-
+LNDCreateInvoice.routeName = 'LNDCreateInvoice';
 LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,

@@ -271,6 +271,33 @@
     "encrypt_tstorage": "Хранилище",
     "encrypt_use": "Използвай {type}",
     "general": "Основно",
-    "general_adv_mode": "Развирени Настройки"
+    "general_adv_mode": "Развирени Настройки",
+    "plausible_deniability": "Plausible Deniability",
+    "retype_password": "Повторете паролата",
+    "save": "Запази"
+  },
+  "notifications": {
+    "ask_me_later": "Питай ме по-късно"
+  },
+  "transactions": {
+    "cpfp_create": "Създай",
+    "pending": "Не потвърдена транзакция"
+  },
+  "wallets": {
+    "add_create": "Създай",
+    "details_address": "Адрес",
+    "details_save": "Запази"
+  },
+  "multisig": {
+    "confirm": "Потвърди",
+    "header": "Изпрати",
+    "share": "Сподели",
+    "create": "Създай",
+    "co_sign_transaction": "Подпиши транзакция",
+    "ms_help_title5": "Развирени Настройки"
+  },
+  "addresses": {
+    "sign_placeholder_address": "Адрес",
+    "type_receive": "Получаване"
   }
 }

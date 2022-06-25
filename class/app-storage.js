@@ -449,7 +449,7 @@ export class AppStorage {
     if (wallet.type === LightningLdkWallet.type) {
       /** @type {LightningLdkWallet} */
       const ldkwallet = wallet;
-      ldkwallet.stop().catch(alert);
+      ldkwallet.stop().then(ldkwallet.purgeLocalStorage).catch(alert);
     }
 
     for (const value of this.wallets) {

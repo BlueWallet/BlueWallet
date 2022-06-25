@@ -189,8 +189,8 @@ const About = () => {
       />
       <BlueListItem
         leftIcon={{
-          name: 'law',
-          type: 'octicon',
+          name: 'balance-scale',
+          type: 'font-awesome',
           color: colors.foregroundColor,
         }}
         chevron

@@ -269,6 +269,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     segwitWallet.setSecret(text);
     if (segwitWallet.getAddress()) {
       // ok its a valid WIF
+      let walletFound = false;
 
       yield { progress: 'wif p2wpkh' };
       const segwitBech32Wallet = new SegwitBech32Wallet();
@@ -276,13 +277,15 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
       if (await segwitBech32Wallet.wasEverUsed()) {
         // yep, its single-address bech32 wallet
         await segwitBech32Wallet.fetchBalance();
+        walletFound = true;
         yield { wallet: segwitBech32Wallet };
       }
 
       yield { progress: 'wif p2wpkh-p2sh' };
       if (await segwitWallet.wasEverUsed()) {
-        // yep, its single-address bech32 wallet
+        // yep, its single-address p2wpkh wallet
         await segwitWallet.fetchBalance();
+        walletFound = true;
         yield { wallet: segwitWallet };
       }
 
@@ -290,7 +293,19 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
       yield { progress: 'wif p2pkh' };
       const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(text);
-      yield { wallet: legacyWallet };
+      if (await legacyWallet.wasEverUsed()) {
+        // yep, its single-address legacy wallet
+        await legacyWallet.fetchBalance();
+        walletFound = true;
+        yield { wallet: legacyWallet };
+      }
+
+      // if no wallets was ever used, import all of them
+      if (!walletFound) {
+        yield { wallet: segwitBech32Wallet };
+        yield { wallet: segwitWallet };
+        yield { wallet: legacyWallet };
+      }
     }
 
     // case - WIF is valid, just has uncompressed pubkey

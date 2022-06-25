@@ -82,6 +82,7 @@ import LdkInfo from './screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
+import LnurlAuth from './screen/lnd/lnurlAuth';
 import UnlockWith from './UnlockWith';
 import DrawerList from './screen/wallets/drawerList';
 import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
@@ -150,6 +151,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
+      <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
       <WalletsStack.Screen
         name="Success"
         component={Success}
@@ -319,7 +321,7 @@ const AztecoRedeemRoot = () => {
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
   <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
-    <RootStack.Screen name="ScanQRCode" component={ScanQRCode} />
+    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} />
   </ScanQRCodeStack.Navigator>
 );
 
@@ -377,7 +379,7 @@ const ReceiveDetailsStackRoot = () => {
 
   return (
     <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="ReceiveDetails">
-      <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
+      <ReceiveDetailsStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
     </ReceiveDetailsStack.Navigator>
   );
 };

@@ -1417,6 +1417,59 @@ describe('multisig-wallet (native segwit)', () => {
     }
   });
 
+  it('can import electrum json file format with seeds and passphrase', () => {
+    const json = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
+    const w = new MultisigHDWallet();
+    w.setSecret(JSON.stringify(json));
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 2);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q7n8twph2zlfw6w0p5ms9vkvj9klxqhpjy5mv5tnqpcf2pl3d3qrst2pjz7');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q2ltyvkrs0uay39acfk4y0gmw7flghd3403p94x26tc8579t9adwsjp83yz');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1q24rc4v9r6fjtkrwfp4j57ufef56ez46rrpyjtdkhjpr687f5de0sa7ryv5');
+
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(!w.isLegacy());
+
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
+
+    assert.strictEqual(w.getFingerprint(1), '8de7b2c3'.toUpperCase());
+    assert.strictEqual(w.getFingerprint(2), '84431270'.toUpperCase());
+
+    const utxos = [
+      {
+        address: 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u',
+        amount: 68419,
+        height: 0,
+        txId: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        txhex:
+          '02000000000101d7bf498a92b19bab8a58260efedd7e6cd3b7713ff1e9d2603ff9f06a64f66291000000001716001440512e04b685a0cd66a03bea0896c27000c828dcffffffff01430b010000000000220020d848363349dd9952d465058b3ffc9c24d0b04b4a491d8fa8c2cc208724a040e10247304402201ad742ffee74e5ae4b3867d9818b8ad6505ca5239280138f9da3f93e4c27ee0802202918fa6034485077596bf64501ae6954371e91d250ee98f5a3c5889d4dee923e012103a681da832358050bd9b197aaa55d921f1447025b999eadb018aa67c5b8f64a0900000000',
+        txid: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        value: 68419,
+        vout: 0,
+        wif: false,
+      },
+    ];
+    const { psbt } = w.createTransaction(
+      utxos,
+      [{ address: '39RXMPjwKwoEGJeABJvdG1N4nQAzfEgcos' }],
+      1,
+      w._getInternalAddressByIndex(3),
+      false,
+      true,
+    );
+    assert.ok(psbt);
+    // we are using .cosignPsbt for now, because .createTransaction throws
+    // Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint
+    // https://github.com/BlueWallet/BlueWallet/pull/2466
+    const { tx } = w.cosignPsbt(psbt);
+    assert.ok(tx);
+  });
+
   it('cant import garbage', () => {
     const w = new MultisigHDWallet();
     w.setSecret('garbage');
@@ -1668,14 +1721,12 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
 
-    w.replaceCosigner(fp2coldcard, Zpub2, fp2coldcard, path); // <-------------------
-
+    w.replaceCosignerSeedWithXpub(2);
     assert.strictEqual(w.getCosigner(2), Zpub2);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
-    w.replaceCosigner(fp2coldcard, process.env.MNEMONICS_COLDCARD); // <---------------------------
-
+    w.replaceCosignerXpubWithSeed(2, process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
@@ -1704,6 +1755,49 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getN(), 2);
+
+    w.replaceCosignerSeedWithXpub(2);
+    assert.strictEqual(
+      w.getCosigner(2),
+      'Zpub752NRx3S4ax3S5oLHLB2DAQx9X3Ek4EGvtsyYTpzQ2VRdXB6DjL5ZKiHhcUqfZM6M2KCVB5vSXEQ4jMosHWuF4dD5pwowfzL4fmJz5FaJHh',
+    );
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.ok(!w.getPassphrase(2));
+
+    w.replaceCosignerXpubWithSeed(
+      2,
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getCosigner(2), 'salon smoke bubble dolphin powder govern rival sport better arrest certain manual');
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.strictEqual(w.getPassphrase(2), '9WDdFSZX4d6mPxkr');
+
+    // test that after deleting cosinger with passphrase, it has been cleaned out properly
+    w.deleteCosigner('2C0908B6');
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.ok(!w.getPassphrase(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
+
+    // after chaning first cosigner, make sure that he changed, not the second one
+    w.replaceCosignerXpubWithSeed(1, process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getCosigner(1), process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getFingerprint(1), fp1cobo);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
+    assert.strictEqual(w.getPassphrase(1), undefined);
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
@@ -1828,6 +1922,42 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt.data.inputs.length, 2);
     assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('can generate proper addresses for wallets with passphrases. Export and import such wallet', () => {
+    // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
+    const path = "m/48'/0'/0'/2'";
+    const w = new MultisigHDWallet();
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    w.addCosigner('chaos word void picture gas update shop wave task blossom close inner', undefined, undefined, 'E5jMAzsf464Hgwns');
+    w.addCosigner(
+      'plate inform scissors pill asset scatter people emotion dose primary together expose',
+      undefined,
+      undefined,
+      'RyBFfLr7weK3nDUG',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(w.getPassphrase(1), '9WDdFSZX4d6mPxkr');
+    assert.strictEqual(w.getPassphrase(2), 'E5jMAzsf464Hgwns');
+    assert.strictEqual(w.getPassphrase(3), 'RyBFfLr7weK3nDUG');
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q8rks34ypj5edxx82f7z7yzy4qy6dynfhcftjs9axzr2ml37p4pfs7j4uvm');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qjpjgumzs2afrr3mk85anwdnzd9qg5hc5p6f62un4umpyf4ccde5q4cywgy');
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w.getPassphrase(1), w2.getPassphrase(1));
+    assert.strictEqual(w.getPassphrase(2), w2.getPassphrase(2));
+    assert.strictEqual(w.getPassphrase(3), w2.getPassphrase(3));
   });
 });
 

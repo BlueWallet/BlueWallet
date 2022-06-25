@@ -211,7 +211,11 @@ const WalletsAdd = () => {
     } catch (Err) {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
-      return alert(Err);
+      if (Err.message) {
+        return alert(Err.message);
+      } else {
+        return alert(loc.wallets.add_lndhub_error);
+      }
       // giving app, not adding anything
     }
     A(A.ENUM.CREATED_LIGHTNING_WALLET);

@@ -51,6 +51,19 @@ const WalletsAddMultisig = () => {
   });
 
   useEffect(() => {
+    if (loadingAnimation.current) {
+      /*
+      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
+      Temporary workaround until Lottie is fixed.
+      */
+      setTimeout(() => {
+        loadingAnimation.current?.reset();
+        loadingAnimation.current?.play();
+      }, 100);
+    }
+  }, []);
+
+  useEffect(() => {
     isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

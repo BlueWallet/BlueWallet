@@ -24,6 +24,7 @@ export const AvailableLanguages = Object.freeze([
   { label: '한국어 (KO)', value: 'ko_kr' },
   { label: 'Bahasa Melayu (MS)', value: 'ms' },
   { label: 'Nederlands (NL)', value: 'nl_nl' },
+  { label: 'नेपाली (NE)', value: 'ne' },
   { label: 'Norsk (NB)', value: 'nb_no' },
   { label: 'Polskie (PL)', value: 'pl' },
   { label: 'Português (BR)', value: 'pt_br' },
