@@ -31,7 +31,6 @@ import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
-import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
@@ -57,7 +56,6 @@ const WalletTransactions = () => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
-  const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
@@ -166,8 +164,7 @@ const WalletTransactions = () => {
     return false;
   };
 
-  const refreshLnNodeInfo = () => {
-  };
+  const refreshLnNodeInfo = () => {};
 
   /**
    * Forcefully fetches TXs and balance for wallet
@@ -253,12 +250,11 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 &&
-            wallet.chain !== Chain.OFFCHAIN && renderSellFiat()}
+          {wallet.getTransactions().length > 0 && wallet.chain !== Chain.OFFCHAIN && renderSellFiat()}
           {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
           {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
-  
+
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
@@ -703,12 +699,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     paddingBottom: 40,
-  },
-  marginHorizontal18: {
-    marginHorizontal: 18,
-  },
-  marginBottom18: {
-    marginBottom: 18,
   },
   walletDetails: {
     justifyContent: 'center',
