@@ -23,7 +23,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -167,9 +167,6 @@ const WalletTransactions = () => {
   };
 
   const refreshLnNodeInfo = () => {
-    if (wallet.type === LightningLdkWallet.type) {
-      setLnNodeInfo({ canReceive: wallet.getReceivableBalance(), canSend: wallet.getBalance() });
-    }
   };
 
   /**
@@ -257,17 +254,11 @@ const WalletTransactions = () => {
 
            */}
           {wallet.getTransactions().length > 0 &&
-            wallet.chain !== Chain.OFFCHAIN &&
-            wallet.type !== LightningLdkWallet.type &&
-            renderSellFiat()}
+            wallet.chain !== Chain.OFFCHAIN && renderSellFiat()}
           {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
           {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
-        {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
-          <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
-            <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
-          </View>
-        )}
+  
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
@@ -569,8 +560,6 @@ const WalletTransactions = () => {
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
-          } else if (wallet.type === LightningLdkWallet.type) {
-            navigate('LdkInfo', { walletID: wallet.getID() });
           } else if (wallet.type === LightningCustodianWallet.type) {
             if (wallet.getUserHasSavedExport()) {
               onManageFundsPressed({ id });
