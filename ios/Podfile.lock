@@ -450,7 +450,7 @@ PODS:
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
-  - RNVectorIcons (9.1.0):
+  - RNVectorIcons (9.2.0):
     - React-Core
   - RNWatch (1.0.8):
     - React
@@ -813,7 +813,7 @@ SPEC CHECKSUMS:
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 4406f61af043027b695c3a0b8f39e2c2bdacde12
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
-  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
+  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: e98090132d9239f11a5773db7db0e688f538c669
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
