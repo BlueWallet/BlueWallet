@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.17.0):
+  - BugsnagReactNative (7.17.2):
     - React-Core
   - BVLinearGradient (2.5.6):
     - React
@@ -311,7 +311,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.22.3):
+  - react-native-webview (11.22.4):
     - React-Core
   - react-native-widget-center (0.0.8):
     - React
@@ -414,7 +414,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.14.0):
     - React-Core
-  - RNReanimated (2.8.0):
+  - RNReanimated (2.9.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -441,7 +441,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.13.1):
+  - RNScreens (3.14.0):
     - React-Core
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
@@ -450,9 +450,9 @@ PODS:
     - React-Core
   - RNSVG (12.3.0):
     - React-Core
-  - RNVectorIcons (9.1.0):
+  - RNVectorIcons (9.2.0):
     - React-Core
-  - RNWatch (1.0.8):
+  - RNWatch (1.0.11):
     - React
   - SwiftSocket (2.0.2)
   - Yoga (1.14.0)
@@ -732,7 +732,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  BugsnagReactNative: 95065941123972b32ce11ad00e541fd49a4ed86c
+  BugsnagReactNative: 9ed4343f2d164c69d2d8ad57722b4662501935c9
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
@@ -777,7 +777,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: ea6fc965e74d6a8335026c913343fafc0463b6ab
+  react-native-webview: a1ed211d50a5047a4fe54e07140991e277cd66e6
   react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -808,13 +808,13 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
-  RNReanimated: 46cdb89ca59ab7181334f4ed05a70e82ddb36751
-  RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
+  RNReanimated: 8fdb0c1f908502c45f68939b3cf6c06c830eff95
+  RNScreens: 4830eb40e0793b38849965cd27f4f3a7d7bc65c1
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 4406f61af043027b695c3a0b8f39e2c2bdacde12
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
-  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
-  RNWatch: e98090132d9239f11a5773db7db0e688f538c669
+  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  RNWatch: dae6c858a2051dbdcfb00b9a86cf4d90400263b4
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
