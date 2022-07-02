@@ -1,5 +1,4 @@
 import { DefaultTheme, DarkTheme, useTheme as useThemeBase } from '@react-navigation/native';
-import { Appearance } from 'react-native';
 
 export const BlueDefaultTheme = {
   ...DefaultTheme,
@@ -130,13 +129,4 @@ export class BlueCurrentTheme {
   static colors: Theme['colors'];
   static closeImage: Theme['closeImage'];
   static scanImage: Theme['scanImage'];
-
-  static updateColorScheme(): void {
-    const isColorSchemeDark = Appearance.getColorScheme() === 'dark';
-    BlueCurrentTheme.colors = isColorSchemeDark ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
-    BlueCurrentTheme.closeImage = isColorSchemeDark ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
-    BlueCurrentTheme.scanImage = isColorSchemeDark ? BlueDarkTheme.scanImage : BlueDefaultTheme.scanImage;
-  }
 }
-
-BlueCurrentTheme.updateColorScheme();
