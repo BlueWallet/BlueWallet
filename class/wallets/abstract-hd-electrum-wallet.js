@@ -1156,4 +1156,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const seed = this._getSeed();
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
+
+  async getBip47PaymentCodes() {
+    const bip47 = this.getBip47();
+    const address = bip47.getNotificationAddress();
+    const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
+    const txs = histories[address].map(({ tx_hash }) => tx_hash);
+    const hexs = await BlueElectrum.multiGetTransactionHexByTxid(txs);
+    const paymentCodes = Object.values(hexs).map(str => bip47.getPaymentCodeFromRawNotificationTransaction(str));
+    console.info('paymentCodes', paymentCodes);
+
+    return paymentCodes;
+  }
 }
