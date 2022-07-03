@@ -1,14 +1,9 @@
 import * as bip39 from 'bip39';
 import { BIP32Interface } from 'bip32';
-import { ECPairFactory } from 'ecpair';
-import * as ecc from 'tiny-secp256k1';
-import BIP47Factory from '@spsina/bip47';
 import { LegacyWallet } from './legacy-wallet';
 import * as bip39custom from '../../blue_modules/bip39';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import { Transaction } from './types';
-
-const ECPair = ECPairFactory(ecc);
 
 type AbstractHDWalletStatics = {
   derivationPath?: string;
@@ -315,15 +310,5 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   setDerivationPath(path: string) {
     this._derivationPath = path;
-  }
-
-  getPNNotificationAddress() {
-    const bip47 = BIP47Factory(ecc).fromBip39Seed(this.secret, undefined, this.passphrase);
-    const notificationAddress = bip47.getNotificationAddress();
-    return notificationAddress;
-  }
-
-  getBip47() {
-    return BIP47Factory(ecc).fromBip39Seed(this.secret, undefined, this.passphrase);
   }
 }

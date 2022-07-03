@@ -3,15 +3,16 @@ import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import BIP32Factory from 'bip32';
 import * as ecc from 'tiny-secp256k1';
+import BIP47Factory from '@spsina/bip47';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { ECPairFactory } from 'ecpair';
-const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
+const ECPair = ECPairFactory(ecc);
 
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
@@ -1157,6 +1158,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 
+  getBip47() {
+    return BIP47Factory(ecc).fromBip39Seed(this.secret, undefined, this.passphrase);
+  }
+
+  getPNNotificationAddress() {
+    const bip47 = BIP47Factory(ecc).fromBip39Seed(this.secret, undefined, this.passphrase);
+    const notificationAddress = bip47.getNotificationAddress();
+    return notificationAddress;
+  }
+
   async getBip47PaymentCodes() {
     const bip47 = this.getBip47();
     const address = bip47.getNotificationAddress();
@@ -1164,8 +1175,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const txs = histories[address].map(({ tx_hash }) => tx_hash);
     const hexs = await BlueElectrum.multiGetTransactionHexByTxid(txs);
     const paymentCodes = Object.values(hexs).map(str => bip47.getPaymentCodeFromRawNotificationTransaction(str));
-    console.info('paymentCodes', paymentCodes);
-
     return paymentCodes;
+  }
+
+  getBip47Address(paymentCode, index) {
+    const bip47 = this.getBip47();
+    const remoteBip47 = BIP47Factory(ecc).fromPaymentCode(paymentCode);
+    const remotePaymentNode = remoteBip47.getPaymentCodeNode();
+    const hdNode = bip47.getPaymentWallet(remotePaymentNode, index);
+    const address = this.constructor._nodeToBech32SegwitAddress(hdNode);
+    return address;
   }
 }
