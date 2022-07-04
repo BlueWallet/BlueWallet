@@ -4,7 +4,7 @@ import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from 'tiny-secp256k1';
 
 import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';

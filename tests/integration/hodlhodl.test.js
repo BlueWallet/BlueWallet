@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { ECPairFactory } from 'ecpair';
-const ecc = require('tiny-secp256k1');
+import * as ecc from 'tiny-secp256k1';
 const ECPair = ECPairFactory(ecc);
 
 jest.setTimeout(200 * 1000);

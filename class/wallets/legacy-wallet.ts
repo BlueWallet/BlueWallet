@@ -9,7 +9,7 @@ import coinSelect from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { Signer, ECPairFactory, ECPairAPI } from 'ecpair';
-const ecc = require('tiny-secp256k1');
+import * as ecc from 'tiny-secp256k1';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 
 type CoinselectUtxo = {
