@@ -4,5 +4,6 @@
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">onion</domain>
+        <domain includeSubdomains="true">tailscale.net</domain>
     </domain-config>
 </network-security-config>
