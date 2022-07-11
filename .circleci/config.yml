@@ -3,7 +3,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/node:16.15.0
+      - image: cimg/node:16.16.0
 
     working_directory: ~/repo
 
@@ -26,7 +26,7 @@ jobs:
 
   unit:
     docker:
-      - image: cimg/node:16.15.0
+      - image: cimg/node:16.16.0
 
     working_directory: ~/repo
 
@@ -50,7 +50,7 @@ jobs:
 
   integration:
     docker:
-      - image: cimg/node:16.15.0
+      - image: cimg/node:16.16.0
 
     working_directory: ~/repo
 
