@@ -437,7 +437,7 @@
     "import_do_import": "Importer",
     "import_passphrase": "Phrase secrète",
     "import_passphrase_title": "Phrase secrète",
-    "import_passphrase_message": "Entrez la phrase secrète si vous en avez utilisée une",
+    "import_passphrase_message": "Entrez la phrase secrète si vous en avez utilisé une",
     "import_error": "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
     "import_explanation": "Entrez ici votre mnémonique, clé privée, WIF, ou quoi que ce soit que vous ayez. BlueWallet fera de son mieux pour deviner le bon format et importer votre portefeuille",
     "import_file": "Importer le fichier",
