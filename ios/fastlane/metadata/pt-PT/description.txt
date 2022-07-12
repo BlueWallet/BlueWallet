@@ -43,6 +43,3 @@ Carteira Lightning sem configurações. Transacções baratas e ultra rápidas c
 
 Comprar Bitcoin
 Agora já podes comprar Bitcoin directamente sem sair da tua carteira e com as tuas chaves privadas.
-
-Local Trader
-Plataforma p2p Bitcoin de trading, que permite comprar e vender bitcoin directamente para outros utilizadores sem terceiros.
