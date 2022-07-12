@@ -64,16 +64,10 @@ const WalletTransactions = () => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
-    marketplaceButton1: {
-      backgroundColor: colors.lightButton,
-    },
     marketplaceButton2: {
       backgroundColor: colors.lightButton,
     },
     marketpalceText1: {
-      color: colors.cta2,
-    },
-    marketpalceText2: {
       color: colors.cta2,
     },
     list: {
@@ -260,8 +254,7 @@ const WalletTransactions = () => {
             wallet.chain !== Chain.OFFCHAIN &&
             wallet.type !== LightningLdkWallet.type &&
             renderSellFiat()}
-          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
-          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
+          {wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}
         </View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
@@ -286,45 +279,6 @@ const WalletTransactions = () => {
 
   const navigateToBuyBitcoin = () => {
     BuyBitcoin.navigate(wallet);
-  };
-
-  const renderMarketplaceButton = () => {
-    return (
-      wallet.chain === Chain.OFFCHAIN &&
-      Platform.select({
-        android: (
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => {
-              if (wallet.chain === Chain.OFFCHAIN) {
-                navigate('LappBrowserRoot', {
-                  screen: 'LappBrowser',
-                  params: { walletID },
-                });
-              } else {
-                navigate('Marketplace', { walletID });
-              }
-            }}
-            style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
-          >
-            <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_marketplace}</Text>
-          </TouchableOpacity>
-        ),
-        ios:
-          wallet.getBalance() > 0 ? (
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={async () => {
-                Linking.openURL('https://bluewallet.io/marketplace/');
-              }}
-              style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
-            >
-              <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-              <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.list_marketplace}</Text>
-            </TouchableOpacity>
-          ) : null,
-      })
-    );
   };
 
   const renderLappBrowserButton = () => {
@@ -748,17 +702,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
   },
-  marketplaceButton1: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 4,
-  },
   marketplaceButton2: {
     borderRadius: 9,
     minHeight: 49,
@@ -772,10 +715,6 @@ const styles = StyleSheet.create({
   },
   marketpalceText1: {
     fontSize: 18,
-  },
-  marketpalceText2: {
-    fontSize: 18,
-    marginHorizontal: 8,
   },
   list: {
     flex: 1,

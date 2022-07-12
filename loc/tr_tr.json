@@ -44,22 +44,6 @@
     "error": "Hata",
     "network": "Ağ Hatası"
   },
-  "hodl": {
-    "are_you_sure_you_want_to_logout": "Hodl Hodl'dan çıkış yapmak istediğinize emin misiniz?",
-    "cont_address_escrow": "Escrow",
-    "cont_address_to": "Kime",
-    "cont_buying": "Satın al",
-    "cont_cancel": "Anlaşmayı iptal et",
-    "cont_cancel_q": "Anlaşmadan vazgeçmek istediğinize emin misiniz ?",
-    "cont_cancel_y": "Evet, anlaşmayı boz.",
-    "cont_chat": "Karşı taraf ile chat ekranı aç",
-    "cont_how": "Nasıl ödenir?",
-    "cont_paid": "Kontratı ödenmiş olarak işaretle",
-    "filter_buying": "Satın al",
-    "filter_currency": "Para birimi",
-    "filter_detail": "Ayrıntılar",
-    "filter_filters": "Filtreler"
-  },
   "lnd": {
     "expired": "Süresi doldu",
     "expiredLow": "Süresi doldu",

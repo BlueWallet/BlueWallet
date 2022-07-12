@@ -48,6 +48,3 @@ Wallet per Lightning Network con zero configurazioni necessarie. Per transazioni
 
 Acquista Bitcoin
 Partecipa alla rivoluzione finanziaria con la possibilità di comprare Bitcoin direttamente dal tuo wallet.
-
-Local Trader
-Una piattaforma Bitcoin p2p, che ti permette di comprare e vendere bitcoin direttamente ad altri utenti senza il bisogno di 3º parti.

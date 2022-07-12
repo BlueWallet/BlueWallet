@@ -33,9 +33,6 @@ export class AppStorage {
   static LNDHUB = 'lndhub';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
-  static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
-  static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
-  static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
   static keys2migrate = [AppStorage.HANDOFF_STORAGE_KEY, AppStorage.DO_NOT_TRACK, AppStorage.ADVANCED_MODE_ENABLED];
@@ -790,51 +787,6 @@ export class AppStorage {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  };
-
-  getHodlHodlApiKey = async () => {
-    try {
-      return await this.getItem(AppStorage.HODL_HODL_API_KEY);
-    } catch (_) {}
-    return false;
-  };
-
-  getHodlHodlSignatureKey = async () => {
-    try {
-      return await this.getItem(AppStorage.HODL_HODL_SIGNATURE_KEY);
-    } catch (_) {}
-    return false;
-  };
-
-  /**
-   * Since we cant fetch list of contracts from hodlhodl api yet, we have to keep track of it ourselves
-   *
-   * @returns {Promise<string[]>} String ids of contracts in an array
-   */
-  getHodlHodlContracts = async () => {
-    try {
-      const json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
-      return JSON.parse(json);
-    } catch (_) {}
-    return [];
-  };
-
-  addHodlHodlContract = async id => {
-    let json;
-    try {
-      json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
-      json = JSON.parse(json);
-    } catch (_) {
-      json = [];
-    }
-
-    json.push(id);
-    return this.setItem(AppStorage.HODL_HODL_CONTRACTS, JSON.stringify(json));
-  };
-
-  setHodlHodlApiKey = async (key, sigKey) => {
-    if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
-    return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
   };
 
   isAdancedModeEnabled = async () => {

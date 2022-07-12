@@ -48,6 +48,3 @@ Lightning Wallet ohne Konfiguration. Lightning Bezahlungen sind konkurrenzlos g�
 
 Bitcoin kaufen
 Die Möglichkeit bitcoin direkt aus der Wallet zu kaufen. Bitcoin ist offen für Alle. Nimm Teil an der Finanzrevolution.
-
-Local Trader
-Eine P2P Handelsplattform, welche es Dir ohne Drittpartei erlaubt bitcoin sicher von Nutzern zu kaufen oder zu verkaufen.

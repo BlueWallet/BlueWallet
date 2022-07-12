@@ -31,7 +31,7 @@ Connect to your hardware wallet and keep your coins in Cold storage
 2 - Focused on your experience
 
 Be in control
-Private keys never leave your device. You control your private keys
+Private keys never leave your device.You control your private keys
 
 Flexible fees
 Starting from 1 Satoshi. Defined by you, the user
@@ -47,6 +47,3 @@ Lightning wallet with zero-configuration. Unfairly cheap and fast transactions w
 
 Buy Bitcoin
 Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.
-
-Local Trader
-A p2p Bitcoin Trading platform, that allows you to buy and sell bitcoin directly to other users without 3rd parties.
