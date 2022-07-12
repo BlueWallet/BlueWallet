@@ -148,19 +148,6 @@ describe('unit - DeepLinkSchemaMatch', function () {
       },
       {
         argument: {
-          url: 'bluewallet:?safello-state-token=TEST',
-        },
-        expected: [
-          'BuyBitcoin',
-          {
-            safelloStateToken: 'TEST',
-            uri: 'bluewallet:?safello-state-token=TEST',
-            walletID: undefined,
-          },
-        ],
-      },
-      {
-        argument: {
           url: 'bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As',
         },
         expected: [

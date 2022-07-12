@@ -1,4 +1,4 @@
-A Bitcoin wallet that allows you to store, send Bitcoin, receive Bitcoin and buy Bitcoin with focus on security and simplicity.
+A Bitcoin wallet that allows you to store, send Bitcoin, receive Bitcoin with focus on security and simplicity.
 
 On BlueWallet, a bitcoin wallet you own your private keys. A Bitcoin wallet made by Bitcoin users for the community.
 
@@ -44,6 +44,3 @@ Watch-only wallets allow you to keep an eye on your cold storage without touchin
 
 Lightning Network
 Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
-
-Buy Bitcoin
-Enter in the open financial revolution with the ability to buy Bitcoin directly in your wallet.

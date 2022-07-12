@@ -48,6 +48,3 @@ Portfel Lightning nie wymaga konfiguracji. Niegodziwie tanie i szybkie transakcj
 
 Kup Bitcoin
 Wejdź do finansowej rewolucji z możliwością kupna Bitcoin bezpośrednio z Twojego portfela.
-
-Lokalny Handel
-Platforma handlu Bitcoin p2p, która pozwala kupować i sprzedawać bezpośrednio z użytkownikami bez pośredników (3rd party)

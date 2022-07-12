@@ -48,6 +48,3 @@ Un portefeuille Lightning sans aucune configuration nécessaire. Des transaction
 
 Acheter du bitcoin
 Rejoignez la révolution la finance ouverte avec la possibilité d'acheter du bitcoin directement depuis votre portefeuille.
-
-Trader Local
-Une plateforme de trading de Bitcoin pair-à-pair, vous permettant d'acheter et de vendre du bitcoin directement auprès d'autres utilisateurs, sans aucune tierce-partie.

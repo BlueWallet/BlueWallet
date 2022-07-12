@@ -27,7 +27,6 @@ import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOn
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -237,23 +236,13 @@ const WalletTransactions = () => {
       <View style={styles.flex}>
         <View style={styles.listHeader}>
           {/*
-            Current logic - Onchain:
-            - Shows buy button on middle when empty
-            - Show buy button on top when not empty
-            - Shows Marketplace button on details screen, open in browser (iOS)
-            - Shows Marketplace button on details screen, open in in-app (android)
             Current logic - Offchain:
             - Shows Lapp Browser empty (iOS)
             - Shows Lapp Browser with marketplace (android)
-            - Shows Marketplace button to open in browser (iOS)
 
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 &&
-            wallet.chain !== Chain.OFFCHAIN &&
-            wallet.type !== LightningLdkWallet.type &&
-            renderSellFiat()}
           {wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}
         </View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
@@ -277,10 +266,6 @@ const WalletTransactions = () => {
     );
   };
 
-  const navigateToBuyBitcoin = () => {
-    BuyBitcoin.navigate(wallet);
-  };
-
   const renderLappBrowserButton = () => {
     return (
       <TouchableOpacity
@@ -297,18 +282,6 @@ const WalletTransactions = () => {
         style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
       >
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_ln_browser}</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderSellFiat = () => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={navigateToBuyBitcoin}
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
-      >
-        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
@@ -504,8 +477,6 @@ const WalletTransactions = () => {
           },
         });
       }
-    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithBank) {
-      navigateToBuyBitcoin();
     }
   };
 
@@ -571,14 +542,6 @@ const WalletTransactions = () => {
                 {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
               </Text>
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-
-              {!isLightning() && (
-                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin} accessibilityRole="button">
-                  <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
-                    {loc.wallets.list_tap_here_to_buy}
-                  </Text>
-                </TouchableOpacity>
-              )}
             </ScrollView>
           }
           {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
@@ -728,20 +691,6 @@ const styles = StyleSheet.create({
   emptyTxsLightning: {
     fontSize: 18,
     color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  buyBitcoin: {
-    backgroundColor: '#007AFF',
-    minWidth: 260,
-    borderRadius: 8,
-    alignSelf: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-  },
-  buyBitcoinText: {
-    fontSize: 15,
-    color: '#fff',
     textAlign: 'center',
     fontWeight: '600',
   },
