@@ -371,12 +371,6 @@ class DeeplinkSchemaMatch {
     return text.startsWith('widget?action=');
   }
 
-  static isSafelloRedirect(event) {
-    const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
-
-    return !!urlObject.query['safello-state-token'];
-  }
-
   static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
       const txInfo = url.split(/(bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
