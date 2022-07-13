@@ -65,11 +65,6 @@ describe('unit - DeepLinkSchemaMatch', function () {
     );
   });
 
-  it('isSafelloRedirect', () => {
-    assert.ok(DeeplinkSchemaMatch.isSafelloRedirect({ url: 'bluewallet:?safello-state-token=TEST' }));
-    assert.ok(!DeeplinkSchemaMatch.isSafelloRedirect({ url: 'bluewallet:' }));
-  });
-
   it('navigationForRoute', async () => {
     const events = [
       {
@@ -143,19 +138,6 @@ describe('unit - DeepLinkSchemaMatch', function () {
           {
             screen: 'AztecoRedeem',
             params: { c1: '3062', c2: '2586', c3: '5053', c4: '5261', uri: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261' },
-          },
-        ],
-      },
-      {
-        argument: {
-          url: 'bluewallet:?safello-state-token=TEST',
-        },
-        expected: [
-          'BuyBitcoin',
-          {
-            safelloStateToken: 'TEST',
-            uri: 'bluewallet:?safello-state-token=TEST',
-            walletID: undefined,
           },
         ],
       },
