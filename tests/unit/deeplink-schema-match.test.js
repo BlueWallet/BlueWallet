@@ -65,11 +65,6 @@ describe('unit - DeepLinkSchemaMatch', function () {
     );
   });
 
-  it('isSafelloRedirect', () => {
-    assert.ok(DeeplinkSchemaMatch.isSafelloRedirect({ url: 'bluewallet:?safello-state-token=TEST' }));
-    assert.ok(!DeeplinkSchemaMatch.isSafelloRedirect({ url: 'bluewallet:' }));
-  });
-
   it('navigationForRoute', async () => {
     const events = [
       {
