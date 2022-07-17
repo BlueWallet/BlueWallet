@@ -262,8 +262,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    // console.info('addresses2fetch', addresses2fetch)
-
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
     const txs = {};
@@ -411,16 +409,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
     }
-    // console.log(util.inspect(txdatas, {showHidden: false, depth: null, colors: true}))
-
-
 
     for (const pc of this._payment_codes) {
-      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + 1; c++) { // + this.gap_limit
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) { // + this.gap_limit
         for (const tx of Object.values(txdatas)) {
           for (const vin of tx.vin) {
-    // console.info('vin', vin.addresses[0], this.getBip47Address(pc, c))
-
             if (vin.addresses?.includes(this.getBip47Address(pc, c))) {
               // this TX is related to our address
               this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
@@ -442,7 +435,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             }
           }
           for (const vout of tx.vout) {
-            if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+            if (vout.scriptPubKey.addresses?.includes(this.getBip47Address(pc, c))) {
               // this TX is related to our address
               this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
               const clonedTx = Object.assign({}, tx);
@@ -465,8 +458,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
     }
-
-    // console.info(this._txs_by_payment_code_index)
 
     this._lastTxFetch = +new Date();
   }
