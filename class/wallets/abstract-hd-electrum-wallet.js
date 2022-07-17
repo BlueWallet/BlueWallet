@@ -266,7 +266,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           this._txs_by_payment_code_index[pc][c].length === 0 ||
           this._balances_by_payment_code_index[pc]?.[c].u !== 0
         ) {
-          addresses2fetch.push(this.getBip47Address(pc, c));
+          addresses2fetch.push(this._getBip47Address(pc, c));
         }
       }
     }
@@ -424,7 +424,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // + this.gap_limit
         for (const tx of Object.values(txdatas)) {
           for (const vin of tx.vin) {
-            if (vin.addresses?.includes(this.getBip47Address(pc, c))) {
+            if (vin.addresses?.includes(this._getBip47Address(pc, c))) {
               // this TX is related to our address
               this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
               const clonedTx = Object.assign({}, tx);
@@ -445,7 +445,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
             }
           }
           for (const vout of tx.vout) {
-            if (vout.scriptPubKey.addresses?.includes(this.getBip47Address(pc, c))) {
+            if (vout.scriptPubKey.addresses?.includes(this._getBip47Address(pc, c))) {
               // this TX is related to our address
               this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
               const clonedTx = Object.assign({}, tx);
@@ -501,7 +501,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (const pc of this._payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
-        ownedAddressesHashmap[this.getBip47Address(pc, c)] = true;
+        ownedAddressesHashmap[this._getBip47Address(pc, c)] = true;
       }
     }
     // hack: in case this code is called from LegacyWallet:
@@ -661,7 +661,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     for (const pc of this._payment_codes) {
       for (let c = this._getNextFreePaymentCodeAddress(pc); c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        lagAddressesToFetch.push(this.getBip47Address(pc, c));
+        lagAddressesToFetch.push(this._getBip47Address(pc, c));
       }
     }
 
@@ -685,7 +685,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     for (const pc of this._payment_codes) {
       for (let c = this._getNextFreePaymentCodeAddress(pc); c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        const address = this.getBip47Address(pc, c);
+        const address = this._getBip47Address(pc, c);
         if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
           // whoa, someone uses our wallet outside! better catch up
           this.next_free_payment_code_address_index[pc] = c + 1;
@@ -714,7 +714,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // bip47
     for (const pc of this._payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        addresses2fetch.push(this.getBip47Address(pc, c));
+        addresses2fetch.push(this._getBip47Address(pc, c));
       }
     }
 
@@ -764,7 +764,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     for (const pc of this._payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        const addr = this.getBip47Address(pc, c);
+        const addr = this._getBip47Address(pc, c);
         if (balances.addresses[addr]) {
           // first, if balances differ from what we store - we delete transactions for that
           // address so next fetchTransactions() will refetch everything
@@ -1328,7 +1328,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return this._payment_codes;
   }
 
-  getBip47Address(paymentCode, index) {
+  _getBip47Address(paymentCode, index) {
     const bip47 = this.getBip47();
     const remoteBip47 = BIP47Factory(ecc).fromPaymentCode(paymentCode);
     const remotePaymentNode = remoteBip47.getPaymentCodeNode();
