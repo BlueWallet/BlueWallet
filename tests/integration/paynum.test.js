@@ -24,6 +24,7 @@ describe('Bip47', () => {
     }
 
     const hd = new HDSegwitBech32Wallet();
+    hd.gap_limit = 1;
     hd.setSecret(process.env.PAYNUM_HD_MNEMONIC);
 
     assert.strictEqual(hd.getPNNotificationAddress(), '1Eku8xdcT1sfA3KB9yTyfgEJNFxS16xm6Z');
@@ -71,5 +72,9 @@ describe('Bip47', () => {
     );
 
     await hd.fetchTransactions();
+    assert.strictEqual(hd.getTransactions().length, 2);
+
+    await hd._fetchBalance();
+    assert.strictEqual(hd.getBalance(), 21111);
   });
 });
