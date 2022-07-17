@@ -13,6 +13,7 @@ import BlueElectrum from '../../blue_modules/BlueElectrum';
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
 const ECPair = ECPairFactory(ecc);
+const util = require('util')
 
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
@@ -32,6 +33,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._txs_by_internal_index = {};
 
     this._utxo = [];
+    this._payment_codes = [];
+    this.next_free_payment_code_address_index = {};
+    this._txs_by_payment_code_index = {};
+    this._balances_by_payment_code_index = {};
   }
 
   /**
@@ -237,6 +242,28 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    // next, bip47 addresses
+    for (const pc of this._payment_codes) {
+      this.next_free_payment_code_address_index[pc] = this.next_free_payment_code_address_index[pc] ?? 0;
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        let hasUnconfirmed = false;
+        this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+        for (const tx of this._txs_by_payment_code_index[pc][c])
+          hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
+
+        if (
+          hasUnconfirmed ||
+          this._txs_by_payment_code_index[pc][c].length === 0 ||
+          this._balances_by_payment_code_index[pc]?.[c].u !== 0
+        ) {
+          addresses2fetch.push(this.getBip47Address(pc, c));
+        }
+      }
+    }
+
+    // console.info('addresses2fetch', addresses2fetch)
+
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
     const txs = {};
@@ -282,6 +309,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       this._txs_by_internal_index[c] = this._txs_by_internal_index[c].filter(tx => !!tx.confirmations);
+    }
+    for (const pc of this._payment_codes) {
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c].filter(tx => !!tx.confirmations);
+      }
     }
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
@@ -379,6 +411,62 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         }
       }
     }
+    // console.log(util.inspect(txdatas, {showHidden: false, depth: null, colors: true}))
+
+
+
+    for (const pc of this._payment_codes) {
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + 1; c++) { // + this.gap_limit
+        for (const tx of Object.values(txdatas)) {
+          for (const vin of tx.vin) {
+    // console.info('vin', vin.addresses[0], this.getBip47Address(pc, c))
+
+            if (vin.addresses?.includes(this.getBip47Address(pc, c))) {
+              // this TX is related to our address
+              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+              const clonedTx = Object.assign({}, tx);
+              clonedTx.inputs = tx.vin.slice(0);
+              clonedTx.outputs = tx.vout.slice(0);
+              delete clonedTx.vin;
+              delete clonedTx.vout;
+
+              // trying to replace tx if it exists already (because it has lower confirmations, for example)
+              let replaced = false;
+              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
+                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
+                  replaced = true;
+                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
+                }
+              }
+              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
+            }
+          }
+          for (const vout of tx.vout) {
+            if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+              // this TX is related to our address
+              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+              const clonedTx = Object.assign({}, tx);
+              clonedTx.inputs = tx.vin.slice(0);
+              clonedTx.outputs = tx.vout.slice(0);
+              delete clonedTx.vin;
+              delete clonedTx.vout;
+
+              // trying to replace tx if it exists already (because it has lower confirmations, for example)
+              let replaced = false;
+              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
+                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
+                  replaced = true;
+                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
+                }
+              }
+              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
+            }
+          }
+        }
+      }
+    }
+
+    // console.info(this._txs_by_payment_code_index)
 
     this._lastTxFetch = +new Date();
   }
@@ -1168,14 +1256,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return notificationAddress;
   }
 
-  async getBip47PaymentCodes() {
+  async fetchBip47PaymentCodes() {
     const bip47 = this.getBip47();
     const address = bip47.getNotificationAddress();
     const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
-    const txs = histories[address].map(({ tx_hash }) => tx_hash);
+    const txs = histories[address].map(({ tx_hash }) => tx_hash); // eslint-disable-line camelcase
     const hexs = await BlueElectrum.multiGetTransactionHexByTxid(txs);
     const paymentCodes = Object.values(hexs).map(str => bip47.getPaymentCodeFromRawNotificationTransaction(str));
-    return paymentCodes;
+    this._payment_codes = paymentCodes;
+  }
+
+  getBip47PaymentCodes() {
+    return this._payment_codes;
   }
 
   getBip47Address(paymentCode, index) {

@@ -28,7 +28,8 @@ describe('Bip47', () => {
 
     assert.strictEqual(hd.getPNNotificationAddress(), '1Eku8xdcT1sfA3KB9yTyfgEJNFxS16xm6Z');
 
-    const pns = await hd.getBip47PaymentCodes();
+    await hd.fetchBip47PaymentCodes();
+    const pns = hd.getBip47PaymentCodes();
 
     assert.ok(
       pns.includes('PM8TJXFvDCPNA1SHDxFojuRSUkJTqiVoHqmqfqZ79TaJaHiHVaCSanyxQ1X5wNoWHhyVJC1gTpi8yTaDJEijeQxdoTgFqppvZqCfytBzP2Tv4h8SetGg'),
@@ -68,5 +69,7 @@ describe('Bip47', () => {
       ),
       'bc1qukka3766u8maxxssceshdausmm5a2yp8gxc0t4',
     );
+
+    await hd.fetchTransactions();
   });
 });
