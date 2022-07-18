@@ -1,4 +1,4 @@
-Eine Funktionsreiche aber einfache Bitcoin-Wallet mit Fokus auf Sicherheit zum Empfangen, Halten, Senden und Kaufen von bitcoin.
+Eine Funktionsreiche und einfache Bitcoin-Wallet mit Fokus auf Sicherheit zum Empfangen, Halten, Senden und Kaufen von bitcoin.
 
 Bei BlueWallet bist Du im Besitz der privaten Schlüssel. Eine Wallet gemacht von Nutzern für die Bitcoin Gemeinschaft.
 
@@ -31,8 +31,7 @@ Eine Hardware-Wallet Unterstützung zur sicheren bitcoin Verwahrung.
 2 - Auf dein Erlebnis fokussiert
 
 Die alleinige Kontrolle.
-Privatschlüssel, die nie dein Gerät verlassen.
-Die volle Kontrolle über deine Privatschlüssel.
+Du allein kontrollierst die Privatschlüssel. Sie verlassen dein Gerät nie. 
 
 Anpassbare Gebühren
 Freie Gebührenwahl. Beginnend bei einem Satoshi.
@@ -45,6 +44,3 @@ Watch-only Wallets, damit deine Schlüssel offline und deine bitcoin gleichzeiti
 
 Lightning Netzwerk
 Lightning Wallet ohne Konfiguration. Lightning Bezahlungen sind konkurrenzlos günstig und verblüffend schnell.
-
-Bitcoin kaufen
-Die Möglichkeit bitcoin direkt aus der Wallet zu kaufen. Bitcoin ist offen für Alle. Nimm Teil an der Finanzrevolution.
