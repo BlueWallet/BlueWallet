@@ -446,9 +446,9 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.6.4):
+  - RNShare (7.6.6):
     - React-Core
-  - RNSVG (12.3.0):
+  - RNSVG (12.4.0):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
@@ -811,8 +811,8 @@ SPEC CHECKSUMS:
   RNReanimated: b5b17149593e7c05e4ec5c0efea1f21e05829510
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: 4406f61af043027b695c3a0b8f39e2c2bdacde12
-  RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
+  RNShare: d56424e3926cbc239db1cc1c168adcb051aad50b
+  RNSVG: 3dd44d99d1c18e1342aee4bfa53ab3f6a8c4865f
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: dae6c858a2051dbdcfb00b9a86cf4d90400263b4
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
