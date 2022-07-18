@@ -75,6 +75,23 @@ describe('Bip47', () => {
     assert.strictEqual(hd.getTransactions().length, 2);
 
     await hd._fetchBalance();
+
     assert.strictEqual(hd.getBalance(), 21111);
+  });
+
+  it('getAddressGenerator', async () => {
+    if (!process.env.PAYNUM_HD_MNEMONIC) {
+      console.error('process.env.PAYNUM_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    const hd = new HDSegwitBech32Wallet();
+    hd.gap_limit = 1;
+    hd.setSecret(process.env.PAYNUM_HD_MNEMONIC);
+
+    await hd.fetchBip47PaymentCodes();
+
+    const addresses = Array.from(hd._getAddressGenerator());
+    console.info('addresses', addresses);
   });
 });

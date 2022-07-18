@@ -37,6 +37,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this.next_free_payment_code_address_index = {};
     this._txs_by_payment_code_index = {};
     this._balances_by_payment_code_index = {};
+    this._txs_by_address = {};
+    this._balances_by_address = {};
   }
 
   /**
@@ -44,16 +46,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   getBalance() {
     let ret = 0;
-    for (const bal of Object.values(this._balances_by_external_index)) {
+    for (const bal of Object.values(this._balances_by_address)) {
       ret += bal.c;
-    }
-    for (const bal of Object.values(this._balances_by_internal_index)) {
-      ret += bal.c;
-    }
-    for (const pc of this._payment_codes) {
-      for (const bal of Object.values(this._getBlancesByPaymentCodeIndex(pc))) {
-        ret += bal.c;
-      }
     }
     return ret + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
@@ -64,16 +58,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   getUnconfirmedBalance() {
     let ret = 0;
-    for (const bal of Object.values(this._balances_by_external_index)) {
+    for (const bal of Object.values(this._balances_by_address)) {
       ret += bal.u;
-    }
-    for (const bal of Object.values(this._balances_by_internal_index)) {
-      ret += bal.u;
-    }
-    for (const pc of this._payment_codes) {
-      for (const bal of Object.values(this._getBlancesByPaymentCodeIndex(pc))) {
-        ret += bal.u;
-      }
     }
     return ret;
   }
@@ -230,44 +216,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     const addresses2fetch = [];
 
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    const addresses = Array.from(this._getAddressGenerator());
+
+    for (const { address } of addresses) {
       // external addresses first
       let hasUnconfirmed = false;
-      this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-      for (const tx of this._txs_by_external_index[c]) hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
+      this._txs_by_address[address] = this._txs_by_address[address] || [];
+      for (const tx of this._txs_by_address[address]) hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
 
-      if (hasUnconfirmed || this._txs_by_external_index[c].length === 0 || this._balances_by_external_index[c].u !== 0) {
-        addresses2fetch.push(this._getExternalAddressByIndex(c));
-      }
-    }
-
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      // next, internal addresses
-      let hasUnconfirmed = false;
-      this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-      for (const tx of this._txs_by_internal_index[c]) hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
-
-      if (hasUnconfirmed || this._txs_by_internal_index[c].length === 0 || this._balances_by_internal_index[c].u !== 0) {
-        addresses2fetch.push(this._getInternalAddressByIndex(c));
-      }
-    }
-
-    // next, bip47 addresses
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        let hasUnconfirmed = false;
-        this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
-        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-        for (const tx of this._txs_by_payment_code_index[pc][c])
-          hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
-
-        if (
-          hasUnconfirmed ||
-          this._txs_by_payment_code_index[pc][c].length === 0 ||
-          this._balances_by_payment_code_index[pc]?.[c].u !== 0
-        ) {
-          addresses2fetch.push(this._getBip47Address(pc, c));
-        }
+      if (hasUnconfirmed || this._txs_by_address[address].length === 0 || this._balances_by_address[address].u !== 0) {
+        addresses2fetch.push(address);
       }
     }
 
@@ -311,26 +269,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // now purge all unconfirmed txs from internal hashmaps, since some may be evicted from mempool because they became invalid
     // or replaced. hashmaps are going to be re-populated anyways, since we fetched TXs for addresses with unconfirmed TXs
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      this._txs_by_external_index[c] = this._txs_by_external_index[c].filter(tx => !!tx.confirmations);
-    }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      this._txs_by_internal_index[c] = this._txs_by_internal_index[c].filter(tx => !!tx.confirmations);
-    }
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c].filter(tx => !!tx.confirmations);
-      }
+    for (const a of Object.keys(this._txs_by_address)) {
+      this._txs_by_address[a] = this._txs_by_address[a].filter(tx => !!tx.confirmations);
     }
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
-
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+    for (const { address: a } of addresses) {
       for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vin.addresses?.includes(a)) {
             // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
+            this._txs_by_address[a] = this._txs_by_address[a] || [];
             const clonedTx = Object.assign({}, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
@@ -339,19 +288,19 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
+            for (let cc = 0; cc < this._txs_by_address[a].length; cc++) {
+              if (this._txs_by_address[a][cc].txid === clonedTx.txid) {
                 replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
+                this._txs_by_address[a][cc] = clonedTx;
               }
             }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
+            if (!replaced) this._txs_by_address[a].push(clonedTx);
           }
         }
         for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vout.scriptPubKey.addresses?.includes(a)) {
             // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
+            this._txs_by_address[a] = this._txs_by_address[a] || [];
             const clonedTx = Object.assign({}, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
@@ -360,110 +309,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
+            for (let cc = 0; cc < this._txs_by_address[a].length; cc++) {
+              if (this._txs_by_address[a][cc].txid === clonedTx.txid) {
                 replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
+                this._txs_by_address[a][cc] = clonedTx;
               }
             }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
-          }
-        }
-      }
-    }
-
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
-        for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            delete clonedTx.vin;
-            delete clonedTx.vout;
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-        for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            delete clonedTx.vin;
-            delete clonedTx.vout;
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-      }
-    }
-
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        // + this.gap_limit
-        for (const tx of Object.values(txdatas)) {
-          for (const vin of tx.vin) {
-            if (vin.addresses?.includes(this._getBip47Address(pc, c))) {
-              // this TX is related to our address
-              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-              const clonedTx = Object.assign({}, tx);
-              clonedTx.inputs = tx.vin.slice(0);
-              clonedTx.outputs = tx.vout.slice(0);
-              delete clonedTx.vin;
-              delete clonedTx.vout;
-
-              // trying to replace tx if it exists already (because it has lower confirmations, for example)
-              let replaced = false;
-              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
-                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
-                  replaced = true;
-                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
-                }
-              }
-              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
-            }
-          }
-          for (const vout of tx.vout) {
-            if (vout.scriptPubKey.addresses?.includes(this._getBip47Address(pc, c))) {
-              // this TX is related to our address
-              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-              const clonedTx = Object.assign({}, tx);
-              clonedTx.inputs = tx.vin.slice(0);
-              clonedTx.outputs = tx.vout.slice(0);
-              delete clonedTx.vin;
-              delete clonedTx.vout;
-
-              // trying to replace tx if it exists already (because it has lower confirmations, for example)
-              let replaced = false;
-              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
-                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
-                  replaced = true;
-                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
-                }
-              }
-              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
-            }
+            if (!replaced) this._txs_by_address[a].push(clonedTx);
           }
         }
       }
@@ -475,35 +327,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   getTransactions() {
     let txs = [];
 
-    for (const addressTxs of Object.values(this._txs_by_external_index)) {
-      txs = txs.concat(addressTxs);
-    }
-    for (const addressTxs of Object.values(this._txs_by_internal_index)) {
-      txs = txs.concat(addressTxs);
-    }
-
-    for (const pc of this._payment_codes) {
-      for (const addressTxs of Object.values(this._txs_by_payment_code_index[pc])) {
-        txs = txs.concat(addressTxs);
-      }
+    for (const t of Object.values(this._txs_by_address)) {
+      txs = txs.concat(t);
     }
 
     if (txs.length === 0) return []; // guard clause; so we wont spend time calculating addresses
 
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
+
     const ownedAddressesHashmap = {};
-    for (let c = 0; c < this.next_free_address_index + 1; c++) {
-      ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
+    const addresses = Array.from(this._getAddressGenerator());
+    for (const { address } of addresses) {
+      ownedAddressesHashmap[address] = true;
     }
-    for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
-      ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
-    }
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
-        ownedAddressesHashmap[this._getBip47Address(pc, c)] = true;
-      }
-    }
+
     // hack: in case this code is called from LegacyWallet:
     if (this.getAddress()) ownedAddressesHashmap[this.getAddress()] = true;
 
@@ -651,137 +489,51 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // our 'next free addr' pointers are lagging behind
     // for that we are gona batch fetch history for all addresses between last used and last used + gap_limit
 
-    const lagAddressesToFetch = [];
-    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
-      lagAddressesToFetch.push(this._getExternalAddressByIndex(c));
-    }
-    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      lagAddressesToFetch.push(this._getInternalAddressByIndex(c));
-    }
-
-    for (const pc of this._payment_codes) {
-      for (let c = this._getNextFreePaymentCodeAddress(pc); c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        lagAddressesToFetch.push(this._getBip47Address(pc, c));
-      }
-    }
-
+    const lagAddresses = Array.from(this._getAddressGenerator());
+    const lagAddressesToFetch = lagAddresses.map(({ address }) => address);
     const txs = await BlueElectrum.multiGetHistoryByAddress(lagAddressesToFetch); // <------ electrum call
 
-    for (let c = this.next_free_address_index; c < this.next_free_address_index + this.gap_limit; c++) {
-      const address = this._getExternalAddressByIndex(c);
+    for (const { address, derivationType, index, paymentCode } of lagAddresses) {
       if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
         // whoa, someone uses our wallet outside! better catch up
-        this.next_free_address_index = c + 1;
-      }
-    }
-
-    for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      const address = this._getInternalAddressByIndex(c);
-      if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
-        // whoa, someone uses our wallet outside! better catch up
-        this.next_free_change_address_index = c + 1;
-      }
-    }
-
-    for (const pc of this._payment_codes) {
-      for (let c = this._getNextFreePaymentCodeAddress(pc); c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        const address = this._getBip47Address(pc, c);
-        if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
-          // whoa, someone uses our wallet outside! better catch up
-          this.next_free_payment_code_address_index[pc] = c + 1;
+        if (derivationType === 'bip39-external') {
+          this.next_free_address_index = index + 1;
+        } else if (derivationType === 'bip39-internal') {
+          this.next_free_change_address_index = index + 1;
+        } else if (derivationType === 'bip39-internal') {
+          this.next_free_payment_code_address_index[paymentCode] = index + 1;
         }
       }
     }
 
     // next, business as usuall. fetch balances
-
-    const addresses2fetch = [];
+    const addresses = Array.from(this._getAddressGenerator());
+    const addresses2fetch = addresses.map(({ address }) => address);
 
     // generating all involved addresses.
     // basically, refetch all from index zero to maximum. doesnt matter
     // since we batch them 100 per call
 
-    // external
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      addresses2fetch.push(this._getExternalAddressByIndex(c));
-    }
-
-    // internal
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      addresses2fetch.push(this._getInternalAddressByIndex(c));
-    }
-
-    // bip47
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        addresses2fetch.push(this._getBip47Address(pc, c));
-      }
-    }
-
     const balances = await BlueElectrum.multiGetBalanceByAddress(addresses2fetch);
 
     // converting to a more compact internal format
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      const addr = this._getExternalAddressByIndex(c);
-      if (balances.addresses[addr]) {
+    for (const { address: a } of addresses) {
+      if (balances.addresses[a]) {
         // first, if balances differ from what we store - we delete transactions for that
         // address so next fetchTransactions() will refetch everything
-        if (this._balances_by_external_index[c]) {
+        if (this._balances_by_address[a]) {
           if (
-            this._balances_by_external_index[c].c !== balances.addresses[addr].confirmed ||
-            this._balances_by_external_index[c].u !== balances.addresses[addr].unconfirmed
+            this._balances_by_address[a].c !== balances.addresses[a].confirmed ||
+            this._balances_by_address[a].u !== balances.addresses[a].unconfirmed
           ) {
-            delete this._txs_by_external_index[c];
+            delete this._txs_by_address[a];
           }
         }
         // update local representation of balances on that address:
-        this._balances_by_external_index[c] = {
-          c: balances.addresses[addr].confirmed,
-          u: balances.addresses[addr].unconfirmed,
+        this._balances_by_address[a] = {
+          c: balances.addresses[a].confirmed,
+          u: balances.addresses[a].unconfirmed,
         };
-      }
-    }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      const addr = this._getInternalAddressByIndex(c);
-      if (balances.addresses[addr]) {
-        // first, if balances differ from what we store - we delete transactions for that
-        // address so next fetchTransactions() will refetch everything
-        if (this._balances_by_internal_index[c]) {
-          if (
-            this._balances_by_internal_index[c].c !== balances.addresses[addr].confirmed ||
-            this._balances_by_internal_index[c].u !== balances.addresses[addr].unconfirmed
-          ) {
-            delete this._txs_by_internal_index[c];
-          }
-        }
-        // update local representation of balances on that address:
-        this._balances_by_internal_index[c] = {
-          c: balances.addresses[addr].confirmed,
-          u: balances.addresses[addr].unconfirmed,
-        };
-      }
-    }
-
-    for (const pc of this._payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
-        const addr = this._getBip47Address(pc, c);
-        if (balances.addresses[addr]) {
-          // first, if balances differ from what we store - we delete transactions for that
-          // address so next fetchTransactions() will refetch everything
-          if (this._getBlancesByPaymentCodeIndex(pc)[c]) {
-            if (
-              this._getBlancesByPaymentCodeIndex(pc)[c].c !== balances.addresses[addr].confirmed ||
-              this._getBlancesByPaymentCodeIndex(pc)[c].u !== balances.addresses[addr].unconfirmed
-            ) {
-              delete this._txs_by_internal_index[c];
-            }
-          }
-          // update local representation of balances on that address:
-          this._getBlancesByPaymentCodeIndex(pc)[c] = {
-            c: balances.addresses[addr].confirmed,
-            u: balances.addresses[addr].unconfirmed,
-          };
-        }
       }
     }
 
@@ -1351,5 +1103,30 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     this._balances_by_payment_code_index[paymentCode] = {};
     return this._balances_by_payment_code_index[paymentCode];
+  }
+
+  *_getAddressGenerator() {
+    for (const derivationType of ['bip39-external', 'bip39-internal', 'bip47']) {
+      if (derivationType === 'bip39-external') {
+        for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+          const address = this._getExternalAddressByIndex(c);
+          yield { address, derivationType, index: c };
+        }
+      }
+      if (derivationType === 'bip39-internal') {
+        for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+          const address = this._getInternalAddressByIndex(c);
+          yield { address, derivationType, index: c };
+        }
+      }
+      if (derivationType === 'bip47') {
+        for (const pc of this._payment_codes) {
+          for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+            const address = this._getBip47Address(pc, c);
+            yield { address, derivationType, index: c, paymentCode: pc };
+          }
+        }
+      }
+    }
   }
 }
