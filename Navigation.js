@@ -42,7 +42,6 @@ import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigner
 import WalletXpub from './screen/wallets/xpub';
 import SignVerify from './screen/wallets/signVerify';
 import WalletAddresses from './screen/wallets/addresses';
-import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
@@ -469,8 +468,6 @@ const ExportMultisigCoordinationSetupRoot = () => {
 const RootStack = createNativeStackNavigator();
 const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const Navigation = () => {
-  const theme = useTheme();
-
   return (
     <RootStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ headerHideShadow: true }}>
       {/* stacks */}
@@ -490,7 +487,6 @@ const Navigation = () => {
       <RootStack.Screen name="ViewEditMultisigCosignersRoot" component={ViewEditMultisigCosignersRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="WalletXpubRoot" component={WalletXpubStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="SignVerifyRoot" component={SignVerifyStackRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions(theme)} />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />

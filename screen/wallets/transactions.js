@@ -63,7 +63,7 @@ const WalletTransactions = () => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
-    marketplaceButton2: {
+    browserButton2: {
       backgroundColor: colors.lightButton,
     },
     marketpalceText1: {
@@ -234,17 +234,7 @@ const WalletTransactions = () => {
 
     return (
       <View style={styles.flex}>
-        <View style={styles.listHeader}>
-          {/*
-            Current logic - Offchain:
-            - Shows Lapp Browser empty (iOS)
-            - Shows Lapp Browser with marketplace (android)
-
-            The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
-
-           */}
-          {wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}
-        </View>
+        <View style={styles.listHeader}>{wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}</View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
@@ -279,7 +269,7 @@ const WalletTransactions = () => {
             },
           });
         }}
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
+        style={[styles.browserButton2, stylesHook.browserButton2]}
       >
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_ln_browser}</Text>
       </TouchableOpacity>
@@ -665,7 +655,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
   },
-  marketplaceButton2: {
+  browserButton2: {
     borderRadius: 9,
     minHeight: 49,
     paddingHorizontal: 8,
