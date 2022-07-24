@@ -244,7 +244,7 @@
     "biom_no_passcode": "Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.",
     "biom_remove_decrypt": "All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?",
     "currency": "Currency",
-    "currency_source": "Prices are obtained from",
+    "currency_source": "Price is obtained from",
     "currency_fetch_error": "There was an error while obtaining the rate for the selected currency.",
     "default_desc": "When disabled, BlueWallet will immediately open the selected wallet at launch.",
     "default_info": "Default info",
