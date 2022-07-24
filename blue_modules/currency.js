@@ -11,6 +11,7 @@ const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 let preferredFiatCurrency = FiatUnit.USD;
 let exchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled = 0;
+let skipUpdateExchangeRate = false;
 
 const LAST_UPDATED = 'LAST_UPDATED';
 
@@ -70,6 +71,7 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage() {
  * @return {Promise<void>}
  */
 async function updateExchangeRate() {
+  if (skipUpdateExchangeRate) return;
   if (+new Date() - lastTimeUpdateExchangeRateWasCalled <= 10 * 1000) {
     // simple debounce so theres no race conditions
     return;
@@ -228,6 +230,13 @@ function _setExchangeRate(pair, rate) {
   exchangeRates[pair] = rate;
 }
 
+/**
+ * Used in unit tests, so the `currency` module wont launch actual http request
+ */
+function _setSkipUpdateExchangeRate() {
+  skipUpdateExchangeRate = true;
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.init = init;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
@@ -240,6 +249,7 @@ module.exports.btcToSatoshi = btcToSatoshi;
 module.exports.getCurrencySymbol = getCurrencySymbol;
 module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
 module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests
+module.exports._setSkipUpdateExchangeRate = _setSkipUpdateExchangeRate; // export it to mock data in tests
 module.exports.PREFERRED_CURRENCY = PREFERRED_CURRENCY_STORAGE_KEY;
 module.exports.EXCHANGE_RATES = EXCHANGE_RATES_STORAGE_KEY;
 module.exports.LAST_UPDATED = LAST_UPDATED;

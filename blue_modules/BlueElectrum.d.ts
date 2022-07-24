@@ -85,3 +85,5 @@ export function estimateFees(): Promise<{ fast: number; medium: number; slow: nu
 export function broadcastV2(txhex: string): Promise<string>;
 
 export function getTransactionsFullByAddress(address: string): Promise<Transaction[]>;
+
+export function txhexToElectrumTransaction(txhes: string): Transaction;

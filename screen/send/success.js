@@ -73,7 +73,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
       setTimeout(() => {
         animationRef.current?.reset();
         animationRef.current?.play();
-      }, 50);
+      }, 100);
     }
   }, [colors, shouldAnimate]);
 

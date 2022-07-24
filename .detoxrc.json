@@ -1,0 +1,51 @@
+{
+  "testRunner": "jest",
+  "runnerConfig": "tests/e2e/config.json",
+  "skipLegacyWorkersInjection": true,
+  "apps": {
+    "ios": {
+      "type": "ios.app",
+      "binaryPath": "SPECIFY_PATH_TO_YOUR_APP_BINARY",
+      "build": "xcodebuild clean build -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -derivedDataPath ios/build -sdk iphonesimulator13.2"
+    },
+    "android.debug": {
+      "type": "android.apk",
+      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd .."
+    },
+    "android.release": {
+      "type": "android.apk",
+      "testBinaryPath": "android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk",
+      "binaryPath": "android/app/build/outputs/apk/release/app-release.apk",
+      "build": "find android | grep '\\.apk' --color=never | xargs -l rm\n\n# creating fresh keystore\nrm detox.keystore\nkeytool -genkeypair -v -keystore detox.keystore -alias detox  -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname  'cn=Unknown, ou=Unknown, o=Unknown, c=Unknown'\n\n# building release APK\ncd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..\n\n# wip\nfind $ANDROID_HOME | grep apksigner\n\n# signing\nmv ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release.apk\n$ANDROID_HOME/build-tools/30.0.2/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/release/app-release.apk\n$ANDROID_HOME/build-tools/30.0.2/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk"
+    }
+  },
+  "devices": {
+    "simulator": {
+      "type": "ios.simulator",
+      "device": {
+        "type": "iPhone 11"
+      }
+    },
+    "emulator": {
+      "type": "android.emulator",
+      "device": {
+        "avdName": "Pixel_API_29_AOSP"
+      }
+    }
+  },
+  "configurations": {
+    "ios": {
+      "device": "simulator",
+      "app": "ios"
+    },
+    "android.debug": {
+      "device": "emulator",
+      "app": "android.debug"
+    },
+    "android.release": {
+      "device": "emulator",
+      "app": "android.release"
+    }
+  }
+}

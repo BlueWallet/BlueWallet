@@ -2,9 +2,17 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Icon } from 'react-native-elements';
 
-import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueButtonLink,
+  BlueCard,
+  BlueLoading,
+  BlueSpacing20,
+  BlueSpacing40,
+  BlueText,
+  SafeBlueArea,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
@@ -75,17 +83,11 @@ export default class LnurlPaySuccess extends Component {
     return (
       <SafeBlueArea style={styles.root}>
         <ScrollView>
-          {justPaid ? (
-            <View style={styles.iconContainer}>
-              <SuccessView />
-            </View>
-          ) : (
-            <View style={styles.iconContainer}>
-              <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-            </View>
-          )}
+          {justPaid && <SuccessView />}
 
-          <BlueSpacing20 />
+          <BlueSpacing40 />
+
+          <BlueSpacing40 />
           <BlueText style={styles.alignSelfCenter}>{domain}</BlueText>
           <BlueText style={styles.alignSelfCenter}>{description}</BlueText>
           {image && <Image style={styles.img} source={{ uri: image }} />}
@@ -165,18 +167,6 @@ const styles = StyleSheet.create({
   root: {
     padding: 0,
   },
-  iconContainer: {
-    backgroundColor: '#ccddf9',
-    width: 120,
-    height: 120,
-    maxWidth: 120,
-    maxHeight: 120,
-    padding: 0,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   successContainer: {
     marginTop: 10,
   },
@@ -193,5 +183,6 @@ LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
   headerHideBackButton: true,
+  gestureEnabled: false,
   closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
 });

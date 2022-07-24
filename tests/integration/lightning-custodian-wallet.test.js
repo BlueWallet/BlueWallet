@@ -1,7 +1,8 @@
+import assert from 'assert';
 import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class';
-const assert = require('assert');
 
+jest.setTimeout(200 * 1000);
 const baseUri = 'https://lndhub-staging.herokuapp.com';
 
 describe.skip('LightningCustodianWallet', () => {
@@ -10,7 +11,6 @@ describe.skip('LightningCustodianWallet', () => {
   l1.init();
 
   it.skip('issue credentials', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -27,7 +27,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can create, auth and getbtc', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -54,7 +53,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can refresh token', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     const oldRefreshToken = l1.refresh_token;
     const oldAccessToken = l1.access_token;
     await l1.refreshAcessToken();
@@ -65,7 +63,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can use existing login/pass', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -98,7 +95,6 @@ describe.skip('LightningCustodianWallet', () => {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);
@@ -157,7 +153,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can pay invoice from opennode', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -208,7 +203,6 @@ describe.skip('LightningCustodianWallet', () => {
 
   // turned off because acinq strike is shutting down
   it.skip('can pay invoice (acinq)', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -283,7 +277,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can pay invoice (bitrefill)', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -350,7 +343,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('can create invoice and pay other blitzhub invoice', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -374,7 +366,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.strictEqual(lNew.balance, 0);
 
     let invoices = await lNew.getUserInvoices();
-    let invoice = await lNew.addInvoice(1, 'test memo');
+    let invoice = await lNew.addInvoice(2, 'test memo');
     const decoded = lNew.decodeInvoice(invoice);
     let invoices2 = await lNew.getUserInvoices();
     assert.strictEqual(invoices2.length, invoices.length + 1);
@@ -384,7 +376,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(invoices2[0].payment_request);
     assert.ok(invoices2[0].timestamp);
     assert.ok(invoices2[0].expire_time);
-    assert.strictEqual(invoices2[0].amt, 1);
+    assert.strictEqual(invoices2[0].amt, 2);
     for (const inv of invoices2) {
       assert.strictEqual(inv.type, 'user_invoice');
     }
@@ -407,8 +399,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.strictEqual(oldBalance - lOld.balance, 1);
-    assert.strictEqual(lNew.balance, 1);
+    assert.strictEqual(oldBalance - lOld.balance, 2);
+    assert.strictEqual(lNew.balance, 2);
 
     await lOld.fetchTransactions();
     assert.strictEqual(lOld.transactions_raw.length, txLen + 1, 'internal invoice should also produce record in payer`s tx list');
@@ -427,7 +419,7 @@ describe.skip('LightningCustodianWallet', () => {
     await lOld.fetchBalance();
     await lNew.fetchBalance();
     assert.strictEqual(lOld.balance - oldBalance, 1);
-    assert.strictEqual(lNew.balance, 0);
+    assert.strictEqual(lNew.balance, 1); // ok, forfeit this 1, unrecoverable
 
     // now, paying same internal invoice. should fail:
 
@@ -451,12 +443,11 @@ describe.skip('LightningCustodianWallet', () => {
     await lNew.addInvoice(666, 'test memo 2');
     invoices = await lNew.getUserInvoices(1);
     assert.strictEqual(invoices.length, 2);
-    assert.strictEqual(invoices[0].amt, 1);
+    assert.strictEqual(invoices[0].amt, 2);
     assert.strictEqual(invoices[1].amt, 666);
   });
 
   it('can pay invoice with free amount (tippin.me)', async function () {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -536,7 +527,6 @@ describe.skip('LightningCustodianWallet', () => {
     const l1 = new LightningCustodianWallet();
     l1.setBaseURI(baseUri);
     l1.init();
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -570,7 +560,6 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('cant pay negative free amount', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;

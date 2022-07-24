@@ -1,0 +1,31 @@
+{
+    "addr_history": {},
+    "addresses": {},
+    "channels": {},
+    "fiat_value": {},
+    "frozen_coins": {},
+    "imported_channel_backups": {},
+    "invoices": {},
+    "keystore": {
+        "ckcc_xpub": "xpub661MyMwAqRbcFG7osGX7Td2YTmiPEoizenPoxSRQKhirBamV4V8gpSsh8raBSkwPNyVcRFLEKyQg2FtNq6k3zA7yoc7RFMmMYcXGwEjwrVa",
+        "derivation": "m/84'/0'/0'",
+        "hw_type": "coldcard",
+        "label": "ColdcardImportB616BE56",
+        "root_fingerprint": "b616be56",
+        "type": "hardware",
+        "xpub": "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
+    },
+    "labels": {},
+    "lightning_payments": {},
+    "payment_requests": {},
+    "prevouts_by_scripthash": {},
+    "seed_version": 44,
+    "spent_outpoints": {},
+    "transactions": {},
+    "tx_fees": {},
+    "txi": {},
+    "txo": {},
+    "use_encryption": false,
+    "verified_tx3": {},
+    "wallet_type": "standard"
+}

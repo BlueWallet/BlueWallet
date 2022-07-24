@@ -17,7 +17,7 @@ import {
 import startImport from '../../class/wallet-import';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 90000;
+jest.setTimeout(90 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -172,6 +172,19 @@ describe('import procedure', () => {
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1EgDbwf5nXp9knoaWW6nV6N91EK3EFQ5vC');
+  });
+
+  it('can import BIP44 with mnemonic in french', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      'abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abaisser abeille',
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+    assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
+    assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), '1JFdzwd8SqFn5LeeiDKcbYUfXxvButqXgX');
   });
 
   it('can import BIP49', async () => {

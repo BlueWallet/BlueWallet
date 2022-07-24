@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { HDLegacyBreadwalletWallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+jest.setTimeout(300 * 1000);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 afterAll(async () => {

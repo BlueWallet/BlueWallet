@@ -143,6 +143,7 @@ const LnurlPay = () => {
           fromWalletID: walletID,
         },
       });
+      setIsLoading(false);
     } catch (Err) {
       console.log(Err.message);
       setIsLoading(false);

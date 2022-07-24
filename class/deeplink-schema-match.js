@@ -164,25 +164,6 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
-    } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
-      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
-
-      const safelloStateToken = urlObject.query['safello-state-token'];
-      let wallet;
-      // eslint-disable-next-line no-unreachable-loop
-      for (const w of context.wallets) {
-        wallet = w;
-        break;
-      }
-
-      completionHandler([
-        'BuyBitcoin',
-        {
-          uri: event.url,
-          safelloStateToken,
-          walletID: wallet?.getID(),
-        },
-      ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
       completionHandler([
         'AztecoRedeemRoot',
@@ -388,12 +369,6 @@ class DeeplinkSchemaMatch {
 
   static isWidgetAction(text) {
     return text.startsWith('widget?action=');
-  }
-
-  static isSafelloRedirect(event) {
-    const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
-
-    return !!urlObject.query['safello-state-token'];
   }
 
   static isBothBitcoinAndLightning(url) {

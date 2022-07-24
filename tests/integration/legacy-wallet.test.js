@@ -3,7 +3,7 @@ import assert from 'assert';
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+jest.setTimeout(30 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate

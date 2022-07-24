@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
+jest.setTimeout(150 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate

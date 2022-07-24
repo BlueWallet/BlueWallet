@@ -31,52 +31,6 @@
     "error": "Camgymeriad",
     "network": "Camgymeriad rhwydwaith"
   },
-  "hodl": {
-    "are_you_sure_you_want_to_logout": "Wyt ti'n sicr am logio allan o Hodl Hodl?",
-    "cont_address_escrow": "Escrow",
-    "cont_address_to": "At",
-    "cont_buying": "Prynnu",
-    "cont_cancel": "Canslo cytundeb",
-    "cont_cancel_q": "Wyt ti'n sicr am ganslo'r cytundeb hwn?",
-    "cont_cancel_y": "Ie, canslo'r cytundeb",
-    "cont_chat": "Agor sgwrs efo'r aelod arall",
-    "cont_how": "Sut i dalu",
-    "cont_no": "Does gennyt ddim cytundebau yn agored.",
-    "cont_paid": "Marcio'r gytundeb wedi talu.",
-    "cont_paid_e": "Gwna hyn ddim ond os wyt wedi gyrru arian i'r gwerthwr drwy'r modd talu fel a gytunwyd",
-    "cont_paid_q": "Wyt ti'n sicr am farcio'r gytundeb yma wedi talu?",
-    "cont_selling": "Gwerthu",
-    "cont_st_completed": "Wedi cwblhau!",
-    "cont_st_in_progress_buyer": "Mae'r arian mewn escrow. Tala'r gwerthwr.",
-    "cont_st_paid_enought": "Mae'r Bitcoins mewn escrow. Tala'r gwerthwr drwy'r modd talu fel a gytunwyd.",
-    "cont_st_paid_waiting": "Aros am y gwerthwr i ryddhau'r arian o'r escrow",
-    "cont_st_waiting": "Aros am y gwerthwr i roi bitcoins mewn escrow",
-    "cont_title": "Fy Nghytundebau",
-    "filter_any": "Unriw",
-    "filter_buying": "Prynnu",
-    "filter_country_global": "Cynigion O'r Byd",
-    "filter_currency": "Arian",
-    "filter_iambuying": "Dwi'n prynnu bitcoin",
-    "filter_iamselling": "Dwi'n gwerthu bitcoin",
-    "filter_method": "Modd Talu",
-    "filter_search": "Chwilio",
-    "filter_selling": "Gwerthu",
-    "item_minmax": "Isafswm/Uchafswm",
-    "local_trader": "Masnachwr Lleol",
-    "local_trader_new": "Newydd",
-    "login": "Logio Fewn",
-    "logout": "Logio Allan",
-    "mycont": "Fy Nghytundebau",
-    "offer_accept": "Derbyn cynnig",
-    "offer_choosemethod": "Dewis Modd Talu",
-    "offer_confirmations": "cadarnhad",
-    "offer_minmax": "Isafswm/Uchafswm",
-    "offer_minutes": "Isafswm",
-    "offer_promt_fiat": "Faint o {currency} wyt ti eisiau prynnu?",
-    "offer_promt_fiat_e": "Er engraifft, 100",
-    "offer_window": "Ffenest",
-    "p2p": "Prynnu Bitcoin ar Gyfnewid Person-i-Berson"
-  },
   "lnd": {
     "errorInvoiceExpired": "Anfoneb wedi gorffen",
     "exchange": "Cyfnewid",
@@ -86,7 +40,6 @@
     "placeholder": "Anfoneb",
     "potentialFee": "Ffi Tebygol: {fee}",
     "refill": "Ail-lenwi",
-    "refill_card": "Ail-lenwi efo cerdyn banc",
     "refill_create": "Er mwyn parhau, ffurfia waled Bitcoin i'w ail-lenwi. ",
     "refill_external": "Ail-lenwi efo Waled Allanol",
     "refill_lnd_balance": "Ail-lenwi balans waled Mellten",
@@ -160,7 +113,8 @@
     "permission_camera_message": "Angen dy ganiatad i ddefnyddio dy gamera.",
     "permission_camera_title": "Caniatad i ddefnyddio'r camera",
     "psbt_sign": "Arwyddo trafodyn",
-    "open_settings": "Agor Gosodiadau"
+    "open_settings": "Agor Gosodiadau",
+    "success_done": "Wedi Cwblhau"
   },
   "settings": {
     "currency": "Arian",
@@ -192,7 +146,6 @@
     "retype_password": "Ail-deipio cyfrinair",
     "save": "Safio",
     "saved": "Wedi Safio",
-    "success_transaction_broadcasted": "Llwyddiant! Mae dy drafodyn wedi cael ei ddarlledu!",
     "total_balance": "Balans Llawn"
   },
   "transactions": {
@@ -228,7 +181,6 @@
     "details_connected_to": "Wedi cysylltu efo",
     "details_delete": "Gwaredu",
     "details_delete_wallet": "Gwaredu Waled",
-    "details_marketplace": "Marchnad",
     "details_no_cancel": "Na, canslo",
     "details_save": "Safio",
     "details_show_addresses": "Dangos cyfeiriadau",
@@ -239,8 +191,6 @@
     "import_do_import": "Mewnforio",
     "import_file": "Mewnforio ffeil",
     "import_imported": "Mewnforwyd",
-    "import_placeholder_fail": "Waled Mewnfor",
-    "import_placeholder_inprogress": "Mewnforio Waled...",
     "import_scan_qr": "Sganio neu fewnforio ffeil",
     "import_success": "Mae dy waled wedi cael ei fewnforio'n llwyddiannus.",
     "import_title": "Mewnforio",
@@ -251,8 +201,6 @@
     "list_latest_transaction": "Trafodyn Diweddaraf",
     "list_long_choose": "Dewis Llun",
     "list_long_clipboard": "Copio o'r Clipfwrdd",
-    "list_marketplace": "Marchnad",
-    "list_tap_here_to_buy": "Prynnu Bitcoin",
     "list_title": "Waledi",
     "list_tryagain": "Trio eto",
     "select_wallet": "Dewis waled",
@@ -266,23 +214,26 @@
     "header": "Anfon",
     "share": "Rhannu",
     "view": "Golwg",
+    "create": "Creu",
+    "co_sign_transaction": "Arwyddo trafodyn",
     "wallet_type": "Math o Waled",
     "view_key": "Golwg"
+  },
+  "cc": {
+    "change": "Newid"
   },
   "units": {
     "MAX": "Mwyafswm"
   },
   "addresses": {
-    "sign_title": "Arwyddo/Gwirio neges",
     "sign_sign": "Arwyddo",
     "sign_verify": "Gwirio",
-    "sign_signature_correct": "Gwirio Wedi Llwyddo!",
-    "sign_signature_incorrect": "Gwirio Wedi Methu!",
     "sign_placeholder_address": "Cyfeiriad",
     "sign_placeholder_message": "Neges",
     "sign_placeholder_signature": "Llofnod",
     "addresses_title": "Cyfeiriadau",
     "type_change": "Newid",
-    "type_receive": "Derbyn"
+    "type_receive": "Derbyn",
+    "transactions": "Trafodion"
   }
 }

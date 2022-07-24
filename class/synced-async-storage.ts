@@ -127,6 +127,14 @@ export default class SyncedAsyncStorage {
     return (await AsyncStorage.getItem(this.namespace + '_' + 'seqnum')) || '0';
   }
 
+  async purgeLocalStorage() {
+    if (!this.namespace) throw new Error('No namespace');
+    const keys = (await AsyncStorage.getAllKeys()).filter(key => key.startsWith(this.namespace));
+    for (const key of keys) {
+      await AsyncStorage.removeItem(key);
+    }
+  }
+
   /**
    * Should be called at init.
    * Checks remote sequence number, and if remote is ahead - we sync all keys with local storage.

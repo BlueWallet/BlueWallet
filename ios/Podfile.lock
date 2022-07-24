@@ -1,9 +1,9 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.16.2):
+  - BugsnagReactNative (7.17.3):
     - React-Core
-  - BVLinearGradient (2.5.6):
-    - React
+  - BVLinearGradient (2.6.2):
+    - React-Core
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.67.4)
@@ -75,13 +75,10 @@ PODS:
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
-  - GCDWebServer (3.5.4):
-    - GCDWebServer/Core (= 3.5.4)
-  - GCDWebServer/Core (3.5.4)
   - glog (0.3.5)
   - libevent (2.1.12)
   - lottie-ios (3.2.3)
-  - lottie-react-native (5.0.1):
+  - lottie-react-native (5.1.2):
     - lottie-ios (~> 3.2.3)
     - React-Core
   - OpenSSL-Universal (1.1.180)
@@ -301,9 +298,9 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.7.3):
+  - react-native-image-picker (4.8.4):
     - React-Core
-  - react-native-ios-context-menu (1.3.0):
+  - react-native-ios-context-menu (1.7.4):
     - React-Core
   - react-native-nfc-manager (3.13.2):
     - React
@@ -311,12 +308,12 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
-  - react-native-tcp-socket (5.5.0):
+  - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.17.2):
+  - react-native-webview (11.22.6):
     - React-Core
   - react-native-widget-center (0.0.8):
     - React
@@ -385,26 +382,25 @@ PODS:
     - React-jsi (= 0.67.4)
     - React-logger (= 0.67.4)
     - React-perflogger (= 0.67.4)
-  - RealmJS (10.14.0):
-    - GCDWebServer
+  - RealmJS (10.20.0-beta.5):
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - rn-ldk (0.7.5):
+  - rn-ldk (0.8.1):
     - React-Core
-  - RNCAsyncStorage (1.17.0):
+  - RNCAsyncStorage (1.17.7):
     - React-Core
-  - RNCClipboard (1.9.0):
+  - RNCClipboard (1.10.0):
     - React-Core
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
-  - RNDefaultPreference (1.4.3):
-    - React
-  - RNDeviceInfo (8.5.1):
+  - RNDefaultPreference (1.4.4):
+    - React-Core
+  - RNDeviceInfo (8.7.1):
     - React-Core
   - RNFS (2.19.0):
     - React-Core
-  - RNGestureHandler (2.3.2):
+  - RNGestureHandler (2.5.0):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -418,9 +414,9 @@ PODS:
     - React
   - RNRate (1.2.9):
     - React-Core
-  - RNReactNativeHapticFeedback (1.13.1):
+  - RNReactNativeHapticFeedback (1.14.0):
     - React-Core
-  - RNReanimated (2.2.4):
+  - RNReanimated (2.9.1):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -428,7 +424,6 @@ PODS:
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
-    - React
     - React-callinvoker
     - React-Core
     - React-Core/DevSupport
@@ -446,21 +441,20 @@ PODS:
     - React-RCTNetwork
     - React-RCTSettings
     - React-RCTText
-    - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.11.0):
+  - RNScreens (3.15.0):
     - React-Core
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.3.7):
+  - RNShare (7.6.6):
     - React-Core
-  - RNSVG (12.3.0):
+  - RNSVG (12.4.0):
     - React-Core
-  - RNVectorIcons (9.1.0):
+  - RNVectorIcons (9.2.0):
     - React-Core
-  - RNWatch (1.0.4):
+  - RNWatch (1.0.11):
     - React
   - SwiftSocket (2.0.2)
   - Yoga (1.14.0)
@@ -581,7 +575,6 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - fmt
-    - GCDWebServer
     - libevent
     - OpenSSL-Universal
     - YogaKit
@@ -739,13 +732,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   SwiftSocket:
-    :commit: 4a3af2cbbaef5b2fddbaff80f6767fecc0ce5fe2
+    :commit: 97b7599da90f9c07ecf65551718706dc30e6838e
     :git: https://github.com/swiftsocket/SwiftSocket.git
 
 SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
-  BugsnagReactNative: 8ccbb937bc8001cd3a5ed18ef0691d23cca8a748
-  BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
+  BugsnagReactNative: 24f614fbd87c52821e380cf9b429e4a93f523e7b
+  BVLinearGradient: 34a999fda29036898a09c6a6b728b0b4189e1a44
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 831926d9b8bf8166fd87886c4abab286c2422662
   FBLazyVector: f7b0632c6437e312acf6349288d9aa4cb6d59030
@@ -760,11 +753,10 @@ SPEC CHECKSUMS:
   Flipper-RSocket: d9d9ade67cbecf6ac10730304bf5607266dd2541
   FlipperKit: d8d346844eca5d9120c17d441a2f38596e8ed2b9
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
-  lottie-react-native: a029a86e1689c86a07169c520ae770e84348cd20
+  lottie-react-native: fb56093c53bb36d0a7ce576e030b67af33ad6180
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 803a9cfd78114b2ec0f140cfa6fa2a6bafb2d685
@@ -784,14 +776,14 @@ SPEC CHECKSUMS:
   react-native-document-picker: ec07866a30707f23660c0f3ae591d669d3e89096
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: 4e6008ad8c2321622affa2c85432a5ebd02d480c
-  react-native-ios-context-menu: 1ccf4d6aa1c0e7dc596613eb9a36f8c0c23ca56f
+  react-native-image-picker: cffb727cf2f59bd5c0408e30b3dbe0b935f88835
+  react-native-ios-context-menu: 7bf49ec6006cc0c61d873419557b85eb1b9629fb
   react-native-nfc-manager: 6d731c2a05ef9621db1e8edea0ef0507a75cca20
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
-  react-native-tcp-socket: 199889cd48b07a0238e0feb53549607de5207116
+  react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 380c1a03ec94b7ed764dac8db1e7c9952d08c93a
+  react-native-webview: 5bb59e95fd9d8db6b8c2835d743d463167fc65a8
   react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -805,30 +797,30 @@ SPEC CHECKSUMS:
   React-RCTVibration: 3b52a7dced19cdb025b4f88ab26ceb2d85f30ba2
   React-runtimeexecutor: a9d3c82ddf7ffdad9fbe6a81c6d6f8c06385464d
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
-  RealmJS: 5a939376f3bdd94708abe2326d33d8f935b9fb37
+  RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: cd7e176c2cc131402cbeaa603f0e9991cd27a896
-  RNCAsyncStorage: 4efdcd2f7378421b29467c9de58f43552b60cf5b
-  RNCClipboard: 99fc8ad669a376b756fbc8098ae2fd05c0ed0668
+  rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
+  RNCAsyncStorage: d81ee5c3db1060afd49ea7045ad460eff82d2b7d
+  RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
-  RNDefaultPreference: 2f8d6d54230edbd78708ada8d63bb275e5a8415b
-  RNDeviceInfo: 8d4177859b062334835962799460528869a487fb
+  RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
+  RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
-  RNGestureHandler: 6e757e487a4834e7280e98e9bac66d2d9c575e9c
+  RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
   RNLocalize: cbcb55d0e19c78086ea4eea20e03fe8000bbbced
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 94f57c773e155ca0d0aeeba9c10a32bce9030daf
-  RNReactNativeHapticFeedback: 4085973f5a38b40d3c6793a3ee5724773eae045e
-  RNReanimated: e28dfaa950064b674fde0a9b736e62b9dff500a7
-  RNScreens: fd535547baa4ef8aeaee1a8b1e3ffd17b8df44a4
+  RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
+  RNReanimated: b5b17149593e7c05e4ec5c0efea1f21e05829510
+  RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
-  RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
-  RNVectorIcons: 7923e585eaeb139b9f4531d25a125a1500162a0b
-  RNWatch: 99637948ec9b5c9ec5a41920642594ad5ba07e80
+  RNShare: d56424e3926cbc239db1cc1c168adcb051aad50b
+  RNSVG: 3dd44d99d1c18e1342aee4bfa53ab3f6a8c4865f
+  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  RNWatch: dae6c858a2051dbdcfb00b9a86cf4d90400263b4
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
