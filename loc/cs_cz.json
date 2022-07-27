@@ -244,7 +244,7 @@
     "biom_no_passcode": "Vaše zařízení nemá přístupový kód. Chcete-li pokračovat, nakonfigurujte přístupový kód v Nastavení aplikace.",
     "biom_remove_decrypt": "Všechny vaše peněženky budou odstraněny a vaše úložiště bude dešifrováno. Opravdu chcete pokračovat?",
     "currency": "Měna",
-    "currency_source": "Ceny jsou získány od",
+    "currency_source": "Cena se získává z",
     "currency_fetch_error": "Při získávání kurzu vybrané měny došlo k chybě.",
     "default_desc": "Pokud je zakázána, BlueWallet při spuštění ihned otevře vybranou peněženku.",
     "default_info": "Výchozí informace",
