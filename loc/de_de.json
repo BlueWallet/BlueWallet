@@ -244,7 +244,7 @@
     "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren zuerst in den Geräteeinstellungen einen Passcode konfigurieren.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",
     "currency": "Währung",
-    "currency_source": "Preisermittlung von",
+    "currency_source": "Die Preisangaben stammen von",
     "currency_fetch_error": "Beim Abrufen des Wechselkurses für die ausgewählte Währung trat ein Fehler auf.",
     "default_desc": "Wenn deaktiviert öffnet BlueWallet beim Start die ausgewählte Wallet.",
     "default_info": "Standard Info",
