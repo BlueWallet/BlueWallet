@@ -48,7 +48,7 @@
     "broadcast": "Objava v omrežje neuspešna",
     "error": "Napaka",
     "network": "Omrežna napaka"
-    },
+  },
   "lnd": {
     "active": "Aktivno",
     "inactive": "Neaktivno",
@@ -241,7 +241,6 @@
     "biom_no_passcode": "Vaša naprava ni zaščitena z geslom. Če želite nadaljevati, v aplikaciji Nastavitve nastavite svoje geslo.",
     "biom_remove_decrypt": "Shramba bo ponastavljena, pri tem bodo odstranjene vse denarnice. Ali ste prepričani, da želite nadaljevati?",
     "currency": "Valuta",
-    "currency_source": "Tečaji so pridobljeni iz",
     "currency_fetch_error": "Pri pridobivanju tečaja za izbrano valuto je prišlo do napake.",
     "default_desc": "Ko je onemogočeno, bo BlueWallet ob zagonu takoj odprl izbrano denarnico.",
     "default_info": "Privzeto v",
@@ -406,7 +405,7 @@
     "details_are_you_sure": "Ali ste prepričani?",
     "details_connected_to": "Povezano z",
     "details_del_wb_err": "Navedeni znesek stanja se ne ujema s stanjem v tej denarnici. Prosimo poskusite ponovno.",
-    "details_del_wb_q": "Ta denarnica ima pozitivno stanje. Preden nadaljujete, se zavedajte, da sredstev ne boste mogli obnoviti brez seznama besed te denarnice (mnemonično seme). Da se izognete nenamerni odstranitvi te denarnice, vnesite stanje svoje denarnice {balance} satošijev.",
+    "details_del_wb_q": "Ta denarnica ima pozitivno stanje. Preden nadaljujete se zavedajte, da sredstev ne boste mogli obnoviti brez seznama besed te denarnice (mnemonično seme). V izogib nenamerni odstranitvi te denarnice, vnesite stanje svoje denarnice {balance} satošijev.",
     "details_delete": "Izbriši",
     "details_delete_wallet": "Izbriši denarnico",
     "details_derivation_path": "pot izpeljave (derivation path)",

@@ -96,7 +96,6 @@
     "please_pay_between_and": "אנא שלמו בין {min} לבין {max}",
     "please_pay": "אנא שלמו",
     "preimage": "Preimage",
-    "sats": "סאטושים",
     "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה"
   },
   "plausibledeniability": {
@@ -190,7 +189,6 @@
     "fee_fast": "מהיר",
     "fee_medium": "בינוני",
     "fee_replace_minvb": "שעור העמלה הכולל (סאטושי עבור vByte) שברצונך לשלם צריך להיות גבוה יותר מאשר {min} sat/vByte.",
-    "fee_satvbyte": "סאטושים/בייט-וירטואלי",
     "fee_slow": "איטי",
     "header": "שליחה",
     "input_clear": "ניקוי",
@@ -242,7 +240,6 @@
     "biom_no_passcode": "למכשירכם אין סיסמה. במטרה להמשיך אנא הגדירו סיסמה בהגדרות המכשיר.",
     "biom_remove_decrypt": "כל ארנקיכם ימחקו והאחסון יפוענח. האם אתם בטוחים שברצונכם להמשיך?",
     "currency": "מטבע",
-    "currency_source": "מחירים מתקבלים מ-",
     "currency_fetch_error": "התרחשה שגיאה בזמן השגת התעריף למטבע הנבחר.",
     "default_desc": "כאשר מבוטל, BlueWallet יפתח אוטומטית את הארנק הנבחר בפתיחה.",
     "default_info": "פתיחת ברירת מחדל",
@@ -493,7 +490,6 @@
     "vault_key": "מפתח כספת {number}",
     "required_keys_out_of_total": " מפתחות נדרשים מתוך הסך הכולל",
     "fee": "עמלה: {number}",
-    "fee_btc": "מספר ביטקוין",
     "confirm": "אישור",
     "header": "שליחה",
     "share": "שיתוף",
@@ -510,7 +506,6 @@
     "provide_key": "ספקו מפתח",
     "native_segwit_title": "נוהג מומלץ",
     "wrapped_segwit_title": "תאימות גבוהה",
-    "legacy_title": "ישן",
     "co_sign_transaction": "חתימה על פעולה",
     "what_is_vault": "כספת היא ארנק ",
     "what_is_vault_numberOfWallets": "רב-חתימות {m}-מתוך-{n}",
@@ -584,9 +579,7 @@
   },
   "units": {
     "BTC": "ביטקוין",
-    "MAX": "מקס'",
-    "sat_vbyte": "סאטושים/בייט-וירטואלי",
-    "sats": "סאטושים"
+    "MAX": "מקס'"
   },
   "addresses": {
     "sign_title": "חתימת/אימות הודעה",
@@ -601,7 +594,7 @@
     "sign_placeholder_signature": "חתימה",
     "addresses_title": "כתובות",
     "type_change": "עודף",
-    "type_receive": "קבל",
+    "type_receive": "קבלה",
     "type_used": "שומש",
     "transactions": "פעולות"
   },
