@@ -1,8 +1,10 @@
-* Open Source
+Características
+
+* Código Aberto
 * Totalmente criptografada
 * Negação plausível
 * Taxas flexíveis
-* Replace-By-Fee
+* Replace-By-Fee (RBF)
 * SegWit
 * Carteiras Watch-only (somente leitura)
-* Lightning Network
+* Rede Lightning
