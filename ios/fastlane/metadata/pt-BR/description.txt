@@ -1,8 +1,8 @@
 Uma carteira Bitcoin que permite armazenar, enviar e receber Bitcoins. Focada em segurança e simplicidade.
 
-BlueWallet é uma carteira de bitcoin onde você tem posse das chaves privadas. Uma carteira Bitcoin criada para a comunidade por usuários do Bitcoin.
+BlueWallet, uma carteira de bitcoin onde você detém a posse das chaves privadas. Uma carteira Bitcoin criada para a comunidade por usuários do Bitcoin.
 
-Você pode fazer transações com qualquer pessoa no mundo e transformar o sistema financeiro direto do seu bolso.
+Você pode fazer transações instantaneamente  com qualquer pessoa no mundo e transformar o sistema financeiro direto do seu bolso.
 
 Crie um número ilimitado de carteiras de Bitcoin gratuitamente ou importe sua carteira existente. É simples e rápido.
 
@@ -11,22 +11,22 @@ _____
 Entenda o que oferecemos:
 
 
-1 - Criada com segurança em mente
+1 - Designada para ser segura
 
-Open Source
+De Código Aberto
 Licenciado pelo MIT, você pode compilar e rodar a sua própria versão! Feita com ReactNative
 
 Negação plausível
-Senha que descriptografa carteiras de bitcoin falsas para utilizar em situações de estresse
+Senha que descriptografa carteiras de Bitcoin "falsas" para utilizar caso seja forçado a revelar sua carteira
 
 Totalmente criptografada
 Além da criptografia multicamadas do iOS, criptografamos tudo com senhas adicionais
 
 Nó completo
-Conecte com seu full node Bitcoin usando Electrum
+Conecte-se ao seu nó completo Bitcoin através da Electrum
 
-Armazenamento frio (Cold)
-Conecte com sua hardwallet e mantenha suas moedas em armazenamento frio
+Armazenamento Frio 
+Conecte com sua carteira hardware e mantenha suas moedas em armazenamento frio
 
 2 - Foco na sua experiência
 
@@ -39,8 +39,8 @@ A partir de 1 satoshi. Você decide
 Replace-By-Fee
 (RBF) Acelere suas transações aumentando a taxa depois de enviar (BIP125)
 
-Carteiras Watch-only
-Carteiras somente leitura para você observar seu armazenamento frio sem tocar na hardwallet.
+Carteiras somente leitura
+Carteiras somente leitura permitem a você ficar de olho no seu armazenamento frio sem tocar na hardwallet.
 
 Lightning Network
 Carteira Lightning sem precisar configurar nada. Transações muito baratas e rápidas para ter a melhor experiência com o Bitcoin.
