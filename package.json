@@ -96,7 +96,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.18.9",
+    "@babel/preset-env": "7.18.10",
     "@bugsnag/react-native": "7.17.3",
     "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.4.4",
