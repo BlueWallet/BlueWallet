@@ -48,7 +48,6 @@
     "close_channel": "Zatvoriť kanál",
     "new_channel": "Nový kanál",
     "errorInvoiceExpired": "Faktúra je expirovaná",
-    "exchange": "Burza",
     "expired": "Expirovaná",
     "expiredLow": "expirovaná",
     "expiresIn": "Vyprší za {time} minút",

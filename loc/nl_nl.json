@@ -58,7 +58,6 @@
     "close_channel": "Sluit kanaal",
     "new_channel" : "Nieuw kanaal",
     "errorInvoiceExpired": "Factuur verlopen",
-    "exchange": "Exchange",
     "force_close_channel": "Het sluiten van een kanaal forceren?",
     "expired": "Verlopen",
     "node_alias": "Node alias",

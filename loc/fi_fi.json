@@ -58,7 +58,6 @@
     "close_channel": "Sulje kanava",
     "new_channel" : "Uusi kanava",
     "errorInvoiceExpired": "Lasku vanheni",
-    "exchange": "Vaihto",
     "force_close_channel": "Pakota kanavan sulku?",
     "expired": "Erääntynyt",
     "node_alias": "Solmun lempinimi",

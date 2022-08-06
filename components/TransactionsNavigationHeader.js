@@ -25,7 +25,6 @@ export default class TransactionsNavigationHeader extends Component {
     WalletBalanceVisibility: 'walletBalanceVisibility',
     Refill: 'refill',
     RefillWithExternalWallet: 'qrcode',
-    Exchange: 'exchange',
   };
 
   static actionIcons = {
@@ -48,10 +47,6 @@ export default class TransactionsNavigationHeader extends Component {
     RefillWithExternalWallet: {
       iconType: 'SYSTEM',
       iconValue: 'qrcode',
-    },
-    Exchange: {
-      iconType: 'SYSTEM',
-      iconValue: 'link',
     },
   };
 
@@ -161,13 +156,6 @@ export default class TransactionsNavigationHeader extends Component {
       text: loc.lnd.refill_external,
       icon: TransactionsNavigationHeader.actionIcons.RefillWithExternalWallet,
     },
-    [
-      {
-        id: TransactionsNavigationHeader.actionKeys.Exchange,
-        text: loc.lnd.exchange,
-        icon: TransactionsNavigationHeader.actionIcons.Exchange,
-      },
-    ],
   ];
 
   render() {

@@ -5,7 +5,6 @@ import {
   Dimensions,
   FlatList,
   InteractionManager,
-  Linking,
   PixelRatio,
   Platform,
   ScrollView,
@@ -449,9 +448,7 @@ const WalletTransactions = () => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === TransactionsNavigationHeader.actionKeys.Exchange) {
-      Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
-    } else if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         alert(loc.lnd.refill_create);

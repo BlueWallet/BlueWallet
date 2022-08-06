@@ -58,7 +58,6 @@
     "close_channel": "Close channel",
     "new_channel" : "New channel",
     "errorInvoiceExpired": "Invoice expired",
-    "exchange": "Exchange",
     "force_close_channel": "Force close channel?",
     "expired": "Expired",
     "node_alias": "Node alias",

@@ -39,7 +39,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Factura expirada",
-    "exchange": "Exchange",
     "expired": "Expirado",
     "expiredLow": "expirada",
     "payButton": "Paga",

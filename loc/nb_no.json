@@ -58,7 +58,6 @@
     "close_channel": "Lukk kanal",
     "new_channel" : "Ny kanal",
     "errorInvoiceExpired": "Faktura utløpt",
-    "exchange": "Veksle",
     "force_close_channel": "Tvinge kanal til å lukke?",
     "expired": "Utløpt",
     "node_alias": "Node alias",
