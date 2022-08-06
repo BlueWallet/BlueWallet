@@ -24,7 +24,6 @@ export default class TransactionsNavigationHeader extends Component {
     CopyToClipboard: 'copyToClipboard',
     WalletBalanceVisibility: 'walletBalanceVisibility',
     Refill: 'refill',
-    RefillWithBank: 'refillwithbank',
     RefillWithExternalWallet: 'qrcode',
   };
 
@@ -44,10 +43,6 @@ export default class TransactionsNavigationHeader extends Component {
     Refill: {
       iconType: 'SYSTEM',
       iconValue: 'goforward.plus',
-    },
-    RefillWithBank: {
-      iconType: 'SYSTEM',
-      iconValue: 'creditcard',
     },
     RefillWithExternalWallet: {
       iconType: 'SYSTEM',
