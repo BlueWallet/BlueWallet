@@ -77,9 +77,9 @@ PODS:
   - fmt (6.2.1)
   - glog (0.3.5)
   - libevent (2.1.12)
-  - lottie-ios (3.2.3)
-  - lottie-react-native (5.1.2):
-    - lottie-ios (~> 3.2.3)
+  - lottie-ios (3.4.1)
+  - lottie-react-native (5.1.4):
+    - lottie-ios (~> 3.4.0)
     - React-Core
   - OpenSSL-Universal (1.1.180)
   - PasscodeAuth (1.0.0):
@@ -311,7 +311,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.22.6):
+  - react-native-webview (11.23.0):
     - React-Core
   - react-native-widget-center (0.0.8):
     - React
@@ -446,9 +446,9 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.6.6):
+  - RNShare (7.7.0):
     - React-Core
-  - RNSVG (12.4.0):
+  - RNSVG (12.4.3):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
@@ -750,8 +750,8 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
-  lottie-react-native: fb56093c53bb36d0a7ce576e030b67af33ad6180
+  lottie-ios: 016449b5d8be0c3dcbcfa0a9988469999cd04c5d
+  lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 803a9cfd78114b2ec0f140cfa6fa2a6bafb2d685
@@ -777,7 +777,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 5bb59e95fd9d8db6b8c2835d743d463167fc65a8
+  react-native-webview: e771bc375f789ebfa02a26939a57dbc6fa897336
   react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -811,8 +811,8 @@ SPEC CHECKSUMS:
   RNReanimated: b5b17149593e7c05e4ec5c0efea1f21e05829510
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: d56424e3926cbc239db1cc1c168adcb051aad50b
-  RNSVG: 3dd44d99d1c18e1342aee4bfa53ab3f6a8c4865f
+  RNShare: ab582e93876d9df333a531390c658c31b50a767d
+  RNSVG: f3b60aeeaa81960e2e0536c3a9eef50b667ef3a9
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: dae6c858a2051dbdcfb00b9a86cf4d90400263b4
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
