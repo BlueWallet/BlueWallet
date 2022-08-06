@@ -58,7 +58,6 @@
     "close_channel": "Zavřít kanál",
     "new_channel" : "Nový kanál",
     "errorInvoiceExpired": "Faktura vypršela",
-    "exchange": "Směnárna",
     "force_close_channel": "Vynutit uzavření kanálu?",
     "expired": "Expirováno",
     "node_alias": "Alias uzlu",

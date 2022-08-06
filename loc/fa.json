@@ -58,7 +58,6 @@
     "close_channel": "بستن کانال",
     "new_channel" : "کانال جدید",
     "errorInvoiceExpired": "صورت‌حساب منقضی شد",
-    "exchange": "تبادل",
     "force_close_channel": "بستن اجباری کانال؟",
     "expired": "منقضی‌شده",
     "node_alias": "نام مستعار گره",

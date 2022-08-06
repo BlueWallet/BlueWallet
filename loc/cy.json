@@ -33,7 +33,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Anfoneb wedi gorffen",
-    "exchange": "Cyfnewid",
     "expired": "Gorffen",
     "expiredLow": "Gorffen",
     "payButton": "Talu",

@@ -58,7 +58,6 @@
     "close_channel": "Cerrar canal",
     "new_channel" : "Nuevo canal",
     "errorInvoiceExpired": "Factura expirada",
-    "exchange": "Casa de cambio",
     "force_close_channel": "¿Forzar el cierre del canal?",
     "expired": "Expirado",
     "node_alias": "Alias del nodo",

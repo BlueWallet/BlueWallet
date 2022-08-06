@@ -58,7 +58,6 @@
     "close_channel": "Kanal schließen",
     "new_channel" : "Neuer Kanal",
     "errorInvoiceExpired": "Rechnung verfallen",
-    "exchange": "Via Börse auf ein Wallet abheben",
     "force_close_channel": "Kanal zwangsweise schließen?",
     "expired": "Abgelaufen",
     "node_alias": "Knoten-Alias",

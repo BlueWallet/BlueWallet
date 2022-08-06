@@ -58,7 +58,6 @@
     "close_channel": "Zamknij kanał",
     "new_channel" : "Nowy kanał",
     "errorInvoiceExpired": "Faktura utraciła ważność",
-    "exchange": "Kantor",
     "force_close_channel": "Wymusić zamknięcie kanału?",
     "expired": "Przeterminowana",
     "node_alias": "Alias węzła",

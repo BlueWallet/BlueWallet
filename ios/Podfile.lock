@@ -311,7 +311,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.22.6):
+  - react-native-webview (11.23.0):
     - React-Core
   - react-native-widget-center (0.0.8):
     - React
@@ -446,9 +446,9 @@ PODS:
     - React-RCTImage
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNShare (7.6.6):
+  - RNShare (7.7.0):
     - React-Core
-  - RNSVG (12.4.0):
+  - RNSVG (12.4.3):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
@@ -777,7 +777,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 5bb59e95fd9d8db6b8c2835d743d463167fc65a8
+  react-native-webview: e771bc375f789ebfa02a26939a57dbc6fa897336
   react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
@@ -811,8 +811,8 @@ SPEC CHECKSUMS:
   RNReanimated: b5b17149593e7c05e4ec5c0efea1f21e05829510
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNShare: d56424e3926cbc239db1cc1c168adcb051aad50b
-  RNSVG: 3dd44d99d1c18e1342aee4bfa53ab3f6a8c4865f
+  RNShare: ab582e93876d9df333a531390c658c31b50a767d
+  RNSVG: f3b60aeeaa81960e2e0536c3a9eef50b667ef3a9
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: dae6c858a2051dbdcfb00b9a86cf4d90400263b4
   SwiftSocket: c8d482e867ae4d3eb4c769e9382e123c1f1f833b
