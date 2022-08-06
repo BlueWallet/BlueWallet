@@ -5,7 +5,6 @@ import {
   Dimensions,
   FlatList,
   InteractionManager,
-  Linking,
   PixelRatio,
   Platform,
   ScrollView,
