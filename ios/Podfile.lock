@@ -77,9 +77,9 @@ PODS:
   - fmt (6.2.1)
   - glog (0.3.5)
   - libevent (2.1.12)
-  - lottie-ios (3.4.1)
-  - lottie-react-native (5.1.4):
-    - lottie-ios (~> 3.4.0)
+  - lottie-ios (3.2.3)
+  - lottie-react-native (5.1.2):
+    - lottie-ios (~> 3.2.3)
     - React-Core
   - OpenSSL-Universal (1.1.180)
   - PasscodeAuth (1.0.0):
@@ -750,8 +750,8 @@ SPEC CHECKSUMS:
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 85ecdd10ee8d8ec362ef519a6a45ff9aa27b2e85
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 016449b5d8be0c3dcbcfa0a9988469999cd04c5d
-  lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
+  lottie-ios: c058aeafa76daa4cf64d773554bccc8385d0150e
+  lottie-react-native: fb56093c53bb36d0a7ce576e030b67af33ad6180
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 803a9cfd78114b2ec0f140cfa6fa2a6bafb2d685
