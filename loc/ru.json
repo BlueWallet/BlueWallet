@@ -58,7 +58,6 @@
     "close_channel": "Закрыть канал",
     "new_channel": "Новый канал",
     "errorInvoiceExpired": "Инвойс просрочен",
-    "exchange": "Обмен",
     "force_close_channel": "Закрыть канал принудительно?",
     "expired": "Истекший",
     "node_alias": "Псевдоним ноды",

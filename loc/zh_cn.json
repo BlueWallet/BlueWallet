@@ -46,7 +46,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "账单已过期",
-    "exchange": "交易所",
     "expired": "已过期",
     "expiredLow": "已过期",
     "payButton": "支付",

@@ -55,7 +55,6 @@
     "close_channel": "Tancar el canal",
     "new_channel": "Nou canal",
     "errorInvoiceExpired": "La factura ha caducat",
-    "exchange": "Intercanvi",
     "force_close_channel": "Forçar tancar el canal?",
     "expired": "Caducat",
     "node_alias": "Àlies del node",

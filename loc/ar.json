@@ -58,7 +58,6 @@
     "close_channel": "اغلق القناة",
     "new_channel" : "قناة جديدة",
     "errorInvoiceExpired": "انتهت صلاحية الفاتورة",
-    "exchange": "التبادل",
     "force_close_channel": "هل تود فرض اغلاق القناة؟",
     "expired": "منتهية الصلاحية",
     "node_alias": "الاسم المستعار للعقدة",

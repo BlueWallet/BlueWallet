@@ -56,7 +56,6 @@
     "close_channel": "סגירת ערוץ",
     "new_channel": "ערוץ חדש",
     "errorInvoiceExpired": "חשבונית פגה",
-    "exchange": "בורסה",
     "force_close_channel": "כפיית סגירת ערוץ?",
     "expired": "פג",
     "node_alias": "כינוי צומת",

@@ -41,7 +41,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "インボイス失効",
-    "exchange": "エクスチェンジ",
     "expired": "失効",
     "expiredLow": "期限切れ",
     "payButton": "支払う",

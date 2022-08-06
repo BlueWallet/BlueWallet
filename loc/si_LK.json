@@ -58,7 +58,6 @@
     "close_channel": "නාලිකාව වසන්න",
     "new_channel": "නව නාලිකාව",
     "errorInvoiceExpired": "ඉන්වොයිසිය කල් ඉකුත් වී ඇත",
-    "exchange": "හුවමාරුව",
     "force_close_channel": "කෙසේ හෝ නාලිකාව වසා දමන්නද?",
     "expired": "කල් ඉකුත් වී ඇත",
     "node_alias": "නෝඩ් අන්වර්ථ නාමය",
