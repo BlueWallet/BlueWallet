@@ -70,7 +70,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // change currency to ARS ($) and switch it back to USD ($)
     await element(by.id('Currency')).tap();
     await element(by.text('ARS ($)')).tap();
-    await expect(element(by.text('Prices are obtained from Yadio'))).toBeVisible();
+    await expect(element(by.text('Price is obtained from Yadio'))).toBeVisible();
     await element(by.text('USD ($)')).tap();
     await device.pressBack();
 

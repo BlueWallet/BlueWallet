@@ -46,7 +46,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Изтекла фактура",
-    "exchange": "Ексчейндж",
     "expired": "Изтекла",
     "expiredLow": "изтекла",
     "payButton": "Плати",

@@ -39,7 +39,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Fakturan har förfallit",
-    "exchange": "Börs",
     "expired": "Förfallen",
     "expiredLow": "förfallen",
     "payButton": "Betala",

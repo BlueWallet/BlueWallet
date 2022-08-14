@@ -1,4 +1,4 @@
-Una billetera Bitcoin que te permite almacenar, enviar Bitcoin, recibir Bitcoin y comprar Bitcoin con un enfoque en la seguridad y la simplicidad.
+Una billetera de Bitcoin que te permite almacenar, enviar Bitcoin, recibir Bitcoin con un enfoque en la seguridad y la simplicidad.
 
 En BlueWallet, una billetera bitcoin posee sus claves privadas. Una billetera Bitcoin hecha por usuarios de Bitcoin para la comunidad.
 
@@ -31,8 +31,7 @@ Conéctate a tu billetera de hardware y mantén tus monedas en almacenamiento en
 2 - Centrado en tu experiencia
 
 Está en control
-Las claves privadas nunca salen de tu dispositivo.
-Tu controlas tu clave privada
+Las llaves privadas nunca salen de tu dispositivo. Tú controlas tus llaves privadas
 
 Tarifas flexibles
 A partir de 1 Satoshi. Definido por ti, el usuario
@@ -45,9 +44,3 @@ Las carteras de solo vista te permiten vigilar tu almacenamiento en frío sin to
 
 Red Lightning
 Cartera Lightning con configuración cero. Transacciones injustamente baratas y rápidas con la mejor experiencia de usuario de Bitcoin.
-
-Compra Bitcoin
-Ingresa a la revolución financiera abierta con la capacidad de comprar Bitcoin directamente en tu billetera.
-
-Comerciante local
-Una plataforma de comercio de bitcoins p2p, que te permite comprar y vender bitcoins directamente a otros usuarios sin terceros.

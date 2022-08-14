@@ -41,7 +41,6 @@
   },
   "lnd": {
     "errorInvoiceExpired": "Faktur kadarluasa",
-    "exchange": "Pertukaran",
     "expired": "Kadaluarsa",
     "expiredLow": "kadarluasa",
     "payButton": "Bayar",

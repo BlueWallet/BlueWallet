@@ -58,7 +58,6 @@
     "close_channel": "챈널 닫기",
     "new_channel" : "새 챈널",
     "errorInvoiceExpired": "청구서가 만료되었습니다.",
-    "exchange": "교환",
     "force_close_channel": "챈널을 강제로 닫을까요?",
     "expired": "만료되었습니다",
     "node_alias": "노드 별칭",

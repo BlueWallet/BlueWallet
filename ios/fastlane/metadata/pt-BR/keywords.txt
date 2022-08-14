@@ -1,1 +1,1 @@
-bitcoin wallet,crypto,blockchain,btc,cryptocurrency,carteira,bread,samourai,lightning,ethereum
+bitcoin,carteira,carteira bitcoin,blockchain,btc,criptomoeda,bitcoin,samourai,electrum,ethereum

@@ -58,7 +58,6 @@
     "close_channel": "Fermer le canal",
     "new_channel" : "Nouveau canal",
     "errorInvoiceExpired": "Requête expirée",
-    "exchange": "Echange",
     "force_close_channel": "Forcer la fermeture du canal ?",
     "expired": "Expiré",
     "node_alias": "Alias du node",

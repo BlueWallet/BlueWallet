@@ -103,16 +103,14 @@ const LnurlAuth = () => {
       )}
 
       {authState === AuthState.SUCCESS && (
-        <BlueCard>
-          <View style={styles.iconContainer}>
-            <SuccessView />
-          </View>
+        <>
+          <SuccessView />
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
             {loc.formatString(loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_answer`], { hostname: parsedLnurl.hostname })}
           </BlueText>
           <BlueSpacing20 />
-        </BlueCard>
+        </>
       )}
 
       {authState === AuthState.ERROR && (
@@ -144,18 +142,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'center',
-  },
-  iconContainer: {
-    backgroundColor: '#ccddf9',
-    width: 120,
-    height: 120,
-    maxWidth: 120,
-    maxHeight: 120,
-    padding: 0,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   walletSelectRoot: {
     alignItems: 'center',

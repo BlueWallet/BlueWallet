@@ -58,7 +58,6 @@
     "close_channel": "Csatorna zárása",
     "new_channel" : "Új csatorna",
     "errorInvoiceExpired": "A számla lejárt",
-    "exchange": "Átváltás",
     "force_close_channel": "Csatorna erőltetett zárása?",
     "expired": "Lejárt",
     "node_alias": "Node aliasz",
