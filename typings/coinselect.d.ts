@@ -1,21 +1,49 @@
 declare module 'coinselect' {
-  type Utxo = {
+  export type CoinSelectTarget = {
+    address: string;
+    value?: number;
+    script?: {
+      length: number;
+    };
+  };
+
+  export type CoinselectUtxo = {
     vout: number;
     value: number;
     txId: string;
+    address?: string;
+    wif?: string;
+    txhex?: string;
+    script?: {
+      length: number;
+    };
   };
 
-  export default function coinSelect<U extends Utxo>(
-    utxos: U[],
-    targets: { address: string; value?: number }[],
+  export type CoinselectReturnInput = {
+    vout: number;
+    value: number;
+    txid: string;
+    address?: string;
+    wif?: string;
+    txhex?: string;
+    script?: {
+      length: number;
+    };
+  };
+
+  export type CoinSelectOutput = {
+    address?: string;
+    value: number;
+  };
+
+  export default function coinSelect(
+    utxos: CoinselectUtxo[],
+    targets: CoinSelectTarget[],
     feeRate: number,
     changeAddress?: string,
   ): {
-    inputs: U[];
-    outputs: {
-      address?: string;
-      value: number;
-    }[];
+    inputs: CoinselectReturnInput[];
+    outputs: CoinSelectOutput[];
     fee: number;
   };
 }
@@ -33,7 +61,7 @@ declare module 'coinselect/split' {
     feeRate: number,
     changeAddress?: string,
   ): {
-    inputs: U[];
+    inputs: CoinselectReturnInput[];
     outputs: {
       address?: string;
       value: number;

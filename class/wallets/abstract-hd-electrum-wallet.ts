@@ -1,17 +1,29 @@
+/* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
 import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
-import BIP32Factory from 'bip32';
+import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { ECPairFactory } from 'ecpair';
+import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { ElectrumHistory, ElectrumTransaction } from '../../blue_modules/BlueElectrum';
+import { ECPairInterface } from 'ecpair/src/ecpair';
+import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
+import { CoinselectReturnInput, CoinSelectTarget } from 'coinselect';
+
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
+
+interface BalanceByIndex {
+  c: number;
+  u: number;
+}
 
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
@@ -21,6 +33,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   static typeReadable = 'abstract';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
   static finalRBFSequence = 4294967295; // 0xFFFFFFFF
+
+  _balances_by_external_index: Record<number, BalanceByIndex>;
+  _balances_by_internal_index: Record<number, BalanceByIndex>;
+
+  // @ts-ignore
+  _txs_by_external_index: Record<number, Transaction[]>;
+  // @ts-ignore
+  _txs_by_internal_index: Record<number, Transaction[]>;
+
+  _utxo: any[];
 
   constructor() {
     super();
@@ -67,17 +89,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
   }
 
-  async generateFromEntropy(user) {
+  async generateFromEntropy(user: Buffer) {
     const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
     const buf = Buffer.concat([user, random], 32);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
   }
 
-  _getExternalWIFByIndex(index) {
+  _getExternalWIFByIndex(index: number): string | false {
     return this._getWIFByIndex(false, index);
   }
 
-  _getInternalWIFByIndex(index) {
+  _getInternalWIFByIndex(index: number): string | false {
     return this._getWIFByIndex(true, index);
   }
 
@@ -88,7 +110,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string|false} Either string WIF or FALSE if error happened
    * @private
    */
-  _getWIFByIndex(internal, index) {
+  _getWIFByIndex(internal: boolean, index: number): string | false {
     if (!this.secret) return false;
     const seed = this._getSeed();
     const root = bip32.fromSeed(seed);
@@ -98,7 +120,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return child.toWIF();
   }
 
-  _getNodeAddressByIndex(node, index) {
+  _getNodeAddressByIndex(node: number, index: number) {
     index = index * 1; // cast to int
     if (node === 0) {
       if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -109,12 +131,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     if (node === 0 && !this._node0) {
+      // @ts-ignore
       const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
+      // @ts-ignore
       const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
@@ -122,10 +146,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     let address;
     if (node === 0) {
+      // @ts-ignore
       address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
     }
 
     if (node === 1) {
+      // @ts-ignore
       address = this.constructor._nodeToBech32SegwitAddress(this._node1.derive(index));
     }
 
@@ -138,35 +164,39 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
   }
 
-  _getNodePubkeyByIndex(node, index) {
+  _getNodePubkeyByIndex(node: number, index: number) {
     index = index * 1; // cast to int
 
     if (node === 0 && !this._node0) {
+      // @ts-ignore
       const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
+      // @ts-ignore
       const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
-    if (node === 0) {
+    if (node === 0 && this._node0) {
       return this._node0.derive(index).publicKey;
     }
 
-    if (node === 1) {
+    if (node === 1 && this._node1) {
       return this._node1.derive(index).publicKey;
     }
+
+    throw new Error('Internal error: this._node0 or this._node1 is undefined');
   }
 
-  _getExternalAddressByIndex(index) {
+  _getExternalAddressByIndex(index: number) {
     return this._getNodeAddressByIndex(0, index);
   }
 
-  _getInternalAddressByIndex(index) {
+  _getInternalAddressByIndex(index: number) {
     return this._getNodeAddressByIndex(1, index);
   }
 
@@ -185,6 +215,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const root = bip32.fromSeed(seed);
 
     const path = this.getDerivationPath();
+    if (!path) {
+      throw new Error('Internal error: no path');
+    }
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -238,9 +271,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
-    const txs = {};
+    const txs: Record<string, any> = {};
     for (const history of Object.values(histories)) {
-      for (const tx of history) {
+      for (const tx of history as ElectrumHistory[]) {
         txs[tx.tx_hash] = tx;
       }
     }
@@ -251,7 +284,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
     // then we combine all this data (we need inputs to see source addresses and amounts)
     const vinTxids = [];
-    for (const txdata of Object.values(txdatas)) {
+    for (const txdata of Object.values(txdatas) as ElectrumTransaction[]) {
       for (const vin of txdata.vin) {
         vinTxids.push(vin.txid);
       }
@@ -286,12 +319,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
+      for (const tx of Object.values(txdatas) as ElectrumTransaction[]) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
+            const clonedTx: any = Object.assign({}, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
             delete clonedTx.vin;
@@ -312,10 +345,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
+            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
+            // @ts-ignore
             delete clonedTx.vin;
+            // @ts-ignore
             delete clonedTx.vout;
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
@@ -333,15 +368,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
+      for (const tx of Object.values(txdatas) as ElectrumTransaction[]) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
+            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
+            // @ts-ignore
             delete clonedTx.vin;
+            // @ts-ignore
             delete clonedTx.vout;
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
@@ -359,10 +396,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx = Object.assign({}, tx);
+            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
             clonedTx.inputs = tx.vin.slice(0);
             clonedTx.outputs = tx.vout.slice(0);
+            // @ts-ignore
             delete clonedTx.vin;
+            // @ts-ignore
             delete clonedTx.vout;
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
@@ -383,7 +422,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   getTransactions() {
-    let txs = [];
+    let txs: Transaction[] = [];
 
     for (const addressTxs of Object.values(this._txs_by_external_index)) {
       txs = txs.concat(addressTxs);
@@ -396,7 +435,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
-    const ownedAddressesHashmap = {};
+    const ownedAddressesHashmap: Record<string, boolean> = {};
     for (let c = 0; c < this.next_free_address_index + 1; c++) {
       ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
     }
@@ -404,9 +443,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
     }
     // hack: in case this code is called from LegacyWallet:
-    if (this.getAddress()) ownedAddressesHashmap[this.getAddress()] = true;
+    if (this.getAddress()) ownedAddressesHashmap[String(this.getAddress())] = true;
 
-    const ret = [];
+    const ret: Transaction[] = [];
     for (const tx of txs) {
       tx.received = tx.blocktime * 1000;
       if (!tx.blocktime) tx.received = +new Date() - 30 * 1000; // unconfirmed
@@ -420,7 +459,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           (vin.address && ownedAddressesHashmap[vin.address]) ||
           (vin.addresses && vin.addresses[0] && ownedAddressesHashmap[vin.addresses[0]])
         ) {
-          tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
+          tx.value -= new BigNumber(vin.value ?? 0).multipliedBy(100000000).toNumber();
         }
       }
 
@@ -434,7 +473,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     // now, deduplication:
-    const usedTxIds = {};
+    const usedTxIds: Record<string, number> = {};
     const ret2 = [];
     for (const tx of ret) {
       if (!usedTxIds[tx.txid]) ret2.push(tx);
@@ -442,12 +481,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return ret2.sort(function (a, b) {
-      return b.received - a.received;
+      return Number(b.received) - Number(a.received);
     });
   }
 
-  async _binarySearchIterationForInternalAddress(index) {
-    const gerenateChunkAddresses = chunkNum => {
+  async _binarySearchIterationForInternalAddress(index: number) {
+    const gerenateChunkAddresses = (chunkNum: number) => {
       const ret = [];
       for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
         ret.push(this._getInternalAddressByIndex(c));
@@ -459,6 +498,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
+      // @ts-ignore
       if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
@@ -474,8 +514,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (lastHistoriesWithUsedAddresses) {
       // now searching for last used address in batch lastChunkWithUsedAddressesNum
       for (
-        let c = lastChunkWithUsedAddressesNum * this.gap_limit;
-        c < lastChunkWithUsedAddressesNum * this.gap_limit + this.gap_limit;
+        let c = Number(lastChunkWithUsedAddressesNum) * this.gap_limit;
+        c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
         c++
       ) {
         const address = this._getInternalAddressByIndex(c);
@@ -488,8 +528,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return lastUsedIndex;
   }
 
-  async _binarySearchIterationForExternalAddress(index) {
-    const gerenateChunkAddresses = chunkNum => {
+  async _binarySearchIterationForExternalAddress(index: number) {
+    const gerenateChunkAddresses = (chunkNum: number) => {
       const ret = [];
       for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
         ret.push(this._getExternalAddressByIndex(c));
@@ -501,6 +541,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
+      // @ts-ignore
       if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
@@ -516,8 +557,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (lastHistoriesWithUsedAddresses) {
       // now searching for last used address in batch lastChunkWithUsedAddressesNum
       for (
-        let c = lastChunkWithUsedAddressesNum * this.gap_limit;
-        c < lastChunkWithUsedAddressesNum * this.gap_limit + this.gap_limit;
+        let c = Number(lastChunkWithUsedAddressesNum) * this.gap_limit;
+        c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
         c++
       ) {
         const address = this._getExternalAddressByIndex(c);
@@ -691,7 +732,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
-    this.utxo = this.utxo.sort((a, b) => a.amount - b.amount);
+    this.utxo = this.utxo.sort((a, b) => Number(a.amount) - Number(b.amount));
     // more consistent, so txhex in unit tests wont change
   }
 
@@ -724,12 +765,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return ret;
   }
 
-  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false) {
-    const utxos = [];
+  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false): Utxo[] {
+    const utxos: Utxo[] = [];
 
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
-    const ownedAddressesHashmap = {};
+    const ownedAddressesHashmap: Record<string, boolean> = {};
     for (let c = 0; c < this.next_free_address_index + 1; c++) {
       ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
     }
@@ -739,22 +780,22 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
-        let address = false;
+        let address: string | false = false;
         if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
           address = output.scriptPubKey.addresses[0];
         }
-        if (ownedAddressesHashmap[address]) {
+        if (ownedAddressesHashmap[String(address)]) {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
             txId: tx.txid,
             vout: output.n,
-            address,
+            address: String(address),
             value,
             amount: value,
             confirmations: tx.confirmations,
             wif: false,
-            height: BlueElectrum.estimateCurrentBlockheight() - tx.confirmations,
+            height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
           });
         }
       }
@@ -783,7 +824,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return ret;
   }
 
-  _getDerivationPathByAddress(address) {
+  _getDerivationPathByAddress(address: string): string | false {
     const path = this.getDerivationPath();
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return path + '/0/' + c;
@@ -798,9 +839,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   /**
    *
    * @param address {string} Address that belongs to this wallet
-   * @returns {Buffer|boolean} Either buffer with pubkey or false
+   * @returns {Buffer|false} Either buffer with pubkey or false
    */
-  _getPubkeyByAddress(address) {
+  _getPubkeyByAddress(address: string): Buffer | false {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(0, c);
     }
@@ -817,17 +858,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param address {string} Address that belongs to this wallet
    * @returns {string|false} WIF or false
    */
-  _getWIFbyAddress(address) {
+  _getWIFbyAddress(address: string): string | false {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return this._getWIFByIndex(false, c);
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
     }
-    return null;
+    return false;
   }
 
-  weOwnAddress(address) {
+  weOwnAddress(address: string) {
     if (!address) return false;
     let cleanAddress = address;
 
@@ -855,7 +896,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  createTransaction(
+    utxos: CreateTransactionUtxo[],
+    targets: CoinSelectTarget[],
+    feeRate: number,
+    changeAddress: string,
+    sequence: number,
+    skipSigning = false,
+    masterFingerprint: number,
+  ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
     // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
     for (const u of utxos) {
@@ -880,14 +929,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
     let psbt = new bitcoin.Psbt();
     let c = 0;
-    const keypairs = {};
-    const values = {};
+    const keypairs: Record<number, ECPairInterface> = {};
+    const values: Record<number, number> = {};
 
     inputs.forEach(input => {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = ECPair.fromWIF(this._getWifForAddress(input.address));
+        keyPair = ECPair.fromWIF(this._getWifForAddress(String(input.address)));
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -920,8 +969,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         output.address = changeAddress;
       }
 
-      const path = this._getDerivationPathByAddress(output.address);
-      const pubkey = this._getPubkeyByAddress(output.address);
+      const path = this._getDerivationPathByAddress(String(output.address));
+      const pubkey = this._getPubkeyByAddress(String(output.address));
       let masterFingerprintBuffer;
 
       if (masterFingerprint) {
@@ -936,7 +985,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
 
-      const outputData = {
+      const outputData: any = {
         address: output.address,
         value: output.value,
       };
@@ -968,13 +1017,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return { tx, inputs, outputs, fee, psbt };
   }
 
-  _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
-    const pubkey = this._getPubkeyByAddress(input.address);
-    const path = this._getDerivationPathByAddress(input.address);
+  _addPsbtInput(psbt: Psbt, input: CoinselectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+    if (!input.address) {
+      throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
+    }
+    const pubkey = <Buffer>this._getPubkeyByAddress(input.address);
+    const path = <string>this._getDerivationPathByAddress(input.address);
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
 
     psbt.addInput({
-      hash: input.txId,
+      // @ts-ignore
+      hash: input.txid || input.txId,
       index: input.vout,
       sequence,
       bip32Derivation: [
@@ -1001,7 +1054,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param base64two {string|Psbt}
    * @returns {Transaction}
    */
-  combinePsbt(base64one, base64two) {
+  combinePsbt(base64one: string | Psbt, base64two: string | Psbt) {
     const final1 = typeof base64one === 'string' ? bitcoin.Psbt.fromBase64(base64one) : base64one;
     const final2 = typeof base64two === 'string' ? bitcoin.Psbt.fromBase64(base64two) : base64two;
     final1.combine(final2);
@@ -1023,19 +1076,19 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param hdNode
    * @returns {String}
    */
-  static _nodeToBech32SegwitAddress(hdNode) {
+  static _nodeToBech32SegwitAddress(hdNode: BIP32Interface) {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
     }).address;
   }
 
-  static _nodeToLegacyAddress(hdNode) {
+  static _nodeToLegacyAddress(hdNode: BIP32Interface) {
     return bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
     }).address;
   }
 
-  static _getTransactionsFromHistories(histories) {
+  static _getTransactionsFromHistories(histories: Record<string, ElectrumHistory[]>) {
     const txs = [];
     for (const history of Object.values(histories)) {
       for (const tx of history) {
@@ -1076,14 +1129,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param address
    * @returns {Boolean} Either address is a change or not
    */
-  addressIsChange(address) {
+  addressIsChange(address: string) {
     for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
       if (address === this._getInternalAddressByIndex(c)) return true;
     }
     return false;
   }
 
-  calculateHowManySignaturesWeHaveFromPsbt(psbt) {
+  calculateHowManySignaturesWeHaveFromPsbt(psbt: Psbt) {
     let sigsHave = 0;
     for (const inp of psbt.data.inputs) {
       if (inp.finalScriptSig || inp.finalScriptWitness || inp.partialSig) sigsHave++;
@@ -1098,7 +1151,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param psbt {Psbt}
    * @returns {{ tx: Transaction }}
    */
-  cosignPsbt(psbt) {
+  cosignPsbt(psbt: Psbt) {
     const seed = this._getSeed();
     const hdRoot = bip32.fromSeed(seed);
 
@@ -1112,7 +1165,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const splt = derivation.path.split('/');
           const internal = +splt[splt.length - 2];
           const index = +splt[splt.length - 1];
-          const wif = this._getWIFByIndex(internal, index);
+          const wif = this._getWIFByIndex(!!internal, index);
+          if (!wif) {
+            throw new Error('Internal error: cant get WIF by index during cosingPsbt');
+          }
           const keyPair = ECPair.fromWIF(wif);
           try {
             psbt.signInput(cc, keyPair);
@@ -1121,7 +1177,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    let tx = false;
+    let tx: BTransaction | false = false;
     if (this.calculateHowManySignaturesWeHaveFromPsbt(psbt) === psbt.inputCount) {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
@@ -1133,7 +1189,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param seed {Buffer} Buffer object with seed
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
    */
-  static seedToFingerprint(seed) {
+  static seedToFingerprint(seed: Buffer) {
     const root = bip32.fromSeed(seed);
     let hex = root.fingerprint.toString('hex');
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
@@ -1144,7 +1200,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param mnemonic {string}  Mnemonic phrase (12 or 24 words)
    * @returns {string} Hex fingerprint
    */
-  static mnemonicToFingerprint(mnemonic, passphrase) {
+  static mnemonicToFingerprint(mnemonic: string, passphrase: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
