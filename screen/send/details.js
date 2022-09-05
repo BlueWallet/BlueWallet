@@ -42,7 +42,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
 const currency = require('../../blue_modules/currency');
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
 const scanqr = require('../../helpers/scan-qr');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;

@@ -2,7 +2,14 @@ import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import loc from '../loc';
 
-module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDestructive = false, continueButtonText = loc._.ok) => {
+module.exports = (
+  title: string,
+  text: string,
+  isCancelable = true,
+  type: PromptType | PromptTypeIOS | PromptTypeAndroid = 'secure-text',
+  isOKDestructive = false,
+  continueButtonText = loc._.ok,
+): Promise<string> => {
   const keyboardType = type === 'numeric' ? 'numeric' : 'default';
 
   if (Platform.OS === 'ios' && type === 'numeric') {
@@ -11,7 +18,7 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDe
   }
 
   return new Promise((resolve, reject) => {
-    const buttons = isCancelable
+    const buttons: Array<PromptButton> = isCancelable
       ? [
           {
             text: loc._.cancel,
@@ -42,6 +49,7 @@ module.exports = (title, text, isCancelable = true, type = 'secure-text', isOKDe
     prompt(title, text, buttons, {
       type: type,
       cancelable: isCancelable,
+      // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
       keyboardType,
     });
   });
