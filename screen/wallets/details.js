@@ -44,7 +44,7 @@ import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import alert from '../../components/Alert';
 
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 
 const styles = StyleSheet.create({
   scrollViewContent: {

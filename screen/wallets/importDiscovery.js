@@ -10,7 +10,7 @@ import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import prompt from '../../blue_modules/prompt';
+import prompt from '../../helpers/prompt';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();

@@ -65,7 +65,7 @@
     "e2e:release-build": "detox build -c android.release",
     "e2e:release-test": "detox test -c android.release --record-videos all --record-logs all --take-screenshots all --headless -d 200000",
     "tslint": "tsc",
-    "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components",
+    "lint": "eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components && npm run tslint",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest -b -i tests/unit/*",
