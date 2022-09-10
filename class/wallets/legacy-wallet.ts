@@ -5,7 +5,7 @@ import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import coinSelect, { CoinSelectOutput, CoinselectReturnInput, CoinSelectTarget, CoinselectUtxo } from 'coinselect';
+import coinSelect, { CoinSelectOutput, CoinselectReturnInput, CoinSelectTarget, CoinSelectUtxo } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
@@ -373,7 +373,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   coinselect(
-    utxos: CoinselectUtxo[],
+    utxos: CoinSelectUtxo[],
     targets: CoinSelectTarget[],
     feeRate: number,
     changeAddress: string,

@@ -20,10 +20,10 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
 
-interface BalanceByIndex {
+type BalanceByIndex = {
   c: number;
   u: number;
-}
+};
 
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
@@ -131,15 +131,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     if (node === 0 && !this._node0) {
-      // @ts-ignore
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
-      // @ts-ignore
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
@@ -168,15 +166,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
 
     if (node === 0 && !this._node0) {
-      // @ts-ignore
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
-      // @ts-ignore
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this._zpubToXpub(this.getXpub());
       const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
@@ -271,7 +267,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
-    const txs: Record<string, any> = {};
+    const txs: Record<string, ElectrumHistory> = {};
     for (const history of Object.values(histories)) {
       for (const tx of history as ElectrumHistory[]) {
         txs[tx.tx_hash] = tx;
@@ -324,11 +320,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const clonedTx: any = Object.assign({}, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            delete clonedTx.vin;
-            delete clonedTx.vout;
+            const { vin: txVin, vout: txVout, ...txRest } = tx;
+            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -345,13 +338,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            // @ts-ignore
-            delete clonedTx.vin;
-            // @ts-ignore
-            delete clonedTx.vout;
+            const { vin: txVin, vout: txVout, ...txRest } = tx;
+            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -373,13 +361,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            // @ts-ignore
-            delete clonedTx.vin;
-            // @ts-ignore
-            delete clonedTx.vout;
+            const { vin: txVin, vout: txVout, ...txRest } = tx;
+            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -396,13 +379,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const clonedTx: Transaction = Object.assign({ inputs: [], outputs: [] }, tx);
-            clonedTx.inputs = tx.vin.slice(0);
-            clonedTx.outputs = tx.vout.slice(0);
-            // @ts-ignore
-            delete clonedTx.vin;
-            // @ts-ignore
-            delete clonedTx.vout;
+            const { vin: txVin, vout: txVout, ...txRest } = tx;
+            const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
 
             // trying to replace tx if it exists already (because it has lower confirmations, for example)
             let replaced = false;
@@ -985,22 +963,20 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
 
-      const outputData: any = {
+      psbt.addOutput({
         address: output.address,
         value: output.value,
-      };
-
-      if (change) {
-        outputData.bip32Derivation = [
-          {
-            masterFingerprint: masterFingerprintBuffer,
-            path,
-            pubkey,
-          },
-        ];
-      }
-
-      psbt.addOutput(outputData);
+        bip32Derivation:
+          change && path && pubkey
+            ? [
+                {
+                  masterFingerprint: masterFingerprintBuffer,
+                  path,
+                  pubkey,
+                },
+              ]
+            : [],
+      });
     });
 
     if (!skipSigning) {
@@ -1021,8 +997,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!input.address) {
       throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
     }
-    const pubkey = <Buffer>this._getPubkeyByAddress(input.address);
-    const path = <string>this._getDerivationPathByAddress(input.address);
+    const pubkey = this._getPubkeyByAddress(input.address);
+    const path = this._getDerivationPathByAddress(input.address);
+    if (!pubkey || !path) {
+      throw new Error('Internal error: pubkey or path are invalid');
+    }
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
 
     psbt.addInput({

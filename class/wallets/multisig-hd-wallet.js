@@ -142,7 +142,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let xpub;
 
     try {
-      xpub = super._zpubToXpub(key);
+      const tempWallet = new MultisigHDWallet();
+      xpub = tempWallet._zpubToXpub(key);
       bip32.fromBase58(xpub);
       return true;
     } catch (_) {}
@@ -242,7 +243,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         this._cosignersPassphrases[index],
       );
     }
-    return this.constructor._zpubToXpub(xpub);
+    return this._zpubToXpub(xpub);
   }
 
   _getExternalAddressByIndex(index) {

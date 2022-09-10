@@ -70,11 +70,11 @@ export function getMempoolTransactionsByAddress(address: string): Promise<Mempoo
 
 export function estimateCurrentBlockheight(): number;
 
-export interface ElectrumHistory {
+export type ElectrumHistory = {
   tx_hash: string; // eslint-disable-line camelcase
   height: number;
   address: string;
-}
+};
 
 export function multiGetHistoryByAddress(addresses: string[]): Promise<Record<string, ElectrumHistory[]>>;
 

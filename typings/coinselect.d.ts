@@ -7,7 +7,7 @@ declare module 'coinselect' {
     };
   };
 
-  export type CoinselectUtxo = {
+  export type CoinSelectUtxo = {
     vout: number;
     value: number;
     txId: string;
@@ -37,7 +37,7 @@ declare module 'coinselect' {
   };
 
   export default function coinSelect(
-    utxos: CoinselectUtxo[],
+    utxos: CoinSelectUtxo[],
     targets: CoinSelectTarget[],
     feeRate: number,
     changeAddress?: string,
