@@ -359,7 +359,7 @@
     "details_title": "פעולה",
     "details_to": "פלט",
     "details_transaction_details": "פרטי פעולה",
-    "enable_offline_signing": "ארנק זה לא בשימוש בצירוף חתימה קרה. האם ברצונך לאפשר זאת עכשיו?",
+    "enable_offline_signing": "ארנק זה לא בשימוש בצירוף חיתום קר. האם ברצונך לאפשר זאת עכשיו?",
     "list_conf": "אישורים: {number}",
     "pending": "ממתין",
     "pending_with_amount": "ממתין {amt1} ({amt2})",
