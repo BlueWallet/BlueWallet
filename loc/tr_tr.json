@@ -3,8 +3,10 @@
     "bad_password": "Hatalı şifre, lütfen tekrar deneyiniz.",
     "cancel": "Vazgeç",
     "continue": "Devam et",
+    "clipboard": "Pano",
     "enter_password": "Şifre gir",
     "never": "Asla",
+    "disabled": "Devre dışı",
     "of": "{number} / {total}",
     "ok": "Tamam",
     "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",
@@ -24,6 +26,9 @@
     "external_storage": "Dış depolama ünitesi",
     "discard_changes": "Değişiklikleri iptal et?",
     "discard_changes_detail": "Değişiklikler kaydedilmedi. Kaydetmeden ekrandan çıkmak istediğinize emin misiniz?"
+  },
+  "alert": {
+    "default": "Uyarı"
   },
   "azteco": {
     "codeIs": "Bilet kodunuz ",
@@ -45,16 +50,48 @@
     "network": "Ağ Hatası"
   },
   "lnd": {
+    "active": "Aktif",
+    "inactive": "Inaktif",
+    "channels": "Kanallar",
+    "no_channels": "Kanal yok",
+    "claim_balance": "Talep balansı (balans)",
+    "close_channel": "Kanalı kapa",
+    "new_channel": "Yeni kanal",
+    "errorInvoiceExpired": "Fatura zaman aşımına uğradı",
+    "force_close_channel": "Kanalı kapamaya zorla",
     "expired": "Süresi doldu",
+    "node_alias": "Node mahlası",
     "expiredLow": "Süresi doldu",
+    "expiresIn": "{time} dakika içerisinde sona erer",
+    "payButton": "Öde",
     "placeholder": "Fatura",
+    "open_channel": "Kanal aç",
+    "funding_amount_placeholder": "Fonlama miktarı, örnek 0.001",
+    "opening_channnel_for_from": "{fromWalletLabel} tarafından fonlanan kanal {forWalletLabel} için aılıyor",
+    "are_you_sure_open_channel": "Bu kanalı açmak istediğinizden emin misiniz?",
+    "are_you_sure_exit_without_new_channel": "Kanal açmadan çıkmak istediğinizden emin misiniz?",
+    "public": "Halka-açık",
+    "private": "Özel",
     "refill": "Yükle",
+    "reconnect_peer": "Eş'e tekrar bağlan",
     "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
     "sameWalletAsInvoiceError": "Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.",
-    "title": "Bakiyeleri Yönet"
+    "title": "Bakiyeleri Yönet",
+    "can_send": "Gönderebilir",
+    "can_receive": "Alabilir",
+    "view_logs": "Logları gör"
   },
   "lndViewInvoice": {
-    "additional_info": "Ek Bilgi"
+    "additional_info": "Ek Bilgi",
+    "for": "İçin: ",
+    "lightning_invoice": "Lightning faturası",
+    "has_been_paid": "Bu fatura ödendi",
+    "open_direct_channel": "Bu noda direkt kanal aç: ",
+    "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
+    "please_pay": "Lütfen ödeyin",
+    "preimage": "Preimage",
+    "sats": "sats.",
+    "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı."
   },
   "plausibledeniability": {
     "create_fake_storage": "Sahte şifreli depolama oluşturun",
@@ -70,8 +107,11 @@
   "pleasebackup": {
     "ask_no": "Hayır, kaydetmedim.",
     "ask_yes": "Evet, kaydettim.",
+    "ok": "Evet, deftere yazdım.",
+    "ok_lnd": "Evet, kaydettim.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
-    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır."
+    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır.",
+    "title": "Cüzdanınız oluşturuldu."
   },
   "receive": {
     "details_create": "Oluştur",

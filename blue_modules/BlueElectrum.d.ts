@@ -85,3 +85,5 @@ export function broadcastV2(txhex: string): Promise<string>;
 export function getTransactionsFullByAddress(address: string): Promise<ElectrumTransaction[]>;
 
 export function txhexToElectrumTransaction(txhes: string): ElectrumTransaction;
+
+export function isDisabled(): Promise<boolean>;
