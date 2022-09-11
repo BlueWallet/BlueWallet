@@ -9,14 +9,15 @@ import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { ECPairFactory } from 'ecpair';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { ElectrumHistory, ElectrumTransaction } from '../../blue_modules/BlueElectrum';
+import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
-import { CoinselectReturnInput, CoinSelectTarget } from 'coinselect';
+import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
 
@@ -280,7 +281,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
     // then we combine all this data (we need inputs to see source addresses and amounts)
     const vinTxids = [];
-    for (const txdata of Object.values(txdatas) as ElectrumTransaction[]) {
+    for (const txdata of Object.values(txdatas)) {
       for (const vin of txdata.vin) {
         vinTxids.push(vin.txid);
       }
@@ -315,7 +316,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas) as ElectrumTransaction[]) {
+      for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
@@ -356,7 +357,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas) as ElectrumTransaction[]) {
+      for (const tx of Object.values(txdatas)) {
         for (const vin of tx.vin) {
           if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
@@ -993,7 +994,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return { tx, inputs, outputs, fee, psbt };
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinselectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
     if (!input.address) {
       throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
     }

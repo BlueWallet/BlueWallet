@@ -19,7 +19,7 @@ declare module 'coinselect' {
     };
   };
 
-  export type CoinselectReturnInput = {
+  export type CoinSelectReturnInput = {
     vout: number;
     value: number;
     txid: string;
@@ -42,7 +42,7 @@ declare module 'coinselect' {
     feeRate: number,
     changeAddress?: string,
   ): {
-    inputs: CoinselectReturnInput[];
+    inputs: CoinSelectReturnInput[];
     outputs: CoinSelectOutput[];
     fee: number;
   };

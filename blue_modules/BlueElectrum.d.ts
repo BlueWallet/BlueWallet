@@ -22,6 +22,7 @@ export type ElectrumTransaction = {
     txinwitness: string[];
     sequence: number;
     addresses?: string[];
+    value?: number;
   }[];
   vout: {
     value: number;
@@ -63,6 +64,14 @@ export function multiGetTransactionByTxid(
   verbose: true = true,
 ): Promise<Record<string, ElectrumTransaction>>;
 export function multiGetTransactionByTxid(txIds: string[], batchsize: number, verbose: false): Promise<Record<string, string>>;
+
+export type MultiGetBalanceResponse = {
+  balance: number;
+  unconfirmed_balance: number; // eslint-disable-line camelcase
+  addresses: Record<string, { confirmed: number; unconfirmed: number }>;
+};
+
+export function multiGetBalanceByAddress(addresses: string[], batchsize?: number): Promise<MultiGetBalanceResponse>;
 
 export function getTransactionsByAddress(address: string): ElectrumTransaction[];
 
