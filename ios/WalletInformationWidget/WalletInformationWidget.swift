@@ -70,11 +70,19 @@ struct WalletInformationWidget: Widget {
   let kind: String = "WalletInformationWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
-      WalletInformationWidgetEntryView(entry: entry)
+    if #available(iOSApplicationExtension 16.0, *) {
+      return StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
+        WalletInformationWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Balance")
+      .description("View your accumulated balance.").supportedFamilies([.systemSmall, .accessoryRectangular])
+    } else {
+      return StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
+        WalletInformationWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Balance")
+      .description("View your accumulated balance.").supportedFamilies([.systemSmall])
     }
-    .configurationDisplayName("Balance")
-    .description("View your accumulated balance.").supportedFamilies([.systemSmall])
   }
 }
 

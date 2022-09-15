@@ -87,11 +87,19 @@ struct PriceWidget: Widget {
   let kind: String = "PriceWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
-      PriceWidgetEntryView(entry: entry)
+    if #available(iOSApplicationExtension 16.0, *) {
+      return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
+        PriceWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Price")
+      .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall, .accessoryRectangular])
+    } else {
+      return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
+        PriceWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Price")
+      .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
     }
-    .configurationDisplayName("Price")
-    .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
   }
 }
 
