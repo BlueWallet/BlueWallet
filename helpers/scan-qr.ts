@@ -8,12 +8,19 @@
  *
  * @return {Promise<string>}
  */
-module.exports = function scanQrHelper(navigateFunc, currentScreenName, showFileImportButton = true) {
+module.exports = function scanQrHelper(
+  navigateFunc: (scr: string, params?: any) => void,
+  currentScreenName: string,
+  showFileImportButton = true,
+): Promise<string | null> {
   return new Promise(resolve => {
-    const params = {};
-    params.showFileImportButton = !!showFileImportButton;
+    const params = {
+      showFileImportButton: Boolean(showFileImportButton),
+      onBarScanned: (data: any) => {},
+      onDismiss: () => {},
+    };
 
-    params.onBarScanned = function (data) {
+    params.onBarScanned = function (data: any) {
       setTimeout(() => resolve(data.data || data), 1);
       navigateFunc(currentScreenName);
     };
@@ -28,3 +35,5 @@ module.exports = function scanQrHelper(navigateFunc, currentScreenName, showFile
     });
   });
 };
+
+export {};

@@ -1,4 +1,5 @@
 import bitcoin from 'bitcoinjs-lib';
+import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 
 export type Utxo = {
   // Returned by BlueElectrum
@@ -16,21 +17,25 @@ export type Utxo = {
   wif?: string | false;
 };
 
+/**
+ * basically the same as coinselect.d.ts/CoinselectUtxo
+ * and should be unified as soon as bullshit with txid/txId is sorted
+ */
 export type CreateTransactionUtxo = {
   txId: string;
   txid: string; // TODO: same as txId, do we really need it?
   txhex: string;
   vout: number;
   value: number;
+  script?: {
+    length: number;
+  };
 };
 
-export type CreateTransactionResult<U extends CreateTransactionUtxo = CreateTransactionUtxo> = {
+export type CreateTransactionResult = {
   tx?: bitcoin.Transaction;
-  inputs: U[];
-  outputs: {
-    address: string;
-    value: number;
-  }[];
+  inputs: CoinSelectReturnInput[];
+  outputs: CoinSelectOutput[];
   fee: number;
   psbt: bitcoin.Psbt;
 };
@@ -42,6 +47,7 @@ type TransactionInput = {
   txinwitness: string[];
   sequence: number;
   addresses?: string[];
+  address?: string;
   value?: number;
 };
 

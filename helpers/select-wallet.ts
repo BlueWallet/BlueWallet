@@ -10,16 +10,32 @@
  *
  * @returns {Promise<AbstractWallet>}
  */
-module.exports = function (navigateFunc, currentScreenName, chainType, availableWallets, noWalletExplanationText = '') {
+import { AbstractWallet } from '../class';
+
+module.exports = function (
+  navigateFunc: (scr: string, params?: any) => void,
+  currentScreenName: string,
+  chainType: string | null,
+  availableWallets?: AbstractWallet[],
+  noWalletExplanationText = '',
+): Promise<AbstractWallet> {
   return new Promise((resolve, reject) => {
     if (!currentScreenName) return reject(new Error('currentScreenName is not provided'));
 
-    const params = {};
+    const params: {
+      chainType: string | null;
+      availableWallets?: AbstractWallet[];
+      noWalletExplanationText?: string;
+      onWalletSelect: (selectedWallet: AbstractWallet) => void;
+    } = {
+      chainType: null,
+      onWalletSelect: (selectedWallet: AbstractWallet) => {},
+    };
     if (chainType) params.chainType = chainType;
     if (availableWallets) params.availableWallets = availableWallets;
     if (noWalletExplanationText) params.noWalletExplanationText = noWalletExplanationText;
 
-    params.onWalletSelect = function (selectedWallet) {
+    params.onWalletSelect = function (selectedWallet: AbstractWallet) {
       if (!selectedWallet) return;
 
       setTimeout(() => resolve(selectedWallet), 1);

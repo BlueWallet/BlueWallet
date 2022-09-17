@@ -46,7 +46,7 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 const fs = require('../../blue_modules/fs');
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);

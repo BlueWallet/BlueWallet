@@ -1977,7 +1977,8 @@ describe('multisig-cosigner', () => {
   });
 
   it('can parse cobo json, if xpub is plain xpub (not Zpub or Ypub)', () => {
-    let xpub = MultisigCosigner._zpubToXpub(Zpub1);
+    const tempWallet = new MultisigHDWallet();
+    let xpub = tempWallet._zpubToXpub(Zpub1);
     assert.ok(xpub.startsWith('xpub'));
     let cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_NATIVE_SEGWIT}"}`);
     assert.ok(cosigner.isValid());
@@ -1992,7 +1993,7 @@ describe('multisig-cosigner', () => {
     //
 
     const Ypub1 = 'Ypub6jtUX12KGcqFosZWP4YcHc9qbKRTvgBpb8aE58hsYqby3SQVTr5KGfMmdMg38ekmQ9iLhCdgbAbjih7AWSkA7pgRhiLfah3zT6u1PFvVEbc';
-    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    xpub = tempWallet._zpubToXpub(Ypub1);
     assert.ok(xpub.startsWith('xpub'));
     cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_WRAPPED_SEGWIT}"}`);
     assert.ok(cosigner.isValid());
@@ -2006,7 +2007,7 @@ describe('multisig-cosigner', () => {
 
     //
 
-    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    xpub = tempWallet._zpubToXpub(Ypub1);
     assert.ok(xpub.startsWith('xpub'));
     cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_LEGACY}"}`);
     assert.ok(cosigner.isValid());

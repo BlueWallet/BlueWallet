@@ -263,7 +263,7 @@ export class WatchOnlyWallet extends LegacyWallet {
 
     try {
       if (this.secret.startsWith('zpub')) {
-        xpub = this.constructor._zpubToXpub(this.secret);
+        xpub = this._zpubToXpub(this.secret);
       } else if (this.secret.startsWith('ypub')) {
         xpub = this.constructor._ypubToXpub(this.secret);
       } else {
