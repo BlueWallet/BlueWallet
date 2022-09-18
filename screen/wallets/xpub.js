@@ -2,13 +2,14 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { InteractionManager, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueButton } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
+import Share from 'react-native-share';
 
 const styles = StyleSheet.create({
   root: {
@@ -19,6 +20,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
+  },
+  share: {
+    alignSelf: 'center',
+    width: '40%',
   },
 });
 
@@ -68,6 +73,10 @@ const WalletXpub = () => {
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
 
+  const handleShareButtonPressed = () => {
+    Share.open({ message: xpub }).catch(error => console.log(error));
+  };
+
   return isLoading ? (
     <View style={[styles.container, stylesHook.root]}>
       <ActivityIndicator />
@@ -75,21 +84,26 @@ const WalletXpub = () => {
   ) : (
     <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.container}>
-        {wallet && (
-          <>
-            <View>
-              <BlueText>{wallet.typeReadable}</BlueText>
-            </View>
-            <BlueSpacing20 />
-          </>
-        )}
-        <QRCodeComponent value={xpub} size={qrCodeSize} />
+      <>
+        <View style={styles.container}>
+          {wallet && (
+            <>
+              <View>
+                <BlueText>{wallet.typeReadable}</BlueText>
+              </View>
+              <BlueSpacing20 />
+            </>
+          )}
+          <QRCodeComponent value={xpub} size={qrCodeSize} />
 
-        <BlueSpacing20 />
-        <BlueCopyTextToClipboard text={xPubText} />
+          <BlueSpacing20 />
+          <BlueCopyTextToClipboard text={xPubText} />
+        </View>
         <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
-      </View>
+        <View style={styles.share}>
+          <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </View>
+      </>
     </SafeBlueArea>
   );
 };

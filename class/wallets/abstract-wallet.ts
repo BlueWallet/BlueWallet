@@ -368,7 +368,7 @@ export class AbstractWallet {
    * @param {String} zpub
    * @returns {String} xpub
    */
-  static _zpubToXpub(zpub: string): string {
+  _zpubToXpub(zpub: string): string {
     let data = b58.decode(zpub);
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);

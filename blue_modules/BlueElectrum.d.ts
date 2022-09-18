@@ -7,7 +7,7 @@ type Utxo = {
   wif?: string;
 };
 
-type Transaction = {
+export type ElectrumTransaction = {
   txid: string;
   hash: string;
   version: number;
@@ -21,6 +21,8 @@ type Transaction = {
     scriptSig: { asm: string; hex: string };
     txinwitness: string[];
     sequence: number;
+    addresses?: string[];
+    value?: number;
   }[];
   vout: {
     value: number;
@@ -60,32 +62,37 @@ export function multiGetTransactionByTxid(
   txIds: string[],
   batchsize: number = 45,
   verbose: true = true,
-): Promise<Record<string, Transaction>>;
+): Promise<Record<string, ElectrumTransaction>>;
 export function multiGetTransactionByTxid(txIds: string[], batchsize: number, verbose: false): Promise<Record<string, string>>;
 
-export function getTransactionsByAddress(address: string): Transaction[];
+export type MultiGetBalanceResponse = {
+  balance: number;
+  unconfirmed_balance: number; // eslint-disable-line camelcase
+  addresses: Record<string, { confirmed: number; unconfirmed: number }>;
+};
+
+export function multiGetBalanceByAddress(addresses: string[], batchsize?: number): Promise<MultiGetBalanceResponse>;
+
+export function getTransactionsByAddress(address: string): ElectrumTransaction[];
 
 export function getMempoolTransactionsByAddress(address: string): Promise<MempoolTransaction[]>;
 
 export function estimateCurrentBlockheight(): number;
 
-export function multiGetHistoryByAddress(addresses: string[]): Promise<
-  Record<
-    string,
-    {
-      tx_hash: string; // eslint-disable-line camelcase
-      height: number;
-      address: string;
-    }[]
-  >
->;
+export type ElectrumHistory = {
+  tx_hash: string; // eslint-disable-line camelcase
+  height: number;
+  address: string;
+};
+
+export function multiGetHistoryByAddress(addresses: string[]): Promise<Record<string, ElectrumHistory[]>>;
 
 export function estimateFees(): Promise<{ fast: number; medium: number; slow: number }>;
 
 export function broadcastV2(txhex: string): Promise<string>;
 
-export function getTransactionsFullByAddress(address: string): Promise<Transaction[]>;
+export function getTransactionsFullByAddress(address: string): Promise<ElectrumTransaction[]>;
 
-export function txhexToElectrumTransaction(txhes: string): Transaction;
+export function txhexToElectrumTransaction(txhes: string): ElectrumTransaction;
 
 export function isDisabled(): Promise<boolean>;

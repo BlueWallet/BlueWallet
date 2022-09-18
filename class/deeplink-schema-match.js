@@ -125,7 +125,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'SendDetails',
           params: {
-            uri: event.url,
+            uri: event.url.replace('://', ':'),
           },
         },
       ]);
@@ -135,7 +135,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'ScanLndInvoice',
           params: {
-            uri: event.url,
+            uri: event.url.replace('://', ':'),
           },
         },
       ]);
@@ -344,7 +344,7 @@ class DeeplinkSchemaMatch {
   }
 
   static isBitcoinAddress(address) {
-    address = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
+    address = address.replace('://', ':').replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     let isValidBitcoinAddress = false;
     try {
       bitcoin.address.toOutputScript(address);
@@ -357,7 +357,11 @@ class DeeplinkSchemaMatch {
 
   static isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
-    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
+    if (
+      invoice.toLowerCase().startsWith('lightning:lnb') ||
+      invoice.toLowerCase().startsWith('lightning://lnb') ||
+      invoice.toLowerCase().startsWith('lnb')
+    ) {
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
@@ -373,7 +377,7 @@ class DeeplinkSchemaMatch {
 
   static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
-      const txInfo = url.split(/(bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
+      const txInfo = url.split(/(bitcoin:\/\/|BITCOIN:\/\/|bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
       let bitcoin;
       let lndInvoice;
       for (const [index, value] of txInfo.entries()) {
@@ -408,7 +412,12 @@ class DeeplinkSchemaMatch {
 
   static bip21decode(uri) {
     if (!uri) return {};
-    return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
+    let replacedUri = uri;
+    for (const replaceMe of ['BITCOIN://', 'bitcoin://', 'BITCOIN:']) {
+      replacedUri = replacedUri.replace(replaceMe, 'bitcoin:');
+    }
+
+    return bip21.decode(replacedUri);
   }
 
   static bip21encode() {

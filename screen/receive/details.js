@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
-
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
