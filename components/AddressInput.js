@@ -20,6 +20,7 @@ const AddressInput = ({
   onBarScannerDismissWithoutData = () => {},
   scanButtonTapped = () => {},
   launchedBy,
+  showFileImportButton = false,
   editable = true,
   inputAccessoryViewID,
   onBlur = () => {},
@@ -81,6 +82,7 @@ const AddressInput = ({
                   launchedBy,
                   onBarScanned,
                   onBarScannerDismissWithoutData,
+                  showFileImportButton,
                 },
               });
             }
@@ -140,6 +142,7 @@ AddressInput.propTypes = {
   launchedBy: PropTypes.string,
   address: PropTypes.string,
   placeholder: PropTypes.string,
+  showFileImportButton: PropTypes.bool,
   editable: PropTypes.bool,
   scanButtonTapped: PropTypes.func,
   inputAccessoryViewID: PropTypes.string,

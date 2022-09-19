@@ -7,8 +7,8 @@ import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
-
 import loc from '../../loc';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -19,8 +19,10 @@ const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
+  const nfcManagerComponent = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
+  const [showNFCButton, setShowNFCButton] = useState(false);
   const dynamicQRCode = useRef();
   const isFocused = useIsFocused();
 
@@ -37,6 +39,10 @@ const PsbtMultisigQRCode = () => {
     },
   });
   const fileName = `${Date.now()}.psbt`;
+
+  useEffect(() => {
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
+  }, []);
 
   useEffect(() => {
     if (isFocused) {
@@ -87,6 +93,11 @@ const PsbtMultisigQRCode = () => {
     );
   };
 
+  const exportPSBTToTag = () => {
+    setIsLoading(true);
+    nfcManagerComponent.current.writeNdef(psbt).finally(() => setIsLoading(false));
+  };
+
   return (
     <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
@@ -108,9 +119,22 @@ const PsbtMultisigQRCode = () => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <>
+              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+              {showNFCButton && (
+                <>
+                  <BlueSpacing20 />
+                  <SquareButton
+                    style={[styles.exportButton, stylesHook.exportButton]}
+                    onPress={exportPSBTToTag}
+                    title={loc.wallets.write_to_nfc}
+                  />
+                </>
+              )}
+            </>
           )}
         </View>
+        <NFCComponent ref={nfcManagerComponent} />
       </ScrollView>
     </SafeBlueArea>
   );

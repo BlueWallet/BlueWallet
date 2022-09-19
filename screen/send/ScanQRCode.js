@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
@@ -8,6 +8,7 @@ import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigati
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -58,6 +59,16 @@ const styles = StyleSheet.create({
     left: 96,
     bottom: 48,
   },
+  nfcTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    left: 168,
+    bottom: 48,
+  },
   openSettingsContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -87,6 +98,7 @@ const ScanQRCode = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
+  const [showNFCButton, setShowNFCButton] = useState(false);
   const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
@@ -110,9 +122,14 @@ const ScanQRCode = () => {
       color: colors.foregroundColor,
     },
   });
+  const nfcManagerRef = useRef();
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
+
+  useEffect(() => {
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
+  }, []);
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();
@@ -285,6 +302,14 @@ const ScanQRCode = () => {
     }
   };
 
+  const scanNFCButtonPressed = () => {
+    nfcManagerRef.current?.readNdefOnce().then(resolve => {
+      if (resolve) {
+        onBarCodeRead({ data: resolve });
+      }
+    });
+  };
+
   const dismiss = () => {
     onBarScannerDismissWithoutData();
     if (launchedBy) {
@@ -306,6 +331,7 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
+      <NFCComponent ref={nfcManagerRef} />
       {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
         <RNCamera
           autoFocus
@@ -338,6 +364,11 @@ const ScanQRCode = () => {
       {showFileImportButton && (
         <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
           <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
+        </TouchableOpacity>
+      )}
+      {showNFCButton && (
+        <TouchableOpacity style={showFileImportButton ? styles.nfcTouch : styles.filePickerTouch} onPress={scanNFCButtonPressed}>
+          <Icon name="cellphone-nfc" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}
       {urTotal > 0 && (

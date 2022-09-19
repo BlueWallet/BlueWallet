@@ -37,6 +37,7 @@ import Notifications from '../../blue_modules/notifications';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import NFCComponent, { NFCComponentProxy } from '../../class/nfcmanager';
 import { SuccessView } from '../send/success';
 const currency = require('../../blue_modules/currency');
 
@@ -53,6 +54,8 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
+  const [showNFCButton, setShowNFCButton] = useState(false);
+  const nfcComponentRef = useRef();
   const { navigate, goBack, setParams } = useNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -210,6 +213,10 @@ const ReceiveDetails = () => {
     );
   };
 
+  const handleWriteToNFCTag = () => {
+    nfcComponentRef.current?.writeNdef(isCustom ? bip21encoded : address);
+  };
+
   const renderPendingBalance = () => {
     return (
       <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
@@ -281,6 +288,13 @@ const ReceiveDetails = () => {
               onPress={showCustomAmountModal}
             />
             <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+
+            {showNFCButton && (
+              <>
+                <BlueSpacing20 />
+                <BlueButton onPress={handleWriteToNFCTag} title={loc.wallets.write_to_nfc} />
+              </>
+            )}
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -326,6 +340,7 @@ const ReceiveDetails = () => {
       await Notifications.tryToObtainPermissions();
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
+    NFCComponentProxy.isSupportedAndEnabled().then(setShowNFCButton);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -471,6 +486,7 @@ const ReceiveDetails = () => {
       {showPendingBalance ? renderPendingBalance() : null}
       {showAddress ? renderReceiveDetails() : null}
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
+      <NFCComponent ref={nfcComponentRef} />
     </View>
   );
 };
