@@ -44,12 +44,15 @@ var webln = {
     });
   },
   sendPayment: function (paymentRequest) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    var id = Math.random(); // eslint-disable-line
+    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest, id: id }));
     return new Promise(function (resolve, reject) {
-      /* nop. intentionally, forever hang promise.
-         lapp page usually asynchroniously checks payment itself, via ajax,
-         so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-         might change in future */
+      var interval = setInterval(function () { // eslint-disable-line
+        if (bluewalletResponses[id]) {
+          clearInterval(interval);
+          resolve(bluewalletResponses[id]);
+        }
+      }, 1000);
     });
   },
   makeInvoice: function (RequestInvoiceArgs) {
@@ -120,12 +123,15 @@ webln = {
     })
   },
   sendPayment: function(paymentRequest) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
-    return new Promise(function(resolve, reject) {
-      /* nop. intentionally, forever hang promise.
-         lapp page usually asynchroniously checks payment itself, via ajax,
-         so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-         might change in future */
+    var id = Math.random(); // eslint-disable-line
+    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest, id: id }));
+    return new Promise(function (resolve, reject) {
+      var interval = setInterval(function () { // eslint-disable-line
+        if (bluewalletResponses[id]) {
+          clearInterval(interval);
+          resolve(bluewalletResponses[id]);
+        }
+      }, 1000);
     });
   },
   makeInvoice: function (RequestInvoiceArgs) {
