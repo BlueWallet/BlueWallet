@@ -96,13 +96,12 @@ const WalletAddresses = () => {
     }
   }, [showAddresses]);
 
-  useLayoutEffect(() => { 
-    setOptions({ 
+  useLayoutEffect(() => {
+    setOptions({
       searchBar: {
-        onChangeText: (event) => setSearch(event.nativeEvent.text),
-        
-      }
-    })
+        onChangeText: event => setSearch(event.nativeEvent.text),
+      },
+    });
   }, [setOptions]);
 
   const getAddresses = () => {
@@ -134,8 +133,8 @@ const WalletAddresses = () => {
     }, []),
   );
 
-  const data = (search.length > 0) ? filteredAddresses.filter(item => item.address.includes(search)) : filteredAddresses;
-
+  const data =
+    search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;
 
   const renderRow = item => {
     return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />;
