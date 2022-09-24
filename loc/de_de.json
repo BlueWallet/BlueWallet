@@ -32,7 +32,7 @@
   },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
-    "errorBeforeRefeem": "Vor der Einlösung muss eine Bitcoin Wallet hinzugefügt werden.",
+    "errorBeforeRefeem": "Vor dem Einlösen zuerst eine Bitcoin Wallet hinzufügen.",
     "errorSomething": "Etwas ist schiefgelaufen. Ist der Gutscheincode noch gültig?",
     "redeem": "Einlösen in eine Wallet",
     "redeemButton": "Einlösen",
@@ -82,7 +82,7 @@
     "refill_create": "Bitte eine Bitcoin Wallet erstellen um fortzufahren",
     "refill_external": "Mit externem Wallet aufladen",
     "refill_lnd_balance": "Lade deine Lightning Wallet auf",
-    "sameWalletAsInvoiceError": "Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.",
+    "sameWalletAsInvoiceError": "Die Rechnung kann nicht mit der gleichen Wallet beglichen werden, die sie erstellt hat.",
     "title": "Beträge verwalten",
     "can_send": "Kann senden",
     "can_receive": "Kann empfangen",
@@ -98,7 +98,7 @@
     "please_pay": "Bitte zahle",
     "preimage": "Urbild",
     "sats": "sats",
-    "wasnt_paid_and_expired": "Diese Rechnung wurde nicht bezahlt und ist abgelaufen."
+    "wasnt_paid_and_expired": "Diese Rechnung ist unbezahlt abgelaufen."
   },
   "plausibledeniability": {
     "create_fake_storage": "Verschlüsselten Speicher erstellen",
@@ -150,7 +150,7 @@
     "create_fee": "Gebühr",
     "create_memo": "Notiz",
     "create_satoshi_per_vbyte": "Satoshi pro vByte",
-    "create_this_is_hex": "Das ist die hexadezimale Darstellung der signierten Transaktion, die bereit zum Übertragen an das Netzwerk ist.",
+    "create_this_is_hex": "Dies ist die signierte Transaktion. Hexadezimal dargestellt und bereit zu Übertragung ins Netzwerk.",
     "create_to": "An",
     "create_tx_size": "Transaktionsgröße",
     "create_verify": "Verifiziere auf coinb.in",
@@ -176,7 +176,7 @@
     "details_scan": "Scannen",
     "details_scan_hint": "Zum Importieren / Scannen zweimal tippen",
     "details_total_exceeds_balance": "Der zu sendende Betrag ist größer als der verfügbare Betrag.",
-    "details_total_exceeds_balance_frozen": "Der zu sendende Betrag übersteigt das verfügbare Guthaben. Bitte beachte, dass eingefrorene Münzen ausgeschlossen sind.",
+    "details_total_exceeds_balance_frozen": "Der zu sendende Betrag übersteigt das verfügbare Guthaben. Bitte beachte, dass eingefrorene Münzen ausgeschlossen wurden.",
     "details_unrecognized_file_format": "Dateiformat unbekannt",
     "details_wallet_before_tx": "Vor Erstellung einer Transaktion zuerst eine Wallet hinzufügen.",
     "dynamic_init": "Initialisiere",
@@ -240,7 +240,7 @@
     "biometrics": "Biometrie",
     "biom_10times": "Sie haben 10 Mal versucht, Ihr Passwort einzugeben. Möchten Sie Ihren Speicher zurücksetzen? Dadurch werden alle Wallets entfernt und Ihr Speicher entschlüsselt.",
     "biom_conf_identity": "Bitte deine Identität bestätigen.",
-    "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren zuerst in den Geräteeinstellungen einen Passcode konfigurieren.",
+    "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren, diesen in den Geräteeinstellungen zuerst konfigurieren.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",
     "currency": "Währung",
     "currency_source": "Die Preisangaben stammen von",
@@ -470,7 +470,7 @@
     "list_long_scan": "QR Code scannen",
     "list_title": "Wallets",
     "list_tryagain": "Nochmal versuchen",
-    "no_ln_wallet_error": "Vor Bezahlung einer Lightning Rechnung zuerst ein Lightning wallet eröffnen.",
+    "no_ln_wallet_error": "Vor Bezahlung einer Lightning Rechnung zuerst ein Lightning Wallet eröffnen.",
     "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
     "reorder_title": "Wallets neu ordnen",
     "reorder_instructions": "Tippen und halten Sie eine Wallet, um sie umzuplatzieren.",
@@ -582,7 +582,7 @@
     "header": "Münzkontrolle",
     "use_coin": "Münzen benutzen",
     "use_coins": "Benutze Münzen",
-    "tip": "Wallet-Verwaltung zum Anzeigen, Beschriften, Einfrieren oder Auswählen von Münzen."
+    "tip": "Wallet-Verwaltung zum Anzeigen, Beschriften, Einfrieren oder Auswählen von Münzen. Zur Mehrfachselektion auf die Farbkreise tippen."
   },
   "units": {
     "BTC": "BTC",
