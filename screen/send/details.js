@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext, useMemo, useLayoutEffect } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -99,7 +99,7 @@ const SendDetails = () => {
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (wallet) {
       setHeaderRightOptions();
     }

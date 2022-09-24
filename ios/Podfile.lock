@@ -300,7 +300,7 @@ PODS:
     - React-Core
   - react-native-image-picker (4.8.5):
     - React-Core
-  - react-native-ios-context-menu (1.7.4):
+  - react-native-ios-context-menu (1.12.2):
     - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
@@ -772,7 +772,7 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
-  react-native-ios-context-menu: 7bf49ec6006cc0c61d873419557b85eb1b9629fb
+  react-native-ios-context-menu: 46b2b5e5b1467564cb7f7729e78adbd0738620a0
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
