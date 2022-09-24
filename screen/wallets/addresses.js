@@ -1,6 +1,6 @@
-import React, { useCallback, useState, useContext, useRef, useEffect } from 'react';
+import React, { useCallback, useState, useContext, useRef, useEffect, useLayoutEffect } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
-import { useFocusEffect, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
@@ -75,6 +75,10 @@ const WalletAddresses = () => {
 
   const { colors } = useTheme();
 
+  const { setOptions } = useNavigation();
+
+  const [search, setSearch] = React.useState('');
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -91,6 +95,15 @@ const WalletAddresses = () => {
       addressList.current.scrollToIndex({ animated: false, index: 0 });
     }
   }, [showAddresses]);
+
+  useLayoutEffect(() => { 
+    setOptions({ 
+      searchBar: {
+        onChangeText: (event) => setSearch(event.nativeEvent.text),
+        
+      }
+    })
+  }, [setOptions]);
 
   const getAddresses = () => {
     const addressList = [];
@@ -121,6 +134,9 @@ const WalletAddresses = () => {
     }, []),
   );
 
+  const data = (search.length > 0) ? filteredAddresses.filter(item => item.address.includes(search)) : filteredAddresses;
+
+
   const renderRow = item => {
     return <AddressItem {...item} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />;
   };
@@ -131,11 +147,11 @@ const WalletAddresses = () => {
       <FlatList
         contentContainerStyle={stylesHook.root}
         ref={addressList}
-        data={filteredAddresses}
-        extraData={filteredAddresses}
+        data={data}
+        extraData={data}
         initialNumToRender={20}
         renderItem={renderRow}
-        ListEmptyComponent={<ActivityIndicator />}
+        ListEmptyComponent={search.length > 0 ? null : <ActivityIndicator />}
         centerContent={!showAddresses}
         contentInsetAdjustmentBehavior="automatic"
         ListHeaderComponent={<AddressTypeTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />}
