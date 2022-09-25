@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -60,7 +60,7 @@ const TransactionsStatus = () => {
     setIsRBFCancelPossible(buttonStatus.unknown);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setOptions({
       headerRight: () => (
         <TouchableOpacity
