@@ -35,12 +35,11 @@ describe('currency', () => {
     cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
     assert.ok(cur.BTC_ARS > 0);
 
-    // test BitcoinduLiban rate source
-    // disabled, because it throws "Service Temporarily Unavailable" on circleci
-    // await currency.setPrefferedCurrency(FiatUnit.LBP);
-    // await currency.init(true);
-    // cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
-    // assert.ok(cur.BTC_LBP > 0);
+    // test YadioConvert rate source
+    await currency.setPrefferedCurrency(FiatUnit.LBP);
+    await currency.init(true);
+    cur = JSON.parse(await AsyncStorage.getItem(currency.EXCHANGE_RATES));
+    assert.ok(cur.BTC_LBP > 0);
 
     // test Exir rate source
     await currency.setPrefferedCurrency(FiatUnit.IRT);
