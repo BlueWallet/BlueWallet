@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -196,7 +196,7 @@ const WalletDetails = () => {
       });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
