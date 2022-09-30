@@ -113,7 +113,7 @@ const ReorderWallets = () => {
         >
           <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
             <Image
-              source={(() => {
+              defaultSource={(() => {
                 switch (item.type) {
                   case LightningLdkWallet.type:
                   case LightningCustodianWallet.type:

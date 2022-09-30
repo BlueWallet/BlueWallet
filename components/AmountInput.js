@@ -293,7 +293,7 @@ class AmountInput extends Component {
                 style={styles.changeAmountUnit}
                 onPress={this.changeAmountUnit}
               >
-                <Image source={require('../img/round-compare-arrows-24-px.png')} />
+                <Image defaultSource={require('../img/round-compare-arrows-24-px.png')} />
               </TouchableOpacity>
             )}
           </View>

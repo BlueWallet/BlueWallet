@@ -170,7 +170,7 @@ export default class TransactionsNavigationHeader extends Component {
         {...WalletGradient.linearGradientProps(this.state.wallet.type)}
       >
         <Image
-          source={(() => {
+          defaultSource={(() => {
             switch (this.state.wallet.type) {
               case LightningLdkWallet.type:
               case LightningCustodianWallet.type:

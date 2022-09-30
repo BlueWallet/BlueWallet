@@ -129,7 +129,7 @@ export const BitcoinButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/bitcoin.png')} />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} defaultSource={require('./img/addWallet/bitcoin.png')} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
@@ -170,7 +170,7 @@ export const VaultButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/vault.png')} />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} defaultSource={require('./img/addWallet/vault.png')} />
           </View>
           <View style={{ flex: 1 }}>
             <Text
@@ -219,7 +219,7 @@ export const LightningButton = props => {
       >
         <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
           <View>
-            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/lightning.png')} />
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} defaultSource={require('./img/addWallet/lightning.png')} />
           </View>
           <View style={{ flex: 1 }}>
             <Text

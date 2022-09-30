@@ -90,7 +90,7 @@ const AddressInput = ({
           accessibilityLabel={loc.send.details_scan}
           accessibilityHint={loc.send.details_scan_hint}
         >
-          <Image source={require('../img/scan-white.png')} accessible={false} />
+          <Image defaultSource={require('../img/scan-white.png')} accessible={false} />
           <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
             {loc.send.details_scan}
           </Text>

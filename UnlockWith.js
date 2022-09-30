@@ -101,7 +101,7 @@ const UnlockWith = () => {
         return (
           <TouchableOpacity accessibilityRole="button" disabled={isAuthenticating} onPress={unlockWithBiometrics}>
             <Image
-              source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
+              defaultSource={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
               style={styles.icon}
             />
           </TouchableOpacity>
