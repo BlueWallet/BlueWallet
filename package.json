@@ -125,7 +125,7 @@
     "coinselect": "3.1.13",
     "crypto-js": "4.1.1",
     "dayjs": "1.11.5",
-    "detox": "19.12.2",
+    "detox": "19.12.3",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
     "electrum-client": "https://github.com/BlueWallet/rn-electrum-client#76c0ea35e1a50c47f3a7f818d529ebd100161496",
