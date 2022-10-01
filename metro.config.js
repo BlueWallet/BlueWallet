@@ -6,6 +6,7 @@
  */
 const path = require('path');
 const exclusionList = require('metro-config/src/defaults/exclusionList');
+const defaultSourceExts = require('metro-config/src/defaults/defaults').sourceExts;
 
 module.exports = {
   resolver: {
@@ -15,6 +16,7 @@ module.exports = {
       // This prevents "react-native run-windows" from hitting: EBUSY: resource busy or locked, open msbuild.ProjectImports.zip
       /.*\.ProjectImports\.zip/,
     ]),
+    sourceExts: [...defaultSourceExts, 'cjs'], // cjs added as a workaround for metro so support tiny-secp256k1
   },
   transformer: {
     getTransformOptions: async () => ({
