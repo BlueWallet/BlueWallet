@@ -195,6 +195,7 @@
     "secure-random": "1.1.2",
     "slip39": "https://github.com/BlueWallet/slip39-js",
     "stream-browserify": "3.0.0",
+    "tiny-secp256k1": "1.1.6",
     "url": "0.11.0",
     "util": "0.12.4",
     "wif": "2.0.6"
