@@ -3,7 +3,6 @@ import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import BIP32Factory, { BIP32Interface } from 'bip32';
-import * as ecc from 'tiny-secp256k1';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
@@ -14,6 +13,7 @@ import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+import ecc from '../../blue_modules/noble_ecc';
 
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');

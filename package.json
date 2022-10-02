@@ -101,6 +101,7 @@
     "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.5.0",
     "@ngraveio/bc-ur": "1.1.6",
+    "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.17.10",
     "@react-native-clipboard/clipboard": "1.10.0",
     "@react-native-community/push-notification-ios": "1.10.1",
@@ -195,7 +196,6 @@
     "secure-random": "1.1.2",
     "slip39": "https://github.com/BlueWallet/slip39-js",
     "stream-browserify": "3.0.0",
-    "tiny-secp256k1": "1.1.6",
     "url": "0.11.0",
     "util": "0.12.4",
     "wif": "2.0.6"

@@ -4,7 +4,6 @@ import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
 
 import loc from '../loc';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
@@ -17,6 +16,7 @@ import {
   HDAezeedWallet,
   SLIP39LegacyP2PKHWallet,
 } from '../class';
+import ecc from '../blue_modules/noble_ecc';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
