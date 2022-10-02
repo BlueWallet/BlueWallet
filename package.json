@@ -54,7 +54,7 @@
     "android": "react-native run-android",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
-    "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run podinstall",
+    "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run podinstall",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
@@ -159,7 +159,6 @@
     "react-native-image-picker": "4.8.5",
     "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#v1.12.2",
     "react-native-keychain": "8.0.0",
-    "react-native-level-fs": "3.0.1",
     "react-native-linear-gradient": "2.6.2",
     "react-native-localize": "2.2.4",
     "react-native-modal": "13.0.1",
@@ -203,7 +202,6 @@
   "react-native": {
     "crypto": "react-native-crypto",
     "path": "path-browserify",
-    "fs": "react-native-level-fs",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
     "_stream_writable": "readable-stream/writable",
@@ -214,7 +212,6 @@
   "browser": {
     "crypto": "react-native-crypto",
     "path": "path-browserify",
-    "fs": "react-native-level-fs",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
     "_stream_writable": "readable-stream/writable",
