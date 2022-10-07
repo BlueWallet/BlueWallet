@@ -10,8 +10,6 @@
     "of": "{number} van {total}",
     "ok": "OK",
     "storage_is_encrypted": "Jou geheue spasie is nou ge-enkripteer. ‘n Wagwoord word benodig om toegang te verkry. ",
-    "allow": "Toelaatbaar",
-    "dont_allow": "Ontoelaatbaar",
     "yes": "Ja",
     "no": "Nee",
     "save": "Berg",
@@ -20,12 +18,7 @@
     "wallet_key": "Beursie sleutel",
     "invalid_animated_qr_code_fragment": "Ongeldige geanimeerde QRKode fragment. Probeer asb weer.",
     "file_saved": "Leêr {filePath} was gestoor in jou {destination}.",
-    "file_save_title": "Stoor Leêr",
-    "file_save_location": "Ken toe waar om te stoor {filePath}",
-    "downloads_folder": "Aflaai Lëer",
-    "external_storage": "Bygehegde stoor kapasiteit",
-    "discard_changes": "Verwerp veranderinge?",
-    "discard_changes_detail": "Jy het ongestoorde veranderinge. Is jy seker dat jy dit wil weg gooi en die skerm verlaat?"
+    "downloads_folder": "Aflaai Lëer"
   },
   "alert": {
     "default": "Aandag"
@@ -61,7 +54,6 @@
     "force_close_channel": "Dwing kanaal sluiting?",
     "expired": "Verval",
     "node_alias": "Knoop-punt noem naam",
-    "expiredLow": "Verval",
     "expiresIn": "Verval in {time} minute",
     "payButton": "Betaal",
     "placeholder": "Faktuur",
@@ -69,12 +61,6 @@
     "funding_amount_placeholder": "Befondsing bedrag, byvoorbeeld 0.001",
     "opening_channnel_for_from": "Skep kanaal vir beursie {forWalletLabel}, deur befondsing vanaf {fromWalletLabel}",
     "are_you_sure_open_channel": "Is jy seker jy wil hierdie kanaal oop maak?",
-    "are_you_sure_exit_without_new_channel": "Is jy seker jy wil uitgang sonder om 'n kanaal te open?",
-    "public": "Publiek",
-    "public_description": "Sigbaar op die netwerk: Dit kan 'n roeteering knoop-punt wees en fooie verdien.",
-    "private": "Privaat",
-    "private_description": "Onsigbaar op die netwerk: Dit behou die privaatheid van jou betalings.",
-    "local_reserve": "Plaasike reserve",
     "potentialFee": "Potensiele fooi: {fee}",
     "refill": "Herlaai",
     "refill_create": "Om voort te gaan, skep asb 'n Bitcoin beursie om vondse mee aan te vul.",
@@ -156,7 +142,6 @@
     "details_show_in_block_explorer": "Wys in blok verkenner",
     "details_title": "Transaksie",
     "details_to": "Resultaat",
-    "details_transaction_details": "Transaksie besonderhede",
     "list_title": "transaksies"
   },
   "wallets": {
@@ -165,7 +150,6 @@
     "add_import_wallet": "Beursie Invoer",
     "add_lndhub_error": "Die voorgestelde knoop-punt se adres is 'n ongeldige LNDHub knoop-punt.",
     "add_lndhub_placeholder": "Jou Knoop-punt Adres",
-    "add_or": "of",
     "add_title": "skep beursie",
     "add_wallet_name": "beursie naam",
     "add_wallet_type": "tipe",
