@@ -8,17 +8,13 @@
     "of": "{number} dari {total}",
     "ok": "OK",
     "storage_is_encrypted": "Ruang penyimpanan terenkripsi. Masukkan kata sandi untuk decript:",
-    "allow": "Perbolehkan",
-    "dont_allow": "Tidak Perbolehkan",
     "yes": "Ya",
     "no": "Tidak",
     "save": "Simpan",
     "seed": "Benih",
     "success": "Sukses",
     "wallet_key": "Kunci Dompet",
-    "invalid_animated_qr_code_fragment": "QRCode fragment tidak dapat dibaca. Mohon coba lagi",
-    "discard_changes": "Batalkan perubahan?",
-    "discard_changes_detail": "Anda memilki perubahan yang belum disimpan. Apakah anda yakin untuk membuang perubahan dan meninggalkan layar? "
+    "invalid_animated_qr_code_fragment": "QRCode fragment tidak dapat dibaca. Mohon coba lagi"
   },
   "azteco": {
     "codeIs": "Kode voucher anda adalah",
@@ -42,7 +38,6 @@
   "lnd": {
     "errorInvoiceExpired": "Faktur kadarluasa",
     "expired": "Kadaluarsa",
-    "expiredLow": "kadarluasa",
     "payButton": "Bayar",
     "placeholder": "Faktur",
     "potentialFee": "Potensi biaya: {fee}",
@@ -57,7 +52,6 @@
     "additional_info": "Informasi Tambahan",
     "for": "Untuk:",
     "lightning_invoice": "Invoice Lightning",
-    "has_been_paid": "Faktur ini telah dibayar untuk",
     "open_direct_channel": "Buka saluran langsung dengan node ini:",
     "please_pay": "Tolong bayar",
     "preimage": "Pra gambar",
@@ -83,7 +77,6 @@
     "ok": "OK, saya tuliskan",
     "ok_lnd": "OK, saya sudah menyimpan",
     "text_lnd": "Harap luangkan waktu sejenak untuk menyimpan otentikasi LNDHub ini. Ini cadangan Anda yang dapat Anda gunakan untuk memulihkan dompet di perangkat lain.",
-    "text_lnd2": "Dompet ini dihost oleh BlueWallet",
     "title": "Wallet anda telah dibuat"
   },
   "receive": {
@@ -161,7 +154,6 @@
     "no_tx_signing_in_progress": "Tidak ada transaksi penandatanganan yang sedang berlangsung.",
     "psbt_tx_open": "Buka Transaksi yang Ditandatangani",
     "psbt_tx_scan": "Pindai Transaksi yang Ditandatangani",
-    "qr_error_no_wallet": "File yang dipilih tidak berisi dompet yang dapat diimpor.",
     "success_done": "Selesai",
     "txSaved": "File transaksi ({filePath}) telah disimpan pada folder Unduhan.",
     "problem_with_psbt": "Ada masalah dengan PSBT"
@@ -187,7 +179,6 @@
     "biom_no_passcode": "Perangkat Anda tidak memiliki kode sandi. Untuk melanjutkan, harap konfigurasikan kode sandi di aplikasi Pengaturan.",
     "biom_remove_decrypt": "Semua dompet Anda akan dihapus dan penyimpanan Anda akan didekripsi. Anda yakin ingin melanjutkan?",
     "currency": "Mata Uang",
-    "currency_source": "Harga diperoleh dari",
     "default_desc": "Saat dinonaktifkan, BlueWallet akan segera membuka dompet yang dipilih saat diluncurkan.",
     "default_info": "Informasi standar",
     "default_wallets": "Lihat Semua Dompet",
@@ -215,14 +206,12 @@
     "details_copy": "Salin",
     "details_show_in_block_explorer": "Tampilkan di block explorer",
     "details_title": "Transaksi",
-    "details_transaction_details": "Detail transaksi",
     "pending": "tertunda",
     "list_title": "transaksi"
   },
   "wallets": {
     "add_create": "Buat",
     "add_import_wallet": "Impor dompet",
-    "add_or": "atau",
     "add_title": "tambah dompet",
     "add_wallet_name": "nama dompet",
     "add_wallet_type": "tipe",

@@ -9,8 +9,6 @@
     "of": "{number} z {total}",
     "ok": "OK",
     "storage_is_encrypted": "Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu.",
-    "allow": "Povoliť",
-    "dont_allow": "Nepovoliť",
     "yes": "Áno",
     "no": "Nie",
     "save": "Uložiť",
@@ -19,11 +17,7 @@
     "wallet_key": "Peňaženkový kľúč",
     "invalid_animated_qr_code_fragment": "Neplatný animovaný fragment QR kódu. Skúste to znovu, prosím.",
     "file_saved": "Súbor {filePath} bol uložený v {destination}.",
-    "file_save_title": "Uložiť súbor",
-    "file_save_location": "Vyberte kde sa má súbor uložiť {filePath}",
-    "downloads_folder": "Priečinok so stiahnutými súbormi.",
-    "external_storage": "Externá pamäť",
-    "discard_changes": "Zahodiť zmeny?"
+    "downloads_folder": "Priečinok so stiahnutými súbormi."
   },
   "alert": {
     "default": "Varovanie"
@@ -49,12 +43,10 @@
     "new_channel": "Nový kanál",
     "errorInvoiceExpired": "Faktúra je expirovaná",
     "expired": "Expirovaná",
-    "expiredLow": "expirovaná",
     "expiresIn": "Vyprší za {time} minút",
     "payButton": "Zaplatiť",
     "placeholder": "Faktúra",
     "open_channel": "Otvoriť kanál",
-    "private": "Privátne",
     "refill": "Doplniť",
     "refill_create": "Pre pokračovanie, prosím, vytvorte si Bitcoinovú peňaženku",
     "refill_external": "Doplniť z externej peňaženky",
@@ -66,7 +58,6 @@
   "lndViewInvoice": {
     "additional_info": "Doplňujúce informácie",
     "for": "Za:",
-    "has_been_paid": "Táto faktúra bola uhradená",
     "open_direct_channel": "Otvoriť priamy kanál s týmto uzlom:",
     "please_pay": "Prosím zaplaťte",
     "sats": "sats"
@@ -139,7 +130,6 @@
     "psbt_tx_export": "Exportovať do súboru",
     "psbt_tx_open": "Otvoriť podpísanú transakciu",
     "psbt_tx_scan": "Skenovať podpísanú transakciu",
-    "qr_error_no_wallet": "Vybraný súbor neobsahuje peňaženku, ktorá by mohla byť importovaná.",
     "success_done": "Hotovo",
     "txSaved": "Transakcia bola uložená do {filePath}"
   },
@@ -160,7 +150,6 @@
     "electrum_clear_alert_cancel": "Zrušiť",
     "encrypt_decrypt": "Dešifrovať úložisko",
     "encrypt_decrypt_q": "Naozaj chcete dešifrovať úložisko? Peňaženky budú prístupné bez hesla.",
-    "encrypt_del_uninstall": "Zmazať, ak bude aplikácia BlueWallet odinštalovaná",
     "encrypt_enc_and_pass": "Zašifrované a chránené heslom",
     "encrypt_title": "Bezpečnosť",
     "encrypt_tstorage": "úložisko",
@@ -203,7 +192,6 @@
     "details_show_in_block_explorer": "Ukázať v block exploreri",
     "details_title": "Transakcia",
     "details_to": "Výstup",
-    "details_transaction_details": "Detaily transakcie",
     "pending": "Čaká...",
     "list_title": "transakcie",
     "rbf_title": "Navýšiť poplatok za transakciu (RBF)",
@@ -221,7 +209,6 @@
     "add_lightning": "Lightning",
     "add_lndhub": "Pripojiť sa na LNDHub",
     "add_lndhub_placeholder": "adresa uzla",
-    "add_or": "alebo",
     "add_title": "pridať peňaženku",
     "add_wallet_name": "názov peňaženky",
     "add_wallet_type": "typ",
@@ -254,7 +241,6 @@
     "list_empty_txs1": "Tu sa zobrazia vaše transakcie,",
     "list_empty_txs1_lightning": "Lightning peňaženka by sa mala používať na denné transakcie. Sú bleskovo rýchle a poplatky sú neporovnateľne nižšie/žiadne.",
     "list_empty_txs2_lightning": "\nKliknite na \"spravovať zostatok\" a naplňte si peňaženku.",
-    "list_import_problem": "Nepodarilo sa importovať peňaženku",
     "list_latest_transaction": "posledná transakcia",
     "list_long_choose": "Vyberte fotku",
     "list_long_clipboard": "Skopírovať zo schránky",
@@ -273,7 +259,6 @@
     "share": "zdieľať",
     "view": "Zobraziť",
     "create": "Vytvoriť",
-    "view_key": "Zobraziť",
     "create_new_key": "Vytvoriť novú",
     "ms_help": "Pomoc",
     "ms_help_title5": "Povoliť rozšírené nastavenia"

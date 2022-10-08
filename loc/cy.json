@@ -8,16 +8,12 @@
     "of": "{number} o {total}",
     "ok": "Iawn",
     "storage_is_encrypted": "Mae'r storfa wedi encryptio. Mae angen Cyfrinair i'w ddad-gryptio. ",
-    "allow": "Caniatau",
-    "dont_allow": "Peidio Caniatau",
     "yes": "Ie",
     "no": "Na",
     "save": "Safio",
     "seed": "Hadyn",
     "success": "Llwyddiant",
-    "wallet_key": "Allwedd waled",
-    "discard_changes": "Gwaredu newidiadau?",
-    "discard_changes_detail": "Dydi'r newidiadau heb gael eu safio. Wyt ti dal eisiau eu gwaredu a gadael y sgrîn?"
+    "wallet_key": "Allwedd waled"
   },
   "azteco": {
     "success": "Llwyddiant"
@@ -34,7 +30,6 @@
   "lnd": {
     "errorInvoiceExpired": "Anfoneb wedi gorffen",
     "expired": "Gorffen",
-    "expiredLow": "Gorffen",
     "payButton": "Talu",
     "placeholder": "Anfoneb",
     "potentialFee": "Ffi Tebygol: {fee}",
@@ -49,7 +44,6 @@
     "additional_info": "Gwybodaeth Ychwanegol",
     "for": "Ar Gyfer:",
     "lightning_invoice": "Anfoneb Mellten",
-    "has_been_paid": "Mae'r anfoneb yma wedi cael ei dalu",
     "open_direct_channel": "Agor sianel uniongyrchol efo'r nodyn hwn:",
     "please_pay": "Talu",
     "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen."
@@ -117,7 +111,6 @@
   },
   "settings": {
     "currency": "Arian",
-    "currency_source": "Prisiau o",
     "default_wallets": "Gweld Pob Waled",
     "electrum_connected": "Wedi Cysylltu",
     "electrum_connected_not": "Heb Gysylltu",
@@ -158,7 +151,6 @@
     "details_received": "Derbynwyd",
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
-    "details_transaction_details": "Manylion Trafodyn",
     "pending": "Disgwyl",
     "list_title": "Trafodion"
   },
@@ -168,7 +160,6 @@
     "add_import_wallet": "Mewnforio waled",
     "add_lightning": "Mellten",
     "add_lightning_explain": "Er mwyn gwario yn syth",
-    "add_or": "neu",
     "add_title": "Adio waled",
     "add_wallet_name": "Enw",
     "add_wallet_type": "Math",
@@ -215,8 +206,7 @@
     "view": "Golwg",
     "create": "Creu",
     "co_sign_transaction": "Arwyddo trafodyn",
-    "wallet_type": "Math o Waled",
-    "view_key": "Golwg"
+    "wallet_type": "Math o Waled"
   },
   "cc": {
     "change": "Newid"

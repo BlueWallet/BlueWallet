@@ -10,8 +10,6 @@
     "of": "{number} / {total}",
     "ok": "Tamam",
     "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",
-    "allow": "İzin ver",
-    "dont_allow": "İzin verme",
     "yes": "Evet",
     "no": "Hayır",
     "save": "Kaydet",
@@ -20,12 +18,7 @@
     "wallet_key": "Cüzdan anahtarı",
     "invalid_animated_qr_code_fragment": "Geçersiz QRCode fragmanı. Lütfen tekrar deneyiniz.",
     "file_saved": "Dosya {filepath} kaydedildi {destination}",
-    "file_save_title": "Dosyayı kaydet",
-    "file_save_location": "Nereye kaydedileceğini seç {filePath}",
-    "downloads_folder": "İndirilenler Dosyası",
-    "external_storage": "Dış depolama ünitesi",
-    "discard_changes": "Değişiklikleri iptal et?",
-    "discard_changes_detail": "Değişiklikler kaydedilmedi. Kaydetmeden ekrandan çıkmak istediğinize emin misiniz?"
+    "downloads_folder": "İndirilenler Dosyası"
   },
   "alert": {
     "default": "Uyarı"
@@ -61,7 +54,6 @@
     "force_close_channel": "Kanalı kapamaya zorla",
     "expired": "Süresi doldu",
     "node_alias": "Node mahlası",
-    "expiredLow": "Süresi doldu",
     "expiresIn": "{time} dakika içerisinde sona erer",
     "payButton": "Öde",
     "placeholder": "Fatura",
@@ -69,9 +61,6 @@
     "funding_amount_placeholder": "Fonlama miktarı, örnek 0.001",
     "opening_channnel_for_from": "{fromWalletLabel} tarafından fonlanan kanal {forWalletLabel} için aılıyor",
     "are_you_sure_open_channel": "Bu kanalı açmak istediğinizden emin misiniz?",
-    "are_you_sure_exit_without_new_channel": "Kanal açmadan çıkmak istediğinizden emin misiniz?",
-    "public": "Halka-açık",
-    "private": "Özel",
     "refill": "Yükle",
     "reconnect_peer": "Eş'e tekrar bağlan",
     "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
@@ -85,7 +74,6 @@
     "additional_info": "Ek Bilgi",
     "for": "İçin: ",
     "lightning_invoice": "Lightning faturası",
-    "has_been_paid": "Bu fatura ödendi",
     "open_direct_channel": "Bu noda direkt kanal aç: ",
     "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
     "please_pay": "Lütfen ödeyin",
@@ -110,7 +98,6 @@
     "ok": "Evet, deftere yazdım.",
     "ok_lnd": "Evet, kaydettim.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
-    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır.",
     "title": "Cüzdanınız oluşturuldu."
   },
   "receive": {
@@ -219,14 +206,12 @@
     "details_show_in_block_explorer": "Blok gezgininde göster",
     "details_title": "İşlem",
     "details_to": "Çıktı",
-    "details_transaction_details": "İşlem detayları",
     "pending": "Beklemede",
     "list_title": "işlemler"
   },
   "wallets": {
     "add_create": "Oluştur",
     "add_import_wallet": "Cüzdan İçeri Yükle",
-    "add_or": "veya",
     "add_title": "Cüzdan ekle",
     "add_wallet_name": "İsim",
     "add_wallet_type": "Tip",
