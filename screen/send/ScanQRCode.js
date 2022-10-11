@@ -338,9 +338,7 @@ const ScanQRCode = () => {
         <CameraScreen
           scanBarcode
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
-          showFrame
-          laserColor="#6CD9FC" // (default red) optional, color of laser in scanner frame
-          frameColor="white" // (default white) optional, color of border of scanner frame
+          showFrame={false}
         />
       )}
       {cameraStatus === CameraAuthStatus.NOT_AUTHORIZED && (
