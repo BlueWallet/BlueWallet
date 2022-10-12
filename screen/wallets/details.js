@@ -34,7 +34,7 @@ import {
   HDAezeedWallet,
   LightningLdkWallet,
 } from '../../class';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -43,6 +43,8 @@ import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import alert from '../../components/Alert';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { writeFileAndExport } from '../../blue_modules/fs';
 
 const prompt = require('../../helpers/prompt');
 
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -130,6 +132,7 @@ const WalletDetails = () => {
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo(() => {
     try {
       const path = wallet.getDerivationPath();
@@ -402,6 +405,25 @@ const WalletDetails = () => {
     }
   };
 
+  const onExportHistoryPressed = async () => {
+    let csvFile = [
+      loc.transactions.date,
+      loc.transactions.txid,
+      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
+      loc.send.create_memo,
+    ].join(','); // CSV header
+    const transactions = wallet.getTransactions();
+
+    for (const transaction of transactions) {
+      const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
+      csvFile +=
+        '\n' +
+        [new Date(transaction.received).toString(), transaction.hash, value, txMetadata[transaction.hash]?.memo?.trim() ?? ''].join(','); // CSV line
+    }
+
+    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
+  };
+
   const handleDeleteButtonTapped = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
     Alert.alert(
@@ -579,7 +601,12 @@ const WalletDetails = () => {
               <View>
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-
+                {wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                  </>
+                )}
                 {wallet.type === MultisigHDWallet.type && (
                   <>
                     <BlueSpacing20 />
