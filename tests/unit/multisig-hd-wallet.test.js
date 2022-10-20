@@ -2125,15 +2125,23 @@ describe('multisig-cosigner', () => {
 
   it('can parse files from sparrow wallet', () => {
     const secrets = [
-      JSON.stringify(require('./fixtures/fromsparrow-electrum.json')),
-      require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'),
-      JSON.stringify(require('./fixtures/fromsparrow-specter.json')),
+      [JSON.stringify(require('./fixtures/fromsparrow-electrum.json')), false],
+      [require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'), true],
+      [JSON.stringify(require('./fixtures/fromsparrow-specter.json')), true],
+      [JSON.stringify(require('./fixtures/caravan-multisig.json')), true],
     ];
 
-    for (const s of secrets) {
+    for (const [s, verifyFingerprints] of secrets) {
       const w = new MultisigHDWallet();
       w.setSecret(s);
 
+      if (verifyFingerprints) {
+        assert.strictEqual(w.getFingerprint(1), 'A3909080');
+        assert.strictEqual(w.getFingerprint(2), '7AB71DF0');
+        assert.strictEqual(w.getFingerprint(3), 'F11B9FF2');
+      }
+
+      assert.ok(w.isNativeSegwit());
       assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qtysquqsjqjfqvhd6l2h470hdgwhcahs4nq2ca49cyxftwjnjt9ssh8emel');
     }
   });

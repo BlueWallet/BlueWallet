@@ -624,8 +624,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       for (const pk of json.extendedPublicKeys) {
         const path = this.constructor.isPathValid(json.bip32Path) ? json.bip32Path : "m/1'";
-        // wtf, where caravan stores fingerprints..?
-        this.addCosigner(pk.xpub, '00000000', path);
+        this.addCosigner(pk.xpub, pk.xfp ?? '00000000', path);
       }
     }
 
