@@ -103,7 +103,7 @@ Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projec
 
 ## Translations
 
-We accepts translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+We accept translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
 
 To participate you need to:
 1. Sign up to Transifex
