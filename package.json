@@ -54,7 +54,7 @@
     "android": "react-native run-android",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
-    "postinstall": "rn-nodeify --install buffer,events,process,stream,util,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run podinstall",
+    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run podinstall",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
@@ -196,7 +196,6 @@
     "stream-browserify": "3.0.0",
     "tiny-secp256k1": "1.1.6",
     "url": "0.11.0",
-    "util": "0.12.4",
     "wif": "2.0.6"
   },
   "react-native": {
