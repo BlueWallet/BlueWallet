@@ -223,6 +223,16 @@ export class AbstractWallet {
         this._derivationPath = derivationPath;
       }
       this.secret = m[2];
+
+      if (derivationPath.startsWith("m/84'/0'/") && this.secret.toLowerCase().startsWith('xpub')) {
+        // need to convert xpub to zpub
+        this.secret = this._xpubToZpub(this.secret);
+      }
+
+      if (derivationPath.startsWith("m/49'/0'/") && this.secret.toLowerCase().startsWith('xpub')) {
+        // need to convert xpub to ypub
+        this.secret = this._xpubToYpub(this.secret);
+      }
     }
 
     try {
@@ -386,6 +396,22 @@ export class AbstractWallet {
     if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
+  }
+
+  _xpubToZpub(xpub: string): string {
+    let data = b58.decode(xpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
+
+    return b58.encode(data);
+  }
+
+  _xpubToYpub(xpub: string): string {
+    let data = b58.decode(xpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]);
 
     return b58.encode(data);
   }
