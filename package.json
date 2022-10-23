@@ -141,7 +141,7 @@
     "process": "0.11.10",
     "prop-types": "15.8.1",
     "react": "17.0.2",
-    "react-localization": "1.0.19",
+    "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.67.4",
     "react-native-blue-crypto": "https://github.com/BlueWallet/react-native-blue-crypto#e9b60605dbdb24de720e923f740912a4930383ff",
     "react-native-camera-kit": "13.0.0",
