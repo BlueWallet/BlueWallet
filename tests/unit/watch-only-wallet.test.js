@@ -309,6 +309,28 @@ describe('Watch only wallet', () => {
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
+  it('can import wallet descriptor for BIP84, but with xpub instead of zpub', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      '[dafedf1c/84h/0h/0h]xpub6DFMZMLizqqnyyHoWTG7qzmCR1irpiDEGT4JQX7ubeoFtV838ABKPfgAPQbM1TEekEyCuJF1BrmnA7JPrnzqi2VbycD3tVE3v5xsDQqYA3A',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.getMasterFingerprintHex(), 'dafedf1c');
+    assert.strictEqual(w.getMasterFingerprint(), 484441818);
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rutAggZJCvkgZg3BAqNGAxCkx1khxCE6g6jyJugMfZ1zgkVdUWSdnzSRpWX1GYVZXCpQFS87BUsvgXXJBpsJVroiHbu4Js2TY69zbWcTNb',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q68y6r45k4kvxe42xl37dgjueg2suqwnh4ze0sr');
+
+    assert.ok(!w.useWithHardwareWalletEnabled());
+  });
+
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
