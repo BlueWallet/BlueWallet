@@ -29,7 +29,7 @@ export default class Azteco {
   }
 
   static getParamsFromUrl(u) {
-    const urlObject = url.parse(u, true); // eslint-disable-line node/no-deprecated-api
+    const urlObject = url.parse(u, true); // eslint-disable-line n/no-deprecated-api
     return {
       uri: u,
       c1: urlObject.query.c1,

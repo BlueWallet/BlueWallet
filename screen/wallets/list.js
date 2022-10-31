@@ -369,7 +369,7 @@ const WalletsList = () => {
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
           refreshing={isLoading}
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: onRefresh })}
+          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh })}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}

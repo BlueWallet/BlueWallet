@@ -184,7 +184,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else {
-      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
+      const urlObject = url.parse(event.url, true); // eslint-disable-line n/no-deprecated-api
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {

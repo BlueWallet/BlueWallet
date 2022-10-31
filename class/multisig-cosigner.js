@@ -140,9 +140,9 @@ export class MultisigCosigner {
 
   static exportToJson(xfp, xpub, path) {
     return JSON.stringify({
-      xfp: xfp,
-      xpub: xpub,
-      path: path,
+      xfp,
+      xpub,
+      path,
     });
   }
 

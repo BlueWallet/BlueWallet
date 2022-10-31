@@ -335,11 +335,7 @@ const ScanQRCode = () => {
     <View style={styles.root}>
       <StatusBar hidden />
       {isFocused && cameraStatus !== CameraAuthStatus.NOT_AUTHORIZED && (
-        <CameraScreen
-          scanBarcode
-          onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
-          showFrame={false}
-        />
+        <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       )}
       {cameraStatus === CameraAuthStatus.NOT_AUTHORIZED && (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
