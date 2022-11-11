@@ -19,7 +19,7 @@ export const SquareButton = forwardRef((props, ref) => {
         flex: 1,
         borderWidth: 0.7,
         borderColor: 'transparent',
-        backgroundColor: backgroundColor,
+        backgroundColor,
         minHeight: 50,
         height: 50,
         maxHeight: 50,

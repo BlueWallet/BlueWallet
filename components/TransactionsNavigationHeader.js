@@ -128,7 +128,7 @@ export default class TransactionsNavigationHeader extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
+    this.setState({ wallet, walletPreviousPreferredUnit }, () => {
       this.props.onWalletUnitChange(wallet);
     });
   };

@@ -289,8 +289,8 @@ export class AppStorage {
       realmkeyValue.create(
         'KeyValue',
         {
-          key: key,
-          value: value,
+          key,
+          value,
         },
         Realm.UpdateMode.Modified,
       );

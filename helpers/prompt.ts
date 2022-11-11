@@ -47,7 +47,7 @@ module.exports = (
         ];
 
     prompt(title, text, buttons, {
-      type: type,
+      type,
       cancelable: isCancelable,
       // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
       keyboardType,

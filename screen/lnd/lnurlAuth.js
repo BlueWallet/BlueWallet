@@ -28,7 +28,7 @@ const LnurlAuth = () => {
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
-    () => (lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line node/no-deprecated-api
+    () => (lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line n/no-deprecated-api
     [lnurl],
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);

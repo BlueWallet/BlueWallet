@@ -73,7 +73,7 @@ const navigationStyle = (
           fontWeight: '600',
           color: theme.colors.foregroundColor,
         },
-        headerRight: headerRight,
+        headerRight,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
         ...opts,

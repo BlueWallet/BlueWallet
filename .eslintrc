@@ -68,5 +68,10 @@
   "env": {
     "es6": true
   },
-  "globals": { "fetch": false }
+  "globals": { "fetch": false },
+  "settings": {
+    "react": { // this is for eslint-plugin-react
+      "version": "detect" // React version. "detect" automatically picks the version you have installed.
+    }
+  }
 }
