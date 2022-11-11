@@ -1,19 +1,13 @@
-/* global alert */
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet, ScrollView } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { ActivityIndicator, View, ScrollView } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-
-const styles = StyleSheet.create({
-  common: {
-    flex: 1,
-    paddingTop: 16,
-  },
-});
+import alert from '../../components/Alert';
 
 export default class RBFCancel extends CPFP {
   static contextType = BlueStorageContext;
@@ -82,7 +76,7 @@ export default class RBFCancel extends CPFP {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={styles.root}>
+        <View>
           <ActivityIndicator />
         </View>
       );
@@ -94,7 +88,7 @@ export default class RBFCancel extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={styles.root}>
+        <SafeBlueArea>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -107,7 +101,7 @@ export default class RBFCancel extends CPFP {
     }
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea>
         <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
       </SafeBlueArea>
     );
@@ -127,7 +121,4 @@ RBFCancel.propTypes = {
   }),
 };
 
-RBFCancel.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.transactions.cancel_title,
-});
+RBFCancel.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cancel_title }));

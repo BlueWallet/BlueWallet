@@ -1,23 +1,55 @@
-/* global alert */
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
-import isCatalyst from 'react-native-is-catalyst';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
-import Clipboard from '@react-native-community/clipboard';
+import { isDesktop } from '../blue_modules/environment';
 import ActionSheet from '../screen/ActionSheet';
+import BlueClipboard from './clipboard';
+import alert from '../components/Alert';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+
+const writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
+  const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+    title: loc.send.permission_storage_title,
+    message: loc.send.permission_storage_message,
+    buttonNeutral: loc.send.permission_storage_later,
+    buttonNegative: loc._.cancel,
+    buttonPositive: loc._.ok,
+  });
+  if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    const filePath = destination + `/${filename}`;
+    try {
+      await RNFS.writeFile(filePath, contents);
+      alert(loc.formatString(loc._.file_saved, { filePath: filename, destination: destinationLocalizedString }));
+    } catch (e) {
+      console.log(e);
+      alert(e.message);
+    }
+  } else {
+    console.log('Storage Permission: Denied');
+    Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
+      {
+        text: loc.send.open_settings,
+        onPress: () => {
+          Linking.openSettings();
+        },
+        style: 'default',
+      },
+      { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+    ]);
+  }
+};
 
 const writeFileAndExport = async function (filename, contents) {
   if (Platform.OS === 'ios') {
     const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
     await RNFS.writeFile(filePath, contents);
-    Share.open({
+    await Share.open({
       url: 'file://' + filePath,
-      saveToFiles: isCatalyst,
+      saveToFiles: isDesktop,
     })
       .catch(error => {
         console.log(error);
@@ -26,37 +58,12 @@ const writeFileAndExport = async function (filename, contents) {
         RNFS.unlink(filePath);
       });
   } else if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-      title: loc.send.permission_storage_title,
-      message: loc.send.permission_storage_message,
-      buttonNeutral: loc.send.permission_storage_later,
-      buttonNegative: loc._.cancel,
-      buttonPositive: loc._.ok,
+    await writeFileAndExportToAndroidDestionation({
+      filename,
+      contents,
+      destinationLocalizedString: loc._.downloads_folder,
+      destination: RNFS.DownloadDirectoryPath,
     });
-
-    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('Storage Permission: Granted');
-      const filePath = RNFS.DownloadDirectoryPath + `/${filename}`;
-      try {
-        await RNFS.writeFile(filePath, contents);
-        alert(loc.formatString(loc._.file_saved, { filePath: filename }));
-      } catch (e) {
-        console.log(e);
-        alert(e.message);
-      }
-    } else {
-      console.log('Storage Permission: Denied');
-      Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-        {
-          text: loc.send.open_settings,
-          onPress: () => {
-            Linking.openSettings();
-          },
-          style: 'default',
-        },
-        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-      ]);
-    }
   }
 };
 
@@ -67,8 +74,8 @@ const writeFileAndExport = async function (filename, contents) {
  */
 const openSignedTransaction = async function () {
   try {
-    const res = await DocumentPicker.pick({
-      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+    const res = await DocumentPicker.pickSingle({
+      type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
     });
 
     return await _readPsbtFileIntoBase64(res.uri);
@@ -103,17 +110,23 @@ const showImagePickerAndReadImage = () => {
         title: null,
         mediaType: 'photo',
         takePhotoButtonTitle: null,
+        maxHeight: 800,
+        maxWidth: 600,
+        selectionLimit: 1,
       },
       response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              resolve(result);
-            } else {
-              reject(new Error(loc.send.qr_error_no_qrcode));
-            }
-          });
+        if (!response.didCancel) {
+          const asset = response.assets[0];
+          if (asset.uri) {
+            const uri = asset.uri.toString().replace('file://', '');
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                resolve(result);
+              } else {
+                reject(new Error(loc.send.qr_error_no_qrcode));
+              }
+            });
+          }
         }
       },
     ),
@@ -130,7 +143,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
       },
       response => {
         if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          const uri = response.uri.toString().replace('file://', '');
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
               resolve(result);
@@ -148,7 +161,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
 
 const showFilePickerAndReadFile = async function () {
   try {
-    const res = await DocumentPicker.pick({
+    const res = await DocumentPicker.pickSingle({
       type:
         Platform.OS === 'ios'
           ? [
@@ -170,31 +183,31 @@ const showFilePickerAndReadFile = async function () {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       file = await _readPsbtFileIntoBase64(uri);
       return { data: file, uri: decodeURI(res.uri) };
-    } else {
-      if (res.type === DocumentPicker.types.images || res.type.startsWith('image/')) {
-        return new Promise(resolve => {
-          const uri = Platform.OS === 'ios' ? res.uri.toString().replace('file://', '') : res.uri;
-          LocalQRCode.decode(decodeURI(uri), (error, result) => {
-            if (!error) {
-              resolve({ data: result, uri: decodeURI(res.uri) });
-            } else {
-              resolve({ data: false, uri: false });
-            }
-          });
-        });
-      } else {
-        file = await RNFS.readFile(uri);
-        return { data: file, uri: decodeURI(res.uri) };
-      }
     }
+
+    if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
+      return new Promise(resolve => {
+        const uri = res.uri.toString().replace('file://', '');
+        LocalQRCode.decode(decodeURI(uri), (error, result) => {
+          if (!error) {
+            resolve({ data: result, uri: decodeURI(res.uri) });
+          } else {
+            resolve({ data: false, uri: false });
+          }
+        });
+      });
+    }
+
+    file = await RNFS.readFile(uri);
+    return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
     return { data: false, uri: false };
   }
 };
 
 // Intended for macOS Catalina. Not for long press shortcut
-const showActionSheet = async () => {
-  const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+const showActionSheet = async props => {
+  const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
   let copyFromClipboardIndex;
   const options = [loc._.cancel, loc.wallets.take_photo, loc.wallets.list_long_choose];
   if (!isClipboardEmpty) {
@@ -206,7 +219,7 @@ const showActionSheet = async () => {
   const importFileButtonIndex = options.length - 1;
 
   return new Promise(resolve =>
-    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, async buttonIndex => {
+    ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0, anchor: props.anchor }, async buttonIndex => {
       if (buttonIndex === 1) {
         takePhotoWithImagePickerAndReadPhoto().then(resolve);
       } else if (buttonIndex === 2) {
@@ -214,7 +227,7 @@ const showActionSheet = async () => {
           .then(resolve)
           .catch(error => alert(error.message));
       } else if (buttonIndex === copyFromClipboardIndex) {
-        const clipboard = await Clipboard.getString();
+        const clipboard = await BlueClipboard.getClipboardContent();
         resolve(clipboard);
       } else if (importFileButtonIndex) {
         const { data } = await showFilePickerAndReadFile();

@@ -1,19 +1,29 @@
 import React, { Component } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoading } from '../BlueComponents';
 import PropTypes from 'prop-types';
-import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
-import { BlueCurrentTheme } from '../components/themes';
+import { ScrollView, View, StyleSheet, Linking } from 'react-native';
+import wif from 'wif';
+import bip38 from 'bip38';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+
+import loc from '../loc';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
+import navigationStyle from '../components/navigationStyle';
+import {
+  SegwitP2SHWallet,
+  LegacyWallet,
+  HDSegwitP2SHWallet,
+  HDSegwitBech32Wallet,
+  HDAezeedWallet,
+  SLIP39LegacyP2PKHWallet,
+} from '../class';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
+const bip32 = BIP32Factory(ecc);
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.background,
-  },
   center: {
     alignItems: 'center',
   },
@@ -62,7 +72,16 @@ export default class Selftest extends Component {
         // skipping RN-specific test'
       }
 
-      //
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const aezeed = new HDAezeedWallet();
+        aezeed.setSecret(
+          'abstract rhythm weird food attract treat mosquito sight royal actor surround ride strike remove guilt catch filter summer mushroom protect poverty cruel chaos pattern',
+        );
+        assertStrictEqual(await aezeed.validateMnemonicAsync(), true, 'Aezeed failed');
+        assertStrictEqual(aezeed._getExternalAddressByIndex(0), 'bc1qdjj7lhj9lnjye7xq3dzv3r4z0cta294xy78txn', 'Aezeed failed');
+      } else {
+        // skipping RN-specific test
+      }
 
       let l = new LegacyWallet();
       l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
@@ -114,7 +133,7 @@ export default class Selftest extends Component {
       const tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
       assertStrictEqual(
         txNew.tx.toHex(),
-        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac6e3303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f4870247304402205f0bcb0d9968b3c410e2a3699369bf4149bb56ade18b63356b45285a34d64600022043ac1271f3900ea1000a66b9a9d9ceb3e6e4a4ef45c4da0f55b691ad4b64fcb1012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
+        '020000000001010c86eb9013616e38b4752e56e5683e864cb34fcd7fe790bdc006b60c08446ba50000000017160014139dc70d73097f9d775f8a3280ba3e3435515641ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88aca73303000000000017a914749118baa93fb4b88c28909c8bf0a8202a0484f4870248304502210080545d30e3d30dff272ab11c91fd6150170b603239b48c3d56a3fa66bf240085022003762404e1b45975adc89f61ec1569fa19d6d4a8d405e060897754c489ebeade012103a5de146762f84055db3202c1316cd9008f16047f4f408c1482fdb108217eda0800000000',
       );
       assertStrictEqual(tx.ins.length, 1);
       assertStrictEqual(tx.outs.length, 2);
@@ -136,8 +155,8 @@ export default class Selftest extends Component {
       const bip39 = require('bip39');
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-      const seed = bip39.mnemonicToSeed(mnemonic);
-      const root = bitcoin.bip32.fromSeed(seed);
+      const seed = bip39.mnemonicToSeedSync(mnemonic);
+      const root = bip32.fromSeed(seed);
 
       const path = "m/49'/0'/0'/0/0";
       const child = root.derivePath(path);
@@ -187,12 +206,46 @@ export default class Selftest extends Component {
         // skipping RN-specific test
       }
 
-      //
-
+      // BlueCrypto test
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const hex = await BlueCrypto.scrypt('717765727479', '4749345a22b23cf3', 64, 8, 8, 32); // using non-default parameters to speed it up (not-bip38 compliant)
         if (hex.toUpperCase() !== 'F36AB2DC12377C788D61E6770126D8A01028C8F6D8FE01871CE0489A1F696A90')
           throw new Error('react-native-blue-crypto is not ok');
+      }
+
+      // bip38 test
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        let callbackWasCalled = false;
+        const decryptedKey = await bip38.decryptAsync(
+          '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN',
+          'qwerty',
+          () => (callbackWasCalled = true),
+        );
+        assertStrictEqual(
+          wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
+          'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
+          'bip38 failed',
+        );
+        // bip38 with BlueCrypto doesn't support progress callback
+        assertStrictEqual(callbackWasCalled, false, "bip38 doesn't use BlueCrypto");
+      }
+
+      // slip39 test
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const w = new SLIP39LegacyP2PKHWallet();
+        w.setSecret(
+          'shadow pistol academic always adequate wildlife fancy gross oasis cylinder mustang wrist rescue view short owner flip making coding armed\n' +
+            'shadow pistol academic acid actress prayer class unknown daughter sweater depict flip twice unkind craft early superior advocate guest smoking',
+        );
+        assertStrictEqual(w._getExternalAddressByIndex(0), '18pvMjy7AJbCDtv4TLYbGPbR7SzGzjqUpj', 'SLIP39 failed');
+      }
+
+      //
+
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        assertStrictEqual(await Linking.canOpenURL('https://github.com/BlueWallet/BlueWallet/'), true, 'Linking can not open https url');
+      } else {
+        // skipping RN-specific test'
       }
 
       //
@@ -214,7 +267,7 @@ export default class Selftest extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <SafeBlueArea>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />
@@ -226,6 +279,8 @@ export default class Selftest extends Component {
                     <BlueText testID="SelfTestOk" h4>
                       OK
                     </BlueText>
+                    <BlueSpacing20 />
+                    <BlueText>{loc.settings.about_selftest_ok}</BlueText>
                   </View>
                 );
               } else {
@@ -259,7 +314,6 @@ Selftest.propTypes = {
   }),
 };
 
-Selftest.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
-  title: 'Self test',
+Selftest.navigationOptions = navigationStyle({
+  title: loc.settings.selfTest,
 });

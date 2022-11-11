@@ -1,12 +1,15 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { InteractionManager, useWindowDimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { InteractionManager, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
+import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueButton } from '../../BlueComponents';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import HandoffComponent from '../../components/handoff';
+import Share from 'react-native-share';
 
 const styles = StyleSheet.create({
   root: {
@@ -18,32 +21,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
+  share: {
+    alignSelf: 'center',
+    width: '40%',
+  },
 });
 
 const WalletXpub = () => {
-  const { secret } = useRoute().params;
-  const [isLoading, setIsLoading] = useState(true);
-  const [xPub, setXPub] = useState();
-  const [xPubText, setXPubText] = useState();
-  const [wallet, setWallet] = useState();
-  const { goBack } = useNavigation();
-  const { colors } = useTheme();
-  const { width, height } = useWindowDimensions();
-  const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
   const { wallets } = useContext(BlueStorageContext);
+  const { walletID, xpub } = useRoute().params;
+  const wallet = wallets.find(w => w.getID() === walletID);
+  const [isLoading, setIsLoading] = useState(true);
+  const [xPubText, setXPubText] = useState();
+  const { goBack, setParams } = useNavigation();
+  const { colors } = useTheme();
+  const [qrCodeSize, setQRCodeSize] = useState(90);
+  const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
 
   useFocusEffect(
     useCallback(() => {
       Privacy.enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
-        for (const w of wallets) {
-          if (w.getSecret() === secret) {
-            // found our wallet
-            setWallet(w);
-          }
-        }
-
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
@@ -52,8 +50,9 @@ const WalletXpub = () => {
               return goBack();
             }
           }
-          setXPub(wallet.getXpub());
-          setXPubText(wallet.getXpub());
+          setParams({ xpub: wallet.getXpub() });
+          setIsLoading(false);
+        } else if (xpub) {
           setIsLoading(false);
         }
       });
@@ -62,45 +61,59 @@ const WalletXpub = () => {
         Privacy.disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, secret, wallet]),
+    }, [goBack, walletID]),
   );
 
+  useEffect(() => {
+    setXPubText(xpub);
+  }, [xpub]);
+
+  const onLayout = e => {
+    const { height, width } = e.nativeEvent.layout;
+    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
+  const handleShareButtonPressed = () => {
+    Share.open({ message: xpub }).catch(error => console.log(error));
+  };
+
   return isLoading ? (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[styles.container, stylesHook.root]}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.container}>
-        <View>
-          <BlueText>{wallet.typeReadable}</BlueText>
-        </View>
-        <BlueSpacing20 />
-        <View style={styles.qrCodeContainer}>
-          <QRCode
-            value={xPub}
-            logo={require('../../img/qr-code.png')}
-            size={height > width ? width - 40 : width / 2}
-            logoSize={90}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-            ecl="H"
-          />
-        </View>
+      <>
+        <View style={styles.container}>
+          {wallet && (
+            <>
+              <View>
+                <BlueText>{wallet.typeReadable}</BlueText>
+              </View>
+              <BlueSpacing20 />
+            </>
+          )}
+          <QRCodeComponent value={xpub} size={qrCodeSize} />
 
-        <BlueSpacing20 />
-        <BlueCopyTextToClipboard text={xPubText} />
-      </View>
+          <BlueSpacing20 />
+          <BlueCopyTextToClipboard text={xPubText} />
+        </View>
+        <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+        <View style={styles.share}>
+          <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </View>
+      </>
     </SafeBlueArea>
   );
 };
 
-WalletXpub.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  title: loc.wallets.xpub_title,
-  headerLeft: null,
-});
+WalletXpub.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerHideBackButton: true,
+  },
+  opts => ({ ...opts, headerTitle: loc.wallets.xpub_title }),
+);
 
 export default WalletXpub;

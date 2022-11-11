@@ -1,7 +1,6 @@
-/* global it, describe */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
-import { decodeUR } from 'bc-ur/dist';
+import { decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');
@@ -75,6 +74,7 @@ describe('multisig-wallet (p2sh)', () => {
         amount: 100000,
         wif: false,
         confirmations: 666,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         txhex:
           '0200000000010211f8cdc7b1255b8d3eb951db2fc6964766aaf6e6d1b42e777c90a52977b3e8e50000000000ffffffff00696f18c09d884c100254825f3ca4f41ca35fbb5e988d3526cbdcfcb30c335b0000000000ffffffff02a08601000000000017a914b3d8a5081a9477dd5d354d4c8a7efc0e64689d1087e8340f0000000000160014eef1091149ba3658a5dfe9c8a8924b3a4f0e1baa02473044022068548d4369730e90f33d4243420b40d4c7ef240bbac1db33354c0e108d503f24022062adcc1d19756bcb3ecae9fe988af7c3147ba7df5ff6b26f4a135037669fcef001210211edf8b518a1ac28d1f9a956a5ddeddaea0df435f2386e7fb86f0e9fde818dda0247304402203140f8ee8311562f15eb1f062f3be98fbe41615262491ad5625d8541ce2e4386022077343891d341112a2b75647d5a1faec0f0a79dac8052249e22eb39591a4bb70c0121023f05c145e61311eb725fdea9834fe20c4e7bbb639def8e47137a2696001f9e9d00000000',
       },
@@ -167,6 +167,7 @@ describe('multisig-wallet (p2sh)', () => {
         amount: 100000,
         wif: false,
         confirmations: 666,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         txhex:
           '0200000000010211f8cdc7b1255b8d3eb951db2fc6964766aaf6e6d1b42e777c90a52977b3e8e50000000000ffffffff00696f18c09d884c100254825f3ca4f41ca35fbb5e988d3526cbdcfcb30c335b0000000000ffffffff02a08601000000000017a914b3d8a5081a9477dd5d354d4c8a7efc0e64689d1087e8340f0000000000160014eef1091149ba3658a5dfe9c8a8924b3a4f0e1baa02473044022068548d4369730e90f33d4243420b40d4c7ef240bbac1db33354c0e108d503f24022062adcc1d19756bcb3ecae9fe988af7c3147ba7df5ff6b26f4a135037669fcef001210211edf8b518a1ac28d1f9a956a5ddeddaea0df435f2386e7fb86f0e9fde818dda0247304402203140f8ee8311562f15eb1f062f3be98fbe41615262491ad5625d8541ce2e4386022077343891d341112a2b75647d5a1faec0f0a79dac8052249e22eb39591a4bb70c0121023f05c145e61311eb725fdea9834fe20c4e7bbb639def8e47137a2696001f9e9d00000000',
       },
@@ -247,6 +248,7 @@ describe('multisig-wallet (p2sh)', () => {
         amount: 87740,
         wif: false,
         confirmations: 666,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         txhex:
           '0200000001ecdefd0e63268b54fae10c73615dcc7f40e0310dd48986c90ba34c0b7c220a6300000000d90047304402203bc4cb339510331090e8fbe65fc1e510d6a412f8dee10879ee65ef627d3d75b3022017372a2f4cba89337d3aa2087cb2d803b6b275c2b7120b422298cf97ebbffe440147304402202ac48d42623e988e038627113594e36c3c0e9c4069792ef385739105cf843c9d0220722f32d64d6f91a59325d1c494cc4d0cf8ae506c0cb25c46442dba1cb65e156d0147522102e2a940566cade4c76e3733323fa098f696d8ca568cdfcd13db77d1308557a6e821030ce3370d4c6487d552bbf3c68f260070b0c853276d12e2583fdc9902f262488d52ae000000800210270000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588acbc5601000000000017a914f23c14448f3af5557826aced42ea9e71589dce498700000000',
       },
@@ -298,6 +300,49 @@ describe('multisig-wallet (p2sh)', () => {
       psbt.extractTransaction().toHex(),
       '020000000123ee0084c67ca01e059a4785a70445d1248893c9528896eb9d51713c19a5ea3301000000da00483045022100e235dffeee389d68c36beb6757b343da1de6d5feefd778e8a7eb726f6fcaf4bd0220738f11207e75e6592e89ae4ca3a7204812738520835fc109a84f238eb15b89a60147304402206117b4349b34d2fca17d600bc66e75a9c0e8c5a2dd5cc23213392f06916935c102205afbf3b4446d824b42408032d6a9b738dee29277e60ae5cb8b085e0ffc5979570147522102826455aa3c4d070f19d1f6ae101434b344a034da595948657644124efb3b736821038962d1c2ae755a1ca5f891516bb639fd75518910d30a4d33982c063f6824b7ac52ae00000080013c4f0100000000001976a91419129d53e6319baf19dba059bead166df90ab8f588ac00000000',
     );
+  });
+
+  it('can do both signatures, and create correct feerate tx', () => {
+    const path = "m/45'";
+
+    const utxos = [
+      {
+        height: 666,
+        value: 87740,
+        address: '3PmqRLiPnBXhdYGN6mAHChXLPvw8wb3Yt8',
+        txId: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
+        vout: 1,
+        txid: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
+        amount: 87740,
+        wif: false,
+        confirmations: 666,
+        txhex:
+          '0200000001ecdefd0e63268b54fae10c73615dcc7f40e0310dd48986c90ba34c0b7c220a6300000000d90047304402203bc4cb339510331090e8fbe65fc1e510d6a412f8dee10879ee65ef627d3d75b3022017372a2f4cba89337d3aa2087cb2d803b6b275c2b7120b422298cf97ebbffe440147304402202ac48d42623e988e038627113594e36c3c0e9c4069792ef385739105cf843c9d0220722f32d64d6f91a59325d1c494cc4d0cf8ae506c0cb25c46442dba1cb65e156d0147522102e2a940566cade4c76e3733323fa098f696d8ca568cdfcd13db77d1308557a6e821030ce3370d4c6487d552bbf3c68f260070b0c853276d12e2583fdc9902f262488d52ae000000800210270000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588acbc5601000000000017a914f23c14448f3af5557826aced42ea9e71589dce498700000000',
+      },
+    ];
+
+    const w = new MultisigHDWallet();
+    w.addCosigner(process.env.MNEMONICS_COBO);
+    w.addCosigner(process.env.MNEMONICS_COLDCARD);
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    // transaction is gona be signed with both keys
+    const { tx, psbt } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // no change
+      10,
+      w._getInternalAddressByIndex(3),
+      false,
+      false,
+    );
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.throws(() => psbt.finalizeAllInputs()); // throws as it is already finalized
+    assert.strictEqual(w.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.ok(psbt.extractTransaction().toHex());
+    assert.strictEqual(Math.round(psbt.getFeeRate()), 10);
   });
 });
 
@@ -353,6 +398,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
         amount: 100000,
         wif: false,
         confirmations: 666,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         txhex:
           '0200000000010196d35e9f8f176e83895a3fe9595a6245dfbab28d6ab67b3792fd5de22e1f6b6601000000000000008002a08601000000000017a9144fa5e491491e9ff7a4a1acfad13b1f40394a807587cc1e040000000000160014266425288c8b2b0ff90f2cffb630f174b1e1915602473044022027a467bd3d4aeb3d7e37d9e1218016e06ad0d5d55ce36f2852dc685e4261d5fb022006acb3e4ecb6c8b887ad94893a8b447a7003a34c0422864d2403493d8ab07fd60121022974397dca958232181a717400dc31629b4daad87e1e314e3b02dd059e88141000000000',
       },
@@ -419,6 +465,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
         txid: 'e36f630517f5b094a9287e73bdb443792088255c50d74414c7f25bd7fbdcf18e',
         amount: 100000,
         wif: false,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 666,
         txhex:
           '0200000000010196d35e9f8f176e83895a3fe9595a6245dfbab28d6ab67b3792fd5de22e1f6b6601000000000000008002a08601000000000017a9144fa5e491491e9ff7a4a1acfad13b1f40394a807587cc1e040000000000160014266425288c8b2b0ff90f2cffb630f174b1e1915602473044022027a467bd3d4aeb3d7e37d9e1218016e06ad0d5d55ce36f2852dc685e4261d5fb022006acb3e4ecb6c8b887ad94893a8b447a7003a34c0422864d2403493d8ab07fd60121022974397dca958232181a717400dc31629b4daad87e1e314e3b02dd059e88141000000000',
@@ -494,6 +541,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
         txid: '31d614bc1d6fcbcb273f585f87d2e619784920f8cb0c2396e4a03f1bb86fed64',
         amount: 87740,
         wif: false,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 666,
         txhex:
           '020000000001018ef1dcfbd75bf2c71444d7505c2588207943b4bd737e28a994b0f51705636fe30000000023220020cf4edc4d221ad75e937de867b846a360e86e52d9e91559e448c42ea5ad6ef1a6000000800210270000000000001976a91419129d53e6319baf19dba059bead166df90ab8f588acbc5601000000000017a914eee2ade6428d5b478f7e48fcd97b05e86fc0b51e8704004730440220781fa6f66c0d3e159074b118be6719c4693f9e55e2bee398d463e2fafce4d357022062a3bf536b44ebf6c90488b27f8579cd151fb765d45ca45457e7d1c8a869a8ad0147304402207e13fe2321ab8b80f3d415b28e37a11224ff9b9caf8be710d0f30f41939ab3df0220031da773d0dd13f99b0c7e33e7cb2dbc5af480cf219e7933c092eeb354787f780147522102ce27ac68a4363441eb006877bc7288f96c6a31cb7bbf38f931920529f52dad4521035dc459fa660ad6c79e2b5f08d8f2d87ca31b82d4619a609bb05023f08872ef3252ae00000000',
@@ -779,6 +827,7 @@ describe('multisig-wallet (native segwit)', () => {
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         amount: 100000,
         wif: false,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 0,
         txhex:
           '02000000000101b67e455069a0f44c9df4849ee1167b06c26f8478daefa9c8aeedf1da3d7d81860f000000000000008002a08601000000000022002030862bd71d77b314666e5fdab34d6293ecb4ffdbba55fbd5323dfd79d98b662b04b005000000000016001461e37702582ecf8c87c1eb5008f2afb17acc9d3c02473044022077268bb0f3060b737b657c3c990107be5db41fd311cc64abeab96cff621146fc0220766e2409c0669020ea2160b358037fdb17f49e59faf8e9c50ac946019be079e6012103c3ed17035033b2cb0ce03694d402c37a307f0eea2b909b0272816bfcea83714f00000000',
@@ -930,6 +979,7 @@ describe('multisig-wallet (native segwit)', () => {
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         amount: 100000,
         wif: false,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 0,
         txhex:
           '02000000000101b67e455069a0f44c9df4849ee1167b06c26f8478daefa9c8aeedf1da3d7d81860f000000000000008002a08601000000000022002030862bd71d77b314666e5fdab34d6293ecb4ffdbba55fbd5323dfd79d98b662b04b005000000000016001461e37702582ecf8c87c1eb5008f2afb17acc9d3c02473044022077268bb0f3060b737b657c3c990107be5db41fd311cc64abeab96cff621146fc0220766e2409c0669020ea2160b358037fdb17f49e59faf8e9c50ac946019be079e6012103c3ed17035033b2cb0ce03694d402c37a307f0eea2b909b0272816bfcea83714f00000000',
@@ -1002,6 +1052,7 @@ describe('multisig-wallet (native segwit)', () => {
         amount: 100000,
         wif: false,
         confirmations: 0,
+        script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         txhex:
           '02000000000101b67e455069a0f44c9df4849ee1167b06c26f8478daefa9c8aeedf1da3d7d81860f000000000000008002a08601000000000022002030862bd71d77b314666e5fdab34d6293ecb4ffdbba55fbd5323dfd79d98b662b04b005000000000016001461e37702582ecf8c87c1eb5008f2afb17acc9d3c02473044022077268bb0f3060b737b657c3c990107be5db41fd311cc64abeab96cff621146fc0220766e2409c0669020ea2160b358037fdb17f49e59faf8e9c50ac946019be079e6012103c3ed17035033b2cb0ce03694d402c37a307f0eea2b909b0272816bfcea83714f00000000',
       },
@@ -1047,6 +1098,32 @@ describe('multisig-wallet (native segwit)', () => {
     const { tx } = walletWithSecondKey.cosignPsbt(psbt); // <---------------------------------------------------------
 
     assert.strictEqual(walletWithFirstKey.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
+    assert.ok(tx);
+    assert.throws(() => psbt.finalizeAllInputs()); // as it is already finalized
+    assert.ok(tx.toHex());
+  });
+
+  it('can cosign PSBT that comes from electrum', async () => {
+    const wallet = new MultisigHDWallet();
+    wallet.setSecret(
+      'Name: Multisig Vault\n' +
+        'Policy: 2 of 2\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        '00000000: Zpub6yjw2xcmSY3uD1KbYLnrSuP2PaxDXajA1YymjzstkZCGnBX3Z1oC6dVFtA1TQNPoTaguixnjYfRK3edDDoP3xxJZSSv1S9NrG5zqK5YzKHE\n' +
+        '\n' +
+        'seed: point match rack notable poverty welcome slice stem warfare later skirt dream',
+    );
+
+    const psbt = bitcoin.Psbt.fromBase64(
+      'cHNidP8BAHsCAAAAAn99yxH8deILgpB2qT23xRUvfnu8v98JSREOvhP5SFhHAAAAAAD9////2NGbHPsAqZoKkO+PsxfYuLT9pN8T5/LtHnQnStXsyWsAAAAAAP3///8B2LECAAAAAAAWABTNx1+3yJfKJVcFfHn3KBn9EVdBLmIkCgAAAQDrAgAAAAABAdjRmxz7AKmaCpDvj7MX2Li0/aTfE+fy7R50J0rV7MlrAQAAAAAAAACAAqCGAQAAAAAAIgAgNjviJkwSkV3MVJI0X8KnLUc+MfW/d4EQvWgykrvTwHDeDAIAAAAAABYAFGPIzN0T0b+DfXhLYiOUdT2c5pEBAkgwRQIhAIyPdquXeaHAXL7PpaYt5+G9rl0lLXMPaDM2u9fVuCp4AiA7EIZQm8bIdC4Z+oWtXh0xCKSvTgiwDQWGsQ2kMC2+LwEhA7+3G393F7pqELKBkYzEka2iEvVsLpGjdTvVuP6nufrLAAAAACICA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpRzBEAiBN+gF6Xa7PO1/NbL7K8Nqa3W5vPiuaAov6v+7zjTNDlgIgf9jYQ76Hf4xoOBdveYCyaOeoq+jwXN05nvJlVgZFngkBAQVHUiEDWcyClcxZ8xFXyF1LM8kiGaXqdqM3aHgKK2/Di976NAohA6qDyEv6617qV3VEJoGIQowgTguor7GTI1qOYIz/M6PpUq4iBgNZzIKVzFnzEVfIXUszySIZpep2ozdoeAorb8OL3vo0CgyRUA3SAAAAAAEAAAAiBgOqg8hL+ute6ld1RCaBiEKMIE4LqK+xkyNajmCM/zOj6RCvgJIDAQAAgAAAAAABAAAAAAEA6wIAAAAAAQHWV2FCU0XMuya/nkpDw/yIOK7U3NehUDZmechoTJQFlQEAAAAAAAAAgAKghgEAAAAAACIAIJi9hmdhYfHNmOEaEADqxlNRmtsZIU/NisM8/b4UVU67JqUDAAAAAAAWABSOkTpoURBU5UZG1VIoBj+EHlF6cgJIMEUCIQCJjUIn/LFJNknngMXEfHUNegppt/olh+2RCYGDZ/yw7AIgLw7SwWCaZvHB8PwMj+9F4Rjhvmq4BZ7gozr7tQZMOY0BIQN3F33l/rnJgyIJQHHYEwfxCympfDiFZ8rV76gttJdnLwAAAAAiAgKk1ZQ+v8BXIY1q1aQcRA1Qy6XQVrrhXEcWtXrOvOzf8kcwRAIgPYRi8+wJVym+EF3LNyOylj1RcdPzMiLxKRqlVm64IUgCIH1JVGxAIvmwKpg1TqlvbeXZbUMCjnr7CkYWqxBqghLfAQEFR1IhAqTVlD6/wFchjWrVpBxEDVDLpdBWuuFcRxa1es687N/yIQPo29i9fz5IsDSF1lSMDBbhehw+ydEhNYmjujZiSfyQD1KuIgYCpNWUPr/AVyGNatWkHEQNUMul0Fa64VxHFrV6zrzs3/IQr4CSAwEAAIAAAAAAAAAAACIGA+jb2L1/PkiwNIXWVIwMFuF6HD7J0SE1iaO6NmJJ/JAPDJFQDdIAAAAAAAAAAAAA',
+    );
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 1);
+
+    const { tx } = wallet.cosignPsbt(psbt); // <---------------------------------------------------------
+
+    assert.strictEqual(wallet.calculateHowManySignaturesWeHaveFromPsbt(psbt), 2);
     assert.ok(tx);
     assert.throws(() => psbt.finalizeAllInputs()); // as it is already finalized
     assert.ok(tx.toHex());
@@ -1321,6 +1398,7 @@ describe('multisig-wallet (native segwit)', () => {
           txid: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',
           amount: 100000,
           wif: false,
+          script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
           confirmations: 666,
           txhex:
             '020000000001021b43a3a3ba5ff4a23538cc2703fd8346a36431ea471a3f4dd5f0cd7f94f5c15d010000001716001426458e62e6e3c6c86f337a01419b033b19296fafffffffff058afa9f432909398bb960056ad94d25d750ebe363edb61580fa1e995ab9e70b00000000171600149807251b3dffaf026fa29efd0f33d4f3bc853105ffffffff02102700000000000022002056ed7b30c5ffba0b41844bdae6a8d524ce0329d18117797d6db49de78cf78333000300000000000017a91498a34ffa21c4b810eee5cb94cd038a9c1979aa81870247304402204e90bd4bc06f5de27c0c78bbdbcf14d18eee39c2341c8cbdd6d30c172bd83fb2022058a37442adb49f745b07c0f9cf8a06144f103856976356b2a782b5916c95728b012103a9acc34fc8e68e19bee16ca356c597c8f6336d319471dddf86dfd4e28d17264702483045022100fef44f4645da1718363fbe3a7ffde8460faa3d7ca02c9437ab4fed2cf0724cf50220575ce1b64846ffb44b5868092072727b08465d2b8884aecf25e5526f9b536e88012103c3f029468e9fd9741b26228bb71f730e24f55a7569de1f84f1e9826396999bcd00000000',
@@ -1337,6 +1415,59 @@ describe('multisig-wallet (native segwit)', () => {
       assert.ok(psbt);
       assert.ok(!tx);
     }
+  });
+
+  it('can import electrum json file format with seeds and passphrase', () => {
+    const json = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
+    const w = new MultisigHDWallet();
+    w.setSecret(JSON.stringify(json));
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 2);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u');
+    assert.strictEqual(w._getExternalAddressByIndex(1), 'bc1q7n8twph2zlfw6w0p5ms9vkvj9klxqhpjy5mv5tnqpcf2pl3d3qrst2pjz7');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1q2ltyvkrs0uay39acfk4y0gmw7flghd3403p94x26tc8579t9adwsjp83yz');
+    assert.strictEqual(w._getInternalAddressByIndex(1), 'bc1q24rc4v9r6fjtkrwfp4j57ufef56ez46rrpyjtdkhjpr687f5de0sa7ryv5');
+
+    assert.ok(w.isNativeSegwit());
+    assert.ok(!w.isWrappedSegwit());
+    assert.ok(!w.isLegacy());
+
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/1'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
+
+    assert.strictEqual(w.getFingerprint(1), '8de7b2c3'.toUpperCase());
+    assert.strictEqual(w.getFingerprint(2), '84431270'.toUpperCase());
+
+    const utxos = [
+      {
+        address: 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u',
+        amount: 68419,
+        height: 0,
+        txId: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        txhex:
+          '02000000000101d7bf498a92b19bab8a58260efedd7e6cd3b7713ff1e9d2603ff9f06a64f66291000000001716001440512e04b685a0cd66a03bea0896c27000c828dcffffffff01430b010000000000220020d848363349dd9952d465058b3ffc9c24d0b04b4a491d8fa8c2cc208724a040e10247304402201ad742ffee74e5ae4b3867d9818b8ad6505ca5239280138f9da3f93e4c27ee0802202918fa6034485077596bf64501ae6954371e91d250ee98f5a3c5889d4dee923e012103a681da832358050bd9b197aaa55d921f1447025b999eadb018aa67c5b8f64a0900000000',
+        txid: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
+        value: 68419,
+        vout: 0,
+        wif: false,
+      },
+    ];
+    const { psbt } = w.createTransaction(
+      utxos,
+      [{ address: '39RXMPjwKwoEGJeABJvdG1N4nQAzfEgcos' }],
+      1,
+      w._getInternalAddressByIndex(3),
+      false,
+      true,
+    );
+    assert.ok(psbt);
+    // we are using .cosignPsbt for now, because .createTransaction throws
+    // Need one bip32Derivation masterFingerprint to match the HDSigner fingerprint
+    // https://github.com/BlueWallet/BlueWallet/pull/2466
+    const { tx } = w.cosignPsbt(psbt);
+    assert.ok(tx);
   });
 
   it('cant import garbage', () => {
@@ -1622,14 +1753,12 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
 
-    w.replaceCosigner(fp2coldcard, Zpub2, fp2coldcard, path); // <-------------------
-
+    w.replaceCosignerSeedWithXpub(2);
     assert.strictEqual(w.getCosigner(2), Zpub2);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
 
-    w.replaceCosigner(fp2coldcard, process.env.MNEMONICS_COLDCARD); // <---------------------------
-
+    w.replaceCosignerXpubWithSeed(2, process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getCosigner(2), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.getFingerprint(2), fp2coldcard);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
@@ -1658,6 +1787,49 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
+
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getN(), 2);
+
+    w.replaceCosignerSeedWithXpub(2);
+    assert.strictEqual(
+      w.getCosigner(2),
+      'Zpub752NRx3S4ax3S5oLHLB2DAQx9X3Ek4EGvtsyYTpzQ2VRdXB6DjL5ZKiHhcUqfZM6M2KCVB5vSXEQ4jMosHWuF4dD5pwowfzL4fmJz5FaJHh',
+    );
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.ok(!w.getPassphrase(2));
+
+    w.replaceCosignerXpubWithSeed(
+      2,
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      '9WDdFSZX4d6mPxkr',
+    );
+    assert.strictEqual(w.getCosigner(2), 'salon smoke bubble dolphin powder govern rival sport better arrest certain manual');
+    assert.strictEqual(w.getFingerprint(2), '2C0908B6');
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
+    assert.strictEqual(w.getPassphrase(2), '9WDdFSZX4d6mPxkr');
+
+    // test that after deleting cosinger with passphrase, it has been cleaned out properly
+    w.deleteCosigner('2C0908B6');
+    assert.ok(!w.getCosigner(2));
+    assert.ok(!w.getFingerprint(2));
+    assert.ok(!w.getCustomDerivationPathForCosigner(2));
+    assert.ok(!w.getPassphrase(2));
+    assert.strictEqual(w.getN(), 1);
+    assert.strictEqual(w.getM(), 2);
+
+    // after chaning first cosigner, make sure that he changed, not the second one
+    w.replaceCosignerXpubWithSeed(1, process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getCosigner(1), process.env.MNEMONICS_COBO);
+    assert.strictEqual(w.getFingerprint(1), fp1cobo);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
+    assert.strictEqual(w.getPassphrase(1), undefined);
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
@@ -1719,6 +1891,106 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(psbt.data.inputs.length, 1);
     assert.strictEqual(psbt.data.outputs.length, 1);
   });
+
+  it('can sign multiple inputs', async () => {
+    const w = new MultisigHDWallet();
+    w.setSecret(
+      '# BlueWallet Multisig setup file\n' +
+        '# this file may contain private information\n' +
+        '#\n' +
+        'Name: Multisig Vault\n' +
+        'Policy: 2 of 3\n' +
+        "Derivation: m/48'/0'/0'/2'\n" +
+        'Format: P2WSH\n' +
+        '\n' +
+        'seed: certain cruise forum ladder reveal frame company book sausage flat wasp mouse\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: sting tumble brave remember sadness embrace increase under year joke drum skate\n' +
+        '# warning! sensitive information, do not disclose ^^^ \n' +
+        '\n' +
+        'seed: daughter parade neck suit brick wife horror inquiry leopard exhibit body mobile\n' +
+        '# warning! sensitive information, do not disclose ^^^',
+    );
+
+    const utxos = [
+      {
+        address: 'bc1qzwt595g0q0xauxzr4h56kw4zavfrnq3r4zkx42relm8rvwuuxyvsqndmgl',
+        amount: 2120,
+        confirmations: 33,
+        height: 668483,
+        txId: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        txhex:
+          '020000000001019e590dee7124728b988e32c1daad3a550663327b3478c4f9ee15eeaf740b898f0100000017160014018958ab9e2b29b7313a39c1a62189affeac94a8ffffffff014808000000000000220020139742d10f03cdde1843ade9ab3aa2eb12398223a8ac6aa879fece363b9c311902483045022100f431ad4d213265531f600ebf242cabd3adcb7b5c27464ad080a34ce4fb4a5e5702206fad42768d29ee1121e19dc4489366d0c02a412e9d60431cac59d49642868c7b0121037a24a1d8a4e86946e89478f352bda9d6b40843e01b86af5c94b99634cbb0c6b200000000',
+        txid: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
+        value: 2120,
+        vout: 0,
+        wif: false,
+      },
+      {
+        address: 'bc1qn0j7y5hau6s8tdcpnxyyumck256lfet78ehpxdkytv5nt570dr4qxl9s3p',
+        amount: 10000,
+        confirmations: 1,
+        height: 668515,
+        txId: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        txhex:
+          '02000000000101a1fba4a09a1a7ed090c64f15024de4b9008b6ec4ee5e336f0f0fc43f78022dfa01000000171600142f78bf055b26feb8f2f6b3caa5956b991c507e49ffffffff0210270000000000002200209be5e252fde6a075b70199884e6f165535f4e57e3e6e1336c45b2935d3cf68ea9a8705000000000017a91484d55f28fc28676c5f195ce649851428ec5010a3870248304502210098a970398bc40a34423d5661ecc499240bb0edb6e6bea74a752269f92e588b1b022031fcdf66c4ed8378f352a5a096c438e7a8c1415c47c119a4c69ef787e1cdf5d9012102ade0a25d66406f67dc3e4a6c8bedd989dd3ceed7a623fb4c2839a84b5262ca0900000000',
+        txid: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
+        value: 10000,
+        vout: 0,
+        wif: false,
+      },
+    ];
+
+    const { psbt, tx } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS' }], // sendMax
+      6,
+      w._getInternalAddressByIndex(0),
+    );
+
+    assert.ok(tx);
+    assert.ok(psbt);
+
+    assert.strictEqual(psbt.data.inputs.length, 2);
+    assert.strictEqual(psbt.data.outputs.length, 1);
+  });
+
+  it('can generate proper addresses for wallets with passphrases. Export and import such wallet', () => {
+    // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
+    const path = "m/48'/0'/0'/2'";
+    const w = new MultisigHDWallet();
+    w.addCosigner(
+      'salon smoke bubble dolphin powder govern rival sport better arrest certain manual',
+      undefined,
+      undefined,
+      '9WDdFSZX4d6mPxkr',
+    );
+    w.addCosigner('chaos word void picture gas update shop wave task blossom close inner', undefined, undefined, 'E5jMAzsf464Hgwns');
+    w.addCosigner(
+      'plate inform scissors pill asset scatter people emotion dose primary together expose',
+      undefined,
+      undefined,
+      'RyBFfLr7weK3nDUG',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(w.getPassphrase(1), '9WDdFSZX4d6mPxkr');
+    assert.strictEqual(w.getPassphrase(2), 'E5jMAzsf464Hgwns');
+    assert.strictEqual(w.getPassphrase(3), 'RyBFfLr7weK3nDUG');
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q8rks34ypj5edxx82f7z7yzy4qy6dynfhcftjs9axzr2ml37p4pfs7j4uvm');
+    assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qjpjgumzs2afrr3mk85anwdnzd9qg5hc5p6f62un4umpyf4ccde5q4cywgy');
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w.getPassphrase(1), w2.getPassphrase(1));
+    assert.strictEqual(w.getPassphrase(2), w2.getPassphrase(2));
+    assert.strictEqual(w.getPassphrase(3), w2.getPassphrase(3));
+  });
 });
 
 describe('multisig-cosigner', () => {
@@ -1731,6 +2003,70 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(cosigner.getXpub(), Zpub1);
     assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
     assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+  });
+
+  it('can parse cobo json, if xpub is plain xpub (not Zpub or Ypub)', () => {
+    const tempWallet = new MultisigHDWallet();
+    let xpub = tempWallet._zpubToXpub(Zpub1);
+    assert.ok(xpub.startsWith('xpub'));
+    let cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_NATIVE_SEGWIT}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), Zpub1);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_NATIVE_SEGWIT);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+
+    //
+
+    const Ypub1 = 'Ypub6jtUX12KGcqFosZWP4YcHc9qbKRTvgBpb8aE58hsYqby3SQVTr5KGfMmdMg38ekmQ9iLhCdgbAbjih7AWSkA7pgRhiLfah3zT6u1PFvVEbc';
+    xpub = tempWallet._zpubToXpub(Ypub1);
+    assert.ok(xpub.startsWith('xpub'));
+    cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_WRAPPED_SEGWIT}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), Ypub1);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(!cosigner.isLegacy());
+    assert.ok(cosigner.isWrappedSegwit());
+
+    //
+
+    xpub = tempWallet._zpubToXpub(Ypub1);
+    assert.ok(xpub.startsWith('xpub'));
+    cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_LEGACY}"}`);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.getFp(), fp1cobo);
+    assert.strictEqual(cosigner.getXpub(), xpub);
+    assert.strictEqual(cosigner.getPath(), MultisigHDWallet.PATH_LEGACY);
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.ok(!cosigner.isNativeSegwit());
+    assert.ok(cosigner.isLegacy());
+    assert.ok(!cosigner.isWrappedSegwit());
+  });
+
+  it('can parse cobo URv2 account', () => {
+    let decoded = decodeUR([
+      'UR:CRYPTO-ACCOUNT/OEADCYADWMTNKIAOLYTAADMETAADDLOLAOWKAXHDCLAXHPDIHNWKMYCFHNROCARHSESKLDPDSWOTMWGTJNGWIYHYYNWSOLENTSUEMKTOTAVDAAHDCXBDHHBZSBURBSMKZOECOEHHJPHTSRVACMBGHEROMYCKHHNBHFHGNBGMNYAESPNDFHAHTAADEHOEADADAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYADWMTNKIAXAAAYCYLOWLDITOJTCNDTAY',
+    ]);
+    decoded = Buffer.from(decoded, 'hex').toString('ascii');
+
+    const cosigner = new MultisigCosigner(decoded);
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub756tPxxwHiYkYiT12G2WUD2cpAHyVWhjvKPbXoY5jDZSyo71yG5C14LCuwhycTTAzgTUcQfddR8FFTQ1bSWR6kzmNbMEaVzUrj4Lhxbonjo',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 1);
+    assert.strictEqual(cosigner.getFp(), '01EBDA7D');
   });
 
   it('can parse plain Zpub', () => {
@@ -1821,16 +2157,86 @@ describe('multisig-cosigner', () => {
 
   it('can parse files from sparrow wallet', () => {
     const secrets = [
-      JSON.stringify(require('./fixtures/fromsparrow-electrum.json')),
-      require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'),
-      JSON.stringify(require('./fixtures/fromsparrow-specter.json')),
+      [JSON.stringify(require('./fixtures/fromsparrow-electrum.json')), false],
+      [require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'), true],
+      [JSON.stringify(require('./fixtures/fromsparrow-specter.json')), true],
+      [JSON.stringify(require('./fixtures/caravan-multisig.json')), true],
     ];
 
-    for (const s of secrets) {
+    for (const [s, verifyFingerprints] of secrets) {
       const w = new MultisigHDWallet();
       w.setSecret(s);
 
+      if (verifyFingerprints) {
+        assert.strictEqual(w.getFingerprint(1), 'A3909080');
+        assert.strictEqual(w.getFingerprint(2), '7AB71DF0');
+        assert.strictEqual(w.getFingerprint(3), 'F11B9FF2');
+      }
+
+      assert.ok(w.isNativeSegwit());
       assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qtysquqsjqjfqvhd6l2h470hdgwhcahs4nq2ca49cyxftwjnjt9ssh8emel');
     }
+  });
+
+  it('can export to json', () => {
+    const result = MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'");
+    assert.strictEqual(
+      result,
+      '{"xfp":"D37EAD88","xpub":"Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ","path":"m/48\'/0\'/0\'/2\'"}',
+    );
+
+    const cosigner = new MultisigCosigner(MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'"));
+    assert.strictEqual(cosigner.getFp(), 'D37EAD88');
+    assert.strictEqual(
+      cosigner.getXpub(),
+      'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ',
+    );
+    assert.strictEqual(cosigner.getPath(), "m/48'/0'/0'/2'");
+    assert.strictEqual(cosigner.isValid(), true);
+    assert.strictEqual(cosigner.isNativeSegwit(), true);
+    assert.strictEqual(cosigner.isWrappedSegwit(), false);
+    assert.strictEqual(cosigner.isLegacy(), false);
+
+    // using bad xpub just to check chaincode & keyhex
+    const c2 = new MultisigCosigner(
+      MultisigCosigner.exportToJson(
+        fp1cobo,
+        'zpub6qT7amLcp2exr4mU4AhXZMjD9CFkopECVhUxc9LHW8pNsJG2B9ogs5sFbGZpxEeT5TBjLmc7EFYgZA9EeWEM1xkJMFLefzZc8eigRFhKB8Q',
+        "m/48'/0'/0'/2'",
+      ),
+    );
+    assert.strictEqual(c2.getChainCodeHex(), '906730ab8a03fb4baa32a912134f2c5bfe6ae70e0264e4e9fe4b0abe3a560692');
+    assert.strictEqual(c2.getKeyHex(), '0395b643f45bd89fede6f4f6416b288e73005419b48cdcd88465913bd31b4be5ea');
+    assert.strictEqual(c2.getParentFingerprintHex(), '125688b1');
+    assert.strictEqual(c2.getDepthNumber(), 3);
+  });
+
+  it('can export cosigner to URv2', () => {
+    let result = encodeUR(MultisigCosigner.exportToJson(fp1cobo, Zpub1, "m/48'/0'/0'/2'"));
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcytekbpmloaolytaadmetaaddloxaxhdclaofejnolgudllagdgodyweehzsmeyasnswrpdalnwzfenbmewlrtplsklbjkvdloweaahdcxltjzjpctayfsimuogtpypffrnlisflswwzntbecabtbdwdbstojnfrahdamnpfcyamtaaddyotadlocsdyykaeykaeykaoykaocytekbpmloaxaaaycyghykhpcmkgnstevs',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        '42A2460E',
+        'Ypub6m2WhkZvujztfZVYWEB4Hfcq3mKfeZYMfZj2wfvgNmTDjcCncU9ua6VSxXno7FeF8P2kqp1S7N8UoYapR8YKnMLNq8bEDDd2PU6q7QCHoEb',
+        "m/48'/0'/0'/1'",
+      ),
+    );
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcyfwoefgbaaolytaadmhtaadmetaaddloxaxhdclaxsblplucfptgtwywzcmnshtotqzleihrnndtoeodrfdpfoyeyqzsbenrplbhtdymuaahdcxlgbdsrcxatcmdpuokpwzvymttatphtlftplsvlgmeeflpdtanlromhfgvekbbznyamtaaddyotadlocsdyykaeykaeykadykaocyfwoefgbaaxaaaycywsutbeuyyndacaeh',
+    ]);
+
+    result = encodeUR(
+      MultisigCosigner.exportToJson(
+        'ED5C5B8A',
+        'xpub69dgpFkP9mFYhaAWt6svmwd1BYsuGiyyNs8sJW1GwCn8GSK69mrCmNG6ZLcrPGvBSiJzfjXD66ntgJxdqQbhMk4j273VQYHEMc5knoqFGvt',
+        "m/45'",
+      ),
+    );
+    assert.deepStrictEqual(result, [
+      'ur:crypto-account/oeadcywehhhpleaolytaadmhtaaddloxaxhdclaoamutctbahthnislelbwemnkeoefnhddienfetbpygrpaqdkemyrywyldaspyjkdtaahdcxhyneskwdhlehlfbwrpdnjlgsgakplkjtknvyttsgolnnlbwlcagoolcpfgsglkinamtaaddyotadlfcsdpykaocywehhhpleaxadaycywehhhplekpdwveih',
+    ]);
   });
 });

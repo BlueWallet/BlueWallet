@@ -1,7 +1,7 @@
-import bip39 from 'bip39';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-const bitcoin = require('bitcoinjs-lib');
-const HDNode = require('bip32');
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+const bip32 = BIP32Factory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
@@ -12,12 +12,25 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
 export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   static type = 'HDlegacyP2PKH';
   static typeReadable = 'HD Legacy (BIP44 P2PKH)';
+  static derivationPath = "m/44'/0'/0'";
 
   allowSend() {
     return true;
   }
 
-  allowSendMax() {
+  allowCosignPsbt() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
+    return true;
+  }
+
+  allowMasterFingerprint() {
+    return true;
+  }
+
+  allowXpub() {
     return true;
   }
 
@@ -25,50 +38,14 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
+    const seed = this._getSeed();
+    const root = bip32.fromSeed(seed);
 
-    const path = "m/44'/0'/0'";
+    const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
 
     return this._xpub;
-  }
-
-  _getExternalWIFByIndex(index) {
-    return this._getWIFByIndex(false, index);
-  }
-
-  _getInternalWIFByIndex(index) {
-    return this._getWIFByIndex(true, index);
-  }
-
-  /**
-   * Get internal/external WIF by wallet index
-   * @param {Boolean} internal
-   * @param {Number} index
-   * @returns {*}
-   * @private
-   */
-  _getWIFByIndex(internal, index) {
-    if (!this.secret) return false;
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-
-    const root = HDNode.fromSeed(seed);
-    const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
-    const child = root.derivePath(path);
-
-    return child.toWIF();
-  }
-
-  _getExternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(0, index);
-  }
-
-  _getInternalAddressByIndex(index) {
-    return this._getNodeAddressByIndex(1, index);
   }
 
   _getNodeAddressByIndex(node, index) {
@@ -83,13 +60,13 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this.getXpub();
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 

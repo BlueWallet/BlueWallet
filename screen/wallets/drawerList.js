@@ -1,27 +1,21 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StatusBar, View, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
+import React, { useContext, useEffect, useRef } from 'react';
+import { StatusBar, View, StyleSheet } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { BlueNavigationStyle, BlueHeaderDefaultMain } from '../../BlueComponents';
-import WalletsCarousel from '../../components/WalletsCarousel';
-import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { PlaceholderWallet } from '../../class';
-import WalletImport from '../../class/wallet-import';
-import * as NavigationService from '../../NavigationService';
+import { useIsFocused, useTheme } from '@react-navigation/native';
+
+import { BlueHeaderDefaultMain } from '../../BlueComponents';
+import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
-import { useTheme } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const DrawerList = props => {
-  console.log('drawerList rendering...');
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet, pendingWallets, newWalletAdded, setNewWalletAdded } = useContext(BlueStorageContext);
-  const [carouselData, setCarouselData] = useState([]);
-  const height = useWindowDimensions().height;
+  const { wallets, selectedWallet } = useContext(BlueStorageContext);
   const { colors } = useTheme();
+  const walletsCount = useRef(wallets.length);
+  const isFocused = useIsFocused();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.brandingColor,
@@ -29,121 +23,76 @@ const DrawerList = props => {
   });
 
   useEffect(() => {
-    const allWallets = wallets.concat(pendingWallets);
-    setCarouselData(allWallets.concat(false));
-    const newCarouselData = allWallets.concat(false);
-    setCarouselData(newCarouselData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, pendingWallets]);
-
-  useEffect(() => {
-    if (newWalletAdded) {
-      walletsCarousel.current?.snapToItem(carouselData.length - pendingWallets.length - 2);
-      setNewWalletAdded(false);
+    if (walletsCount.current < wallets.length) {
+      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newWalletAdded]);
+    walletsCount.current = wallets.length;
+  }, [wallets]);
 
   const handleClick = index => {
     console.log('click', index);
-    const wallet = carouselData[index];
-    if (wallet) {
-      if (wallet.type === PlaceholderWallet.type) {
-        Alert.alert(
-          loc.wallets.add_details,
-          loc.wallets.list_import_problem,
-          [
-            {
-              text: loc.wallets.details_delete,
-              onPress: () => {
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'destructive',
-            },
-            {
-              text: loc.wallets.list_tryagain,
-              onPress: () => {
-                props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
-                WalletImport.removePlaceholderWallet();
-              },
-              style: 'default',
-            },
-          ],
-          { cancelable: false },
-        );
-      } else {
-        props.navigation.navigate('WalletTransactions', {
-          walletID: wallet.getID(),
-          walletType: wallet.type,
-          key: `WalletTransactions-${wallet.getID()}`,
-        });
-      }
+    if (index <= wallets.length - 1) {
+      const wallet = wallets[index];
+      const walletID = wallet.getID();
+      props.navigation.navigate('WalletTransactions', {
+        walletID: wallet.getID(),
+        walletType: wallet.type,
+        key: `WalletTransactions-${walletID}`,
+      });
     } else {
-      // if its out of index - this must be last card with incentive to create wallet
-      if (!carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
-        props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
-      }
+      props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
     }
   };
 
   const handleLongPress = () => {
-    if (carouselData.length > 1 && !carouselData.some(wallet => wallet.type === PlaceholderWallet.type)) {
+    if (wallets.length > 1) {
       props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
 
-  const renderWalletsCarousel = () => {
+  const onNewWalletPress = () => {
+    return props.navigation.navigate('AddWalletRoot');
+  };
+
+  const ListHeaderComponent = () => {
     return (
-      <WalletsCarousel
-        removeClippedSubviews={false}
-        data={carouselData}
-        onPress={handleClick}
-        handleLongPress={handleLongPress}
-        ref={walletsCarousel}
-        testID="WalletsList"
-        vertical
-        itemHeight={190}
-        sliderHeight={height}
-        contentContainerCustomStyle={styles.contentContainerCustomStyle}
-        inactiveSlideOpacity={1.0}
-        selectedWallet={selectedWallet}
-      />
+      <>
+        <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      </>
     );
   };
 
-  const onNewWalletPress = () => {
-    return !carouselData.some(wallet => wallet.type === PlaceholderWallet.type) ? props.navigation.navigate('AddWalletRoot') : null;
-  };
+  const renderWalletsCarousel = (
+    <WalletsCarousel
+      data={wallets.concat(false)}
+      extraData={[wallets]}
+      onPress={handleClick}
+      handleLongPress={handleLongPress}
+      ref={walletsCarousel}
+      testID="WalletsList"
+      selectedWallet={selectedWallet}
+      ListHeaderComponent={ListHeaderComponent}
+      scrollEnabled={isFocused}
+    />
+  );
 
   return (
-    <DrawerContentScrollView {...props} scrollEnabled={false}>
+    <DrawerContentScrollView {...props} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <View styles={[styles.root, stylesHook.root]}>
         <StatusBar barStyle="default" />
-        <SafeAreaView style={styles.root}>
-          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
-        </SafeAreaView>
-        {renderWalletsCarousel()}
+        {renderWalletsCarousel}
       </View>
     </DrawerContentScrollView>
   );
 };
 
 export default DrawerList;
+
 const styles = StyleSheet.create({
-  contentContainerCustomStyle: {
-    paddingRight: 10,
-    paddingLeft: 20,
-  },
   root: {
     flex: 1,
-  },
-  headerTouch: {
-    height: 48,
-    paddingRight: 16,
-    paddingLeft: 32,
-    paddingVertical: 10,
   },
 });
 
@@ -156,23 +105,4 @@ DrawerList.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
-};
-
-DrawerList.navigationOptions = ({ navigation }) => {
-  return {
-    ...BlueNavigationStyle(navigation, true),
-    title: '',
-    headerStyle: {
-      backgroundColor: BlueCurrentTheme.colors.customHeader,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
-    headerRight: () => (
-      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
-      </TouchableOpacity>
-    ),
-  };
 };

@@ -8,6 +8,7 @@ function WidgetCommunication() {
   WidgetCommunication.WidgetCommunicationAllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance';
   WidgetCommunication.WidgetCommunicationAllWalletsLatestTransactionTime = 'WidgetCommunicationAllWalletsLatestTransactionTime';
   WidgetCommunication.WidgetCommunicationDisplayBalanceAllowed = 'WidgetCommunicationDisplayBalanceAllowed';
+  WidgetCommunication.LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed';
   const { wallets, walletsInitialized, isStorageEncrypted } = useContext(BlueStorageContext);
 
   WidgetCommunication.isBalanceDisplayAllowed = async () => {
@@ -28,6 +29,10 @@ function WidgetCommunication() {
     setValues();
   };
 
+  WidgetCommunication.reloadAllTimelines = () => {
+    RNWidgetCenter.reloadAllTimelines();
+  };
+
   const allWalletsBalanceAndTransactionTime = async () => {
     if ((await isStorageEncrypted()) || !(await WidgetCommunication.isBalanceDisplayAllowed())) {
       return { allWalletsBalance: 0, latestTransactionTime: 0 };
@@ -40,7 +45,11 @@ function WidgetCommunication() {
         }
         balance += wallet.getBalance();
         if (wallet.getLatestTransactionTimeEpoch() > latestTransactionTime) {
-          latestTransactionTime = wallet.getLatestTransactionTimeEpoch();
+          if (wallet.getTransactions()[0].confirmations === 0) {
+            latestTransactionTime = WidgetCommunication.LatestTransactionIsUnconfirmed;
+          } else {
+            latestTransactionTime = wallet.getLatestTransactionTimeEpoch();
+          }
         }
       }
       return { allWalletsBalance: balance, latestTransactionTime };

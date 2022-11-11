@@ -16,35 +16,7 @@ const MultipleStepsListItem = props => {
     checked = false,
   } = props;
   const stylesHook = StyleSheet.create({
-    root: {
-      flex: 1,
-      backgroundColor: colors.elevated,
-    },
-    textBtc: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textBtcUnitValue: {
-      color: colors.buttonAlternativeTextColor,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
-    },
-    modalContentShort: {
-      backgroundColor: colors.elevated,
-    },
-    modalContent: {
-      backgroundColor: colors.elevated,
-    },
-    textFiat: {
-      color: colors.alternativeTextColor,
-    },
     provideKeyButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     provideKeyButtonText: {
@@ -56,14 +28,8 @@ const MultipleStepsListItem = props => {
     vaultKeyText: {
       color: colors.alternativeTextColor,
     },
-    feeFiatText: {
-      color: colors.alternativeTextColor,
-    },
     vaultKeyCircleSuccess: {
       backgroundColor: colors.msSuccessBG,
-    },
-    vaultKeyTextSigned: {
-      color: colors.msSuccessBG,
     },
     rowPartialLeftText: {
       color: colors.alternativeTextColor,
@@ -139,6 +105,7 @@ const MultipleStepsListItem = props => {
             {props.button.buttonType === undefined ||
               (props.button.buttonType === MultipleStepsListItemButtohType.full && (
                 <TouchableOpacity
+                  accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
                   onPress={props.button.onPress}
@@ -152,6 +119,7 @@ const MultipleStepsListItem = props => {
                   {props.button.leftText}
                 </Text>
                 <TouchableOpacity
+                  accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
                   onPress={props.button.onPress}
@@ -166,7 +134,12 @@ const MultipleStepsListItem = props => {
         )}
         {!showActivityIndicator && props.rightButton && checked && (
           <View style={styles.rightButtonContainer} accessibilityComponentType>
-            <TouchableOpacity disabled={props.rightButton.disabled} style={styles.rightButton} onPress={props.rightButton.onPress}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              disabled={props.rightButton.disabled}
+              style={styles.rightButton}
+              onPress={props.rightButton.onPress}
+            >
               <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
             </TouchableOpacity>
           </View>
@@ -251,15 +224,6 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
   },
-  grayButton: {
-    marginTop: 24,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
   activityIndicator: {
     marginLeft: 40,
   },
@@ -273,15 +237,6 @@ const styles = StyleSheet.create({
   },
   rowPartialLeftText: {
     textAlign: 'center',
-  },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
   },
 });
 

@@ -1,0 +1,326 @@
+{
+    "USD": {
+        "endPointKey": "USD",
+        "locale": "en-US",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "AED": {
+        "endPointKey": "AED",
+        "locale": "ar-AE",
+        "source": "CoinDesk",
+        "symbol": "د.إ."
+    },
+    "ANG": {
+        "endPointKey": "ANG",
+        "locale": "en-SX",
+        "source": "CoinDesk",
+        "symbol": "ƒ"
+    },
+    "ARS": {
+        "endPointKey": "ARS",
+        "locale": "es-AR",
+        "source": "Yadio",
+        "symbol": "$"
+    },
+    "AUD": {
+        "endPointKey": "AUD",
+        "locale": "en-AU",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "AWG": {
+        "endPointKey": "AWG",
+        "locale": "nl-AW",
+        "source": "CoinDesk",
+        "symbol": "ƒ"
+    },
+    "BHD": {
+        "endPointKey": "BHD",
+        "locale": "ar-BH",
+        "source": "CoinDesk",
+        "symbol": "د.ب."
+    },
+    "BRL": {
+        "endPointKey": "BRL",
+        "locale": "pt-BR",
+        "source": "CoinDesk",
+        "symbol": "R$"
+    },
+    "CAD": {
+        "endPointKey": "CAD",
+        "locale": "en-CA",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "CHF": {
+        "endPointKey": "CHF",
+        "locale": "de-CH",
+        "source": "CoinDesk",
+        "symbol": "CHF"
+    },
+    "CLP": {
+        "endPointKey": "CLP",
+        "locale": "es-CL",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "CNY": {
+        "endPointKey": "CNY",
+        "locale": "zh-CN",
+        "source": "CoinDesk",
+        "symbol": "¥"
+    },
+    "COP": {
+        "endPointKey": "COP",
+        "locale": "es-CO",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "CZK": {
+        "endPointKey": "CZK",
+        "locale": "cs-CZ",
+        "source": "CoinDesk",
+        "symbol": "Kč"
+    },
+    "DKK": {
+        "endPointKey": "DKK",
+        "locale": "da-DK",
+        "source": "CoinDesk",
+        "symbol": "kr"
+    },
+    "EUR": {
+        "endPointKey": "EUR",
+        "locale": "en-IE",
+        "source": "CoinDesk",
+        "symbol": "€"
+    },
+    "GBP": {
+        "endPointKey": "GBP",
+        "locale": "en-GB",
+        "source": "CoinDesk",
+        "symbol": "£"
+    },
+    "HRK": {
+        "endPointKey": "HRK",
+        "locale": "hr-HR",
+        "source": "CoinDesk",
+        "symbol": "HRK"
+    },
+    "HUF": {
+        "endPointKey": "HUF",
+        "locale": "hu-HU",
+        "source": "CoinDesk",
+        "symbol": "Ft"
+    },
+    "IDR": {
+        "endPointKey": "IDR",
+        "locale": "id-ID",
+        "source": "CoinDesk",
+        "symbol": "Rp"
+    },
+    "ILS": {
+        "endPointKey": "ILS",
+        "locale": "he-IL",
+        "source": "CoinDesk",
+        "symbol": "₪"
+    },
+    "INR": {
+        "endPointKey": "INR",
+        "locale": "hi-HN",
+        "source": "wazirx",
+        "symbol": "₹"
+    },
+    "IRR": {
+        "endPointKey": "IRR",
+        "locale": "fa-IR",
+        "source": "Exir",
+        "symbol": "﷼"
+    },
+    "IRT": {
+        "endPointKey": "IRT",
+        "locale": "fa-IR",
+        "source": "Exir",
+        "symbol": "تومان"
+    },
+    "ISK": {
+        "endPointKey": "ISK",
+        "locale": "is-IS",
+        "source": "CoinDesk",
+        "symbol": "kr"
+    },
+    "JPY": {
+        "endPointKey": "JPY",
+        "locale": "ja-JP",
+        "source": "CoinDesk",
+        "symbol": "¥"
+    },
+    "KES": {
+        "endPointKey": "KES",
+        "locale": "en-KE",
+        "source": "CoinDesk",
+        "symbol": "Ksh"
+    },
+    "KRW": {
+        "endPointKey": "KRW",
+        "locale": "ko-KR",
+        "source": "CoinDesk",
+        "symbol": "₩"
+    },
+    "KWD": {
+        "endPointKey": "KWD",
+        "locale": "ar-KW",
+        "source": "CoinDesk",
+        "symbol": "د.ك."
+    },
+    "LBP": {
+        "endPointKey": "LBP",
+        "locale": "ar-LB",
+        "source": "YadioConvert",
+        "symbol": "ل.ل."
+    },
+    "MXN": {
+        "endPointKey": "MXN",
+        "locale": "es-MX",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "MYR": {
+        "endPointKey": "MYR",
+        "locale": "ms-MY",
+        "source": "CoinDesk",
+        "symbol": "RM"
+    },
+    "MZN": {
+        "endPointKey": "MZN",
+        "locale": "seh-MZ",
+        "source": "CoinDesk",
+        "symbol": "MTn"
+    },
+    "NGN": {
+        "endPointKey": "NGN",
+        "locale": "en-NG",
+        "source": "CoinDesk",
+        "symbol": "₦"
+    },
+    "NOK": {
+        "endPointKey": "NOK",
+        "locale": "nb-NO",
+        "source": "CoinDesk",
+        "symbol": "kr"
+    },
+    "NZD": {
+        "endPointKey": "NZD",
+        "locale": "en-NZ",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "OMR": {
+        "endPointKey": "OMR",
+        "locale": "ar-OM",
+        "source": "CoinDesk",
+        "symbol": "ر.ع."
+    },
+    "PHP": {
+        "endPointKey": "PHP",
+        "locale": "en-PH",
+        "source": "CoinDesk",
+        "symbol": "₱"
+    },
+    "PLN": {
+        "endPointKey": "PLN",
+        "locale": "pl-PL",
+        "source": "CoinDesk",
+        "symbol": "zł"
+    },
+    "QAR": {
+        "endPointKey": "QAR",
+        "locale": "ar-QA",
+        "source": "CoinDesk",
+        "symbol": "ر.ق."
+    },
+    "RUB": {
+        "endPointKey": "RUB",
+        "locale": "ru-RU",
+        "source": "CoinDesk",
+        "symbol": "₽"
+    },
+    "SAR": {
+        "endPointKey": "SAR",
+        "locale": "ar-SA",
+        "source": "CoinDesk",
+        "symbol": "ر.س."
+    },
+    "SEK": {
+        "endPointKey": "SEK",
+        "locale": "sv-SE",
+        "source": "CoinDesk",
+        "symbol": "kr"
+    },
+    "SGD": {
+        "endPointKey": "SGD",
+        "locale": "zh-SG",
+        "source": "CoinDesk",
+        "symbol": "S$"
+    },
+    "THB": {
+        "endPointKey": "THB",
+        "locale": "th-TH",
+        "source": "CoinDesk",
+        "symbol": "฿"
+    },
+    "TRY": {
+        "endPointKey": "TRY",
+        "locale": "tr-TR",
+        "source": "CoinDesk",
+        "symbol": "₺"
+    },
+    "TWD": {
+        "endPointKey": "TWD",
+        "locale": "zh-Hant-TW",
+        "source": "CoinDesk",
+        "symbol": "NT$"
+    },
+    "TZS": {
+        "endPointKey": "TZS",
+        "locale": "en-TZ",
+        "source": "CoinDesk",
+        "symbol": "TSh"
+    },
+    "UAH": {
+        "endPointKey": "UAH",
+        "locale": "uk-UA",
+        "source": "CoinDesk",
+        "symbol": "₴"
+    },
+    "UGX": {
+        "endPointKey": "UGX",
+        "locale": "en-UG",
+        "source": "CoinDesk",
+        "symbol": "USh"
+    },
+    "UYU": {
+        "endPointKey": "UYU",
+        "locale": "es-UY",
+        "source": "CoinDesk",
+        "symbol": "$"
+    },
+    "VEF": {
+        "endPointKey": "VEF",
+        "locale": "es-VE",
+        "source": "CoinDesk",
+        "symbol": "Bs."
+    },
+    "VES": {
+        "endPointKey": "VES",
+        "locale": "es-VE",
+        "source": "Yadio",
+        "symbol": "Bs."
+    },
+    "ZAR": {
+        "endPointKey": "ZAR",
+        "locale": "en-ZA",
+        "source": "CoinDesk",
+        "symbol": "R"
+    }
+}

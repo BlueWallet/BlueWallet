@@ -1,25 +1,28 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet, KeyboardAvoidingView } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
+import {
+  ActivityIndicator,
+  Platform,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  KeyboardAvoidingView,
+} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import {
-  BlueSpacing20,
-  BlueReplaceFeeSuggestions,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+
+import { BlueButton, BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
+import alert from '../../components/Alert';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -28,7 +31,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   explain: {
-    flex: 1,
     paddingBottom: 16,
   },
   center: {
@@ -60,20 +62,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'center',
   },
-  doneWrap: {
-    flex: 1,
-    paddingTop: 19,
-  },
-  doneCard: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 76,
-    paddingBottom: 16,
-  },
-  blueBigCheckmark: {
-    marginTop: 43,
-    marginBottom: 53,
-  },
 });
 
 export default class CPFP extends Component {
@@ -90,10 +78,11 @@ export default class CPFP extends Component {
       stage: 1,
       txid,
       wallet,
+      isElectrumDisabled: true,
     };
   }
 
-  broadcast() {
+  broadcast = () => {
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
@@ -112,7 +101,7 @@ export default class CPFP extends Component {
         alert(error.message);
       }
     });
-  }
+  };
 
   onSuccessBroadcast() {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
@@ -128,7 +117,12 @@ export default class CPFP extends Component {
       newFeeRate: '',
       nonReplaceable: false,
     });
-    await this.checkPossibilityOfCPFP();
+    try {
+      await this.checkPossibilityOfCPFP();
+    } catch (_) {
+      // if anything goes wrong we just show "this is not bumpable" message
+      this.setState({ nonReplaceable: true, isLoading: false });
+    }
   }
 
   async checkPossibilityOfCPFP() {
@@ -165,7 +159,7 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <KeyboardAvoidingView behavior="position">
+      <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
         <SafeBlueArea style={styles.root}>
           <BlueSpacing />
           <BlueCard style={styles.center}>
@@ -191,13 +185,17 @@ export default class CPFP extends Component {
           <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
-          <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
+          <TouchableOpacity accessibilityRole="button" style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
             <Text style={styles.actionText}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            style={styles.action}
+            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}
+          >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm_sendNow} />
+          <BlueButton disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
@@ -250,7 +248,4 @@ CPFP.propTypes = {
     }),
   }),
 };
-CPFP.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.transactions.cpfp_title,
-});
+CPFP.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cpfp_title }));

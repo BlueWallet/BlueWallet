@@ -1,14 +1,14 @@
-/* global alert */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
+import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 
+import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
+import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
-import { PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const styles = StyleSheet.create({
   loading: {
@@ -60,7 +60,7 @@ export default class AztecoRedeem extends Component {
     /** @type {AbstractWallet} */
     let toWallet = null;
 
-    const wallets = context.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type);
+    const wallets = context.wallets;
 
     if (wallets.length === 0) {
       alert(loc.azteco.errorBeforeRefeem);
@@ -111,6 +111,7 @@ export default class AztecoRedeem extends Component {
       <View style={styles.selectWallet1}>
         {!this.state.isLoading && (
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
@@ -120,11 +121,12 @@ export default class AztecoRedeem extends Component {
             }
           >
             <Text style={styles.selectText}>{loc.azteco.redeem}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.selectWallet2}>
           <TouchableOpacity
+            accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
@@ -183,7 +185,4 @@ AztecoRedeem.propTypes = {
   }),
 };
 
-AztecoRedeem.navigationOptions = ({ navigation }) => ({
-  ...BlueCreateTxNavigationStyle(navigation),
-  title: loc.azteco.title,
-});
+AztecoRedeem.navigationOptions = navigationStyleTx({}, opts => ({ ...opts, title: loc.azteco.title }));

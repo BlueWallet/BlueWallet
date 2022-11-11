@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,48 +7,42 @@ import {
   TextInput,
   Linking,
   Platform,
-  PermissionsAndroid,
   Text,
   StyleSheet,
-  Alert,
+  findNodeHandle,
 } from 'react-native';
-import Clipboard from '@react-native-community/clipboard';
-import {
-  SecondButton,
-  BlueText,
-  SafeBlueArea,
-  BlueCard,
-  BlueNavigationStyle,
-  BlueSpacing20,
-  BlueCopyToClipboardButton,
-  DynamicQRCode,
-} from '../../BlueComponents';
-import Share from 'react-native-share';
-import { getSystemName } from 'react-native-device-info';
+import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
+import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+import { isMacCatalina } from '../../blue_modules/environment';
+import RNFS from 'react-native-fs';
+import Biometric from '../../class/biometrics';
+
+import { SecondButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import isCatalyst from 'react-native-is-catalyst';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import alert from '../../components/Alert';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
-/** @type {AppStorage} */
 const bitcoin = require('bitcoinjs-lib');
-const isDesktop = getSystemName() === 'Mac OS X';
 const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
-  const { fromWallet, memo, psbt, deepLinkPSBT } = route.params;
+  const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState(route.params.txhex);
+  const openScannerButton = useRef();
+  const dynamicQRCode = useRef();
+  const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -91,10 +84,25 @@ const PsbtWithHardwareWallet = () => {
     try {
       const Tx = _combinePSBT(ret.data);
       setTxHex(Tx.toHex());
+      if (launchedBy) {
+        // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
+        // most likely for LN channel opening
+        navigation.navigate(launchedBy, { psbt });
+        // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
+        // (passed by reference)
+      }
     } catch (Err) {
       alert(Err);
     }
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      dynamicQRCode.current?.startAutoMove();
+    } else {
+      dynamicQRCode.current?.stopAutoMove();
+    }
+  }, [isFocused]);
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
@@ -117,6 +125,14 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        setIsLoading(false);
+        return;
+      }
+    }
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
@@ -159,73 +175,36 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={[styles.hexInput, stylesHook.hexInput]} height={112} multiline editable value={txHex} />
 
-          <TouchableOpacity style={styles.hexTouch} onPress={copyHexToClipboard}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.hexTouch} onPress={handleOnVerifyPressed}>
+          <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={handleOnVerifyPressed}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <SecondButton onPress={broadcast} title={loc.send.confirm_sendNow} testID="PsbtWithHardwareWalletBroadcastTransactionButton" />
+          <SecondButton
+            disabled={isElectrumDisabled}
+            onPress={broadcast}
+            title={loc.send.confirm_sendNow}
+            testID="PsbtWithHardwareWalletBroadcastTransactionButton"
+          />
         </BlueCard>
       </View>
     );
   };
 
-  const exportPSBT = async () => {
+  const exportPSBT = () => {
     const fileName = `${Date.now()}.psbt`;
-    if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
-      await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-      Share.open({
-        url: 'file://' + filePath,
-        saveToFiles: isCatalyst,
-      })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          RNFS.unlink(filePath);
-        });
-    } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        try {
-          await RNFS.writeFile(filePath, typeof psbt === 'string' ? psbt : psbt.toBase64());
-          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
-        } catch (e) {
-          console.log(e);
-          alert(e.message);
-        }
-      } else {
-        console.log('Storage Permission: Denied');
-        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-          {
-            text: loc.send.open_settings,
-            onPress: () => {
-              Linking.openSettings();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ]);
-      }
-    }
+    dynamicQRCode.current?.stopAutoMove();
+    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
+      dynamicQRCode.current?.startAutoMove();
+    });
   };
 
   const openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick({
-        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+      const res = await DocumentPicker.pickSingle({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
       });
       const file = await RNFS.readFile(res.uri);
       if (file) {
@@ -241,8 +220,8 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const openScanner = () => {
-    if (isDesktop) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+    if (isMacCatalina) {
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -262,7 +241,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>
@@ -271,7 +250,7 @@ const PsbtWithHardwareWallet = () => {
             <Text testID="PSBTHex" style={styles.hidden}>
               {psbt.toHex()}
             </Text>
-            <DynamicQRCode value={psbt.toHex()} capacity={200} />
+            <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
             <BlueSpacing20 />
             <SecondButton
               testID="PsbtTxScanButton"
@@ -281,6 +260,7 @@ const PsbtWithHardwareWallet = () => {
                 color: colors.buttonTextColor,
               }}
               onPress={openScanner}
+              ref={openScannerButton}
               title={loc.send.psbt_tx_scan}
             />
             <BlueSpacing20 />
@@ -319,15 +299,9 @@ const PsbtWithHardwareWallet = () => {
 
 export default PsbtWithHardwareWallet;
 
-PsbtWithHardwareWallet.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.send.header,
-});
+PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',

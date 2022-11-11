@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
-
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
 import { BlueCurrentTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueTabs } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
 const ENTROPY_LIMIT = 256;
@@ -102,10 +103,10 @@ export const convertToBuffer = ({ entropy, bits }) => {
 
 const Coin = ({ push }) => (
   <View style={styles.coinRoot}>
-    <TouchableOpacity onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
     </TouchableOpacity>
-    <TouchableOpacity onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
     </TouchableOpacity>
   </View>
@@ -150,7 +151,7 @@ const Dice = ({ push, sides }) => {
   return (
     <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
-        <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
+        <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
@@ -219,9 +220,6 @@ const Entropy = () => {
     entropyText: {
       color: colors.foregroundColor,
     },
-    coinBody: {
-      borderColor: colors.lightButton,
-    },
   });
 
   const push = v => v && dispatch({ type: 'push', value: v.value, bits: v.bits });
@@ -239,7 +237,7 @@ const Entropy = () => {
   return (
     <SafeBlueArea>
       <BlueSpacing20 />
-      <TouchableOpacity onPress={() => setShow(!show)}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
         <View style={[styles.entropy, stylesHook.entropy]}>
           <Text style={[styles.entropyText, stylesHook.entropyText]}>{show ? hex : `${bits} of 256 bits`}</Text>
         </View>
@@ -270,17 +268,7 @@ const Entropy = () => {
   );
 };
 
-Entropy.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
-
-Entropy.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
-  title: loc.entropy.title,
-});
+Entropy.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.entropy.title }));
 
 const styles = StyleSheet.create({
   entropy: {

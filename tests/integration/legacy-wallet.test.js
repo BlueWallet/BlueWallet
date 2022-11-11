@@ -1,11 +1,9 @@
-/* global describe, it, jasmine, afterAll, beforeAll */
-import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import assert from 'assert';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(30 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -15,7 +13,7 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
 });
 
 describe('LegacyWallet', function () {
@@ -29,22 +27,12 @@ describe('LegacyWallet', function () {
     assert.strictEqual(key, JSON.stringify(b));
   });
 
-  it('can validate addresses', () => {
-    const w = new LegacyWallet();
-    assert.ok(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
-    assert.ok(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j'));
-    assert.ok(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'));
-    assert.ok(!w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUo'));
-    assert.ok(!w.isAddressValid('12345'));
-    assert.ok(w.isAddressValid('bc1quuafy8htjjj263cvpj7md84magzmc8svmh8lrm'));
-    assert.ok(w.isAddressValid('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7'));
-  });
-
   it('can fetch balance', async () => {
     const w = new LegacyWallet();
     w._address = '115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'; // hack internals
     assert.ok(w.weOwnAddress('115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'));
     assert.ok(!w.weOwnAddress('aaa'));
+    assert.ok(!w.weOwnAddress(false));
     assert.ok(w.getBalance() === 0);
     assert.ok(w.getUnconfirmedBalance() === 0);
     assert.ok(w._lastBalanceFetch === 0);
@@ -54,11 +42,11 @@ describe('LegacyWallet', function () {
     assert.ok(w._lastBalanceFetch > 0);
   });
 
-  it('can fetch TXs', async () => {
+  it('can fetch TXs and derive UTXO from them', async () => {
     const w = new LegacyWallet();
-    w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
+    w._address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    assert.strictEqual(w.getTransactions().length, 1);
 
     for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
@@ -67,9 +55,19 @@ describe('LegacyWallet', function () {
       assert.ok(tx.confirmations > 1);
     }
 
-    assert.ok(w.weOwnTransaction('4924f3a29acdee007ebcf6084d2c9e1752c4eb7f26f7d1a06ef808780bf5fe6d'));
-    assert.ok(w.weOwnTransaction('d0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96'));
+    assert.ok(w.weOwnTransaction('b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100'));
     assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));
+
+    assert.strictEqual(w.getUtxo().length, 1);
+
+    for (const tx of w.getUtxo()) {
+      assert.strictEqual(tx.txid, 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100');
+      assert.strictEqual(tx.vout, 0);
+      assert.strictEqual(tx.address, '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK');
+      assert.strictEqual(tx.value, 51432);
+      assert.strictEqual(tx.value, tx.amount);
+      assert.ok(tx.confirmations > 0);
+    }
   });
 
   it.each([
@@ -117,21 +115,26 @@ describe('SegwitP2SHWallet', function () {
     assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
     assert.ok(l.getAddress() === (await l.getAddressAsync()));
     assert.ok(l.weOwnAddress('34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53'));
+    assert.ok(!l.weOwnAddress('garbage'));
+    assert.ok(!l.weOwnAddress(false));
   });
 });
 
 describe('SegwitBech32Wallet', function () {
   it('can fetch balance', async () => {
     const w = new SegwitBech32Wallet();
-    w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
-    assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
+    w._address = 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl';
+    assert.ok(w.weOwnAddress('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'));
+    assert.ok(w.weOwnAddress('BC1Q063CTU6JHE5K4V8KA99QAC8RCM2TZJJNUKTYRL'));
+    assert.ok(!w.weOwnAddress('garbage'));
+    assert.ok(!w.weOwnAddress(false));
     await w.fetchBalance();
-    assert.strictEqual(w.getBalance(), 100000);
+    assert.strictEqual(w.getBalance(), 69909);
   });
 
   it('can fetch UTXO', async () => {
     const w = new SegwitBech32Wallet();
-    w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
+    w._address = 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl';
     await w.fetchUtxo();
     const l1 = w.getUtxo().length;
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
@@ -164,24 +167,25 @@ describe('SegwitBech32Wallet', function () {
   });
 
   it('can fetch TXs', async () => {
-    const w = new LegacyWallet();
+    const w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
+    assert.ok(w.weOwnAddress('BC1QN887FMETAYTW4VJ68VSH529FT408Q8J9X3DNDC'));
+    assert.ok(!w.weOwnAddress('garbage'));
+    assert.ok(!w.weOwnAddress(false));
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 1);
-
-    for (const tx of w.getTransactions()) {
-      assert.ok(tx.hash);
-      assert.strictEqual(tx.value, 100000);
-      assert.ok(tx.received);
-      assert.ok(tx.confirmations > 1);
-    }
+    assert.strictEqual(w.getTransactions().length, 2);
+    const tx = w.getTransactions()[1];
+    assert.ok(tx.hash);
+    assert.strictEqual(tx.value, 100000);
+    assert.ok(tx.received);
+    assert.ok(tx.confirmations > 1);
 
     const tx0 = w.getTransactions()[0];
     assert.ok(tx0.inputs);
     assert.ok(tx0.inputs.length === 1);
     assert.ok(tx0.outputs);
-    assert.ok(tx0.outputs.length === 3);
+    assert.ok(tx0.outputs.length === 2);
 
     assert.ok(w.weOwnTransaction('49944e90fe917952e36b1967cdbc1139e60c89b4800b91258bf2345a77a8b888'));
     assert.ok(!w.weOwnTransaction('825c12f277d1f84911ac15ad1f41a3de28e9d906868a930b0a7bca61b17c8881'));

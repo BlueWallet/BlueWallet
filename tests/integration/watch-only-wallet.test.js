@@ -1,9 +1,9 @@
-/* global it, describe, jasmine, afterAll, beforeAll  */
+import assert from 'assert';
+
 import { WatchOnlyWallet } from '../../class';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(500 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -13,10 +13,8 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
 });
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 500 * 1000;
 
 describe('Watch only wallet', () => {
   it('can fetch balance', async () => {
@@ -64,6 +62,9 @@ describe('Watch only wallet', () => {
       assert.strictEqual(w.getAddress(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
       assert.strictEqual(await w.getAddressAsync(), 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
       assert.ok(w.weOwnAddress('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv'));
+      assert.ok(w.weOwnAddress('BC1QUHNVE8Q4TK3UNHMJTS7YMXV8CD6W9XV8WY29UV'));
+      assert.ok(!w.weOwnAddress('garbage'));
+      assert.ok(!w.weOwnAddress(false));
       await w.fetchTransactions();
 
       for (const tx of w.getTransactions()) {

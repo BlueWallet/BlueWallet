@@ -1,8 +1,21 @@
-/* global describe, it */
 import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
 const assert = require('assert');
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {
+  it('wont accept BIP39 seed', () => {
+    const hd = new HDLegacyElectrumSeedP2PKHWallet();
+    hd.setSecret(
+      'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode',
+    );
+    assert.ok(!hd.validateMnemonic());
+  });
+
+  it('wont accept electrum seed, but SEGWIT seed', () => {
+    const hd = new HDLegacyElectrumSeedP2PKHWallet();
+    hd.setSecret('method goddess  humble  crumble output snake essay carpet monster barely trip betray ');
+    assert.ok(!hd.validateMnemonic());
+  });
+
   it('can import mnemonics and generate addresses and WIFs', async function () {
     const hd = new HDLegacyElectrumSeedP2PKHWallet();
     hd.setSecret('receive happy  wash prosper update    pet neck acid try profit proud hungry  ');
@@ -36,5 +49,22 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
 
     hd.setSecret('bs');
     assert.ok(!hd.validateMnemonic());
+  });
+
+  it('can use mnemonic with passphrase', () => {
+    const mnemonic = 'receive happy  wash prosper update    pet neck acid try profit proud hungry  ';
+    const passphrase = 'super secret passphrase';
+    const hd = new HDLegacyElectrumSeedP2PKHWallet();
+    hd.setSecret(mnemonic);
+    hd.setPassphrase(passphrase);
+
+    assert.strictEqual(
+      hd.getXpub(),
+      'xpub661MyMwAqRbcGSUBZaVtq8qEoRkJM1TZNNvUJEgQvtiZE73gS1wKWQoTj6R2E46UDYS2SBpmGGrSHGsJUNxtr1krixFuq8JA772pG43Mo6R',
+    );
+
+    assert.strictEqual(hd._getExternalAddressByIndex(0), '13sPvsrgRN8XibZNHtZXNqVDJPnNZLjTap');
+    assert.strictEqual(hd._getInternalAddressByIndex(0), '16oEuy5H7ejmapqc2AtKAYerdfkDkoyrDX');
+    assert.strictEqual(hd._getExternalWIFByIndex(0), 'Ky9WTDUTTZUKKYSPEE6uah2y5sJa89z6177kD23xh5cq1znX2HDj');
   });
 });

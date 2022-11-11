@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
-import Privacy from '../../Privacy';
+
+import { SafeBlueArea, BlueButton } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -68,16 +70,15 @@ const PleaseBackup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.flex, stylesHook.flex]}>
-      <StatusBar barStyle="default" />
-      <ScrollView testID="PleaseBackupScrollView">
+    <SafeBlueArea style={stylesHook.flex}>
+      <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
         <View style={styles.please}>
-          <BlueText style={[styles.successText, stylesHook.successText]}>{loc.pleasebackup.success}</BlueText>
-          <BlueText style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</BlueText>
-
+          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+        </View>
+        <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
-
-          <BlueSpacing20 />
+        </View>
+        <View style={styles.bottom}>
           <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
       </ScrollView>
@@ -85,21 +86,23 @@ const PleaseBackup = () => {
   );
 };
 
-PleaseBackup.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
-  gestureEnabled: false,
-  swipeEnabled: false,
-});
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
+PleaseBackup.navigationOptions = navigationStyle(
+  {
+    gestureEnabled: false,
+    swipeEnabled: false,
+    headerHideBackButton: true,
   },
+  opts => ({ ...opts, title: loc.pleasebackup.title }),
+);
+
+const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
+  },
+  flex: {
+    flex: 1,
+    justifyContent: 'space-around',
   },
   word: {
     marginRight: 8,
@@ -113,25 +116,36 @@ const styles = StyleSheet.create({
   wortText: {
     fontWeight: 'bold',
     textAlign: 'left',
+    fontSize: 17,
   },
   please: {
-    alignItems: 'center',
+    flexGrow: 1,
     paddingHorizontal: 16,
+  },
+  list: {
+    flexGrow: 8,
+    paddingHorizontal: 16,
+  },
+  bottom: {
+    flexGrow: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   successText: {
     textAlign: 'center',
     fontWeight: 'bold',
   },
   pleaseText: {
-    paddingBottom: 10,
-    paddingRight: 0,
-    paddingLeft: 0,
+    marginVertical: 16,
+    fontSize: 16,
+    fontWeight: '500',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   secret: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     marginTop: 14,
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

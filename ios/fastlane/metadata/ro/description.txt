@@ -1,0 +1,53 @@
+Un portofel Bitcoin ce îți permite să stochezi, să trimiți, să primești, și să cumperi Bitcoin, centrat pe securitate și simplitate.
+
+În BlueWallet, un portofel bitcoin, deții cheile tale private. Un portofel Bitcoin făcut de utilizatori Bitcoin pentru comunitate.
+
+Poți tranzacționa instant cu oricine din lume și să transformi sistemul financiar chiar în buzunarul tău.
+
+Creează gratuit un număr nelimitat de portofele bitcoin sau importă portofelul tău existent. E simplu și rapid.
+
+_____
+
+Uite ce primești:
+
+
+1. Securitate prin proiectare
+
+Open Source
+Licențiat MIT, poți să-l construiești și să-l rulezi pe cont propriu! Făcut cu ReactNative
+
+Negare plauzibilă
+Parole pentru decriptarea de portofele bitcoin false, în cazul în care ești forțat să divulgi accesul
+
+Encriptare totală
+Peste encriptarea multi-nivel a sistemului de operare, se encriptează totul cu parole adăugate
+
+Nod complet
+Conectează la propriul nod complet Bitcoin prin Electrum
+
+Cold storage
+Conectează-te la propriul portofel hardware și păstrează-ți monedele în siguranță în cold storage
+
+2 - Concentrat pe experiența ta
+
+Fii în control
+Cheile private nu părăsesc niciodată dispozitivul tău.
+Tu îți controlezi cheile private
+
+Comisioane flexibile
+Începînd de la 1 Satoshi. Definit de tine, utilizatorul
+
+Replace-By-Fee
+(RBF) Accelerează-ți tranzacția crescînd comisionul (BIP125)
+
+Portofele watch-only
+Portofelele watch-only îți permit să ții ochii pe cold storage fără să atingi hardware-ul.
+
+Rețeaua Lightning
+Rețeaua Lightning to zero configurări. Tranzacții nedrept de ieftine și rapide cu cea mai bună experiență de utilizator Bitcoin.
+
+Cumpără Bitcoin
+Intră în revoluția financiară deschisă cu abilitatea de a cumpăra Bitcoin direct din portofelul tău. 
+
+Comerciant local
+O platformă Bitcoin de trading P2P, ce îți permite să cumperi și să vinzi bitcoin direct altor utilizatori fără o terță parte.

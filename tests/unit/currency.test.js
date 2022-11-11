@@ -1,4 +1,3 @@
-/* global describe, it */
 import { FiatUnit } from '../../models/fiatUnit';
 const assert = require('assert');
 
@@ -24,7 +23,7 @@ describe('currency', () => {
     assert.strictEqual(currency.satoshiToBTC(1), '0.00000001');
     assert.strictEqual(currency.satoshiToBTC(-1), '-0.00000001');
     assert.strictEqual(currency.satoshiToBTC(100000000), '1');
-    assert.strictEqual(currency.satoshiToBTC(123456789123456789), '1234567891.2345678');
+    assert.strictEqual(currency.satoshiToBTC(123456789123456789), '1234567891.2345678'); // eslint-disable-line no-loss-of-precision
 
     currency._setPreferredFiatCurrency(FiatUnit.JPY);
     currency._setExchangeRate('BTC_JPY', 1043740.8614);

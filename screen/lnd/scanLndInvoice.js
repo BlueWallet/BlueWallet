@@ -1,4 +1,3 @@
-/* global alert */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Text,
@@ -10,26 +9,22 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
+  I18nManager,
 } from 'react-native';
-import {
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueDismissKeyboardInputAccessory,
-  BlueNavigationStyle,
-  BlueAddressInput,
-  BlueBitcoinAmount,
-  BlueLoading,
-} from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import AddressInput from '../../components/AddressInput';
+import AmountInput from '../../components/AmountInput';
+import Lnurl from '../../class/lnurl';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import alert from '../../components/Alert';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -39,7 +34,7 @@ const ScanLndInvoice = () => {
   const name = useRoute().name;
   /** @type {LightningCustodianWallet} */
   const [wallet, setWallet] = useState(
-    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.type === LightningCustodianWallet.type),
+    wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN),
   );
   const { navigate, setParams, goBack, pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -70,8 +65,8 @@ const ScanLndInvoice = () => {
     Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
-      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+      Keyboard.removeAllListeners('keyboardDidShow');
+      Keyboard.removeAllListeners('keyboardDidHide');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -87,16 +82,18 @@ const ScanLndInvoice = () => {
     useCallback(() => {
       if (!wallet) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert(loc.wallets.no_ln_wallet_error);
         goBack();
+        setTimeout(() => alert(loc.wallets.no_ln_wallet_error), 500);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
-    [],
   );
 
   useEffect(() => {
     if (wallet && uri) {
+      if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
+      if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
+
       let data = uri;
       // handling BIP21 w/BOLT11 support
       const ind = data.indexOf('lightning=');
@@ -107,18 +104,16 @@ const ScanLndInvoice = () => {
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
-      /**
-       * @type {LightningCustodianWallet}
-       */
       let decoded;
       try {
         decoded = wallet.decodeInvoice(data);
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expiredLow;
+          expiresIn = loc.lnd.expired;
         } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
+          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
@@ -134,6 +129,10 @@ const ScanLndInvoice = () => {
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
         setIsLoading(false);
+        setAmount();
+        setDestination();
+        setExpiresIn();
+        setDecoded();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,6 +148,7 @@ const ScanLndInvoice = () => {
 
   const processInvoice = data => {
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
+    if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
   };
 
@@ -157,7 +157,7 @@ const ScanLndInvoice = () => {
       screen: 'LnurlPay',
       params: {
         lnurl: data,
-        fromWalletID: walletID || wallet.getID(),
+        walletID: walletID || wallet.getID(),
       },
     });
   };
@@ -217,11 +217,16 @@ const ScanLndInvoice = () => {
       amountUnit: BitcoinUnit.SATS,
       invoiceDescription: decoded.description,
     });
-    fetchAndSaveWalletTransactions(walletID);
+    fetchAndSaveWalletTransactions(wallet.getID());
   };
 
   const processTextForInvoice = text => {
-    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb') || Lnurl.isLnurl(text)) {
+    if (
+      text.toLowerCase().startsWith('lnb') ||
+      text.toLowerCase().startsWith('lightning:lnb') ||
+      Lnurl.isLnurl(text) ||
+      Lnurl.isLightningAddress(text)
+    ) {
       processInvoice(text);
     } else {
       setDecoded(undefined);
@@ -252,13 +257,13 @@ const ScanLndInvoice = () => {
     return (
       <View style={styles.walletSelectRoot}>
         {!isLoading && (
-          <TouchableOpacity style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" style={styles.walletSelectTouch} onPress={naviageToSelectWallet}>
             <Text style={styles.walletSelectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
-            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+            <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletWrap}>
-          <TouchableOpacity style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
+          <TouchableOpacity accessibilityRole="button" disabled={isLoading} style={styles.walletWrapTouch} onPress={naviageToSelectWallet}>
             <Text style={[styles.walletWrapLabel, stylesHook.walletWrapLabel]}>{walletLabel}</Text>
             <Text style={[styles.walletWrapBalance, stylesHook.walletWrapBalance]}>
               {formatBalanceWithoutSuffix(wallet.getBalance(), BitcoinUnit.SATS, false)}
@@ -273,7 +278,11 @@ const ScanLndInvoice = () => {
   const getFees = () => {
     const min = Math.floor(decoded.num_satoshis * 0.003);
     const max = Math.floor(decoded.num_satoshis * 0.01) + 1;
-    return `${min} sat - ${max} sat`;
+    return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
+  };
+
+  const onBlur = () => {
+    processTextForInvoice(destination);
   };
 
   const onWalletSelect = selectedWallet => {
@@ -290,29 +299,29 @@ const ScanLndInvoice = () => {
   }
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
             <View style={styles.scrollMargin}>
-              <BlueBitcoinAmount
+              <AmountInput
                 pointerEvents={isAmountInitiallyEmpty ? 'auto' : 'none'}
                 isLoading={isLoading}
                 amount={amount}
                 onAmountUnitChange={setUnit}
                 onChangeText={setAmount}
                 disabled={!decoded || isLoading || decoded.num_satoshis > 0}
-                unit={BitcoinUnit.SATS}
+                unit={unit}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
             </View>
 
             <BlueCard>
-              <BlueAddressInput
+              <AddressInput
                 onChangeText={text => {
                   text = text.trim();
-                  processTextForInvoice(text);
+                  setDestination(text);
                 }}
                 onBarScanned={processInvoice}
                 address={destination}
@@ -320,6 +329,8 @@ const ScanLndInvoice = () => {
                 placeholder={loc.lnd.placeholder}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 launchedBy={name}
+                onBlur={onBlur}
+                keyboardType="email-address"
               />
               <View style={styles.description}>
                 <Text numberOfLines={0} style={styles.descriptionText}>
@@ -328,7 +339,7 @@ const ScanLndInvoice = () => {
               </View>
               {expiresIn !== undefined && (
                 <View>
-                  <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.expiresIn, { time: expiresIn })}</Text>
+                  <Text style={styles.expiresIn}>{expiresIn}</Text>
                   {decoded && decoded.num_satoshis > 0 && (
                     <Text style={styles.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
                   )}
@@ -356,12 +367,13 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-
-ScanLndInvoice.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  title: loc.send.header,
-  headerLeft: null,
-});
+ScanLndInvoice.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerHideBackButton: true,
+  },
+  opts => ({ ...opts, title: loc.send.header }),
+);
 
 const styles = StyleSheet.create({
   walletSelectRoot: {
@@ -429,6 +441,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   expiresIn: {
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     color: '#81868e',
     fontSize: 12,
     left: 20,

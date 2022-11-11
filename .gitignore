@@ -20,6 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+*.hprof
 
 # Android/IntelliJ
 #
@@ -58,6 +59,7 @@ buck-out/
 #BlueWallet
 release-notes.json
 release-notes.txt
+current-branch.json
 
 ios/Pods/
 

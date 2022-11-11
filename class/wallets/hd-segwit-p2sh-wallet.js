@@ -1,8 +1,9 @@
-import bip39 from 'bip39';
 import b58 from 'bs58check';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import BIP32Factory from 'bip32';
+import * as ecc from 'tiny-secp256k1';
+const bip32 = BIP32Factory(ecc);
 const bitcoin = require('bitcoinjs-lib');
-const HDNode = require('bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -12,59 +13,71 @@ const HDNode = require('bip32');
 export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   static type = 'HDsegwitP2SH';
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
+  static segwitType = 'p2sh(p2wpkh)';
+  static derivationPath = "m/49'/0'/0'";
 
   allowSend() {
     return true;
   }
 
-  allowSendMax(): boolean {
+  allowCosignPsbt() {
     return true;
   }
 
-  /**
-   * Get internal/external WIF by wallet index
-   * @param {Boolean} internal
-   * @param {Number} index
-   * @returns {*}
-   * @private
-   */
-  _getWIFByIndex(internal, index) {
-    if (!this.secret) return false;
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
-    const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
-    const child = root.derivePath(path);
-
-    return bitcoin.ECPair.fromPrivateKey(child.privateKey).toWIF();
+  allowSignVerifyMessage() {
+    return true;
   }
 
-  _getExternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
+  allowHodlHodlTrading() {
+    return true;
+  }
 
-    if (!this._node0) {
+  allowMasterFingerprint() {
+    return true;
+  }
+
+  allowXpub() {
+    return true;
+  }
+
+  _getNodeAddressByIndex(node, index) {
+    index = index * 1; // cast to int
+    if (node === 0) {
+      if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
+    }
+
+    if (node === 1) {
+      if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
+    }
+
+    if (node === 0 && !this._node0) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
-    const address = this.constructor._nodeToP2shSegwitAddress(this._node0.derive(index));
 
-    return (this.external_addresses_cache[index] = address);
-  }
-
-  _getInternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-
-    if (!this._node1) {
+    if (node === 1 && !this._node1) {
       const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub);
       this._node1 = hdNode.derive(1);
     }
-    const address = this.constructor._nodeToP2shSegwitAddress(this._node1.derive(index));
 
-    return (this.internal_addresses_cache[index] = address);
+    let address;
+    if (node === 0) {
+      address = this.constructor._nodeToP2shSegwitAddress(this._node0.derive(index));
+    }
+
+    if (node === 1) {
+      address = this.constructor._nodeToP2shSegwitAddress(this._node1.derive(index));
+    }
+
+    if (node === 0) {
+      return (this.external_addresses_cache[index] = address);
+    }
+
+    if (node === 1) {
+      return (this.internal_addresses_cache[index] = address);
+    }
   }
 
   /**
@@ -78,11 +91,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
       return this._xpub; // cache hit
     }
     // first, getting xpub
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = HDNode.fromSeed(seed);
+    const seed = this._getSeed();
+    const root = bip32.fromSeed(seed);
 
-    const path = "m/49'/0'/0'";
+    const path = this.getDerivationPath();
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -97,7 +109,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
 
   _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
     const pubkey = this._getPubkeyByAddress(input.address);
-    const path = this._getDerivationPathByAddress(input.address, 49);
+    const path = this._getDerivationPathByAddress(input.address);
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
@@ -134,7 +146,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return address;
   }
 
-  allowHodlHodlTrading() {
+  isSegwit() {
     return true;
   }
 }

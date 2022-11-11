@@ -2,25 +2,28 @@
 
 buildscript {
     ext {
-        minSdkVersion = 21
+        minSdkVersion = 28
         supportLibVersion = "28.0.0"
-        buildToolsVersion = "29.0.2"
-        compileSdkVersion = 29
-        targetSdkVersion = 29
+        buildToolsVersion = "30.0.3"
+        compileSdkVersion = 31
+        targetSdkVersion = 30
         googlePlayServicesVersion = "16.+"
+        googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "20.2.1"
+        ndkVersion = "23.0.7599858"
+        kotlin_version = '1.7.20'
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
-    ext.kotlinVersion = '1.3.+'
     dependencies {
-        classpath('com.android.tools.build:gradle:4.0.1')
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath 'com.google.gms:google-services:4.3.3'  // Google Services plugin
+        classpath('com.android.tools.build:gradle:4.2.2')
+        classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
+        classpath 'com.google.gms:google-services:4.3.14'  // Google Services plugin
 
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -29,6 +32,30 @@ buildscript {
 
 allprojects {
     repositories {
+        jcenter() {
+            content {
+                includeModule("com.facebook.yoga", "proguard-annotations")
+                includeModule("com.facebook.fbjni", "fbjni-java-only")
+                includeModule("com.facebook.fresco", "fresco")
+                includeModule("com.facebook.fresco", "stetho")
+                includeModule("com.facebook.fresco", "fbcore")
+                includeModule("com.facebook.fresco", "drawee")
+                includeModule("com.facebook.fresco", "imagepipeline")
+                includeModule("com.facebook.fresco", "imagepipeline-native")
+                includeModule("com.facebook.fresco", "memory-type-native")
+                includeModule("com.facebook.fresco", "memory-type-java")
+                includeModule("com.facebook.fresco", "nativeimagefilters")
+                includeModule("com.facebook.stetho", "stetho")
+                includeModule("com.wei.android.lib", "fingerprintidentify")
+            }
+        }
+            mavenCentral {
+	            // We don't want to fetch react-native from Maven Central as there are
+	            // older versions over there.
+	            content {
+	                excludeGroup "com.facebook.react"
+	            }
+	        }
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -38,12 +65,7 @@ allprojects {
             // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
-        maven {
-            // All of Detox' artifacts are provided via the npm module
-            url "$rootDir/../node_modules/detox/Detox-android"
-        }
         google()
-        jcenter()
                 maven { url 'https://www.jitpack.io' }
     }
 }
@@ -52,8 +74,11 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 28
-                buildToolsVersion '28.0.0'
+                buildToolsVersion '30.0.3'
+                compileSdkVersion 31
+                 defaultConfig {
+                    minSdkVersion 28
+                }
             }
         }
     }

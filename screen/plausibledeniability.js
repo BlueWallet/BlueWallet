@@ -1,29 +1,19 @@
-/* global alert */
 import React, { useContext, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
+import { ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
+import navigationStyle from '../components/navigationStyle';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import { useNavigation, useTheme } from '@react-navigation/native';
-const prompt = require('../blue_modules/prompt');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
+import alert from '../components/Alert';
+const prompt = require('../helpers/prompt');
 
 const PlausibleDeniability = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { popToTop } = useNavigation();
-  const { colors } = useTheme();
-  const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
-  });
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     setIsLoading(true);
@@ -57,11 +47,11 @@ const PlausibleDeniability = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <BlueLoading />
     </SafeBlueArea>
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea>
       <BlueCard>
         <ScrollView maxHeight={450}>
           <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -85,7 +75,6 @@ const PlausibleDeniability = () => {
 
 export default PlausibleDeniability;
 
-PlausibleDeniability.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+PlausibleDeniability.navigationOptions = navigationStyle({
   title: loc.plausibledeniability.title,
 });

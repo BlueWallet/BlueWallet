@@ -1,11 +1,9 @@
-/* global it, describe, jasmine, afterAll, beforeAll */
-import { HDSegwitBech32Wallet } from '../../class';
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
+import assert from 'assert';
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+import { HDSegwitBech32Wallet } from '../../class';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(30 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -15,15 +13,16 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
 });
 
 describe('Bech32 Segwit HD (BIP84)', () => {
-  it('can fetch balance, transactions & utxo', async function () {
+  it.each([false, true])('can fetch balance, transactions & utxo, disableBatching=%p', async function (disableBatching) {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
     }
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
 
     let hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC);
@@ -40,8 +39,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getInternalAddressByIndex(1), 'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r');
 
     assert.ok(hd.weOwnAddress('bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p'));
+    assert.ok(hd.weOwnAddress('BC1QVD6W54SYDC08Z3802SVKXR7297EZ7CUSD6266P'));
     assert.ok(hd.weOwnAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'));
     assert.ok(!hd.weOwnAddress('1HjsSTnrwWzzEV2oi4r5MsAYENkTkrCtwL'));
+    assert.ok(!hd.weOwnAddress('garbage'));
+    assert.ok(!hd.weOwnAddress(false));
 
     assert.strictEqual(hd.timeToRefreshBalance(), true);
     assert.ok(hd._lastTxFetch === 0);
@@ -91,9 +93,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.next_free_address_index, 2);
     assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
-  it('can catch up with externally modified wallet', async () => {
+  // skpped because its a very specific testcase, and slow
+  // unskip and test manually
+  it.skip('can catch up with externally modified wallet', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -128,7 +133,8 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
-  it('can work with faulty zpub', async () => {
+  it.skip('can work with faulty zpub', async () => {
+    // takes too much time, skipped
     if (!process.env.FAULTY_ZPUB) {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
@@ -207,10 +213,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(txFound, 4);
 
     await hd.fetchUtxo();
-    assert.strictEqual(hd.getUtxo().length, 2);
-    assert.strictEqual(hd.getDerivedUtxoFromOurTransaction().length, 2);
-    const u1 = hd.getUtxo()[0];
-    const u2 = hd.getDerivedUtxoFromOurTransaction()[0];
+    assert.strictEqual(hd.getUtxo().length, 4);
+    assert.strictEqual(hd.getDerivedUtxoFromOurTransaction().length, 4);
+    const u1 = hd.getUtxo().find(utxo => utxo.txid === '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20');
+    const u2 = hd
+      .getDerivedUtxoFromOurTransaction()
+      .find(utxo => utxo.txid === '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20');
     delete u1.confirmations;
     delete u2.confirmations;
     delete u1.height;
@@ -226,7 +234,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       changeAddress,
     );
 
-    assert.strictEqual(Math.round(fee / tx.byteLength()), 13);
+    assert.strictEqual(Math.round(fee / tx.virtualSize()), 13);
 
     let totalInput = 0;
     for (const inp of inputs) {

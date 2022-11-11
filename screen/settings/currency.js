@@ -1,19 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import { FiatUnit, FiatUnitSource } from '../../models/fiatUnit';
-import loc from '../../loc';
 import { useTheme } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-const currency = require('../../blue_modules/currency');
 
+import navigationStyle from '../../components/navigationStyle';
+import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
+import { FiatUnit, FiatUnitSource, getFiatRate } from '../../models/fiatUnit';
+import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import dayjs from 'dayjs';
+import alert from '../../components/Alert';
+dayjs.extend(require('dayjs/plugin/calendar'));
+const currency = require('../../blue_modules/currency');
 const data = Object.values(FiatUnit);
 
 const Currency = () => {
   const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(null);
+  const [currencyRate, setCurrencyRate] = useState({ LastUpdated: null, Rate: null });
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     flex: {
@@ -28,29 +32,33 @@ const Currency = () => {
     },
   });
 
-  useEffect(() => {
-    const fetchCurrency = async () => {
-      try {
-        const preferredCurrency = await currency.getPreferredCurrency();
-        if (preferredCurrency === null) {
-          throw Error();
-        }
-        setSelectedCurrency(preferredCurrency);
-      } catch (_error) {
-        setSelectedCurrency(FiatUnit.USD);
+  const fetchCurrency = async () => {
+    let preferredCurrency = FiatUnit.USD;
+    try {
+      preferredCurrency = await currency.getPreferredCurrency();
+      if (preferredCurrency === null) {
+        throw Error();
       }
-    };
+      setSelectedCurrency(preferredCurrency);
+    } catch (_error) {
+      setSelectedCurrency(preferredCurrency);
+    }
+    const mostRecentFetchedRate = await currency.mostRecentFetchedRate();
+    setCurrencyRate(mostRecentFetchedRate);
+  };
+
+  useEffect(() => {
     fetchCurrency();
   }, []);
 
   if (selectedCurrency !== null && selectedCurrency !== undefined) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
+      <SafeBlueArea>
         <FlatList
           style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
-          initialNumToRender={25}
+          initialNumToRender={50}
           extraData={data}
           renderItem={({ item }) => {
             return (
@@ -60,11 +68,19 @@ const Currency = () => {
                 checkmark={selectedCurrency.endPointKey === item.endPointKey}
                 onPress={async () => {
                   setIsSavingNewPreferredCurrency(true);
-                  setSelectedCurrency(item);
-                  await currency.setPrefferedCurrency(item);
-                  await currency.startUpdater();
-                  setIsSavingNewPreferredCurrency(false);
-                  setPreferredFiatCurrency();
+                  try {
+                    await getFiatRate(item.endPointKey);
+                    await currency.setPrefferedCurrency(item);
+                    await currency.init(true);
+                    await fetchCurrency();
+                    setSelectedCurrency(item);
+                    setPreferredFiatCurrency();
+                  } catch (error) {
+                    console.log(error);
+                    alert(loc.settings.currency_fetch_error);
+                  } finally {
+                    setIsSavingNewPreferredCurrency(false);
+                  }
                 }}
               />
             );
@@ -73,6 +89,14 @@ const Currency = () => {
         <BlueCard>
           <BlueText>
             {loc.settings.currency_source} {selectedCurrency.source ?? FiatUnitSource.CoinDesk}
+          </BlueText>
+          <BlueSpacing10 />
+          <BlueText>
+            {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+          </BlueText>
+          <BlueSpacing10 />
+          <BlueText>
+            {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
           </BlueText>
         </BlueCard>
       </SafeBlueArea>
@@ -85,15 +109,6 @@ const Currency = () => {
   );
 };
 
-Currency.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
+Currency.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.currency }));
 
-Currency.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
-  title: loc.settings.currency,
-});
 export default Currency;

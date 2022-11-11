@@ -1,22 +1,15 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
-import {
-  BlueLoading,
-  BlueCopyTextToClipboard,
-  SafeBlueArea,
-  BlueButton,
-  BlueNavigationStyle,
-  BlueText,
-  BlueSpacing20,
-} from '../../BlueComponents';
-import QRCode from 'react-native-qrcode-svg';
-import loc from '../../loc';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import alert from '../../components/Alert';
 
 const LNDViewAdditionalInvoiceInformation = () => {
-  // state = { walletInfo: undefined };
   const { walletID } = useRoute().params;
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -58,18 +51,10 @@ const LNDViewAdditionalInvoiceInformation = () => {
   }
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <View style={styles.qrcode}>
-          <QRCode
-            value={walletInfo.uris[0]}
-            logo={require('../../img/qr-code.png')}
-            size={300}
-            logoSize={90}
-            color="#000000"
-            logoBackgroundColor={colors.brandingColor}
-            backgroundColor="#FFFFFF"
-          />
+          <QRCodeComponent value={walletInfo.uris[0]} size={300} />
         </View>
         <BlueSpacing20 />
         <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
@@ -96,12 +81,8 @@ const LNDViewAdditionalInvoiceInformation = () => {
 
 const styles = StyleSheet.create({
   loading: {
-    flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  root: {
-    flex: 1,
   },
   wrapper: {
     flex: 1,
@@ -111,10 +92,6 @@ const styles = StyleSheet.create({
   qrcode: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16,
-    borderWidth: 6,
-    borderRadius: 8,
-    borderColor: '#FFFFFF',
   },
   share: {
     marginBottom: 25,
@@ -123,7 +100,7 @@ const styles = StyleSheet.create({
 
 export default LNDViewAdditionalInvoiceInformation;
 
-LNDViewAdditionalInvoiceInformation.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
+LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
   title: loc.lndViewInvoice.additional_info,
-});
+}));

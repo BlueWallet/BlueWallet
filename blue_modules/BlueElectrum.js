@@ -1,55 +1,118 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
-import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
+import { Alert } from 'react-native';
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
-import RNWidgetCenter from 'react-native-widget-center';
+import loc from '../loc';
+import WidgetCommunication from './WidgetCommunication';
+import { isTorDaemonDisabled } from './environment';
+import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
+const torrific = require('./torrific');
+const Realm = require('realm');
+
+const ELECTRUM_HOST = 'electrum_host';
+const ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+const ELECTRUM_SSL_PORT = 'electrum_ssl_port';
+const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
+const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
+
+let _realm;
+async function _getRealm() {
+  if (_realm) return _realm;
+
+  const password = bitcoin.crypto.sha256(Buffer.from('fyegjitkyf[eqjnc.lf')).toString('hex');
+  const buf = Buffer.from(password + password, 'hex');
+  const encryptionKey = Int8Array.from(buf);
+  const path = 'electrumcache.realm';
+
+  const schema = [
+    {
+      name: 'Cache',
+      primaryKey: 'cache_key',
+      properties: {
+        cache_key: { type: 'string', indexed: true },
+        cache_value: 'string', // stringified json
+      },
+    },
+  ];
+  _realm = await Realm.open({
+    schema,
+    path,
+    encryptionKey,
+  });
+  return _realm;
+}
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
 const hardcodedPeers = [
-  // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
-  // { host: 'electrum.be', tcp: '50001' },
-  // { host: 'node.ispol.sk', tcp: '50001' }, // down
-  // { host: '139.162.14.142', tcp: '50001' },
-  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
-  // { host: 'Bitkoins.nl', tcp: '50001' }, // down
-  // { host: 'fullnode.coinkite.com', tcp: '50001' },
-  // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
   { host: 'electrum1.bluewallet.io', ssl: '443' },
-  { host: 'electrum1.bluewallet.io', ssl: '443' }, // 2x weight
   { host: 'electrum2.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' },
-  { host: 'electrum3.bluewallet.io', ssl: '443' }, // 2x weight
+  { host: 'electrum.acinq.co', ssl: '50002' },
+  { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];
 
-let mainClient: ElectrumClient = false;
+/** @type {ElectrumClient} */
+let mainClient;
 let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 let serverName = false;
 let disableBatching = false;
+let connectionAttempt = 0;
+let currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
 
 let latestBlockheight = false;
 let latestBlockheightTimestamp = false;
 
 const txhashHeightCache = {};
 
+async function isDisabled() {
+  let isDisabled;
+  try {
+    const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
+    if (savedValue === null) {
+      isDisabled = false;
+    } else {
+      isDisabled = savedValue;
+    }
+  } catch {
+    isDisabled = false;
+  }
+  return !!isDisabled;
+}
+
+async function setDisabled(disabled = true) {
+  return AsyncStorage.setItem(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+}
+
 async function connectMain() {
-  let usingPeer = await getRandomHardcodedPeer();
+  if (await isDisabled()) {
+    console.log('Electrum connection disabled by user. Skipping connectMain call');
+    return;
+  }
+  let usingPeer = await getNextPeer();
   const savedPeer = await getSavedPeer();
   if (savedPeer && savedPeer.host && (savedPeer.tcp || savedPeer.ssl)) {
     usingPeer = savedPeer;
   }
 
+  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   try {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    await DefaultPreference.set(AppStorage.ELECTRUM_HOST, usingPeer.host);
-    await DefaultPreference.set(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
-    await DefaultPreference.set(AppStorage.ELECTRUM_SSL_PORT, usingPeer.ssl);
-    RNWidgetCenter.reloadAllTimelines();
+    if (usingPeer.host.endsWith('onion')) {
+      const randomPeer = await getCurrentPeer();
+      await DefaultPreference.set(ELECTRUM_HOST, randomPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, randomPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, randomPeer.ssl);
+    } else {
+      await DefaultPreference.set(ELECTRUM_HOST, usingPeer.host);
+      await DefaultPreference.set(ELECTRUM_TCP_PORT, usingPeer.tcp);
+      await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl);
+    }
+
+    WidgetCommunication.reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
     console.log(e);
@@ -57,19 +120,27 @@ async function connectMain() {
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
+    mainClient = new ElectrumClient(
+      usingPeer.host.endsWith('.onion') && !(await isTorDaemonDisabled()) ? torrific : global.net,
+      global.tls,
+      usingPeer.ssl || usingPeer.tcp,
+      usingPeer.host,
+      usingPeer.ssl ? 'tls' : 'tcp',
+    );
+
     mainClient.onError = function (e) {
-      if (Platform.OS === 'android' && mainConnected) {
-        // android sockets are buggy and dont always issue CLOSE event, which actually makes the persistence code to reconnect.
-        // so lets do it manually, but only if we were previously connected (mainConnected), otherwise theres other
+      console.log('electrum mainClient.onError():', e.message);
+      if (mainConnected) {
+        // most likely got a timeout from electrum ping. lets reconnect
+        // but only if we were previously connected (mainConnected), otherwise theres other
         // code which does connection retries
         mainClient.close();
         mainConnected = false;
-        setTimeout(connectMain, 500);
+        // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
+        // errors triggered
         console.log('reconnecting after socket error');
-        return;
+        setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
       }
-      mainConnected = false;
     };
     const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
     if (ver && ver[0]) {
@@ -77,7 +148,7 @@ async function connectMain() {
       serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
-      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs')) {
+      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         // TODO: once they release support for batching - disable batching only for lower versions
         disableBatching = true;
       }
@@ -95,27 +166,115 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
+    connectionAttempt = connectionAttempt + 1;
     mainClient.close && mainClient.close();
-    setTimeout(connectMain, 500);
+    if (connectionAttempt >= 5) {
+      presentNetworkErrorAlert(usingPeer);
+    } else {
+      console.log('reconnection attempt #', connectionAttempt);
+      await new Promise(resolve => setTimeout(resolve, 500)); // sleep
+      return connectMain();
+    }
   }
 }
 
-connectMain();
+async function presentNetworkErrorAlert(usingPeer) {
+  if (await isDisabled()) {
+    console.log(
+      'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
+    );
+    return;
+  }
+  Alert.alert(
+    loc.errors.network,
+    loc.formatString(
+      usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
+      usingPeer ? { server: `${usingPeer.host}:${usingPeer.ssl ?? usingPeer.tcp}` } : {},
+    ),
+    [
+      {
+        text: loc.wallets.list_tryagain,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+          setTimeout(connectMain, 500);
+        },
+        style: 'default',
+      },
+      {
+        text: loc.settings.electrum_reset,
+        onPress: () => {
+          Alert.alert(
+            loc.settings.electrum_reset,
+            loc.settings.electrum_reset_to_default,
+            [
+              {
+                text: loc._.cancel,
+                style: 'cancel',
+                onPress: () => {},
+              },
+              {
+                text: loc._.ok,
+                style: 'destructive',
+                onPress: async () => {
+                  await AsyncStorage.setItem(ELECTRUM_HOST, '');
+                  await AsyncStorage.setItem(ELECTRUM_TCP_PORT, '');
+                  await AsyncStorage.setItem(ELECTRUM_SSL_PORT, '');
+                  try {
+                    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+                    await DefaultPreference.clear(ELECTRUM_HOST);
+                    await DefaultPreference.clear(ELECTRUM_SSL_PORT);
+                    await DefaultPreference.clear(ELECTRUM_TCP_PORT);
+                    WidgetCommunication.reloadAllTimelines();
+                  } catch (e) {
+                    // Must be running on Android
+                    console.log(e);
+                  }
+                  alert(loc.settings.electrum_saved);
+                  setTimeout(connectMain, 500);
+                },
+              },
+            ],
+            { cancelable: true },
+          );
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'destructive',
+      },
+      {
+        text: loc._.cancel,
+        onPress: () => {
+          connectionAttempt = 0;
+          mainClient.close() && mainClient.close();
+        },
+        style: 'cancel',
+      },
+    ],
+    { cancelable: false },
+  );
+}
+
+async function getCurrentPeer() {
+  return hardcodedPeers[currentPeerIndex];
+}
 
 /**
- * Returns random hardcoded electrum server guaranteed to work
- * at the time of writing.
+ * Returns NEXT hardcoded electrum server (increments index after use)
  *
- * @returns {Promise<{tcp, host}|*>}
+ * @returns {Promise<{tcp, host, ssl?}|*>}
  */
-async function getRandomHardcodedPeer() {
-  return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+async function getNextPeer() {
+  const peer = getCurrentPeer();
+  currentPeerIndex++;
+  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
+  return peer;
 }
 
 async function getSavedPeer() {
-  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+  const host = await AsyncStorage.getItem(ELECTRUM_HOST);
+  const port = await AsyncStorage.getItem(ELECTRUM_TCP_PORT);
+  const sslPort = await AsyncStorage.getItem(ELECTRUM_SSL_PORT);
   return { host, tcp: port, ssl: sslPort };
 }
 
@@ -169,8 +328,8 @@ module.exports.getConfig = async function () {
   return {
     host: mainClient.host,
     port: mainClient.port,
-    status: mainClient.status ? 1 : 0,
     serverName,
+    connected: mainClient.timeLastCall !== 0 && mainClient.status,
   };
 };
 
@@ -196,6 +355,19 @@ module.exports.getTransactionsByAddress = async function (address) {
   return history;
 };
 
+/**
+ *
+ * @param address {String}
+ * @returns {Promise<Array>}
+ */
+module.exports.getMempoolTransactionsByAddress = async function (address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const script = bitcoin.address.toOutputScript(address);
+  const hash = bitcoin.crypto.sha256(script);
+  const reversedHash = Buffer.from(reverse(hash));
+  return mainClient.blockchainScripthash_getMempool(reversedHash.toString('hex'));
+};
+
 module.exports.ping = async function () {
   try {
     await mainClient.server_ping();
@@ -210,22 +382,54 @@ module.exports.getTransactionsFullByAddress = async function (address) {
   const txs = await this.getTransactionsByAddress(address);
   const ret = [];
   for (const tx of txs) {
-    const full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    let full;
+    try {
+      full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    } catch (error) {
+      if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+        // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
+        // throwing a proper exception. lets fetch txhex manually and decode on our end
+        const txhex = await mainClient.blockchainTransaction_get(tx.tx_hash, false);
+        full = txhexToElectrumTransaction(txhex);
+      } else {
+        // nope, its something else
+        throw new Error(String(error?.message ?? error));
+      }
+    }
     full.address = address;
     for (const input of full.vin) {
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      const prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      let prevTxForVin;
+      try {
+        prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      } catch (error) {
+        if (String(error?.message ?? error).startsWith('verbose transactions are currently unsupported')) {
+          // apparently, stupid esplora instead of returning txhex when it cant return verbose tx started
+          // throwing a proper exception. lets fetch txhex manually and decode on our end
+          const txhex = await mainClient.blockchainTransaction_get(input.txid, false);
+          prevTxForVin = txhexToElectrumTransaction(txhex);
+        } else {
+          // nope, its something else
+          throw new Error(String(error?.message ?? error));
+        }
+      }
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
         input.value = prevTxForVin.vout[input.vout].value;
         // also, we extract destination address from prev output:
         if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
           input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
         }
+        // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+        if (prevTxForVin.vout[input.vout]?.scriptPubKey?.address) {
+          input.addresses = [prevTxForVin.vout[input.vout].scriptPubKey.address];
+        }
       }
     }
 
     for (const output of full.vout) {
       if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+      // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+      if (output?.scriptPubKey?.address) output.addresses = [output.scriptPubKey.address];
     }
     full.inputs = full.vin;
     full.outputs = full.vout;
@@ -266,9 +470,15 @@ module.exports.multiGetBalanceByAddress = async function (addresses, batchsize) 
     let balances = [];
 
     if (disableBatching) {
-      for (const sh of scripthashes) {
-        const balance = await mainClient.blockchainScripthash_getBalance(sh);
-        balances.push({ result: balance, param: sh });
+      const promises = [];
+      const index2scripthash = {};
+      for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
+        promises.push(mainClient.blockchainScripthash_getBalance(scripthashes[promiseIndex]));
+        index2scripthash[promiseIndex] = scripthashes[promiseIndex];
+      }
+      const promiseResults = await Promise.all(promises);
+      for (let resultIndex = 0; resultIndex < promiseResults.length; resultIndex++) {
+        balances.push({ result: promiseResults[resultIndex], param: index2scripthash[resultIndex] });
       }
     } else {
       balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
@@ -349,9 +559,15 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
     let results = [];
 
     if (disableBatching) {
-      for (const sh of scripthashes) {
-        const history = await mainClient.blockchainScripthash_getHistory(sh);
-        results.push({ result: history, param: sh });
+      const promises = [];
+      const index2scripthash = {};
+      for (let promiseIndex = 0; promiseIndex < scripthashes.length; promiseIndex++) {
+        index2scripthash[promiseIndex] = scripthashes[promiseIndex];
+        promises.push(mainClient.blockchainScripthash_getHistory(scripthashes[promiseIndex]));
+      }
+      const histories = await Promise.all(promises);
+      for (let historyIndex = 0; historyIndex < histories.length; historyIndex++) {
+        results.push({ result: histories[historyIndex], param: index2scripthash[historyIndex] });
       }
     } else {
       results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
@@ -373,42 +589,94 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
   return ret;
 };
 
-module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose) {
+module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose = true) {
   batchsize = batchsize || 45;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
-  verbose = verbose !== false;
   if (!mainClient) throw new Error('Electrum client is not connected');
   const ret = {};
   txids = [...new Set(txids)]; // deduplicate just for any case
+
+  // lets try cache first:
+  const realm = await _getRealm();
+  const cacheKeySuffix = verbose ? '_verbose' : '_non_verbose';
+  const keysCacheMiss = [];
+  for (const txid of txids) {
+    const jsonString = realm.objectForPrimaryKey('Cache', txid + cacheKeySuffix); // search for a realm object with a primary key
+    if (jsonString && jsonString.cache_value) {
+      try {
+        ret[txid] = JSON.parse(jsonString.cache_value);
+      } catch (error) {
+        console.log(error, 'cache failed to parse', jsonString.cache_value);
+      }
+    }
+
+    if (!ret[txid]) keysCacheMiss.push(txid);
+  }
+
+  if (keysCacheMiss.length === 0) {
+    return ret;
+  }
+
+  txids = keysCacheMiss;
+  // end cache
 
   const chunks = splitIntoChunks(txids, batchsize);
   for (const chunk of chunks) {
     let results = [];
 
     if (disableBatching) {
-      for (const txid of chunk) {
-        try {
-          // in case of ElectrumPersonalServer it might not track some transactions (like source transactions for our transactions)
-          // so we wrap it in try-catch
-          let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+      try {
+        // in case of ElectrumPersonalServer it might not track some transactions (like source transactions for our transactions)
+        // so we wrap it in try-catch. note, when `Promise.all` fails we will get _zero_ results, but we have a fallback for that
+        const promises = [];
+        const index2txid = {};
+        for (let promiseIndex = 0; promiseIndex < chunk.length; promiseIndex++) {
+          const txid = chunk[promiseIndex];
+          index2txid[promiseIndex] = txid;
+          promises.push(mainClient.blockchainTransaction_get(txid, verbose));
+        }
+
+        const transactionResults = await Promise.all(promises);
+        for (let resultIndex = 0; resultIndex < transactionResults.length; resultIndex++) {
+          let tx = transactionResults[resultIndex];
           if (typeof tx === 'string' && verbose) {
             // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
             // lets decode it manually on our end then:
             tx = txhexToElectrumTransaction(tx);
-            if (txhashHeightCache[txid]) {
-              // got blockheight where this tx was confirmed
-              tx.confirmations = this.estimateCurrentBlockheight() - txhashHeightCache[txid];
-              if (tx.confirmations < 0) {
-                // ugly fix for when estimator lags behind
-                tx.confirmations = 1;
-              }
-              tx.time = this.calculateBlockTime(txhashHeightCache[txid]);
-              tx.blocktime = this.calculateBlockTime(txhashHeightCache[txid]);
+          }
+          const txid = index2txid[resultIndex];
+          results.push({ result: tx, param: txid });
+        }
+      } catch (_) {
+        if (String(_?.message ?? _).startsWith('verbose transactions are currently unsupported')) {
+          // electrs-esplora. cant use verbose, so fetching txs one by one and decoding locally
+          for (const txid of chunk) {
+            try {
+              let tx = await mainClient.blockchainTransaction_get(txid, false);
+              tx = txhexToElectrumTransaction(tx);
+              results.push({ result: tx, param: txid });
+            } catch (_) {
+              console.log(_);
             }
           }
-          results.push({ result: tx, param: txid });
-        } catch (_) {}
+        } else {
+          // fallback. pretty sure we are connected to EPS.  we try getting transactions one-by-one. this way we wont
+          // fail and only non-tracked by EPS transactions will be omitted
+          for (const txid of chunk) {
+            try {
+              let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+              if (typeof tx === 'string' && verbose) {
+                // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
+                // lets decode it manually on our end then:
+                tx = txhexToElectrumTransaction(tx);
+              }
+              results.push({ result: tx, param: txid });
+            } catch (_) {
+              console.log(_);
+            }
+          }
+        }
       }
     } else {
       results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
@@ -418,12 +686,38 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
       if (txdata.error && txdata.error.code === -32600) {
         // response too large
         // lets do single call, that should go through okay:
-        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
+        txdata.result = await mainClient.blockchainTransaction_get(txdata.param, false);
+        // since we used VERBOSE=false, server sent us plain txhex which we must decode on our end:
+        txdata.result = txhexToElectrumTransaction(txdata.result);
       }
       ret[txdata.param] = txdata.result;
-      delete ret[txdata.param].hex; // compact
+      if (ret[txdata.param]) delete ret[txdata.param].hex; // compact
     }
   }
+
+  // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
+  for (const txid of Object.keys(ret) ?? []) {
+    for (const vout of ret[txid].vout ?? []) {
+      if (vout?.scriptPubKey?.address) vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
+    }
+  }
+
+  // saving cache:
+  realm.write(() => {
+    for (const txid of Object.keys(ret)) {
+      if (verbose && (!ret[txid].confirmations || ret[txid].confirmations < 7)) continue;
+      // dont cache immature txs, but only for 'verbose', since its fully decoded tx jsons. non-verbose are just plain
+      // strings txhex
+      realm.create(
+        'Cache',
+        {
+          cache_key: txid + cacheKeySuffix,
+          cache_value: JSON.stringify(ret[txid]),
+        },
+        Realm.UpdateMode.Modified,
+      );
+    }
+  });
 
   return ret;
 };
@@ -438,31 +732,111 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
 module.exports.waitTillConnected = async function () {
   let waitTillConnectedInterval = false;
   let retriesCounter = 0;
+  if (await isDisabled()) {
+    console.warn('Electrum connections disabled by user. waitTillConnected skipping...');
+    return;
+  }
   return new Promise(function (resolve, reject) {
     waitTillConnectedInterval = setInterval(() => {
       if (mainConnected) {
         clearInterval(waitTillConnectedInterval);
-        resolve(true);
+        return resolve(true);
       }
 
       if (wasConnectedAtLeastOnce && mainClient.status === 1) {
         clearInterval(waitTillConnectedInterval);
         mainConnected = true;
-        resolve(true);
+        return resolve(true);
       }
 
-      if (retriesCounter++ >= 30) {
+      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
+        // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
+        // electrum during app startup
         clearInterval(waitTillConnectedInterval);
+        presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 500);
+    }, 100);
   });
 };
 
+// Returns the value at a given percentile in a sorted numeric array.
+// "Linear interpolation between closest ranks" method
+function percentile(arr, p) {
+  if (arr.length === 0) return 0;
+  if (typeof p !== 'number') throw new TypeError('p must be a number');
+  if (p <= 0) return arr[0];
+  if (p >= 1) return arr[arr.length - 1];
+
+  const index = (arr.length - 1) * p;
+  const lower = Math.floor(index);
+  const upper = lower + 1;
+  const weight = index % 1;
+
+  if (upper >= arr.length) return arr[lower];
+  return arr[lower] * (1 - weight) + arr[upper] * weight;
+}
+
+/**
+ * The histogram is an array of [fee, vsize] pairs, where vsizen is the cumulative virtual size of mempool transactions
+ * with a fee rate in the interval [feen-1, feen], and feen-1 > feen.
+ *
+ * @param numberOfBlocks {Number}
+ * @param feeHistorgram {Array}
+ * @returns {number}
+ */
+module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHistorgram) {
+  // first, transforming histogram:
+  let totalVsize = 0;
+  const histogramToUse = [];
+  for (const h of feeHistorgram) {
+    let [fee, vsize] = h;
+    let timeToStop = false;
+
+    if (totalVsize + vsize >= 1000000 * numberOfBlocks) {
+      vsize = 1000000 * numberOfBlocks - totalVsize; // only the difference between current summarized sige to tip of the block
+      timeToStop = true;
+    }
+
+    histogramToUse.push({ fee, vsize });
+    totalVsize += vsize;
+    if (timeToStop) break;
+  }
+
+  // now we have histogram of precisely size for numberOfBlocks.
+  // lets spread it into flat array so its easier to calculate percentile:
+  let histogramFlat = [];
+  for (const hh of histogramToUse) {
+    histogramFlat = histogramFlat.concat(Array(Math.round(hh.vsize / 25000)).fill(hh.fee));
+    // division is needed so resulting flat array is not too huge
+  }
+
+  histogramFlat = histogramFlat.sort(function (a, b) {
+    return a - b;
+  });
+
+  return Math.round(percentile(histogramFlat, 0.5) || 1);
+};
+
 module.exports.estimateFees = async function () {
-  const fast = await module.exports.estimateFee(1);
-  const medium = await module.exports.estimateFee(18);
-  const slow = await module.exports.estimateFee(144);
+  let histogram;
+  try {
+    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 29000))]);
+  } catch (_) {}
+
+  if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
+
+  // fetching what electrum (which uses bitcoin core) thinks about fees:
+  const _fast = await module.exports.estimateFee(1);
+  const _medium = await module.exports.estimateFee(18);
+  const _slow = await module.exports.estimateFee(144);
+
+  // calculating fast fees from mempool:
+  const fast = module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram);
+  // recalculating medium and slow fees using bitcoincore estimations only like relative weights:
+  // (minimum 1 sat, just for any case)
+  const medium = Math.max(1, Math.round((fast * _medium) / _fast));
+  const slow = Math.max(1, Math.round((fast * _slow) / _fast));
   return { fast, medium, slow };
 };
 
@@ -535,13 +909,21 @@ module.exports.calculateBlockTime = function (height) {
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
-  const client = new ElectrumClient(sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
+  const isTorDisabled = await isTorDaemonDisabled();
+  const client = new ElectrumClient(
+    host.endsWith('.onion') && !isTorDisabled ? torrific : global.net,
+    global.tls,
+    sslPort || tcpPort,
+    host,
+    sslPort ? 'tls' : 'tcp',
+  );
+
   client.onError = () => {}; // mute
   let timeoutId = false;
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), 3000);
+        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && !isTorDisabled ? 21000 : 5000);
       }),
       client.connect(),
     ]);
@@ -563,7 +945,21 @@ module.exports.forceDisconnect = () => {
   mainClient.close();
 };
 
+module.exports.setBatchingDisabled = () => {
+  disableBatching = true;
+};
+
+module.exports.setBatchingEnabled = () => {
+  disableBatching = false;
+};
+module.exports.connectMain = connectMain;
+module.exports.isDisabled = isDisabled;
+module.exports.setDisabled = setDisabled;
 module.exports.hardcodedPeers = hardcodedPeers;
+module.exports.ELECTRUM_HOST = ELECTRUM_HOST;
+module.exports.ELECTRUM_TCP_PORT = ELECTRUM_TCP_PORT;
+module.exports.ELECTRUM_SSL_PORT = ELECTRUM_SSL_PORT;
+module.exports.ELECTRUM_SERVER_HISTORY = ELECTRUM_SERVER_HISTORY;
 
 const splitIntoChunks = function (arr, chunkSize) {
   const groups = [];
@@ -594,6 +990,17 @@ function txhexToElectrumTransaction(txhex) {
     blocktime: 0,
   };
 
+  if (txhashHeightCache[ret.txid]) {
+    // got blockheight where this tx was confirmed
+    ret.confirmations = module.exports.estimateCurrentBlockheight() - txhashHeightCache[ret.txid];
+    if (ret.confirmations < 0) {
+      // ugly fix for when estimator lags behind
+      ret.confirmations = 1;
+    }
+    ret.time = module.exports.calculateBlockTime(txhashHeightCache[ret.txid]);
+    ret.blocktime = module.exports.calculateBlockTime(txhashHeightCache[ret.txid]);
+  }
+
   for (const inn of tx.ins) {
     const txinwitness = [];
     if (inn.witness[0]) txinwitness.push(inn.witness[0].toString('hex'));
@@ -623,6 +1030,9 @@ function txhexToElectrumTransaction(txhex) {
     } else if (LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'))) {
       address = LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'));
       type = '???'; // TODO
+    } else {
+      address = TaprootWallet.scriptPubKeyToAddress(out.script.toString('hex'));
+      type = 'witness_v1_taproot';
     }
 
     ret.vout.push({
@@ -640,3 +1050,6 @@ function txhexToElectrumTransaction(txhex) {
   }
   return ret;
 }
+
+// exported only to be used in unit tests
+module.exports.txhexToElectrumTransaction = txhexToElectrumTransaction;

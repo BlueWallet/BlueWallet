@@ -1,4 +1,3 @@
-/* global it, describe */
 import assert from 'assert';
 
 import { eReducer, entropyToHex, getEntropy, convertToBuffer } from '../../screen/wallets/provideEntropy';
@@ -45,7 +44,7 @@ describe('Entropy reducer and format', () => {
   it('handles 256 bits correctly', () => {
     let state = eReducer(undefined, { type: null }); // get init state
 
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const i of [...Array(256)]) {
       state = eReducer(state, { type: 'push', value: 1, bits: 1 });
     }
@@ -144,7 +143,7 @@ describe('convertToBuffer function', () => {
   it('256 bits or 32bytes', () => {
     let state = eReducer(undefined, { type: null }); // get init state
 
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const i of [...Array(256)]) {
       state = eReducer(state, { type: 'push', value: 1, bits: 1 });
     }

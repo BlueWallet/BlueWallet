@@ -1,15 +1,17 @@
-/* global alert */
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BlueButton, BlueCard, BlueNavigationStyle, BlueText, SafeBlueArea } from '../../BlueComponents';
-import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueButton, BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
-const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
+const currency = require('../../blue_modules/currency');
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
@@ -20,7 +22,7 @@ const PsbtMultisig = () => {
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-  const { walletID, psbtBase64, memo, receivedPSBTBase64 } = useRoute().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, launchedBy } = useRoute().params;
   /** @type MultisigHDWallet */
   const wallet = wallets.find(w => w.getID() === walletID);
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
@@ -35,14 +37,8 @@ const PsbtMultisig = () => {
     textBtc: {
       color: colors.buttonAlternativeTextColor,
     },
-    textDestinationFirstFour: {
-      color: colors.buttonAlternativeTextColor,
-    },
     textBtcUnitValue: {
       color: colors.buttonAlternativeTextColor,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
     },
     textFiat: {
       color: colors.alternativeTextColor,
@@ -94,7 +90,7 @@ const PsbtMultisig = () => {
   };
 
   const navigateToPSBTMultisigQRCode = () => {
-    navigate('PsbtMultisigQRCode', { walletID, psbtBase64, isShowOpenScanner: isConfirmEnabled() });
+    navigate('PsbtMultisigQRCode', { walletID, psbtBase64: psbt.toBase64(), isShowOpenScanner: isConfirmEnabled() });
   };
 
   const _renderItemUnsigned = el => {
@@ -115,6 +111,7 @@ const PsbtMultisig = () => {
         {renderProvideSignature && (
           <View>
             <TouchableOpacity
+              accessibilityRole="button"
               testID="ProvideSignature"
               style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
               onPress={navigateToPSBTMultisigQRCode}
@@ -154,8 +151,8 @@ const PsbtMultisig = () => {
   }, [receivedPSBTBase64]);
 
   const _combinePSBT = () => {
-    const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
     try {
+      const receivedPSBT = bitcoin.Psbt.fromBase64(receivedPSBTBase64);
       const newPsbt = psbt.combine(receivedPSBT);
       setPsbt(newPsbt);
     } catch (error) {
@@ -168,13 +165,20 @@ const PsbtMultisig = () => {
       psbt.finalizeAllInputs();
     } catch (_) {} // ignore if it is already finalized
 
+    if (launchedBy) {
+      // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
+      // most likely for LN channel opening
+      navigate(launchedBy, { psbt });
+      return;
+    }
+
     try {
       const tx = psbt.extractTransaction().toHex();
-      const satoshiPerByte = Math.round(getFee() / (tx.length / 2));
+      const satoshiPerByte = Math.round(getFee() / psbt.extractTransaction().virtualSize());
       navigate('Confirm', {
         fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
-        memo: memo,
-        fromWallet: wallet,
+        memo,
+        walletID,
         tx,
         recipients: targets,
         satoshiPerByte,
@@ -262,11 +266,11 @@ const PsbtMultisig = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
-            <View style={[styles.msleft, { height: flatListHeight - 200 }]} />
+            <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
           </View>
           <View style={styles.msright}>
             <BlueCard>
@@ -276,11 +280,12 @@ const PsbtMultisig = () => {
                 renderItem={_renderItem}
                 keyExtractor={(_item, index) => `${index}`}
                 ListHeaderComponent={header}
-                scrollEnabled={false}
+                ListFooterComponent={footer}
               />
               {isConfirmEnabled() && (
                 <View style={styles.height80}>
                   <TouchableOpacity
+                    accessibilityRole="button"
                     testID="ExportSignedPsbt"
                     style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
                     onPress={navigateToPSBTMultisigQRCode}
@@ -294,16 +299,12 @@ const PsbtMultisig = () => {
             </BlueCard>
           </View>
         </View>
-        {footer}
       </View>
     </SafeBlueArea>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   mstopcontainer: {
     flex: 1,
     flexDirection: 'row',
@@ -317,15 +318,11 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 185,
+    marginTop: 130,
   },
   msright: {
     flex: 90,
     marginLeft: '-11%',
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
   },
   container: {
     flexDirection: 'column',
@@ -392,12 +389,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  textDestinationSpacingRight: { marginRight: 4 },
-  textDestinationSpacingLeft: { marginLeft: 4 },
   vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
   vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
-  textBtcUnit: { justifyContent: 'flex-end', bottom: 8 },
+  textBtcUnit: { justifyContent: 'flex-end' },
   bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
   bottomWrapper: { marginTop: 16 },
   marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
@@ -406,9 +401,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisig.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.multisig.header,
-});
+PsbtMultisig.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisig;

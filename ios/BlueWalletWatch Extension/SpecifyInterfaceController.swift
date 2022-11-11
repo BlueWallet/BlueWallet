@@ -40,7 +40,7 @@ class SpecifyInterfaceController: WKInterfaceController {
     let wallet = WatchDataSource.shared.wallets[identifier]
     self.wallet = wallet
     self.createButton.setAlpha(0.5)
-    self.specifiedQRContent.bitcoinUnit = wallet.type == "lightningCustodianWallet" ? .SATS : .BTC
+    self.specifiedQRContent.bitcoinUnit = (wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue) ? .SATS : .BTC
     NotificationCenter.default.addObserver(forName: NumericKeypadInterfaceController.NotificationName.keypadDataChanged, object: nil, queue: nil) { [weak self] (notification) in
       guard let amountObject = notification.object as? [String], !amountObject.isEmpty else { return }
       if amountObject.count == 1 && (amountObject.first == "." || amountObject.first == "0") {
@@ -60,7 +60,7 @@ class SpecifyInterfaceController: WKInterfaceController {
         
         var isShouldCreateButtonBeEnabled = amountDouble > 0 && !title.isEmpty
         
-        if (wallet.type == "lightningCustodianWallet" && !WCSession.default.isReachable) {
+        if (wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue) && !WCSession.default.isReachable {
           isShouldCreateButtonBeEnabled = false
         }
         
@@ -89,8 +89,14 @@ class SpecifyInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createButtonTapped() {
-    NotificationCenter.default.post(name: NotificationName.createQRCode, object: specifiedQRContent)
-    dismiss()
+    if WatchDataSource.shared.companionWalletsInitialized {
+      NotificationCenter.default.post(name: NotificationName.createQRCode, object: specifiedQRContent)
+      dismiss()
+    } else {
+      presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
+        self?.dismiss()
+        })])
+    }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {

@@ -1,11 +1,13 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
-import { BlueNavigationStyle, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+
+import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Privacy from '../../Privacy';
+import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const fs = require('../../blue_modules/fs');
@@ -15,6 +17,7 @@ const ExportMultisigCoordinationSetup = () => {
   const { wallets } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletId);
   const qrCodeContents = useRef();
+  const dynamicQRCode = useRef();
   const [isLoading, setIsLoading] = useState(true);
   const [isShareButtonTapped, setIsShareButtonTapped] = useState(false);
   const { goBack } = useNavigation();
@@ -35,9 +38,11 @@ const ExportMultisigCoordinationSetup = () => {
 
   const exportTxtFile = async () => {
     setIsShareButtonTapped(true);
+    dynamicQRCode.current?.stopAutoMove();
     setTimeout(() => {
       fs.writeFileAndExport(wallet.getLabel() + '.txt', wallet.getXpub()).finally(() => {
         setIsShareButtonTapped(false);
+        dynamicQRCode.current?.startAutoMove();
       });
     }, 10);
   };
@@ -70,14 +75,14 @@ const ExportMultisigCoordinationSetup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
         </View>
         <BlueSpacing20 />
-        <DynamicQRCode value={qrCodeContents.current} capacity={400} />
+        <DynamicQRCode value={qrCodeContents.current} ref={dynamicQRCode} />
         <BlueSpacing20 />
         {isShareButtonTapped ? (
           <ActivityIndicator />
@@ -95,9 +100,6 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     justifyContent: 'center',
-  },
-  root: {
-    flex: 1,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -125,10 +127,12 @@ const styles = StyleSheet.create({
   },
 });
 
-ExportMultisigCoordinationSetup.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
-  title: loc.multisig.export_coordination_setup,
-  headerLeft: null,
-});
+ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
+  {
+    closeButton: true,
+    headerHideBackButton: true,
+  },
+  opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
+);
 
 export default ExportMultisigCoordinationSetup;

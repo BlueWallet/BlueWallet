@@ -1,11 +1,10 @@
-/* global it, jasmine, afterAll, beforeAll */
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { HDSegwitP2SHWallet } from '../../class';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(300 * 1000);
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -16,7 +15,7 @@ beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
   try {
-    await BlueElectrum.waitTillConnected();
+    await BlueElectrum.connectMain();
   } catch (Err) {
     console.log('failed to connect to Electrum:', Err);
     process.exit(2);
@@ -76,12 +75,12 @@ it('HD (BIP49) can create TX', async () => {
   let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(
     txNew.tx.toHex(),
-    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87ba6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100a14eb345f26933b29ba2a68075994ecf10f16286611c1d34ccd5850d977c25620220050e80c62ba64d99101253d94f756791f881bdb92100885fbe5ea3e29964573001210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
+    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87f36200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100fdddfc8f2f85181b0eb95d9f2ebd506b611318b85419889f9b7e4648cb9912e002206c963079673dfcfeea53120592d995dfab5f0e12f4c0054cace0cda90c481d2001210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
   );
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 500);
-  assert.strictEqual(tx.outs[1].value, 25274);
+  assert.strictEqual(tx.outs[1].value, 25331);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
@@ -95,6 +94,9 @@ it('HD (BIP49) can create TX', async () => {
     5,
     hd._getInternalAddressByIndex(hd.next_free_change_address_index),
   );
+  const satPerVbyte = txNew.fee / tx.virtualSize();
+
+  assert.strictEqual(Math.round(satPerVbyte), 6); // so_close.jpg
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 1);
@@ -102,7 +104,6 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
 
   // testing sendMAX
-
   const utxo = [
     {
       height: 591862,
@@ -136,6 +137,7 @@ it('HD (BIP49) can create TX', async () => {
     },
   ];
 
+  // one MAX output
   txNew = hd.createTransaction(
     utxo,
     [{ address: '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK' }],
@@ -145,6 +147,18 @@ it('HD (BIP49) can create TX', async () => {
   tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(tx.outs.length, 1);
   assert.ok(tx.outs[0].value > 77000);
+
+  // MAX with regular output
+  txNew = hd.createTransaction(
+    utxo,
+    [{ address: '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK' }, { address: 'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p', value: 25000 }],
+    1,
+    hd._getInternalAddressByIndex(hd.next_free_change_address_index),
+  );
+  tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
+  assert.strictEqual(tx.outs.length, 2);
+  assert.ok(tx.outs[0].value > 50000);
+  assert.strictEqual(tx.outs[1].value, 25000);
 });
 
 it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {

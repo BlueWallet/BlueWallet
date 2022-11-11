@@ -1,10 +1,8 @@
-Features
-
 * Open Source
-* Full encryption
-* Plausible deniability
-* Flexible fees
-* Replace-By-Fee (RBF)
+* Totalmente criptografada
+* Negação plausível
+* Taxas flexíveis
+* Replace-By-Fee
 * SegWit
-* Watch-only (Sentinel) wallets
-* Lightning network
+* Carteiras Watch-only (somente leitura)
+* Lightning Network

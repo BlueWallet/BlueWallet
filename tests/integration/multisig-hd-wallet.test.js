@@ -1,10 +1,8 @@
-/* global it, describe, jasmine, afterAll, beforeAll */
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
-const BlueElectrum = require('../../blue_modules/BlueElectrum'); // so it connects ASAP
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(300 * 1000);
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -15,7 +13,7 @@ beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
   try {
-    await BlueElectrum.waitTillConnected();
+    await BlueElectrum.connectMain();
   } catch (Err) {
     console.log('failed to connect to Electrum:', Err);
     process.exit(2);

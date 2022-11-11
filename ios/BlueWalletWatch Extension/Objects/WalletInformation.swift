@@ -10,7 +10,7 @@ import WatchKit
 
 class WalletInformation: NSObject {
   
-  @IBOutlet private weak var walletBalanceLabel: WKInterfaceLabel!
+  @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
   @IBOutlet private weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet private weak var walletGroup: WKInterfaceGroup!
   static let identifier: String = "WalletInformation"

@@ -1,12 +1,13 @@
-/* global alert */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const styles = StyleSheet.create({
   root: {
@@ -116,8 +117,4 @@ RBFBumpFee.propTypes = {
     }),
   }),
 };
-
-RBFBumpFee.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.transactions.rbf_title,
-});
+RBFBumpFee.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.rbf_title }));

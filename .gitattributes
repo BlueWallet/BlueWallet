@@ -1,4 +1,0 @@
-*.pbxproj -text
-*.patch -text
-# specific for windows script files
-*.bat text eol=crlf

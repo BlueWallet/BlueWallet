@@ -19,6 +19,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   @IBOutlet weak var createInvoiceButton: WKInterfaceButton!
   @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet weak var receiveButton: WKInterfaceButton!
+  @IBOutlet weak var viewXPubButton: WKInterfaceButton!
   @IBOutlet weak var noTransactionsLabel: WKInterfaceLabel!
   @IBOutlet weak var transactionsTable: WKInterfaceTable!
   
@@ -29,26 +30,57 @@ class WalletDetailsInterfaceController: WKInterfaceController {
       pop()
       return
     }
-    let wallet = WatchDataSource.shared.wallets[identifier]
-    self.wallet = wallet
-    walletBalanceLabel.setText(wallet.balance)
-    walletNameLabel.setText(wallet.label) 
-    walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
-    createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
-    processWalletsTable()
-    addMenuItems()
+    processInterface(identifier: identifier)
   }
   
-  func addMenuItems() {
+  func processInterface(identifier: Int)  {
+  let wallet = WatchDataSource.shared.wallets[identifier]
+  self.wallet = wallet
+  walletBalanceLabel.setHidden(wallet.hideBalance)
+  walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
+  walletNameLabel.setText(wallet.label)
+  walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
+    createInvoiceButton.setHidden(!(wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue))
+  receiveButton.setHidden(wallet.receiveAddress.isEmpty)
+      viewXPubButton.setHidden(!((wallet.type != WalletGradient.LightningCustodial.rawValue ||  wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty))
+  processWalletsTable()
+  }
+  
+  
+  @IBAction func toggleBalanceVisibility(_ sender: Any) {
     guard let wallet = wallet else {
        return
     }
-    if wallet.type != "lightningCustodianWallet" && !(wallet.xpub ?? "").isEmpty {
-      addMenuItem(with: .share, title: "View XPub", action: #selector(viewXPubMenuItemTapped))
+
+    if wallet.hideBalance {
+      showBalanceMenuItemTapped()
+    } else{
+      hideBalanceMenuItemTapped()
     }
   }
   
-  @objc func viewXPubMenuItemTapped() {
+  
+  @objc func showBalanceMenuItemTapped() {
+    guard let identifier = wallet?.identifier else { return }
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: false) { [weak self] _ in
+      DispatchQueue.main.async {
+        WatchDataSource.postDataUpdatedNotification()
+        self?.processInterface(identifier: identifier)
+      }
+    }
+  }
+  
+  @objc func hideBalanceMenuItemTapped() {
+    guard let identifier = wallet?.identifier else { return }
+    WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: true) { [weak self] _ in
+      DispatchQueue.main.async {
+        WatchDataSource.postDataUpdatedNotification()
+        self?.processInterface(identifier: identifier)
+      }
+    }
+  }
+  
+  @IBAction func viewXPubMenuItemTapped() {
     guard let xpub = wallet?.xpub else {
       return
     }
@@ -59,8 +91,6 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     super.willActivate()
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
-    receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
-    createInvoiceButton.setEnabled(WCSession.default.isReachable)
   }
   
   @IBAction func receiveMenuItemTapped() {
@@ -84,9 +114,13 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   @IBAction func createInvoiceTapped() {
-    if (WCSession.default.isReachable) {
+    if (WatchDataSource.shared.companionWalletsInitialized) {
       pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
-    }
+    } else {
+      presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
+        self?.dismiss()
+        })])
+      }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {

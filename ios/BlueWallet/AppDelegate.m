@@ -1,3 +1,4 @@
+#import <Bugsnag/Bugsnag.h>
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -8,11 +9,13 @@
 #import "AppDelegate.h"
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTI18nUtil.h>
 #import <React/RCTRootView.h>
 #import "RNQuickActionManager.h"
 #import <UserNotifications/UserNotifications.h>
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
+@import WatchConnectivity;
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -38,6 +41,17 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [Bugsnag start];
+  [self copyDeviceUID];
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUID"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUIDCopy"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
+  
 #if !TARGET_OS_MACCATALYST
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
@@ -53,6 +67,7 @@ static void InitializeFlipper(UIApplication *application) {
   } else {
     rootView.backgroundColor = [UIColor clearColor];
   }
+  [[RCTI18nUtil sharedInstance] allowRTL:YES];
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
   rootViewController.view = rootView;
@@ -64,7 +79,28 @@ static void InitializeFlipper(UIApplication *application) {
   // Define UNUserNotificationCenter
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
+  
+  
+  /* For debugging purposes since iOS Simulator does not support handoff
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  [defaults setValue:@{@"activityType": @"io.bluewallet.bluewallet.receiveonchain", @"userInfo": @{@"address": @""}} forKey:@"onUserActivityOpen"];
+  */
   return YES;
+}
+
+- (void)observeValueForKeyPath:(NSString *) keyPath ofObject:(id) object change:(NSDictionary *) change context:(void *) context
+{
+    if([keyPath isEqual:@"deviceUID"] || [keyPath isEqual:@"deviceUIDCopy"])
+    {
+      [self copyDeviceUID];
+    }
+}
+
+- (void)copyDeviceUID {
+  NSString *deviceUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"deviceUID"];
+  if (deviceUID && deviceUID.length > 0) {
+    [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
+  }
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
@@ -76,6 +112,21 @@ static void InitializeFlipper(UIApplication *application) {
 #endif
 }
 
+- (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
+ restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
+{
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  [defaults setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
+  if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
+    return [RCTLinkingManager application:application
+                     continueUserActivity:userActivity
+                       restorationHandler:restorationHandler];
+  }
+  else {
+    [EventEmitter.sharedInstance sendUserActivity:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo}];
+    return YES;
+  }
+}
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
   return [RCTLinkingManager application:app openURL:url options:options];
@@ -83,6 +134,12 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+  [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  [defaults removeObjectForKey:@"onUserActivityOpen"];
 }
 
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {

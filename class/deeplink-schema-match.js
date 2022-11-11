@@ -1,4 +1,4 @@
-import { AppStorage, LightningCustodianWallet } from './';
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
@@ -47,7 +47,6 @@ class DeeplinkSchemaMatch {
       if (context.wallets.length >= 0) {
         const wallet = context.wallets[0];
         const action = event.url.split('widget?action=')[1];
-        const secret = wallet.getSecret();
         if (wallet.chain === Chain.ONCHAIN) {
           if (action === 'openSend') {
             completionHandler([
@@ -55,7 +54,7 @@ class DeeplinkSchemaMatch {
               {
                 screen: 'SendDetails',
                 params: {
-                  secret,
+                  walletID: wallet.getID(),
                 },
               },
             ]);
@@ -126,7 +125,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'SendDetails',
           params: {
-            uri: event.url,
+            uri: event.url.replace('://', ':'),
           },
         },
       ]);
@@ -136,7 +135,7 @@ class DeeplinkSchemaMatch {
         {
           screen: 'ScanLndInvoice',
           params: {
-            uri: event.url,
+            uri: event.url.replace('://', ':'),
           },
         },
       ]);
@@ -153,22 +152,16 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
-    } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
-      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
-
-      const safelloStateToken = urlObject.query['safello-state-token'];
-      let wallet;
-      for (const w of context.wallets) {
-        wallet = w;
-        break;
-      }
-
+    } else if (Lnurl.isLightningAddress(event.url)) {
+      // this might be not just an email but a lightning addres
+      // @see https://lightningaddress.com
       completionHandler([
-        'BuyBitcoin',
+        'ScanLndInvoiceRoot',
         {
-          uri: event.url,
-          safelloStateToken,
-          wallet,
+          screen: 'ScanLndInvoice',
+          params: {
+            uri: event.url,
+          },
         },
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
@@ -177,6 +170,17 @@ class DeeplinkSchemaMatch {
         {
           screen: 'AztecoRedeem',
           params: Azteco.getParamsFromUrl(event.url),
+        },
+      ]);
+    } else if (new WatchOnlyWallet().setSecret(event.url).init().valid()) {
+      completionHandler([
+        'AddWalletRoot',
+        {
+          screen: 'ImportWallet',
+          params: {
+            triggerImport: true,
+            label: event.url,
+          },
         },
       ]);
     } else {
@@ -235,8 +239,7 @@ class DeeplinkSchemaMatch {
                 {
                   screen: 'LappBrowser',
                   params: {
-                    fromSecret: lnWallet.getSecret(),
-                    fromWallet: lnWallet,
+                    walletID: lnWallet.getID(),
                     url: urlObject.query.url,
                   },
                 },
@@ -322,7 +325,7 @@ class DeeplinkSchemaMatch {
           screen: 'SendDetails',
           params: {
             uri: uri.bitcoin,
-            fromWallet: wallet,
+            walletID: wallet.getID(),
           },
         },
       ];
@@ -341,7 +344,7 @@ class DeeplinkSchemaMatch {
   }
 
   static isBitcoinAddress(address) {
-    address = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
+    address = address.replace('://', ':').replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     let isValidBitcoinAddress = false;
     try {
       bitcoin.address.toOutputScript(address);
@@ -354,7 +357,11 @@ class DeeplinkSchemaMatch {
 
   static isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
-    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
+    if (
+      invoice.toLowerCase().startsWith('lightning:lnb') ||
+      invoice.toLowerCase().startsWith('lightning://lnb') ||
+      invoice.toLowerCase().startsWith('lnb')
+    ) {
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
@@ -368,15 +375,9 @@ class DeeplinkSchemaMatch {
     return text.startsWith('widget?action=');
   }
 
-  static isSafelloRedirect(event) {
-    const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
-
-    return !!urlObject.query['safello-state-token'];
-  }
-
   static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
-      const txInfo = url.split(/(bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
+      const txInfo = url.split(/(bitcoin:\/\/|BITCOIN:\/\/|bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
       let bitcoin;
       let lndInvoice;
       for (const [index, value] of txInfo.entries()) {
@@ -410,11 +411,26 @@ class DeeplinkSchemaMatch {
   }
 
   static bip21decode(uri) {
-    return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
+    if (!uri) return {};
+    let replacedUri = uri;
+    for (const replaceMe of ['BITCOIN://', 'bitcoin://', 'BITCOIN:']) {
+      replacedUri = replacedUri.replace(replaceMe, 'bitcoin:');
+    }
+
+    return bip21.decode(replacedUri);
   }
 
   static bip21encode() {
-    return bip21.encode.apply(bip21, arguments);
+    const argumentsArray = Array.from(arguments);
+    for (const argument of argumentsArray) {
+      if (String(argument.label).replace(' ', '').length === 0) {
+        delete argument.label;
+      }
+      if (!(Number(argument.amount) > 0)) {
+        delete argument.amount;
+      }
+    }
+    return bip21.encode.apply(bip21, argumentsArray);
   }
 
   static decodeBitcoinUri(uri) {

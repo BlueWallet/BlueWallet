@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
 import { useNavigation, useTheme } from '@react-navigation/native';
-import HandoffSettings from '../../class/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { isURv1Enabled, clearUseURv1, setUseURv1 } from '../../blue_modules/ur';
 
 const styles = StyleSheet.create({
   root: {
@@ -13,29 +15,33 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings = () => {
-  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
+  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
+    useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
-  const [isHandoffUseEnabled, setIsHandoffUseEnabled] = useState(false);
+  const [isURv1SwitchEnabled, setIsURv1SwitchEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
     await setIsAdancedModeEnabled(value);
     setIsAdancedModeSwitchEnabled(value);
   };
-
-  const onHandOffEnabledSwitch = async value => {
-    await HandoffSettings.setHandoffUseEnabled(value);
-    setIsHandoffUseEnabled(value);
+  const onLegacyURv1Switch = async value => {
+    setIsURv1SwitchEnabled(value);
+    return value ? setUseURv1() : clearUseURv1();
   };
 
   useEffect(() => {
     (async () => {
       setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
-      setIsHandoffUseEnabled(await HandoffSettings.isHandoffUseEnabled());
+      setIsURv1SwitchEnabled(await isURv1Enabled());
       setIsLoading(false);
     })();
   });
+
+  const navigateToPrivacy = () => {
+    navigate('SettingsPrivacy');
+  };
 
   const stylesWithThemeHook = {
     root: {
@@ -61,13 +67,14 @@ const GeneralSettings = () => {
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
+      <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       {Platform.OS === 'ios' ? (
         <>
           <BlueListItem
             hideChevron
             title={loc.settings.general_continuity}
             Component={TouchableWithoutFeedback}
-            switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
+            switch={{ onValueChange: setIsHandOffUseEnabledAsyncStorage, value: isHandOffUseEnabled }}
           />
           <BlueCard>
             <BlueText>{loc.settings.general_continuity_e}</BlueText>
@@ -78,19 +85,22 @@ const GeneralSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>
       <BlueSpacing20 />
+      <BlueListItem
+        Component={TouchableWithoutFeedback}
+        title="Legacy URv1 QR"
+        switch={{ onValueChange: onLegacyURv1Switch, value: isURv1SwitchEnabled }}
+      />
+      <BlueSpacing20 />
     </ScrollView>
   );
 };
 
-GeneralSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
-  title: loc.settings.general,
-});
+GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;

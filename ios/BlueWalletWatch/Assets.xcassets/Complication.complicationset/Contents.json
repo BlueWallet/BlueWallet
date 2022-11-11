@@ -1,48 +1,53 @@
 {
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  },
   "assets" : [
     {
+      "filename" : "Circular.imageset",
       "idiom" : "watch",
-      "role" : "circular",
-      "filename" : "Circular.imageset"
+      "role" : "circular"
     },
     {
+      "filename" : "Extra Large.imageset",
       "idiom" : "watch",
-      "filename" : "Modular.imageset",
-      "role" : "modular"
+      "role" : "extra-large"
     },
     {
-      "idiom" : "watch",
-      "filename" : "Utilitarian.imageset",
-      "role" : "utilitarian"
-    },
-    {
-      "idiom" : "watch",
-      "role" : "extra-large",
-      "filename" : "Extra Large.imageset"
-    },
-    {
-      "role" : "graphic-corner",
-      "idiom" : "watch",
-      "filename" : "Graphic Corner.imageset"
-    },
-    {
-      "filename" : "Graphic Circular.imageset",
-      "role" : "graphic-circular",
-      "idiom" : "watch"
-    },
-    {
-      "idiom" : "watch",
       "filename" : "Graphic Bezel.imageset",
+      "idiom" : "watch",
       "role" : "graphic-bezel"
     },
     {
+      "filename" : "Graphic Circular.imageset",
       "idiom" : "watch",
-      "role" : "graphic-large-rectangular",
-      "filename" : "Graphic Large Rectangular.imageset"
+      "role" : "graphic-circular"
+    },
+    {
+      "filename" : "Graphic Corner.imageset",
+      "idiom" : "watch",
+      "role" : "graphic-corner"
+    },
+    {
+      "filename" : "Graphic Extra Large.imageset",
+      "idiom" : "watch",
+      "role" : "graphic-extra-large"
+    },
+    {
+      "filename" : "Graphic Large Rectangular.imageset",
+      "idiom" : "watch",
+      "role" : "graphic-large-rectangular"
+    },
+    {
+      "filename" : "Modular.imageset",
+      "idiom" : "watch",
+      "role" : "modular"
+    },
+    {
+      "filename" : "Utilitarian.imageset",
+      "idiom" : "watch",
+      "role" : "utilitarian"
     }
-  ]
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
 }

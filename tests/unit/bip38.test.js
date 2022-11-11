@@ -1,12 +1,12 @@
-/* global it, jasmine */
-const assert = require('assert');
+import assert from 'assert';
+import wif from 'wif';
+import bip38 from 'bip38';
+
+jest.setTimeout(180 * 1000);
 
 it('bip38 decodes', async () => {
-  const bip38 = require('../../blue_modules/bip38');
-  const wif = require('wif');
-
   const encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
-  const decryptedKey = await bip38.decrypt(
+  const decryptedKey = await bip38.decryptAsync(
     encryptedKey,
     'TestingOneTwoThree',
     () => {},
@@ -19,22 +19,21 @@ it('bip38 decodes', async () => {
   );
 });
 
-it('bip38 decodes slow', async () => {
+// too slow, even on CI. unskip and manually run it if you need it
+it.skip('bip38 decodes slow', async () => {
   if (!(process.env.CI || process.env.TRAVIS)) {
     // run only on CI
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 120000;
-  const bip38 = require('../../blue_modules/bip38');
-  const wif = require('wif');
 
   const encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;
-  const decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', () => {
+  const decryptedKey = await bip38.decryptAsync(encryptedKey, 'qwerty', () => {
     // callbacks make sense only with pure js scrypt implementation (nodejs and browsers).
     // on RN scrypt is handled by native module and takes ~4 secs
     callbackWasCalled = true;
   });
+
   assert.ok(callbackWasCalled);
 
   assert.strictEqual(
@@ -42,12 +41,7 @@ it('bip38 decodes slow', async () => {
     'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
   );
 
-  let wasError = false;
-  try {
-    await bip38.decrypt(encryptedKey, 'a');
-  } catch (_) {
-    wasError = true;
-  }
-
-  assert.ok(wasError);
+  await assert.rejects(async () => await bip38.decryptAsync(encryptedKey, 'a'), {
+    message: 'Incorrect passphrase.',
+  });
 });

@@ -1,9 +1,8 @@
-/* global it, describe, afterAll, beforeAll, jasmine */
-global.net = require('net');
-global.tls = require('tls');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const assert = require('assert');
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
+import assert from 'assert';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(150 * 1000);
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -14,7 +13,7 @@ beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
   try {
-    await BlueElectrum.waitTillConnected();
+    await BlueElectrum.connectMain();
   } catch (err) {
     console.log('failed to connect to Electrum:', err);
     process.exit(1);
@@ -22,6 +21,75 @@ beforeAll(async () => {
 });
 
 describe('BlueElectrum', () => {
+  it('ElectrumClient can estimate fees from histogram', async () => {
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(1, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      22,
+    );
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(18, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      4,
+    );
+    assert.strictEqual(
+      BlueElectrum.calcEstimateFeeFromFeeHistorgam(144, [
+        [96, 105086],
+        [83, 124591],
+        [64, 108207],
+        [50, 131141],
+        [22, 148800],
+        [17, 156916],
+        [11, 413222],
+        [10, 361384],
+        [9, 294146],
+        [8, 121778],
+        [7, 1153727],
+        [6, 283925],
+        [5, 880946],
+        [4, 825703],
+        [3, 2179023],
+        [2, 590559],
+        [1, 1648473],
+      ]),
+      4,
+    );
+  });
+
   it('ElectrumClient can test connection', async () => {
     assert.ok(!(await BlueElectrum.testConnection('electrum1.bluewallet.io', 444, false)));
     assert.ok(!(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 444)));
@@ -41,6 +109,10 @@ describe('BlueElectrum', () => {
 
   it('ElectrumClient can estimate fees', async () => {
     assert.ok((await BlueElectrum.estimateFee(1)) > 1);
+    const fees = await BlueElectrum.estimateFees();
+    assert.ok(fees.fast > 0);
+    assert.ok(fees.medium > 0);
+    assert.ok(fees.slow > 0);
   });
 
   it('ElectrumClient can request server features', async () => {
@@ -66,6 +138,17 @@ describe('BlueElectrum', () => {
     assert.strictEqual(txs[0].height, 563077);
   });
 
+  // skipped because requires fresh address with pending txs every time
+  it.skip('BlueElectrum can do getMempoolTransactionsByAddress()', async function () {
+    const txs = await BlueElectrum.getMempoolTransactionsByAddress('bc1qp33en9mnw277c9vz5fz9vcu666cvervdnk02327wwph97hdjurqqxtl03c');
+    assert.ok(txs.length > 0);
+    assert.ok(txs[0].tx_hash);
+    assert.ok(txs[0].fee);
+
+    const rez = await BlueElectrum.multiGetTransactionByTxid([txs[0].tx_hash], 10, true);
+    assert.ok(rez[txs[0].tx_hash]);
+  });
+
   it('BlueElectrum can do getTransactionsFullByAddress()', async function () {
     const txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     for (const tx of txs) {
@@ -75,6 +158,7 @@ describe('BlueElectrum', () => {
       assert.ok(!tx.vin);
       assert.ok(!tx.vout);
       assert.ok(tx.inputs);
+      assert.strictEqual(tx.inputs[0]?.addresses[0], 'bc1q7td49wcxfad9v42kmvg5refn9wcnvnru4395qw');
       assert.ok(tx.inputs[0].addresses.length > 0);
       assert.ok(tx.inputs[0].value > 0);
       assert.ok(tx.outputs);
@@ -84,15 +168,24 @@ describe('BlueElectrum', () => {
     }
   });
 
-  it('BlueElectrum can do multiGetBalanceByAddress()', async function () {
+  it('BlueElectrum can do txhexToElectrumTransaction()', () => {
+    const tx =
+      '0200000000010137d07edbc9db9a072a79c6f03e7274e52642d64d760143adc64832501087f37b00000000000000008002102700000000000022512040ef293a8a0ebaf8b351a27d89ff4b5b3822a635e4afdca77a30170c363bafa3e4ad0b00000000001600147dfe2249fa56a2f2b4b7ed3b16ee55e7c565198002483045022100e5b9f1c12e133ef659a0e5cc417b1f8625ba9e951bc7083408de2a33d6fb1a84022035ebb1e2d4ab620ee178dc6cd0b58c54123d1526d9a1b3efba612ea80e48edd101210295b56fc62cdd09c200ce19f873d5ddb3074f7141b2533448829385f48f093a1600000000';
+    const decoded = BlueElectrum.txhexToElectrumTransaction(tx);
+    assert.strictEqual(decoded.vout[0].scriptPubKey.addresses[0], 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g');
+  });
+
+  it.each([false, true])('BlueElectrum can do multiGetBalanceByAddress(), disableBatching=%p', async function (diableBatching) {
+    if (diableBatching) BlueElectrum.setBatchingDisabled();
     const balances = await BlueElectrum.multiGetBalanceByAddress([
       'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
       'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
       'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+      '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK',
       'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
     ]);
 
-    assert.strictEqual(balances.balance, 200000);
+    assert.strictEqual(balances.balance, 200000 + 51432);
     assert.strictEqual(balances.unconfirmed_balance, 0);
     assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.confirmed, 50000);
     assert.strictEqual(balances.addresses.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh.unconfirmed, 0);
@@ -102,6 +195,9 @@ describe('BlueElectrum', () => {
     assert.strictEqual(balances.addresses.bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r.unconfirmed, 0);
     assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.confirmed, 50000);
     assert.strictEqual(balances.addresses.bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy.unconfirmed, 0);
+    assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].confirmed, 51432);
+    assert.strictEqual(balances.addresses['3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK'].unconfirmed, 0);
+    if (diableBatching) BlueElectrum.setBatchingEnabled();
   });
 
   it('BlueElectrum can do multiGetUtxoByAddress()', async () => {
@@ -125,7 +221,8 @@ describe('BlueElectrum', () => {
     assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
   });
 
-  it('ElectrumClient can do multiGetHistoryByAddress()', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetHistoryByAddress(), disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const histories = await BlueElectrum.multiGetHistoryByAddress(
       [
         'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
@@ -146,9 +243,11 @@ describe('BlueElectrum', () => {
         '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df',
     );
     assert.ok(Object.keys(histories).length === 4);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
-  it('ElectrumClient can do multiGetTransactionByTxid()', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetTransactionByTxid(), disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const txdatas = await BlueElectrum.multiGetTransactionByTxid(
       [
         'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
@@ -172,7 +271,13 @@ describe('BlueElectrum', () => {
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vin);
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vout);
     assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].blocktime);
+    assert.strictEqual(
+      txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df']?.vout[0]?.scriptPubKey?.addresses[0],
+      'bc1qp09gdem9xepasp4zxa2fxyvr8wazhms0wvtds9',
+    );
+
     assert.ok(Object.keys(txdatas).length === 4);
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 
   it('multiGetTransactionByTxid() can work with big batches', async () => {
@@ -195,7 +300,8 @@ describe('BlueElectrum', () => {
     assert.ok(txdatas['484a11c5e086a281413b9192b4f60c06abf745f08c2c28c4b4daefe6df3b9e5c']);
   });
 
-  it('ElectrumClient can do multiGetHistoryByAddress() to obtain txhex', async () => {
+  it.each([false, true])('ElectrumClient can do multiGetHistoryByAddress() to obtain txhex, disableBatching=%p', async disableBatching => {
+    if (disableBatching) BlueElectrum.setBatchingDisabled();
     const txdatas = await BlueElectrum.multiGetTransactionByTxid(
       ['881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e'],
       3,
@@ -206,5 +312,6 @@ describe('BlueElectrum', () => {
       txdatas['881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e'],
       '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
     );
+    if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
 });

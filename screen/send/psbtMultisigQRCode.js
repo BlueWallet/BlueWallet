@@ -1,22 +1,28 @@
-/* global alert */
-import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { BlueNavigationStyle, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
+import { getSystemName } from 'react-native-device-info';
+import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+
+import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
-import { getSystemName } from 'react-native-device-info';
-import loc from '../../loc';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-const bitcoin = require('bitcoinjs-lib');
 
+import loc from '../../loc';
+import alert from '../../components/Alert';
+const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
+
 const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
+  const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
+  const dynamicQRCode = useRef();
+  const isFocused = useIsFocused();
 
   const psbt = bitcoin.Psbt.fromBase64(psbtBase64);
   const stylesHook = StyleSheet.create({
@@ -31,6 +37,14 @@ const PsbtMultisigQRCode = () => {
     },
   });
   const fileName = `${Date.now()}.psbt`;
+
+  useEffect(() => {
+    if (isFocused) {
+      dynamicQRCode.current?.startAutoMove();
+    } else {
+      dynamicQRCode.current?.stopAutoMove();
+    }
+  }, [isFocused]);
 
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
@@ -48,7 +62,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      fs.showActionSheet().then(data => onBarScanned({ data }));
+      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -61,15 +75,23 @@ const PsbtMultisigQRCode = () => {
   };
 
   const exportPSBT = () => {
+    dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(() => fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => setIsLoading(false)), 10);
+    setTimeout(
+      () =>
+        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
+          setIsLoading(false);
+          dynamicQRCode.current?.startAutoMove();
+        }),
+      10,
+    );
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <DynamicQRCode value={psbt.toHex()} capacity={666} />
+          <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
           {!isShowOpenScanner && (
             <>
               <BlueSpacing20 />
@@ -77,6 +99,7 @@ const PsbtMultisigQRCode = () => {
                 testID="CosignedScanOrImportFile"
                 style={[styles.exportButton, stylesHook.exportButton]}
                 onPress={openScanner}
+                ref={openScannerButton}
                 title={loc.multisig.scan_or_import_file}
               />
             </>
@@ -94,9 +117,6 @@ const PsbtMultisigQRCode = () => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -104,10 +124,6 @@ const styles = StyleSheet.create({
   modalContentShort: {
     marginLeft: 20,
     marginRight: 20,
-  },
-  copyToClipboard: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   exportButton: {
     height: 48,
@@ -118,9 +134,6 @@ const styles = StyleSheet.create({
   },
 });
 
-PsbtMultisigQRCode.navigationOptions = () => ({
-  ...BlueNavigationStyle(null, false),
-  title: loc.multisig.header,
-});
+PsbtMultisigQRCode.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisigQRCode;

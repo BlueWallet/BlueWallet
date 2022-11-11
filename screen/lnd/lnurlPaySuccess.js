@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
-import LottieView from 'lottie-react-native';
+import PropTypes from 'prop-types';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Icon } from 'react-native-elements';
+
 import {
   BlueButton,
   BlueButtonLink,
-  BlueNavigationStyle,
-  SafeBlueArea,
   BlueCard,
   BlueLoading,
-  BlueText,
   BlueSpacing20,
+  BlueSpacing40,
+  BlueText,
+  SafeBlueArea,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
+import { SuccessView } from '../send/success';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -82,17 +83,11 @@ export default class LnurlPaySuccess extends Component {
     return (
       <SafeBlueArea style={styles.root}>
         <ScrollView>
-          {justPaid ? (
-            <View style={styles.iconContainer}>
-              <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
-            </View>
-          ) : (
-            <View style={styles.iconContainer}>
-              <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-            </View>
-          )}
+          {justPaid && <SuccessView />}
 
-          <BlueSpacing20 />
+          <BlueSpacing40 />
+
+          <BlueSpacing40 />
           <BlueText style={styles.alignSelfCenter}>{domain}</BlueText>
           <BlueText style={styles.alignSelfCenter}>{description}</BlueText>
           {image && <Image style={styles.img} source={{ uri: image }} />}
@@ -126,7 +121,7 @@ export default class LnurlPaySuccess extends Component {
                     screen: 'LnurlPay',
                     params: {
                       lnurl: lnurl,
-                      fromWalletID: this.state.fromWalletID,
+                      walletID: this.state.fromWalletID,
                     },
                   });
                 }}
@@ -170,24 +165,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   root: {
-    flex: 1,
-    paddingTop: 0,
-  },
-  iconContainer: {
-    backgroundColor: '#ccddf9',
-    width: 120,
-    height: 120,
-    maxWidth: 120,
-    maxHeight: 120,
     padding: 0,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  icon: {
-    width: 400,
-    height: 400,
   },
   successContainer: {
     marginTop: 10,
@@ -201,10 +179,10 @@ const styles = StyleSheet.create({
   },
 });
 
-LnurlPaySuccess.navigationOptions = ({ navigation, route }) => {
-  return {
-    ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().popToTop()),
-    title: '',
-    headerLeft: null,
-  };
-};
+LnurlPaySuccess.navigationOptions = navigationStyle({
+  title: '',
+  closeButton: true,
+  headerHideBackButton: true,
+  gestureEnabled: false,
+  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+});

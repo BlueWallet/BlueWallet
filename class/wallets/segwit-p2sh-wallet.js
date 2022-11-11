@@ -1,4 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
+import { ECPairFactory } from 'ecpair';
+const ecc = require('tiny-secp256k1');
+const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 
 /**
@@ -19,10 +22,15 @@ function pubkeyToP2shSegwitAddress(pubkey, network) {
 export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
   static typeReadable = 'SegWit (P2SH)';
+  static segwitType = 'p2sh(p2wpkh)';
 
   static witnessToAddress(witness) {
-    const pubKey = Buffer.from(witness, 'hex');
-    return pubkeyToP2shSegwitAddress(pubKey);
+    try {
+      const pubKey = Buffer.from(witness, 'hex');
+      return pubkeyToP2shSegwitAddress(pubKey);
+    } catch (_) {
+      return false;
+    }
   }
 
   /**
@@ -32,24 +40,22 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @returns {boolean|string} Either p2sh address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    let ret;
     try {
-      ret = bitcoin.payments.p2sh({
+      const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+      return bitcoin.payments.p2sh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
     }
-    return ret;
   }
 
   getAddress() {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = ECPair.fromWIF(this.secret);
       const pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
         console.warn('only compressed public keys are good for segwit');
@@ -77,6 +83,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
     if (targets.length === 0) throw new Error('No destination provided');
+    // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
+    for (const u of utxos) {
+      u.script = { length: 50 };
+    }
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
@@ -87,7 +97,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
     inputs.forEach(input => {
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = bitcoin.ECPair.fromWIF(this.secret); // secret is WIF
+        keyPair = ECPair.fromWIF(this.secret); // secret is WIF
       }
       values[c] = input.value;
       c++;
@@ -137,6 +147,14 @@ export class SegwitP2SHWallet extends LegacyWallet {
   }
 
   allowSendMax() {
+    return true;
+  }
+
+  isSegwit() {
+    return true;
+  }
+
+  allowSignVerifyMessage() {
     return true;
   }
 }

@@ -1,21 +1,14 @@
-/* global alert */
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, View, TextInput } from 'react-native';
-import {
-  BlueLoading,
-  BlueText,
-  BlueSpacing20,
-  BlueListItem,
-  BlueNavigationStyle,
-  BlueCard,
-  BlueButton,
-  BlueCopyToClipboardButton,
-} from '../../BlueComponents';
+import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking, View, TextInput } from 'react-native';
 import { useTheme } from '@react-navigation/native';
-import loc from '../../loc';
 import { Button } from 'react-native-elements';
+
+import navigationStyle from '../../components/navigationStyle';
+import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import loc from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
+import alert from '../../components/Alert';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -105,7 +98,7 @@ const NotificationSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
       />
       <BlueSpacing20 />
 
@@ -163,10 +156,7 @@ const NotificationSettings = () => {
   );
 };
 
-NotificationSettings.navigationOptions = () => ({
-  ...BlueNavigationStyle(),
-  title: loc.settings.notifications,
-});
+NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
 
 const styles = StyleSheet.create({
   root: {
@@ -196,6 +186,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     backgroundColor: 'transparent',
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
   },
 });
 

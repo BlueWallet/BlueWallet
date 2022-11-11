@@ -1,11 +1,10 @@
-/* global it, describe, jasmine, afterAll, beforeAll */
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
-global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+
+jest.setTimeout(150 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -15,10 +14,15 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  await BlueElectrum.connectMain();
 });
 
 let _cachedHdWallet = false;
+
+/**
+ * @returns {Promise<HDSegwitBech32Wallet>}
+ * @private
+ */
 async function _getHdWallet() {
   if (_cachedHdWallet) return _cachedHdWallet;
   _cachedHdWallet = new HDSegwitBech32Wallet();
@@ -74,7 +78,7 @@ describe('HDSegwitBech32Transaction', () => {
     const { fee, feeRate, targets, changeAmount, utxos } = await tt.getInfo();
     assert.strictEqual(fee, 4464);
     assert.strictEqual(changeAmount, 103686);
-    assert.strictEqual(feeRate, 12);
+    assert.strictEqual(feeRate, 21);
     assert.strictEqual(targets.length, 1);
     assert.strictEqual(targets[0].value, 200000);
     assert.strictEqual(targets[0].address, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
@@ -109,7 +113,7 @@ describe('HDSegwitBech32Transaction', () => {
 
     assert.strictEqual(await tt.canCancelTx(), true);
 
-    const { tx } = await tt.createRBFcancelTx(15);
+    const { tx } = await tt.createRBFcancelTx(25);
 
     const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
@@ -117,8 +121,8 @@ describe('HDSegwitBech32Transaction', () => {
     const addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
     assert.ok(hd.weOwnAddress(addr));
 
-    const actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / (tx.toHex().length / 2);
-    assert.strictEqual(Math.round(actualFeerate), 15);
+    const actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / tx.virtualSize();
+    assert.strictEqual(Math.round(actualFeerate), 25);
 
     const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
     assert.strictEqual(await tt2.canCancelTx(), false); // newly created cancel tx is not cancellable anymore
@@ -137,7 +141,7 @@ describe('HDSegwitBech32Transaction', () => {
     assert.strictEqual(await tt.canCancelTx(), true);
     assert.strictEqual(await tt.canBumpTx(), true);
 
-    const { tx } = await tt.createRBFbumpFee(17);
+    const { tx } = await tt.createRBFbumpFee(27);
 
     const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
@@ -148,8 +152,8 @@ describe('HDSegwitBech32Transaction', () => {
     const addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
     assert.ok(hd.weOwnAddress(addr1));
 
-    const actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / (tx.toHex().length / 2);
-    assert.strictEqual(Math.round(actualFeerate), 17);
+    const actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / tx.virtualSize();
+    assert.strictEqual(Math.round(actualFeerate), 28);
 
     const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
     assert.strictEqual(await tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
@@ -180,7 +184,7 @@ describe('HDSegwitBech32Transaction', () => {
     );
 
     const { tx, fee } = await tt.createCPFPbumpFee(20);
-    const avgFeeRate = (oldFee + fee) / (tt._txhex.length / 2 + tx.toHex().length / 2);
+    const avgFeeRate = (oldFee + fee) / (tt._txDecoded.virtualSize() + tx.virtualSize());
     assert.ok(Math.round(avgFeeRate) >= 20);
   });
 });

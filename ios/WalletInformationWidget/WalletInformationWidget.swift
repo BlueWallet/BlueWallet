@@ -9,34 +9,35 @@
 import WidgetKit
 import SwiftUI
 
-struct Provider: TimelineProvider {
-  func placeholder(in context: Context) -> SimpleEntry {
-    SimpleEntry(date: Date(), marketData: emptyMarketData)
+struct WalletInformationWidgetProvider: TimelineProvider {
+  typealias Entry = WalletInformationWidgetEntry
+  func placeholder(in context: Context) -> WalletInformationWidgetEntry {
+    return WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
   }
   
-  func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry: SimpleEntry
+  func getSnapshot(in context: Context, completion: @escaping (WalletInformationWidgetEntry) -> ()) {
+    let entry: WalletInformationWidgetEntry
     if (context.isPreview) {
-      entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: 1568804029000))
+      entry = WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
     } else {
-      entry = SimpleEntry(date: Date(), marketData: emptyMarketData)
+      entry = WalletInformationWidgetEntry(date: Date(), marketData: emptyMarketData)
     }
     completion(entry)
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    var entries: [SimpleEntry] = []
+    var entries: [WalletInformationWidgetEntry] = []
     let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
     
     let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
     let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
     WidgetAPI.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
-      let entry: SimpleEntry
+      let entry: WalletInformationWidgetEntry
       if let result = result {
-        entry = SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "", sats: "", price: result.formattedRate ?? "!", rate: result.rateDouble), allWalletsBalance: allwalletsBalance)
+        entry = WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "", sats: "", price: result.formattedRate ?? "!", rate: result.rateDouble), allWalletsBalance: allwalletsBalance)
         
       } else {
-        entry = SimpleEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
+        entry = WalletInformationWidgetEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
       }
       entries.append(entry)
       let timeline = Timeline(entries: entries, policy: .atEnd)
@@ -45,40 +46,49 @@ struct Provider: TimelineProvider {
   }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct WalletInformationWidgetEntry: TimelineEntry {
   let date: Date
   let marketData: MarketData
   var allWalletsBalance: WalletData = WalletData(balance: 0)
 }
 
 struct WalletInformationWidgetEntryView : View {
-  var entry: Provider.Entry
+  let entry: WalletInformationWidgetEntry
   
   var WalletBalance: some View {
     WalletInformationView(allWalletsBalance: entry.allWalletsBalance, marketData: entry.marketData)
   }
   
   var body: some View {
-    WalletBalance.padding().background(Color.widgetBackground)
+    VStack(content: {
+      WalletBalance
+    }).padding().background(Color.widgetBackground)
   }
 }
 
-@main
 struct WalletInformationWidget: Widget {
   let kind: String = "WalletInformationWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: Provider()) { entry in
-      WalletInformationWidgetEntryView(entry: entry)
+    if #available(iOSApplicationExtension 16.0, *) {
+      return StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
+        WalletInformationWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Balance")
+      .description("View your accumulated balance.").supportedFamilies([.systemSmall, .accessoryRectangular])
+    } else {
+      return StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
+        WalletInformationWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Balance")
+      .description("View your accumulated balance.").supportedFamilies([.systemSmall])
     }
-    .configurationDisplayName("Wallets")
-    .description("View your total wallet balance.").supportedFamilies([.systemSmall])
   }
 }
 
 struct WalletInformationWidget_Previews: PreviewProvider {
   static var previews: some View {
-    WalletInformationWidgetEntryView(entry: SimpleEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(13000)), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: 1568804029000)))
+    WalletInformationWidgetEntryView(entry: WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: Double(0)), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
       .previewContext(WidgetPreviewContext(family: .systemSmall))
   }
 }

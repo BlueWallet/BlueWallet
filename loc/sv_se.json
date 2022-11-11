@@ -1,28 +1,29 @@
 {
   "_": {
-    "allow": "Tillåt",
     "bad_password": "Felaktigt lösenord, försök igen.",
     "cancel": "Avbryt",
     "continue": "Fortsätt",
-    "dont_allow": "Tillåt inte",
     "enter_password": "Ange lösenord",
     "never": "aldrig",
-    "no": "Nej",
     "of": "{number} av {total}",
     "ok": "OK",
-    "save": "Spara",
     "storage_is_encrypted": "Lagringen är krypterad. Lösenords krävs för att dekryptera",
+    "yes": "Ja",
+    "no": "Nej",
+    "save": "Spara",
+    "seed": "Frö",
+    "success": "Framgång",
     "wallet_key": "Nyckel till plånbok",
-    "yes": "Ja"
+    "invalid_animated_qr_code_fragment": "Felaktig animerad QR-kod. Vänligen försök igen."
   },
   "azteco": {
     "codeIs": "Din kupong är",
+    "errorBeforeRefeem": "Innan inlösen måste du först skapa en Bitcoin plånbok.",
     "errorSomething": "Något gick fel. Är din kupong fortfarande giltig?",
+    "redeem": "Lös in till en plånbok",
     "redeemButton": "Lös in",
+    "success": "Framgång",
     "title": "Lös in Azte.co kupong"
-  },
-  "cc": {
-    "change": "ändra"
   },
   "entropy": {
     "save": "Spara",
@@ -34,52 +35,13 @@
     "error": "Fel",
     "network": "Nätverks fel"
   },
-  "hodl": {
-    "are_you_sure_you_want_to_logout": "Är du säker på att du vill logga ut från HodlHodl?",
-    "cont_address_escrow": "Säkerhet",
-    "cont_address_to": "Till",
-    "cont_buying": "Köp",
-    "cont_cancel": "Avbryt kontrakt",
-    "cont_cancel_q": "Är du säker på att du vill avbryta detta kontraktet?",
-    "cont_cancel_y": "Ja, avbryt kontrakt",
-    "cont_chat": "Öppna chatt med motpart",
-    "cont_paid": "Markera kontrakt som betalad",
-    "cont_paid_q": "Är du säker att du vill markera detta kontrakt som betalt?",
-    "cont_selling": "Säljer",
-    "cont_st_completed": "Klart!",
-    "cont_st_paid_enought": "Bitcoin hålls som säkerhet! Betala säljaren\nvia överenskommen betalmetod.",
-    "cont_title": "Mina kontrakt",
-    "filter_country_near": "Nära mig",
-    "filter_currency": "Valuta",
-    "filter_detail": "Detaljer",
-    "filter_filters": "Filtrera",
-    "filter_iambuying": "Jag köper bitcoin",
-    "filter_iamselling": "Jag säljer bitcoin",
-    "filter_method": "Betalnings metod",
-    "filter_search": "Sök",
-    "item_minmax": "Min/Max",
-    "mycont": "Mina kontrakt",
-    "offer_accept": "Acceptera bud",
-    "offer_account_finish": "Det verkar som om du inte är klar med att skapa ett HodlHodl konto. Vill du fortsätta med att skapa ditt konto nu?",
-    "offer_choosemethod": "Välj betalnings metod",
-    "offer_confirmations": "Bekräftelser",
-    "offer_minmax": "min / max",
-    "offer_minutes": "minimum",
-    "offer_promt_fiat": "Hur mycket {valuta} vill du köpa?",
-    "offer_promt_fiat_e": "till exempel 100",
-    "offer_window": "Fönster",
-    "p2p": "En p2p börs"
-  },
   "lnd": {
     "errorInvoiceExpired": "Fakturan har förfallit",
     "expired": "Förfallen",
-    "expiredLow": "förfallen",
-    "expiresIn": "Förfaller om: {tid}",
     "payButton": "Betala",
     "placeholder": "Faktura",
     "potentialFee": "Potentiell avgift: {avgift}",
     "refill": "Sätt in",
-    "refill_card": "sätt in med Bankkort",
     "refill_create": "För att fortsätta, vänligen skapa en Bitcoin plånbok att fylla på med",
     "refill_external": "Fyll på från extern plånbok",
     "refill_lnd_balance": "Fyll på Lightning-plånbok",
@@ -89,17 +51,10 @@
   "lndViewInvoice": {
     "additional_info": "Ytterligare information",
     "for": "För:",
-    "has_been_paid": "Denna faktura är betald",
+    "lightning_invoice": "Lightning faktura",
     "open_direct_channel": "Öppna en direkt kanal med denna nod:",
     "please_pay": "Var god betala",
     "sats": "sats"
-  },
-  "multisig": {
-    "create": "Skapa"
-  },
-  "notifications": {
-    "ask_me_later": "Fråga mig senare",
-    "no_and_dont_ask": "Nej och fråga mig inte igen"
   },
   "plausibledeniability": {
     "create_fake_storage": "Skapa fejkad lagringsyta",
@@ -116,11 +71,7 @@
   "pleasebackup": {
     "ask": "Har du skrivit ner din plånboks uppbacknings fras? Denna frasen är nödvändig för att komma åt dina pengar ifall du förlorar denna enheten. Utan denna uppbacknings frasen är dina pengar borta för alltid",
     "ask_no": "Nej",
-    "ask_yes": "Ja",
-    "ok": "OK, jag har skrivit ned orden!",
-    "ok_lnd": "Ok, jag har sparat det",
-    "text": "Innan du går vidare, var snäll och skriv ned dessa ord på ett papper och förvara på ett säkert ställe. De är din backup och säkerställer att du kan återställa din plånbok igen om något händer.",
-    "title": "Din plånbok har skapats..."
+    "ask_yes": "Ja"
   },
   "receive": {
     "details_create": "Skapa",
@@ -142,7 +93,6 @@
     "create_details": "Detaljer",
     "create_fee": "Avgift",
     "create_memo": "Memo",
-    "create_satoshi_per_byte": "Satoshis per byte",
     "create_this_is_hex": "Detta är transaktionens hex, signerad och redo att skickas ut på nätverket.",
     "create_to": "Till",
     "create_tx_size": "Transaktionsstorlek",
@@ -151,8 +101,10 @@
     "details_add_rec_rem": "Ta bort mottagare",
     "details_address": "adress",
     "details_address_field_is_not_valid": "Angiven adress är inte giltig",
+    "details_adv_full": "Andvänd hela beloppet",
     "details_adv_import": "Importera Transaction",
     "details_amount_field_is_not_valid": "Angivet belopp är inte giltigt",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Det angivna beloppet är för litet. Vänligen ange ett belopp som är större än 500 sats.",
     "details_create": "Skapa",
     "details_fee_field_is_not_valid": "Angiven avgift är inte giltig",
     "details_next": "Nästa",
@@ -163,19 +115,17 @@
     "dynamic_prev": "Föregående",
     "dynamic_start": "Starta",
     "dynamic_stop": "Stoppa",
-    "fee_satbyte": "i sat/byte",
     "fee_slow": "Långsamt",
     "header": "Skicka",
     "input_clear": "Töm",
     "input_done": "Klart",
     "input_paste": "Klistra in",
     "input_total": "Totalt:",
-    "open_settings": "Öppna inställningar",
     "permission_camera_message": "Vi behöver ditt godkännande för att använda kameran",
     "permission_camera_title": "Tillåtelse för att använda kameran",
+    "open_settings": "Öppna inställningar",
     "permission_storage_later": "Fråga mig senare",
     "psbt_tx_export": "Exportera till fil",
-    "qr_error_no_qrcode": "Bilden innehåller inte en QR kod",
     "success_done": "Klart!"
   },
   "settings": {
@@ -185,14 +135,15 @@
     "about_sm_telegram": "Telegram chatt",
     "about_sm_twitter": "Följ oss på Twitter",
     "currency": "Valuta",
-    "currency_source": "Priser hämtas från",
     "default_title": "Vid uppstart",
+    "electrum_settings_server": "Electrum server",
+    "electrum_clear_alert_cancel": "Avbryt",
+    "electrum_clear": "Töm",
     "encrypt_use": "Använd {type}",
     "general_adv_mode": "Enable advanced mode",
     "header": "inställningar",
     "language": "Språk",
     "lightning_settings": "Lightning Network",
-    "lightning_settings_explain": "För att ansluta till din egen LND-nod, installera LndHub och mata in dess URL nedan. Lämna blankt för att använda BlueWallet's LNDHub (lndhub.io). Plånböcker skapade efter att inställningarna sparats kommer att använda den angivna LNDHub:en",
     "network": "Nätverk",
     "network_electrum": "Electrum server",
     "notifications": "Notifikationer",
@@ -204,6 +155,10 @@
     "retype_password": "Ange lösenord igen",
     "save": "Spara"
   },
+  "notifications": {
+    "no_and_dont_ask": "Nej och fråga mig inte igen",
+    "ask_me_later": "Fråga mig senare"
+  },
   "transactions": {
     "cpfp_create": "Skapa",
     "details_balance_hide": "Göm saldo",
@@ -211,14 +166,13 @@
     "details_copy": "Kopiera",
     "details_show_in_block_explorer": "Visa i block explorer",
     "details_title": "Transaktion",
-    "details_transaction_details": "Transaktionsdetaljer",
+    "pending": "Pågående",
     "list_title": "transaktioner",
     "status_cancel": "Avbryt transaction"
   },
   "wallets": {
     "add_create": "Skapa",
     "add_import_wallet": "Importera plånbok",
-    "add_or": "eller",
     "add_title": "ny plånbok",
     "add_wallet_name": "namn",
     "add_wallet_type": "typ",
@@ -238,24 +192,41 @@
     "export_title": "exportera plånbok",
     "import_do_import": "Importera",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
-    "import_explanation": "Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken",
     "import_file": "Importera fil",
     "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",
+    "import_title": "Importera",
     "list_create_a_button": "Ny plånbok",
     "list_create_a_wallet": "Ny plånbok",
     "list_empty_txs1": "Dina transaktioner kommer att visas här",
     "list_empty_txs1_lightning": "Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.",
-    "list_empty_txs2": "men än så länge finns inga!",
     "list_empty_txs2_lightning": "\nFör att komma igång klicka på \"sätt in / ta ut\" ovan och sätt in dina första bitcoin.",
     "list_latest_transaction": "senaste transaktion",
-    "list_tap_here_to_buy": "Tryck här för att köpa bitcoin",
     "list_title": "plånböcker",
     "list_tryagain": "Försök igen",
     "reorder_title": "Sortera plånböcker",
     "select_wallet": "Välj plånbok",
     "xpub_copiedToClipboard": "Kopierad till urklipp",
     "xpub_title": "plånbokens XPUB"
+  },
+  "multisig": {
+    "confirm": "Bekräfta",
+    "header": "Skicka",
+    "share": "dela",
+    "create": "Skapa",
+    "ms_help_title5": "Enable advanced mode"
+  },
+  "cc": {
+    "change": "ändra"
+  },
+  "units": {
+    "sats": "sats"
+  },
+  "addresses": {
+    "sign_placeholder_address": "adress",
+    "type_change": "ändra",
+    "type_receive": "Ta emot",
+    "transactions": "transaktioner"
   }
 }
