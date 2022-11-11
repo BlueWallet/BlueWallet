@@ -20,7 +20,7 @@ where `76ed479` is a latest commit in this version. replace the version as well.
 ## Android
 
 * do android after ios usually
-* test the build on a real device. We hace accounts with browserstack where you can do so.
+* test the build on a real device. We have accounts with browserstack where you can do so.
 * its imperative that you run selftest and it gives you OK. note which build you are testing
 * go to appcenter.ms, find this exact build under `master` builds, and press `Distribute` -> `Store` -> `Production`. 
 in `Release notes` write the release, this field is to smaller than iOS, so you need to keep it bellow 500 characters.

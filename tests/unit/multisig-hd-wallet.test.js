@@ -1977,7 +1977,8 @@ describe('multisig-cosigner', () => {
   });
 
   it('can parse cobo json, if xpub is plain xpub (not Zpub or Ypub)', () => {
-    let xpub = MultisigCosigner._zpubToXpub(Zpub1);
+    const tempWallet = new MultisigHDWallet();
+    let xpub = tempWallet._zpubToXpub(Zpub1);
     assert.ok(xpub.startsWith('xpub'));
     let cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_NATIVE_SEGWIT}"}`);
     assert.ok(cosigner.isValid());
@@ -1992,7 +1993,7 @@ describe('multisig-cosigner', () => {
     //
 
     const Ypub1 = 'Ypub6jtUX12KGcqFosZWP4YcHc9qbKRTvgBpb8aE58hsYqby3SQVTr5KGfMmdMg38ekmQ9iLhCdgbAbjih7AWSkA7pgRhiLfah3zT6u1PFvVEbc';
-    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    xpub = tempWallet._zpubToXpub(Ypub1);
     assert.ok(xpub.startsWith('xpub'));
     cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_WRAPPED_SEGWIT}"}`);
     assert.ok(cosigner.isValid());
@@ -2006,7 +2007,7 @@ describe('multisig-cosigner', () => {
 
     //
 
-    xpub = MultisigCosigner._zpubToXpub(Ypub1);
+    xpub = tempWallet._zpubToXpub(Ypub1);
     assert.ok(xpub.startsWith('xpub'));
     cosigner = new MultisigCosigner(`{"xfp":"${fp1cobo}","xpub":"${xpub}","path":"${MultisigHDWallet.PATH_LEGACY}"}`);
     assert.ok(cosigner.isValid());
@@ -2124,15 +2125,23 @@ describe('multisig-cosigner', () => {
 
   it('can parse files from sparrow wallet', () => {
     const secrets = [
-      JSON.stringify(require('./fixtures/fromsparrow-electrum.json')),
-      require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'),
-      JSON.stringify(require('./fixtures/fromsparrow-specter.json')),
+      [JSON.stringify(require('./fixtures/fromsparrow-electrum.json')), false],
+      [require('fs').readFileSync('./tests/unit/fixtures/fromsparrow-coldcard.txt', 'ascii'), true],
+      [JSON.stringify(require('./fixtures/fromsparrow-specter.json')), true],
+      [JSON.stringify(require('./fixtures/caravan-multisig.json')), true],
     ];
 
-    for (const s of secrets) {
+    for (const [s, verifyFingerprints] of secrets) {
       const w = new MultisigHDWallet();
       w.setSecret(s);
 
+      if (verifyFingerprints) {
+        assert.strictEqual(w.getFingerprint(1), 'A3909080');
+        assert.strictEqual(w.getFingerprint(2), '7AB71DF0');
+        assert.strictEqual(w.getFingerprint(3), 'F11B9FF2');
+      }
+
+      assert.ok(w.isNativeSegwit());
       assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qtysquqsjqjfqvhd6l2h470hdgwhcahs4nq2ca49cyxftwjnjt9ssh8emel');
     }
   });

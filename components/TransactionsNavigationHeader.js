@@ -24,9 +24,7 @@ export default class TransactionsNavigationHeader extends Component {
     CopyToClipboard: 'copyToClipboard',
     WalletBalanceVisibility: 'walletBalanceVisibility',
     Refill: 'refill',
-    RefillWithBank: 'refillwithbank',
     RefillWithExternalWallet: 'qrcode',
-    Exchange: 'exchange',
   };
 
   static actionIcons = {
@@ -46,17 +44,9 @@ export default class TransactionsNavigationHeader extends Component {
       iconType: 'SYSTEM',
       iconValue: 'goforward.plus',
     },
-    RefillWithBank: {
-      iconType: 'SYSTEM',
-      iconValue: 'creditcard',
-    },
     RefillWithExternalWallet: {
       iconType: 'SYSTEM',
       iconValue: 'qrcode',
-    },
-    Exchange: {
-      iconType: 'SYSTEM',
-      iconValue: 'link',
     },
   };
 
@@ -166,18 +156,6 @@ export default class TransactionsNavigationHeader extends Component {
       text: loc.lnd.refill_external,
       icon: TransactionsNavigationHeader.actionIcons.RefillWithExternalWallet,
     },
-    {
-      id: TransactionsNavigationHeader.actionKeys.RefillWithBank,
-      text: loc.lnd.refill_card,
-      icon: TransactionsNavigationHeader.actionIcons.RefillWithBank,
-    },
-    [
-      {
-        id: TransactionsNavigationHeader.actionKeys.Exchange,
-        text: loc.lnd.exchange,
-        icon: TransactionsNavigationHeader.actionIcons.Exchange,
-      },
-    ],
   ];
 
   render() {

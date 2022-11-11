@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useContext, useMemo, useLayoutEffect } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -42,7 +42,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
 const currency = require('../../blue_modules/currency');
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
 const scanqr = require('../../helpers/scan-qr');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
@@ -99,7 +99,7 @@ const SendDetails = () => {
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (wallet) {
       setHeaderRightOptions();
     }
@@ -947,7 +947,7 @@ const SendDetails = () => {
             onPressMenuItem={headerRightOnPress}
             actions={headerRightActions()}
           >
-            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} style={styles.advancedOptions} />
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
           </ToolTipMenu>
         ),
         default: () => (
@@ -961,7 +961,7 @@ const SendDetails = () => {
             }}
             testID="advancedOptionsMenuButton"
           >
-            <Icon size={22} name="kebab-horizontal" type="octicon" color={colors.foregroundColor} />
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       }),

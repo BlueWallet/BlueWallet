@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
@@ -1030,6 +1030,9 @@ function txhexToElectrumTransaction(txhex) {
     } else if (LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'))) {
       address = LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'));
       type = '???'; // TODO
+    } else {
+      address = TaprootWallet.scriptPubKeyToAddress(out.script.toString('hex'));
+      type = 'witness_v1_taproot';
     }
 
     ret.vout.push({
@@ -1047,3 +1050,6 @@ function txhexToElectrumTransaction(txhex) {
   }
   return ret;
 }
+
+// exported only to be used in unit tests
+module.exports.txhexToElectrumTransaction = txhexToElectrumTransaction;

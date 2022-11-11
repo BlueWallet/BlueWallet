@@ -73,11 +73,19 @@ struct MarketWidget: Widget {
   let kind: String = "MarketWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
-      MarketWidgetEntryView(entry: entry)
+    if #available(iOSApplicationExtension 16.0, *) {
+      return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
+        MarketWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Market")
+      .description("View the current market information.").supportedFamilies([.systemSmall, .accessoryRectangular])
+    } else {
+      return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
+        MarketWidgetEntryView(entry: entry)
+      }
+      .configurationDisplayName("Market")
+      .description("View the current market information.").supportedFamilies([.systemSmall])
     }
-    .configurationDisplayName("Market")
-    .description("View the current market information.").supportedFamilies([.systemSmall])
   }
 }
 

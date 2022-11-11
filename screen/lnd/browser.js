@@ -299,11 +299,11 @@ export default class Browser extends Component {
     if (props.route.params.url) url = props.route.params.url;
 
     this.state = {
-      url: url || 'https://bluewallet.io/marketplace/',
+      url: url || 'https://www.duckduckgo.com/',
       fromWallet: context.wallets.find(w => w.getID() === props.route.params.walletID),
       canGoBack: false,
       pageIsLoading: false,
-      stateURL: url || 'https://bluewallet.io/marketplace/',
+      stateURL: url || 'https://wwww.duckduckgo.com/',
     };
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
@@ -484,7 +484,7 @@ export default class Browser extends Component {
                 accessibilityRole="button"
                 onPress={() => {
                   processedInvoices = {};
-                  this.setState({ url: 'https://bluewallet.io/marketplace/' });
+                  this.setState({ url: 'https://www.duckduckgo.com/' });
                 }}
               >
                 <Ionicons

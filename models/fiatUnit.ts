@@ -3,7 +3,7 @@ import untypedFiatUnit from './fiatUnits.json';
 export const FiatUnitSource = {
   CoinDesk: 'CoinDesk',
   Yadio: 'Yadio',
-  BitcoinduLiban: 'BitcoinduLiban',
+  YadioConvert: 'YadioConvert',
   Exir: 'Exir',
   wazirx: 'wazirx',
 } as const;
@@ -41,15 +41,15 @@ const RateExtractors = {
     return rate;
   },
 
-  BitcoinduLiban: async (ticker: string): Promise<number> => {
+  YadioConvert: async (ticker: string): Promise<number> => {
     let json;
     try {
-      const res = await fetch('https://bitcoinduliban.org/api.php?key=lbpusd');
+      const res = await fetch(`https://api.yadio.io/convert/1/BTC/${ticker}`);
       json = await res.json();
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.[`BTC/${ticker}`];
+    let rate = json?.rate;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);
@@ -95,7 +95,7 @@ type FiatUnit = {
     endPointKey: string;
     symbol: string;
     locale: string;
-    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'BitcoinduLiban' | 'wazirx';
+    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx';
   };
 };
 export const FiatUnit = untypedFiatUnit as FiatUnit;
