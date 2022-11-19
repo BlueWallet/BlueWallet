@@ -101,7 +101,7 @@ const WalletsImport = () => {
         screen: 'ScanQRCode',
         params: {
           launchedBy: route.name,
-          onBarScanned: onBarScanned,
+          onBarScanned,
           showFileImportButton: true,
         },
       });

@@ -125,19 +125,12 @@ export class MultisigCosigner {
     }
   }
 
-  static _zpubToXpub(zpub) {
-    let data = b58.decode(zpub);
-    data = data.slice(4);
-    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-
-    return b58.encode(data);
-  }
-
   static isXpubValid(key) {
     let xpub;
 
     try {
-      xpub = MultisigCosigner._zpubToXpub(key);
+      const tempWallet = new MultisigHDWallet();
+      xpub = tempWallet._zpubToXpub(key);
       bip32.fromBase58(xpub);
       return true;
     } catch (_) {}
@@ -147,9 +140,9 @@ export class MultisigCosigner {
 
   static exportToJson(xfp, xpub, path) {
     return JSON.stringify({
-      xfp: xfp,
-      xpub: xpub,
-      path: path,
+      xfp,
+      xpub,
+      path,
     });
   }
 

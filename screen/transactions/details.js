@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -55,7 +55,7 @@ const TransactionsDetails = () => {
     },
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setOptions({
       headerRight: () => (
         <TouchableOpacity

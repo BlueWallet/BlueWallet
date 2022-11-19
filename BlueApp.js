@@ -2,7 +2,7 @@ import { AppStorage } from './class';
 import Biometric from './class/biometrics';
 import { Platform } from 'react-native';
 import loc from './loc';
-const prompt = require('./blue_modules/prompt');
+const prompt = require('./helpers/prompt');
 const currency = require('./blue_modules/currency');
 const BlueElectrum = require('./blue_modules/BlueElectrum'); // eslint-disable-line @typescript-eslint/no-unused-vars
 BlueElectrum.connectMain();

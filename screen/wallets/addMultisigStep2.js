@@ -42,7 +42,7 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';

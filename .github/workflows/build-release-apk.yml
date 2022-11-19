@@ -30,7 +30,7 @@ jobs:
           cache: 'gradle'
 
       - name: Install node_modules
-        run: npm install
+        run: npm install --production
 
       - name: Build
         env:

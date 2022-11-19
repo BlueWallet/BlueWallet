@@ -5,18 +5,13 @@ import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import coinSelect from 'coinselect';
+import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget, CoinSelectUtxo } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { Signer, ECPairFactory, ECPairAPI } from 'ecpair';
+import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
+
 const ecc = require('tiny-secp256k1');
 const ECPair: ECPairAPI = ECPairFactory(ecc);
-
-type CoinselectUtxo = {
-  vout: number;
-  value: number;
-  txId: string;
-};
 
 /**
  *  Has private key and single address like "1ABCD....."
@@ -377,17 +372,14 @@ export class LegacyWallet extends AbstractWallet {
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
-  coinselect<U extends CoinselectUtxo>(
-    utxos: U[],
-    targets: { address: string; value?: number }[],
+  coinselect(
+    utxos: CoinSelectUtxo[],
+    targets: CoinSelectTarget[],
     feeRate: number,
     changeAddress: string,
   ): {
-    inputs: U[];
-    outputs: {
-      address?: string;
-      value: number;
-    }[];
+    inputs: CoinSelectReturnInput[];
+    outputs: CoinSelectOutput[];
     fee: number;
   } {
     if (!changeAddress) throw new Error('No change address provided');
@@ -419,18 +411,15 @@ export class LegacyWallet extends AbstractWallet {
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction<U extends CreateTransactionUtxo>(
-    utxos: U[],
-    targets: {
-      address: string;
-      value?: number;
-    }[],
+  createTransaction(
+    utxos: CreateTransactionUtxo[],
+    targets: CoinSelectTarget[],
     feeRate: number,
     changeAddress: string,
     sequence: number,
     skipSigning = false,
     masterFingerprint: number,
-  ): CreateTransactionResult<U> {
+  ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
     sequence = sequence || 0xffffffff; // disable RBF by default
@@ -584,10 +573,10 @@ export class LegacyWallet extends AbstractWallet {
    * Finds WIF corresponding to address and returns it
    *
    * @param address {string} Address that belongs to this wallet
-   * @returns {string|null} WIF or null
+   * @returns {string|false} WIF or false
    */
-  _getWIFbyAddress(address: string): string | null {
-    return this.getAddress() === address ? this.secret : null;
+  _getWIFbyAddress(address: string): string | false {
+    return this.getAddress() === address ? this.secret : false;
   }
 
   /**
@@ -599,7 +588,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   signMessage(message: string, address: string, useSegwit = true): string {
     const wif = this._getWIFbyAddress(address);
-    if (wif === null) throw new Error('Invalid address');
+    if (!wif) throw new Error('Invalid address');
     const keyPair = ECPair.fromWIF(wif);
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');

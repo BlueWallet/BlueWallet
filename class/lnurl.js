@@ -282,11 +282,23 @@ export default class Lnurl {
     return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed) : false;
   }
 
+  getMin() {
+    return this?._lnurlPayServicePayload?.min ? parseInt(this._lnurlPayServicePayload.min) : false;
+  }
+
+  getMax() {
+    return this?._lnurlPayServicePayload?.max ? parseInt(this._lnurlPayServicePayload.max) : false;
+  }
+
+  getAmount() {
+    return this.getMin();
+  }
+
   authenticate(secret) {
     return new Promise((resolve, reject) => {
       if (!this._lnurl) throw new Error('this._lnurl is not set');
 
-      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl), true); // eslint-disable-line node/no-deprecated-api
+      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl), true);
 
       const hmac = createHmac('sha256', secret);
       hmac.on('readable', async () => {

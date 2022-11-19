@@ -3,13 +3,13 @@
     "bad_password": "Hatalı şifre, lütfen tekrar deneyiniz.",
     "cancel": "Vazgeç",
     "continue": "Devam et",
+    "clipboard": "Pano",
     "enter_password": "Şifre gir",
     "never": "Asla",
+    "disabled": "Devre dışı",
     "of": "{number} / {total}",
     "ok": "Tamam",
     "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",
-    "allow": "İzin ver",
-    "dont_allow": "İzin verme",
     "yes": "Evet",
     "no": "Hayır",
     "save": "Kaydet",
@@ -18,12 +18,10 @@
     "wallet_key": "Cüzdan anahtarı",
     "invalid_animated_qr_code_fragment": "Geçersiz QRCode fragmanı. Lütfen tekrar deneyiniz.",
     "file_saved": "Dosya {filepath} kaydedildi {destination}",
-    "file_save_title": "Dosyayı kaydet",
-    "file_save_location": "Nereye kaydedileceğini seç {filePath}",
-    "downloads_folder": "İndirilenler Dosyası",
-    "external_storage": "Dış depolama ünitesi",
-    "discard_changes": "Değişiklikleri iptal et?",
-    "discard_changes_detail": "Değişiklikler kaydedilmedi. Kaydetmeden ekrandan çıkmak istediğinize emin misiniz?"
+    "downloads_folder": "İndirilenler Dosyası"
+  },
+  "alert": {
+    "default": "Uyarı"
   },
   "azteco": {
     "codeIs": "Bilet kodunuz ",
@@ -44,33 +42,44 @@
     "error": "Hata",
     "network": "Ağ Hatası"
   },
-  "hodl": {
-    "are_you_sure_you_want_to_logout": "Hodl Hodl'dan çıkış yapmak istediğinize emin misiniz?",
-    "cont_address_escrow": "Escrow",
-    "cont_address_to": "Kime",
-    "cont_buying": "Satın al",
-    "cont_cancel": "Anlaşmayı iptal et",
-    "cont_cancel_q": "Anlaşmadan vazgeçmek istediğinize emin misiniz ?",
-    "cont_cancel_y": "Evet, anlaşmayı boz.",
-    "cont_chat": "Karşı taraf ile chat ekranı aç",
-    "cont_how": "Nasıl ödenir?",
-    "cont_paid": "Kontratı ödenmiş olarak işaretle",
-    "filter_buying": "Satın al",
-    "filter_currency": "Para birimi",
-    "filter_detail": "Ayrıntılar",
-    "filter_filters": "Filtreler"
-  },
   "lnd": {
+    "active": "Aktif",
+    "inactive": "Inaktif",
+    "channels": "Kanallar",
+    "no_channels": "Kanal yok",
+    "claim_balance": "Talep balansı (balans)",
+    "close_channel": "Kanalı kapa",
+    "new_channel": "Yeni kanal",
+    "errorInvoiceExpired": "Fatura zaman aşımına uğradı",
+    "force_close_channel": "Kanalı kapamaya zorla",
     "expired": "Süresi doldu",
-    "expiredLow": "Süresi doldu",
+    "node_alias": "Node mahlası",
+    "expiresIn": "{time} dakika içerisinde sona erer",
+    "payButton": "Öde",
     "placeholder": "Fatura",
+    "open_channel": "Kanal aç",
+    "funding_amount_placeholder": "Fonlama miktarı, örnek 0.001",
+    "opening_channnel_for_from": "{fromWalletLabel} tarafından fonlanan kanal {forWalletLabel} için aılıyor",
+    "are_you_sure_open_channel": "Bu kanalı açmak istediğinizden emin misiniz?",
     "refill": "Yükle",
+    "reconnect_peer": "Eş'e tekrar bağlan",
     "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
     "sameWalletAsInvoiceError": "Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.",
-    "title": "Bakiyeleri Yönet"
+    "title": "Bakiyeleri Yönet",
+    "can_send": "Gönderebilir",
+    "can_receive": "Alabilir",
+    "view_logs": "Logları gör"
   },
   "lndViewInvoice": {
-    "additional_info": "Ek Bilgi"
+    "additional_info": "Ek Bilgi",
+    "for": "İçin: ",
+    "lightning_invoice": "Lightning faturası",
+    "open_direct_channel": "Bu noda direkt kanal aç: ",
+    "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
+    "please_pay": "Lütfen ödeyin",
+    "preimage": "Preimage",
+    "sats": "sats.",
+    "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı."
   },
   "plausibledeniability": {
     "create_fake_storage": "Sahte şifreli depolama oluşturun",
@@ -86,8 +95,10 @@
   "pleasebackup": {
     "ask_no": "Hayır, kaydetmedim.",
     "ask_yes": "Evet, kaydettim.",
+    "ok": "Evet, deftere yazdım.",
+    "ok_lnd": "Evet, kaydettim.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
-    "text_lnd2": "Bu cüzdan BlueWallet tarafından sağlanmaktadır."
+    "title": "Cüzdanınız oluşturuldu."
   },
   "receive": {
     "details_create": "Oluştur",
@@ -195,14 +206,12 @@
     "details_show_in_block_explorer": "Blok gezgininde göster",
     "details_title": "İşlem",
     "details_to": "Çıktı",
-    "details_transaction_details": "İşlem detayları",
     "pending": "Beklemede",
     "list_title": "işlemler"
   },
   "wallets": {
     "add_create": "Oluştur",
     "add_import_wallet": "Cüzdan İçeri Yükle",
-    "add_or": "veya",
     "add_title": "Cüzdan ekle",
     "add_wallet_name": "İsim",
     "add_wallet_type": "Tip",
@@ -227,7 +236,6 @@
     "list_create_a_wallet": "Cüzdan oluştur",
     "list_empty_txs1": "İşlemleriniz burada görünür,",
     "list_latest_transaction": "en son işlem",
-    "list_tap_here_to_buy": "Bitcoin almak için buraya dokunun",
     "list_title": "cüzdanlar",
     "reorder_title": "Cüzdanları Sırala",
     "select_wallet": "Cüzdan Seç",

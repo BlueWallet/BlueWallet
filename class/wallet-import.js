@@ -217,7 +217,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
           wallet.setDerivationPath(path);
           yield { progress: `bip39 ${i.script_type} ${path}` };
           if (await wallet.wasEverUsed()) {
-            yield { wallet: wallet };
+            yield { wallet };
             walletFound = true;
           } else {
             break; // don't check second account if first one is empty

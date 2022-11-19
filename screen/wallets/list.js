@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   StatusBar,
   View,
@@ -91,7 +91,7 @@ const WalletsList = () => {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setOptions({
       headerShown: !isDesktop,
       headerStyle: {
@@ -369,7 +369,7 @@ const WalletsList = () => {
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
           refreshing={isLoading}
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: onRefresh })}
+          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh })}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}

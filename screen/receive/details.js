@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
-
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
@@ -462,11 +461,7 @@ const ReceiveDetails = () => {
     <View style={[styles.root, stylesHook.root]}>
       <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
-        <HandoffComponent
-          title={loc.send.details_address}
-          type={HandoffComponent.activityTypes.ReceiveOnchain}
-          userInfo={{ address: address }}
-        />
+        <HandoffComponent title={loc.send.details_address} type={HandoffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}

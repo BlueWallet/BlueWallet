@@ -67,7 +67,7 @@ const PsbtMultisigQRCode = () => {
       navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
-          onBarScanned: onBarScanned,
+          onBarScanned,
           showFileImportButton: true,
         },
       });

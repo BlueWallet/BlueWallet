@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useContext, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useContext, useRef, useMemo, useLayoutEffect } from 'react';
 import {
   View,
   Text,
@@ -34,7 +34,7 @@ import {
   HDAezeedWallet,
   LightningLdkWallet,
 } from '../../class';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -42,10 +42,11 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import { Chain } from '../../models/bitcoinUnits';
 import alert from '../../components/Alert';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { writeFileAndExport } from '../../blue_modules/fs';
 
-const prompt = require('../../blue_modules/prompt');
+const prompt = require('../../helpers/prompt');
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -131,6 +132,7 @@ const WalletDetails = () => {
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo(() => {
     try {
       const path = wallet.getDerivationPath();
@@ -197,7 +199,7 @@ const WalletDetails = () => {
       });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
@@ -304,40 +306,6 @@ const WalletDetails = () => {
       walletID: wallet.getID(),
     });
 
-  const renderMarketplaceButton = () => {
-    return (
-      wallet.chain === Chain.OFFCHAIN &&
-      Platform.select({
-        android: (
-          <>
-            <BlueSpacing20 />
-            <SecondButton
-              testID="Marketplace"
-              onPress={() =>
-                navigate('Marketplace', {
-                  walletID,
-                })
-              }
-              title={loc.wallets.details_marketplace}
-            />
-          </>
-        ),
-        ios: (
-          <>
-            <BlueSpacing20 />
-            <SecondButton
-              testID="Marketplace"
-              onPress={async () => {
-                Linking.openURL('https://bluewallet.io/marketplace-btc/');
-              }}
-              title={loc.wallets.details_marketplace}
-            />
-          </>
-        ),
-      })
-    );
-  };
-
   const exportInternals = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
@@ -435,6 +403,25 @@ const WalletDetails = () => {
       const walletLabel = wallet.getLabel();
       setWalletName(walletLabel);
     }
+  };
+
+  const onExportHistoryPressed = async () => {
+    let csvFile = [
+      loc.transactions.date,
+      loc.transactions.txid,
+      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
+      loc.send.create_memo,
+    ].join(','); // CSV header
+    const transactions = wallet.getTransactions();
+
+    for (const transaction of transactions) {
+      const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
+      csvFile +=
+        '\n' +
+        [new Date(transaction.received).toString(), transaction.hash, value, txMetadata[transaction.hash]?.memo?.trim() ?? ''].join(','); // CSV line
+    }
+
+    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
   };
 
   const handleDeleteButtonTapped = () => {
@@ -614,7 +601,12 @@ const WalletDetails = () => {
               <View>
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-
+                {wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                  </>
+                )}
                 {wallet.type === MultisigHDWallet.type && (
                   <>
                     <BlueSpacing20 />
@@ -641,7 +633,6 @@ const WalletDetails = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
-                    {renderMarketplaceButton()}
                   </>
                 )}
                 {wallet.allowSignVerifyMessage() && (

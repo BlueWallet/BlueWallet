@@ -5,7 +5,6 @@ import {
   Dimensions,
   FlatList,
   InteractionManager,
-  Linking,
   PixelRatio,
   Platform,
   ScrollView,
@@ -27,7 +26,6 @@ import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOn
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import BuyBitcoin from './buyBitcoin';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -64,16 +62,10 @@ const WalletTransactions = () => {
     listHeaderText: {
       color: colors.foregroundColor,
     },
-    marketplaceButton1: {
-      backgroundColor: colors.lightButton,
-    },
-    marketplaceButton2: {
+    browserButton2: {
       backgroundColor: colors.lightButton,
     },
     marketpalceText1: {
-      color: colors.cta2,
-    },
-    marketpalceText2: {
       color: colors.cta2,
     },
     list: {
@@ -241,28 +233,7 @@ const WalletTransactions = () => {
 
     return (
       <View style={styles.flex}>
-        <View style={styles.listHeader}>
-          {/*
-            Current logic - Onchain:
-            - Shows buy button on middle when empty
-            - Show buy button on top when not empty
-            - Shows Marketplace button on details screen, open in browser (iOS)
-            - Shows Marketplace button on details screen, open in in-app (android)
-            Current logic - Offchain:
-            - Shows Lapp Browser empty (iOS)
-            - Shows Lapp Browser with marketplace (android)
-            - Shows Marketplace button to open in browser (iOS)
-
-            The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
-
-           */}
-          {wallet.getTransactions().length > 0 &&
-            wallet.chain !== Chain.OFFCHAIN &&
-            wallet.type !== LightningLdkWallet.type &&
-            renderSellFiat()}
-          {wallet.chain === Chain.OFFCHAIN && renderMarketplaceButton()}
-          {wallet.chain === Chain.OFFCHAIN && Platform.OS === 'ios' && renderLappBrowserButton()}
-        </View>
+        <View style={styles.listHeader}>{wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}</View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
@@ -284,49 +255,6 @@ const WalletTransactions = () => {
     );
   };
 
-  const navigateToBuyBitcoin = () => {
-    BuyBitcoin.navigate(wallet);
-  };
-
-  const renderMarketplaceButton = () => {
-    return (
-      wallet.chain === Chain.OFFCHAIN &&
-      Platform.select({
-        android: (
-          <TouchableOpacity
-            accessibilityRole="button"
-            onPress={() => {
-              if (wallet.chain === Chain.OFFCHAIN) {
-                navigate('LappBrowserRoot', {
-                  screen: 'LappBrowser',
-                  params: { walletID },
-                });
-              } else {
-                navigate('Marketplace', { walletID });
-              }
-            }}
-            style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
-          >
-            <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_marketplace}</Text>
-          </TouchableOpacity>
-        ),
-        ios:
-          wallet.getBalance() > 0 ? (
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={async () => {
-                Linking.openURL('https://bluewallet.io/marketplace/');
-              }}
-              style={[styles.marketplaceButton1, stylesHook.marketplaceButton1]}
-            >
-              <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-              <Text style={[styles.marketpalceText2, stylesHook.marketpalceText2]}>{loc.wallets.list_marketplace}</Text>
-            </TouchableOpacity>
-          ) : null,
-      })
-    );
-  };
-
   const renderLappBrowserButton = () => {
     return (
       <TouchableOpacity
@@ -340,21 +268,9 @@ const WalletTransactions = () => {
             },
           });
         }}
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
+        style={[styles.browserButton2, stylesHook.browserButton2]}
       >
         <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_ln_browser}</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderSellFiat = () => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={navigateToBuyBitcoin}
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
-      >
-        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
@@ -532,9 +448,7 @@ const WalletTransactions = () => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === TransactionsNavigationHeader.actionKeys.Exchange) {
-      Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
-    } else if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         alert(loc.lnd.refill_create);
@@ -550,8 +464,6 @@ const WalletTransactions = () => {
           },
         });
       }
-    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithBank) {
-      navigateToBuyBitcoin();
     }
   };
 
@@ -617,14 +529,6 @@ const WalletTransactions = () => {
                 {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
               </Text>
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-
-              {!isLightning() && (
-                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin} accessibilityRole="button">
-                  <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
-                    {loc.wallets.list_tap_here_to_buy}
-                  </Text>
-                </TouchableOpacity>
-              )}
             </ScrollView>
           }
           {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
@@ -748,18 +652,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
   },
-  marketplaceButton1: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 4,
-  },
-  marketplaceButton2: {
+  browserButton2: {
     borderRadius: 9,
     minHeight: 49,
     paddingHorizontal: 8,
@@ -773,10 +666,6 @@ const styles = StyleSheet.create({
   marketpalceText1: {
     fontSize: 18,
   },
-  marketpalceText2: {
-    fontSize: 18,
-    marginHorizontal: 8,
-  },
   list: {
     flex: 1,
   },
@@ -789,20 +678,6 @@ const styles = StyleSheet.create({
   emptyTxsLightning: {
     fontSize: 18,
     color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  buyBitcoin: {
-    backgroundColor: '#007AFF',
-    minWidth: 260,
-    borderRadius: 8,
-    alignSelf: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-  },
-  buyBitcoinText: {
-    fontSize: 15,
-    color: '#fff',
     textAlign: 'center',
     fontWeight: '600',
   },

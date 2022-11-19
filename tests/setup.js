@@ -2,6 +2,13 @@
 
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
 
+const consoleWarnOrig = console.warn;
+console.warn = (...args) => {
+  if (!args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) {
+    consoleWarnOrig.apply(consoleWarnOrig, args);
+  }
+};
+
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 global.fetch = require('node-fetch');

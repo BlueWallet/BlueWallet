@@ -102,7 +102,6 @@
     "list_empty_txs1": "Dine transaktioner vil blive vist her,",
     "list_empty_txs2": "ingen endnu",
     "list_latest_transaction": "seneste transaktion",
-    "list_tap_here_to_buy": "Tryk her for at købe Bitcoin",
     "reorder_title": "Ændre rækkefølgen af wallets",
     "select_wallet": "Vælg wallet",
     "xpub_copiedToClipboard": "Kopieret til udklipsholder."
