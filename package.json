@@ -167,7 +167,7 @@
     "react-native-passcode-auth": "https://github.com/BlueWallet/react-native-passcode-auth#a2ff977ba92b36f8d0a5567f59c05cc608e8bd12",
     "react-native-privacy-snapshot": "https://github.com/BlueWallet/react-native-privacy-snapshot#529e4627d93f67752a27e82a040ff7b64dca0783",
     "react-native-prompt-android": "https://github.com/BlueWallet/react-native-prompt-android#ed168d66fed556bc2ed07cf498770f058b78a376",
-    "react-native-push-notification": "5.1.1",
+    "react-native-push-notification": "8.1.1",
     "react-native-qrcode-svg": "6.1.2",
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.6.1",

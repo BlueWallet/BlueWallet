@@ -10,7 +10,7 @@ buildscript {
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
-        firebaseMessagingVersion = "20.2.1"
+        firebaseMessagingVersion = "21.1.0"
         ndkVersion = "23.0.7599858"
         kotlin_version = '1.7.20'
     }
