@@ -6,7 +6,7 @@ buildscript {
         supportLibVersion = "28.0.0"
         buildToolsVersion = "30.0.3"
         compileSdkVersion = 31
-        targetSdkVersion = 30
+        targetSdkVersion = 31
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
