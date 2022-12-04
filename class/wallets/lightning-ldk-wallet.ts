@@ -98,8 +98,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return +new Date() - this._lastTimeBlockchainCheckedTs > 5 * 60 * 1000; // 5 min, half of block time
   }
 
-  async fundingStateStepFinalize(txhex: string) {
-    return RnLdk.openChannelStep2(txhex);
+  async fundingStateStepFinalize(txhex: string, counterpartyNodeIdHex: string) {
+    return RnLdk.openChannelStep2(txhex, counterpartyNodeIdHex);
   }
 
   async getMaturingBalance(): Promise<number> {
@@ -355,7 +355,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       for (const channel of this._listChannels) {
         if (!channel.is_funding_locked) {
           // pending channel
-          if (!peers.includes(channel.remote_node_id)) peers2reconnect[channel.remote_node_id] = true;
+          if (!peers.includes(channel.counterparty_node_id)) peers2reconnect[channel.counterparty_node_id] = true;
         }
       }
     }
@@ -578,8 +578,10 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return true;
   }
 
-  async closeChannel(fundingTxidHex: string, force = false) {
-    return force ? await RnLdk.closeChannelForce(fundingTxidHex) : await RnLdk.closeChannelCooperatively(fundingTxidHex);
+  async closeChannel(fundingTxidHex: string, counterpartyNodeIdHex: string, force = false) {
+    return force
+      ? await RnLdk.closeChannelForce(fundingTxidHex, counterpartyNodeIdHex)
+      : await RnLdk.closeChannelCooperatively(fundingTxidHex, counterpartyNodeIdHex);
   }
 
   getLatestTransactionTime(): string | 0 {
@@ -620,8 +622,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     const connectedInThisRun: any = {};
     for (const channel of await this.listChannels()) {
       if (channel.is_usable) continue; // already connected..?
-      if (connectedInThisRun[channel.remote_node_id]) continue; // already tried to reconnect (in case there are several channels with the same node)
-      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(channel.remote_node_id);
+      if (connectedInThisRun[channel.counterparty_node_id]) continue; // already tried to reconnect (in case there are several channels with the same node)
+      const { pubkey, host, port } = await this.lookupNodeConnectionDetailsByPubkey(channel.counterparty_node_id);
       await this.connectPeer(pubkey, host, port);
       connectedInThisRun[pubkey] = true;
     }

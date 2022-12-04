@@ -98,7 +98,8 @@ const LdkOpenChannel = (props: any) => {
     }
 
     const tx = psbt.extractTransaction();
-    const res = await ldkWallet.fundingStateStepFinalize(tx.toHex()); // comment this out to debug
+    const counterpartyNodeIdHex = remoteHostWithPubkey.split('@')[0];
+    const res = await ldkWallet.fundingStateStepFinalize(tx.toHex(), counterpartyNodeIdHex); // comment this out to debug
     // const res = true; // debug
     if (!res) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });

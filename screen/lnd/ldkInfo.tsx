@@ -183,7 +183,7 @@ const LdkInfo = () => {
       if (!(await confirm(loc.lnd.force_close_channel))) return;
       forceClose = true;
     }
-    const rez = await wallet.closeChannel(channel.channel_id, forceClose);
+    const rez = await wallet.closeChannel(channel.channel_id, channel.counterparty_node_id, forceClose);
     if (rez) {
       alert(loc._.success);
       return refetchData();
@@ -225,7 +225,7 @@ const LdkInfo = () => {
 
   const handleOnConnectPeerTapped = async (channelData: any) => {
     closeModal();
-    const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.remote_node_id);
+    const { pubkey, host, port } = await wallet.lookupNodeConnectionDetailsByPubkey(channelData.counterparty_node_id);
     return wallet.connectPeer(pubkey, host, port);
   };
 
@@ -239,11 +239,11 @@ const LdkInfo = () => {
           <BlueSpacing10 />
           {channelData && (
             <Text style={stylesHook.detailsText}>
-              {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
+              {LightningLdkWallet.pubkeyToAlias(channelData.counterparty_node_id) +
                 ' (' +
-                channelData.remote_node_id.substr(0, 10) +
+                channelData.counterparty_node_id.substr(0, 10) +
                 '...' +
-                channelData.remote_node_id.substr(-6) +
+                channelData.counterparty_node_id.substr(-6) +
                 ')'}
             </Text>
           )}
@@ -302,7 +302,7 @@ const LdkInfo = () => {
           canSend={Number(channelData.outbound_capacity_msat / 1000)}
           canReceive={Number(channelData.inbound_capacity_msat / 1000)}
           itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          nodeAlias={LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id)}
+          nodeAlias={LightningLdkWallet.pubkeyToAlias(channelData.counterparty_node_id)}
         />
       </TouchableOpacity>
     );
