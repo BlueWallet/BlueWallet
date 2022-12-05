@@ -562,6 +562,11 @@ const WalletDetails = () => {
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
 
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>BIP 47 Payment Code</Text>
+                <BlueText>{wallet.getPaymentCode()}</BlueText>
+              </>
+
               <View>
                 {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
                   <>
