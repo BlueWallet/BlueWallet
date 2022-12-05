@@ -564,7 +564,7 @@ const WalletDetails = () => {
 
               <>
                 <Text style={[styles.textLabel2, stylesHook.textLabel2]}>BIP 47 Payment Code</Text>
-                <BlueText>{wallet.getPaymentCode()}</BlueText>
+                <BlueText>{wallet.paymentCode}</BlueText>
               </>
 
               <View>

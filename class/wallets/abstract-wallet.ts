@@ -2,12 +2,6 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import BIP47Factory from 'bip47';
-import * as ecc from 'tiny-secp256k1';
-import ECPairFactory from 'ecpair';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const ECPair = ECPairFactory(ecc);
 
 type WalletStatics = {
   type: string;
@@ -57,6 +51,7 @@ export class AbstractWallet {
   _utxoMetadata: Record<string, UtxoMetadata>;
   use_with_hardware_wallet: boolean; // eslint-disable-line camelcase
   masterFingerprint: number | false;
+  paymentCode: string;
 
   constructor() {
     const Constructor = this.constructor as unknown as WalletStatics;
@@ -80,6 +75,7 @@ export class AbstractWallet {
     this._utxoMetadata = {};
     this.use_with_hardware_wallet = false;
     this.masterFingerprint = false;
+    this.paymentCode = '';
   }
 
   /**
@@ -460,10 +456,5 @@ export class AbstractWallet {
     hexValue = hexValue[6] + hexValue[7] + hexValue[4] + hexValue[5] + hexValue[2] + hexValue[3] + hexValue[0] + hexValue[1];
 
     return parseInt(hexValue, 16);
-  }
-
-  getPaymentCode(): string {
-    const bip47 = BIP47Factory(ecc).fromBip39Seed(this.secret);
-    return bip47.getSerializedPaymentCode();
   }
 }

@@ -3,6 +3,7 @@ import * as bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import BIP32Factory, { BIP32Interface } from 'bip32';
+import { BIP47Factory } from 'bip47';
 import * as ecc from 'tiny-secp256k1';
 
 import { randomBytes } from '../rng';
@@ -88,12 +89,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   async generate() {
     const buf = await randomBytes(16);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+    this.paymentCode = BIP47Factory(ecc).fromBip39Seed(this.secret).getSerializedPaymentCode();
   }
 
   async generateFromEntropy(user: Buffer) {
     const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
     const buf = Buffer.concat([user, random], 32);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+    this.paymentCode = BIP47Factory(ecc).fromBip39Seed(this.secret).getSerializedPaymentCode();
   }
 
   _getExternalWIFByIndex(index: number): string | false {
