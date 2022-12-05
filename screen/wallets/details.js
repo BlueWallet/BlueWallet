@@ -19,7 +19,16 @@ import {
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton, BlueListItem } from '../../BlueComponents';
+import {
+  BlueCard,
+  BlueLoading,
+  BlueSpacing10,
+  BlueSpacing20,
+  BlueText,
+  SecondButton,
+  BlueListItem,
+  BlueCopyToClipboardButton,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -66,6 +75,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 16,
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
+  paymentCodeLabel: {
+    fontWeight: '500',
+    fontSize: 14,
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   textValue: {
@@ -115,6 +129,13 @@ const styles = StyleSheet.create({
   saveText: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  paymentCodeRowHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 4,
+    marginTop: 16,
+    justifyContent: 'space-between',
   },
 });
 
@@ -563,7 +584,10 @@ const WalletDetails = () => {
               </>
 
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>BIP 47 Payment Code</Text>
+                <View style={styles.paymentCodeRowHeader}>
+                  <Text style={[styles.paymentCodeLabel, stylesHook.textLabel2]}>BIP 47 Payment Code</Text>
+                  <BlueCopyToClipboardButton stringToCopy={wallet.paymentCode} />
+                </View>
                 <BlueText>{wallet.paymentCode}</BlueText>
               </>
 
