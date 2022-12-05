@@ -54,6 +54,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import alert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { PayNym } from './paynym';
 
 const prompt = require('../../helpers/prompt');
 
@@ -593,7 +594,7 @@ const WalletDetails = () => {
 
               <>
                 <Text style={[styles.textLabel1, stylesHook.textLabel2]}>Unclaimed PayNym</Text>
-                <BlueText>{wallet.paynym}</BlueText>
+                <PayNym paymentCode={wallet.paymentCode} />
               </>
 
               <View>
