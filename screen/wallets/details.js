@@ -591,6 +591,11 @@ const WalletDetails = () => {
                 <BlueText>{wallet.paymentCode}</BlueText>
               </>
 
+              <>
+                <Text style={[styles.textLabel1, stylesHook.textLabel2]}>Unclaimed PayNym</Text>
+                <BlueText>{wallet.paynym}</BlueText>
+              </>
+
               <View>
                 {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
                   <>
