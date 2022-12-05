@@ -26,6 +26,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   setSecret(newSecret) {
     this.secret = newSecret.trim();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
+    this.setPaymentCode();
     return this;
   }
 

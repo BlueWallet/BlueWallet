@@ -98,6 +98,8 @@ export class AbstractHDWallet extends LegacyWallet {
       .map(word => lookupMap.get(word) || word)
       .join(' ');
 
+    this.setPaymentCode();
+
     return this;
   }
 

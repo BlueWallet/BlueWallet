@@ -54,6 +54,9 @@ const SLIP39Mixin = {
 
         return secret;
       });
+
+    this.setPaymentCode();
+
     return this;
   },
 
