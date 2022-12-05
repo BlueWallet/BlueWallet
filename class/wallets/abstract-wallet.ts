@@ -5,7 +5,6 @@ import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } fro
 import BIP47Factory from 'bip47';
 import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from 'ecpair';
-import axios from 'axios';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ECPair = ECPairFactory(ecc);
@@ -469,15 +468,7 @@ export class AbstractWallet {
     return parseInt(hexValue, 16);
   }
 
-  async createPaynym(): Promise<string> {
-    const response = await axios.post('https://paynym.is/api/v1/create', {
-      code: this.paymentCode,
-    });
-    return response.data.nymName;
-  }
-
-  async setPaymentCode() {
+  setPaymentCode() {
     this.paymentCode = BIP47Factory(ecc).fromBip39Seed(this.secret).getSerializedPaymentCode();
-    this.paynym = await this.createPaynym();
   }
 }
