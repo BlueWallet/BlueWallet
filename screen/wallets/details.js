@@ -128,6 +128,7 @@ const WalletDetails = () => {
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const [isBIP47Enabled, setIsBIP47Enabled] = useState(false);
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
@@ -560,6 +561,14 @@ const WalletDetails = () => {
                   {loc.transactions.transactions_count.toLowerCase()}
                 </Text>
                 <BlueText>{wallet.getTransactions().length}</BlueText>
+              </>
+
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>Payment Code</Text>
+                <View style={styles.hardware}>
+                  <BlueText>Reusable and shareable code (BIP47)</BlueText>
+                  <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
+                </View>
               </>
 
               <View>
