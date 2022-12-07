@@ -51,6 +51,7 @@ export class AbstractWallet {
   _utxoMetadata: Record<string, UtxoMetadata>;
   use_with_hardware_wallet: boolean; // eslint-disable-line camelcase
   masterFingerprint: number | false;
+  _enableBIP47: boolean;
 
   constructor() {
     const Constructor = this.constructor as unknown as WalletStatics;
@@ -74,6 +75,7 @@ export class AbstractWallet {
     this._utxoMetadata = {};
     this.use_with_hardware_wallet = false;
     this.masterFingerprint = false;
+    this._enableBIP47 = false;
   }
 
   /**
@@ -109,6 +111,18 @@ export class AbstractWallet {
 
   setHideTransactionsInWalletsList(value: boolean): void {
     this._hideTransactionsInWalletsList = value;
+  }
+
+  /**
+   * Whether BIP47 is enabled
+   * @returns true/false
+   */
+  getBIP47(): boolean {
+    return this._enableBIP47;
+  }
+
+  setBIP47(value: boolean): void {
+    this._enableBIP47 = value;
   }
 
   /**
