@@ -11,12 +11,16 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
+import Button from './Button';
 
 export default class TransactionsNavigationHeader extends Component {
   static propTypes = {
     wallet: PropTypes.shape().isRequired,
     onWalletUnitChange: PropTypes.func,
-    navigation: PropTypes.shape(),
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+      goBack: PropTypes.func,
+    }),
     onManageFundsPressed: PropTypes.func,
   };
 
@@ -229,6 +233,20 @@ export default class TransactionsNavigationHeader extends Component {
               </Text>
             )}
           </View>
+
+          {this.state.wallet.getBIP47() && (
+            <View style={styles.paymentCode}>
+              <Button
+                text="Payment Code"
+                onPress={() => {
+                  this.props.navigation.navigate('PaymentCodeRoot', {
+                    screen: 'PaymentCode',
+                    params: { paymentCode: this.state.wallet.paymentCode },
+                  });
+                }}
+              />
+            </View>
+          )}
         </ToolTipMenu>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <ToolTipMenu
@@ -301,5 +319,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     padding: 12,
+  },
+  paymentCode: {
+    width: '40%',
+    alignSelf: 'flex-end',
   },
 });

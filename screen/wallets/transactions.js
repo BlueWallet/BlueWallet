@@ -33,6 +33,7 @@ import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
+import PropTypes from 'prop-types';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -42,7 +43,7 @@ const buttonFontSize =
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
-const WalletTransactions = () => {
+const WalletTransactions = ({ navigation }) => {
   const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
@@ -471,6 +472,7 @@ const WalletTransactions = () => {
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
       <TransactionsNavigationHeader
+        navigation={navigation}
         wallet={wallet}
         onWalletUnitChange={passedWallet =>
           InteractionManager.runAfterInteractions(async () => {
@@ -608,6 +610,10 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
     headerBackTitleVisible: false,
   };
 });
+
+WalletTransactions.propTypes = {
+  navigation: PropTypes.shape(),
+};
 
 const styles = StyleSheet.create({
   flex: {
