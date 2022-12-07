@@ -11,7 +11,6 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
-import Button from './Button';
 
 export default class TransactionsNavigationHeader extends Component {
   static propTypes = {
@@ -233,20 +232,6 @@ export default class TransactionsNavigationHeader extends Component {
               </Text>
             )}
           </View>
-
-          {this.state.wallet.getBIP47() && (
-            <View style={styles.paymentCode}>
-              <Button
-                text="Payment Code"
-                onPress={() => {
-                  this.props.navigation.navigate('PaymentCodeRoot', {
-                    screen: 'PaymentCode',
-                    params: { paymentCode: this.state.wallet.paymentCode },
-                  });
-                }}
-              />
-            </View>
-          )}
         </ToolTipMenu>
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <ToolTipMenu
@@ -258,6 +243,21 @@ export default class TransactionsNavigationHeader extends Component {
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
+        )}
+        {this.state.wallet.getBIP47() && (
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => {
+              this.props.navigation.navigate('PaymentCodeRoot', {
+                screen: 'PaymentCode',
+                params: { paymentCode: this.state.wallet.paymentCode },
+              });
+            }}
+          >
+            <View style={styles.manageFundsButton}>
+              <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
+            </View>
+          </TouchableOpacity>
         )}
         {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
@@ -319,9 +319,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFFFFF',
     padding: 12,
-  },
-  paymentCode: {
-    width: '40%',
-    alignSelf: 'flex-end',
   },
 });

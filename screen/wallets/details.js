@@ -565,9 +565,9 @@ const WalletDetails = () => {
               </>
 
               <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>Payment Code</Text>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
                 <View style={styles.hardware}>
-                  <BlueText>Reusable and shareable code (BIP47)</BlueText>
+                  <BlueText>{loc.bip47.purpose}</BlueText>
                   <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
                 </View>
               </>
