@@ -523,6 +523,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
     }
+    if (this._sender_payment_codes)
+      for (const pc of this._sender_payment_codes) {
+        for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+          ownedAddressesHashmap[this._getBIP47Address(pc, c)] = true;
+        }
+      }
     // hack: in case this code is called from LegacyWallet:
     if (this.getAddress()) ownedAddressesHashmap[String(this.getAddress())] = true;
 
