@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
-import BIP47Factory, { BIP47Interface } from 'bip47';
+import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
