@@ -4,7 +4,7 @@ import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock
 
 const consoleWarnOrig = console.warn;
 console.warn = (...args) => {
-  if (!args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) {
+  if (typeof args[0] === 'string' && !args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) {
     consoleWarnOrig.apply(consoleWarnOrig, args);
   }
 };

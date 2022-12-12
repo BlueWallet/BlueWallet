@@ -179,6 +179,7 @@ const WalletTransactions = ({ navigation }) => {
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       /** @type {LegacyWallet} */
+      await wallet.fetchBIP47SenderPaymentCodes();
       const balanceStart = +new Date();
       const oldBalance = wallet.getBalance();
       await wallet.fetchBalance();

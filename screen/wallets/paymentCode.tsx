@@ -12,8 +12,13 @@ export default function PaymentCode({ route }: NativeStackScreenProps<PaymentCod
 
   return (
     <View style={styles.container}>
-      <QRCodeComponent value={paymentCode} />
-      <Text style={styles.paymentCodeText}>{paymentCode}</Text>
+      {!paymentCode && <Text>Payment code not found</Text>}
+      {paymentCode && (
+        <>
+          <QRCodeComponent value={paymentCode} />
+          <Text style={styles.paymentCodeText}>{paymentCode}</Text>
+        </>
+      )}
     </View>
   );
 }

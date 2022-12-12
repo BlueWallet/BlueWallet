@@ -725,6 +725,17 @@ export class AppStorage {
     }
   };
 
+  fetchSenderPaymentCodes = async index => {
+    console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
+    if (index || index === 0) {
+      this.wallets[index].fetchBIP47SenderPaymentCodes();
+    } else {
+      for (const wallet of this.wallets) {
+        wallet.fetchBIP47SenderPaymentCodes();
+      }
+    }
+  };
+
   /**
    *
    * @returns {Array.<AbstractWallet>}

@@ -470,7 +470,7 @@ const PaymentCodeStack = createNativeStackNavigator();
 const PaymentCodeStackRoot = () => {
   return (
     <PaymentCodeStack.Navigator name="PaymentCodeRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="PaymentCode">
-      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} />
+      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: 'Payment Code (BIP47)' }} />
     </PaymentCodeStack.Navigator>
   );
 };

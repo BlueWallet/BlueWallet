@@ -244,13 +244,13 @@ export default class TransactionsNavigationHeader extends Component {
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
         )}
-        {this.state.wallet.getBIP47() && (
+        {this.state.wallet.isBIP47Enabled() && (
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => {
               this.props.navigation.navigate('PaymentCodeRoot', {
                 screen: 'PaymentCode',
-                params: { paymentCode: this.state.wallet.paymentCode },
+                params: { paymentCode: this.state.wallet.getBIP47PaymentCode() },
               });
             }}
           >

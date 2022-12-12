@@ -128,7 +128,7 @@ const WalletDetails = () => {
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
-  const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.getBIP47());
+  const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
@@ -188,7 +188,7 @@ const WalletDetails = () => {
         wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
-      wallet.setBIP47(isBIP47Enabled);
+      wallet.switchBIP47(isBIP47Enabled);
     }
     saveToDisk()
       .then(() => {

@@ -117,7 +117,7 @@
     "bip32": "3.0.1",
     "bip38": "github:BlueWallet/bip38",
     "bip39": "3.0.4",
-    "bip47": "github:abhiShandy/bip47#bluewallet",
+    "bip47": "github:abhiShandy/bip47#9a52740670a683850612406398c66ad2c2482a5f",
     "bitcoinjs-lib": "6.0.2",
     "bitcoinjs-message": "2.2.0",
     "bolt11": "1.3.4",
