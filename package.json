@@ -107,7 +107,7 @@
     "@react-navigation/drawer": "5.12.9",
     "@react-navigation/native": "5.9.8",
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
-    "@spsina/bip47": "file:../bip47/spsina-bip47-1.0.1.tgz",
+    "@spsina/bip47": "github:abhishandy/bip47#1abcd4c20a387e43ed55bacc52726690bf417559",
     "aez": "1.0.1",
     "assert": "2.0.0",
     "base-x": "3.0.9",
