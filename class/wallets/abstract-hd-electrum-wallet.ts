@@ -1494,8 +1494,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       return this.addresses_by_payment_code[paymentCode][index];
     }
 
-    const bip47 = BIP47Factory(ecc);
-    const bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
+    const bip47_instance = this.getBIP47FromSeed();
     const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
     const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
     const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
