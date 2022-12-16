@@ -870,6 +870,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        if (
+          this._balances_by_payment_code_index[pc] &&
+          this._balances_by_payment_code_index[pc].c &&
+          this._balances_by_payment_code_index[pc].c > 0
+        ) {
+          addressess.push(this._getBIP47Address(pc, c));
+        }
+      }
+    }
+
     // considering UNconfirmed balance:
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._balances_by_external_index[c] && this._balances_by_external_index[c].u && this._balances_by_external_index[c].u > 0) {
@@ -879,6 +891,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].u && this._balances_by_internal_index[c].u > 0) {
         addressess.push(this._getInternalAddressByIndex(c));
+      }
+    }
+
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        if (
+          this._balances_by_payment_code_index[pc] &&
+          this._balances_by_payment_code_index[pc].u &&
+          this._balances_by_payment_code_index[pc].u > 0
+        ) {
+          addressess.push(this._getBIP47Address(pc, c));
+        }
       }
     }
 
@@ -1025,6 +1049,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(1, c);
     }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+        if (this._getBIP47Address(pc, c) === address) return this._getBIP47PubkeyByIndex(pc, c);
+      }
+    }
 
     return false;
   }
@@ -1042,6 +1071,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
     }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+        if (this._getBIP47Address(pc, c) === address) return this._getBIP47WIF(pc, c);
+      }
+    }
     return false;
   }
 
@@ -1058,6 +1092,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === cleanAddress) return true;
+    }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+        if (this._getBIP47Address(pc, c) === address) return true;
+      }
     }
     return false;
   }
@@ -1475,6 +1514,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
     const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
     const address = bip47_instance.getAddressFromNode(hdNode, bip47_instance.network);
+    this._address_to_wif_cache[address] = hdNode.toWIF();
     this.addresses_by_payment_code[paymentCode][index] = address;
     return address;
   }
@@ -1485,5 +1525,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   _getBalancesByPaymentCodeIndex(paymentCode: string): BalanceByIndex {
     return this._balances_by_payment_code_index[paymentCode] || { c: 0, u: 0 };
+  }
+
+  _getBIP47WIF(paymentCode: string, index: number): string {
+    const bip47_instance = this.getBIP47FromSeed();
+    const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
+    const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
+    const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
+    return hdNode.toWIF();
+  }
+
+  _getBIP47PubkeyByIndex(paymentCode: string, index: number): Buffer {
+    const bip47_instance = this.getBIP47FromSeed();
+    const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
+    const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
+    const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
+    return hdNode.publicKey;
   }
 }
