@@ -38,7 +38,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
-    this.gap_limit = 5;
+    this.gap_limit = 20;
     this._derivationPath = Constructor.derivationPath;
   }
 
