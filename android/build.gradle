@@ -12,7 +12,7 @@ buildscript {
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "21.1.0"
         ndkVersion = "23.0.7599858"
-        kotlin_version = '1.7.20'
+        kotlin_version = '1.8.0'
     }
     repositories {
         google()
