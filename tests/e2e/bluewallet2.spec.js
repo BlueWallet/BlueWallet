@@ -25,7 +25,220 @@ afterAll(async () => {
 });
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
-  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
+  it('can send batch', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t24');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0005');
+
+    // we already have one output, lest add another two
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
+
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+
+    // remove last output, check if second output is shown
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('RemoveRecipient')).tap();
+    await yo('Transaction1');
+
+    // adding it again
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
+
+    await sleep('1000');
+
+    // remove second output
+    await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
+    await sleep('1000');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('RemoveRecipient')).tap();
+
+    // creating and verifying. tx should have 3 outputs
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    await element(by.id('TransactionDetailsButton')).tap();
+    const txhex = await extractTextFromElementById('TxhexInput');
+    const transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 3);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.strictEqual(transaction.outs[0].value, 50000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(transaction.outs[1].value, 30000);
+
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can sendMAX', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t25');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+
+    await element(by.id('SendButton')).tap();
+
+    // set fee rate
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).replaceText(feeRate + '');
+    await element(by.text('OK')).tap();
+
+    // first send MAX output
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('OK')).tap();
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionDetailsButton');
+    await element(by.id('TransactionDetailsButton')).tap();
+    let txhex = await extractTextFromElementById('TxhexInput');
+    let transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
+    assert.ok(transaction.outs[0].value > 100000);
+
+    // add second output with amount
+    await device.pressBack();
+    await device.pressBack();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('AddRecipient')).tap();
+    await yo('Transaction1');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0001\n');
+
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+    // created. verifying:
+    await yo('TransactionDetailsButton');
+    await element(by.id('TransactionDetailsButton')).tap();
+    txhex = await extractTextFromElementById('TxhexInput');
+    transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    assert.ok(transaction.outs[0].value > 50000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    assert.strictEqual(transaction.outs[1].value, 10000);
+
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can cosign PSBT', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t26');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+
+    await element(by.id('SendButton')).tap();
+    await element(by.id('advancedOptionsMenuButton')).tap();
+    await element(by.id('PsbtSign')).tap();
+
+    // tapping 5 times invisible button is a backdoor:
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+      await sleep(1000);
+    }
+    // 1 input, 2 outputs. wallet can fully sign this tx
+    const psbt =
+      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
+    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+
+    // this is fully-signed tx, "this is tx hex" help text should appear
+    await yo('DynamicCode');
+    await device.pressBack();
+    await device.pressBack();
+
+    // let's test wallet details screens
+    await element(by.id('WalletDetails')).tap();
+
+    // rename test
+    await element(by.id('WalletNameInput')).replaceText('testname\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await expect(element(by.id('WalletLabel'))).toHaveText('testname');
+    await element(by.id('WalletDetails')).tap();
+
+    // rename back
+    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');
+    await element(by.id('Save')).tap();
+    await sup('OK');
+    await element(by.text('OK')).tap();
+    await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
+    await element(by.id('WalletDetails')).tap();
+
+    // wallet export
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('WalletExport')).tap();
+    await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
+    await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
+    await device.pressBack();
+
+    // XPUB
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('XPub')).tap();
+    await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
+
+    await device.pressBack();
+    await device.pressBack();
+    await device.pressBack();
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create a transaction; then cosign', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');
@@ -41,13 +254,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
 
     // setting fee rate:
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.type('android.widget.EditText')).replaceText(feeRate + '');
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
@@ -169,165 +382,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(transaction.outs[0].value, 50000);
-
-    // now, testing send many feature
-
-    await device.pressBack();
-    await device.pressBack();
-    // we already have one output, lest add another two
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
-    await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
-
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
-    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
-
-    // remove last output, check if second output is shown
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('RemoveRecipient')).tap();
-    await yo('Transaction1');
-
-    // adding it again
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
-    await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
-
-    // remove second output
-    await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('RemoveRecipient')).tap();
-
-    // creating and verifying. tx should have 3 outputs
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-
-    await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(transaction.outs.length, 3);
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.strictEqual(transaction.outs[0].value, 50000);
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(transaction.outs[1].value, 30000);
-
-    // now, testing sendMAX feature:
-
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack(); // go back to wallet tx list to reset the form
-    await element(by.id('SendButton')).tap();
-
-    // set fee rate
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
-    await element(by.text('OK')).tap();
-
-    // first send MAX output
-    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('sendMaxButton')).tap();
-    await element(by.text('OK')).tap();
-
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-    // created. verifying:
-    await yo('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
-    assert.ok(transaction.outs[0].value > 100000);
-
-    // add second output with amount
-    await device.pressBack();
-    await device.pressBack();
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
-    await yo('Transaction1');
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
-
-    if (process.env.TRAVIS) await sleep(5000);
-    try {
-      await element(by.id('CreateTransactionButton')).tap();
-    } catch (_) {}
-    // created. verifying:
-    await yo('TransactionDetailsButton');
-    await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(transaction.outs.length, 2, 'should be single output, no change');
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.ok(transaction.outs[0].value > 50000);
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(transaction.outs[1].value, 10000);
-
-    // now, testing cosign psbt:
-
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await element(by.id('SendButton')).tap();
-    await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('PsbtSign')).tap();
-
-    // tapping 5 times invisible button is a backdoor:
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-      await sleep(1000);
-    }
-    // 1 input, 2 outputs. wallet can fully sign this tx
-    const psbt =
-      'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
-    await element(by.id('scanQrBackdoorInput')).replaceText(psbt);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
-
-    // this is fully-signed tx, "this is tx hex" help text should appear
-    await yo('DynamicCode');
-    await device.pressBack();
-    await device.pressBack();
-
-    // let's test wallet details screens
-    await element(by.id('WalletDetails')).tap();
-
-    // rename test
-    await element(by.id('WalletNameInput')).replaceText('testname\n');
-    await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
-    await expect(element(by.id('WalletLabel'))).toHaveText('testname');
-    await element(by.id('WalletDetails')).tap();
-
-    // rename back
-    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');
-    await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
-    await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
-    await element(by.id('WalletDetails')).tap();
-
-    // wallet export
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('WalletExport')).tap();
-    await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
-    await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
-    await device.pressBack();
-
-    // XPUB
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-    await element(by.id('XPub')).tap();
-    await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
     // Delete
