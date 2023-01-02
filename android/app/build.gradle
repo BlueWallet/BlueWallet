@@ -127,6 +127,12 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['lib/**/libfbjni.so', 'lib/**/libreact_nativemodule_core.so', 'lib/**/libturbomodulejsijni.so', 'lib/**/libjsi.so']
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
