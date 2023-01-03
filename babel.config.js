@@ -6,9 +6,8 @@ module.exports = function (api) {
     // we are inside jest unit tests
     api.cache.never();
   } else {
-    // we are inside RN, so we need to provide unexisting in tris runtime
-    // modules
-    plugins.push([
+    // we are inside RN, so we need to provide unexisting in this runtime modules
+    plugins.unshift([
       'module-resolver',
       {
         alias: {
