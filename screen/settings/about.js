@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform } from 'react-native';
+import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform, Alert } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
@@ -10,6 +10,7 @@ import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import { HDSegwitBech32Wallet } from '../../class';
 
 const A = require('../../blue_modules/analytics');
 const branch = require('../../current-branch.json');
@@ -207,6 +208,31 @@ const About = () => {
         onPress={handleOnSelfTestPress}
         testID="RunSelfTestButton"
         title={loc.settings.about_selftest}
+      />
+      <BlueListItem
+        leftIcon={{
+          name: 'flask',
+          type: 'font-awesome',
+          color: '#FC0D44',
+        }}
+        chevron
+        onPress={async () => {
+          const secret = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+          const w = new HDSegwitBech32Wallet();
+          w.setSecret(secret);
+
+          const start = Date.now();
+          let num;
+          for (num = 0; num < 1000; num++) {
+            w._getExternalAddressByIndex(num);
+            if (Date.now() - start > 10 * 1000) {
+              break;
+            }
+          }
+
+          Alert.alert(loc.formatString(loc.settings.performance_score, { num }));
+        }}
+        title={loc.settings.run_performance_test}
       />
       <BlueSpacing20 />
       <BlueSpacing20 />
