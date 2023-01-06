@@ -191,7 +191,6 @@
     "rn-ldk": "github:BlueWallet/rn-ldk#v0.8.4",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
-    "secure-random": "1.1.2",
     "slip39": "https://github.com/BlueWallet/slip39-js",
     "stream-browserify": "3.0.0",
     "tiny-secp256k1": "1.1.6",
