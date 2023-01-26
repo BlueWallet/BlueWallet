@@ -182,7 +182,6 @@
     "input_paste": "Prilepi",
     "input_total": "Skupaj:",
     "permission_camera_message": "Za uporabo kamere potrebujemo dovoljenje.",
-    "permission_camera_title": "Dovoljenje za uporabo kamere",
     "psbt_sign": "Podpiši transakcijo",
     "open_settings": "Odpri Nastavitve",
     "permission_storage_later": "Vprašaj me kasneje",
@@ -225,6 +224,7 @@
     "biom_no_passcode": "Vaša naprava ni zaščitena z geslom. Če želite nadaljevati, v aplikaciji Nastavitve nastavite svoje geslo.",
     "biom_remove_decrypt": "Shramba bo ponastavljena, pri tem bodo odstranjene vse denarnice. Ali ste prepričani, da želite nadaljevati?",
     "currency": "Valuta",
+    "currency_source": "Tečaji so pridobljeni iz",
     "currency_fetch_error": "Pri pridobivanju tečaja za izbrano valuto je prišlo do napake.",
     "default_desc": "Ko je onemogočeno, bo BlueWallet ob zagonu takoj odprl izbrano denarnico.",
     "default_info": "Privzeto v",
@@ -336,6 +336,7 @@
     "details_from": "Vhod",
     "details_inputs": "Vhodi",
     "details_outputs": "Izhodi",
+    "date": "Datum",
     "details_received": "Prejeto",
     "transaction_note_saved": "Opomba transakcije je bila uspešno shranjena.",
     "details_show_in_block_explorer": "Prikaži v raziskovalcu blokov",
@@ -390,6 +391,7 @@
     "details_derivation_path": "pot izpeljave (derivation path)",
     "details_display": "Prikaži na seznamu denarnic",
     "details_export_backup": "Izvozi / Varnostna kopija",
+    "details_export_history": "Izvozi zgodovino v CSV",
     "details_master_fingerprint": "Glavni prstni odtis (fingerprint)",
     "details_multisig_type": "multisig",
     "details_no_cancel": "Ne, prekliči",
@@ -569,5 +571,8 @@
     "type_receive": "Prejemni",
     "type_used": "Uporabljen",
     "transactions": "Transakcije"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "Bi želeli odpreti račun pri"
   }
 }
