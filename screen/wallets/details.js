@@ -227,7 +227,11 @@ const WalletDetails = () => {
 
   const navigateToOverviewAndDeleteWallet = () => {
     setIsLoading(true);
-    Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+    let externalAddresses = [];
+    try {
+      externalAddresses = wallet.getAllExternalAddresses();
+    } catch (_) {}
+    Notifications.unsubscribe(externalAddresses, [], []);
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
