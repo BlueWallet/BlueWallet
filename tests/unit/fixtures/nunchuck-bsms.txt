@@ -1,0 +1,4 @@
+BSMS 1.0
+wsh(sortedmulti(2,[3f5e4e09/48'/0'/0']xpub6BtEVX9WezWA2EYa8Wf1rJTokXpF96Rmqr4JKoR3SbjGw1vCa3Qb91mKN1AqJnBzSpqy44tEMB27Khne6KBmNzurXigfis7F28X5dRLWGoY/**,[b96bc7c7/48'/0'/0']xpub6CzCTuwFmAcBoxsfPLgiKfkJ2W3GbW1zxFKvCamZQ1J2XMobJR1gMNqP64pcFsy65ST4WcZtrCn99WXgLcWM6bqw6iFneAPTgJuLHggHD5S/**,[44437f41/48'/0'/0']xpub6Cn4cYgRhXKnvNjE4ULP2mzWHFw4WtCyp1nBuE97SyZVTPwq5xWkKsTVe9c16XSTr6V9AKMDgizav7z69j4AREaMKoFzUDbdcZhVq5xaKMU/**))
+/0/*,/1/*
+bc1qjppd555998lvpgdew30kdrvu2qg90n5gg684khrc2u5g7kj8cnuqujvz3p
