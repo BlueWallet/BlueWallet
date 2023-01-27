@@ -182,7 +182,7 @@
     "react-native-tor": "0.1.8",
     "react-native-vector-icons": "9.2.0",
     "react-native-watch-connectivity": "1.1.0",
-    "react-native-webview": "11.26.0",
+    "react-native-webview": "11.26.1",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#b80630cc8894ce479275d6dd3a5183f41f220237",
     "react-native-windows": "0.70.10",
     "react-test-render": "1.1.2",
