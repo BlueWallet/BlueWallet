@@ -53,6 +53,9 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage() {
     if (preferredFiatCurrency === null) {
       throw Error('No Preferred Fiat selected');
     }
+
+    preferredFiatCurrency = FiatUnit[preferredFiatCurrency.endPointKey] || preferredFiatCurrency;
+    // ^^^ in case configuration in json file changed (and is different from what we stored) we reload it
   } catch (_) {
     const deviceCurrencies = RNLocalize.getCurrencies();
     if (Object.keys(FiatUnit).some(unit => unit === deviceCurrencies[0])) {
