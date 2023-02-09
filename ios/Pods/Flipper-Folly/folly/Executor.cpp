@@ -26,15 +26,9 @@
 
 namespace folly {
 
-void Executor::invokeCatchingExnsLog(
-    char const* const prefix, std::exception const* const ex) {
-  auto const message = " threw unhandled ";
-  if (ex) {
-    LOG(ERROR) << prefix << message << exceptionStr(*ex);
-  } else {
-    auto ep = std::current_exception();
-    LOG(ERROR) << prefix << message << exceptionStr(ep);
-  }
+void Executor::invokeCatchingExnsLog(char const* const prefix) noexcept {
+  auto ep = std::current_exception();
+  LOG(ERROR) << prefix << " threw unhandled " << exceptionStr(ep);
 }
 
 void Executor::addWithPriority(Func, int8_t /* priority */) {
@@ -51,41 +45,62 @@ void Executor::keepAliveRelease() noexcept {
              << "which do not override keepAliveAcquire()";
 }
 
-#if defined(FOLLY_TLS)
+// Base case of permitting with no termination to avoid nullptr tests
+static ExecutorBlockingList emptyList{nullptr, {false, false, nullptr, {}}};
 
-extern constexpr bool const executor_blocking_list_enabled = true;
-thread_local ExecutorBlockingList* executor_blocking_list = nullptr;
-
-#else
-
-extern constexpr bool const executor_blocking_list_enabled = false;
-ExecutorBlockingList* executor_blocking_list = nullptr;
-
-#endif
+thread_local ExecutorBlockingList* executor_blocking_list = &emptyList;
 
 Optional<ExecutorBlockingContext> getExecutorBlockingContext() noexcept {
   return //
-      !executor_blocking_list || !executor_blocking_list->forbid ? none : //
+      kIsMobile || !executor_blocking_list->curr.forbid ? none : //
       make_optional(executor_blocking_list->curr);
 }
 
-ExecutorBlockingGuard::ExecutorBlockingGuard(PermitTag) noexcept
-    : list_{false, executor_blocking_list, {}} {
-  if (executor_blocking_list_enabled) {
+ExecutorBlockingGuard::ExecutorBlockingGuard(PermitTag) noexcept {
+  if (!kIsMobile) {
+    list_ = *executor_blocking_list;
+    list_.prev = executor_blocking_list;
+    list_.curr.forbid = false;
+    // Do not overwrite tag or executor pointer
     executor_blocking_list = &list_;
   }
 }
 
 ExecutorBlockingGuard::ExecutorBlockingGuard(
-    TrackTag, StringPiece name) noexcept
-    : list_{true, executor_blocking_list, {name}} {
-  if (executor_blocking_list_enabled) {
+    TrackTag, Executor* ex, StringPiece tag) noexcept {
+  if (!kIsMobile) {
+    list_ = *executor_blocking_list;
+    list_.prev = executor_blocking_list;
+    list_.curr.forbid = true;
+    list_.curr.ex = ex;
+    // If no string was provided, maintain the parent string to keep some
+    // information
+    if (!tag.empty()) {
+      list_.curr.tag = tag;
+    }
+    executor_blocking_list = &list_;
+  }
+}
+
+ExecutorBlockingGuard::ExecutorBlockingGuard(
+    ProhibitTag, Executor* ex, StringPiece tag) noexcept {
+  if (!kIsMobile) {
+    list_ = *executor_blocking_list;
+    list_.prev = executor_blocking_list;
+    list_.curr.forbid = true;
+    list_.curr.ex = ex;
+    list_.curr.allowTerminationOnBlocking = true;
+    // If no string was provided, maintain the parent string to keep some
+    // information
+    if (!tag.empty()) {
+      list_.curr.tag = tag;
+    }
     executor_blocking_list = &list_;
   }
 }
 
 ExecutorBlockingGuard::~ExecutorBlockingGuard() {
-  if (executor_blocking_list_enabled) {
+  if (!kIsMobile) {
     if (executor_blocking_list != &list_) {
       terminate_with<std::logic_error>("dtor mismatch");
     }

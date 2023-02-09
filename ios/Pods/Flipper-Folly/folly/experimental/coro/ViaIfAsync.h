@@ -195,8 +195,9 @@ class StackAwareViaIfAsyncAwaiter {
   using CoroutinePromise = typename CoroutineType::promise_type;
   using WrapperHandle = coroutine_handle<CoroutinePromise>;
 
-  using await_suspend_result_t = decltype(
-      std::declval<Awaiter&>().await_suspend(std::declval<WrapperHandle>()));
+  using await_suspend_result_t =
+      decltype(std::declval<Awaiter&>().await_suspend(
+          std::declval<WrapperHandle>()));
 
  public:
   explicit StackAwareViaIfAsyncAwaiter(
@@ -255,8 +256,9 @@ class ViaIfAsyncAwaiter {
   using CoroutinePromise = typename CoroutineType::promise_type;
   using WrapperHandle = coroutine_handle<CoroutinePromise>;
 
-  using await_suspend_result_t = decltype(
-      std::declval<Awaiter&>().await_suspend(std::declval<WrapperHandle>()));
+  using await_suspend_result_t =
+      decltype(std::declval<Awaiter&>().await_suspend(
+          std::declval<WrapperHandle>()));
 
  public:
   explicit ViaIfAsyncAwaiter(
@@ -601,6 +603,12 @@ detail::TryAwaitable<remove_cvref_t<Awaitable>> co_awaitTry(
   return detail::TryAwaitable<remove_cvref_t<Awaitable>>{
       static_cast<Awaitable&&>(awaitable)};
 }
+
+template <typename T>
+using semi_await_try_result_t =
+    await_result_t<decltype(folly::coro::co_viaIfAsync(
+        std::declval<folly::Executor::KeepAlive<>>(),
+        folly::coro::co_awaitTry(std::declval<T>())))>;
 
 } // namespace coro
 } // namespace folly

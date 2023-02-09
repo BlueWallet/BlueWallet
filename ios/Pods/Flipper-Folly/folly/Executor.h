@@ -232,8 +232,7 @@ class Executor {
 
   template <typename F>
   FOLLY_ERASE static void invokeCatchingExns(char const* p, F f) noexcept {
-    auto h = [p](auto&... e) noexcept { invokeCatchingExnsLog(p, &e...); };
-    catch_exception([&] { catch_exception<std::exception const&>(f, h); }, h);
+    catch_exception(f, invokeCatchingExnsLog, p);
   }
 
  protected:
@@ -269,8 +268,7 @@ class Executor {
   }
 
  private:
-  static void invokeCatchingExnsLog(
-      char const* prefix, std::exception const* ex = nullptr);
+  static void invokeCatchingExnsLog(char const* prefix) noexcept;
 
   template <typename ExecutorT>
   static KeepAlive<ExecutorT> makeKeepAliveDummy(ExecutorT* executor) {
@@ -307,14 +305,16 @@ Executor::KeepAlive<ExecutorT> getKeepAliveToken(
 }
 
 struct ExecutorBlockingContext {
-  StringPiece name;
+  bool forbid;
+  bool allowTerminationOnBlocking;
+  Executor* ex = nullptr;
+  StringPiece tag;
 };
 static_assert(
     std::is_standard_layout<ExecutorBlockingContext>::value,
     "non-standard layout");
 
 struct ExecutorBlockingList {
-  bool forbid;
   ExecutorBlockingList* prev;
   ExecutorBlockingContext curr;
 };
@@ -326,12 +326,16 @@ class ExecutorBlockingGuard {
  public:
   struct PermitTag {};
   struct TrackTag {};
+  struct ProhibitTag {};
 
   ~ExecutorBlockingGuard();
   ExecutorBlockingGuard() = delete;
 
   explicit ExecutorBlockingGuard(PermitTag) noexcept;
-  explicit ExecutorBlockingGuard(TrackTag, StringPiece name) noexcept;
+  explicit ExecutorBlockingGuard(
+      TrackTag, Executor* ex, StringPiece tag) noexcept;
+  explicit ExecutorBlockingGuard(
+      ProhibitTag, Executor* ex, StringPiece tag) noexcept;
 
   ExecutorBlockingGuard(ExecutorBlockingGuard&&) = delete;
   ExecutorBlockingGuard(ExecutorBlockingGuard const&) = delete;

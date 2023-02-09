@@ -24,6 +24,8 @@
 #include <folly/CppAttributes.h>
 #include <folly/Portability.h>
 #include <folly/Traits.h>
+#include <folly/Utility.h>
+#include <folly/lang/TypeInfo.h>
 
 namespace folly {
 
@@ -125,7 +127,9 @@ template <typename Ex, typename... Args>
 ///
 /// Usage note:
 /// Passing extra values as arguments rather than capturing them allows smaller
-/// inlined native at the call-site.
+/// inlined native code at the call-site. Passing function-pointers or function-
+/// references rather than general callables with captures allows allows smaller
+/// inlined native code at the call-site as well.
 ///
 /// Example:
 ///
@@ -138,10 +142,25 @@ template <typename Ex, typename... Args>
 ///         },
 ///         i);
 ///   }
-template <typename F, typename... A>
-FOLLY_NOINLINE FOLLY_COLD auto invoke_cold(F&& f, A&&... a)
-    -> decltype(static_cast<F&&>(f)(static_cast<A&&>(a)...)) {
+template <
+    typename F,
+    typename... A,
+    typename FD = std::remove_pointer_t<std::decay_t<F>>,
+    std::enable_if_t<!std::is_function<FD>::value, int> = 0,
+    typename R = decltype(FOLLY_DECLVAL(F &&)(FOLLY_DECLVAL(A &&)...))>
+FOLLY_NOINLINE FOLLY_COLD R invoke_cold(F&& f, A&&... a) //
+    noexcept(noexcept(static_cast<F&&>(f)(static_cast<A&&>(a)...))) {
   return static_cast<F&&>(f)(static_cast<A&&>(a)...);
+}
+template <
+    typename F,
+    typename... A,
+    typename FD = std::remove_pointer_t<std::decay_t<F>>,
+    std::enable_if_t<std::is_function<FD>::value, int> = 0,
+    typename R = decltype(FOLLY_DECLVAL(F &&)(FOLLY_DECLVAL(A &&)...))>
+FOLLY_ERASE R invoke_cold(F&& f, A&&... a) //
+    noexcept(noexcept(f(static_cast<A&&>(a)...))) {
+  return f(static_cast<A&&>(a)...);
 }
 
 /// invoke_noreturn_cold
@@ -203,12 +222,16 @@ template <typename F, typename... A>
 ///      [](auto&& e, int num) { return num; },
 ///      def);
 ///  assert(result == input < 0 ? def : input);
-template <typename E, typename Try, typename Catch, typename... CatchA>
-FOLLY_ERASE_TRYCATCH auto catch_exception(Try&& t, Catch&& c, CatchA&&... a) ->
-    typename std::common_type<
-        decltype(static_cast<Try&&>(t)()),
-        decltype(static_cast<Catch&&>(c)(
-            std::declval<E>(), static_cast<CatchA&&>(a)...))>::type {
+template <
+    typename E,
+    typename Try,
+    typename Catch,
+    typename... CatchA,
+    typename R = std::common_type_t<
+        decltype(FOLLY_DECLVAL(Try &&)()),
+        decltype(FOLLY_DECLVAL(Catch &&)(
+            FOLLY_DECLVAL(E&), FOLLY_DECLVAL(CatchA&&)...))>>
+FOLLY_ERASE_TRYCATCH R catch_exception(Try&& t, Catch&& c, CatchA&&... a) {
 #if FOLLY_HAS_EXCEPTIONS
   try {
     return static_cast<Try&&>(t)();
@@ -243,11 +266,14 @@ FOLLY_ERASE_TRYCATCH auto catch_exception(Try&& t, Catch&& c, CatchA&&... a) ->
 ///      [](int num) { return num; },
 ///      def);
 ///  assert(result == input < 0 ? def : input);
-template <typename Try, typename Catch, typename... CatchA>
-FOLLY_ERASE_TRYCATCH auto catch_exception(Try&& t, Catch&& c, CatchA&&... a) ->
-    typename std::common_type<
-        decltype(static_cast<Try&&>(t)()),
-        decltype(static_cast<Catch&&>(c)(static_cast<CatchA&&>(a)...))>::type {
+template <
+    typename Try,
+    typename Catch,
+    typename... CatchA,
+    typename R = std::common_type_t<
+        decltype(FOLLY_DECLVAL(Try &&)()),
+        decltype(FOLLY_DECLVAL(Catch &&)(FOLLY_DECLVAL(CatchA &&)...))>>
+FOLLY_ERASE_TRYCATCH R catch_exception(Try&& t, Catch&& c, CatchA&&... a) {
 #if FOLLY_HAS_EXCEPTIONS
   try {
     return static_cast<Try&&>(t)();
@@ -271,6 +297,45 @@ FOLLY_ERASE_TRYCATCH auto catch_exception(Try&& t, Catch&& c, CatchA&&... a) ->
 #else
   std::terminate();
 #endif
+}
+
+//  exception_ptr_get_type
+//
+//  Returns the true runtime type info of the exception as stored.
+std::type_info const* exception_ptr_get_type(
+    std::exception_ptr const&) noexcept;
+
+//  exception_ptr_get_object
+//
+//  Returns the address of the stored exception as if it were upcast to the
+//  given type, if it could be upcast to that type. If no type is passed,
+//  returns the address of the stored exception without upcasting.
+//
+//  Note that the stored exception is always a copy of the thrown exception, and
+//  on some platforms caught exceptions may be copied from the stored exception.
+//  The address is only the address of the object as stored, not as thrown and
+//  not as caught.
+void* exception_ptr_get_object(
+    std::exception_ptr const&, std::type_info const*) noexcept;
+
+//  exception_ptr_get_object
+//
+//  Returns the true address of the exception as stored without upcasting.
+inline void* exception_ptr_get_object( //
+    std::exception_ptr const& ptr) noexcept {
+  return exception_ptr_get_object(ptr, nullptr);
+}
+
+//  exception_ptr_get_object
+//
+//  Returns the address of the stored exception as if it were upcast to the
+//  given type, if it could be upcast to that type.
+template <typename T>
+T* exception_ptr_get_object(std::exception_ptr const& ptr) noexcept {
+  static_assert(!std::is_reference<T>::value, "is a reference");
+  auto target = type_info_of<T>();
+  auto object = !target ? nullptr : exception_ptr_get_object(ptr, target);
+  return static_cast<T*>(object);
 }
 
 } // namespace folly

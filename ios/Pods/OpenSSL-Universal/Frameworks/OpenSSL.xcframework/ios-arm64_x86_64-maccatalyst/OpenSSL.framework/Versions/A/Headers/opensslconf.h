@@ -214,7 +214,6 @@ extern "C" {
 #endif
 #elif defined(__APPLE__) && defined (__arm__) && defined (__ARM_ARCH_7A__)
 #elif defined(__APPLE__) && defined (__arm__) && defined (__ARM_ARCH_7S__)
-#elif defined(__APPLE__) && defined (__arm64e__)
 #elif defined(__APPLE__) && defined (__arm64__)
 /*
  * WARNING: do not edit!

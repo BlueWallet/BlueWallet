@@ -116,7 +116,8 @@ class AsyncUDPServerSocket : private AsyncUDPSocket::ReadCallback,
 
   void bind(
       const folly::SocketAddress& addy,
-      const SocketOptionMap& options = emptySocketOptionMap) {
+      const SocketOptionMap& options = emptySocketOptionMap,
+      const std::string& ifName = "") {
     CHECK(!socket_);
 
     socket_ = std::make_shared<AsyncUDPSocket>(evb_);
@@ -126,7 +127,9 @@ class AsyncUDPServerSocket : private AsyncUDPSocket::ReadCallback,
         validateSocketOptions(
             options, addy.getFamily(), SocketOptionKey::ApplyPos::PRE_BIND),
         SocketOptionKey::ApplyPos::PRE_BIND);
-    socket_->bind(addy);
+    AsyncUDPSocket::BindOptions bindOptions;
+    bindOptions.ifName = ifName;
+    socket_->bind(addy, bindOptions);
     socket_->applyOptions(
         validateSocketOptions(
             options, addy.getFamily(), SocketOptionKey::ApplyPos::POST_BIND),

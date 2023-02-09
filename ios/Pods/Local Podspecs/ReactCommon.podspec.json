@@ -1,28 +1,29 @@
 {
   "name": "ReactCommon",
   "module_name": "ReactCommon",
-  "version": "0.67.5",
+  "version": "0.71.2",
   "summary": "-",
   "homepage": "https://reactnative.dev/",
   "license": "MIT",
   "authors": "Facebook, Inc. and its affiliates",
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   },
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.67.5"
+    "tag": "v0.71.2"
   },
   "header_dir": "ReactCommon",
-  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-documentation",
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-gnu-zero-variadic-macro-arguments -Wno-documentation",
   "pod_target_xcconfig": {
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\"",
     "USE_HEADERMAP": "YES",
-    "CLANG_CXX_LANGUAGE_STANDARD": "c++14"
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "GCC_WARN_PEDANTIC": "YES"
   },
   "dependencies": {
     "React-logger": [
-      "0.67.5"
+      "0.71.2"
     ]
   },
   "subspecs": [
@@ -34,37 +35,58 @@
       "name": "turbomodule",
       "dependencies": {
         "React-callinvoker": [
-          "0.67.5"
+          "0.71.2"
         ],
         "React-perflogger": [
-          "0.67.5"
+          "0.71.2"
         ],
         "React-Core": [
-          "0.67.5"
+          "0.71.2"
         ],
         "React-cxxreact": [
-          "0.67.5"
+          "0.71.2"
         ],
         "React-jsi": [
-          "0.67.5"
+          "0.71.2"
         ],
         "RCT-Folly": [
-          "2021.06.28.00-v2"
+          "2021.07.22.00"
         ],
         "DoubleConversion": [
 
         ],
         "glog": [
 
+        ],
+        "hermes-engine": [
+
         ]
       },
       "subspecs": [
+        {
+          "name": "bridging",
+          "dependencies": {
+            "React-jsi": [
+              "0.71.2"
+            ],
+            "hermes-engine": [
+
+            ]
+          },
+          "source_files": "react/bridging/**/*.{cpp,h}",
+          "exclude_files": "react/bridging/tests",
+          "header_dir": "react/bridging",
+          "pod_target_xcconfig": {
+            "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_ROOT)/RCT-Folly\""
+          }
+        },
         {
           "name": "core",
           "source_files": [
             "react/nativemodule/core/ReactCommon/**/*.{cpp,h}",
             "react/nativemodule/core/platform/ios/**/*.{mm,cpp,h}"
-          ]
+          ],
+          "exclude_files": "react/nativemodule/core/ReactCommon/LongLivedObject.h"
         },
         {
           "name": "samples",
@@ -74,7 +96,7 @@
           ],
           "dependencies": {
             "ReactCommon/turbomodule/core": [
-              "0.67.5"
+              "0.71.2"
             ]
           }
         }

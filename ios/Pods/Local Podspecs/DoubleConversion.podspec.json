@@ -20,6 +20,6 @@
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/DoubleConversion\""
   },
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   }
 }

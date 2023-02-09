@@ -12,6 +12,9 @@
 static int const DEFAULT_INSECURE_PORT = 8089;
 static int const DEFAULT_SECURE_PORT = 8088;
 
+static int const DEFAULT_ALT_INSECURE_PORT = 9089;
+static int const DEFAULT_ALT_SECURE_PORT = 9088;
+
 @implementation SKEnvironmentVariables
 
 + (int)getInsecurePort {
@@ -26,6 +29,18 @@ static int const DEFAULT_SECURE_PORT = 8088;
                                atIndex:1
                            withDefault:DEFAULT_SECURE_PORT];
 }
++ (int)getAltInsecurePort {
+  NSString* envVar = [self getFlipperAltPortsVariable];
+  return [self extractIntFromPropValue:envVar
+                               atIndex:0
+                           withDefault:DEFAULT_ALT_INSECURE_PORT];
+}
++ (int)getAltSecurePort {
+  NSString* envVar = [self getFlipperAltPortsVariable];
+  return [self extractIntFromPropValue:envVar
+                               atIndex:1
+                           withDefault:DEFAULT_ALT_SECURE_PORT];
+}
 + (int)extractIntFromPropValue:(NSString*)propValue
                        atIndex:(int)index
                    withDefault:(int)fallback {
@@ -35,7 +50,25 @@ static int const DEFAULT_SECURE_PORT = 8088;
   return envInt > 0 ? envInt : fallback;
 }
 + (NSString*)getFlipperPortsVariable {
+  // Try to retrieve from environment first.
   NSString* value = NSProcessInfo.processInfo.environment[@"FLIPPER_PORTS"];
+  // If empty, check defaults instead.
+  if ([value length] == 0) {
+    value = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"com.facebook.flipper.ports"];
+  }
+
+  return value;
+}
++ (NSString*)getFlipperAltPortsVariable {
+  // Try to retrieve from environment first.
+  NSString* value = NSProcessInfo.processInfo.environment[@"FLIPPER_ALT_PORTS"];
+  // If empty, check defaults instead.
+  if ([value length] == 0) {
+    value = [[NSUserDefaults standardUserDefaults]
+        stringForKey:@"com.facebook.flipper.ports.alt"];
+  }
+
   return value;
 }
 @end

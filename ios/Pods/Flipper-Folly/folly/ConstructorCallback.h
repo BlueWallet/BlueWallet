@@ -17,11 +17,12 @@
 #pragma once
 #include <array>
 #include <atomic>
+#include <iterator>
+#include <memory>
 #include <stdexcept>
 
 #include <folly/Format.h>
 #include <folly/Function.h>
-#include <folly/Optional.h>
 #include <folly/SharedMutex.h>
 
 namespace folly {
@@ -83,18 +84,31 @@ class ConstructorCallback {
 
   using NewConstructorCallback = folly::Function<void(T*)>;
   using This = ConstructorCallback<T, MaxCallbacks>;
+  using CallbackArray =
+      std::array<typename This::NewConstructorCallback, MaxCallbacks>;
 
   explicit ConstructorCallback(T* t) {
+    // This code depends on the C++ standard where values that are
+    // initialized to zero ("Zero Initiation") are initialized before any more
+    // complex static pre-main() dynamic initialization - see
+    // https://en.cppreference.com/w/cpp/language/initialization) for
+    // more details.
+    //
+    // This assumption prevents a subtle initialization race condition
+    // where something could call this code pre-main() before
+    // nConstructorCallbacks_ was set to zero, and thus prevents issuing
+    // callbacks on garbage data.
+
     // fire callbacks to inform listeners about the new constructor
     auto nCBs = This::nConstructorCallbacks_.load(std::memory_order_acquire);
     /****
      * We don't need the full lock here, just the atomic int to tell us
      * how far into the array to go/how many callbacks are registered
      *
-     * NOTE that nCBs > 0 will always imply that callbacks_ is non-nullopt
+     * NOTE that nCBs > 0 will always imply that callbacks_ is non-nullptr
      */
     for (int i = 0; i < nCBs; i++) {
-      This::callbacks_.value()[i](t);
+      (*This::callbacks_)[i](t);
     }
   }
 
@@ -115,18 +129,26 @@ class ConstructorCallback {
    * @throw std::length_error() if this callback would exceed our max
    */
   static void addNewConstructorCallback(NewConstructorCallback cb) {
+    // Ensure that a single callback is added at a time
     std::lock_guard<SharedMutex> g(This::getMutex());
     auto idx = nConstructorCallbacks_.load(std::memory_order_acquire);
-    if (!callbacks_) {
-      // initialize the array if unallocated
-      callbacks_.emplace(
-          std::array<This::NewConstructorCallback, MaxCallbacks>());
+    if (callbacks_ == nullptr) {
+      // Get a pointer to the callback array if we've not already done
+      // so.
+      //
+      // NOTE: this only happens once per class (e.g., when the first
+      // callback is registered) and we're already locked on getMutex()
+      // so this should be very cheap.
+      //
+      // NOTE: store a raw/dumb pointer to avoid a race condition
+      // and -Wglobal-error issues on shutdown
+      callbacks_ = This::getCallbackArray();
     }
-    if (idx >= callbacks_.value().size()) {
+    if (idx >= (*callbacks_).size()) {
       throw std::length_error(
           folly::sformat("Too many callbacks - max {}", MaxCallbacks));
     }
-    callbacks_.value()[idx] = std::move(cb);
+    (*callbacks_)[idx] = std::move(cb);
     // Only increment nConstructorCallbacks_ after fully initializing the array
     // entry. This step makes the new array entry visible to other threads.
     nConstructorCallbacks_.store(idx + 1, std::memory_order_release);
@@ -134,9 +156,10 @@ class ConstructorCallback {
 
  private:
   // allocate an array internal to function to avoid init() races
-  static folly::Optional<std::array<NewConstructorCallback, MaxCallbacks>>
-      callbacks_;
   static folly::SharedMutex& getMutex();
+  static This::CallbackArray* getCallbackArray();
+
+  static This::CallbackArray* callbacks_;
   static std::atomic<int> nConstructorCallbacks_;
 };
 
@@ -151,9 +174,19 @@ folly::SharedMutex& ConstructorCallback<T, MaxCallbacks>::getMutex() {
 }
 
 template <class T, std::size_t MaxCallbacks>
-folly::Optional<std::array<
-    typename ConstructorCallback<T, MaxCallbacks>::NewConstructorCallback,
-    MaxCallbacks>>
-    ConstructorCallback<T, MaxCallbacks>::callbacks_{folly::none};
+typename ConstructorCallback<T, MaxCallbacks>::CallbackArray*
+    ConstructorCallback<T, MaxCallbacks>::callbacks_;
+
+template <class T, std::size_t MaxCallbacks>
+typename ConstructorCallback<T, MaxCallbacks>::CallbackArray*
+ConstructorCallback<T, MaxCallbacks>::getCallbackArray() {
+  // NOTE the compiler implicitly generates a lock here
+  // to avoid double (static) allocation of this object
+  // we avoid paying the cost of the lock by only calling this
+  // function once per class (while we're already locked on getMutex())
+  // and recording the pointer info
+  static ConstructorCallback<T, MaxCallbacks>::CallbackArray a{};
+  return &a;
+}
 
 } // namespace folly

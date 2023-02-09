@@ -28,13 +28,6 @@
 #include <folly/detail/UniqueInstance.h>
 #include <folly/functional/Invoke.h>
 
-// we do not want to use FOLLY_TLS here for mobile
-#if !FOLLY_MOBILE && defined(FOLLY_TLS)
-#define FOLLY_STL_USE_FOLLY_TLS 1
-#else
-#undef FOLLY_STL_USE_FOLLY_TLS
-#endif
-
 namespace folly {
 
 /// SingletonThreadLocal
@@ -147,7 +140,6 @@ class SingletonThreadLocal {
     return *getWrapperTL();
   }
 
-#ifdef FOLLY_STL_USE_FOLLY_TLS
   FOLLY_NOINLINE static Wrapper& getSlow(LocalCache& cache) {
     if (threadlocal_detail::StaticMetaBase::dying()) {
       return getWrapper();
@@ -156,16 +148,14 @@ class SingletonThreadLocal {
     lifetime.track(cache); // idempotent
     return FOLLY_LIKELY(!!cache.cache) ? *cache.cache : getWrapper();
   }
-#endif
 
  public:
   FOLLY_EXPORT FOLLY_ALWAYS_INLINE static T& get() {
-#ifdef FOLLY_STL_USE_FOLLY_TLS
+    if (kIsMobile) {
+      return getWrapper();
+    }
     static thread_local LocalCache cache;
     return FOLLY_LIKELY(!!cache.cache) ? *cache.cache : getSlow(cache);
-#else
-    return getWrapper();
-#endif
   }
 
   class Accessor {
@@ -219,7 +209,7 @@ class SingletonThreadLocal {
 
 template <typename T, typename Tag, typename Make, typename TLTag>
 detail::UniqueInstance SingletonThreadLocal<T, Tag, Make, TLTag>::unique{
-    "folly::SingletonThreadLocal", tag_t<T, Tag>{}, tag_t<Make, TLTag>{}};
+    tag<SingletonThreadLocal>, tag<T, Tag>, tag<Make, TLTag>};
 
 } // namespace folly
 

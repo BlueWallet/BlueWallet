@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 
+#include <folly/ConstructorCallback.h>
 #include <folly/Optional.h>
 #include <folly/SocketAddress.h>
 #include <folly/detail/SocketFastOpen.h>
@@ -376,8 +377,15 @@ class AsyncSocket : public AsyncTransport {
    * @param evb EventBase that will manage this socket.
    * @param fd  File descriptor to take over (should be a connected socket).
    * @param zeroCopyBufId Zerocopy buf id to start with.
+   * @param peerAddress optional peer address (eg: returned from accept).  If
+   *        nullptr, AsyncSocket will lazily attempt to determine it from fd
+   *        via a system call
    */
-  AsyncSocket(EventBase* evb, NetworkSocket fd, uint32_t zeroCopyBufId = 0);
+  AsyncSocket(
+      EventBase* evb,
+      NetworkSocket fd,
+      uint32_t zeroCopyBufId = 0,
+      const SocketAddress* peerAddress = nullptr);
 
   /**
    * Create an AsyncSocket from a different, already connected AsyncSocket.
@@ -434,8 +442,11 @@ class AsyncSocket : public AsyncTransport {
   /**
    * Helper function to create an AsyncSocket.
    */
-  static UniquePtr newSocket(EventBase* evb, NetworkSocket fd) {
-    return UniquePtr{new AsyncSocket(evb, fd)};
+  static UniquePtr newSocket(
+      EventBase* evb,
+      NetworkSocket fd,
+      const SocketAddress* peerAddress = nullptr) {
+    return UniquePtr{new AsyncSocket(evb, fd, 0, peerAddress)};
   }
 
   /**
@@ -1588,6 +1599,12 @@ class AsyncSocket : public AsyncTransport {
   bool closeOnFailedWrite_{true};
 
   netops::DispatcherContainer netops_;
+
+  // allow other functions to register for callbacks when
+  // new AsyncSocket()'s are created
+  // must be LAST member defined to ensure other members are initialized
+  // before access; see ConstructorCallback.h for details
+  ConstructorCallback<AsyncSocket> constructorCallback_{this};
 };
 
 } // namespace folly

@@ -17,17 +17,17 @@ RSYNC_PROTECT_TMP_FILES=(--filter "P .*.??????")
 variant_for_slice()
 {
   case "$1" in
-  "OpenSSL.xcframework/ios-arm64_i386_x86_64-simulator")
-    echo "simulator"
-    ;;
-  "OpenSSL.xcframework/ios-arm64_arm64e_armv7_armv7s")
-    echo ""
-    ;;
   "OpenSSL.xcframework/ios-arm64_x86_64-maccatalyst")
     echo "maccatalyst"
     ;;
-  "OpenSSL.xcframework/macos-arm64_arm64e_x86_64")
+  "OpenSSL.xcframework/macos-arm64_x86_64")
     echo ""
+    ;;
+  "OpenSSL.xcframework/ios-arm64_armv7")
+    echo ""
+    ;;
+  "OpenSSL.xcframework/ios-arm64_i386_x86_64-simulator")
+    echo "simulator"
     ;;
   esac
 }
@@ -35,17 +35,17 @@ variant_for_slice()
 archs_for_slice()
 {
   case "$1" in
-  "OpenSSL.xcframework/ios-arm64_i386_x86_64-simulator")
-    echo "arm64 i386 x86_64"
-    ;;
-  "OpenSSL.xcframework/ios-arm64_arm64e_armv7_armv7s")
-    echo "arm64 arm64e armv7 armv7s"
-    ;;
   "OpenSSL.xcframework/ios-arm64_x86_64-maccatalyst")
     echo "arm64 x86_64"
     ;;
-  "OpenSSL.xcframework/macos-arm64_arm64e_x86_64")
-    echo "arm64 arm64e x86_64"
+  "OpenSSL.xcframework/macos-arm64_x86_64")
+    echo "arm64 x86_64"
+    ;;
+  "OpenSSL.xcframework/ios-arm64_armv7")
+    echo "arm64 armv7"
+    ;;
+  "OpenSSL.xcframework/ios-arm64_i386_x86_64-simulator")
+    echo "arm64 i386 x86_64"
     ;;
   esac
 }
@@ -129,5 +129,5 @@ install_xcframework() {
   echo "Copied $source to $destination"
 }
 
-install_xcframework "${PODS_ROOT}/OpenSSL-Universal/Frameworks/OpenSSL.xcframework" "OpenSSL-Universal" "framework" "ios-arm64_i386_x86_64-simulator" "ios-arm64_arm64e_armv7_armv7s" "ios-arm64_x86_64-maccatalyst"
+install_xcframework "${PODS_ROOT}/OpenSSL-Universal/Frameworks/OpenSSL.xcframework" "OpenSSL-Universal" "framework" "ios-arm64_x86_64-maccatalyst" "ios-arm64_armv7" "ios-arm64_i386_x86_64-simulator"
 

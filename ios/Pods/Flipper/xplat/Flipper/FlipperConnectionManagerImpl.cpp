@@ -11,15 +11,12 @@
 #include <folly/io/async/AsyncSocketException.h>
 #include <folly/io/async/SSLContext.h>
 #include <folly/json.h>
-#include <rsocket/Payload.h>
-#include <rsocket/RSocket.h>
-#include <rsocket/transports/tcp/TcpConnectionFactory.h>
 #include <stdexcept>
 #include <thread>
 #include "ConnectionContextStore.h"
 #include "FireAndForgetBasedFlipperResponder.h"
-#include "FlipperRSocketResponder.h"
 #include "FlipperResponderImpl.h"
+#include "FlipperSocketProvider.h"
 #include "FlipperStep.h"
 #include "Log.h"
 #include "yarpl/Single.h"
@@ -28,47 +25,68 @@
   "ERROR: Aborting flipper initialization because it's not running in the flipper thread."
 
 static constexpr int reconnectIntervalSeconds = 2;
-static constexpr int connectionKeepaliveSeconds = 10;
-
-static constexpr int maxPayloadSize = 0xFFFFFF;
 
 // Not a public-facing version number.
 // Used for compatibility checking with desktop flipper.
 // To be bumped for every core platform interface change.
 static constexpr int sdkVersion = 4;
 
+static constexpr int maxFailedSocketConnectionAttempts = 3;
+
+using namespace folly;
+
 namespace facebook {
 namespace flipper {
 
-class ConnectionEvents : public rsocket::RSocketConnectionEvents {
- private:
-  FlipperConnectionManagerImpl* websocket_;
-
+class FlipperConnectionManagerWrapper {
  public:
-  ConnectionEvents(FlipperConnectionManagerImpl* websocket)
-      : websocket_(websocket) {}
+  FlipperConnectionManagerWrapper(FlipperConnectionManagerImpl* impl)
+      : impl_(impl) {}
+  FlipperConnectionManagerImpl* get_impl() {
+    return impl_;
+  }
 
-  void onConnected() {
-    websocket_->isOpen_ = true;
-    if (websocket_->connectionIsTrusted_) {
-      websocket_->callbacks_->onConnected();
+ private:
+  FlipperConnectionManagerImpl* impl_;
+};
+class ConnectionEvents {
+ public:
+  ConnectionEvents(std::weak_ptr<FlipperConnectionManagerWrapper> impl)
+      : impl_(impl) {}
+  void operator()(const SocketEvent event) {
+    if (auto w = impl_.lock()) {
+      FlipperConnectionManagerImpl* impl = w->get_impl();
+      if (impl == nullptr) {
+        return;
+      }
+      switch (event) {
+        case SocketEvent::OPEN:
+          impl->isOpen_ = true;
+          if (impl->connectionIsTrusted_) {
+            impl->callbacks_->onConnected();
+          }
+          break;
+        case SocketEvent::SSL_ERROR:
+          // SSL errors are not handled as a connection event
+          // on this handler.
+          break;
+        case SocketEvent::CLOSE:
+        case SocketEvent::ERROR:
+          if (!impl->isOpen_)
+            return;
+          impl->isOpen_ = false;
+          if (impl->connectionIsTrusted_) {
+            impl->connectionIsTrusted_ = false;
+            impl->callbacks_->onDisconnected();
+          }
+          impl->reconnect();
+          break;
+      }
     }
   }
 
-  void onDisconnected(const folly::exception_wrapper&) {
-    if (!websocket_->isOpen_)
-      return;
-    websocket_->isOpen_ = false;
-    if (websocket_->connectionIsTrusted_) {
-      websocket_->connectionIsTrusted_ = false;
-      websocket_->callbacks_->onDisconnected();
-    }
-    websocket_->reconnect();
-  }
-
-  void onClosed(const folly::exception_wrapper& e) {
-    onDisconnected(e);
-  }
+ private:
+  std::weak_ptr<FlipperConnectionManagerWrapper> impl_;
 };
 
 FlipperConnectionManagerImpl::FlipperConnectionManagerImpl(
@@ -79,9 +97,12 @@ FlipperConnectionManagerImpl::FlipperConnectionManagerImpl(
       flipperState_(state),
       insecurePort(config.insecurePort),
       securePort(config.securePort),
+      altInsecurePort(config.altInsecurePort),
+      altSecurePort(config.altSecurePort),
       flipperEventBase_(config.callbackWorker),
       connectionEventBase_(config.connectionWorker),
-      contextStore_(contextStore) {
+      contextStore_(contextStore),
+      implWrapper_(std::make_shared<FlipperConnectionManagerWrapper>(this)) {
   CHECK_THROW(config.callbackWorker, std::invalid_argument);
   CHECK_THROW(config.connectionWorker, std::invalid_argument);
 }
@@ -137,7 +158,7 @@ void FlipperConnectionManagerImpl::startSync() {
                         : "Establish main connection");
   try {
     if (isClientSetupStep) {
-      bool success = doCertificateExchange();
+      bool success = connectAndExchangeCertificate();
       if (!success) {
         reconnect();
         return;
@@ -176,41 +197,31 @@ void FlipperConnectionManagerImpl::startSync() {
   }
 }
 
-bool FlipperConnectionManagerImpl::doCertificateExchange() {
-  rsocket::SetupParameters parameters;
-  folly::SocketAddress address;
+bool FlipperConnectionManagerImpl::connectAndExchangeCertificate() {
+  auto port = useLegacySocketProvider ? insecurePort : altInsecurePort;
+  auto endpoint = FlipperConnectionEndpoint(deviceData_.host, port, false);
+
   int medium = certProvider_ != nullptr
       ? certProvider_->getCertificateExchangeMedium()
       : FlipperCertificateExchangeMedium::FS_ACCESS;
 
-  parameters.payload = rsocket::Payload(folly::toJson(folly::dynamic::object(
-      "os", deviceData_.os)("device", deviceData_.device)(
-      "app", deviceData_.app)("sdk_version", sdkVersion)("medium", medium)));
-  address.setFromHostPort(deviceData_.host, insecurePort);
+  auto payload = std::make_unique<FlipperSocketBasePayload>();
+  payload->os = deviceData_.os;
+  payload->device = deviceData_.device;
+  payload->device_id = "unknown";
+  payload->app = deviceData_.app;
+  payload->sdk_version = sdkVersion;
+  payload->medium = medium;
+
+  auto newClient = FlipperSocketProvider::socketCreate(
+      endpoint, std::move(payload), connectionEventBase_);
+  newClient->setEventHandler(ConnectionEvents(implWrapper_));
 
   auto connectingInsecurely = flipperState_->start("Connect insecurely");
   connectionIsTrusted_ = false;
-  auto newClient =
-      rsocket::RSocket::createConnectedClient(
-          std::make_unique<rsocket::TcpConnectionFactory>(
-              *connectionEventBase_->getEventBase(), std::move(address)),
-          std::move(parameters),
-          nullptr,
-          std::chrono::seconds(connectionKeepaliveSeconds), // keepaliveInterval
-          nullptr, // stats
-          std::make_shared<ConnectionEvents>(this))
-          .thenError<folly::AsyncSocketException>([](const auto& e) {
-            if (e.getType() == folly::AsyncSocketException::NOT_OPEN ||
-                e.getType() == folly::AsyncSocketException::NETWORK_ERROR) {
-              // This is the state where no Flipper desktop client is connected.
-              // We don't want an exception thrown here.
-              return std::unique_ptr<rsocket::RSocketClient>(nullptr);
-            }
-            throw e;
-          })
-          .get();
 
-  if (newClient.get() == nullptr) {
+  if (!newClient->connect(this)) {
+    reevaluateSocketProvider();
     connectingInsecurely->fail("Failed to connect");
     return false;
   }
@@ -227,53 +238,55 @@ bool FlipperConnectionManagerImpl::doCertificateExchange() {
 }
 
 bool FlipperConnectionManagerImpl::connectSecurely() {
-  rsocket::SetupParameters parameters;
-  folly::SocketAddress address;
+  auto port = useLegacySocketProvider ? securePort : altSecurePort;
+  auto endpoint = FlipperConnectionEndpoint(deviceData_.host, port, true);
+
+  int medium = certProvider_ != nullptr
+      ? certProvider_->getCertificateExchangeMedium()
+      : FlipperCertificateExchangeMedium::FS_ACCESS;
 
   auto loadingDeviceId = flipperState_->start("Load Device Id");
   auto deviceId = contextStore_->getDeviceId();
   if (deviceId.compare("unknown")) {
     loadingDeviceId->complete();
   }
-  int medium = certProvider_ != nullptr
-      ? certProvider_->getCertificateExchangeMedium()
-      : FlipperCertificateExchangeMedium::FS_ACCESS;
 
-  parameters.payload = rsocket::Payload(folly::toJson(folly::dynamic::object(
-      "csr", contextStore_->getCertificateSigningRequest().c_str())(
-      "csr_path", contextStore_->getCertificateDirectoryPath().c_str())(
-      "os", deviceData_.os)("device", deviceData_.device)(
-      "device_id", deviceId)("app", deviceData_.app)("medium", medium)(
-      "sdk_version", sdkVersion)));
-  address.setFromHostPort(deviceData_.host, securePort);
+  auto payload = std::make_unique<FlipperSocketSecurePayload>();
+  payload->os = deviceData_.os;
+  payload->device = deviceData_.device;
+  payload->device_id = deviceId;
+  payload->app = deviceData_.app;
+  payload->sdk_version = sdkVersion;
+  payload->medium = medium;
+  payload->csr = contextStore_->getCertificateSigningRequest().c_str();
+  payload->csr_path = contextStore_->getCertificateDirectoryPath().c_str();
 
-  std::shared_ptr<folly::SSLContext> sslContext =
-      contextStore_->getSSLContext();
+  auto newClient = FlipperSocketProvider::socketCreate(
+      endpoint, std::move(payload), connectionEventBase_, contextStore_.get());
+  newClient->setEventHandler(ConnectionEvents(implWrapper_));
+  /**
+   Message handler is only ever used for WebSocket connections. RSocket uses a
+   different approach whereas a responder is used instead.
+   */
+  newClient->setMessageHandler([this](const std::string& msg) {
+    std::unique_ptr<FireAndForgetBasedFlipperResponder> responder;
+    auto message = folly::parseJson(msg);
+    auto idItr = message.find("id");
+    if (idItr == message.items().end()) {
+      responder = std::make_unique<FireAndForgetBasedFlipperResponder>(this);
+    } else {
+      responder = std::make_unique<FireAndForgetBasedFlipperResponder>(
+          this, idItr->second.getInt());
+    }
+
+    this->onMessageReceived(folly::parseJson(msg), std::move(responder));
+  });
+
   auto connectingSecurely = flipperState_->start("Connect securely");
   connectionIsTrusted_ = true;
 
-  auto newClient =
-      rsocket::RSocket::createConnectedClient(
-          std::make_unique<rsocket::TcpConnectionFactory>(
-              *connectionEventBase_->getEventBase(),
-              std::move(address),
-              std::move(sslContext)),
-          std::move(parameters),
-          std::make_shared<FlipperRSocketResponder>(this, connectionEventBase_),
-          std::chrono::seconds(connectionKeepaliveSeconds), // keepaliveInterval
-          nullptr, // stats
-          std::make_shared<ConnectionEvents>(this))
-          .thenError<folly::AsyncSocketException>([](const auto& e) {
-            if (e.getType() == folly::AsyncSocketException::NOT_OPEN ||
-                e.getType() == folly::AsyncSocketException::NETWORK_ERROR) {
-              // This is the state where no Flipper desktop client is connected.
-              // We don't want an exception thrown here.
-              return std::unique_ptr<rsocket::RSocketClient>(nullptr);
-            }
-            throw e;
-          })
-          .get();
-  if (newClient.get() == nullptr) {
+  if (!newClient->connect(this)) {
+    reevaluateSocketProvider();
     connectingSecurely->fail("Failed to connect");
     return false;
   }
@@ -322,11 +335,8 @@ void FlipperConnectionManagerImpl::setCallbacks(Callbacks* callbacks) {
 void FlipperConnectionManagerImpl::sendMessage(const folly::dynamic& message) {
   flipperEventBase_->add([this, message]() {
     try {
-      rsocket::Payload payload = toRSocketPayload(message);
       if (client_) {
-        client_->getRequester()
-            ->fireAndForget(std::move(payload))
-            ->subscribe([]() {});
+        client_->send(message, []() {});
       }
     } catch (std::length_error& e) {
       // Skip sending messages that are too large.
@@ -368,71 +378,76 @@ void FlipperConnectionManagerImpl::requestSignedCertFromFlipper() {
       contextStore_->getCertificateDirectoryPath().c_str())("medium", medium);
   auto gettingCert = flipperState_->start("Getting cert from desktop");
 
+  certificateExchangeCompleted_ = false;
+
   flipperEventBase_->add([this, message, gettingCert]() {
-    client_->getRequester()
-        ->requestResponse(rsocket::Payload(folly::toJson(message)))
-        ->subscribe(
-            [this, gettingCert](rsocket::Payload p) {
-              auto response = p.moveDataToString();
-              if (!response.empty()) {
-                folly::dynamic config = folly::parseJson(response);
-                contextStore_->storeConnectionConfig(config);
-              }
-              if (certProvider_) {
-                certProvider_->setFlipperState(flipperState_);
-                auto gettingCertFromProvider =
-                    flipperState_->start("Getting cert from Cert Provider");
-
-                try {
-                  // Certificates should be present in app's sandbox after it is
-                  // returned. The reason we can't have a completion block here
-                  // is because if the certs are not present after it returns
-                  // then the flipper tries to reconnect on insecured channel
-                  // and recreates the app.csr. By the time completion block is
-                  // called the DeviceCA cert doesn't match app's csr and it
-                  // throws an SSL error.
-                  certProvider_->getCertificates(
-                      contextStore_->getCertificateDirectoryPath(),
-                      contextStore_->getDeviceId());
-                  gettingCertFromProvider->complete();
-                } catch (std::exception& e) {
-                  gettingCertFromProvider->fail(e.what());
-                  gettingCert->fail(e.what());
-                } catch (...) {
-                  gettingCertFromProvider->fail("Exception from certProvider");
-                  gettingCert->fail("Exception from certProvider");
-                }
-              }
-              log("Certificate exchange complete.");
-              gettingCert->complete();
-
-              // Disconnect after message sending is complete.
-              // This will trigger a reconnect which should use the secure
-              // channel.
-              // TODO: Connect immediately, without waiting for reconnect
+    client_->sendExpectResponse(
+        folly::toJson(message),
+        [this, message, gettingCert](
+            const std::string& response, bool isError) {
+          /**
+            Need to keep track of whether the response has been handled.
+            On success, the completion handler deallocates the socket which in
+            turn triggers a disconnect. A disconnect is called within the
+            context of a subscription handler. This means that the completion
+            handler can be called again to notify that the stream has been
+            interrupted because we are effectively still handing the response
+            read. So, if already handled, ignore and return;
+          */
+          if (certificateExchangeCompleted_)
+            return;
+          certificateExchangeCompleted_ = true;
+          if (isError) {
+            if (response.compare("not implemented")) {
+              auto error =
+                  "Desktop failed to provide certificates. Error from flipper desktop:\n" +
+                  response;
+              log(error);
+              gettingCert->fail(error);
               client_ = nullptr;
-            },
-            [this, message, gettingCert](folly::exception_wrapper e) {
-              e.handle(
-                  [&](rsocket::ErrorWithPayload& errorWithPayload) {
-                    std::string errorMessage =
-                        errorWithPayload.payload.moveDataToString();
+            } else {
+              sendLegacyCertificateRequest(message);
+            }
+            return;
+          }
+          if (!response.empty()) {
+            folly::dynamic config = folly::parseJson(response);
+            contextStore_->storeConnectionConfig(config);
+          }
+          if (certProvider_) {
+            certProvider_->setFlipperState(flipperState_);
+            auto gettingCertFromProvider =
+                flipperState_->start("Getting cert from Cert Provider");
 
-                    if (errorMessage.compare("not implemented")) {
-                      auto error =
-                          "Desktop failed to provide certificates. Error from flipper desktop:\n" +
-                          errorMessage;
-                      log(error);
-                      gettingCert->fail(error);
-                      client_ = nullptr;
-                    } else {
-                      sendLegacyCertificateRequest(message);
-                    }
-                  },
-                  [e, gettingCert](...) {
-                    gettingCert->fail(e.what().c_str());
-                  });
-            });
+            try {
+              // Certificates should be present in app's sandbox after it is
+              // returned. The reason we can't have a completion block here
+              // is because if the certs are not present after it returns
+              // then the flipper tries to reconnect on insecured channel
+              // and recreates the app.csr. By the time completion block is
+              // called the DeviceCA cert doesn't match app's csr and it
+              // throws an SSL error.
+              certProvider_->getCertificates(
+                  contextStore_->getCertificateDirectoryPath(),
+                  contextStore_->getDeviceId());
+              gettingCertFromProvider->complete();
+            } catch (std::exception& e) {
+              gettingCertFromProvider->fail(e.what());
+              gettingCert->fail(e.what());
+            } catch (...) {
+              gettingCertFromProvider->fail("Exception from certProvider");
+              gettingCert->fail("Exception from certProvider");
+            }
+          }
+          log("Certificate exchange complete.");
+          gettingCert->complete();
+
+          // Disconnect after message sending is complete.
+          // The client destructor will send a disconnected event
+          // which will be handled by Flipper which will initiate
+          // a reconnect sequence.
+          client_ = nullptr;
+        });
   });
   failedConnectionAttempts_ = 0;
 }
@@ -443,34 +458,39 @@ void FlipperConnectionManagerImpl::sendLegacyCertificateRequest(
   // Fall back to fireAndForget, instead of requestResponse.
   auto sendingRequest =
       flipperState_->start("Sending fallback certificate request");
-  client_->getRequester()
-      ->fireAndForget(rsocket::Payload(folly::toJson(message)))
-      ->subscribe([this, sendingRequest]() {
-        sendingRequest->complete();
-        folly::dynamic config = folly::dynamic::object();
-        contextStore_->storeConnectionConfig(config);
-        client_ = nullptr;
-      });
+
+  client_->send(message, [this, sendingRequest]() {
+    sendingRequest->complete();
+    folly::dynamic config = folly::dynamic::object();
+    contextStore_->storeConnectionConfig(config);
+    client_ = nullptr;
+  });
+}
+
+/**
+    Check for the maximum number of failed socket connection attempts.
+    If exceeded, then swap the default socket provider. If the maximum
+    number of failed attempts is reached again, swap again the socket provider.
+
+    WebSocket -> RSocket -> WebSocket -> ...
+ */
+void FlipperConnectionManagerImpl::reevaluateSocketProvider() {
+  if (failedSocketConnectionAttempts < maxFailedSocketConnectionAttempts) {
+    ++failedSocketConnectionAttempts;
+  } else {
+    failedSocketConnectionAttempts = 0;
+    useLegacySocketProvider = !useLegacySocketProvider;
+
+    if (useLegacySocketProvider) {
+      FlipperSocketProvider::shelveDefault();
+    } else {
+      FlipperSocketProvider::unshelveDefault();
+    }
+  }
 }
 
 bool FlipperConnectionManagerImpl::isRunningInOwnThread() {
   return flipperEventBase_->isInEventBaseThread();
-}
-
-rsocket::Payload toRSocketPayload(dynamic data) {
-  std::string json = folly::toJson(data);
-  rsocket::Payload payload = rsocket::Payload(json);
-  auto payloadLength = payload.data->computeChainDataLength();
-  if (payloadLength > maxPayloadSize) {
-    auto logMessage =
-        std::string(
-            "Error: Skipping sending message larger than max rsocket payload: ") +
-        json.substr(0, 100) + "...";
-    log(logMessage);
-    throw std::length_error(logMessage);
-  }
-
-  return payload;
 }
 
 } // namespace flipper
