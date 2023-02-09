@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-fingerprint-scanner/ios/ReactNativeFingerprintScanner.h

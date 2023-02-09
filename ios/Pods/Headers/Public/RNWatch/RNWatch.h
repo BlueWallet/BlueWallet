@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-watch-connectivity/ios/RNWatch/RNWatch.h

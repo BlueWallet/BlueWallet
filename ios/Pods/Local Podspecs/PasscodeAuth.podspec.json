@@ -1,0 +1,22 @@
+{
+  "name": "PasscodeAuth",
+  "version": "1.0.0",
+  "summary": "React Native authentication with iOS Passcode.",
+  "homepage": "https://github.com/brthrs/react-native-passcode-auth",
+  "license": "MIT",
+  "authors": "Naoufal Kadhom <naoufalkadhom@gmail.com> (https://github.com/naoufal)",
+  "platforms": {
+    "ios": "9.0",
+    "tvos": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/brthrs/react-native-passcode-auth",
+    "tag": "1.0.0"
+  },
+  "source_files": "*.{h,m}",
+  "dependencies": {
+    "React": [
+
+    ]
+  }
+}

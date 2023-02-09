@@ -1,0 +1,26 @@
+{
+  "name": "react-native-tor",
+  "version": "0.1.8",
+  "summary": "Tor for React Native",
+  "homepage": "https://github.com/Sifir-io/react-native-tor/",
+  "license": "MIT",
+  "authors": "gabidi <gabidi@gmail.com> (https://github.com/gabidi)",
+  "platforms": {
+    "ios": "11.1"
+  },
+  "source": {
+    "git": "https://github.com/Sifir-io/react-native-tor.git",
+    "tag": "0.1.8"
+  },
+  "swift_versions": "5.0",
+  "source_files": "ios/*.{h,m,mm,swift}",
+  "ios": {
+    "vendored_frameworks": "ios/Libsifir_ios.framework"
+  },
+  "dependencies": {
+    "React": [
+
+    ]
+  },
+  "swift_version": "5.0"
+}

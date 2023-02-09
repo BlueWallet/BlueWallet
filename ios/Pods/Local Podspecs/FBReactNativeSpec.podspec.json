@@ -1,0 +1,123 @@
+{
+  "name": "FBReactNativeSpec",
+  "version": "0.67.5",
+  "summary": "-",
+  "homepage": "https://reactnative.dev/",
+  "license": "MIT",
+  "authors": "Facebook, Inc. and its affiliates",
+  "platforms": {
+    "ios": "11.0"
+  },
+  "compiler_flags": "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -Wno-comma -Wno-shorten-64-to-32 -Wno-nullability-completeness",
+  "source": {
+    "git": "https://github.com/facebook/react-native.git",
+    "tag": "v0.67.5"
+  },
+  "source_files": "**/FBReactNativeSpec*.{h,mm}",
+  "header_dir": "FBReactNativeSpec",
+  "pod_target_xcconfig": {
+    "USE_HEADERMAP": "YES",
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++14",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/React/FBReactNativeSpec\" \"$(PODS_ROOT)/RCT-Folly\""
+  },
+  "dependencies": {
+    "RCT-Folly": [
+      "2021.06.28.00-v2"
+    ],
+    "RCTRequired": [
+      "0.67.5"
+    ],
+    "RCTTypeSafety": [
+      "0.67.5"
+    ],
+    "React-Core": [
+      "0.67.5"
+    ],
+    "React-jsi": [
+      "0.67.5"
+    ],
+    "ReactCommon/turbomodule/core": [
+      "0.67.5"
+    ]
+  },
+  "prepare_command": "mkdir -p ../../React/FBReactNativeSpec/FBReactNativeSpec && touch -a ../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h ../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm",
+  "script_phases": {
+    "name": "Generate Specs",
+    "input_files": [
+      "${PODS_TARGET_SRCROOT}/../../Libraries/ActionSheetIOS/NativeActionSheetManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Alert/NativeAlertManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Animated/NativeAnimatedHelper.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Animated/NativeAnimatedModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Animated/NativeAnimatedTurboModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/AppState/NativeAppState.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/BatchedBridge/NativeModules.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Blob/NativeBlobModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Blob/NativeFileReaderModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/BugReporting/NativeBugReporting.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/AccessibilityInfo/NativeAccessibilityInfo.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/AccessibilityInfo/NativeAccessibilityManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/Clipboard/NativeClipboard.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/DatePickerAndroid/NativeDatePickerAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/Keyboard/NativeKeyboardObserver.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/Sound/NativeSoundManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/StatusBar/NativeStatusBarManagerAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/StatusBar/NativeStatusBarManagerIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Components/ToastAndroid/NativeToastAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Core/NativeExceptionsManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Core/SegmentFetcher/NativeSegmentFetcher.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Core/Timers/NativeTiming.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/EventEmitter/NativeEventEmitter.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/EventEmitter/__mocks__/NativeEventEmitter.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/HeapCapture/NativeJSCHeapCapture.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageEditor.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageLoaderAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageLoaderIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImagePickerIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageStoreAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Image/NativeImageStoreIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Interaction/NativeFrameRateLogger.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Linking/NativeIntentAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Linking/NativeLinkingManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Modal/NativeModalManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeComponent/NativeComponentRegistry.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeAnimationsDebugModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeDevMenu.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeDevSettings.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeDeviceEventManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeDialogManagerAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeLogBox.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeRedBox.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/NativeModules/specs/NativeSourceCode.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Network/NativeNetworkingAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Network/NativeNetworkingIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Performance/NativeJSCSamplingProfiler.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/PermissionsAndroid/NativePermissionsAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/PushNotificationIOS/NativePushNotificationManagerIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/ReactNative/NativeHeadlessJsTaskSupport.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/ReactNative/NativeI18nManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/ReactNative/NativeUIManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Settings/NativeSettingsManager.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Share/NativeShareModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Storage/NativeAsyncLocalStorage.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Storage/NativeAsyncSQLiteDBStorage.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/TurboModule/samples/NativeSampleTurboModule.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeAppearance.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDevLoadingView.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDevSplitBundleLoader.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeDeviceInfo.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativeJSDevSupport.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativePlatformConstantsAndroid.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Utilities/NativePlatformConstantsIOS.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/Vibration/NativeVibration.js",
+      "${PODS_TARGET_SRCROOT}/../../Libraries/WebSocket/NativeWebSocketModule.js"
+    ],
+    "output_files": [
+      "${DERIVED_FILE_DIR}/codegen-FBReactNativeSpec.log",
+      " ${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec.h",
+      " ${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec/FBReactNativeSpec-generated.mm"
+    ],
+    "script": "set -o pipefail\nset -e\n\nRN_DIR=$(cd \"${PODS_TARGET_SRCROOT}/../..\" && pwd)\n\nGENERATED_SRCS_DIR=\"${DERIVED_FILE_DIR}/generated/source/codegen\"\nGENERATED_SCHEMA_FILE=\"$GENERATED_SRCS_DIR/schema.json\"\nTEMP_OUTPUT_DIR=\"$GENERATED_SRCS_DIR/out\"\n\nLIBRARY_NAME=\"FBReactNativeSpec\"\nOUTPUT_DIR=\"${PODS_TARGET_SRCROOT}/../../React/FBReactNativeSpec/FBReactNativeSpec\"\n\nCODEGEN_REPO_PATH=\"$RN_DIR/packages/react-native-codegen\"\nCODEGEN_NPM_PATH=\"$RN_DIR/../react-native-codegen\"\nCODEGEN_CLI_PATH=\"\"\n\n# Determine path to react-native-codegen\nif [ -d \"$CODEGEN_REPO_PATH\" ]; then\n  CODEGEN_CLI_PATH=$(cd \"$CODEGEN_REPO_PATH\" && pwd)\nelif [ -d \"$CODEGEN_NPM_PATH\" ]; then\n  CODEGEN_CLI_PATH=$(cd \"$CODEGEN_NPM_PATH\" && pwd)\nelse\n  echo \"error: Could not determine react-native-codegen location. Try running 'yarn install' or 'npm install' in your project root.\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n  exit 1\nfi\n\nfind_node () {\n  source \"$RN_DIR/scripts/find-node.sh\"\n\n  NODE_BINARY=\"${NODE_BINARY:-$(command -v node || true)}\"\n  if [ -z \"$NODE_BINARY\" ]; then\n    echo \"error: Could not find node. Make sure it is in bash PATH or set the NODE_BINARY environment variable.\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n    exit 1\n  fi\n}\n\nsetup_dirs () {\n  set +e\n  rm -rf \"$GENERATED_SRCS_DIR\"\n  set -e\n\n  mkdir -p \"$GENERATED_SRCS_DIR\" \"$TEMP_OUTPUT_DIR\"\n\n  # Clear output files\n  > \"${SCRIPT_OUTPUT_FILE_0}\"\n}\n\ndescribe () {\n  printf \"\\n\\n>>>>> %s\\n\\n\\n\" \"$1\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n}\n\nbuildCodegenCLI () {\n  if [ ! -d \"$CODEGEN_CLI_PATH/lib\" ]; then\n    describe \"Building react-native-codegen package\"\n    bash \"$CODEGEN_CLI_PATH/scripts/oss/build.sh\"\n  fi\n}\n\ngenerateCodegenSchemaFromJavaScript () {\n  describe \"Generating codegen schema from JavaScript\"\n\n  SRCS_PATTERN=\"Native*.js\"\n  SRCS_DIR=\"../../Libraries\"\n  if [ $SRCS_PATTERN ]; then\n    JS_SRCS=$(find \"${PODS_TARGET_SRCROOT}\"/$SRCS_DIR -type f -name \"$SRCS_PATTERN\" -print0 | xargs -0)\n    echo \"[\"../../Libraries/ActionSheetIOS/NativeActionSheetManager.js\", \"../../Libraries/Alert/NativeAlertManager.js\", \"../../Libraries/Animated/NativeAnimatedHelper.js\", \"../../Libraries/Animated/NativeAnimatedModule.js\", \"../../Libraries/Animated/NativeAnimatedTurboModule.js\", \"../../Libraries/AppState/NativeAppState.js\", \"../../Libraries/BatchedBridge/NativeModules.js\", \"../../Libraries/Blob/NativeBlobModule.js\", \"../../Libraries/Blob/NativeFileReaderModule.js\", \"../../Libraries/BugReporting/NativeBugReporting.js\", \"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityInfo.js\", \"../../Libraries/Components/AccessibilityInfo/NativeAccessibilityManager.js\", \"../../Libraries/Components/Clipboard/NativeClipboard.js\", \"../../Libraries/Components/DatePickerAndroid/NativeDatePickerAndroid.js\", \"../../Libraries/Components/Keyboard/NativeKeyboardObserver.js\", \"../../Libraries/Components/Sound/NativeSoundManager.js\", \"../../Libraries/Components/StatusBar/NativeStatusBarManagerAndroid.js\", \"../../Libraries/Components/StatusBar/NativeStatusBarManagerIOS.js\", \"../../Libraries/Components/ToastAndroid/NativeToastAndroid.js\", \"../../Libraries/Core/NativeExceptionsManager.js\", \"../../Libraries/Core/SegmentFetcher/NativeSegmentFetcher.js\", \"../../Libraries/Core/Timers/NativeTiming.js\", \"../../Libraries/EventEmitter/NativeEventEmitter.js\", \"../../Libraries/EventEmitter/__mocks__/NativeEventEmitter.js\", \"../../Libraries/HeapCapture/NativeJSCHeapCapture.js\", \"../../Libraries/Image/NativeImageEditor.js\", \"../../Libraries/Image/NativeImageLoaderAndroid.js\", \"../../Libraries/Image/NativeImageLoaderIOS.js\", \"../../Libraries/Image/NativeImagePickerIOS.js\", \"../../Libraries/Image/NativeImageStoreAndroid.js\", \"../../Libraries/Image/NativeImageStoreIOS.js\", \"../../Libraries/Interaction/NativeFrameRateLogger.js\", \"../../Libraries/Linking/NativeIntentAndroid.js\", \"../../Libraries/Linking/NativeLinkingManager.js\", \"../../Libraries/Modal/NativeModalManager.js\", \"../../Libraries/NativeComponent/NativeComponentRegistry.js\", \"../../Libraries/NativeModules/specs/NativeAnimationsDebugModule.js\", \"../../Libraries/NativeModules/specs/NativeDevMenu.js\", \"../../Libraries/NativeModules/specs/NativeDevSettings.js\", \"../../Libraries/NativeModules/specs/NativeDeviceEventManager.js\", \"../../Libraries/NativeModules/specs/NativeDialogManagerAndroid.js\", \"../../Libraries/NativeModules/specs/NativeLogBox.js\", \"../../Libraries/NativeModules/specs/NativeRedBox.js\", \"../../Libraries/NativeModules/specs/NativeSourceCode.js\", \"../../Libraries/Network/NativeNetworkingAndroid.js\", \"../../Libraries/Network/NativeNetworkingIOS.js\", \"../../Libraries/Performance/NativeJSCSamplingProfiler.js\", \"../../Libraries/PermissionsAndroid/NativePermissionsAndroid.js\", \"../../Libraries/PushNotificationIOS/NativePushNotificationManagerIOS.js\", \"../../Libraries/ReactNative/NativeHeadlessJsTaskSupport.js\", \"../../Libraries/ReactNative/NativeI18nManager.js\", \"../../Libraries/ReactNative/NativeUIManager.js\", \"../../Libraries/Settings/NativeSettingsManager.js\", \"../../Libraries/Share/NativeShareModule.js\", \"../../Libraries/Storage/NativeAsyncLocalStorage.js\", \"../../Libraries/Storage/NativeAsyncSQLiteDBStorage.js\", \"../../Libraries/TurboModule/samples/NativeSampleTurboModule.js\", \"../../Libraries/Utilities/NativeAppearance.js\", \"../../Libraries/Utilities/NativeDevLoadingView.js\", \"../../Libraries/Utilities/NativeDevSplitBundleLoader.js\", \"../../Libraries/Utilities/NativeDeviceInfo.js\", \"../../Libraries/Utilities/NativeJSDevSupport.js\", \"../../Libraries/Utilities/NativePlatformConstantsAndroid.js\", \"../../Libraries/Utilities/NativePlatformConstantsIOS.js\", \"../../Libraries/Vibration/NativeVibration.js\", \"../../Libraries/WebSocket/NativeWebSocketModule.js\"]\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n  else\n    JS_SRCS=\"${PODS_TARGET_SRCROOT}/$SRCS_DIR\"\n    echo \"../../Libraries\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n  fi\n\n  \"$NODE_BINARY\" \"$CODEGEN_CLI_PATH/lib/cli/combine/combine-js-to-schema-cli.js\" \"$GENERATED_SCHEMA_FILE\" $JS_SRCS\n}\n\ngenerateCodegenArtifactsFromSchema () {\n  describe \"Generating codegen artifacts from schema\"\n  pushd \"$RN_DIR\" >/dev/null || exit 1\n    \"$NODE_BINARY\" \"scripts/generate-specs-cli.js\" ios \"$GENERATED_SCHEMA_FILE\" \"$TEMP_OUTPUT_DIR\" \"$LIBRARY_NAME\"\n  popd >/dev/null || exit 1\n}\n\nmoveOutputs () {\n  mkdir -p \"$OUTPUT_DIR\"\n\n  # Copy all output to output_dir\n  cp -R \"$TEMP_OUTPUT_DIR/\" \"$OUTPUT_DIR\" || exit 1\n  echo \"$LIBRARY_NAME output has been written to $OUTPUT_DIR:\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n  ls -1 \"$OUTPUT_DIR\" >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n}\n\nmain () {\n  setup_dirs\n  find_node\n  buildCodegenCLI\n  generateCodegenSchemaFromJavaScript\n  generateCodegenArtifactsFromSchema\n  moveOutputs\n}\n\nmain \"$@\"\necho 'Done.' >> \"${SCRIPT_OUTPUT_FILE_0}\" 2>&1\n    ",
+    "execution_position": "before_compile",
+    "show_env_vars_in_log": true
+  }
+}

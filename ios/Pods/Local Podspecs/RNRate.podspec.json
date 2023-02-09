@@ -1,0 +1,24 @@
+{
+  "name": "RNRate",
+  "version": "1.2.12",
+  "summary": "React Native Rate is a cross platform solution to getting users to easily rate your app.",
+  "homepage": "https://github.com/KjellConnelly/react-native-rate#readme",
+  "license": "MIT",
+  "authors": {
+    "author": null
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "source": {
+    "git": "https://github.com/KjellConnelly/react-native-rate.git",
+    "branch": "master"
+  },
+  "source_files": "ios/*.{h,m}",
+  "requires_arc": true,
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "RNShare",
+  "version": "7.9.1",
+  "summary": "Social share, sending simple data to other apps.",
+  "homepage": "https://react-native-share.github.io/react-native-share/",
+  "license": "MIT",
+  "authors": {
+    "Esteban Fuentealba": "efuentealba@json.cl"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source": {
+    "git": "https://github.com/react-native-community/react-native-share.git",
+    "tag": "v7.9.1"
+  },
+  "source_files": "ios/**/*.{h,m}",
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "ios": {
+    "weak_frameworks": "LinkPresentation"
+  }
+}

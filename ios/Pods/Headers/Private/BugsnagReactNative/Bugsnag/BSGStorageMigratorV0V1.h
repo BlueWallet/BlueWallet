@@ -1,0 +1,1 @@
+../../../../../../node_modules/@bugsnag/react-native/ios/vendor/bugsnag-cocoa/Bugsnag/Storage/BSGStorageMigratorV0V1.h

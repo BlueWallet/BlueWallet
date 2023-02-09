@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-idle-timer/ios/RNIdleTimer/IdleTimerManager.h

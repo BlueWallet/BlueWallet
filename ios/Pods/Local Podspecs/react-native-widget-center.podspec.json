@@ -1,0 +1,27 @@
+{
+  "name": "react-native-widget-center",
+  "version": "0.0.8",
+  "summary": "WidgetCenter for React Native",
+  "description": "react-native-widget-center",
+  "homepage": "https://github.com/Taylor123/react-native-widget-center",
+  "license": "MIT",
+  "authors": {
+    "Taylor Johnson": ""
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/Taylor123/react-native-widget-center.git",
+    "tag": "0.0.8"
+  },
+  "source_files": "ios/**/*.{h,c,m,swift}",
+  "swift_versions": "5.0",
+  "requires_arc": true,
+  "dependencies": {
+    "React": [
+
+    ]
+  },
+  "swift_version": "5.0"
+}

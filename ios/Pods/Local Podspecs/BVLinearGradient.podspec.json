@@ -1,0 +1,30 @@
+{
+  "name": "BVLinearGradient",
+  "version": "2.6.2",
+  "homepage": "https://github.com/brentvatne/react-native-linear-gradient",
+  "summary": "A <LinearGradient /> component for react-native",
+  "license": "MIT",
+  "authors": {
+    "Brent Vatne": "brentvatne@gmail.com"
+  },
+  "platforms": {
+    "ios": "9.0",
+    "tvos": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/brentvatne/react-native-linear-gradient.git",
+    "tag": "v2.6.2"
+  },
+  "source_files": "ios/*.{h,m}",
+  "preserve_paths": "**/*.js",
+  "frameworks": [
+    "UIKit",
+    "QuartzCore",
+    "Foundation"
+  ],
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "RealmJS",
+  "version": "10.20.0-beta.5",
+  "summary": "Realm is a mobile database: an alternative to SQLite and key-value stores",
+  "license": "See the actual license in the file LICENSE",
+  "authors": {
+    "name": "Realm",
+    "email": "help@realm.io",
+    "url": "https://realm.io"
+  },
+  "homepage": "https://realm.io",
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source": {
+    "http": "https://github.com/realm/realm-js/blob/master/CONTRIBUTING.md#how-to-debug-react-native-podspec"
+  },
+  "source_files": "react-native/ios/RealmReact/*.mm",
+  "public_header_files": "react-native/ios/RealmReact/*.h",
+  "frameworks": [
+
+  ],
+  "libraries": [
+    "c++",
+    "z",
+    "compression"
+  ],
+  "pod_target_xcconfig": {
+    "CLANG_CXX_LANGUAGE_STANDARD": "c++17",
+    "CLANG_CXX_LIBRARY": "libc++",
+    "CURRENT_PROJECT_VERSION": "10.20.0-beta.5",
+    "VERSIONING_SYSTEM": "apple-generic",
+    "HEADER_SEARCH_PATHS": "\"$(PODS_TARGET_SRCROOT)/react-native/ios/RealmReact/\" \"$(PODS_ROOT)/Headers/Public/React-Core/\""
+  },
+  "vendored_frameworks": "react-native/ios/realm-js-ios.xcframework",
+  "dependencies": {
+    "React": [
+
+    ]
+  }
+}

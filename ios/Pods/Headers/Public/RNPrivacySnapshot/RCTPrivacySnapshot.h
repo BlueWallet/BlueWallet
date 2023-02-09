@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-privacy-snapshot/ios/RCTPrivacySnapshot/RCTPrivacySnapshot.h

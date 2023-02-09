@@ -1,0 +1,22 @@
+{
+  "name": "rn-ldk",
+  "version": "0.8.1",
+  "summary": "rn-ldk",
+  "homepage": "https://github.com/BlueWallet/rn-ldk#readme",
+  "license": "MIT",
+  "authors": "Overtorment <overtorment@gmail.com> (https://github.com/Overtorment)",
+  "platforms": {
+    "ios": "13.0"
+  },
+  "source": {
+    "git": "https://github.com/Overtorment/rn-ldk.git",
+    "tag": "0.8.1"
+  },
+  "source_files": "ios/**/*.{h,m,mm,swift}",
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "vendored_frameworks": "ios/LDKFramework.xcframework"
+}

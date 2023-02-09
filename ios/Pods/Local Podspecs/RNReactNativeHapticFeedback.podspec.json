@@ -1,0 +1,25 @@
+{
+  "name": "RNReactNativeHapticFeedback",
+  "version": "1.14.0",
+  "summary": "Basic haptic feedback for iOS and android",
+  "description": "react-native-haptic-feedback",
+  "homepage": "https://github.com/mkuczera/react-native-haptic-feedback",
+  "license": "MIT",
+  "authors": {
+    "author": "m.kuczera@gmail.com"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/mkuczera/react-native-haptic-feedback.git",
+    "tag": "master"
+  },
+  "source_files": "ios/*.{h,m}",
+  "requires_arc": true,
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}

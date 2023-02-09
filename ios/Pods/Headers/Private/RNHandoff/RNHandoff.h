@@ -1,0 +1,1 @@
+../../../../../node_modules/react-native-handoff/ios/RNHandoff.h

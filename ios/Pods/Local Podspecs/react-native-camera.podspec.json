@@ -1,0 +1,84 @@
+{
+  "name": "react-native-camera",
+  "version": "4.2.1",
+  "summary": "A Camera component for React Native. Also reads barcodes.",
+  "description": "A Camera component for React Native. Also reads barcodes.",
+  "license": "MIT AND Apache-2.0 AND BSD-3-Clause",
+  "authors": "Lochlan Wansbrough <lochie@live.com> (http://lwansbrough.com)",
+  "homepage": "https://github.com/react-native-community/react-native-camera",
+  "source": {
+    "git": "https://github.com/react-native-community/react-native-camera",
+    "tag": "v4.2.1"
+  },
+  "requires_arc": true,
+  "platforms": {
+    "ios": "9.0"
+  },
+  "default_subspecs": [
+    "RN",
+    "RCT"
+  ],
+  "preserve_paths": [
+    "LICENSE",
+    "README.md",
+    "package.json",
+    "index.js"
+  ],
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "subspecs": [
+    {
+      "name": "RCT",
+      "source_files": "ios/RCT/**/*.{h,m}"
+    },
+    {
+      "name": "RN",
+      "source_files": "ios/RN/**/*.{h,m}"
+    },
+    {
+      "name": "TextDetector",
+      "dependencies": {
+        "react-native-camera/RN": [
+
+        ],
+        "react-native-camera/RCT": [
+
+        ],
+        "GoogleMLKit/TextRecognition": [
+
+        ]
+      }
+    },
+    {
+      "name": "FaceDetectorMLKit",
+      "dependencies": {
+        "react-native-camera/RN": [
+
+        ],
+        "react-native-camera/RCT": [
+
+        ],
+        "GoogleMLKit/FaceDetection": [
+
+        ]
+      }
+    },
+    {
+      "name": "BarcodeDetectorMLKit",
+      "dependencies": {
+        "react-native-camera/RN": [
+
+        ],
+        "react-native-camera/RCT": [
+
+        ],
+        "GoogleMLKit/BarcodeScanning": [
+
+        ]
+      }
+    }
+  ]
+}

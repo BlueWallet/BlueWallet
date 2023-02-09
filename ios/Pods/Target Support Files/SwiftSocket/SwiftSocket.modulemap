@@ -1,0 +1,6 @@
+module SwiftSocket {
+  umbrella header "SwiftSocket-umbrella.h"
+
+  export *
+  module * { export * }
+}

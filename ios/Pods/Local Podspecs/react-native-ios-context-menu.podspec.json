@@ -1,0 +1,23 @@
+{
+  "name": "react-native-ios-context-menu",
+  "version": "1.12.2",
+  "summary": "A react-native component to use context menu's (UIMenu) on iOS 13/14+",
+  "homepage": "https://github.com/dominicstop/react-native-ios-context-menu#readme",
+  "license": "MIT",
+  "authors": "Dominic Go <18517029+dominicstop@users.noreply.github.com> (https://github.com/dominicstop)",
+  "platforms": {
+    "ios": "10.0"
+  },
+  "source": {
+    "git": "https://github.com/dominicstop/react-native-ios-context-menu.git",
+    "tag": "1.12.2"
+  },
+  "source_files": "ios/**/*.{h,m,mm,swift}",
+  "swift_versions": "5.3",
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  },
+  "swift_version": "5.3"
+}

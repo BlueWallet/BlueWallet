@@ -1,0 +1,31 @@
+{
+  "name": "BugsnagReactNative",
+  "version": "7.18.2",
+  "summary": "Bugsnag error reporter for React Native applications",
+  "description": "Bugsnag crash and error reporting for React Native apps",
+  "homepage": "https://github.com/bugsnag/",
+  "license": "MIT",
+  "authors": {
+    "Bugsnag": "platforms@bugsnag.com"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source": {
+    "git": "https://github.com/bugsnag/bugsnag-js.git",
+    "tag": "v7.18.2"
+  },
+  "public_header_files": "ios/vendor/bugsnag-cocoa/{Bugsnag/include/Bugsnag/*.h}",
+  "source_files": [
+    "ios/BugsnagReactNative/**/*.{h,m}",
+    "ios/vendor/bugsnag-cocoa/**/*.{h,mm,m,cpp,c}",
+    "ios/vendor/bugsnag-cocoa/{Bugsnag/include/Bugsnag/*.h}"
+  ],
+  "header_dir": "Bugsnag",
+  "requires_arc": true,
+  "dependencies": {
+    "React-Core": [
+
+    ]
+  }
+}

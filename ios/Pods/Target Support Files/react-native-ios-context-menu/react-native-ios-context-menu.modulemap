@@ -1,0 +1,6 @@
+module react_native_ios_context_menu {
+  umbrella header "react-native-ios-context-menu-umbrella.h"
+
+  export *
+  module * { export * }
+}
