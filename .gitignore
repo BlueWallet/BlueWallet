@@ -67,7 +67,7 @@ release-notes.txt
 current-branch.json
 
 # Ruby / CocoaPods
-/ios/Pods/	59	/ios/Pods/
+/ios/Pods/
 /vendor/bundle/
 	
 # Temporary files created by Metro to check the health of the file watcher
