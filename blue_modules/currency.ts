@@ -2,14 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
-import { FiatUnit, getFiatRate } from '../models/fiatUnit';
+import { FiatUnit, FiatUnitValue, getFiatRate } from '../models/fiatUnit';
 import WidgetCommunication from './WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = { LAST_UPDATED_ERROR: false };
+let exchangeRates: Record<string, any> = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled = 0;
 let skipUpdateExchangeRate = false;
 
@@ -18,20 +18,26 @@ const LAST_UPDATED = 'LAST_UPDATED';
 /**
  * Saves to storage preferred currency, whole object
  * from `./models/fiatUnit`
- *
- * @param item {Object} one of the values in `./models/fiatUnit`
- * @returns {Promise<void>}
  */
-async function setPrefferedCurrency(item) {
+async function setPrefferedCurrency(item: FiatUnitValue) {
   await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', item.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
+  // @ts-ignore stfu
   WidgetCommunication.reloadAllTimelines();
 }
 
-async function getPreferredCurrency() {
-  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
+async function getPreferredCurrency(): Promise<FiatUnitValue | null> {
+  let preferredCurrency: FiatUnitValue | null = null;
+  try {
+    preferredCurrency = JSON.parse(String(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY)));
+  } catch (error: any) {
+    console.error(error.message);
+  }
+
+  if (!preferredCurrency) return null;
+
   await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
@@ -40,7 +46,7 @@ async function getPreferredCurrency() {
 
 async function _restoreSavedExchangeRatesFromStorage() {
   try {
-    exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    exchangeRates = JSON.parse(String(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)));
     if (!exchangeRates) exchangeRates = { LAST_UPDATED_ERROR: false };
   } catch (_) {
     exchangeRates = { LAST_UPDATED_ERROR: false };
@@ -49,8 +55,8 @@ async function _restoreSavedExchangeRatesFromStorage() {
 
 async function _restoreSavedPreferredFiatCurrencyFromStorage() {
   try {
-    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
-    if (preferredFiatCurrency === null) {
+    preferredFiatCurrency = JSON.parse(String(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY)));
+    if (!preferredFiatCurrency) {
       throw Error('No Preferred Fiat selected');
     }
 
@@ -58,9 +64,12 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage() {
     // ^^^ in case configuration in json file changed (and is different from what we stored) we reload it
   } catch (_) {
     const deviceCurrencies = RNLocalize.getCurrencies();
+    console.log('trying to find out device currency:', deviceCurrencies);
     if (Object.keys(FiatUnit).some(unit => unit === deviceCurrencies[0])) {
       preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
+      console.log('found', deviceCurrencies[0], 'using', preferredFiatCurrency);
     } else {
+      console.log('could not found currency, using default');
       preferredFiatCurrency = FiatUnit.USD;
     }
   }
@@ -70,8 +79,6 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage() {
  * actual function to reach api and get fresh currency exchange rate. checks LAST_UPDATED time and skips entirely
  * if called too soon (30min); saves exchange rate (with LAST_UPDATED info) to storage.
  * should be called when app thinks its a good time to refresh exchange rate
- *
- * @return {Promise<void>}
  */
 async function updateExchangeRate() {
   if (skipUpdateExchangeRate) return;
@@ -94,10 +101,9 @@ async function updateExchangeRate() {
     exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
     exchangeRates.LAST_UPDATED_ERROR = false;
     await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
-  } catch (Err) {
-    console.log('Error encountered when attempting to update exchange rate...');
-    console.warn(Err.message);
-    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+  } catch (Err: any) {
+    console.error('Error encountered when attempting to update exchange rate:', Err.message);
+    const rate = JSON.parse(String(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)));
     rate.LAST_UPDATED_ERROR = true;
     exchangeRates.LAST_UPDATED_ERROR = true;
     await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
@@ -107,7 +113,7 @@ async function updateExchangeRate() {
 
 async function isRateOutdated() {
   try {
-    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    const rate = JSON.parse(String(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)));
     return rate.LAST_UPDATED_ERROR || +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000;
   } catch {
     return true;
@@ -136,13 +142,15 @@ async function init(clearLastUpdatedTime = false) {
   return updateExchangeRate();
 }
 
-function satoshiToLocalCurrency(satoshi, format = true) {
+function satoshiToLocalCurrency(satoshi: number, format = true) {
   if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
     updateExchangeRate();
     return '...';
   }
 
-  let b = new BigNumber(satoshi).dividedBy(100000000).multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]);
+  let b: string | BigNumber = new BigNumber(satoshi)
+    .dividedBy(100000000)
+    .multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]);
 
   if (b.isGreaterThanOrEqualTo(0.005) || b.isLessThanOrEqualTo(-0.005)) {
     b = b.toFixed(2);
@@ -171,18 +179,16 @@ function satoshiToLocalCurrency(satoshi, format = true) {
     });
   }
 
-  return formatter.format(b);
+  return formatter.format(Number(b));
 }
 
-function BTCToLocalCurrency(bitcoin) {
-  let sat = new BigNumber(bitcoin);
-  sat = sat.multipliedBy(100000000).toNumber();
-
-  return satoshiToLocalCurrency(sat);
+function BTCToLocalCurrency(bitcoin: number | string) {
+  const sat = new BigNumber(bitcoin);
+  return satoshiToLocalCurrency(sat.multipliedBy(100000000).toNumber());
 }
 
 async function mostRecentFetchedRate() {
-  const currencyInformation = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+  const currencyInformation = JSON.parse(String(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)));
 
   const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
     style: 'currency',
@@ -194,20 +200,19 @@ async function mostRecentFetchedRate() {
   };
 }
 
-function satoshiToBTC(satoshi) {
+function satoshiToBTC(satoshi: number | string) {
   let b = new BigNumber(satoshi);
   b = b.dividedBy(100000000);
   return b.toString(10);
 }
 
-function btcToSatoshi(btc) {
+function btcToSatoshi(btc: number | string) {
   return new BigNumber(btc).multipliedBy(100000000).toNumber();
 }
 
-function fiatToBTC(fiatFloat) {
-  let b = new BigNumber(fiatFloat);
-  b = b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
-  return b;
+function fiatToBTC(fiatFloat: number | string) {
+  const b = new BigNumber(fiatFloat);
+  return b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
 }
 
 function getCurrencySymbol() {
@@ -216,10 +221,8 @@ function getCurrencySymbol() {
 
 /**
  * Used to mock data in tests
- *
- * @param {object} currency, one of FiatUnit.*
  */
-function _setPreferredFiatCurrency(currency) {
+function _setPreferredFiatCurrency(currency: FiatUnitValue) {
   preferredFiatCurrency = currency;
 }
 
@@ -229,7 +232,7 @@ function _setPreferredFiatCurrency(currency) {
  * @param {string} pair as expected by rest of this module, e.g 'BTC_JPY' or 'BTC_USD'
  * @param {number} rate exchange rate
  */
-function _setExchangeRate(pair, rate) {
+function _setExchangeRate(pair: string, rate: number) {
   exchangeRates[pair] = rate;
 }
 

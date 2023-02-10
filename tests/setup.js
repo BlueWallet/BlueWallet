@@ -16,6 +16,8 @@ console.warn = (...args) => {
 const consoleLogOrig = console.log;
 console.log = (...args) => {
   if (
+    args[0]?.startsWith('trying to find out device currency') ||
+    (args[0]?.startsWith('found') && args[1]?.startsWith('USD')) ||
     args[0]?.startsWith('updating exchange rate') ||
     args[0]?.startsWith('begin connection') ||
     args[0]?.startsWith('TLS Connected to') ||
