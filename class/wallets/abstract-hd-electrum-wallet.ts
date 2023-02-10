@@ -51,8 +51,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _enable_BIP47: boolean;
   _payment_code: string;
   _sender_payment_codes: string[];
-  addresses_by_payment_code: Record<string, string[]>;
-  next_free_payment_code_address_index: Record<string, number>;
+  _addresses_by_payment_code: Record<string, string[]>;
+  _next_free_payment_code_address_index: Record<string, number>;
   _txs_by_payment_code_index: Record<string, Transaction[][]>;
   _balances_by_payment_code_index: Record<string, BalanceByIndex>;
   _bip47_instance?: BIP47Interface;
@@ -71,10 +71,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._enable_BIP47 = false;
     this._payment_code = '';
     this._sender_payment_codes = [];
-    this.next_free_payment_code_address_index = {};
+    this._next_free_payment_code_address_index = {};
     this._txs_by_payment_code_index = {};
     this._balances_by_payment_code_index = {};
-    this.addresses_by_payment_code = {};
+    this._addresses_by_payment_code = {};
   }
 
   /**
@@ -709,7 +709,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         this.next_free_address_index = await this._binarySearchIterationForExternalAddress(1000);
         if (this._sender_payment_codes) {
           for (const pc of this._sender_payment_codes) {
-            this.next_free_payment_code_address_index[pc] = await this._binarySearchIterationForBIP47Address(pc, 10);
+            this._next_free_payment_code_address_index[pc] = await this._binarySearchIterationForBIP47Address(pc, 10);
           }
         }
       } // end rescanning fresh wallet
@@ -734,7 +734,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       lagAddressesToFetch.push(this._getInternalAddressByIndex(c));
     }
     for (const pc of this._sender_payment_codes) {
-      for (let c = this.next_free_payment_code_address_index[pc]; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+      for (
+        let c = this._next_free_payment_code_address_index[pc];
+        c < this._next_free_payment_code_address_index[pc] + this.gap_limit;
+        c++
+      ) {
         lagAddressesToFetch.push(this._getBIP47Address(pc, c));
       }
     }
@@ -758,11 +762,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (const pc of this._sender_payment_codes) {
-      for (let c = this.next_free_payment_code_address_index[pc]; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+      for (
+        let c = this._next_free_payment_code_address_index[pc];
+        c < this._next_free_payment_code_address_index[pc] + this.gap_limit;
+        c++
+      ) {
         const address = this._getBIP47Address(pc, c);
         if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
           // whoa, someone uses our wallet outside! better catch up
-          this.next_free_payment_code_address_index[pc] = c + 1;
+          this._next_free_payment_code_address_index[pc] = c + 1;
         }
       }
     }
@@ -786,7 +794,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
         addresses2fetch.push(this._getBIP47Address(pc, c));
       }
     }
@@ -871,7 +879,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
         if (
           this._balances_by_payment_code_index[pc] &&
           this._balances_by_payment_code_index[pc].c &&
@@ -895,7 +903,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this.next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
         if (
           this._balances_by_payment_code_index[pc] &&
           this._balances_by_payment_code_index[pc].u &&
@@ -1492,7 +1500,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     const txHexs = await BlueElectrum.multiGetTransactionHexByTxid(txHashes);
     this._sender_payment_codes = Object.values(txHexs).map(str => {
-      this.next_free_payment_code_address_index[str] = 0; // initialize
+      this._next_free_payment_code_address_index[str] = 0; // initialize
       this._balances_by_payment_code_index[str] = { c: 0, u: 0 };
       return bip47_instance.getPaymentCodeFromRawNotificationTransaction(str);
     });
@@ -1503,10 +1511,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   _getBIP47Address(paymentCode: string, index: number): string {
-    if (!this.addresses_by_payment_code[paymentCode]) this.addresses_by_payment_code[paymentCode] = [];
+    if (!this._addresses_by_payment_code[paymentCode]) this._addresses_by_payment_code[paymentCode] = [];
 
-    if (this.addresses_by_payment_code[paymentCode][index]) {
-      return this.addresses_by_payment_code[paymentCode][index];
+    if (this._addresses_by_payment_code[paymentCode][index]) {
+      return this._addresses_by_payment_code[paymentCode][index];
     }
 
     const bip47_instance = this.getBIP47FromSeed();
@@ -1515,12 +1523,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
     const address = bip47_instance.getAddressFromNode(hdNode, bip47_instance.network);
     this._address_to_wif_cache[address] = hdNode.toWIF();
-    this.addresses_by_payment_code[paymentCode][index] = address;
+    this._addresses_by_payment_code[paymentCode][index] = address;
     return address;
   }
 
   _getNextFreePaymentCodeAddress(paymentCode: string) {
-    return this.next_free_payment_code_address_index[paymentCode] || 0;
+    return this._next_free_payment_code_address_index[paymentCode] || 0;
   }
 
   _getBalancesByPaymentCodeIndex(paymentCode: string): BalanceByIndex {
