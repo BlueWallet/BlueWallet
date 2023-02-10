@@ -55,7 +55,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   next_free_payment_code_address_index: Record<string, number>;
   _txs_by_payment_code_index: Record<string, Transaction[][]>;
   _balances_by_payment_code_index: Record<string, BalanceByIndex>;
-  bip47_instance?: BIP47Interface;
+  _bip47_instance?: BIP47Interface;
 
   constructor() {
     super();
@@ -1470,8 +1470,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   getBIP47FromSeed(): BIP47Interface {
-    if (!this.bip47_instance) this.bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
-    return this.bip47_instance;
+    if (!this._bip47_instance) this._bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
+    return this._bip47_instance;
   }
 
   setBIP47PaymentCode(): void {
