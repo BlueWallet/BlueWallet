@@ -2,7 +2,7 @@
     "USD": {
         "endPointKey": "USD",
         "locale": "en-US",
-        "source": "CoinDesk",
+        "source": "Bitstamp",
         "symbol": "$"
     },
     "AED": {
@@ -62,7 +62,7 @@
     "CLP": {
         "endPointKey": "CLP",
         "locale": "es-CL",
-        "source": "CoinDesk",
+        "source": "Yadio",
         "symbol": "$"
     },
     "CNY": {
@@ -92,13 +92,13 @@
     "EUR": {
         "endPointKey": "EUR",
         "locale": "en-IE",
-        "source": "CoinDesk",
+        "source": "Bitstamp",
         "symbol": "€"
     },
     "GBP": {
         "endPointKey": "GBP",
         "locale": "en-GB",
-        "source": "CoinDesk",
+        "source": "Bitstamp",
         "symbol": "£"
     },
     "HRK": {

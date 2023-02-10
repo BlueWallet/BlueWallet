@@ -390,7 +390,8 @@ class DeeplinkSchemaMatch {
               break;
             }
           } else if (value.startsWith('lightning')) {
-            lndInvoice = `lightning:${txInfo[index + 1]}`;
+            const lnpart = txInfo[index + 1].split('&').find(el => el.toLowerCase().startsWith('ln'));
+            lndInvoice = `lightning:${lnpart}`;
             if (!this.isLightningInvoice(lndInvoice)) {
               lndInvoice = false;
               break;

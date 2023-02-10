@@ -6,6 +6,7 @@ export const FiatUnitSource = {
   YadioConvert: 'YadioConvert',
   Exir: 'Exir',
   wazirx: 'wazirx',
+  Bitstamp: 'Bitstamp',
 } as const;
 
 const RateExtractors = {
@@ -22,6 +23,27 @@ const RateExtractors = {
 
     rate = Number(rate);
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
+
+  Bitstamp: async (ticker: string): Promise<number> => {
+    let json;
+    try {
+      const res = await fetch(`https://www.bitstamp.net/api/v2/ticker/btc${ticker.toLowerCase()}`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate from Bitstamp for ${ticker}: ${e.message}`);
+    }
+
+    if (Array.isArray(json)) {
+      throw new Error(`Unsupported ticker for Bitstamp: ${ticker}`);
+    }
+
+    let rate = +json?.last;
+    if (!rate) throw new Error(`Could not update rate from Bitstamp for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate from Bitstamp for ${ticker}: data is wrong`);
     return rate;
   },
 
@@ -95,7 +117,7 @@ type FiatUnit = {
     endPointKey: string;
     symbol: string;
     locale: string;
-    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx';
+    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp';
   };
 };
 export const FiatUnit = untypedFiatUnit as FiatUnit;

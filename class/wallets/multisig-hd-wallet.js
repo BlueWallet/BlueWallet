@@ -567,11 +567,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
     if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
       if (json.label) this.setLabel(json.label);
-      if (json.descriptor.startsWith('wsh(')) {
-        this.setNativeSegwit();
-      } else if (json.descriptor.startsWith('sh(wsh(')) {
+      if (json.descriptor.includes('sh(wsh(')) {
         this.setWrappedSegwit();
-      } else if (json.descriptor.startsWith('sh(')) {
+      } else if (json.descriptor.includes('wsh(')) {
+        this.setNativeSegwit();
+      } else if (json.descriptor.includes('sh(')) {
         this.setLegacy();
       }
 
