@@ -84,6 +84,7 @@ import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
+import loc from './loc';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -470,7 +471,7 @@ const PaymentCodeStack = createNativeStackNavigator();
 const PaymentCodeStackRoot = () => {
   return (
     <PaymentCodeStack.Navigator name="PaymentCodeRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="PaymentCode">
-      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: 'Payment Code (BIP47)' }} />
+      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: loc.bip47.payment_code }} />
     </PaymentCodeStack.Navigator>
   );
 };
