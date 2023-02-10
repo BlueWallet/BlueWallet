@@ -1498,12 +1498,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
     const txHashes = histories[address].map(({ tx_hash }) => tx_hash);
 
-    const txHexs = await BlueElectrum.multiGetTransactionHexByTxid(txHashes);
-    this._sender_payment_codes = Object.values(txHexs).map(str => {
-      this._next_free_payment_code_address_index[str] = 0; // initialize
-      this._balances_by_payment_code_index[str] = { c: 0, u: 0 };
-      return bip47_instance.getPaymentCodeFromRawNotificationTransaction(str);
-    });
+    const txHexs = await BlueElectrum.multiGetTransactionByTxid(txHashes, 50, false);
+    for (const txHex of Object.values(txHexs)) {
+      try {
+        const paymentCode = bip47_instance.getPaymentCodeFromRawNotificationTransaction(txHex);
+        if (this._sender_payment_codes.includes(paymentCode)) continue; // already have it
+        this._sender_payment_codes.push(paymentCode);
+        this._next_free_payment_code_address_index[paymentCode] = 0; // initialize
+        this._balances_by_payment_code_index[paymentCode] = { c: 0, u: 0 };
+      } catch (e) {
+        // do nothing
+      }
+    }
   }
 
   getBIP47SenderPaymentCodes(): string[] {
