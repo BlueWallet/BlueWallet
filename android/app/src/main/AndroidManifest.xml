@@ -2,12 +2,16 @@
   android:installLocation="auto"
   package="io.bluewallet.bluewallet">
 
+    <!-- Uses feature - only show up in the store for devices that support NFC -->
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+    <uses-permission android:name="android.permission.NFC" />
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
@@ -63,6 +67,9 @@
           android:exported="true">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
+            <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+            <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+            <action android:name="android.nfc.action.TECH_DISCOVERED"/>
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         <intent-filter>

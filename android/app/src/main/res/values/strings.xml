@@ -1,3 +1,152 @@
 <resources>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="app_name">BlueWallet</string>
+    <string name="info_string">Program your blank NFC (NTAG424DNA) cards as boltcards to pay over the Bitcoin Lightning network</string>
+    <string name="desc">Launcher image</string>
+
+    <string name="about_text">This sample demonstrates use of TapLinx SDK.Please visit TapLinx SDK
+        page <a href="https://www.mifare.net/en/products/tools/taplinx/">
+            https://www.mifare.net/en/products/tools/taplinx/
+        </a> for this application source and more details.
+    </string>
+
+    <string name="unknown_Error_Tap_Again">Unknown Error Tap Again!</string>
+    <string name="Sub_Type">Sub Type: </string>
+    <string name="Mifare_Identity">MIFARE IDENTITY</string>
+    <string name="FCI_Data">FCI Data: </string>
+    <string name="Card_Detected">Card Detected: </string>
+    <string name="No_Operations_executed_on_Plus_SL0">No operations are executed on a Plus SL0
+        card
+    </string>
+    <string name="Plus_SL1_Operations_not_supported_on_device">Plus SL1 card\'s Classic compatible
+        methods not available on this device!
+    </string>
+    <string name="No_operations_executed_on_Plus_EV1_SL0">No operations are executed on a Plus EV1
+        SL0 card
+    </string>
+    <string name="Authentication_status_true">Authentication status: True</string>
+    <string name="Read_value_from_block">Read Value From Block</string>
+    <string name="Multiblock_write_True">Multiblock write is True</string>
+    <string name="No_operation_done_since_card_in_SL0">No operations done since card is in security
+        level 0
+    </string>
+    <string name="UID">UID:</string>
+    <string name="Data_read_from_page">Data read from page</string>
+    <string name="Input_string_is">Input String is: </string>
+    <string name="Encrypted_string_is">Encrypted String is: </string>
+    <string name="Decrypted_string_is">Decrypted String is: </string>
+    <string name="Data_read_from_block">Data read from block</string>
+    <string name="Unable_to_read_from_block">Unable to read from block</string>
+    <string name="Data_to_write">Data to write:</string>
+    <string name="Exception_performing_operation_on_plusEV1SL1">Exception Performing Operation on
+        plusEV1SL1Card
+    </string>
+    <string name="Unable_to_authenticate_sector_with_default_key">Unable to authenticate sector with
+        default key
+    </string>
+    <string name="doOriginality_check_API_status">doOriginalityCheck API status is: </string>
+    <string name="Unable_to_do_originality_check">Unable to do Originality Check.</string>
+    <string name="Auth_success">Authentication Successful</string>
+    <string name="Unable_to_authenticate">Unable to authenticate</string>
+    <string name="Data_read_from_the_card">Data read from the card: </string>
+    <string name="DESFireLogs">DESFireLogs</string>
+    <string name="Tamper_MSG">Tamper Message: </string>
+    <string name="Status_of_TT">STATUS of tag tamper (value): </string>
+    <string name="TT_Incorrect">Interpretation of tamper status: " I " (Tag Tamper measurement was
+        incorrect)
+    </string>
+    <string name="TT_Closed">Interpretation of tamper status: " C " (Tag Tamper was closed at
+        current startup)
+    </string>
+    <string name="TT_Open">Interpretation of tamper status: " O " (Tag Tamper was open at current
+        startup)
+    </string>
+    <string name="Read_session_bytes">Read Session Bytes: </string>
+    <string name="Read_config_bytes">Read Config Bytes: </string>
+    <string name="Get_version_bytes">Get Version bytes: </string>
+    <string name="Written_4_bytes_of_data_at_page_no">Written 4 Bytes of Data at page No.</string>
+    <string name="Read_4_bytes_from_page_5">Read 4 Bytes of Data from page number 5: </string>
+    <string name="Text_record_NDEF_written_successfully">Text Record NDEF msg Written successfully
+        !
+    </string>
+    <string name="No_of_blocks">No of blocks: </string>
+    <string name="Dump_data">Dump Data: </string>
+    <string name="About">About</string>
+    <string name="Supported_Cards">Supported Cards</string>
+    <string name="Application_Version">Application Version is: </string>
+    <string name="TapLinx_Version">TapLinx Version: </string>
+    <string name="Requested_permisiion_granted">Requested permission granted</string>
+    <string name="App_permission_not_granted_message">The app was not allowed to write to your
+        storage. Hence, it cannot function properly. Please consider granting it this permission
+    </string>
+    <string name="desfireEV2">DESFireEV2</string>
+    <string name="desfireEV3">DESFireEV3</string>
+    <string name="desfireEV3C">DESFireEV3C</string>
+    <string name="plus">Plus</string>
+    <string name="UL_nano_40">Ultra Light Nano 40</string>
+    <string name="UL_nano_48">Ultra Light Nano 48</string>
+    <string name="SL3">Security Level 3</string>
+
+    <!--added by Gourav for Sample App-->
+
+    <string name="SIZE">Total Memory: </string>
+    <string name="Availabe_Size">Available Size: </string>
+    <string name="Vendor_ID">Vendor ID: </string>
+    <string name="Permanent_Status">Permanent Status:</string>
+    <string name="CURRENT_Status">Current Status:</string>
+    <string name="PROTOCOL">Protocol: </string>
+    <string name="Application_IDs">Application ID: </string>
+    <string name="File_IDs">File ID: </string>
+    <string name="PROTOCOL_VALUE_DefireLight">ISO/IEC 14443 1–4</string>
+    <string name="PROTOCOL_VALUE_DefireEV2">ISO/IEC 14443–4</string>
+    <string name="PROTOCOL_VALUE_ULTRALIGHT">ISO/IEC 14443–3 and 2</string>
+    <string name="PROTOCOL_VALUE_PLUSSL3">ISO/IEC 14443–4 and 3 and 2</string>
+    <string name="PROTOCOL_VALUE_PLUSEV1SL1">ISO/IEC 14443–3 and 2</string>
+    <string name="PROTOCOL_VALUE_MIFARECLASSIC">ISO/IEC 14443–3 and 2</string>
+    <string name="PROTOCOL_NTAG">ISO/IEC 14443–4</string>
+    <string name="PROTOCOL_NTAG213TT">ISO/IEC 14443–3</string>
+    <string name="PROTOCOL_ICODESLI">ISO/IEC 15693–3 and 2</string>
+    <string name="PROTOCOL_UNKNOWN">UNKNOWN</string>
+    <string name="NXP">NXP</string>
+    <string name="NON_NXP">Non-NXP</string>
+    <string name="User_Memory">User Memory: </string>
+    <string name="Max_Transceive_length">Maximum Transceive Length: </string>
+    <string name="Max_Trans_length_value">253 bytes</string>
+    <string name="Default_Max_Transceive_TimeOut">Default Maximum Transceive Time-Out:</string>
+    <string name="Default_Max_Trans_Timeout_value">618ms</string>
+
+    <string name="text_write">Write</string>
+    <string name="text_about">About</string>
+    <string name="note">Note: \n*Write Access must be free(0x0E) \n*This operation overwrites the
+        data \n*Writes sample data to the tag with factory default key
+    </string>
+
+    <string name="Writing_to_tag_at_block_no">Writing to the tag at block no.: </string>
+    <string name="Writing_multiple_blocks">Writing multiple blocks starting from</string>
+    <string name="Reading_tag_at_block_number">Reading tag at block no.: </string>
+    <string name="Writing_data_at_page_number">Writing data to tag at page number</string>
+    <string name="Data_written_successfully">Data written successfully!!!</string>
+    <string name="Selecting_PICC">Selecting PICC level…</string>
+    <string name="PICC_selection_success">Selected PICC successfully !!!</string>
+    <string name="Auth_with_default_key">Authenticating with default key…</string>
+    <string name="Creating_application">Creating application…</string>
+    <string name="App_creation_success">Application created successfully with ID: </string>
+    <string name="Writing_data_to_tag">Writing data to tag…</string>
+    <string name="Writing_data_to_Default_file">Writing data to Default file…</string>
+    <string name="Writing_single_block">Writing single block…</string>
+    <string name="Unable_to_perfom_to_operation">Unable to perform write operation on tag !!!
+    </string>
+    <string name="UNKNOWN_TAG">"Unknown Tag. Tap again !!!"</string>
+    <string name="LINE_BREAK">\n\n</string>
+    <string name="writing_ndef">Writing NDEF msg: </string>
+    <string name="ndef_write_success">NDEF Message written successfully.</string>
+    <string name="ndeg_write_failed">Writing NDEF msg failed..</string>
+    <string name="reading_ndef">Reading NDEF msg: </string>
+    <string name="ndef_read_failed">Reading NDEF msg failed..</string>
+    <string name="ndef_msg_read">NDEF msg read: </string>
+    <string name="licenses">Licenses</string>
+    <string name="accept">isAccepted</string>
+    <string name="agree">I Agree</string>
+    <string name="la">License Agreement</string>
+    <string name="ok">OK</string>
 </resources>
