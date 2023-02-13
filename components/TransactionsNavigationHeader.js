@@ -137,6 +137,10 @@ export default class TransactionsNavigationHeader extends Component {
     this.props.onManageFundsPressed(id);
   };
 
+  createBoltCardPressed = () => {
+    this.props.onCreateBoltCardPressed();
+  }
+
   onPressMenuItem = id => {
     if (id === TransactionsNavigationHeader.actionKeys.WalletBalanceVisibility) {
       this.handleBalanceVisibility();
@@ -240,6 +244,14 @@ export default class TransactionsNavigationHeader extends Component {
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
+        )}
+        {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
+          <TouchableOpacity accessibilityRole="button" onPress={this.createBoltCardPressed}
+          >
+            <View style={styles.manageFundsButton}>
+              <Text style={styles.manageFundsButtonText}>Add Bolt Card</Text>
+            </View>
+          </TouchableOpacity>
         )}
         {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>

@@ -504,6 +504,12 @@ const WalletTransactions = () => {
             }
           }
         }}
+        onCreateBoltCardPressed={async () => {
+          console.log('CreateBoltCardPressed');
+          const keys = await wallet.getcardkeys();
+          console.log('WALLET KEYS', keys);
+          //@TODO: Ready to write the card
+        }}
       />
       <View style={[styles.list, stylesHook.list]}>
         <FlatList

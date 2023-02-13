@@ -22,6 +22,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.info_raw = false;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
     this.chain = Chain.OFFCHAIN;
+    this.cardKeys = false;
   }
 
   /**
@@ -670,6 +671,28 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   authenticate(lnurl) {
     return lnurl.authenticate(this.secret);
+  }
+
+
+  async getcardkeys() {
+    await this.checkLogin();
+    const response = await this._api.get('/getcardkeys', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+
+    const json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    return (this.cardKeys = json);
   }
 }
 
