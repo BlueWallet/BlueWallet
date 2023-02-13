@@ -1,6 +1,6 @@
 <resources>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="app_name">BlueWallet</string>
+    <string name="app_name">Bolt Card Wallet</string>
     <string name="info_string">Program your blank NFC (NTAG424DNA) cards as boltcards to pay over the Bitcoin Lightning network</string>
     <string name="desc">Launcher image</string>
 

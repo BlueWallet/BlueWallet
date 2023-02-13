@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   android:installLocation="auto"
-  package="io.bluewallet.bluewallet">
+  package="com.boltcard.boltcard">
 
     <!-- Uses feature - only show up in the store for devices that support NFC -->
     <uses-feature android:name="android.hardware.nfc" android:required="true" />

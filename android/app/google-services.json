@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "993804676679",
-    "firebase_url": "https://bluewallet-d7cd5.firebaseio.com",
-    "project_id": "bluewallet-d7cd5",
-    "storage_bucket": "bluewallet-d7cd5.appspot.com"
+    "project_number": "360440100922",
+    "firebase_url": "https://bolt-card-wallet-default-rtdb.firebaseio.com",
+    "project_id": "bolt-card-wallet",
+    "storage_bucket": "bolt-card-wallet.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:993804676679:android:3e611cf30d58bac8b5cb62",
+        "mobilesdk_app_id": "1:360440100922:android:f6cee3d8034d5c31d2dd03",
         "android_client_info": {
-          "package_name": "io.bluewallet.bluewallet"
+          "package_name": "com.boltcard.boltcard"
         }
       },
       "oauth_client": [
         {
-          "client_id": "993804676679-cntmqmnbkrm9c89lcr1cq6rhaq8tfi0u.apps.googleusercontent.com",
+          "client_id": "360440100922-chmnfn4mnpq4hnt7isaakg1g0hsamql7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCzJxNtavou1G10ZLIjzC-b2mX6TrVF3Ew"
+          "current_key": "AIzaSyD-vQbj__WcTnP5ONBNeWJGEYQBxWToPhc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "993804676679-cntmqmnbkrm9c89lcr1cq6rhaq8tfi0u.apps.googleusercontent.com",
+              "client_id": "360440100922-chmnfn4mnpq4hnt7isaakg1g0hsamql7.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

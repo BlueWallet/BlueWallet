@@ -138,7 +138,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.bluewallet.bluewallet"
+        applicationId "com.boltcard.boltcard"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -206,6 +206,9 @@ dependencies {
     implementation group: 'com.madgag.spongycastle', name: 'pkix', version: '1.54.0.0'
     implementation group: 'com.madgag.spongycastle', name: 'prov', version: '1.54.0.0'
     implementation group: 'com.madgag.spongycastle', name: 'core', version: '1.54.0.0'
+
+    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
       exclude group:'com.facebook.fbjni'
