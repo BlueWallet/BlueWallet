@@ -57,6 +57,8 @@ const WalletTransactions = () => {
   const { colors } = useTheme();
   const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
+  
+  const [cardDetails, setCardDetails] = useState({});
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -90,14 +92,6 @@ const WalletTransactions = () => {
     });
     return txs.slice(0, limit);
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => setTimeElapsed(prev => prev + 1), 60000);
-    return () => {
-      clearInterval(interval);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     setOptions({ headerTitle: walletTransactionUpdateStatus === walletID ? loc.transactions.updating : '' });
@@ -506,9 +500,12 @@ const WalletTransactions = () => {
         }}
         onCreateBoltCardPressed={async () => {
           console.log('CreateBoltCardPressed');
-          const keys = await wallet.getcardkeys();
-          console.log('WALLET KEYS', keys);
-          //@TODO: Ready to write the card
+          navigate('BoltCardCreateRoot', {
+            screen: 'BoltCardCreate',
+            params: {
+              walletID: wallet.getID(),
+            },
+          });
         }}
       />
       <View style={[styles.list, stylesHook.list]}>

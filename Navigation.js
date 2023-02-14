@@ -84,6 +84,8 @@ import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 
+import BoltCardCreate from './screen/boltcard/create';
+
 const WalletsStack = createNativeStackNavigator();
 
 const WalletsRoot = () => {
@@ -465,6 +467,17 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
+const BoltCardCreateStack = createNativeStackNavigator();
+const BoltCardCreateRoot = () => {
+  const theme = useTheme();
+
+  return (
+    <BoltCardCreateStack.Navigator name="BoltCardCreateRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="BoltCardCreate">
+      <BoltCardCreateStack.Screen name="BoltCardCreate" component={BoltCardCreate} options={BoltCardCreate.navigationOptions(theme)} />
+    </BoltCardCreateStack.Navigator>
+  );
+};
+
 const RootStack = createNativeStackNavigator();
 const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const Navigation = () => {
@@ -491,6 +504,7 @@ const Navigation = () => {
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="BoltCardCreateRoot" component={BoltCardCreateRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"
