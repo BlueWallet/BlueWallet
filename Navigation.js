@@ -85,6 +85,7 @@ import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvo
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 
 import BoltCardCreate from './screen/boltcard/create';
+import BoltCardDisconnect from './screen/boltcard/disconnect';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -474,6 +475,7 @@ const BoltCardCreateRoot = () => {
   return (
     <BoltCardCreateStack.Navigator name="BoltCardCreateRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="BoltCardCreate">
       <BoltCardCreateStack.Screen name="BoltCardCreate" component={BoltCardCreate} options={BoltCardCreate.navigationOptions(theme)} />
+      <BoltCardCreateStack.Screen name="BoltCardDisconnect" component={BoltCardDisconnect} options={BoltCardDisconnect.navigationOptions(theme)} />
     </BoltCardCreateStack.Navigator>
   );
 };

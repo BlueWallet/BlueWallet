@@ -53,7 +53,8 @@ const WalletTransactions = () => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
-  const { setParams, setOptions, navigate } = useNavigation();
+  const navigation = useNavigation();
+  const { setParams, setOptions, navigate } = navigation;
   const { colors } = useTheme();
   const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
@@ -498,15 +499,7 @@ const WalletTransactions = () => {
             }
           }
         }}
-        onCreateBoltCardPressed={async () => {
-          console.log('CreateBoltCardPressed');
-          navigate('BoltCardCreateRoot', {
-            screen: 'BoltCardCreate',
-            params: {
-              walletID: wallet.getID(),
-            },
-          });
-        }}
+        navigation={navigation}
       />
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
