@@ -71,9 +71,13 @@ class WidgetAPI {
         let unix = Double(lastUpdated / 1_000)
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
         latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "Exir", "Bitstamp":
+      case "Exir":
         guard let rateDouble = json["last"] as? Double else { break }
         let rateString = String(rateDouble)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "Bitstamp":
+        guard let rateString = json["last"] as? String, let rateDouble = Double(rateString) else { break }
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "wazirx":
