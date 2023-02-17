@@ -25,6 +25,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardKeys = false;
     this.wipeData = false;
     this.cardWritten = false;
+    this.disableCard = false;
   }
 
   /**
@@ -720,6 +721,24 @@ export class LightningCustodianWallet extends LegacyWallet {
   
   async setCardWritten(status) {
     this.cardWritten = status;
+  }
+
+  async disableCard(status) {
+    await this.checkLogin();
+    const response = await this._api.post('/setdisablecard', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+      body: {
+        disable_card: status
+      }
+    });
+
+    const json = response.body;
+
+    this.disableCard = json.disable_card_set;
   }
 }
 

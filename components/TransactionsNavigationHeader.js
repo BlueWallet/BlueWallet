@@ -263,19 +263,34 @@ export default class TransactionsNavigationHeader extends Component {
                 </View>
               </TouchableOpacity>
             :
-              <TouchableOpacity accessibilityRole="button" onPress={() => {
-                this.props.navigation.navigate('BoltCardCreateRoot', {
-                  screen: 'BoltCardDisconnect',
-                  params: {
-                    walletID: this.state.wallet.getID(),
-                  },
-                });
-              }}
-              >
-                <View style={styles.manageFundsButton}>
-                  <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
+                <TouchableOpacity accessibilityRole="button" onPress={() => {
+                  this.props.navigation.navigate('BoltCardCreateRoot', {
+                    screen: 'BoltCardDisconnect',
+                    params: {
+                      walletID: this.state.wallet.getID(),
+                    },
+                  });
+                }}
+                >
+                  <View style={styles.manageFundsButton}>
+                    <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity accessibilityRole="button" onPress={() => {
+                  this.props.navigation.navigate('BoltCardCreateRoot', {
+                    screen: 'BoltCardDetails',
+                    params: {
+                      walletID: this.state.wallet.getID(),
+                    },
+                  });
+                }}
+                >
+                  <View style={styles.manageFundsButton}>
+                    <Text style={styles.manageFundsButtonText}>Bolt Card Details</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             }
           </>
         )}
