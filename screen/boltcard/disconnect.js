@@ -105,12 +105,16 @@ const BoltCardDisconnect = () => {
         const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
         const eventListener = eventEmitter.addListener('ChangeKeysResult', (event) => {
             console.log('CHANGE KEYS', event);
-            if(event.output == "success") {
-                setWriteKeysOutput("Keys reset successfully");
-            }
-            else {
+            // if(event.output == "success") {
+            //     setWriteKeysOutput("Keys reset successfully");
+            // }
+            // else {
                 setWriteKeysOutput(event.output);
-            }
+            // }
+
+            //@todo: ensure card wipe has worked.
+            setCardWiped();
+
         });
         
         return () => {
@@ -135,6 +139,14 @@ const BoltCardDisconnect = () => {
             NativeModules.MyReactModule.setCardMode("read");
         }, [])
     );
+
+    const setCardWiped = async () => {
+        console.log('setCardWiped');
+        if(wallet) {
+            await wallet.setCardWritten(false);
+            wallets.saveToDisk();
+        }
+    }
 
     const enableResetMode = () => {
         NativeModules.MyReactModule.setCardMode("resetkeys");
