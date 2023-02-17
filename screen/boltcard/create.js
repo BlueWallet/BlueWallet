@@ -150,9 +150,10 @@ const BoltCardCreate = () => {
             if(event.testp) setTestp(event.testp);
             if(event.testc) setTestc(event.testc);
 
-            
             NativeModules.MyReactModule.setCardMode('read');
             setWriteMode(false);
+            setCardWritten('success');            
+
         });
 
         return () => {
@@ -165,6 +166,13 @@ const BoltCardCreate = () => {
         const keys = await wallet.getcardkeys();
         console.log(keys);
         setCardDetails(keys);
+    }
+
+    const setCardWritten = async (status) => {
+        if(wallet) {
+            await wallet.setCardWritten(status);
+            wallets.saveToDisk();
+        }
     }
 
     useEffect(() => {

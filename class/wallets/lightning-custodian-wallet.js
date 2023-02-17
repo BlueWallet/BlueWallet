@@ -24,6 +24,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.chain = Chain.OFFCHAIN;
     this.cardKeys = false;
     this.wipeData = false;
+    this.cardWritten = false;
   }
 
   /**
@@ -715,6 +716,10 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
     return (this.wipeData = json);
+  }
+  
+  async setCardWritten(status) {
+    this.cardWritten = status;
   }
 }
 
