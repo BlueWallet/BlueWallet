@@ -693,6 +693,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
+    if (json && json.status === 'ERROR') {
+      throw new Error('API error: ' + json.reason);
+    }
+
     return (this.cardKeys = json);
   }
 

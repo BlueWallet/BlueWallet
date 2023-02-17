@@ -22,6 +22,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc, { formatBalance } from '../../loc';
+import alert from '../../components/Alert';
 
 const BoltCardCreate = () => {
 
@@ -161,10 +162,18 @@ const BoltCardCreate = () => {
         };
     }, []);
 
-    const getCardKeys = async (wallet) => {
-        const keys = await wallet.getcardkeys();
-        console.log(keys);
-        setCardDetails(keys);
+    const getCardKeys = (wallet) => {
+        wallet
+            .getcardkeys()
+            .then(keys => {
+                console.log('KEYS', keys);
+                setCardDetails(keys);
+            })
+            .catch(err => {
+                console.log('ERROR', err.message);
+                alert(err.message);
+                goBack();
+            });
     }
 
     useEffect(() => {
