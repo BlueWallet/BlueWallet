@@ -22,6 +22,7 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import alert from '../../components/Alert';
 
 const defaultKey = "00000000000000000000000000000000";
 
@@ -123,9 +124,13 @@ const BoltCardDisconnect = () => {
     }, []);
 
     const getWipeKeys = async (wallet) => {
-        const data = await wallet.wipecard();
-        setWipeCardDetails(data);
-        setLoading(false);
+        try {
+            const data = await wallet.wipecard();
+            setWipeCardDetails(data);
+            setLoading(false);
+        } catch(err) {
+            alert(err.message);
+        }
     }
 
     useEffect(() => {
