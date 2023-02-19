@@ -679,12 +679,30 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async getcardkeys() {
     await this.checkLogin();
-    const response = await this._api.get('/getcardkeys', {
+
+    if(this.cardKeys) {
+      return this.cardKeys;
+    }
+
+
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
+
+    const response = await this._api.post('/getcardkeys', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
+      body: {
+        card_name: login+':'+password
+      }
     });
 
     const json = response.body;
@@ -702,14 +720,30 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (this.cardKeys = json);
   }
 
+  setCardKeys(keys) {
+    this.cardKeys = keys;
+  }
+
   async wipecard() {
     await this.checkLogin();
-    const response = await this._api.get('/wipecard', {
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
+
+    const response = await this._api.post('/wipecard', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
+      body: {
+        card_name: login+':'+password
+      }
     });
 
     const json = response.body;

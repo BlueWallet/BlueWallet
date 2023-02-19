@@ -27,7 +27,7 @@ import alert from '../../components/Alert';
 const BoltCardCreate = () => {
 
     const { walletID } = useRoute().params;
-    const { wallets } = useContext(BlueStorageContext);
+    const { wallets, saveToDisk } = useContext(BlueStorageContext);
     const wallet = wallets.find(w => w.getID() === walletID);
     const { colors } = useTheme();
     const { navigate, goBack, setParams } = useNavigation();
@@ -169,6 +169,7 @@ const BoltCardCreate = () => {
             .then(keys => {
                 console.log('KEYS', keys);
                 setCardDetails(keys);
+                saveToDisk();
             })
             .catch(err => {
                 console.log('ERROR', err.message);
@@ -180,7 +181,8 @@ const BoltCardCreate = () => {
     const setCardWritten = async (status) => {
         if(wallet) {
             await wallet.setCardWritten(status);
-            wallets.saveToDisk();
+            wallet.setCardKeys(null);
+            saveToDisk();
         }
     }
 
@@ -282,11 +284,20 @@ const BoltCardCreate = () => {
                                             {testp && <Text>Test PICC: {testp}{showTickOrError(testp == "ok")}</Text>}
                                             {testc && <Text>Test CMAC: {testc}{showTickOrError(testc == "ok")}</Text>}
                                             {testBolt && <Text>Bolt call test: {testBolt}{showTickOrError(testBolt == "success")}</Text>}
-                                            <BlueButton 
-                                                style={styles.link}
-                                                title="Retry"
-                                                onPress={writeAgain}
-                                            />
+
+                                            {writekeys == "success" ? 
+                                                <BlueButton 
+                                                    style={styles.link}
+                                                    title="Go back"
+                                                    onPress={goBack}
+                                                />
+                                            :
+                                                <BlueButton 
+                                                    style={styles.link}
+                                                    title="Retry"
+                                                    onPress={writeAgain}
+                                                />
+                                            }
                                     </View>
 
                                 }

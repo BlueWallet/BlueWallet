@@ -28,7 +28,7 @@ const defaultKey = "00000000000000000000000000000000";
 const BoltCardDisconnect = () => {
 
     const { walletID } = useRoute().params;
-    const { wallets } = useContext(BlueStorageContext);
+    const { wallets, saveToDisk } = useContext(BlueStorageContext);
     const wallet = wallets.find(w => w.getID() === walletID);
     const { colors } = useTheme();
     const { navigate, goBack, setParams } = useNavigation();
@@ -144,7 +144,7 @@ const BoltCardDisconnect = () => {
         console.log('setCardWiped');
         if(wallet) {
             await wallet.setCardWritten(false);
-            wallets.saveToDisk();
+            saveToDisk();
         }
     }
 
