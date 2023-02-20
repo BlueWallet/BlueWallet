@@ -10,7 +10,6 @@ const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
-const torrific = require('./torrific');
 const Realm = require('realm');
 
 const ELECTRUM_HOST = 'electrum_host';
@@ -120,13 +119,7 @@ async function connectMain() {
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(
-      usingPeer.host.endsWith('.onion') && !(await isTorDaemonDisabled()) ? torrific : global.net,
-      global.tls,
-      usingPeer.ssl || usingPeer.tcp,
-      usingPeer.host,
-      usingPeer.ssl ? 'tls' : 'tcp',
-    );
+    mainClient = new ElectrumClient(global.net, global.tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
 
     mainClient.onError = function (e) {
       console.log('electrum mainClient.onError():', e.message);
@@ -910,13 +903,7 @@ module.exports.calculateBlockTime = function (height) {
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
   const isTorDisabled = await isTorDaemonDisabled();
-  const client = new ElectrumClient(
-    host.endsWith('.onion') && !isTorDisabled ? torrific : global.net,
-    global.tls,
-    sslPort || tcpPort,
-    host,
-    sslPort ? 'tls' : 'tcp',
-  );
+  const client = new ElectrumClient(global.net, global.tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
 
   client.onError = () => {}; // mute
   let timeoutId = false;

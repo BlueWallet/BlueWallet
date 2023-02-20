@@ -31,14 +31,12 @@ import {
   HDSegwitP2SHWallet,
   LightningCustodianWallet,
   AppStorage,
-  LightningLdkWallet,
 } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
 const A = require('../../blue_modules/analytics');
 
@@ -46,7 +44,6 @@ const ButtonSelected = Object.freeze({
   ONCHAIN: Chain.ONCHAIN,
   OFFCHAIN: Chain.OFFCHAIN,
   VAULT: 'VAULT',
-  LDK: 'LDK',
 });
 
 const WalletsAdd = () => {
@@ -163,33 +160,9 @@ const WalletsAdd = () => {
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
-    } else if (selectedWalletType === ButtonSelected.LDK) {
-      setIsLoading(false);
-      createLightningLdkWallet(w);
-    }
+    } 
   };
 
-  const createLightningLdkWallet = async wallet => {
-    const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);
-    if (foundLdk) {
-      return alert('LDK wallet already exists');
-    }
-    setIsLoading(true);
-    wallet = new LightningLdkWallet();
-    wallet.setLabel(label || loc.wallets.details_title);
-
-    await wallet.generate();
-    await wallet.init();
-    setIsLoading(false);
-    addWallet(wallet);
-    await saveToDisk();
-
-    A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-    navigate('PleaseBackupLdk', {
-      walletID: wallet.getID(),
-    });
-  };
 
   const createLightningWallet = async wallet => {
     wallet = new LightningCustodianWallet();
@@ -256,11 +229,6 @@ const WalletsAdd = () => {
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
 
-  const handleOnLdkButtonPressed = async () => {
-    Keyboard.dismiss();
-    setSelectedWalletType(ButtonSelected.LDK);
-  };
-
   return (
     <ScrollView style={stylesHook.root}>
       <StatusBar
@@ -294,15 +262,7 @@ const WalletsAdd = () => {
             onPress={handleOnLightningButtonPressed}
             style={styles.button}
           />
-          {backdoorPressed > 10 ? (
-            <LdkButton
-              active={selectedWalletType === ButtonSelected.LDK}
-              onPress={handleOnLdkButtonPressed}
-              style={styles.button}
-              subtext={LightningLdkWallet.getPackageVersion()}
-              text="LDK"
-            />
-          ) : null}
+         
           <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
         </View>
 

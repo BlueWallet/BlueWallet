@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Image, Text, TouchableOpacity, View, InteractionManager, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -172,7 +172,6 @@ export default class TransactionsNavigationHeader extends Component {
         <Image
           source={(() => {
             switch (this.state.wallet.type) {
-              case LightningLdkWallet.type:
               case LightningCustodianWallet.type:
                 return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
               case MultisigHDWallet.type:
@@ -240,13 +239,6 @@ export default class TransactionsNavigationHeader extends Component {
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
-        )}
-        {this.state.wallet.type === LightningLdkWallet.type && (
-          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
-            <View style={styles.manageFundsButton}>
-              <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-            </View>
-          </TouchableOpacity>
         )}
         {this.state.wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
