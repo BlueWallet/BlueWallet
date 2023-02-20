@@ -1060,7 +1060,6 @@ public class MainActivity extends ReactActivity {
       @Override
       protected Bundle getLaunchOptions() {
         Bundle initialProperties = new Bundle();
-        initialProperties.putCharSequence("carddata", new String("Please scan NFC Card"));
         return initialProperties;
       }
     };
