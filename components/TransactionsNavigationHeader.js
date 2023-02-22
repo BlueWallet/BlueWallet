@@ -234,6 +234,8 @@ export default class TransactionsNavigationHeader extends Component {
             )}
           </View>
         </ToolTipMenu>
+        <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
+
         {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <ToolTipMenu
             isMenuPrimaryAction
@@ -259,11 +261,16 @@ export default class TransactionsNavigationHeader extends Component {
               }}
               >
                 <View style={styles.manageFundsButton}>
-                  <Text style={styles.manageFundsButtonText}>Connect Bolt Card</Text>
+                <Image 
+                    source={(() => {
+                      return require('../img/bolt-card-link.png');
+                    })()} style={{width: 40, height: 30, marginTop:20}}
+                  /><Text style={styles.manageFundsButtonText}>
+                  Connect Bolt Card</Text>
                 </View>
               </TouchableOpacity>
             :
-              <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
+              <>
                 <TouchableOpacity accessibilityRole="button" onPress={() => {
                   this.props.navigation.navigate('BoltCardCreateRoot', {
                     screen: 'BoltCardDisconnect',
@@ -274,10 +281,15 @@ export default class TransactionsNavigationHeader extends Component {
                 }}
                 >
                   <View style={styles.manageFundsButton}>
+                  <Image 
+                    source={(() => {
+                      return require('../img/bolt-card-unlink.png');
+                    })()} style={{width: 40, height: 30, marginTop:20}}
+                  />
                     <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" onPress={() => {
+                {/* <TouchableOpacity accessibilityRole="button" onPress={() => {
                   this.props.navigation.navigate('BoltCardCreateRoot', {
                     screen: 'BoltCardDetails',
                     params: {
@@ -289,11 +301,13 @@ export default class TransactionsNavigationHeader extends Component {
                   <View style={styles.manageFundsButton}>
                     <Text style={styles.manageFundsButtonText}>Bolt Card Details</Text>
                   </View>
-                </TouchableOpacity>
-              </View>
+                </TouchableOpacity> */}
+              </>
             }
           </>
         )}
+        </View>
+
         {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>

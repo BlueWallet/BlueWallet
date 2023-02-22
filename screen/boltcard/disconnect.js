@@ -8,7 +8,8 @@ import {
     View,
     StatusBar,
     ScrollView,
-    TextInput
+    TextInput,
+    Image
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
@@ -65,6 +66,7 @@ const BoltCardDisconnect = () => {
         },
     });
 
+    const [showDetails, setShowDetails] = useState(false);
     const [writeKeysOutput, setWriteKeysOutput] = useState();
     const [wipeCardDetails, setWipeCardDetails] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -200,80 +202,96 @@ const BoltCardDisconnect = () => {
                         }} />
                     </Dialog.Container>
                     <BlueCard>
+                        <BlueText style={styles.label}>
+                            <Image 
+                                source={(() => {
+                                return require('../img/bolt-card-unlink.png');
+                                })()} style={{width: 60, height: 40, marginTop:20}}
+                            />
+                        </BlueText>
                         <BlueText style={styles.label}>Disconnect my bolt card</BlueText>
                         {loading ? 
                             <BlueLoading />
                         : 
                             <>
-                            
-                                <View style={styles.titlecontainer}>
-                                    <Text style={styles.title}>Key 0</Text>
-                                </View>
-                                <TextInput 
-                                    style={styles.input} 
-                                    value={key0} 
-                                    maxLength={32}
-                                    multiline = {true}
-                                    numberOfLines = {1}
-                                    autoCapitalize='none'
-                                    onChangeText={(text) => setKey0(text)}
-                                    placeholder={defaultKey}
-                                />
-                                <View style={styles.titlecontainer}>
-                                    <Text style={styles.title}>Key 1</Text>
-                                </View>
-                                <TextInput 
-                                    style={styles.input} 
-                                    value={key1} 
-                                    maxLength={32}
-                                    multiline = {true}
-                                    numberOfLines = {1}
-                                    autoCapitalize='none'
-                                    onChangeText={(text) => setKey1(text)}
-                                    placeholder={defaultKey}
-                                />
-                                <View style={styles.titlecontainer}>
-                                    <Text style={styles.title}>Key 2</Text>
-                                </View>
-                                <TextInput 
-                                    style={styles.input} 
-                                    value={key2} 
-                                    maxLength={32}
-                                    multiline = {true}
-                                    numberOfLines = {1}
-                                    autoCapitalize='none'
-                                    onChangeText={(text) => setKey2(text)}
-                                    placeholder={defaultKey}
-                                />
-                                <View style={styles.titlecontainer}>
-                                    <Text style={styles.title}>Key 3</Text>
-                                </View>
-                                <TextInput 
-                                    style={styles.input} 
-                                    value={key3} 
-                                    maxLength={32}
-                                    multiline = {true}
-                                    numberOfLines = {1}
-                                    autoCapitalize='none'
-                                    onChangeText={(text) => setKey3(text)}
-                                    placeholder={defaultKey}
-                                />
-                                <View style={styles.titlecontainer}>
-                                    <Text style={styles.title}>Key 4</Text>
-                                </View>
-                                <TextInput 
-                                    style={styles.input} 
-                                    value={key4} 
-                                    maxLength={32}
-                                    multiline = {true}
-                                    numberOfLines = {1}
-                                    autoCapitalize='none'
-                                    onChangeText={(text) => setKey4(text)}
-                                    placeholder={defaultKey}
-                                />
                                 <BlueButton 
                                     style={styles.link}
+                                    title={!showDetails ? "Show Key Details ▼" : "Hide Key Details ▴"}
+                                    onPress={() => setShowDetails(!showDetails)}
+                                />
+                                {showDetails && 
+                                <>
+                                    <View style={styles.titlecontainer}>
+                                        <Text style={styles.title}>Key 0</Text>
+                                    </View>
+                                    <TextInput 
+                                        style={styles.input} 
+                                        value={key0} 
+                                        maxLength={32}
+                                        multiline = {true}
+                                        numberOfLines = {1}
+                                        autoCapitalize='none'
+                                        onChangeText={(text) => setKey0(text)}
+                                        placeholder={defaultKey}
+                                    />
+                                    <View style={styles.titlecontainer}>
+                                        <Text style={styles.title}>Key 1</Text>
+                                    </View>
+                                    <TextInput 
+                                        style={styles.input} 
+                                        value={key1} 
+                                        maxLength={32}
+                                        multiline = {true}
+                                        numberOfLines = {1}
+                                        autoCapitalize='none'
+                                        onChangeText={(text) => setKey1(text)}
+                                        placeholder={defaultKey}
+                                    />
+                                    <View style={styles.titlecontainer}>
+                                        <Text style={styles.title}>Key 2</Text>
+                                    </View>
+                                    <TextInput 
+                                        style={styles.input} 
+                                        value={key2} 
+                                        maxLength={32}
+                                        multiline = {true}
+                                        numberOfLines = {1}
+                                        autoCapitalize='none'
+                                        onChangeText={(text) => setKey2(text)}
+                                        placeholder={defaultKey}
+                                    />
+                                    <View style={styles.titlecontainer}>
+                                        <Text style={styles.title}>Key 3</Text>
+                                    </View>
+                                    <TextInput 
+                                        style={styles.input} 
+                                        value={key3} 
+                                        maxLength={32}
+                                        multiline = {true}
+                                        numberOfLines = {1}
+                                        autoCapitalize='none'
+                                        onChangeText={(text) => setKey3(text)}
+                                        placeholder={defaultKey}
+                                    />
+                                    <View style={styles.titlecontainer}>
+                                        <Text style={styles.title}>Key 4</Text>
+                                    </View>
+                                    <TextInput 
+                                        style={styles.input} 
+                                        value={key4} 
+                                        maxLength={32}
+                                        multiline = {true}
+                                        numberOfLines = {1}
+                                        autoCapitalize='none'
+                                        onChangeText={(text) => setKey4(text)}
+                                        placeholder={defaultKey}
+                                    />
+                                </>
+                                }
+                                <BlueButton 
+                                    style={styles.button}
                                     title="Disconnect card now"
+                                    color="#000000"
                                     onPress={enableResetMode}
                                 />
                             </>
@@ -328,7 +346,16 @@ const styles = StyleSheet.create({
     },
     link: {
         marginVertical: 16,
-        paddingHorizontal: 32,
+        paddingHorizontal: 10,
+
+    },
+    button: {
+        marginVertical: 16,
+        paddingHorizontal: 10,
+        paddingVertical: 16,
+        borderWidth:1,
+        borderColor: '#fff',
+
     },
     amount: {
         fontWeight: '600',
@@ -364,11 +391,12 @@ const styles = StyleSheet.create({
         width: '100%',
         marginBottom: 12,
         borderWidth: 1,
+        borderColor: '#fff',
         flexWrap: 'wrap',
         padding: 5,
         fontFamily: 'monospace',
         textAlignVertical: 'top',
-        color:'#000'
+        color:'#fff'
     },
 });
 

@@ -7,7 +7,8 @@ import {
     Text, 
     View,
     StatusBar,
-    ScrollView
+    ScrollView,
+    Image
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
@@ -62,6 +63,7 @@ const BoltCardCreate = () => {
           backgroundColor: colors.modalButton,
         },
     });
+    const [showDetails, setShowDetails] = useState(false);
 
     const [cardDetails, setCardDetails] = useState({});
     const [loading, setLoading] = useState(true);
@@ -228,9 +230,7 @@ const BoltCardCreate = () => {
     }
 
     const showTickOrError = (good) => {
-        return good ? 
-            <Ionicons name="checkmark-circle"  size={20} color="green" />
-            : <Ionicons name="alert-circle"  size={20} color="red" />
+        return good ? " ✓" : " ×"
     }
 
     const key0display = keys[0] ? keys[0].substring(0, 4)+"............"+ keys[0].substring(28) : "pending...";
@@ -255,18 +255,33 @@ const BoltCardCreate = () => {
                                 {writeMode ? 
                                     <>
                                         <BlueText style={styles.label}>Ready to write</BlueText>
-                                        <Icon name="creditcard" size={60} color="#000" type="antdesign" />
-                                        <BlueText style={styles.label}>Place your nfc card.</BlueText>
-                                        <BlueText style={styles.label}>Do not remove your card until it's complete.</BlueText>
+                                        <BlueText style={styles.label}>
+                                        <Image 
+                                            source={(() => {
+                                            return require('../img/bolt-card-link.png');
+                                            })()} style={{width: 40, height: 30, marginTop:20}}
+                                        />
+                                        </BlueText>
+                                        <BlueText style={styles.label}>Tap and hold your nfc card to the reader.</BlueText>
+                                        <BlueText style={styles.label}><BlueLoading /></BlueText>
+                                        <BlueText style={styles.label}>Do not remove your card until writing is complete.</BlueText>
+                                        <BlueButton 
+                                            style={styles.link}
+                                            title={!showDetails ? "Show Key Details ▼" : "Hide Key Details ▴"}
+                                            onPress={() => setShowDetails(!showDetails)}
+                                        />
+                                        {showDetails && 
                                         <View>
-                                            <BlueText style={styles.monospace}>lnurl: {lnurlw_base}</BlueText>
-                                            <BlueText style={styles.monospace}>card_name: {cardName}</BlueText>
+                                            <BlueText style={styles.monospace}>lnurl:</BlueText>
+                                            <BlueText style={styles.monospace}>{lnurlw_base}</BlueText>
+                                            {/* <BlueText style={styles.monospace}>card_name: {cardName}</BlueText> */}
                                             <BlueText style={styles.monospace}>Key 0: {key0display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 1: {key1display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 2: {key2display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 3: {key3display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 4: {key4display}</BlueText>
                                         </View>
+                                        }
                                     </>
                                 : 
                                     null
@@ -275,9 +290,9 @@ const BoltCardCreate = () => {
                                     <View style={{fontSize: 30}}>
                                             <Text>Output:</Text>
                                             {tagTypeError && <Text>Tag Type Error: {tagTypeError}<Ionicons name="alert-circle"  size={20} color="red" /></Text>}
-                                            {cardUID && <Text>Card UID: {cardUID}<Ionicons name="checkmark-circle"  size={20} color="green" /></Text>}
-                                            {tagname && <Text style={{lineHeight:30, textAlignVertical:"center"}}>Tag: {tagname}<Ionicons name="checkmark-circle"  size={20} color="green" /></Text>}
-                                            {key0Changed && <Text>Keys ready to change: {key0Changed == "no" ? "yes" : "no"}{key0Changed == "no" ? <Ionicons name="checkmark-circle"  size={20} color="green" /> : <Ionicons name="alert-circle"  size={20} color="red" />}</Text>}                       
+                                            {cardUID && <Text>Card UID: {cardUID} {showTickOrError(true)}</Text>}
+                                            {tagname && <Text style={{lineHeight:30, textAlignVertical:"center"}}>Tag: {tagname}{showTickOrError(true)}</Text>}
+                                            {key0Changed && <Text>Keys ready to change: {key0Changed == "no" ? "yes" : "no"}{showTickOrError(key0Changed == "no")}</Text>}                       
                                             {ndefWritten && <Text>NDEF written: {ndefWritten}{showTickOrError(ndefWritten == "success")}</Text>}
                                             {writekeys && <Text>Keys Changed: {writekeys}{showTickOrError(writekeys == "success")}</Text>}
                                             {ndefRead && <Text>Read NDEF: {ndefRead}</Text>}

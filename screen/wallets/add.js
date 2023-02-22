@@ -57,7 +57,7 @@ const WalletsAdd = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [label, setLabel] = useState('');
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
-  const [selectedWalletType, setSelectedWalletType] = useState(false);
+  const [selectedWalletType, setSelectedWalletType] = useState(ButtonSelected.OFFCHAIN);
   const [backdoorPressed, setBackdoorPressed] = useState(1);
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
@@ -86,7 +86,7 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(url => setWalletBaseURI(url || 'https://bolthub.onesandzeros.nz'))
+      .then(url => setWalletBaseURI(url || 'https://bolthub.onesandzeros.nz:8080'))
       .catch(() => setWalletBaseURI(''));
     isAdancedModeEnabled()
       .then(setIsAdvancedOptionsEnabled)
@@ -283,18 +283,18 @@ const WalletsAdd = () => {
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
         <View style={styles.buttons}>
-          <BitcoinButton
+          {/* <BitcoinButton
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
             style={styles.button}
-          />
+          /> */}
           <LightningButton
             active={selectedWalletType === ButtonSelected.OFFCHAIN}
             onPress={handleOnLightningButtonPressed}
             style={styles.button}
           />
-          {backdoorPressed > 10 ? (
+          {/* {backdoorPressed > 10 ? (
             <LdkButton
               active={selectedWalletType === ButtonSelected.LDK}
               onPress={handleOnLdkButtonPressed}
@@ -303,7 +303,7 @@ const WalletsAdd = () => {
               text="LDK"
             />
           ) : null}
-          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
+          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} /> */}
         </View>
 
         <View style={styles.advanced}>
