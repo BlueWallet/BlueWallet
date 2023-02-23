@@ -374,7 +374,7 @@ PODS:
     - React-perflogger (= 0.67.5)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (10.20.0-beta.5):
+  - RealmJS (11.5.0):
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
@@ -785,7 +785,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 434efc9e5b6d0f14f49867f130b39376c971c1aa
   ReactCommon: a30c2448e5a88bae6fcb0e3da124c14ae493dac1
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 772520fb85c19b65c2ea0c8f9aa6e790a905a377
+  RealmJS: 6924a64e04a7a3672747f49fe1628cb4886161de
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
   RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
