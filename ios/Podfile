@@ -14,8 +14,9 @@ prepare_react_native_project!
 #   dependencies: {
 #     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
 # ```
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+# flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
 
+flipper_config = FlipperConfiguration.disabled
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -63,8 +64,8 @@ target 'BlueWallet' do
               config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
             end
           end
+          __apply_Xcode_12_5_M1_post_install_workaround(installer)
       end
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 
   

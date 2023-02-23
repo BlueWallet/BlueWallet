@@ -17,14 +17,14 @@ RSYNC_PROTECT_TMP_FILES=(--filter "P .*.??????")
 variant_for_slice()
 {
   case "$1" in
-  "realm-js-ios.xcframework/ios-arm64_x86_64-maccatalyst")
-    echo "maccatalyst"
+  "realm-js-ios.xcframework/ios-arm64")
+    echo ""
     ;;
-  "realm-js-ios.xcframework/ios-arm64_i386_x86_64-simulator")
+  "realm-js-ios.xcframework/ios-arm64_x86_64-simulator")
     echo "simulator"
     ;;
-  "realm-js-ios.xcframework/ios-arm64_armv7")
-    echo ""
+  "realm-js-ios.xcframework/ios-arm64_x86_64-maccatalyst")
+    echo "maccatalyst"
     ;;
   esac
 }
@@ -32,14 +32,14 @@ variant_for_slice()
 archs_for_slice()
 {
   case "$1" in
-  "realm-js-ios.xcframework/ios-arm64_x86_64-maccatalyst")
+  "realm-js-ios.xcframework/ios-arm64")
+    echo "arm64"
+    ;;
+  "realm-js-ios.xcframework/ios-arm64_x86_64-simulator")
     echo "arm64 x86_64"
     ;;
-  "realm-js-ios.xcframework/ios-arm64_i386_x86_64-simulator")
-    echo "arm64 i386 x86_64"
-    ;;
-  "realm-js-ios.xcframework/ios-arm64_armv7")
-    echo "arm64 armv7"
+  "realm-js-ios.xcframework/ios-arm64_x86_64-maccatalyst")
+    echo "arm64 x86_64"
     ;;
   esac
 }
@@ -123,5 +123,5 @@ install_xcframework() {
   echo "Copied $source to $destination"
 }
 
-install_xcframework "${PODS_ROOT}/../../node_modules/realm/react-native/ios/realm-js-ios.xcframework" "RealmJS" "library" "ios-arm64_x86_64-maccatalyst" "ios-arm64_i386_x86_64-simulator" "ios-arm64_armv7"
+install_xcframework "${PODS_ROOT}/../../node_modules/realm/react-native/ios/realm-js-ios.xcframework" "RealmJS" "library" "ios-arm64" "ios-arm64_x86_64-simulator" "ios-arm64_x86_64-maccatalyst"
 
