@@ -189,56 +189,72 @@ const BoltCardDetails = () => {
                                     }
                                 </>
                             }
+
                             {details && details.lnurlw_enable &&
                                 <>
                                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Card enabled</Text>
                                     <BlueText>{details.lnurlw_enable}</BlueText>
-                                    {!editMode &&
-                                      <View style={{marginTop: 10}}>
-                                        {details.lnurlw_enable == 'Y' ? 
-                                          <BlueButton
-                                            title="Disable Card"
-                                            onPress={() => {
-                                              enableCard('false')
-                                            }}
-                                            backgroundColor={colors.redBG}
-                                          />
-                                        : 
-                                          <BlueButton
-                                            title="Enable Card"
-                                            onPress={() => {
-                                              enableCard('true')
-                                            }}
-                                          />
+                                    { !wallet.getWipeData()
+                                      && 
+                                      <>
+                                        {!editMode &&
+                                          <View style={{marginTop: 10}}>
+                                            {details.lnurlw_enable == 'Y' ? 
+                                              <BlueButton
+                                                title="Disable Card"
+                                                onPress={() => {
+                                                  enableCard('false')
+                                                }}
+                                                backgroundColor={colors.redBG}
+                                              />
+                                            : 
+                                              <BlueButton
+                                                title="Enable Card"
+                                                onPress={() => {
+                                                  enableCard('true')
+                                                }}
+                                              />
+                                            }
+                                          </View>
                                         }
-                                      </View>
+                                      </>
+
                                     }
                                 </>
                             }
-                            {editMode
+                            {
+                              wallet.getWipeData()
                               ?
-                              <View>
-                                <View style={{marginTop: 10}}>
-                                  <BlueButton
-                                    title="Save"
-                                    onPress={updateCard}
-                                  />
-                                </View>
-                                <View style={{marginTop: 5}}>
-                                  <BlueButton
-                                    title="Cancel"
-                                    onPress={cancelUpdate}
-                                    backgroundColor={colors.redBG}
-                                  />
-                                </View>
-                              </View>
+                              <BlueText style={{fontWeight: '600'}}>CARD IS WIPED</BlueText>
                               :
-                              <View style={{marginTop: 5}}>
-                                  <BlueButton
-                                    title="Edit"
-                                    onPress={() => setEditMode(true)}
-                                  />
-                              </View>
+                                <>
+                                  {editMode
+                                    ?
+                                    <View>
+                                      <View style={{marginTop: 10}}>
+                                        <BlueButton
+                                          title="Save"
+                                          onPress={updateCard}
+                                        />
+                                      </View>
+                                      <View style={{marginTop: 5}}>
+                                        <BlueButton
+                                          title="Cancel"
+                                          onPress={cancelUpdate}
+                                          backgroundColor={colors.redBG}
+                                        />
+                                      </View>
+                                    </View>
+                                    :
+                                    <View style={{marginTop: 5}}>
+                                        <BlueButton
+                                          title="Edit"
+                                          onPress={() => setEditMode(true)}
+                                        />
+                                    </View>
+                                  }
+                                </>
+
                             }
 
                             {!editMode &&

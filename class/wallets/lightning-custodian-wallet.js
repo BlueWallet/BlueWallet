@@ -760,8 +760,14 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
+    await this.getCardDetails(true);
+
     return (this.wipeData = json);
   }
+
+  getWipeData() {
+    return this.wipeData;
+  } 
   
   async setCardWritten(status) {
     this.cardWritten = status;
