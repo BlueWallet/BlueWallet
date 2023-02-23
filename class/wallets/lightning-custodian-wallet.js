@@ -25,7 +25,8 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardKeys = false;
     this.wipeData = false;
     this.cardWritten = false;
-    this.disableCard = false;
+    this.cardEnabled = true;
+    this.cardDetails = false;
   }
 
   /**
@@ -726,6 +727,11 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async wipecard() {
     await this.checkLogin();
+
+    if(this.wipeData) {
+      return this.wipeData;
+    }
+
     let login, password;
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
@@ -761,23 +767,90 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardWritten = status;
   }
 
-  async disableCard(status) {
+  async enableCard(status) {
     await this.checkLogin();
-    const response = await this._api.post('/setdisablecard', {
+
+    if(!this.cardDetails) await this.getCardDetails();
+
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
+
+    console.log('enable bool', status);
+    const response = await this._api.post('/updatecard', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
       body: {
-        disable_card: status
+        enable: status,
+        card_name: login+':'+password,
+        tx_max: this.cardDetails.tx_limit_sats
       }
     });
 
     const json = response.body;
-
-    this.disableCard = json.disable_card_set;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+    
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    
+    console.log('enable response', [json]);
+    return this.cardEnabled = status;
   }
+
+  async getCardDetails(reload) {
+    await this.checkLogin();
+
+    if(this.cardDetails && !reload) {
+      return this.cardDetails;
+    }
+
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
+
+    const response = await this._api.post('/getcard', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+      body: {
+        card_name: login+':'+password
+      }
+    });
+
+    const json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    if (json && json.status === 'ERROR') {
+      throw new Error('API error: ' + json.reason);
+    }
+
+    return (this.cardDetails = json);
+  }
+
+  
 }
 
 /*

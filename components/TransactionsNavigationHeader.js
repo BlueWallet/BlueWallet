@@ -270,26 +270,8 @@ export default class TransactionsNavigationHeader extends Component {
                 </View>
               </TouchableOpacity>
             :
-              <>
+              <View style={{flexDirection: 'column'}}>
                 <TouchableOpacity accessibilityRole="button" onPress={() => {
-                  this.props.navigation.navigate('BoltCardCreateRoot', {
-                    screen: 'BoltCardDisconnect',
-                    params: {
-                      walletID: this.state.wallet.getID(),
-                    },
-                  });
-                }}
-                >
-                  <View style={styles.manageFundsButton}>
-                  <Image 
-                    source={(() => {
-                      return require('../img/bolt-card-unlink.png');
-                    })()} style={{width: 40, height: 30, marginTop:20}}
-                  />
-                    <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
-                  </View>
-                </TouchableOpacity>
-                {/* <TouchableOpacity accessibilityRole="button" onPress={() => {
                   this.props.navigation.navigate('BoltCardCreateRoot', {
                     screen: 'BoltCardDetails',
                     params: {
@@ -299,10 +281,15 @@ export default class TransactionsNavigationHeader extends Component {
                 }}
                 >
                   <View style={styles.manageFundsButton}>
+                  <Image 
+                    source={(() => {
+                      return require('../img/bolt-card-linked.png');
+                    })()} style={{width: 40, height: 30, marginTop:20}}
+                  />
                     <Text style={styles.manageFundsButtonText}>Bolt Card Details</Text>
                   </View>
-                </TouchableOpacity> */}
-              </>
+                </TouchableOpacity>
+              </View>
             }
           </>
         )}
