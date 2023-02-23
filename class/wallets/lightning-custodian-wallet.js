@@ -791,7 +791,8 @@ export class LightningCustodianWallet extends LegacyWallet {
       body: {
         enable: status,
         card_name: login+':'+password,
-        tx_max: this.cardDetails.tx_limit_sats
+        tx_max: this.cardDetails.tx_limit_sats,
+        day_max: this.cardDetails.day_limit_sats,
       }
     });
 
@@ -806,6 +807,52 @@ export class LightningCustodianWallet extends LegacyWallet {
     
     console.log('enable response', [json]);
     return this.cardEnabled = status;
+  }
+
+  async updateCard(day_max, tx_max) {
+    await this.checkLogin();
+
+    if(!this.cardDetails) await this.getCardDetails();
+
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
+
+    let cardEnabled = 'false';
+    if(this.cardDetails.lnurlw_enable == 'Y') {
+      cardEnabled = 'true';
+    }
+
+    const response = await this._api.post('/updatecard', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+      body: {
+        enable: cardEnabled,
+        card_name: login+':'+password,
+        tx_max: tx_max,
+        day_max: day_max,
+      }
+    });
+
+    const json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+    
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    
+    console.log('card update response', [json]);
+    return json;
   }
 
   async getCardDetails(reload) {

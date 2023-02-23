@@ -7,7 +7,8 @@ import {
     ScrollView,
     I18nManager,
     TouchableOpacity,
-    Image
+    Image,
+    TextInput
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
@@ -18,11 +19,11 @@ import {
     BlueCard,
     BlueText,
     BlueButton,
-    BlueListItem
+    BlueFormMultiInput,
+    BlueFormTextInput
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc, { formatBalance } from '../../loc';
 import alert from '../../components/Alert';
 
 const BoltCardDetails = () => {
@@ -73,7 +74,10 @@ const BoltCardDetails = () => {
 
     const [loading, setLoading] = useState(true);
     const [details, setDetails] = useState({});
-    const [cardDisabled, setCardDisabled] = useState('loading');
+    const [editMode, setEditMode] = useState(false);
+
+    const [dayMax, setDayMax] = useState(0);
+    const [txMax, setTxMax] = useState(0);
 
     const fetchCardDetails = async (w, reload = false) => {
         setLoading(true);
@@ -93,22 +97,40 @@ const BoltCardDetails = () => {
     useEffect(() => {
         if(wallet) {
             fetchCardDetails(wallet);
-            // console.log('wallet.cardDisabled', wallet.cardDisabled);
-            // setCardDisabled(wallet.cardDisabled);
         }
     }, [walletID]);
 
-    const updateCard = (updateFields) => {
+    useEffect(() => {
+      if(details && details.tx_limit_sats) {
+        setTxMax(details.tx_limit_sats);
+      }
+      if(details && details.day_limit_sats) {
+        setDayMax(details.day_limit_sats);
+      }
+    }, [details]);
 
+    const updateCard = () => {
+      wallet.updateCard(dayMax, txMax).then(response => {
+        console.log('UPDATE CARD RESPONSE ', response);
+        fetchCardDetails(wallet, true);
+      }).catch(err => {
+        console.log('ERROR', err.message);
+        alert(err.message);
+      });
     }
     
+    const cancelUpdate = () => {
+      setDayMax(details.day_limit_sats);
+      setTxMax(details.tx_limit_sats);
+      setEditMode(false);
+    }
 
     const enableCard = (enable) => {
       console.log('ENABLECARD', enable);
       wallet.enableCard(enable).then(response => {
         console.log('UPDATE CARD RESPONSE ', response);
         fetchCardDetails(wallet, true);
-      }).catch(error => {
+      }).catch(err => {
         console.log('ERROR', err.message);
         alert(err.message);
       });
@@ -120,13 +142,7 @@ const BoltCardDetails = () => {
             <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
                 <View style={styles.scrollBody}>
                     <BlueCard>
-                       
-                        <BlueText style={{textAlign: 'center'}}>Bolt Card Details</BlueText>
-
-                        {cardDisabled === false && <BlueText>Card Enabled</BlueText>}
-                        {cardDisabled === true && <BlueText>Card Disabled</BlueText>}
-                        
-                            
+                        <BlueText style={{textAlign: 'center'}}>Bolt Card Details</BlueText>                            
                     </BlueCard>
                     {loading ?
                         <BlueText>Loading....</BlueText> 
@@ -141,58 +157,112 @@ const BoltCardDetails = () => {
                             {details && details.day_limit_sats &&
                                 <>
                                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Day limit sats</Text>
-                                    <BlueText>{details.day_limit_sats}</BlueText>
+                                    {editMode ?
+                                      <BlueFormTextInput 
+                                        keyboardType = 'numeric' 
+                                        value={dayMax.toString()} 
+                                        onChangeText={(value) => {
+                                          var newVal = value.replace(/[^0-9]/, '');
+                                          setDayMax(newVal);
+                                        }}
+                                      />
+                                    :
+                                      <BlueText>{details.day_limit_sats}</BlueText>
+                                    }
                                 </>
                             }
                             {details && details.tx_limit_sats &&
                                 <>
                                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Transaction limit sats</Text>
-                                    <BlueText>{details.tx_limit_sats}</BlueText>
+                                    {editMode
+                                      ?
+                                      <BlueFormTextInput 
+                                        keyboardType = 'numeric' 
+                                        value={txMax.toString()} 
+                                        onChangeText={(value) => {
+                                          var newVal = value.replace(/[^0-9]/, '');
+                                          setTxMax(newVal);
+                                        }}
+                                      />
+                                      :
+                                      <BlueText>{details.tx_limit_sats}</BlueText>
+                                    }
                                 </>
                             }
                             {details && details.lnurlw_enable &&
                                 <>
-                                    <Text style={[styles.textLabel1, stylesHook.textLabel1]}>LNURLW enable</Text>
+                                    <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Card enabled</Text>
                                     <BlueText>{details.lnurlw_enable}</BlueText>
-                                    <View style={{marginTop: 10}}>
-                                      {details.lnurlw_enable == 'Y' ? 
-                                        <BlueButton
-                                          title="Disable"
-                                          onPress={() => {
-                                            enableCard('false')
-                                          }}
-                                        />
-                                      : 
-                                        <BlueButton
-                                          title="Enable"
-                                          onPress={() => {
-                                            enableCard('true')
-                                          }}
-                                        />
-                                      }
-                                    </View>
+                                    {!editMode &&
+                                      <View style={{marginTop: 10}}>
+                                        {details.lnurlw_enable == 'Y' ? 
+                                          <BlueButton
+                                            title="Disable Card"
+                                            onPress={() => {
+                                              enableCard('false')
+                                            }}
+                                            backgroundColor={colors.redBG}
+                                          />
+                                        : 
+                                          <BlueButton
+                                            title="Enable Card"
+                                            onPress={() => {
+                                              enableCard('true')
+                                            }}
+                                          />
+                                        }
+                                      </View>
+                                    }
                                 </>
                             }
-                            <View style={{alignItems: 'center', marginTop: 30}}>
-                              <TouchableOpacity accessibilityRole="button" onPress={() => {
-                                navigate('BoltCardCreateRoot', {
-                                  screen: 'BoltCardDisconnect',
-                                  params: {
-                                    walletID: walletID,
-                                  },
-                                });
-                              }}
-                              >
-                                <View style={[styles.manageFundsButton, stylesHook.manageFundsButton]}>
-                                <Image 
-                                  source={(() => {
-                                    return require('../../img/bolt-card-unlink_black.png');
-                                  })()} style={{width: 40, height: 30, marginTop:20, marginLeft: 'auto', marginRight: 'auto'}}
-                                />
-                                  <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
+                            {editMode
+                              ?
+                              <View>
+                                <View style={{marginTop: 10}}>
+                                  <BlueButton
+                                    title="Save"
+                                    onPress={updateCard}
+                                  />
                                 </View>
-                              </TouchableOpacity>
-                            </View>
+                                <View style={{marginTop: 5}}>
+                                  <BlueButton
+                                    title="Cancel"
+                                    onPress={cancelUpdate}
+                                    backgroundColor={colors.redBG}
+                                  />
+                                </View>
+                              </View>
+                              :
+                              <View style={{marginTop: 5}}>
+                                  <BlueButton
+                                    title="Edit"
+                                    onPress={() => setEditMode(true)}
+                                  />
+                              </View>
+                            }
+
+                            {!editMode &&
+                              <View style={{alignItems: 'center', marginTop: 30}}>
+                                <TouchableOpacity accessibilityRole="button" onPress={() => {
+                                  navigate('BoltCardCreateRoot', {
+                                    screen: 'BoltCardDisconnect',
+                                    params: {
+                                      walletID: walletID,
+                                    },
+                                  });
+                                }}
+                                >
+                                  <View style={[styles.manageFundsButton, stylesHook.manageFundsButton]}>
+                                  <Image 
+                                    source={(() => {
+                                      return require('../../img/bolt-card-unlink_black.png');
+                                    })()} style={{width: 40, height: 30, marginTop:20, marginLeft: 'auto', marginRight: 'auto'}}
+                                  />
+                                    <Text style={styles.manageFundsButtonText}>Disconnect Bolt Card</Text>
+                                  </View>
+                                </TouchableOpacity>
+                              </View>
+                            }
                         </>
                     }
                 </View>
