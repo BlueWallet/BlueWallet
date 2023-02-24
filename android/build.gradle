@@ -83,3 +83,9 @@ subprojects {
         }
     }
 }
+
+subprojects { subproject ->
+        if(project['name'] == 'react-native-widget-center' || project['name'] == 'remobile_react-native-qrcode-local-image'){
+            project.configurations { compile { } }
+        }
+}
