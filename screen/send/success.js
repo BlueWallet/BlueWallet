@@ -79,24 +79,27 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
 
   return (
     <View style={styles.root}>
-      <BlueCard style={styles.amount}>
-        <View style={styles.view}>
-          {amount ? (
-            <>
-              <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
-              <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
-            </>
-          ) : null}
-        </View>
-        {fee > 0 && (
-          <Text style={styles.feeText}>
-            {loc.send.create_fee}: {new BigNumber(fee).toFixed()} {loc.units[BitcoinUnit.BTC]}
+      {amount || fee > 0 ? (
+        <BlueCard style={styles.amount}>
+          <View style={styles.view}>
+            {amount ? (
+              <>
+                <Text style={[styles.amountValue, stylesHook.amountValue]}>{amount}</Text>
+                <Text style={[styles.amountUnit, stylesHook.amountUnit]}>{' ' + loc.units[amountUnit]}</Text>
+              </>
+            ) : null}
+          </View>
+          {fee > 0 && (
+            <Text style={styles.feeText}>
+              {loc.send.create_fee}: {new BigNumber(fee).toFixed()} {loc.units[BitcoinUnit.BTC]}
+            </Text>
+          )}
+          <Text numberOfLines={0} style={styles.feeText}>
+            {invoiceDescription}
           </Text>
-        )}
-        <Text numberOfLines={0} style={styles.feeText}>
-          {invoiceDescription}
-        </Text>
-      </BlueCard>
+        </BlueCard>
+      ) : null}
+
       <View style={styles.ready}>
         <LottieView
           style={styles.lottie}
@@ -119,6 +122,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
               color: colors.successCheck,
             },
           ]}
+          resizeMode="center"
         />
       </View>
     </View>
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
     marginBottom: 53,
   },
   lottie: {
-    width: 400,
-    height: 400,
+    width: 200,
+    height: 200,
   },
 });
