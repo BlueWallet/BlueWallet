@@ -23,7 +23,7 @@ import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -265,7 +265,7 @@ const WalletsList = () => {
         <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
-            onLongPress={isMacCatalina ? undefined : sendButtonLongPress}
+            onLongPress={ sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
           />
@@ -281,11 +281,8 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
-    } else {
-      scanqrHelper(navigate, routeName, false).then(onBarScanned);
-    }
+     scanqrHelper(navigate, routeName, false).then(onBarScanned);
+
   };
 
   const onBarScanned = value => {
@@ -303,9 +300,7 @@ const WalletsList = () => {
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
     if (Platform.OS === 'ios') {
-      if (isMacCatalina) {
-        fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
-      } else {
+  
         const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
         if (!isClipboardEmpty) {
           options.push(loc.wallets.list_long_clipboard);
@@ -320,9 +315,9 @@ const WalletsList = () => {
             } else if (buttonIndex === 3) {
               copyFromClipboard();
             }
-          },
+          }
         );
-      }
+      
     } else if (Platform.OS === 'android') {
       const buttons = [
         {

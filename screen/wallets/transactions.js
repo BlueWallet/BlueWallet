@@ -27,7 +27,7 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
@@ -371,10 +371,7 @@ const WalletTransactions = () => {
   };
 
   const sendButtonLongPress = async () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarCodeRead);
-    } else {
-      const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
       if (Platform.OS === 'ios') {
         const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
         if (!isClipboardEmpty) {
@@ -435,7 +432,7 @@ const WalletTransactions = () => {
           buttons,
         });
       }
-    }
+    
   };
 
   const navigateToViewEditCosigners = () => {
