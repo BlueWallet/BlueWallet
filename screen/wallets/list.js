@@ -265,7 +265,7 @@ const WalletsList = () => {
         <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
-            onLongPress={ sendButtonLongPress}
+            onLongPress={sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
           />
@@ -281,8 +281,7 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-     scanqrHelper(navigate, routeName, false).then(onBarScanned);
-
+    scanqrHelper(navigate, routeName, false).then(onBarScanned);
   };
 
   const onBarScanned = value => {
@@ -300,24 +299,22 @@ const WalletsList = () => {
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
     if (Platform.OS === 'ios') {
-  
-        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-        if (!isClipboardEmpty) {
-          options.push(loc.wallets.list_long_clipboard);
-        }
-        ActionSheet.showActionSheetWithOptions(
-          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-          buttonIndex => {
-            if (buttonIndex === 1) {
-              fs.showImagePickerAndReadImage().then(onBarScanned);
-            } else if (buttonIndex === 2) {
-              scanqrHelper(navigate, routeName, false).then(onBarScanned);
-            } else if (buttonIndex === 3) {
-              copyFromClipboard();
-            }
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
+      }
+      ActionSheet.showActionSheetWithOptions(
+        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            fs.showImagePickerAndReadImage().then(onBarScanned);
+          } else if (buttonIndex === 2) {
+            scanqrHelper(navigate, routeName, false).then(onBarScanned);
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
           }
-        );
-      
+        },
+      );
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
