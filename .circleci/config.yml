@@ -54,6 +54,8 @@ jobs:
 
     working_directory: ~/repo
 
+    resource_class: xlarge
+
     steps:
       - checkout
 
