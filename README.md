@@ -10,7 +10,7 @@ For more information on the bolt card standard see [boltcard.org](https://boltca
 
 ## BUILD & RUN IT
 
-Please refer to the blue wallet documentation
+Please refer to the [bluewallet documentation](https://github.com/bluewallet/bluewallet)
 
 ## LICENSE
 
