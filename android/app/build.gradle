@@ -100,6 +100,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "6.3.3"
+        testBuildType System.getProperty('testBuildType', 'debug')
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     splits {
@@ -116,6 +118,7 @@ android {
             // see https://reactnative.dev/docs/signed-apk-android.
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
 
@@ -140,7 +143,6 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
 
@@ -149,7 +151,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    androidTestImplementation(project(path: ":detox"))
+    androidTestImplementation('com.wix:detox:+')
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation fileTree(dir: "libs", include: ["*.jar"])
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
