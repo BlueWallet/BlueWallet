@@ -267,7 +267,6 @@
     "export_title": "Exportació de moneder",
     "import_do_import": "Importar",
     "import_error": "No s'ha pogut importar. ¿És vàlid?",
-    "import_file": "Importar arxiu",
     "import_imported": "Importat",
     "import_scan_qr": "o escanejar codi QR?",
     "import_success": "Èxit",
@@ -283,7 +282,6 @@
     "list_tryagain": "Torna-ho a provar",
     "reorder_title": "Reorganitzar moneder",
     "select_wallet": "Seleccioni moneder",
-    "take_photo": "Fer una foto",
     "xpub_copiedToClipboard": "Copiat al porta-retalls."
   },
   "multisig": {
