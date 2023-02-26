@@ -15,9 +15,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
-import { isMacCatalina } from '../../blue_modules/environment';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-const fs = require('../../blue_modules/fs');
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -94,18 +92,14 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    if (isMacCatalina) {
-      fs.showActionSheet().then(onBarScanned);
-    } else {
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
-    }
+    navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: route.name,
+        onBarScanned,
+        showFileImportButton: true,
+      },
+    });
   };
 
   const speedBackdoorTap = () => {
