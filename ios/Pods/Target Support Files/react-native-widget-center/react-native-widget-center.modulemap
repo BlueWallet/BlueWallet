@@ -1,6 +1,0 @@
-module react_native_widget_center {
-  umbrella header "react-native-widget-center-umbrella.h"
-
-  export *
-  module * { export * }
-}

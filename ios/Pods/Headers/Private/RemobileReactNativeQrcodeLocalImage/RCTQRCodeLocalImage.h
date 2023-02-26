@@ -1,1 +1,0 @@
-../../../../../node_modules/@remobile/react-native-qrcode-local-image/ios/RCTQRCodeLocalImage/RCTQRCodeLocalImage.h

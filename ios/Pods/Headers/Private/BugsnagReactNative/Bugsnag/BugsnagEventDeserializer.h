@@ -1,1 +1,0 @@
-../../../../../../node_modules/@bugsnag/react-native/ios/BugsnagReactNative/BugsnagEventDeserializer.h

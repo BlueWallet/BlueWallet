@@ -1,6 +1,0 @@
-module Pods_WidgetsExtension {
-  umbrella header "Pods-WidgetsExtension-umbrella.h"
-
-  export *
-  module * { export * }
-}

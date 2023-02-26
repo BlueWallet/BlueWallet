@@ -1,6 +1,0 @@
-module Pods_BlueWallet {
-  umbrella header "Pods-BlueWallet-umbrella.h"
-
-  export *
-  module * { export * }
-}

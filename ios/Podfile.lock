@@ -287,8 +287,10 @@ PODS:
     - React-Core
   - react-native-image-picker (4.8.5):
     - React-Core
-  - react-native-ios-context-menu (1.12.2):
+  - react-native-ios-context-menu (1.15.3):
     - React-Core
+  - react-native-qrcode-local-image (1.0.4):
+    - React
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.4.1):
@@ -300,7 +302,7 @@ PODS:
     - React
   - react-native-webview (11.26.1):
     - React-Core
-  - react-native-widget-center (0.0.8):
+  - react-native-widget-center (0.0.9):
     - React
   - React-perflogger (0.71.3)
   - React-RCTActionSheet (0.71.3):
@@ -390,9 +392,7 @@ PODS:
     - React-Core
   - RealmJS (11.5.0):
     - React
-  - RemobileReactNativeQrcodeLocalImage (1.0.4):
-    - React
-  - rn-ldk (0.8.1):
+  - rn-ldk (0.8.4):
     - React-Core
   - RNCAsyncStorage (1.17.10):
     - React-Core
@@ -498,6 +498,7 @@ DEPENDENCIES:
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
+  - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -519,7 +520,6 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
   - RealmJS (from `../node_modules/realm`)
-  - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - rn-ldk (from `../node_modules/rn-ldk`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
@@ -613,6 +613,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-ios-context-menu:
     :path: "../node_modules/react-native-ios-context-menu"
+  react-native-qrcode-local-image:
+    :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -655,8 +657,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera-kit"
   RealmJS:
     :path: "../node_modules/realm"
-  RemobileReactNativeQrcodeLocalImage:
-    :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   rn-ldk:
     :path: "../node_modules/rn-ldk"
   RNCAsyncStorage:
@@ -744,13 +744,14 @@ SPEC CHECKSUMS:
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
-  react-native-ios-context-menu: 46b2b5e5b1467564cb7f7729e78adbd0738620a0
+  react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
+  react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
-  react-native-widget-center: 6bf4d5aa5ab10a9dbbf7ddf9192f06cc1d66ccd5
+  react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-perflogger: af8a3d31546077f42d729b949925cc4549f14def
   React-RCTActionSheet: 57cc5adfefbaaf0aae2cf7e10bccd746f2903673
   React-RCTAnimation: 11c61e94da700c4dc915cf134513764d87fc5e2b
@@ -766,8 +767,7 @@ SPEC CHECKSUMS:
   ReactCommon: 6f65ea5b7d84deb9e386f670dd11ce499ded7b40
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 6924a64e04a7a3672747f49fe1628cb4886161de
-  RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  rn-ldk: fe694aaca0c661e7eb32cd9989dade5fe7e9c4e9
+  rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
   RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45

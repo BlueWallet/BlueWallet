@@ -1,6 +1,0 @@
-module rn_ldk {
-  umbrella header "rn-ldk-umbrella.h"
-
-  export *
-  module * { export * }
-}

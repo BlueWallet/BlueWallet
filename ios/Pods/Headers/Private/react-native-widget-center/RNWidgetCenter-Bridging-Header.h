@@ -1,1 +1,0 @@
-../../../../../node_modules/react-native-widget-center/ios/RNWidgetCenter-Bridging-Header.h

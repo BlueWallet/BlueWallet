@@ -1,1 +1,0 @@
-../../../../../node_modules/react-native-reanimated/Common/cpp/Tools/WorkletEventHandler.h

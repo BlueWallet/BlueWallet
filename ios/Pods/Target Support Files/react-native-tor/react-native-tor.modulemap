@@ -1,6 +1,0 @@
-module react_native_tor {
-  umbrella header "react-native-tor-umbrella.h"
-
-  export *
-  module * { export * }
-}

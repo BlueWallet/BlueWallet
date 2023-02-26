@@ -1,1 +1,0 @@
-../../../../../node_modules/react-native-svg/apple/Shapes/RNSVGEllipse.h

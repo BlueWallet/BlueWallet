@@ -1,1 +1,0 @@
-../../../../../node_modules/react-native-share/ios/TelegramShare.h
