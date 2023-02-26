@@ -192,7 +192,6 @@
     "export_title": "exportera plånbok",
     "import_do_import": "Importera",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
-    "import_file": "Importera fil",
     "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",

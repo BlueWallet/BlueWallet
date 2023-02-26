@@ -83,8 +83,7 @@ npx react-native run-ios
 npm run maccatalystpatches
 ```
 
-Once the patches are applied, open Xcode and select "My Mac" as destination. If you are running macOS Catalina, you may need to remove all iOS 14 Widget targets.
-
+Once the patches are applied, open Xcode and select "My Mac" as destination.
 
 ## TESTS
 

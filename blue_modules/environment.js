@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { getSystemName, isTablet, getDeviceType } from 'react-native-device-info';
+import { isTablet, getDeviceType } from 'react-native-device-info';
 
-const isMacCatalina = getSystemName() === 'Mac OS X';
 const isDesktop = getDeviceType() === 'Desktop';
 const getIsTorCapable = () => {
   let capable = true;
@@ -37,4 +36,4 @@ export async function isTorDaemonDisabled() {
 
 export const isHandset = getDeviceType() === 'Handset';
 export const isTorCapable = getIsTorCapable();
-export { isMacCatalina, isDesktop, isTablet };
+export { isDesktop, isTablet };

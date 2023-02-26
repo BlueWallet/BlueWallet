@@ -18,4 +18,4 @@ echo > blue_modules/torrific.js
 echo "Updating Podfile"
 cd ios && pod update && cd ..
 echo ""
-echo "NOTE: react-native-tor is not currently compatible with Mac Catalyst. If you are running macOS Catalina, you will need to remove the iOS 14 Widgets from the project targets."
+echo "NOTE: react-native-tor is not currently compatible with Mac Catalyst.
