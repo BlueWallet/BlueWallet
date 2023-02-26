@@ -1,28 +1,28 @@
-import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo, extractTextFromElementById } from './helperz';
+import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
+
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
+
+/**
+ * in this suite each test requires that there is one specific wallet present, thus, we import it
+ * before anything else.
+ * we dont clean it up as we expect other test suites to do clean install of the app
+ */
 
 beforeAll(async () => {
   if (!process.env.HD_MNEMONIC_BIP84) {
     console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
     return;
   }
+  // reinstalling the app just for any case to clean up app's storage
+  await device.launchApp({ delete: true });
 
-  console.log('before all - importing bip48');
+  console.log('before all - importing bip48...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+  console.log('...imported!');
   await device.pressBack();
   await sleep(15000);
 }, 1200000);
-
-afterAll(async () => {
-  if (!process.env.HD_MNEMONIC_BIP84) {
-    console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-    return;
-  }
-
-  console.log('after all - deleting bip84');
-  await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
-});
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
@@ -34,6 +34,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    await device.launchApp({ newInstance: true });
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -346,6 +347,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    await device.launchApp({ newInstance: true });
 
     await device.launchApp({
       newInstance: true,
@@ -385,7 +387,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-
+    await device.launchApp({ newInstance: true });
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
