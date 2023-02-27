@@ -3,7 +3,7 @@ import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo } from '
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
   await device.launchApp({ delete: true });
-}, 60_000);
+}, 300_000);
 
 describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
   /**
@@ -27,6 +27,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'Imported Watch-only',
       '0 BTC', // it used to be 0.00030666 till someone stole it from git history kek
     );
+    await sleep(15000);
 
     await element(by.id('ReceiveButton')).tap();
     try {

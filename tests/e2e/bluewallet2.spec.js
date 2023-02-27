@@ -22,7 +22,7 @@ beforeAll(async () => {
   console.log('...imported!');
   await device.pressBack();
   await sleep(15000);
-}, 1200000);
+}, 1200_000);
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can create a transaction; can scanQR with bip21; can switch units', async () => {

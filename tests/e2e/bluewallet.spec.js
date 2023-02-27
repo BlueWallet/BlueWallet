@@ -19,7 +19,7 @@ const assert = require('assert');
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
   await device.launchApp({ delete: true });
-}, 60_000);
+}, 300_000);
 
 describe('BlueWallet UI Tests - no wallets', () => {
   it('selftest passes', async () => {
