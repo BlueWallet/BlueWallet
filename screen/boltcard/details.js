@@ -11,7 +11,7 @@ import {
     TextInput
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
-import {Icon} from 'react-native-elements';
+import {Icon, ListItem} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {
@@ -141,9 +141,6 @@ const BoltCardDetails = () => {
             <StatusBar barStyle="light-content" />
             <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
                 <View style={styles.scrollBody}>
-                    <BlueCard>
-                        <BlueText style={{textAlign: 'center'}}>Bolt Card Details</BlueText>                            
-                    </BlueCard>
                     {loading ?
                         <BlueText>Loading....</BlueText> 
                     :
@@ -193,7 +190,10 @@ const BoltCardDetails = () => {
                             {details && details.lnurlw_enable &&
                                 <>
                                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Card enabled</Text>
-                                    <BlueText>{details.lnurlw_enable}</BlueText>
+                                    <BlueText>
+                                      {/* <ListItem.CheckBox checkedColor="#0070FF" checkedIcon="check" checked={details.lnurlw_enable == 'Y'} /> */}
+                                      {details.lnurlw_enable == 'Y' ? 'Yes' : 'No'}
+                                    </BlueText>
                                     { !wallet.getWipeData()
                                       && 
                                       <>
