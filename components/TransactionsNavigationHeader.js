@@ -23,8 +23,8 @@ export default class TransactionsNavigationHeader extends Component {
   static actionKeys = {
     CopyToClipboard: 'copyToClipboard',
     WalletBalanceVisibility: 'walletBalanceVisibility',
-    Refill: 'refill',
-    RefillWithExternalWallet: 'qrcode',
+    // Refill: 'refill',
+    // RefillWithExternalWallet: 'qrcode',
   };
 
   static actionIcons = {
@@ -40,14 +40,14 @@ export default class TransactionsNavigationHeader extends Component {
       iconType: 'SYSTEM',
       iconValue: 'doc.on.doc',
     },
-    Refill: {
-      iconType: 'SYSTEM',
-      iconValue: 'goforward.plus',
-    },
-    RefillWithExternalWallet: {
-      iconType: 'SYSTEM',
-      iconValue: 'qrcode',
-    },
+    // Refill: {
+    //   iconType: 'SYSTEM',
+    //   iconValue: 'goforward.plus',
+    // },
+    // RefillWithExternalWallet: {
+    //   iconType: 'SYSTEM',
+    //   iconValue: 'qrcode',
+    // },
   };
 
   static getDerivedStateFromProps(props) {
@@ -236,7 +236,7 @@ export default class TransactionsNavigationHeader extends Component {
         </ToolTipMenu>
         <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
 
-        {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
+        {/* {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <ToolTipMenu
             isMenuPrimaryAction
             isButton
@@ -246,7 +246,7 @@ export default class TransactionsNavigationHeader extends Component {
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
-        )}
+        )} */}
         {/* @TODO: check it's the correct wallet type? */}
         {this.state.wallet.type === LightningCustodianWallet.type && (
           <>
@@ -295,13 +295,13 @@ export default class TransactionsNavigationHeader extends Component {
         )}
         </View>
 
-        {this.state.wallet.type === LightningLdkWallet.type && (
+        {/* {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>
               <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
             </View>
           </TouchableOpacity>
-        )}
+        )} */}
         {this.state.wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>

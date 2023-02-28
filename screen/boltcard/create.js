@@ -11,7 +11,7 @@ import {
     Image
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
-import {Icon} from 'react-native-elements';
+import {Icon, ListItem} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {
@@ -91,6 +91,8 @@ const BoltCardCreate = () => {
     const [testc, setTestc] = useState();
     const [testBolt, setTestBolt] = useState();
 
+    const [enhancedPrivacy, setEnhancedPrivacy] = useState(false);
+
     useEffect(() => {
         if(cardDetails && (cardDetails.lnurlw_base && cardDetails.k0 && cardDetails.k1 && cardDetails.k2 && cardDetails.k3 && cardDetails.k4)) {
             setKeys([cardDetails.k0,cardDetails.k1,cardDetails.k2,cardDetails.k3,cardDetails.k4])
@@ -104,6 +106,7 @@ const BoltCardCreate = () => {
                 cardDetails.k2, 
                 cardDetails.k3, 
                 cardDetails.k4, 
+                cardDetails.uid_privacy != undefined && cardDetails.uid_privacy == "Y", 
                 (response) => {
                     console.log('Change keys response', response)
                     if (response == "Success") {
@@ -132,6 +135,7 @@ const BoltCardCreate = () => {
             if(event.key2Changed) setKey2Changed(event.key2Changed);
             if(event.key3Changed) setKey3Changed(event.key3Changed);
             if(event.key4Changed) setKey4Changed(event.key4Changed);
+            if(event.uid_privacy) setPrivateUID(event.uid_privacy == 'Y');
 
             if(event.ndefWritten) setNdefWritten(event.ndefWritten);
             if(event.writekeys) setWriteKeys(event.writekeys);
@@ -233,6 +237,27 @@ const BoltCardCreate = () => {
         return good ? " ✓" : " ×"
     }
 
+    const togglePrivacy = () => {
+        NativeModules.MyReactModule.changeKeys(
+            cardDetails.lnurlw_base,
+            cardDetails.k0, 
+            cardDetails.k1, 
+            cardDetails.k2, 
+            cardDetails.k3, 
+            cardDetails.k4, 
+            !enhancedPrivacy, 
+            (response) => {
+                console.log('Change keys response', response)
+                if (response == "Success") {
+                    setLoading(false);
+                    setWriteMode(true);
+                }
+                NativeModules.MyReactModule.setCardMode('createBoltcard');
+            }
+        );
+        setEnhancedPrivacy(!enhancedPrivacy)
+    }
+
     const key0display = keys[0] ? keys[0].substring(0, 4)+"............"+ keys[0].substring(28) : "pending...";
     const key1display = keys[1] ? keys[1].substring(0, 4)+"............"+ keys[1].substring(28) : "pending...";
     const key2display = keys[2] ? keys[2].substring(0, 4)+"............"+ keys[2].substring(28) : "pending...";
@@ -265,6 +290,10 @@ const BoltCardCreate = () => {
                                         <BlueText style={styles.label}>Tap and hold your nfc card to the reader.</BlueText>
                                         <BlueText style={styles.label}><BlueLoading /></BlueText>
                                         <BlueText style={styles.label}>Do not remove your card until writing is complete.</BlueText>
+                                        <BlueText style={{borderWidth:1, borderColor:'#fff', paddingHorizontal:5}} onPress={()=>togglePrivacy()}>
+                                            <ListItem.CheckBox checkedColor="#0070FF" checkedIcon="check" checked={enhancedPrivacy} onPress={()=>togglePrivacy()} />
+                                            Enable Private UID (Hides card UID. One-way operation, can't undo)
+                                        </BlueText>
                                         <BlueButton 
                                             style={styles.link}
                                             title={!showDetails ? "Show Key Details ▼" : "Hide Key Details ▴"}
@@ -274,7 +303,7 @@ const BoltCardCreate = () => {
                                         <View>
                                             <BlueText style={styles.monospace}>lnurl:</BlueText>
                                             <BlueText style={styles.monospace}>{lnurlw_base}</BlueText>
-                                            {/* <BlueText style={styles.monospace}>card_name: {cardName}</BlueText> */}
+                                            <BlueText style={styles.monospace}>Private UID: {enhancedPrivacy ? "yes" : "no"}</BlueText>
                                             <BlueText style={styles.monospace}>Key 0: {key0display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 1: {key1display}</BlueText>
                                             <BlueText style={styles.monospace}>Key 2: {key2display}</BlueText>
@@ -296,7 +325,12 @@ const BoltCardCreate = () => {
                                             {ndefWritten && <Text>NDEF written: {ndefWritten}{showTickOrError(ndefWritten == "success")}</Text>}
                                             {writekeys && <Text>Keys Changed: {writekeys}{showTickOrError(writekeys == "success")}</Text>}
                                             {ndefRead && <Text>Read NDEF: {ndefRead}</Text>}
-                                            {testp && <Text>Test PICC: {testp}{showTickOrError(testp == "ok")}</Text>}
+                                            {testp && <Text>Test PICC: {
+                                                cardUID.length == 8 ? 
+                                                <>test skipped {showTickOrError(true)}</>
+                                                : 
+                                                <>{testp}{showTickOrError(testp == "ok")}</>
+                                            }</Text>}
                                             {testc && <Text>Test CMAC: {testc}{showTickOrError(testc == "ok")}</Text>}
                                             {testBolt && <Text>Bolt call test: {testBolt}{showTickOrError(testBolt == "success")}</Text>}
 

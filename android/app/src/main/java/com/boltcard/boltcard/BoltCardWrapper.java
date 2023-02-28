@@ -202,4 +202,13 @@ public class BoltCardWrapper {
             this.ntag424DNATT.changeFileSettings(2, fileSettings);
         }
     }
+    
+    public void setPICCConfiguration(boolean enableRandomUID) {
+        if (this.ntag424DNA != null) {
+            this.ntag424DNA.setPICCConfiguration(enableRandomUID);
+        }
+        else {
+            this.ntag424DNATT.setPICCConfiguration(enableRandomUID);
+        }
+    }
 } 

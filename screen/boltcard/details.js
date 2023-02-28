@@ -68,7 +68,7 @@ const BoltCardDetails = () => {
           color: colors.feeText,
         },
         manageFundsButton: {
-          backgroundColor: colors.outgoingBackgroundColor
+          backgroundColor: colors.redText
         }
     });
 
@@ -201,7 +201,7 @@ const BoltCardDetails = () => {
                                           <View style={{marginTop: 10}}>
                                             {details.lnurlw_enable == 'Y' ? 
                                               <BlueButton
-                                                title="Disable Card"
+                                                title="Temporarily Disable Card"
                                                 onPress={() => {
                                                   enableCard('false')
                                                 }}
@@ -369,6 +369,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
       },
       manageFundsButtonText: {
+        color:'#000',
         fontWeight: '500',
         fontSize: 14,
         padding: 12,

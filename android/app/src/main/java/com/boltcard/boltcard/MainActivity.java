@@ -175,6 +175,8 @@ public class MainActivity extends ReactActivity {
     private byte[] key3;
     private byte[] key4;
 
+    private boolean randomUID = false;
+
     private String[] resetKeys;
     private String uid;
 
@@ -395,6 +397,22 @@ public class MainActivity extends ReactActivity {
       }});  
       Log.e(TAG, "ndefWritten Error "+e.getMessage());
       throw e;
+    }
+    if (this.randomUID) {
+      try {
+        this.authenticateWithDefaultChangeKey(boltCardWrapper);
+        boltCardWrapper.setPICCConfiguration(this.randomUID);
+        sendEvent("CreateBoltCard",new HashMap<String, String>() {{
+          put("randomUID", "success");
+        }});
+      }
+      catch(Exception e) {
+        sendEvent("CreateBoltCard",new HashMap<String, String>() {{
+          put("randomUID", e.getMessage());
+        }});  
+        Log.e(TAG, "randomUID Error "+e.getMessage());
+        throw e;
+      }
     }
 
     //write the keys to the card
@@ -838,33 +856,6 @@ public class MainActivity extends ReactActivity {
   }
 
   /**
-   * Called by react native to set new keys in memory for prepare for writing to the NFC card
-   * @param key0
-   * @param key1
-   * @param key2
-   * @param callBack
-   */
-  public void changeKeys(String key0, String key1, String key2, Callback callBack) {
-    this.cardmode = CARD_MODE_WRITEKEYS;
-    String result = "Success";
-    if(key0 == null && key1 == null && key2 == null) {
-      this.key0 = null;
-      this.key1 = null;
-      this.key2 = null;
-    }
-    try {
-      this.key0 = this.hexStringToByteArray(key0);
-      this.key1 = this.hexStringToByteArray(key1);
-      this.key2 = this.hexStringToByteArray(key2);    
-    }
-    catch(Exception e) {
-      Log.d(TAG, "Error one or more keys are invalid: "+e.getMessage());
-      result = "Error one or more keys are invalid";
-    }
-    callBack.invoke(result);
-  }
-
-  /**
    * Change keys function that allows setting all 5 keys and the LNURLW at the same time.
    * @param lnurlw_base
    * @param key0
@@ -872,9 +863,10 @@ public class MainActivity extends ReactActivity {
    * @param key2
    * @param key3
    * @param key4
+   * @param privateuid
    * @param callBack
    */
-  public void changeKeys(String lnurlw_base, String key0, String key1, String key2, String key3, String key4, Callback callBack) {
+  public void changeKeys(String lnurlw_base, String key0, String key1, String key2, String key3, String key4, boolean randomUID, Callback callBack) {
     this.cardmode = CARD_MODE_WRITEKEYS;
     String result = "Success";
     if (lnurlw_base.indexOf("lnurlw://") == -1) {
@@ -898,18 +890,13 @@ public class MainActivity extends ReactActivity {
       this.key2 = this.hexStringToByteArray(key2);    
       this.key3 = this.hexStringToByteArray(key3);    
       this.key4 = this.hexStringToByteArray(key4);    
+      this.randomUID = randomUID;
     }
+
     catch(Exception e) {
       Log.d(TAG, "Error one or more keys are invalid: "+e.getMessage());
       result = "Error one or more keys are invalid";
     }
-    Log.d(TAG, "Data Set: "+this.lnurlw_base + " " + 
-      this.key0 + " " + 
-      this.key1 + " " + 
-      this.key2 + " " + 
-      this.key3 + " " + 
-      this.key4
-    );
     callBack.invoke(result);
   }
 
