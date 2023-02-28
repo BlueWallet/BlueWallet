@@ -11,6 +11,7 @@ import {
   TextInput,
   StyleSheet,
   useColorScheme,
+  TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -34,13 +35,17 @@ import {
   LightningLdkWallet,
 } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useTheme, useNavigation } from '@react-navigation/native';
+import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { Icon } from 'react-native-elements';
+
 const A = require('../../blue_modules/analytics');
+const scanqrHelper = require('../../helpers/scan-qr');
 
 const ButtonSelected = Object.freeze({
   ONCHAIN: Chain.ONCHAIN,
@@ -50,6 +55,7 @@ const ButtonSelected = Object.freeze({
 });
 
 const WalletsAdd = () => {
+  const routeName = useRoute().name;
   const { colors } = useTheme();
   const { addWallet, saveToDisk, isAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -261,6 +267,13 @@ const WalletsAdd = () => {
     setSelectedWalletType(ButtonSelected.LDK);
   };
 
+  const onBarScanned = value => {
+    if (!value) return;
+    let url = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+    console.log('onBarScanned', url);
+    setWalletBaseURI(url);
+  };
+
   return (
     <ScrollView style={stylesHook.root}>
       <StatusBar
@@ -358,7 +371,13 @@ const WalletsAdd = () => {
                       editable={!isLoading}
                       underlineColorAndroid="transparent"
                     />
+                  <TouchableOpacity
+                    onPress={()=>{scanqrHelper(navigate, routeName, false).then(onBarScanned)}}
+                  >
+                    <Icon name='qrcode' size={18} type="font-awesome" color="#9aa0aa" />
+                  </TouchableOpacity>
                   </View>
+                  <BlueText>{loc.wallets.add_lndhub_details}</BlueText>
                 </>
               );
             }
