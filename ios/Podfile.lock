@@ -295,6 +295,8 @@ PODS:
     - React-Core
   - react-native-safe-area-context (3.4.1):
     - React-Core
+  - react-native-secure-key-store (2.0.10):
+    - React-Core
   - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
@@ -390,7 +392,7 @@ PODS:
     - React-perflogger (= 0.71.3)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (11.5.0):
+  - RealmJS (11.5.1):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -410,7 +412,7 @@ PODS:
     - React-Core
   - RNHandoff (0.0.3):
     - React
-  - RNKeychain (8.0.0):
+  - RNKeychain (8.1.1):
     - React-Core
   - RNLocalize (2.2.4):
     - React-Core
@@ -501,6 +503,7 @@ DEPENDENCIES:
   - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-tor (from `../node_modules/react-native-tor`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -619,6 +622,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-secure-key-store:
+    :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-tor:
@@ -748,6 +753,7 @@ SPEC CHECKSUMS:
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
+  react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
@@ -766,7 +772,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 7bf0dafc7b727d93c8cb94eb00a9d3753c446c3e
   ReactCommon: 6f65ea5b7d84deb9e386f670dd11ce499ded7b40
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 6924a64e04a7a3672747f49fe1628cb4886161de
+  RealmJS: 8007ce57d45f60523c49699cf739bcec87522fde
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
   RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
@@ -776,7 +782,7 @@ SPEC CHECKSUMS:
   RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
+  RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 0df7970cfc60389f00eb62fd7c097dc75af3fb4f
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
