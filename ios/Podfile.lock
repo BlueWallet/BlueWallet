@@ -396,7 +396,7 @@ PODS:
     - React
   - rn-ldk (0.8.4):
     - React-Core
-  - RNCAsyncStorage (1.17.10):
+  - RNCAsyncStorage (1.17.11):
     - React-Core
   - RNCClipboard (1.10.0):
     - React-Core
@@ -414,7 +414,7 @@ PODS:
     - React
   - RNKeychain (8.1.1):
     - React-Core
-  - RNLocalize (2.2.4):
+  - RNLocalize (2.2.5):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -774,7 +774,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 8007ce57d45f60523c49699cf739bcec87522fde
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
+  RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCClipboard: f1736c75ab85b627a4d57587edb4b60999c4dd80
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
@@ -783,7 +783,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
-  RNLocalize: 0df7970cfc60389f00eb62fd7c097dc75af3fb4f
+  RNLocalize: f0fbcea2a28981985dfe468129674f47847787b1
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
