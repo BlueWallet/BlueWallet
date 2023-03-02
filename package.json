@@ -99,7 +99,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.20.0",
+    "@babel/preset-env": "^7.20.0",
     "@bugsnag/react-native": "7.18.2",
     "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.5.4",
@@ -177,10 +177,10 @@
     "react-native-rate": "1.2.12",
     "react-native-reanimated": "2.14.4",
     "react-native-safe-area-context": "3.4.1",
-    "react-native-screens": "3.19.0",
+    "react-native-screens": "^3.20.0",
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#2076b48",
-    "react-native-share": "7.9.1",
-    "react-native-svg": "12.4.4",
+    "react-native-share": "^8.2.1",
+    "react-native-svg": "^13.8.0",
     "react-native-tcp-socket": "5.6.2",
     "react-native-tor": "0.1.8",
     "react-native-vector-icons": "9.2.0",
