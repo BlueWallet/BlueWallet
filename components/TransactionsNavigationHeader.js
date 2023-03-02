@@ -178,7 +178,7 @@ export default class TransactionsNavigationHeader extends Component {
             switch (this.state.wallet.type) {
               case LightningLdkWallet.type:
               case LightningCustodianWallet.type:
-                return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+                return I18nManager.isRTL ? require('../img/bolt-shape.png') : require('../img/bolt-shape.png');
               case MultisigHDWallet.type:
                 return I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
               default:

@@ -172,7 +172,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
   switch (item.type) {
     case LightningLdkWallet.type:
     case LightningCustodianWallet.type:
-      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+      image = I18nManager.isRTL ? require('../img/bolt-shape.png') : require('../img/bolt-shape.png');
       break;
     case MultisigHDWallet.type:
       image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
