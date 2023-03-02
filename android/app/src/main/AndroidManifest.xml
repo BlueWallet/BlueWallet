@@ -74,8 +74,6 @@
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
-          <data android:scheme="bankid" />
-          <data android:scheme="swish" />
           <data android:scheme="http" />
           <data android:scheme="https" />
         </intent-filter>
