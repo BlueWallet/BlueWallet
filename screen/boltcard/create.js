@@ -175,6 +175,7 @@ const BoltCardCreate = () => {
             .then(keys => {
                 console.log('KEYS', keys);
                 setCardDetails(keys);
+                wallet.setWipeData(null);
                 saveToDisk();
             })
             .catch(err => {

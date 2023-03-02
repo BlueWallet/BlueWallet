@@ -769,6 +769,10 @@ export class LightningCustodianWallet extends LegacyWallet {
   getWipeData() {
     return this.wipeData;
   } 
+
+  setWipeData(data) {
+    this.wipeData = data;
+  }
   
   async setCardWritten(status) {
     this.cardWritten = status;
