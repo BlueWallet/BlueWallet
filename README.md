@@ -1,5 +1,7 @@
 # Bolt Card Wallet - [boltcard.org](https://boltcard.org)
 
+Android only at the moment, currently working on iOS version release TBC 
+
 ## A fork of [Bluewallet](https://bluewallet.io/)
 
 We have forked blue wallet and added bolt card linking capability to make it easier to get going with bolt cards.
@@ -7,6 +9,16 @@ We have forked blue wallet and added bolt card linking capability to make it eas
 Also requires [boltcard-lndhub](https://github.com/boltcard/boltcard-lndhub) our forked version of [LNDhub](https://bluewallet.io/) 
 
 For more information on the bolt card standard see [boltcard.org](https://boltcard.org)
+
+## Google Play Store Install
+
+Not available right now, currently app is in review...
+[Google Play Store](https://play.google.com/store/apps/details?id=com.boltcard.boltcard)
+Will be at this address when ready.
+
+## Precompiled Binaries
+
+[Release 0.1.0](https://github.com/boltcard/boltcard-wallet/releases/tag/v0.1.0)
 
 ## BUILD & RUN IT
 
