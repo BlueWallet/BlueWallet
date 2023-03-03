@@ -190,7 +190,7 @@ function Notifications(props) {
    * @param txids {string[]}
    * @returns {Promise<object>} Response object from API rest call
    */
-  Notifications.majorTomToGroundControl = async function (addresses, hashes, txids) {
+  Notifications.majorTomToGroundControl = async function (addresses, hashes, txids, userids = []) {
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids))
       throw new Error('no addresses or hashes or txids provided');
     const pushToken = await Notifications.getPushToken();
@@ -205,6 +205,7 @@ function Notifications(props) {
           addresses,
           hashes,
           txids,
+          userids: userids,
           token: pushToken.token,
           os: pushToken.os,
         },

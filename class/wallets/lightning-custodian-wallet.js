@@ -58,6 +58,16 @@ export class LightningCustodianWallet extends LegacyWallet {
     return this.secret + '@' + this.baseURI;
   }
 
+  getLogin() {
+    let login;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+    }
+    return login;
+  }
+
   timeToRefreshBalance() {
     return (+new Date() - this._lastBalanceFetch) / 1000 > 300; // 5 min
   }

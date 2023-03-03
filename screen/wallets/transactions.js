@@ -33,6 +33,7 @@ import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
+import Notifications from '../../blue_modules/notifications';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -202,8 +203,12 @@ const WalletTransactions = () => {
       await saveToDisk(); // caching
       //    setDataSource([...getTransactionsSliced(limit)]);
     }
+    await Notifications.tryToObtainPermissions();
+    Notifications.majorTomToGroundControl([], [], [], [wallet.getLogin()]);
+
     setIsLoading(false);
     setTimeElapsed(prev => prev + 1);
+
   };
 
   const _keyExtractor = (_item, index) => index.toString();

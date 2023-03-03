@@ -151,6 +151,7 @@ const BoltCardDisconnect = () => {
         console.log('setCardWiped');
         if(wallet) {
             await wallet.setCardWritten(false);
+            wallet.setWipeData(null);
             saveToDisk();
         }
     }
