@@ -2,6 +2,9 @@
 
 Android only at the moment, currently working on iOS version release TBC 
 
+** IMPORTANT: Requires a Bolt Card Hub service to connect to **
+[Instructions for running your own bolt card service](https://github.com/boltcard/boltcard-lndhub-docker#readme)
+
 ## A fork of [Bluewallet](https://bluewallet.io/)
 
 We have forked blue wallet and added bolt card linking capability to make it easier to get going with bolt cards.
