@@ -1054,23 +1054,23 @@ function txhexToElectrumTransaction(txhex) {
 // exported only to be used in unit tests
 module.exports.txhexToElectrumTransaction = txhexToElectrumTransaction;
 
-module.exports.multiGetTransactionHexByTxid = async function (txids, batchsize = 100) {
-  if (!mainClient) throw new Error('Electrum client is not connected');
+// module.exports.multiGetTransactionHexByTxid = async function (txids, batchsize = 100) {
+//   if (!mainClient) throw new Error('Electrum client is not connected');
 
-  const chunks = splitIntoChunks(txids, batchsize);
-  const result = {};
-  for (const chunk of chunks) {
-    if (!disableBatching) {
-      await Promise.all(
-        chunk.map(async txid => {
-          const hex = await mainClient.blockchainTransaction_get(txid);
-          result[txid] = hex;
-        }),
-      );
-    } else {
-      const res = await mainClient.blockchainTransaction_getBatch(chunk);
-      res.forEach(({ result: r, param }) => (result[param] = r));
-    }
-  }
-  return result;
-};
+//   const chunks = splitIntoChunks(txids, batchsize);
+//   const result = {};
+//   for (const chunk of chunks) {
+//     if (!disableBatching) {
+//       await Promise.all(
+//         chunk.map(async txid => {
+//           const hex = await mainClient.blockchainTransaction_get(txid);
+//           result[txid] = hex;
+//         }),
+//       );
+//     } else {
+//       const res = await mainClient.blockchainTransaction_getBatch(chunk);
+//       res.forEach(({ result: r, param }) => (result[param] = r));
+//     }
+//   }
+//   return result;
+// };

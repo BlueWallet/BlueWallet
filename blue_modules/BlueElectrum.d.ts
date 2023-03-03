@@ -96,5 +96,3 @@ export function getTransactionsFullByAddress(address: string): Promise<ElectrumT
 export function txhexToElectrumTransaction(txhes: string): ElectrumTransaction;
 
 export function isDisabled(): Promise<boolean>;
-
-export function multiGetTransactionHexByTxid(txids: string[], batchsize?: number): Promise<Record<string, string>>;
