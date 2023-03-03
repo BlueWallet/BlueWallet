@@ -101,6 +101,7 @@ const BoltCardDisconnect = () => {
                 error = error + ' Some keys missing, proceed with caution';
             }
             setKeyJsonError(error ? error : false)
+            enableResetMode(wipeCardDetails.k0, wipeCardDetails.k1, wipeCardDetails.k2, wipeCardDetails.k3, wipeCardDetails.k4, wipeCardDetails.uid);
        }
     }, [wipeCardDetails]);
 
@@ -155,12 +156,20 @@ const BoltCardDisconnect = () => {
         }
     }
 
-    const enableResetMode = () => {
+    const enableResetMode = (k0, k1, k2, k3, k4, carduid) => {
         NativeModules.MyReactModule.setCardMode("resetkeys");
-        NativeModules.MyReactModule.setResetKeys(key0,key1,key2,key3,key4,uid, ()=> {
-          //callback
-          console.log("reset keys set");
-        });
+        if (k0 && k1 && k2 && k3 && k4 && carduid) {
+            NativeModules.MyReactModule.setResetKeys(k0,k1,k2,k3,k4,carduid, ()=> {
+                //callback
+                console.log("reset keys set");
+            });
+        }
+        else {
+            NativeModules.MyReactModule.setResetKeys(key0,key1,key2,key3,key4,uid, ()=> {
+                //callback
+                console.log("reset keys set");
+            });
+        }
         setWriteKeysOutput(null)
         setResetNow(true);
     }
@@ -290,7 +299,7 @@ const BoltCardDisconnect = () => {
                                 }
                                 <BlueButton 
                                     style={styles.button}
-                                    title="Disconnect card now"
+                                    title="Reset Again"
                                     color="#000000"
                                     onPress={enableResetMode}
                                 />
