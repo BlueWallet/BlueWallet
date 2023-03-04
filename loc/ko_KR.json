@@ -279,7 +279,7 @@
     "lightning_saved": "변경된 사항이 성공적으로 저장되었습니다.",
     "lightning_settings": "라이트닝 설정",
     "tor_settings": "토르 설정",
-    "lightning_settings_explain": "자신이 직접운영하는 LND 노드에 연결하기위해선 LNDHub를 설치하고 그 URL을 여기 설정에 넣어십시요. 블루월렛에서 제공하는 LNDHub(lndhub.io)를 사용하실 경우는 공란으로 남겨주세요. 변경사항이 저장된 후 생선된 지갑들 만이 지정된 LNDHub에 연결됨을 주의하시기 바랍니다.",
+    "lightning_settings_explain": "자신이 직접운영하는 LND 노드에 연결하기위해선 LNDHub를 설치하고 그 URL을 여기 설정에 넣어십시요. 블루월렛에서 제공하는 LNDHub를 사용하실 경우는 공란으로 남겨주세요. 변경사항이 저장된 후 생선된 지갑들 만이 지정된 LNDHub에 연결됨을 주의하시기 바랍니다.",
     "network": "네트워크",
     "network_broadcast": "거래내역 송출",
     "network_electrum": "일렉트럼 서버",

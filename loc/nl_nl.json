@@ -270,7 +270,7 @@
     "lightning_saved": "Uw wijzigingen zijn succesvol opgeslagen",
     "lightning_settings": "Lightning-instellingen",
     "tor_settings": "Tor instellingen",
-    "lightning_settings_explain": "Om uw eigen LND node te verbinden, installeer LNDHub en voer de URL hier in bij instellingen. Laat open om de BlueWallet LNDHub (lndhub.io) te gebruiken. Let op dat enkel wallets die gecreëerd zijn na het opslaan van wijzigingen zullen verbinden met de aangegeven LNDHub.",
+    "lightning_settings_explain": "Om uw eigen LND node te verbinden, installeer LNDHub en voer de URL hier in bij instellingen. Laat open om de BlueWallet LNDHub  te gebruiken. Let op dat enkel wallets die gecreëerd zijn na het opslaan van wijzigingen zullen verbinden met de aangegeven LNDHub.",
     "network": "Netwerk",
     "network_broadcast": "Verzend transactie",
     "network_electrum": "Electrum server",

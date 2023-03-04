@@ -281,7 +281,7 @@
     "lightning_saved": "変更は正常に保存されました",
     "lightning_settings": "Lightning 設定",
     "tor_settings": "Tor設定",
-    "lightning_settings_explain": "他の LND ノードへ接続するには LndHub をインストール後、URL を入力してください。BlueWallet の既定の LNDHub (lndhub.io) を使用するには空欄にします。設定を保存した後に作成したウォレットのみが指定した LNDHub に接続しますので注意してください。",
+    "lightning_settings_explain": "他の LND ノードへ接続するには LndHub をインストール後、URL を入力してください。BlueWallet の既定の LNDHub  を使用するには空欄にします。設定を保存した後に作成したウォレットのみが指定した LNDHub に接続しますので注意してください。",
     "network": "ネットワーク",
     "network_broadcast": "ブロードキャストトランザクション",
     "network_electrum": "Electrum サーバー",
