@@ -128,6 +128,7 @@ const WalletDetails = () => {
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const { isAdancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
@@ -187,6 +188,7 @@ const WalletDetails = () => {
         wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
+      wallet.switchBIP47(isBIP47Enabled);
     }
     saveToDisk()
       .then(() => {
@@ -216,7 +218,7 @@ const WalletDetails = () => {
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
+  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
     if (wallets.some(wallet => wallet.getID() === walletID)) {
@@ -564,6 +566,14 @@ const WalletDetails = () => {
                   {loc.transactions.transactions_count.toLowerCase()}
                 </Text>
                 <BlueText>{wallet.getTransactions().length}</BlueText>
+              </>
+
+              <>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
+                <View style={styles.hardware}>
+                  <BlueText>{loc.bip47.purpose}</BlueText>
+                  <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
+                </View>
               </>
 
               <View>

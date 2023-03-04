@@ -39,6 +39,7 @@ jobs:
     - name: Run tests
       run: npm test || npm test || npm test
       env:
+        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
         HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}

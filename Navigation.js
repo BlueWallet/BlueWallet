@@ -83,6 +83,8 @@ import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
+import PaymentCode from './screen/wallets/paymentCode';
+import loc from './loc';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -465,6 +467,15 @@ const ExportMultisigCoordinationSetupRoot = () => {
   );
 };
 
+const PaymentCodeStack = createNativeStackNavigator();
+const PaymentCodeStackRoot = () => {
+  return (
+    <PaymentCodeStack.Navigator name="PaymentCodeRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="PaymentCode">
+      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: loc.bip47.payment_code }} />
+    </PaymentCodeStack.Navigator>
+  );
+};
+
 const RootStack = createNativeStackNavigator();
 const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const Navigation = () => {
@@ -500,6 +511,8 @@ const Navigation = () => {
           stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal',
         }}
       />
+
+      <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
     </RootStack.Navigator>
   );
 };
