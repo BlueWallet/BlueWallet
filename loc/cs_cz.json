@@ -281,7 +281,7 @@
     "lightning_saved": "Vaše změny byly úspěšně uloženy",
     "lightning_settings": "Lightning settings",
     "tor_settings": "Nastavení Tor",
-    "lightning_settings_explain": "Chcete-li se připojit k vlastnímu uzlu LND, nainstalujte si LNDHub a v nastavení zadejte jeho adresu URL. Pokud chcete používat LNDHub společnosti BlueWallet (lndhub.io), ponechte prázdné pole. Upozorňujeme, že k zadanému LNDHubu se připojí pouze peněženky vytvořené po uložení změn.",
+    "lightning_settings_explain": "Chcete-li se připojit k vlastnímu uzlu LND, nainstalujte si LNDHub a v nastavení zadejte jeho adresu URL. Pokud chcete používat LNDHub společnosti BlueWallet , ponechte prázdné pole. Upozorňujeme, že k zadanému LNDHubu se připojí pouze peněženky vytvořené po uložení změn.",
     "network": "Síť",
     "network_broadcast": "Vyslat transakci",
     "network_electrum": "Electrum server",

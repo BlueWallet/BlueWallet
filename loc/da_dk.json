@@ -57,7 +57,7 @@
     "header": "indstillinger",
     "language": "Sprog",
     "lightning_settings": "Lightning settings",
-    "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default ndHub\n (lndhub.io)",
+    "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default ndHub\n ",
     "password": "Adgangskode",
     "password_explain": "Indtast den adgangskode du vil bruge til at kryptere lageret",
     "passwords_do_not_match": "Adgangskoden er ikke den samme",

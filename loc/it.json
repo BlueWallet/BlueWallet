@@ -270,7 +270,7 @@
     "lightning_saved": "I cambiamenti sono stati registrati con successo.",
     "lightning_settings": "Impostazioni Lightning",
     "tor_settings": "Impostazioni Tor",
-    "lightning_settings_explain": "Per connetterti al tuo nodo LND, installa LNDHub e inserisci il suo URL qui nelle impostazioni. Lascia vuoto per utilizzare l'LNDHub di BlueWallet (lndhub.io). Per favore, tieni presente che solo i wallet creati dopo il salvataggio delle modifiche si collegheranno al'LNDHub specificato.",
+    "lightning_settings_explain": "Per connetterti al tuo nodo LND, installa LNDHub e inserisci il suo URL qui nelle impostazioni. Lascia vuoto per utilizzare l'LNDHub di BlueWallet . Per favore, tieni presente che solo i wallet creati dopo il salvataggio delle modifiche si collegheranno al'LNDHub specificato.",
     "network": "Rete",
     "network_broadcast": "Trasmetti transazione",
     "network_electrum": "Server Electrum",

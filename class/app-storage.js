@@ -789,14 +789,14 @@ export class AppStorage {
     return finalBalance;
   };
 
-  isAdancedModeEnabled = async () => {
+  isAdvancedModeEnabled = async () => {
     try {
       return !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
   };
 
-  setIsAdancedModeEnabled = async value => {
+  setIsAdvancedModeEnabled = async value => {
     await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 

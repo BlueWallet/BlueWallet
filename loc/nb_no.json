@@ -279,7 +279,7 @@
     "lightning_saved": "Endringene dine er lagret.",
     "lightning_settings": "Lightning Innstillinger",
     "tor_settings": "Tor Innstillinger",
-    "lightning_settings_explain": "For å koble til din egen LND-node, installer LNDHub og legg inn URL-adressen her i innstillingene. La feltet stå tomt for å bruke BlueWallet sin LNDHub (lndhub.io). Vær oppmerksom på at bare lommebøker opprettet etter lagring av endringer vil koble til den angitte LNDHub.",
+    "lightning_settings_explain": "For å koble til din egen LND-node, installer LNDHub og legg inn URL-adressen her i innstillingene. La feltet stå tomt for å bruke BlueWallet sin LNDHub . Vær oppmerksom på at bare lommebøker opprettet etter lagring av endringer vil koble til den angitte LNDHub.",
     "network": "Nettverk",
     "network_broadcast": "Kringkast Transaksjon",
     "network_electrum": "Electrum Server",
