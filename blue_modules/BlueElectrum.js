@@ -820,9 +820,15 @@ module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHi
 
 module.exports.estimateFees = async function () {
   let histogram;
+  let timeoutId;
   try {
-    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 29000))]);
-  } catch (_) {}
+    histogram = await Promise.race([
+      mainClient.mempool_getFeeHistogram(),
+      new Promise(resolve => (timeoutId = setTimeout(resolve, 15000))),
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
 
