@@ -285,7 +285,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (5.1.0):
+  - react-native-image-picker (4.8.5):
     - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
@@ -748,7 +748,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: ec07866a30707f23660c0f3ae591d669d3e89096
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: c33d4e79f0a14a2b66e5065e14946ae63749660b
+  react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
