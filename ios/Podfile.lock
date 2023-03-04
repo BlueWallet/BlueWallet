@@ -21,7 +21,7 @@ PODS:
   - hermes-engine/Pre-built (0.71.3)
   - libevent (2.1.12)
   - lottie-ios (3.4.4)
-  - lottie-react-native (5.1.4):
+  - lottie-react-native (5.1.5):
     - lottie-ios (~> 3.4.0)
     - React-Core
   - PasscodeAuth (1.0.0):
@@ -285,7 +285,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.8.5):
+  - react-native-image-picker (5.1.0):
     - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
@@ -406,9 +406,9 @@ PODS:
     - React-Core
   - RNDeviceInfo (8.7.1):
     - React-Core
-  - RNFS (2.19.0):
+  - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.9.0):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -728,7 +728,7 @@ SPEC CHECKSUMS:
   hermes-engine: 38bfe887e456b33b697187570a08de33969f5db7
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
-  lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
+  lottie-react-native: 3e722c63015fdb9c27638b0a77969fc412067c18
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: bec48f07daf7bcdc2655a0cde84e07d24d2a9e2a
@@ -748,7 +748,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: ec07866a30707f23660c0f3ae591d669d3e89096
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
+  react-native-image-picker: c33d4e79f0a14a2b66e5065e14946ae63749660b
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
@@ -779,8 +779,8 @@ SPEC CHECKSUMS:
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
-  RNFS: fc610f78fdf8bfc89a9e5cc2f898519f4dba1002
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
+  RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: f0fbcea2a28981985dfe468129674f47847787b1
