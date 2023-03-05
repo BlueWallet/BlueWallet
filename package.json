@@ -105,7 +105,7 @@
     "@keystonehq/bc-ur-registry": "0.5.4",
     "@ngraveio/bc-ur": "1.1.6",
     "@react-native-async-storage/async-storage": "1.17.10",
-    "@react-native-clipboard/clipboard": "1.10.0",
+    "@react-native-clipboard/clipboard": "1.11.2",
     "@react-native-community/push-notification-ios": "1.10.1",
     "@react-navigation/drawer": "5.12.9",
     "@react-navigation/native": "5.9.8",
