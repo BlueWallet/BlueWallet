@@ -1,7 +1,11 @@
 {
-  "testRunner": "jest",
-  "runnerConfig": "tests/e2e/config.json",
-  "skipLegacyWorkersInjection": true,
+  "testRunner": {
+    "$0": "jest",
+    "args": {
+      "config": "tests/e2e/jest.config.js",
+      "_": ["e2e"]
+    }
+  },
   "apps": {
     "ios": {
       "type": "ios.app",

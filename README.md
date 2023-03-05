@@ -12,6 +12,7 @@ For more information on the bolt card standard see [boltcard.org](https://boltca
 
 Please refer to the [bluewallet documentation](https://github.com/bluewallet/bluewallet)
 
+
 ## LICENSE
 
 MIT

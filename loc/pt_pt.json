@@ -293,7 +293,6 @@
     "export_title": "Exportar Wallet",
     "import_do_import": "Importar",
     "import_error": "Falhou. É um dado válido?",
-    "import_file": "Importar ficheiro",
     "import_imported": "Importada",
     "import_scan_qr": "ou scan o QR code?",
     "import_success": "Sucesso",
@@ -313,7 +312,6 @@
     "select_no_bitcoin": "No momento, não há carteiras Bitcoin disponíveis.",
     "select_no_bitcoin_exp": "Uma carteira Bitcoin é necessária para recarregar as carteiras Lightning. Por favor, crie ou importe uma.",
     "select_wallet": "Seleccione uma Wallet",
-    "take_photo": "Tirar foto",
     "xpub_copiedToClipboard": "copiado para o clipboard",
     "xpub_title": "XPUB da wallet"
   },

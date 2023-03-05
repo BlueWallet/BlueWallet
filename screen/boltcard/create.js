@@ -284,7 +284,7 @@ const BoltCardCreate = () => {
                                         <BlueText style={styles.label}>
                                         <Image 
                                             source={(() => {
-                                            return require('../img/bolt-card-link.png');
+                                            return require('../../img/bolt-card-link.png');
                                             })()} style={{width: 40, height: 30, marginTop:20}}
                                         />
                                         </BlueText>
