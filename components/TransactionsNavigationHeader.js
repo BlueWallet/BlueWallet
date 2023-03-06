@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Image, Text, TouchableOpacity, View, InteractionManager, I18nManager, StyleSheet } from 'react-native';
+import { Image, Text, TouchableOpacity, View, InteractionManager, I18nManager, StyleSheet, Linking } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
@@ -23,8 +23,8 @@ export default class TransactionsNavigationHeader extends Component {
   static actionKeys = {
     CopyToClipboard: 'copyToClipboard',
     WalletBalanceVisibility: 'walletBalanceVisibility',
-    // Refill: 'refill',
-    // RefillWithExternalWallet: 'qrcode',
+    Refill: 'refill',
+    RefillWithExternalWallet: 'qrcode',
   };
 
   static actionIcons = {
@@ -40,14 +40,14 @@ export default class TransactionsNavigationHeader extends Component {
       iconType: 'SYSTEM',
       iconValue: 'doc.on.doc',
     },
-    // Refill: {
-    //   iconType: 'SYSTEM',
-    //   iconValue: 'goforward.plus',
-    // },
-    // RefillWithExternalWallet: {
-    //   iconType: 'SYSTEM',
-    //   iconValue: 'qrcode',
-    // },
+    Refill: {
+      iconType: 'SYSTEM',
+      iconValue: 'goforward.plus',
+    },
+    RefillWithExternalWallet: {
+      iconType: 'SYSTEM',
+      iconValue: 'qrcode',
+    },
   };
 
   static getDerivedStateFromProps(props) {
@@ -137,6 +137,14 @@ export default class TransactionsNavigationHeader extends Component {
     this.props.onManageFundsPressed(id);
   };
 
+  onBuyBoltcardsPressed = id => {
+    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+      Linking.openURL('https://lasereyes.cards');
+    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet) {
+      Linking.openURL('https://boltcardwallet.com/buy-bolt-cards');
+    }
+  }
+
   createBoltCardPressed = () => {
     this.props.onCreateBoltCardPressed();
   }
@@ -152,12 +160,12 @@ export default class TransactionsNavigationHeader extends Component {
   toolTipMenuActions = [
     {
       id: TransactionsNavigationHeader.actionKeys.Refill,
-      text: loc.lnd.refill,
+      text: "Laser Eyes Bolt Cards",
       icon: TransactionsNavigationHeader.actionIcons.Refill,
     },
     {
       id: TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet,
-      text: loc.lnd.refill_external,
+      text: "Standard Bolt Cards",
       icon: TransactionsNavigationHeader.actionIcons.RefillWithExternalWallet,
     },
   ];
@@ -292,6 +300,17 @@ export default class TransactionsNavigationHeader extends Component {
               </View>
             }
           </>
+        )}
+        {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
+          <ToolTipMenu
+            isMenuPrimaryAction
+            isButton
+            onPressMenuItem={this.onBuyBoltcardsPressed}
+            actions={this.toolTipMenuActions}
+            buttonStyle={styles.manageFundsButton}
+          >
+            <Text style={styles.manageFundsButtonText}>Buy Bolt Cards</Text>
+          </ToolTipMenu>
         )}
         </View>
 

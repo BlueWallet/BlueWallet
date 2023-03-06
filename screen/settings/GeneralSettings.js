@@ -82,11 +82,6 @@ const GeneralSettings = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <BlueListItem
-        Component={TouchableWithoutFeedback}
-        title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdvancedModeSwitchEnabled, testID: 'AdvancedMode' }}
-      />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>

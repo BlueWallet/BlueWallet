@@ -36,7 +36,7 @@ const About = () => {
       marginTop: 54,
     },
     logo: {
-      width: 102,
+      width: 124,
       height: 124,
     },
     textFree: {
@@ -92,7 +92,7 @@ const About = () => {
   };
 
   const handleOnTwitterPress = () => {
-    Linking.openURL('https://twitter.com/bluewalletio');
+    Linking.openURL('https://twitter.com/bolt_card');
   };
 
   const handleOnDiscordPress = () => {
@@ -100,19 +100,19 @@ const About = () => {
   };
 
   const handleOnTelegramPress = () => {
-    Linking.openURL('https://t.me/bluewallethat');
+    Linking.openURL('https://t.me/bolt_card');
   };
   const handleOnGithubPress = () => {
-    Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+    Linking.openURL('https://github.com/boltcard');
   };
   const handleOnRatePress = () => {
     const options = {
       AppleAppID: '1376878040',
-      GooglePackageName: 'io.bluewallet.bluewallet',
+      GooglePackageName: 'com.boltcard.boltcard',
       preferredAndroidMarket: AndroidMarket.Google,
       preferInApp: Platform.OS !== 'android',
       openAppStoreIfInAppFails: true,
-      fallbackPlatformURL: 'https://bluewallet.io',
+      fallbackPlatformURL: 'https://boltcardwallet.com',
     };
     Rate.rate(options, success => {
       if (success) {
@@ -125,7 +125,7 @@ const About = () => {
     <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic">
       <BlueCard>
         <View style={styles.center}>
-          <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+          <Image style={styles.logo} source={require('../../img/icon.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
@@ -239,7 +239,7 @@ const About = () => {
       <BlueTextCentered>
         {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
       </BlueTextCentered>
-      <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
+      {/* <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered> */}
       <BlueTextCentered>{getBundleId()}</BlueTextCentered>
       <BlueTextCentered>
         w, h = {width}, {height}
