@@ -1,48 +1,28 @@
-import React, { useState, useEffect, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  Text,
-  ScrollView,
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
-  View,
-  StatusBar,
-  TextInput,
-  StyleSheet,
-  useColorScheme,
-  TouchableOpacity,
+  Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  BlueText,
-  BlueListItem,
-  LightningButton,
-  BitcoinButton,
-  VaultButton,
-  BlueFormLabel,
-  BlueButton,
-  BlueButtonLink,
-  BlueSpacing20,
-} from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import {
-  HDSegwitBech32Wallet,
-  SegwitP2SHWallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  AppStorage,
-  LightningLdkWallet,
-} from '../../class';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useTheme, useNavigation, useRoute } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { LdkButton } from '../../components/LdkButton';
-import alert from '../../components/Alert';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import {
+  BlueButton,
+  BlueButtonLink, BlueFormLabel, BlueListItem, BlueSpacing20, BlueText, LightningButton
+} from '../../BlueComponents';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import {
+  AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet,
+  LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet
+} from '../../class';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import alert from '../../components/Alert';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
 
 const A = require('../../blue_modules/analytics');
 const scanqrHelper = require('../../helpers/scan-qr');
@@ -352,8 +332,6 @@ const WalletsAdd = () => {
             } else if (selectedWalletType === ButtonSelected.OFFCHAIN) {
               return (
                 <>
-                  <BlueSpacing20 />
-                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueSpacing20 />
                   <BlueText>{loc.wallets.add_lndhub}</BlueText>
                   <View style={[styles.lndUri, stylesHook.lndUri]}>
