@@ -26,7 +26,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>io.bluewallet.bluewallet</string>
+	<string>com.boltcard.boltcard</string>
 	<key>WKWatchKitApp</key>
 	<true/>
 </dict>
