@@ -3,8 +3,10 @@
     "bad_password": "密码无效，请重试。",
     "cancel": "取消",
     "continue": "继续",
+    "clipboard": "剪贴板",
     "enter_password": "输入密码",
     "never": "永不",
+    "disabled": "禁用",
     "of": "{total}其中之{number}",
     "ok": "好的",
     "storage_is_encrypted": "你的储存资料已经被加密， 请输入密码解密。",
@@ -15,7 +17,8 @@
     "success": "成功",
     "wallet_key": "钱包密钥",
     "invalid_animated_qr_code_fragment": "无效的动态二维码，请重试。",
-    "file_saved": "文件已保存"
+    "file_saved": "文件已保存",
+    "downloads_folder": "下载文件夹"
   },
   "alert": {
     "default": "提示"
@@ -40,6 +43,8 @@
     "network": "网络错误"
   },
   "lnd": {
+    "active": "激活",
+    "inactive": "无效",
     "errorInvoiceExpired": "账单已过期",
     "expired": "已过期",
     "payButton": "支付",
@@ -143,7 +148,6 @@
     "input_paste": "粘贴",
     "input_total": "总计：",
     "permission_camera_message": "我们需要您的授权许可才能使用您的相机。",
-    "permission_camera_title": "授权允许使用相机",
     "psbt_sign": "签署一笔交易",
     "open_settings": "打开设置",
     "permission_storage_later": "等会问我",
