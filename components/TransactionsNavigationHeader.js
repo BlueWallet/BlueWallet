@@ -244,17 +244,7 @@ export default class TransactionsNavigationHeader extends Component {
         </ToolTipMenu>
         <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
 
-        {/* {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
-          <ToolTipMenu
-            isMenuPrimaryAction
-            isButton
-            onPressMenuItem={this.manageFundsPressed}
-            actions={this.toolTipMenuActions}
-            buttonStyle={styles.manageFundsButton}
-          >
-            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-          </ToolTipMenu>
-        )} */}
+        
         {/* @TODO: check it's the correct wallet type? */}
         {this.state.wallet.type === LightningCustodianWallet.type && (
           <>
@@ -314,20 +304,6 @@ export default class TransactionsNavigationHeader extends Component {
         )}
         </View>
 
-        {/* {this.state.wallet.type === LightningLdkWallet.type && (
-          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
-            <View style={styles.manageFundsButton}>
-              <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-            </View>
-          </TouchableOpacity>
-        )} */}
-        {this.state.wallet.type === MultisigHDWallet.type && (
-          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
-            <View style={styles.manageFundsButton}>
-              <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
       </LinearGradient>
     );
   }

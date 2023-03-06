@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Biometric from './class/biometrics';
-import LottieView from 'lottie-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from './blue_modules/storage-context';
+import LottieView from 'lottie-react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, Image, LayoutAnimation, StatusBar, StyleSheet, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { isHandset } from './blue_modules/environment';
+import { BlueStorageContext } from './blue_modules/storage-context';
+import Biometric from './class/biometrics';
 
 const styles = StyleSheet.create({
   root: {
@@ -54,6 +54,7 @@ const UnlockWith = () => {
 
   useEffect(() => {
     initialRender();
+    onAnimationFinish();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

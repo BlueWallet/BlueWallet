@@ -1,16 +1,15 @@
-import React, { useContext } from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform, Alert } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, useTheme } from '@react-navigation/native';
+import React, { useContext } from 'react';
+import { Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { getApplicationName, getBuildNumber, getBundleId, getUniqueId, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
-import { HDSegwitBech32Wallet } from '../../class';
+import navigationStyle from '../../components/navigationStyle';
+import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
 const A = require('../../blue_modules/analytics');
 const branch = require('../../current-branch.json');
@@ -151,7 +150,7 @@ const About = () => {
         onPress={handleOnTelegramPress}
         title={loc.settings.about_sm_telegram}
       />
-      <BlueListItem
+      {/* <BlueListItem
         leftIcon={{
           name: 'discord',
           type: 'font-awesome-5',
@@ -159,8 +158,8 @@ const About = () => {
         }}
         onPress={handleOnDiscordPress}
         title={loc.settings.about_sm_discord}
-      />
-      <BlueCard>
+      /> */}
+      <BlueCard> 
         <View style={styles.buildWith}>
           <BlueSpacing20 />
 
@@ -178,7 +177,7 @@ const About = () => {
           </TouchableOpacity>
         </View>
       </BlueCard>
-      <BlueListItem
+      {/* <BlueListItem
         leftIcon={{
           name: 'book',
           type: 'font-awesome',
@@ -197,7 +196,7 @@ const About = () => {
         chevron
         onPress={handleOnLicensingPress}
         title={loc.settings.about_license}
-      />
+      /> 
       <BlueListItem
         leftIcon={{
           name: 'flask',
@@ -233,7 +232,7 @@ const About = () => {
           Alert.alert(loc.formatString(loc.settings.performance_score, { num }));
         }}
         title={loc.settings.run_performance_test}
-      />
+      />*/}
       <BlueSpacing20 />
       <BlueSpacing20 />
       <BlueTextCentered>
