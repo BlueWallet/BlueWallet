@@ -165,6 +165,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
       await lnd.fetchUserInvoices();
       await lnd.fetchPendingTransactions();
       await lnd.fetchBalance();
+      await lnd.getCardDetails(true, false);
       yield { wallet: lnd };
     }
 

@@ -881,7 +881,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     return json;
   }
 
-  async getCardDetails(reload) {
+  async getCardDetails(reload, showErrors = true) {
     await this.checkLogin();
 
     if(this.cardDetails && !reload) {
@@ -913,16 +913,33 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     const json = response.body;
     if (typeof json === 'undefined') {
-      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+      if(showErrors) {
+        throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+      } else {
+        console.error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+        return;
+      }
     }
 
     if (json && json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+      if(showErrors) {
+        throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+      } else {
+        console.error('API error: ' + json.message + ' (code ' + json.code + ')');
+        return;
+      }
     }
     if (json && json.status === 'ERROR') {
-      throw new Error('API error: ' + json.reason);
+      if(showErrors) {
+        throw new Error('API error: ' + json.reason);
+      } else {
+        console.error('API error: ' + json.reason);
+        return;
+      }
     }
 
+    //if there is a non-wiped boltcard, set the cardwritten to true
+    this.cardWritten = true;
     return (this.cardDetails = json);
   }
 
