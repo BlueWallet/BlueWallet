@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## Do you need support? Just email bluewallet@bluewallet.io
+## Do you need support? Try asking on the [telegram group](https://t.me/bolt_card)
 
 ## Are you reporting a bug?
 
