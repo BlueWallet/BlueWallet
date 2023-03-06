@@ -19,9 +19,9 @@ Not available right now, currently app is in review...
 [Google Play Store](https://play.google.com/store/apps/details?id=com.boltcard.boltcard)
 Will be at this address when ready.
 
-## Precompiled Binaries
+## Precompiled Binaries (APK / AAB)
 
-[Release 0.1.0](https://github.com/boltcard/boltcard-wallet/releases/tag/v0.1.0)
+[Latest Release](https://github.com/boltcard/boltcard-wallet/releases/)
 
 ## BUILD & RUN IT
 
