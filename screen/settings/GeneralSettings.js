@@ -82,9 +82,6 @@ const GeneralSettings = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <BlueCard>
-        <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
-      </BlueCard>
       <BlueSpacing20 />
       <BlueListItem
         Component={TouchableWithoutFeedback}
