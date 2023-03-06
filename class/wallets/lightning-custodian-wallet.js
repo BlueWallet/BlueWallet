@@ -115,7 +115,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.secret = 'lndhub://' + json.login + ':' + json.password;
+    this.secret = 'boltcardhub://' + json.login + ':' + json.password;
   }
 
   async payInvoice(invoice, freeAmount = 0) {
@@ -254,9 +254,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
     const response = await this._api.post('/auth?type=auth', {
       body: { login, password },
@@ -690,9 +693,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
 
     const response = await this._api.post('/getcardkeys', {
@@ -736,9 +742,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
 
     const response = await this._api.post('/wipecard', {
@@ -787,9 +796,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
 
     console.log('enable bool', status);
@@ -829,9 +841,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
 
     let cardEnabled = 'false';
@@ -877,9 +892,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
       password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
       password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
 
     const response = await this._api.post('/getcard', {
