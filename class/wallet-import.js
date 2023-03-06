@@ -152,7 +152,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
 
     // is it lightning custodian?
     yield { progress: 'lightning custodian' };
-    if (text.startsWith('blitzhub://') || text.startsWith('lndhub://')) {
+    if (text.startsWith('blitzhub://') || text.startsWith('lndhub://') || text.startsWith('boltcardhub://')) {
       const lnd = new LightningCustodianWallet();
       if (text.includes('@')) {
         const split = text.split('@');
