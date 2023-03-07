@@ -446,7 +446,7 @@
     "list_long_choose": "Choose Photo",
     "list_long_clipboard": "Copy from Clipboard",
     "list_long_scan": "Scan QR Code",
-    "list_title": "Wallets",
+    "list_title": "Bolt Card Wallets",
     "list_tryagain": "Try again",
     "no_ln_wallet_error": "Before paying a Lightning invoice, you must first add a Lightning wallet.",
     "looks_like_bip38": "This looks like a password-protected private key (BIP38).",
