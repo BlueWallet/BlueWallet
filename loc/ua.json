@@ -272,7 +272,6 @@
     "import_do_import": "Імпорт",
     "import_error": "Невдача. Це взашалі валідно?",
     "import_explanation": "Мнемоніка, приватний ключ, чи будь що. BlueWallet спробує вгадати вірний формат.",
-    "import_file": "Імпортувати Файл",
     "import_imported": "імпортовано",
     "import_scan_qr": "Імпортувати файл чи сканувати QR-код?",
     "import_success": "Ваш гаманець було успішно імпортовано.",
@@ -293,7 +292,6 @@
     "list_tryagain": "Спробуйте ще раз",
     "please_continue_scanning": "Продовжуйте сканування.",
     "select_wallet": "Обрати Гаманець",
-    "take_photo": "Зробити Фото",
     "xpub_copiedToClipboard": "Зкопіювано",
     "pull_to_refresh": "Потягніть щоб оновити",
     "xpub_title": "XPUB Гаманця"

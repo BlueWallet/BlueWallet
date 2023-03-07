@@ -1,4 +1,4 @@
-arguments=--init-script /home/onesandzeros/.config/Code/User/globalStorage/redhat.java/1.14.0/config_linux/org.eclipse.osgi/51/0/.cp/gradle/init/init.gradle --init-script /home/onesandzeros/.config/Code/User/globalStorage/redhat.java/1.14.0/config_linux/org.eclipse.osgi/51/0/.cp/gradle/protobuf/init.gradle
+arguments=--init-script /home/tinfoil/.config/Code/User/globalStorage/redhat.java/1.15.0/config_linux/org.eclipse.osgi/52/0/.cp/gradle/init/init.gradle --init-script /home/tinfoil/.config/Code/User/globalStorage/redhat.java/1.15.0/config_linux/org.eclipse.osgi/52/0/.cp/gradle/protobuf/init.gradle
 auto.sync=false
 build.scans.enabled=false
 connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)

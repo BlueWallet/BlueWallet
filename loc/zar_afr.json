@@ -127,7 +127,7 @@
     "header": "instellings",
     "language": "Taal",
     "lightning_settings": "Lightning Instellings",
-    "lightning_settings_explain": "Om jou eie LND knoop-punt te konnekteer, installeer asseblief LndHub en pos die URL hier in verstellings. Los leeg om die standaard LndHub (lndhub.io) te gebruik.  Beursies geskep na verstellings geberg is sal koppel aan die gespesifiseerde LNDHub.",
+    "lightning_settings_explain": "Om jou eie LND knoop-punt te konnekteer, installeer asseblief LndHub en pos die URL hier in verstellings. Los leeg om die standaard LndHub  te gebruik.  Beursies geskep na verstellings geberg is sal koppel aan die gespesifiseerde LNDHub.",
     "password": "Wagwoord",
     "password_explain": "Skep die wagwoord wat jy sal gebruik om jou berging te de-enkripteer",
     "passwords_do_not_match": "Wagwoorde stem nie oor een nie",

@@ -5,9 +5,9 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import { BlueButton, BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
-import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
-import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
-import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
+import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
+import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
+import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import navigationStyle from '../../components/navigationStyle';
 import HandoffComponent from '../../components/handoff';
 import { HDSegwitBech32Transaction } from '../../class';

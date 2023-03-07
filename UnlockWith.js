@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Biometric from './class/biometrics';
-import LottieView from 'lottie-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from './blue_modules/storage-context';
+import LottieView from 'lottie-react-native';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { ActivityIndicator, Image, LayoutAnimation, StatusBar, StyleSheet, TouchableOpacity, useColorScheme, View, Animated } from 'react-native';
+import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { isHandset } from './blue_modules/environment';
+import { BlueStorageContext } from './blue_modules/storage-context';
+import Biometric from './class/biometrics';
 
 const styles = StyleSheet.create({
   root: {
@@ -43,6 +43,8 @@ const UnlockWith = () => {
   const [animationDidFinish, setAnimationDidFinish] = useState(false);
   const colorScheme = useColorScheme();
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   const initialRender = async () => {
     let biometricType = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
@@ -54,8 +56,18 @@ const UnlockWith = () => {
 
   useEffect(() => {
     initialRender();
+    onAnimationFinish();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log('animate start')
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start(onAnimationFinish);
+  }, [fadeAnim]);
 
   const successfullyAuthenticated = () => {
     setWalletsInitialized(true);
@@ -117,6 +129,7 @@ const UnlockWith = () => {
   };
 
   const onAnimationFinish = async () => {
+    console.log('animate end')
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
@@ -132,7 +145,19 @@ const UnlockWith = () => {
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="default" />
       <View style={styles.container}>
-        <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
+        <Animated.View style={{
+          opacity: fadeAnim,
+          marginTop: 'auto',
+          marginBottom: 'auto',
+          flex: 1,
+          justifyContent: 'center'
+        }}>
+          <Image 
+            source={(() => {
+            return require('./img/icon.png');
+            })()} style={{width: 150, height: 150}}
+          />
+        </Animated.View>
         <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
       </View>
     </SafeAreaView>

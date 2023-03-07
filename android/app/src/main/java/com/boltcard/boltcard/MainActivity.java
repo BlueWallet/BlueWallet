@@ -23,7 +23,7 @@ import static com.boltcard.boltcard.Constants.objKEY_2KTDES;
 import static com.boltcard.boltcard.Constants.objKEY_2KTDES_ULC;
 import static com.boltcard.boltcard.Constants.objKEY_AES128;
 
-import com.boltcard.boltcard.R;
+// import com.boltcard.boltcard.R;
 import com.nxp.nfclib.CardType;
 import com.nxp.nfclib.NxpNfcLib;
 import com.nxp.nfclib.classic.ClassicFactory;
@@ -130,6 +130,8 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -191,7 +193,7 @@ public class MainActivity extends ReactActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
         if (getResources().getBoolean(R.bool.portrait_only)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
@@ -1043,13 +1045,14 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    return new ReactActivityDelegate(this, getMainComponentName()) {
-      @Override
-      protected Bundle getLaunchOptions() {
-        Bundle initialProperties = new Bundle();
-        return initialProperties;
-      }
-    };
+    return new DefaultReactActivityDelegate(
+      this,
+      getMainComponentName(),
+      // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+      DefaultNewArchitectureEntryPoint.getFabricEnabled(), // fabricEnabled
+      // If you opted-in for the New Architecture, we enable Concurrent React (i.e. React 18).
+      DefaultNewArchitectureEntryPoint.getConcurrentReactEnabled() // concurrentRootEnabled
+      );
   }
 
 

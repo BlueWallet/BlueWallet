@@ -27,7 +27,7 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
@@ -371,70 +371,66 @@ const WalletTransactions = () => {
   };
 
   const sendButtonLongPress = async () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarCodeRead);
-    } else {
-      const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
-      if (Platform.OS === 'ios') {
-        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-        if (!isClipboardEmpty) {
-          options.push(loc.wallets.list_long_clipboard);
-        }
-        ActionSheet.showActionSheetWithOptions(
-          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-          buttonIndex => {
-            if (buttonIndex === 1) {
-              choosePhoto();
-            } else if (buttonIndex === 2) {
-              navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: name,
-                  onBarScanned: onBarCodeRead,
-                  showFileImportButton: false,
-                },
-              });
-            } else if (buttonIndex === 3) {
-              copyFromClipboard();
-            }
-          },
-        );
-      } else if (Platform.OS === 'android') {
-        const buttons = [
-          {
-            text: loc._.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: loc.wallets.list_long_choose,
-            onPress: choosePhoto,
-          },
-          {
-            text: loc.wallets.list_long_scan,
-            onPress: () =>
-              navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: name,
-                  onBarScanned: onBarCodeRead,
-                  showFileImportButton: false,
-                },
-              }),
-          },
-        ];
-        if (!isClipboardEmpty) {
-          buttons.push({
-            text: loc.wallets.list_long_clipboard,
-            onPress: copyFromClipboard,
-          });
-        }
-        ActionSheet.showActionSheetWithOptions({
-          title: '',
-          message: '',
-          buttons,
+    const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
+    if (Platform.OS === 'ios') {
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
+      }
+      ActionSheet.showActionSheetWithOptions(
+        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            choosePhoto();
+          } else if (buttonIndex === 2) {
+            navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: name,
+                onBarScanned: onBarCodeRead,
+                showFileImportButton: false,
+              },
+            });
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      const buttons = [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: loc.wallets.list_long_choose,
+          onPress: choosePhoto,
+        },
+        {
+          text: loc.wallets.list_long_scan,
+          onPress: () =>
+            navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: name,
+                onBarScanned: onBarCodeRead,
+                showFileImportButton: false,
+              },
+            }),
+        },
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: loc.wallets.list_long_clipboard,
+          onPress: copyFromClipboard,
         });
       }
+      ActionSheet.showActionSheetWithOptions({
+        title: '',
+        message: '',
+        buttons,
+      });
     }
   };
 

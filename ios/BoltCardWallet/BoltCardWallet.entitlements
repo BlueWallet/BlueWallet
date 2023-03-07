@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.io.bluewallet.bluewallet</string>
+		<string>group.com.boltcard.boltcard</string>
 	</array>
 	<key>com.apple.security.device.camera</key>
 	<true/>
