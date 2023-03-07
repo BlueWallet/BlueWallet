@@ -141,8 +141,11 @@ android {
         applicationId "com.boltcard.boltcard"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "0.1.0"
+        /*
+         * https://www.epochconverter.com/
+         */
+        versionCode 1678138731
+        versionName "0.1.1"
         multiDexEnabled true
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
