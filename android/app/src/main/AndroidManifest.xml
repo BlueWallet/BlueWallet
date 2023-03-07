@@ -108,7 +108,7 @@
 </intent-filter>
       </activity>
 
-      <meta-data android:name="com.bugsnag.android.API_KEY" android:value="17ba9059f676f1cc4f45d98182388b01" />
+      <meta-data android:name="com.bugsnag.android.API_KEY" android:value="bfc3946cf15f2ad05cc2de43f4bfe286" />
     </application>
 
     <queries>

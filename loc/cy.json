@@ -179,7 +179,6 @@
     "enter_bip38_password": "Angen cyfrinair i ddad-gryptio",
     "export_title": "Waled Allfor",
     "import_do_import": "Mewnforio",
-    "import_file": "Mewnforio ffeil",
     "import_imported": "Mewnforwyd",
     "import_scan_qr": "Sganio neu fewnforio ffeil",
     "import_success": "Mae dy waled wedi cael ei fewnforio'n llwyddiannus.",
@@ -194,7 +193,6 @@
     "list_title": "Waledi",
     "list_tryagain": "Trio eto",
     "select_wallet": "Dewis waled",
-    "take_photo": "Cymeryd llun",
     "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd.",
     "pull_to_refresh": "Tynnu i Adnewyddu",
     "warning_do_not_disclose": "Rhybudd! Paid ei ddatgelu."
