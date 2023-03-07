@@ -456,7 +456,6 @@
     "select_no_bitcoin": "There are currently no Bitcoin wallets available.",
     "select_no_bitcoin_exp": "A Bitcoin wallet is required to refill Lightning wallets. Please create or import one.",
     "select_wallet": "Select Wallet",
-    "take_photo": "Take Photo",
     "xpub_copiedToClipboard": "Copied to clipboard.",
     "pull_to_refresh": "Pull to Refresh",
     "warning_do_not_disclose": "Warning! Do not disclose.",

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { FiatUnit } from '../../models/fiatUnit';
 
-jest.setTimeout(15 * 1000);
+jest.setTimeout(30 * 1000);
 
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {

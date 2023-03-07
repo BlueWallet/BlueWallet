@@ -355,7 +355,6 @@
     "select_no_bitcoin": "當前沒有可用的比特幣錢包。",
     "select_no_bitcoin_exp": "需要一個比特幣錢包來為閃電錢包增值，請建立或導入一個。",
     "select_wallet": "選擇錢包",
-    "take_photo": "複製到粘貼簿。",
     "xpub_copiedToClipboard": "複製到貼上板.",
     "pull_to_refresh": "拉動來刷新",
     "warning_do_not_disclose": "警告！ 不要透露。",

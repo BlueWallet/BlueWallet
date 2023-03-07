@@ -59,7 +59,7 @@ static void InitializeFlipper(UIApplication *application) {
 #endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"Bolt Card Wallet"
+                                                   moduleName:@"BoltCardWallet"
                                             initialProperties:nil];
 
   if (@available(iOS 13.0, *)) {
@@ -106,7 +106,7 @@ static void InitializeFlipper(UIApplication *application) {
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
 #if DEBUG
-  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
+  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
@@ -115,7 +115,7 @@ static void InitializeFlipper(UIApplication *application) {
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.com.boltcard.boltcard"];
   [defaults setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
   if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
     return [RCTLinkingManager application:application
@@ -138,7 +138,7 @@ static void InitializeFlipper(UIApplication *application) {
 
 - (void)applicationWillTerminate:(UIApplication *)application {
   [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.com.boltcard.boltcard"];
   [defaults removeObjectForKey:@"onUserActivityOpen"];
 }
 
@@ -214,7 +214,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 
 
 -(void)showHelp:(id)sender {
-  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://help.bluewallet.io"] options:@{} completionHandler:nil];
+  [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://boltcardwallet.com"] options:@{} completionHandler:nil];
 }
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {

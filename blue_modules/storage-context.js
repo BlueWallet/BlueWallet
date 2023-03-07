@@ -199,7 +199,7 @@ export const BlueStorageProvider = ({ children }) => {
 
   let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
-  const isAdancedModeEnabled = BlueApp.isAdancedModeEnabled;
+  const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
 
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
@@ -214,7 +214,7 @@ export const BlueStorageProvider = ({ children }) => {
   const decryptStorage = BlueApp.decryptStorage;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
-  const setIsAdancedModeEnabled = BlueApp.setIsAdancedModeEnabled;
+  const setisAdvancedModeEnabled = BlueApp.setisAdvancedModeEnabled;
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
   const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
@@ -239,7 +239,7 @@ export const BlueStorageProvider = ({ children }) => {
         setItem,
         getItem,
         getHodlHodlContracts,
-        isAdancedModeEnabled,
+        isAdvancedModeEnabled,
         fetchWalletBalances,
         fetchWalletTransactions,
         fetchAndSaveWalletTransactions,
@@ -260,7 +260,7 @@ export const BlueStorageProvider = ({ children }) => {
         getHodlHodlApiKey,
         decryptStorage,
         isPasswordInUse,
-        setIsAdancedModeEnabled,
+        setisAdvancedModeEnabled,
         setPreferredFiatCurrency,
         preferredFiatCurrency,
         setLanguage,

@@ -214,7 +214,7 @@ const BoltCardDisconnect = () => {
                         <BlueText style={styles.label}>
                             <Image 
                                 source={(() => {
-                                return require('../img/bolt-card-unlink.png');
+                                return require('../../img/bolt-card-unlink.png');
                                 })()} style={{width: 60, height: 40, marginTop:20}}
                             />
                         </BlueText>
