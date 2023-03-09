@@ -139,7 +139,7 @@ export default class TransactionsNavigationHeader extends Component {
 
   onBuyBoltcardsPressed = id => {
     if (id === TransactionsNavigationHeader.actionKeys.Refill) {
-      Linking.openURL('https://lasereyes.cards');
+      Linking.openURL('https://lasereyes.cards?link=boltcardwallet');
     } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet) {
       Linking.openURL('https://boltcardwallet.com/buy-bolt-cards');
     }
