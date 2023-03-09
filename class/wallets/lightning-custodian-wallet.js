@@ -62,8 +62,12 @@ export class LightningCustodianWallet extends LegacyWallet {
     let login;
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
-    } else {
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
       login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
     }
     return login;
   }
