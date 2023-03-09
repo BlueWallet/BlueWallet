@@ -262,6 +262,7 @@ const WalletsAdd = () => {
 
   const clearInvalidNodeError = () => {
     setInvalidNode(false);
+    setIsLoading(false);
   }
 
   return (
