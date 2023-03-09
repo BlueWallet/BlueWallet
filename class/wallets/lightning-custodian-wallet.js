@@ -614,7 +614,8 @@ export class LightningCustodianWallet extends LegacyWallet {
         : new Frisbee({
             baseURI: address,
           });
-    const response = await apiCall.get('/getinfo', {
+    //call /getinfobolt from the hub to make sure this is a bolt card hub
+    const response = await apiCall.get('/getinfobolt', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -622,7 +623,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
     const json = response.body;
     if (typeof json === 'undefined') {
-      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+      return false;
     }
 
     if (json && json.code && json.code !== 1) {

@@ -5,10 +5,12 @@ import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Dialog from 'react-native-dialog';
 import {
   BlueButton,
   BlueButtonLink, BlueFormLabel, BlueListItem, BlueSpacing20, BlueText, LightningButton
@@ -48,6 +50,8 @@ const WalletsAdd = () => {
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
+  const [invalidNode, setInvalidNode] = useState(false);
+
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -189,7 +193,9 @@ const WalletsAdd = () => {
           wallet.setBaseURI(lndhub);
           await wallet.init();
         } else {
-          throw new Error('The provided node address is not valid LNDHub node.');
+          setInvalidNode(true);
+          return;
+          // throw new Error('The provided node address is not valid Bolt card Hub node.');
         }
       }
       await wallet.createAccount();
@@ -254,11 +260,24 @@ const WalletsAdd = () => {
     setWalletBaseURI(url);
   };
 
+  const clearInvalidNodeError = () => {
+    setInvalidNode(false);
+  }
+
   return (
     <ScrollView style={stylesHook.root}>
       <StatusBar
         barStyle={Platform.select({ ios: 'light-content', default: useColorScheme() === 'dark' ? 'light-content' : 'dark-content' })}
       />
+      <Dialog.Container visible={invalidNode}>
+          <Text style={{fontSize:20, textAlign: 'center', borderColor:'black'}}>
+            This is not a valid <Text style={{color: '#fb8e33', fontSize:20}} onPress={() => Linking.openURL('https://github.com/boltcard/boltcard-lndhub')}>bolt card hub</Text>
+          </Text>
+          <Dialog.Button label="Close"
+          onPress={() => {
+              clearInvalidNodeError();
+          }} />
+      </Dialog.Container>
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
