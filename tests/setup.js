@@ -6,8 +6,8 @@ const consoleWarnOrig = console.warn;
 console.warn = (...args) => {
   if (
     typeof args[0] === 'string' &&
-    (args[0]?.startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds') ||
-      args[0]?.startsWith('only compressed public keys are good'))
+    (args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds') ||
+      args[0].startsWith('only compressed public keys are good'))
   ) {
     return;
   }
@@ -18,10 +18,10 @@ const consoleLogOrig = console.log;
 console.log = (...args) => {
   if (
     typeof args[0] === 'string' &&
-    (args[0]?.startsWith('updating exchange rate') ||
-      args[0]?.startsWith('begin connection') ||
-      args[0]?.startsWith('TLS Connected to') ||
-      args[0]?.startsWith('connected to'))
+    (args[0].startsWith('updating exchange rate') ||
+      args[0].startsWith('begin connection') ||
+      args[0].startsWith('TLS Connected to') ||
+      args[0].startsWith('connected to'))
   ) {
     return;
   }

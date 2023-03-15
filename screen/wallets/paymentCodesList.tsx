@@ -35,10 +35,6 @@ export default function PaymentCodesList({ route }: NativeStackScreenProps<Payme
     setData(newData);
   }, [walletID, wallets]);
 
-  const shortenPC = (pc: string): string => {
-    return pc.substring(0, 8) + '...' + pc.substring(pc.length - 8);
-  };
-
   return (
     <View style={styles.container}>
       {!walletID ? (
@@ -50,7 +46,7 @@ export default function PaymentCodesList({ route }: NativeStackScreenProps<Payme
             keyExtractor={(item, index) => item + index}
             renderItem={({ item }) => (
               <View>
-                <BlueCopyTextToClipboard truncated={shortenPC(item)} text={item} />
+                <BlueCopyTextToClipboard truncated text={item} />
               </View>
             )}
             renderSectionHeader={({ section: { title } }) => <Text style={styles.titleText}>{title}</Text>}
