@@ -279,7 +279,7 @@
     "lightning_saved": "Les changements ont bien été enregistrés",
     "lightning_settings": "Paramètres Lightning",
     "tor_settings": "Paramètres Tor",
-    "lightning_settings_explain": "Pour vous connecter à votre propre nœud LND, veuillez installer LNDHub et mettre son URL ici dans les paramètres. Laissez ce champ vide pour utiliser le LNDHub de BlueWallet (lndhub.io). Veuillez noter que seuls les portefeuilles créés après l'enregistrement des modifications se connecteront au LNDHub spécifié.",
+    "lightning_settings_explain": "Pour vous connecter à votre propre nœud LND, veuillez installer LNDHub et mettre son URL ici dans les paramètres. Laissez ce champ vide pour utiliser le LNDHub de BlueWallet . Veuillez noter que seuls les portefeuilles créés après l'enregistrement des modifications se connecteront au LNDHub spécifié.",
     "network": "Réseau",
     "network_broadcast": "Diffuser une transaction",
     "network_electrum": "Serveur Electrum",

@@ -3,7 +3,7 @@
     "bad_password": "密碼無效，請重試。",
     "cancel": "取消",
     "continue": "繼續",
-    "clipboard": "剪貼板",
+    "clipboard": "剪貼簿",
     "enter_password": "輸入密碼",
     "never": "永不",
     "of": "{total}其中之{number}",
@@ -143,7 +143,6 @@
     "input_paste": "貼上",
     "input_total": "總計：",
     "permission_camera_message": "我們需要您的授權許可才能使用您的相機。",
-    "permission_camera_title": "授權允許使用相機",
     "psbt_sign": "簽署一單交易",
     "open_settings": "開啟設定",
     "permission_storage_later": "稍後問我",
@@ -326,7 +325,6 @@
     "import_do_import": "匯入",
     "import_error": "匯入失敗，請確認所提供的資訊是有效的",
     "import_explanation": "輸入你的種子短語、公鑰、WIF或者任何你擁有的東西。BlueWallet將盡可能猜測正確的格式並匯入您的錢包",
-    "import_file": "匯入檔案",
     "import_imported": "已經匯入",
     "import_scan_qr": "掃描或匯入檔案",
     "import_success": "成功",
@@ -436,7 +434,7 @@
     "enter_address": "輸入地址",
     "check_address": "檢查地址",
     "no_wallet_owns_address": "沒有可用的錢包擁有提供的地址。",
-    "view_qrcode": "檢視二維碼"
+    "view_qrcode": "檢視二維條碼"
   },
   "cc": {
     "change": "更變。",

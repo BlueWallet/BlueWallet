@@ -23,7 +23,7 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
-  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const [, setSpeedBackdoor] = useState(0);
@@ -68,7 +68,7 @@ const WalletsImport = () => {
   }, []);
 
   useEffect(() => {
-    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

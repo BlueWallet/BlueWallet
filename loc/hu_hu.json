@@ -271,7 +271,7 @@
     "lightning_saved": "A változtatások sikeresen elmentve",
     "lightning_settings": "Lightning Beállítások",
     "tor_settings": "Tor Beállítások",
-    "lightning_settings_explain": "Ha saját LND node-hoz szeretne csatlakozni, telepítse az LNDHub alkalmazást, és adja meg az URL-címét a beállításokban. Hagyja üresen a BlueWallet LNDHub (lndhub.io) használatát. Kérjük, vegye figyelembe, hogy csak a módosítások mentése után létrehozott pénztárcák csatlakoznak a megadott LNDHub-hoz.",
+    "lightning_settings_explain": "Ha saját LND node-hoz szeretne csatlakozni, telepítse az LNDHub alkalmazást, és adja meg az URL-címét a beállításokban. Hagyja üresen a BlueWallet LNDHub  használatát. Kérjük, vegye figyelembe, hogy csak a módosítások mentése után létrehozott pénztárcák csatlakoznak a megadott LNDHub-hoz.",
     "network": "Hálózat",
     "network_broadcast": "Tranzakció továbbitása",
     "network_electrum": "Electrum szerver",

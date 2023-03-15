@@ -281,7 +281,7 @@
     "lightning_saved": "تم حفظ تغييراتك بنجاح",
     "lightning_settings": "إعدادات البرق (Lightning)",
     "tor_settings": "اعدادات tor",
-    "lightning_settings_explain": "للاتصال بنود LND الخاصة بك، يُرجى تثبيت LNDHub ثم وضع رابطه هنا في الإعدادات. اترك الحقل فارغًا لاستخدام (lndhub.io) المشغل من قبل BlueWallet. تذكر: فقط المحافظ التي يتم إنشاؤها بعد حفظ التغييرات ستتصل بنود LNDHub التي قمت بإضافتها.",
+    "lightning_settings_explain": "للاتصال بنود LND الخاص بك، يُرجى تثبيت LNDHub ثم وضع رابطه هنا في الإعدادات. تذكر: فقط المحافظ التي يتم إنشاؤها بعد حفظ التغييرات ستتصل بنود LNDHub التي قمت بإضافتها.",
     "network": "الشبكة",
     "network_broadcast": "بث العملية",
     "network_electrum": "خادم Electrum",

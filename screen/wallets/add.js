@@ -51,7 +51,7 @@ const ButtonSelected = Object.freeze({
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
-  const { addWallet, saveToDisk, isAdancedModeEnabled, wallets } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -86,9 +86,9 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(url => setWalletBaseURI(url || 'https://lndhub.io'))
+      .then(url => setWalletBaseURI(url))
       .catch(() => setWalletBaseURI(''));
-    isAdancedModeEnabled()
+    isAdvancedModeEnabled()
       .then(setIsAdvancedOptionsEnabled)
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps

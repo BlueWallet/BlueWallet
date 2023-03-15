@@ -70,7 +70,7 @@
     "header": "Postavke",
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",
-    "lightning_settings_explain": "Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub i upisati njegov URL ovdje. Ostavi prazno za standardni ndHub\n (lndhub.io)",
+    "lightning_settings_explain": "Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub i upisati njegov URL ovdje. Ostavi prazno za standardni ndHub\n ",
     "password": "Lozinka",
     "password_explain": "Upiši lozinku koja će dekriptirati spremnik.",
     "passwords_do_not_match": "Lozinke su različite",

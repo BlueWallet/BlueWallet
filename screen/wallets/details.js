@@ -126,7 +126,7 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
@@ -202,7 +202,7 @@ const WalletDetails = () => {
   };
 
   useLayoutEffect(() => {
-    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (

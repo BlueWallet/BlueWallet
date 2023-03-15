@@ -278,7 +278,7 @@
     "lightning_saved": "Spremembe so bile uspešno shranjene",
     "lightning_settings": "Lightning Nastavitve",
     "tor_settings": "Tor Nastavitve",
-    "lightning_settings_explain": "Za povezavo z lastnim LND vozliščem, prosimo namestite LndHub in tukaj vnesite URL vozlišča. Pustite prazno za uporabo BlueWallet LNDHub (lndhub.io). Z novim LNDHub-om bodo povezane samo denarnice ustvarjene po potrditvi sprememb.",
+    "lightning_settings_explain": "Za povezavo z lastnim LND vozliščem, prosimo namestite LndHub in tukaj vnesite URL vozlišča. Pustite prazno za uporabo BlueWallet LNDHub . Z novim LNDHub-om bodo povezane samo denarnice ustvarjene po potrditvi sprememb.",
     "network": "Omrežje",
     "network_broadcast": "Objavi transakcijo",
     "network_electrum": "Electrum Strežnik",

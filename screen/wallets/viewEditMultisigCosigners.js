@@ -49,7 +49,7 @@ const prompt = require('../../helpers/prompt');
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
@@ -103,7 +103,7 @@ const ViewEditMultisigCosigners = () => {
   });
 
   useEffect(() => {
-    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

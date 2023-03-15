@@ -275,7 +275,7 @@
     "lightning_saved": "השינויים נשמרו בהצלחה",
     "lightning_settings": "הגדרות ברק",
     "tor_settings": "הגדרות Tor",
-    "lightning_settings_explain": "כדי להתחבר לצומת LND אישי, אנא התקינו LNDHub והכניסו את כתובת ה- URL שלו כאן בהגדרות. השאירו ריק כדי להשתמש ב- LNDHub של BlueWallet (lndhub.io). שימו לב שרק ארנקים שנוצרו אחרי שמירת השינויים יתחברו ל- LNDHub שהוגדר.",
+    "lightning_settings_explain": "כדי להתחבר לצומת LND אישי, אנא התקינו LNDHub והכניסו את כתובת ה- URL שלו כאן בהגדרות. השאירו ריק כדי להשתמש ב- LNDHub של BlueWallet . שימו לב שרק ארנקים שנוצרו אחרי שמירת השינויים יתחברו ל- LNDHub שהוגדר.",
     "network": "רשת",
     "network_broadcast": "שידור פעולה",
     "network_electrum": "שרת אלקטרום",

@@ -155,6 +155,10 @@ jest.mock('react-native-idle-timer', () => {
   };
 });
 
+jest.mock('react-native-ios-context-menu', () => {
+  return {};
+});
+
 jest.mock('react-native-haptic-feedback', () => {
   return {
     trigger: jest.fn(),
@@ -179,7 +183,7 @@ jest.mock('../blue_modules/WidgetCommunication', () => {
   };
 });
 
-const keychainMock = {
+const mockKeychain = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
   SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
@@ -187,6 +191,6 @@ const keychainMock = {
   getGenericPassword: jest.fn().mockResolvedValue(),
   resetGenericPassword: jest.fn().mockResolvedValue(),
 };
-jest.mock('react-native-keychain', () => keychainMock);
+jest.mock('react-native-keychain', () => mockKeychain);
 
 global.alert = () => {};

@@ -281,7 +281,7 @@
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
     "tor_settings": "Ustawienia sieci Tor",
-    "lightning_settings_explain": "Aby podłączyć się do własnego węzła LND, zainstaluj najpierw LNDHub i podaj jego URL poniżej. Zostaw puste by użyć LNDhuba należącego do BlueWallet (lndhub.io). Portfele utworzone po zapisaniu zmian połączą się do wskazanego LNDHub.",
+    "lightning_settings_explain": "Aby połączyć się z własnym węzłem LND, zainstaluj LNDHub i wpisz jego adres URL w ustawieniach. Pamiętaj, że portfele utworzone po tej zmianie będą łączyć się z podanym serwerem LNDHub.",
     "network": "Sieć",
     "network_broadcast": "Rozgłoś transakcję",
     "network_electrum": "Serwer Electrum",

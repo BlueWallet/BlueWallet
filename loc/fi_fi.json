@@ -281,7 +281,7 @@
     "lightning_saved": "Muutoksesi on tallennettu onnistuneesti",
     "lightning_settings": "Salama-asetukset",
     "tor_settings": "Tor-asetukset",
-    "lightning_settings_explain": "Oman LND-solmun käyttö edellyttää että, siihen on asennettu LNDHub-ohjelmisto ja sen URL on määritelty tähän. Kentän ollessa tyhjä on käytössä BleaWallet:in oma LNDHub (lndhub.io). Huomaathan että asetusten tallettamisen jälkeen luodut lompakot yhdistäytyvät määriteltyyn solmuun.",
+    "lightning_settings_explain": "Jos haluat muodostaa yhteyden omaan LND-solmuun, asenna LNDHub ja laita sen URL-osoite tähän asetuksiin. Huomaa, että vain muutosten tallentamisen jälkeen luodut lompakot muodostavat yhteyden määritettyyn LNDHubiin.",
     "network": "Verkko",
     "network_broadcast": "Lähetä siirtotapahtuma",
     "network_electrum": "Electrum-palvelin",

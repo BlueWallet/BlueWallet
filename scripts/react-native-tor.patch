@@ -1,0 +1,8 @@
+--- ../node_modules/react-native-tor/android/gradle.properties
++++ ../node_modules/react-native-tor/android/gradle.properties
+@@ -1,4 +1,4 @@
+-Tor_kotlinVersion=1.3.50
++Tor_kotlinVersion=1.6.0
+ Tor_compileSdkVersion=30
+ Tor_buildToolsVersion=30.0.1
+ Tor_targetSdkVersion=30
