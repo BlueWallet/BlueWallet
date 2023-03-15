@@ -148,7 +148,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return child.toWIF();
   }
 
-  _getNodeAddressByIndex(node: number, index: number) {
+  _getNodeAddressByIndex(node: number, index: number): string {
     index = index * 1; // cast to int
     if (node === 0) {
       if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -170,22 +170,20 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       this._node1 = hdNode.derive(node);
     }
 
-    let address;
+    let address: string;
     if (node === 0) {
       // @ts-ignore
       address = this._hdNodeToAddress(this._node0.derive(index));
-    }
-
-    if (node === 1) {
+    } else {
+      // tbh the only possible else is node === 1
       // @ts-ignore
       address = this._hdNodeToAddress(this._node1.derive(index));
     }
 
     if (node === 0) {
       return (this.external_addresses_cache[index] = address);
-    }
-
-    if (node === 1) {
+    } else {
+      // tbh the only possible else option is node === 1
       return (this.internal_addresses_cache[index] = address);
     }
   }
@@ -216,7 +214,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     throw new Error('Internal error: this._node0 or this._node1 is undefined');
   }
 
-  _getExternalAddressByIndex(index: number) {
+  _getExternalAddressByIndex(index: number): string {
     return this._getNodeAddressByIndex(0, index);
   }
 
@@ -1295,20 +1293,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    * Creates Segwit Bech32 Bitcoin address
-   *
-   * @param hdNode
-   * @returns {String}
    */
-  static _nodeToBech32SegwitAddress(hdNode: BIP32Interface) {
+  _nodeToBech32SegwitAddress(hdNode: BIP32Interface): string {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
     }).address;
   }
 
-  static _nodeToLegacyAddress(hdNode: BIP32Interface) {
+  _nodeToLegacyAddress(hdNode: BIP32Interface): string {
     return bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
     }).address;
+  }
+
+  /**
+   * Creates Segwit P2SH Bitcoin address
+   */
+  _nodeToP2shSegwitAddress(hdNode: BIP32Interface): string {
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+    });
+    return address;
   }
 
   static _getTransactionsFromHistories(histories: Record<string, ElectrumHistory[]>) {
@@ -1496,7 +1501,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   _hdNodeToAddress(hdNode: BIP32Interface): string {
-    return this.constructor._nodeToBech32SegwitAddress(hdNode);
+    return this._nodeToBech32SegwitAddress(hdNode);
   }
 
   _getBIP47Address(paymentCode: string, index: number): string {

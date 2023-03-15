@@ -41,7 +41,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   _hdNodeToAddress(hdNode) {
-    return this.constructor._nodeToP2shSegwitAddress(hdNode);
+    return this._nodeToP2shSegwitAddress(hdNode);
   }
 
   /**
@@ -96,18 +96,6 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     });
 
     return psbt;
-  }
-
-  /**
-   * Creates Segwit P2SH Bitcoin address
-   * @param hdNode
-   * @returns {String}
-   */
-  static _nodeToP2shSegwitAddress(hdNode) {
-    const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
-    });
-    return address;
   }
 
   isSegwit() {

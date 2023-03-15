@@ -53,7 +53,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   }
 
   _hdNodeToAddress(hdNode) {
-    return this.constructor._nodeToLegacyAddress(hdNode);
+    return this._nodeToLegacyAddress(hdNode);
   }
 
   async fetchUtxo() {
