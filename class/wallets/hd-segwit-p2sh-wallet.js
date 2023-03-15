@@ -40,44 +40,8 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  _getNodeAddressByIndex(node, index) {
-    index = index * 1; // cast to int
-    if (node === 0) {
-      if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 1) {
-      if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 0 && !this._node0) {
-      const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node0 = hdNode.derive(0);
-    }
-
-    if (node === 1 && !this._node1) {
-      const xpub = this.constructor._ypubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node1 = hdNode.derive(1);
-    }
-
-    let address;
-    if (node === 0) {
-      address = this.constructor._nodeToP2shSegwitAddress(this._node0.derive(index));
-    }
-
-    if (node === 1) {
-      address = this.constructor._nodeToP2shSegwitAddress(this._node1.derive(index));
-    }
-
-    if (node === 0) {
-      return (this.external_addresses_cache[index] = address);
-    }
-
-    if (node === 1) {
-      return (this.internal_addresses_cache[index] = address);
-    }
+  _hdNodeToAddress(hdNode) {
+    return this.constructor._nodeToP2shSegwitAddress(hdNode);
   }
 
   /**

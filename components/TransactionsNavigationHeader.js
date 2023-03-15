@@ -244,7 +244,7 @@ export default class TransactionsNavigationHeader extends Component {
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
         )}
-        {this.state.wallet.isBIP47Enabled() && (
+        {this.state.wallet.allowBIP47() && this.state.wallet.isBIP47Enabled() && (
           <TouchableOpacity
             accessibilityRole="button"
             onPress={() => {

@@ -115,14 +115,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   async generate() {
     const buf = await randomBytes(16);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
-    this.setBIP47PaymentCode();
   }
 
   async generateFromEntropy(user: Buffer) {
     const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
     const buf = Buffer.concat([user, random], 32);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
-    this.setBIP47PaymentCode();
   }
 
   _getExternalWIFByIndex(index: number): string | false {
@@ -175,12 +173,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let address;
     if (node === 0) {
       // @ts-ignore
-      address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
+      address = this._hdNodeToAddress(this._node0.derive(index));
     }
 
     if (node === 1) {
       // @ts-ignore
-      address = this.constructor._nodeToBech32SegwitAddress(this._node1.derive(index));
+      address = this._hdNodeToAddress(this._node1.derive(index));
     }
 
     if (node === 0) {
@@ -709,7 +707,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         this.next_free_address_index = await this._binarySearchIterationForExternalAddress(1000);
         if (this._sender_payment_codes) {
           for (const pc of this._sender_payment_codes) {
-            this._next_free_payment_code_address_index[pc] = await this._binarySearchIterationForBIP47Address(pc, 10);
+            this._next_free_payment_code_address_index[pc] = await this._binarySearchIterationForBIP47Address(pc, 1000);
           }
         }
       } // end rescanning fresh wallet
@@ -1058,7 +1056,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (this._getInternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(1, c);
     }
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
         if (this._getBIP47Address(pc, c) === address) return this._getBIP47PubkeyByIndex(pc, c);
       }
     }
@@ -1080,7 +1078,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
     }
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
         if (this._getBIP47Address(pc, c) === address) return this._getBIP47WIF(pc, c);
       }
     }
@@ -1102,7 +1100,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (this._getInternalAddressByIndex(c) === cleanAddress) return true;
     }
     for (const pc of this._sender_payment_codes) {
-      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
         if (this._getBIP47Address(pc, c) === address) return true;
       }
     }
@@ -1438,35 +1436,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 
-  // Same as that in AbstractHDWallet, but also sets the BIP47 payment code
-  setSecret(newSecret: string): this {
-    this.secret = newSecret.trim().toLowerCase();
-    this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
-
-    // Try to match words to the default bip39 wordlist and complete partial words
-    const wordlist = bip39.wordlists[bip39.getDefaultWordlist()];
-    const lookupMap = wordlist.reduce((map, word) => {
-      const prefix3 = word.substr(0, 3);
-      const prefix4 = word.substr(0, 4);
-
-      map.set(prefix3, !map.has(prefix3) ? word : false);
-      map.set(prefix4, !map.has(prefix4) ? word : false);
-
-      return map;
-    }, new Map<string, string | false>());
-
-    this.secret = this.secret
-      .split(' ')
-      .map(word => lookupMap.get(word) || word)
-      .join(' ');
-
-    this.setBIP47PaymentCode();
-
-    return this;
+  prepareForSerialization() {
+    super.prepareForSerialization();
+    delete this._bip47_instance;
   }
 
   /**
-   * Whether BIP47 is enabled
+   * Whether BIP47 is enabled. This is per-wallet setting that can be changed, NOT a feature-flag
    * @returns boolean
    */
   isBIP47Enabled(): boolean {
@@ -1478,15 +1454,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   getBIP47FromSeed(): BIP47Interface {
-    if (!this._bip47_instance) this._bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
+    if (!this._bip47_instance) {
+      this._bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
+    }
+
     return this._bip47_instance;
   }
 
-  setBIP47PaymentCode(): void {
-    this._payment_code = this.getBIP47FromSeed().getSerializedPaymentCode();
-  }
-
   getBIP47PaymentCode(): string {
+    if (!this._payment_code) {
+      this._payment_code = this.getBIP47FromSeed().getSerializedPaymentCode();
+    }
+
     return this._payment_code;
   }
 
@@ -1516,6 +1495,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return this._sender_payment_codes;
   }
 
+  _hdNodeToAddress(hdNode: BIP32Interface): string {
+    return this.constructor._nodeToBech32SegwitAddress(hdNode);
+  }
+
   _getBIP47Address(paymentCode: string, index: number): string {
     if (!this._addresses_by_payment_code[paymentCode]) this._addresses_by_payment_code[paymentCode] = [];
 
@@ -1527,7 +1510,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
     const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
     const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
-    const address = bip47_instance.getAddressFromNode(hdNode, bip47_instance.network);
+    const address = this._hdNodeToAddress(hdNode);
     this._address_to_wif_cache[address] = hdNode.toWIF();
     this._addresses_by_payment_code[paymentCode][index] = address;
     return address;

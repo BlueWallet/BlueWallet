@@ -178,8 +178,12 @@ const WalletTransactions = ({ navigation }) => {
       refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      /** @type {LegacyWallet} */
-      await wallet.fetchBIP47SenderPaymentCodes(); // FIXME:
+      if (wallet.allowBIP47()) {
+        const pcStart = +new Date();
+        await wallet.fetchBIP47SenderPaymentCodes();
+        const pcEnd = +new Date();
+        console.log(wallet.getLabel(), 'fetch payment codes took', (pcEnd - pcStart) / 1000, 'sec');
+      }
       const balanceStart = +new Date();
       const oldBalance = wallet.getBalance();
       await wallet.fetchBalance();

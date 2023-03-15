@@ -180,7 +180,7 @@ const WalletDetails = () => {
     }
   }, [wallet]);
 
-  const setLabel = () => {
+  const save = () => {
     setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
@@ -211,7 +211,7 @@ const WalletDetails = () => {
           testID="Save"
           disabled={isLoading}
           style={[styles.save, stylesHook.save]}
-          onPress={setLabel}
+          onPress={save}
         >
           <Text style={[styles.saveText, stylesHook.saveText]}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
@@ -310,6 +310,14 @@ const WalletDetails = () => {
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
       walletID: wallet.getID(),
+    });
+
+  const navigateToPaymentCodes = () =>
+    navigate('PaymentCodeRoot', {
+      screen: 'PaymentCodesList',
+      params: {
+        walletID: wallet.getID(),
+      },
     });
 
   const exportInternals = async () => {
@@ -568,13 +576,15 @@ const WalletDetails = () => {
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
 
-              <>
-                <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
-                <View style={styles.hardware}>
-                  <BlueText>{loc.bip47.purpose}</BlueText>
-                  <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
-                </View>
-              </>
+              {wallet.allowBIP47() ? (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
+                  <View style={styles.hardware}>
+                    <BlueText>{loc.bip47.purpose}</BlueText>
+                    <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
+                  </View>
+                </>
+              ) : null}
 
               <View>
                 {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
@@ -611,6 +621,7 @@ const WalletDetails = () => {
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
+            {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
