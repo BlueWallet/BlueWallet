@@ -9,12 +9,13 @@ import {
     ScrollView,
     TextInput,
     Image,
-    Platform
+    Platform,
+    Alert
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
 import Dialog from 'react-native-dialog';
-import QRCode from 'react-native-qrcode-svg';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 import {
     BlueLoading,
@@ -189,16 +190,27 @@ const BoltCardDisconnect = () => {
         return (
             <>
                 <View style={{marginBottom: 20, marginLeft: 'auto', marginRight: 'auto'}}>
-                    <QRCode
+                    <QRCodeComponent
                         value={JSON.stringify(disconnect)}
+                        size={300}
                     />
                 </View>
                     <BlueButton
                     title="I've disconnected my bolt card"
                     onPress={() => {
-                        setCardWiped();
-                        popToTop();
-                        goBack();
+                        Alert.alert('I\'ve disconnected my bolt card', 'Please make sure you\'ve disconnected your card before pressing the "OK" button. You won\'t be able to get the wipe key details after clicking this.', [
+                            {
+                              text: 'Cancel',
+                              onPress: () => console.log('Cancel Pressed'),
+                              style: 'cancel',
+                            },
+                            {text: 'OK', onPress: () =>{
+                                setCardWiped();
+                                popToTop();
+                                goBack();
+                            }},
+                        ]);
+                        
                     }}
                     // backgroundColor={colors.redBG}
                 />        

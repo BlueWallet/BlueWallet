@@ -14,7 +14,7 @@ import {
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon, ListItem} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import QRCode from 'react-native-qrcode-svg';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 import {
     BlueLoading,
@@ -303,8 +303,9 @@ const BoltCardCreate = () => {
             return (
                 <>  
                     <View style={{marginBottom: 30, marginLeft: 'auto', marginRight: 'auto'}}>
-                        <QRCode
+                        <QRCodeComponent
                             value={createUrl}
+                            size={300}
                         />
                     </View>
                     <Text style={{marginBottom: 20, fontSize: 15, textAlign: 'center'}}>The QR Code can be scanned only once. Make sure you have your card ready to be written.</Text>
