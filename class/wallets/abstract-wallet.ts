@@ -362,6 +362,10 @@ export class AbstractWallet {
     return false;
   }
 
+  isBIP47Enabled(): boolean {
+    return false;
+  }
+
   async wasEverUsed(): Promise<boolean> {
     throw new Error('Not implemented');
   }
