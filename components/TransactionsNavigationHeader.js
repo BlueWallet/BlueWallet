@@ -16,7 +16,10 @@ export default class TransactionsNavigationHeader extends Component {
   static propTypes = {
     wallet: PropTypes.shape().isRequired,
     onWalletUnitChange: PropTypes.func,
-    navigation: PropTypes.shape(),
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+      goBack: PropTypes.func,
+    }),
     onManageFundsPressed: PropTypes.func,
   };
 
@@ -240,6 +243,21 @@ export default class TransactionsNavigationHeader extends Component {
           >
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </ToolTipMenu>
+        )}
+        {this.state.wallet.allowBIP47() && this.state.wallet.isBIP47Enabled() && (
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => {
+              this.props.navigation.navigate('PaymentCodeRoot', {
+                screen: 'PaymentCode',
+                params: { paymentCode: this.state.wallet.getBIP47PaymentCode() },
+              });
+            }}
+          >
+            <View style={styles.manageFundsButton}>
+              <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
+            </View>
+          </TouchableOpacity>
         )}
         {this.state.wallet.type === LightningLdkWallet.type && (
           <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>

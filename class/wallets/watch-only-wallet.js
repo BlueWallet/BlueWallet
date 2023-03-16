@@ -100,6 +100,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (this._hdWalletInstance) {
       delete this._hdWalletInstance._node0;
       delete this._hdWalletInstance._node1;
+      delete this._hdWalletInstance._bip47_instance;
     }
   }
 

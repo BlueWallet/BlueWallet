@@ -143,6 +143,10 @@ export class AbstractWallet {
     return BitcoinUnit.BTC;
   }
 
+  allowBIP47(): boolean {
+    return false;
+  }
+
   allowReceive(): boolean {
     return true;
   }
@@ -355,6 +359,10 @@ export class AbstractWallet {
   }
 
   useWithHardwareWalletEnabled(): boolean {
+    return false;
+  }
+
+  isBIP47Enabled(): boolean {
     return false;
   }
 

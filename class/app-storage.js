@@ -682,6 +682,7 @@ export class AppStorage {
       }
     } else {
       for (const wallet of this.wallets) {
+        console.log('fetching balance for', wallet.getLabel());
         await wallet.fetchBalance();
       }
     }
@@ -720,6 +721,27 @@ export class AppStorage {
         }
         if (wallet.fetchUserInvoices) {
           await wallet.fetchUserInvoices();
+        }
+      }
+    }
+  };
+
+  fetchSenderPaymentCodes = async index => {
+    console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
+    if (index || index === 0) {
+      try {
+        if (!this.wallets[index].allowBIP47()) return;
+        await this.wallets[index].fetchBIP47SenderPaymentCodes();
+      } catch (error) {
+        console.error('Failed to fetch sender payment codes for wallet', index, error);
+      }
+    } else {
+      for (const wallet of this.wallets) {
+        try {
+          if (!wallet.allowBIP47()) continue;
+          await wallet.fetchBIP47SenderPaymentCodes();
+        } catch (error) {
+          console.error('Failed to fetch sender payment codes for wallet', wallet.label, error);
         }
       }
     }

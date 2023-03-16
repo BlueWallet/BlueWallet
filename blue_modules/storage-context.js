@@ -120,6 +120,10 @@ export const BlueStorageProvider = ({ children }) => {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
       }
       await BlueElectrum.waitTillConnected();
+      const paymentCodesStart = Date.now();
+      await fetchSenderPaymentCodes(lastSnappedTo);
+      const paymentCodesEnd = Date.now();
+      console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
       const balanceStart = +new Date();
       await fetchWalletBalances(lastSnappedTo);
       const balanceEnd = +new Date();
@@ -201,6 +205,7 @@ export const BlueStorageProvider = ({ children }) => {
   const getTransactions = BlueApp.getTransactions;
   const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
 
+  const fetchSenderPaymentCodes = BlueApp.fetchSenderPaymentCodes;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
   const getBalance = BlueApp.getBalance;

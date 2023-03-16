@@ -16,7 +16,7 @@
     "seed": "Seed",
     "success": "Success",
     "wallet_key": "Wallet key",
-    "invalid_animated_qr_code_fragment" : "Invalid animated QRCode fragment. Please try again.",
+    "invalid_animated_qr_code_fragment": "Invalid animated QRCode fragment. Please try again.",
     "file_saved": "File {filePath} has been saved in your {destination}.",
     "downloads_folder": "Downloads Folder"
   },
@@ -43,13 +43,13 @@
     "network": "Network Error"
   },
   "lnd": {
-    "active":"Active",
-    "inactive":"Inactive",
+    "active": "Active",
+    "inactive": "Inactive",
     "channels": "Channels",
     "no_channels": "No channels",
     "claim_balance": "Claim balance {balance}",
     "close_channel": "Close channel",
-    "new_channel" : "New channel",
+    "new_channel": "New channel",
     "errorInvoiceExpired": "Invoice expired",
     "force_close_channel": "Force close channel?",
     "expired": "Expired",
@@ -59,7 +59,7 @@
     "placeholder": "Invoice",
     "open_channel": "Open Channel",
     "funding_amount_placeholder": "Funding amount, for example 0.001",
-    "opening_channnel_for_from":"Opening channel for wallet {forWalletLabel}, by funding from {fromWalletLabel}",
+    "opening_channnel_for_from": "Opening channel for wallet {forWalletLabel}, by funding from {fromWalletLabel}",
     "are_you_sure_open_channel": "Are you sure you want to open this channel?",
     "potentialFee": "Potential Fee: {fee}",
     "remote_host": "Remote host",
@@ -68,7 +68,7 @@
     "refill_create": "In order to proceed, please create a Bitcoin wallet to refill with.",
     "refill_external": "Refill with External Wallet",
     "refill_lnd_balance": "Refill Lightning Wallet Balance",
-    "sameWalletAsInvoiceError": "You can’t pay an invoice with the same wallet used to create it.",
+    "sameWalletAsInvoiceError": "You can't pay an invoice with the same wallet used to create it.",
     "title": "Manage Funds",
     "can_send": "Can Send",
     "can_receive": "Can Receive",
@@ -287,7 +287,7 @@
     "network_electrum": "Electrum Server",
     "not_a_valid_uri": "Invalid URI",
     "notifications": "Notifications",
-    "open_link_in_explorer" : "Open link in explorer",
+    "open_link_in_explorer": "Open link in explorer",
     "password": "Password",
     "password_explain": "Create the password you will use to decrypt the storage.",
     "passwords_do_not_match": "Passwords do not match.",
@@ -306,7 +306,7 @@
     "selfTest": "Self-Test",
     "save": "Save",
     "saved": "Saved",
-    "success_transaction_broadcasted" : "Success! Your transaction has been broadcasted!",
+    "success_transaction_broadcasted": "Success! Your transaction has been broadcasted!",
     "total_balance": "Total Balance",
     "total_balance_explanation": "Display the total balance of all your wallets on your home screen widgets.",
     "widgets": "Widgets",
@@ -590,5 +590,11 @@
     "auth_answer": "You have successfully authenticated at {hostname}!",
     "could_not_auth": "We couldn’t authenticate you to {hostname}.",
     "authenticate": "Authenticate"
+  },
+  "bip47": {
+    "payment_code": "Payment Code",
+    "payment_codes_list": "Payment Codes List",
+    "who_can_pay_me": "Who can pay me:",
+    "purpose": "Reusable and shareable code (BIP47)"
   }
 }

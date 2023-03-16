@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
+import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
 
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
@@ -20,6 +21,7 @@ const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
+const bip47 = BIP47Factory(ecc);
 
 type BalanceByIndex = {
   c: number;
@@ -45,6 +47,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   _utxo: any[];
 
+  // BIP47
+  _enable_BIP47: boolean;
+  _payment_code: string;
+  _sender_payment_codes: string[];
+  _addresses_by_payment_code: Record<string, string[]>;
+  _next_free_payment_code_address_index: Record<string, number>;
+  _txs_by_payment_code_index: Record<string, Transaction[][]>;
+  _balances_by_payment_code_index: Record<string, BalanceByIndex>;
+  _bip47_instance?: BIP47Interface;
+
   constructor() {
     super();
     this._balances_by_external_index = {}; //  0 => { c: 0, u: 0 } // confirmed/unconfirmed
@@ -54,6 +66,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._txs_by_internal_index = {};
 
     this._utxo = [];
+
+    // BIP47
+    this._enable_BIP47 = false;
+    this._payment_code = '';
+    this._sender_payment_codes = [];
+    this._next_free_payment_code_address_index = {};
+    this._txs_by_payment_code_index = {};
+    this._balances_by_payment_code_index = {};
+    this._addresses_by_payment_code = {};
   }
 
   /**
@@ -66,6 +87,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (const bal of Object.values(this._balances_by_internal_index)) {
       ret += bal.c;
+    }
+    for (const pc of this._sender_payment_codes) {
+      ret += this._getBalancesByPaymentCodeIndex(pc).c;
     }
     return ret + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
@@ -81,6 +105,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (const bal of Object.values(this._balances_by_internal_index)) {
       ret += bal.u;
+    }
+    for (const pc of this._sender_payment_codes) {
+      ret += this._getBalancesByPaymentCodeIndex(pc).u;
     }
     return ret;
   }
@@ -121,7 +148,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return child.toWIF();
   }
 
-  _getNodeAddressByIndex(node: number, index: number) {
+  _getNodeAddressByIndex(node: number, index: number): string {
     index = index * 1; // cast to int
     if (node === 0) {
       if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -143,22 +170,20 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       this._node1 = hdNode.derive(node);
     }
 
-    let address;
+    let address: string;
     if (node === 0) {
       // @ts-ignore
-      address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
-    }
-
-    if (node === 1) {
+      address = this._hdNodeToAddress(this._node0.derive(index));
+    } else {
+      // tbh the only possible else is node === 1
       // @ts-ignore
-      address = this.constructor._nodeToBech32SegwitAddress(this._node1.derive(index));
+      address = this._hdNodeToAddress(this._node1.derive(index));
     }
 
     if (node === 0) {
       return (this.external_addresses_cache[index] = address);
-    }
-
-    if (node === 1) {
+    } else {
+      // tbh the only possible else option is node === 1
       return (this.internal_addresses_cache[index] = address);
     }
   }
@@ -189,7 +214,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     throw new Error('Internal error: this._node0 or this._node1 is undefined');
   }
 
-  _getExternalAddressByIndex(index: number) {
+  _getExternalAddressByIndex(index: number): string {
     return this._getNodeAddressByIndex(0, index);
   }
 
@@ -266,6 +291,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    // next, bip47 addresses
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        let hasUnconfirmed = false;
+        this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+        for (const tx of this._txs_by_payment_code_index[pc][c])
+          hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
+
+        if (hasUnconfirmed || this._txs_by_payment_code_index[pc][c].length === 0 || this._balances_by_payment_code_index[pc].u !== 0) {
+          addresses2fetch.push(this._getBIP47Address(pc, c));
+        }
+      }
+    }
+
     // first: batch fetch for all addresses histories
     const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
     const txs: Record<string, ElectrumHistory> = {};
@@ -311,6 +351,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       this._txs_by_internal_index[c] = this._txs_by_internal_index[c].filter(tx => !!tx.confirmations);
+    }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c].filter(tx => !!tx.confirmations);
+      }
     }
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
@@ -397,6 +442,51 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        for (const tx of Object.values(txdatas)) {
+          for (const vin of tx.vin) {
+            if (vin.addresses && vin.addresses.indexOf(this._getBIP47Address(pc, c)) !== -1) {
+              // this TX is related to our address
+              this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+              const { vin: txVin, vout: txVout, ...txRest } = tx;
+              const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+
+              // trying to replace tx if it exists already (because it has lower confirmations, for example)
+              let replaced = false;
+              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
+                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
+                  replaced = true;
+                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
+                }
+              }
+              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
+            }
+          }
+          for (const vout of tx.vout) {
+            if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getBIP47Address(pc, c)) !== -1) {
+              // this TX is related to our address
+              this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+              const { vin: txVin, vout: txVout, ...txRest } = tx;
+              const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
+
+              // trying to replace tx if it exists already (because it has lower confirmations, for example)
+              let replaced = false;
+              for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
+                if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
+                  replaced = true;
+                  this._txs_by_internal_index[c][cc] = clonedTx;
+                }
+              }
+              if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
+            }
+          }
+        }
+      }
+    }
+
     this._lastTxFetch = +new Date();
   }
 
@@ -408,6 +498,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (const addressTxs of Object.values(this._txs_by_internal_index)) {
       txs = txs.concat(addressTxs);
+    }
+    if (this._sender_payment_codes) {
+      for (const pc of this._sender_payment_codes) {
+        if (this._txs_by_payment_code_index[pc])
+          for (const addressTxs of Object.values(this._txs_by_payment_code_index[pc])) {
+            txs = txs.concat(addressTxs);
+          }
+      }
     }
 
     if (txs.length === 0) return []; // guard clause; so we wont spend time calculating addresses
@@ -421,6 +519,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
     }
+    if (this._sender_payment_codes)
+      for (const pc of this._sender_payment_codes) {
+        for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+          ownedAddressesHashmap[this._getBIP47Address(pc, c)] = true;
+        }
+      }
     // hack: in case this code is called from LegacyWallet:
     if (this.getAddress()) ownedAddressesHashmap[String(this.getAddress())] = true;
 
@@ -499,7 +603,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ) {
         const address = this._getInternalAddressByIndex(c);
         if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
-          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unsued
+          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
         }
       }
     }
@@ -542,7 +646,50 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ) {
         const address = this._getExternalAddressByIndex(c);
         if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
-          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unsued
+          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
+        }
+      }
+    }
+
+    return lastUsedIndex;
+  }
+
+  async _binarySearchIterationForBIP47Address(paymentCode: string, index: number) {
+    const generateChunkAddresses = (chunkNum: number) => {
+      const ret = [];
+      for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
+        ret.push(this._getBIP47Address(paymentCode, c));
+      }
+      return ret;
+    };
+
+    let lastChunkWithUsedAddressesNum = null;
+    let lastHistoriesWithUsedAddresses = null;
+    for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
+      const histories = await BlueElectrum.multiGetHistoryByAddress(generateChunkAddresses(c));
+      // @ts-ignore
+      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+        // in this particular chunk we have used addresses
+        lastChunkWithUsedAddressesNum = c;
+        lastHistoriesWithUsedAddresses = histories;
+      } else {
+        // empty chunk. no sense searching more chunks
+        break;
+      }
+    }
+
+    let lastUsedIndex = 0;
+
+    if (lastHistoriesWithUsedAddresses) {
+      // now searching for last used address in batch lastChunkWithUsedAddressesNum
+      for (
+        let c = Number(lastChunkWithUsedAddressesNum) * this.gap_limit;
+        c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
+        c++
+      ) {
+        const address = this._getBIP47Address(paymentCode, c);
+        if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
+          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
         }
       }
     }
@@ -556,6 +703,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // doing binary search for last used address:
         this.next_free_change_address_index = await this._binarySearchIterationForInternalAddress(1000);
         this.next_free_address_index = await this._binarySearchIterationForExternalAddress(1000);
+        if (this._sender_payment_codes) {
+          for (const pc of this._sender_payment_codes) {
+            this._next_free_payment_code_address_index[pc] = await this._binarySearchIterationForBIP47Address(pc, 1000);
+          }
+        }
       } // end rescanning fresh wallet
 
       // finally fetching balance
@@ -577,6 +729,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = this.next_free_change_address_index; c < this.next_free_change_address_index + this.gap_limit; c++) {
       lagAddressesToFetch.push(this._getInternalAddressByIndex(c));
     }
+    for (const pc of this._sender_payment_codes) {
+      for (
+        let c = this._next_free_payment_code_address_index[pc];
+        c < this._next_free_payment_code_address_index[pc] + this.gap_limit;
+        c++
+      ) {
+        lagAddressesToFetch.push(this._getBIP47Address(pc, c));
+      }
+    }
 
     const txs = await BlueElectrum.multiGetHistoryByAddress(lagAddressesToFetch); // <------ electrum call
 
@@ -596,6 +757,20 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    for (const pc of this._sender_payment_codes) {
+      for (
+        let c = this._next_free_payment_code_address_index[pc];
+        c < this._next_free_payment_code_address_index[pc] + this.gap_limit;
+        c++
+      ) {
+        const address = this._getBIP47Address(pc, c);
+        if (txs[address] && Array.isArray(txs[address]) && txs[address].length > 0) {
+          // whoa, someone uses our wallet outside! better catch up
+          this._next_free_payment_code_address_index[pc] = c + 1;
+        }
+      }
+    }
+
     // next, business as usuall. fetch balances
 
     const addresses2fetch = [];
@@ -612,6 +787,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // internal
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       addresses2fetch.push(this._getInternalAddressByIndex(c));
+    }
+
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        addresses2fetch.push(this._getBIP47Address(pc, c));
+      }
     }
 
     const balances = await BlueElectrum.multiGetBalanceByAddress(addresses2fetch);
@@ -658,6 +839,22 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    for (const pc of this._sender_payment_codes) {
+      let confirmed = 0;
+      let unconfirmed = 0;
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        const addr = this._getBIP47Address(pc, c);
+        if (balances.addresses[addr].confirmed || balances.addresses[addr].unconfirmed) {
+          confirmed = confirmed + balances.addresses[addr].confirmed;
+          unconfirmed = unconfirmed + balances.addresses[addr].unconfirmed;
+        }
+      }
+      this._balances_by_payment_code_index[pc] = {
+        c: confirmed,
+        u: unconfirmed,
+      };
+    }
+
     this._lastBalanceFetch = +new Date();
   }
 
@@ -677,6 +874,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        if (
+          this._balances_by_payment_code_index[pc] &&
+          this._balances_by_payment_code_index[pc].c &&
+          this._balances_by_payment_code_index[pc].c > 0
+        ) {
+          addressess.push(this._getBIP47Address(pc, c));
+        }
+      }
+    }
+
     // considering UNconfirmed balance:
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._balances_by_external_index[c] && this._balances_by_external_index[c].u && this._balances_by_external_index[c].u > 0) {
@@ -686,6 +895,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].u && this._balances_by_internal_index[c].u > 0) {
         addressess.push(this._getInternalAddressByIndex(c));
+      }
+    }
+
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
+        if (
+          this._balances_by_payment_code_index[pc] &&
+          this._balances_by_payment_code_index[pc].u &&
+          this._balances_by_payment_code_index[pc].u > 0
+        ) {
+          addressess.push(this._getBIP47Address(pc, c));
+        }
       }
     }
 
@@ -755,6 +976,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (let c = 0; c < this.next_free_change_address_index + 1; c++) {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
+    }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + 1; c++) {
+        ownedAddressesHashmap[this._getBIP47Address(pc, c)] = true;
+      }
     }
 
     for (const tx of this.getTransactions()) {
@@ -827,6 +1053,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(1, c);
     }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        if (this._getBIP47Address(pc, c) === address) return this._getBIP47PubkeyByIndex(pc, c);
+      }
+    }
 
     return false;
   }
@@ -844,6 +1075,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return this._getWIFByIndex(true, c);
     }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        if (this._getBIP47Address(pc, c) === address) return this._getBIP47WIF(pc, c);
+      }
+    }
     return false;
   }
 
@@ -860,6 +1096,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === cleanAddress) return true;
+    }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        if (this._getBIP47Address(pc, c) === address) return true;
+      }
     }
     return false;
   }
@@ -1052,20 +1293,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    * Creates Segwit Bech32 Bitcoin address
-   *
-   * @param hdNode
-   * @returns {String}
    */
-  static _nodeToBech32SegwitAddress(hdNode: BIP32Interface) {
+  _nodeToBech32SegwitAddress(hdNode: BIP32Interface): string {
     return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
     }).address;
   }
 
-  static _nodeToLegacyAddress(hdNode: BIP32Interface) {
+  _nodeToLegacyAddress(hdNode: BIP32Interface): string {
     return bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
     }).address;
+  }
+
+  /**
+   * Creates Segwit P2SH Bitcoin address
+   */
+  _nodeToP2shSegwitAddress(hdNode: BIP32Interface): string {
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+    });
+    return address;
   }
 
   static _getTransactionsFromHistories(histories: Record<string, ElectrumHistory[]>) {
@@ -1191,5 +1439,109 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   getMasterFingerprintHex() {
     const seed = this._getSeed();
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
+  }
+
+  prepareForSerialization() {
+    super.prepareForSerialization();
+    delete this._bip47_instance;
+  }
+
+  /**
+   * Whether BIP47 is enabled. This is per-wallet setting that can be changed, NOT a feature-flag
+   * @returns boolean
+   */
+  isBIP47Enabled(): boolean {
+    return this._enable_BIP47;
+  }
+
+  switchBIP47(value: boolean): void {
+    this._enable_BIP47 = value;
+  }
+
+  getBIP47FromSeed(): BIP47Interface {
+    if (!this._bip47_instance) {
+      this._bip47_instance = bip47.fromBip39Seed(this.secret, undefined, this.passphrase);
+    }
+
+    return this._bip47_instance;
+  }
+
+  getBIP47PaymentCode(): string {
+    if (!this._payment_code) {
+      this._payment_code = this.getBIP47FromSeed().getSerializedPaymentCode();
+    }
+
+    return this._payment_code;
+  }
+
+  async fetchBIP47SenderPaymentCodes(): Promise<void> {
+    const bip47_instance = BIP47Factory(ecc).fromBip39Seed(this.secret, undefined, this.passphrase);
+
+    const address = bip47_instance.getNotificationAddress();
+
+    const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
+    const txHashes = histories[address].map(({ tx_hash }) => tx_hash);
+
+    const txHexs = await BlueElectrum.multiGetTransactionByTxid(txHashes, 50, false);
+    for (const txHex of Object.values(txHexs)) {
+      try {
+        const paymentCode = bip47_instance.getPaymentCodeFromRawNotificationTransaction(txHex);
+        if (this._sender_payment_codes.includes(paymentCode)) continue; // already have it
+        this._sender_payment_codes.push(paymentCode);
+        this._next_free_payment_code_address_index[paymentCode] = 0; // initialize
+        this._balances_by_payment_code_index[paymentCode] = { c: 0, u: 0 };
+      } catch (e) {
+        // do nothing
+      }
+    }
+  }
+
+  getBIP47SenderPaymentCodes(): string[] {
+    return this._sender_payment_codes;
+  }
+
+  _hdNodeToAddress(hdNode: BIP32Interface): string {
+    return this._nodeToBech32SegwitAddress(hdNode);
+  }
+
+  _getBIP47Address(paymentCode: string, index: number): string {
+    if (!this._addresses_by_payment_code[paymentCode]) this._addresses_by_payment_code[paymentCode] = [];
+
+    if (this._addresses_by_payment_code[paymentCode][index]) {
+      return this._addresses_by_payment_code[paymentCode][index];
+    }
+
+    const bip47_instance = this.getBIP47FromSeed();
+    const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
+    const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
+    const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
+    const address = this._hdNodeToAddress(hdNode);
+    this._address_to_wif_cache[address] = hdNode.toWIF();
+    this._addresses_by_payment_code[paymentCode][index] = address;
+    return address;
+  }
+
+  _getNextFreePaymentCodeAddress(paymentCode: string) {
+    return this._next_free_payment_code_address_index[paymentCode] || 0;
+  }
+
+  _getBalancesByPaymentCodeIndex(paymentCode: string): BalanceByIndex {
+    return this._balances_by_payment_code_index[paymentCode] || { c: 0, u: 0 };
+  }
+
+  _getBIP47WIF(paymentCode: string, index: number): string {
+    const bip47_instance = this.getBIP47FromSeed();
+    const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
+    const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
+    const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
+    return hdNode.toWIF();
+  }
+
+  _getBIP47PubkeyByIndex(paymentCode: string, index: number): Buffer {
+    const bip47_instance = this.getBIP47FromSeed();
+    const senderBIP47_instance = bip47.fromPaymentCode(paymentCode);
+    const remotePaymentNode = senderBIP47_instance.getPaymentCodeNode();
+    const hdNode = bip47_instance.getPaymentWallet(remotePaymentNode, index);
+    return hdNode.publicKey;
   }
 }
