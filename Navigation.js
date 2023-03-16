@@ -87,6 +87,8 @@ import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import BoltCardCreate from './screen/boltcard/create';
 import BoltCardDisconnect from './screen/boltcard/disconnect';
 import BoltCardDetails from './screen/boltcard/details';
+import BoltCardCreateHelp from './screen/boltcard/createHelp'
+import BoltCardDisconnectHelp from './screen/boltcard/disconnectHelp'
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -478,6 +480,8 @@ const BoltCardCreateRoot = () => {
       <BoltCardCreateStack.Screen name="BoltCardCreate" component={BoltCardCreate} options={BoltCardCreate.navigationOptions(theme)} />
       <BoltCardCreateStack.Screen name="BoltCardDisconnect" component={BoltCardDisconnect} options={BoltCardDisconnect.navigationOptions(theme)} />
       <BoltCardCreateStack.Screen name="BoltCardDetails" component={BoltCardDetails} options={BoltCardDetails.navigationOptions(theme)} />
+      <BoltCardCreateStack.Screen name="BoltCardCreateHelp" component={BoltCardCreateHelp} options={BoltCardCreateHelp.navigationOptions(theme)} />
+      <BoltCardCreateStack.Screen name="BoltCardDisconnectHelp" component={BoltCardDisconnectHelp} options={BoltCardDisconnectHelp.navigationOptions(theme)} />
     </BoltCardCreateStack.Navigator>
   );
 };

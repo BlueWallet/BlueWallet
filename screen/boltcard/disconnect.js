@@ -10,7 +10,8 @@ import {
     TextInput,
     Image,
     Platform,
-    Alert
+    Alert,
+    TouchableOpacity
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
@@ -195,8 +196,17 @@ const BoltCardDisconnect = () => {
                         size={300}
                     />
                 </View>
+                <View style={{marginBottom: 10}}>
                     <BlueButton
-                    title="I've disconnected my bolt card"
+                        title="Instructions"
+                        onPress={() => {
+                            navigate("BoltCardDisconnectHelp")
+                        }}
+                        backgroundColor={colors.lightButton}
+                    />
+                </View>
+                <BlueButton
+                    title="I've disconnected my card"
                     onPress={() => {
                         Alert.alert('I\'ve disconnected my bolt card', 'Please make sure you\'ve disconnected your card before pressing the "OK" button. You won\'t be able to get the wipe key details after clicking this.', [
                             {
@@ -458,7 +468,23 @@ BoltCardDisconnect.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
 },
-opts => ({ ...opts, title: "Disconnect bolt card" }),
+(options, { theme, navigation, route }) => (
+    {
+         ...options, 
+         title: "Disconnect bolt card", 
+        //  headerLeft: () => Platform.OS == 'ios' ? (
+        //     <TouchableOpacity
+        //     accessibilityRole="button"
+        //     disabled={route.params.isLoading === true}
+        //     onPress={() =>
+        //         navigation.navigate('BoltCardDisconnectHelp')
+        //     }
+        //     >
+        //         <Icon name="help-outline" type="material" size={22} color="#000" />
+        //     </TouchableOpacity>
+        // ) : null
+    }
+),
 );
 
 export default BoltCardDisconnect;

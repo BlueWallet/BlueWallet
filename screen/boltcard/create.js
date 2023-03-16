@@ -9,7 +9,8 @@ import {
     StatusBar,
     ScrollView,
     Image,
-    Platform
+    Platform,
+    TouchableOpacity
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon, ListItem} from 'react-native-elements';
@@ -309,6 +310,15 @@ const BoltCardCreate = () => {
                         />
                     </View>
                     <Text style={{marginBottom: 20, fontSize: 15, textAlign: 'center'}}>The QR Code can be scanned only once. Make sure you have your card ready to be written.</Text>
+                    <View style={{marginBottom: 10}}>
+                        <BlueButton
+                            title="Instructions"
+                            onPress={() => {
+                                navigate("BoltCardCreateHelp")
+                            }}
+                            backgroundColor={colors.lightButton}
+                        />
+                    </View>
                     <BlueButton
                         title="I've connected my card"
                         onPress={async () => {
@@ -504,7 +514,22 @@ BoltCardCreate.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
 },
-opts => ({ ...opts, title: "Create bolt card" }),
+(options, { theme, navigation, route }) => (
+    {
+         ...options, 
+         title: "Connect bolt card", 
+        //  headerLeft: () => Platform.OS == 'ios' ? (
+        //     <TouchableOpacity
+        //     accessibilityRole="button"
+        //     disabled={route.params.isLoading === true}
+        //     onPress={() =>
+        //         navigation.navigate('BoltCardCreateHelp')
+        //     }
+        //     >
+        //         <Icon name="help-outline" type="material" size={22} color="#000" />
+        //     </TouchableOpacity>
+        // ) : null
+    }),
 );
 
 export default BoltCardCreate;
