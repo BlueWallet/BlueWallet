@@ -1,94 +1,95 @@
-import React from 'react';
-import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 import { useTheme } from '@react-navigation/native';
+import React from 'react';
+import { Dimensions, I18nManager, Platform, useWindowDimensions } from 'react-native';
+import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 
-import Settings from './screen/settings/settings';
-import About from './screen/settings/about';
-import ReleaseNotes from './screen/settings/releasenotes';
-import Licensing from './screen/settings/licensing';
-import Selftest from './screen/selftest';
-import Language from './screen/settings/language';
-import Currency from './screen/settings/currency';
-import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
-import LightningSettings from './screen/settings/lightningSettings';
+import Selftest from './screen/selftest';
+import About from './screen/settings/about';
+import BolthubSettings from './screen/settings/bolthubSettings';
+import Currency from './screen/settings/currency';
+import DefaultView from './screen/settings/defaultView';
 import ElectrumSettings from './screen/settings/electrumSettings';
-import TorSettings from './screen/settings/torSettings';
-import Tools from './screen/settings/tools';
+import EncryptStorage from './screen/settings/encryptStorage';
 import GeneralSettings from './screen/settings/GeneralSettings';
+import Language from './screen/settings/language';
+import Licensing from './screen/settings/licensing';
+import LightningSettings from './screen/settings/lightningSettings';
 import NetworkSettings from './screen/settings/NetworkSettings';
 import NotificationSettings from './screen/settings/notificationSettings';
-import DefaultView from './screen/settings/defaultView';
+import ReleaseNotes from './screen/settings/releasenotes';
+import Settings from './screen/settings/settings';
+import Tools from './screen/settings/tools';
+import TorSettings from './screen/settings/torSettings';
 
-import WalletsList from './screen/wallets/list';
-import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
-import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletsAddMultisigHelp from './screen/wallets/addMultisigHelp';
-import PleaseBackup from './screen/wallets/pleaseBackup';
-import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
-import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
-import ImportWallet from './screen/wallets/import';
-import ImportWalletDiscovery from './screen/wallets/importDiscovery';
-import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
-import ImportSpeed from './screen/wallets/importSpeed';
+import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
+import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
-import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
-import WalletXpub from './screen/wallets/xpub';
-import SignVerify from './screen/wallets/signVerify';
-import WalletAddresses from './screen/wallets/addresses';
+import ImportWallet from './screen/wallets/import';
+import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
+import ImportWalletDiscovery from './screen/wallets/importDiscovery';
+import ImportSpeed from './screen/wallets/importSpeed';
+import WalletsList from './screen/wallets/list';
+import PleaseBackup from './screen/wallets/pleaseBackup';
+import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
+import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
+import ProvideEntropy from './screen/wallets/provideEntropy';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
-import ProvideEntropy from './screen/wallets/provideEntropy';
+import SignVerify from './screen/wallets/signVerify';
+import WalletTransactions from './screen/wallets/transactions';
+import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
+import WalletXpub from './screen/wallets/xpub';
 
-import TransactionDetails from './screen/transactions/details';
-import TransactionStatus from './screen/transactions/transactionStatus';
 import CPFP from './screen/transactions/CPFP';
+import TransactionDetails from './screen/transactions/details';
 import RBFBumpFee from './screen/transactions/RBFBumpFee';
 import RBFCancel from './screen/transactions/RBFCancel';
+import TransactionStatus from './screen/transactions/transactionStatus';
 
-import ReceiveDetails from './screen/receive/details';
 import AztecoRedeem from './screen/receive/aztecoRedeem';
+import ReceiveDetails from './screen/receive/details';
 
-import SendDetails from './screen/send/details';
-import ScanQRCode from './screen/send/ScanQRCode';
-import SendCreate from './screen/send/create';
+import Broadcast from './screen/send/broadcast';
+import CoinControl from './screen/send/coinControl';
 import Confirm from './screen/send/confirm';
-import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
+import SendCreate from './screen/send/create';
+import SendDetails from './screen/send/details';
+import IsItMyAddress from './screen/send/isItMyAddress';
 import PsbtMultisig from './screen/send/psbtMultisig';
 import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
+import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
+import ScanQRCode from './screen/send/ScanQRCode';
 import Success from './screen/send/success';
-import Broadcast from './screen/send/broadcast';
-import IsItMyAddress from './screen/send/isItMyAddress';
-import CoinControl from './screen/send/coinControl';
 
-import ScanLndInvoice from './screen/lnd/scanLndInvoice';
+import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
 import LappBrowser from './screen/lnd/browser';
-import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
-import LNDViewInvoice from './screen/lnd/lndViewInvoice';
-import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
 import LdkInfo from './screen/lnd/ldkInfo';
+import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
+import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
+import LNDViewInvoice from './screen/lnd/lndViewInvoice';
+import LnurlAuth from './screen/lnd/lnurlAuth';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
-import LnurlAuth from './screen/lnd/lnurlAuth';
-import UnlockWith from './UnlockWith';
-import DrawerList from './screen/wallets/drawerList';
-import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
+import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
-import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
+import DrawerList from './screen/wallets/drawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
+import UnlockWith from './UnlockWith';
 
 import BoltCardCreate from './screen/boltcard/create';
-import BoltCardDisconnect from './screen/boltcard/disconnect';
 import BoltCardDetails from './screen/boltcard/details';
 import BoltCardCreateHelp from './screen/boltcard/createHelp'
 import BoltCardDisconnectHelp from './screen/boltcard/disconnectHelp'
+import BoltCardDisconnect from './screen/boltcard/disconnect';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -130,6 +131,7 @@ const WalletsRoot = () => {
         component={PlausibleDeniability}
         options={PlausibleDeniability.navigationOptions(theme)}
       />
+      <WalletsStack.Screen name="BolthubSettings" component={BolthubSettings} options={BolthubSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="TorSettings" component={TorSettings} options={TorSettings.navigationOptions(theme)} />

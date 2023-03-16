@@ -440,7 +440,7 @@
     "list_empty_txs1": "Your transactions will appear here.",
     "list_empty_txs1_lightning": "Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and the speed is blazing fast.",
     "list_empty_txs2": "Start with your wallet.",
-    "list_empty_txs2_lightning": "\nTo start using it, tap on Manage Funds and topup your balance.",
+    "list_empty_txs2_lightning": "\nTo start using it, load your wallet by pressing the Receive button.",
     "list_latest_transaction": "Latest Transaction",
     "list_ln_browser": "LApp Browser",
     "list_long_choose": "Choose Photo",
