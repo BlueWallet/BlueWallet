@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, I18nManager, Linking, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, I18nManager, Linking, StyleSheet, TextInput, TouchableWithoutFeedback, View, PermissionsAndroid } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 
 import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -13,6 +13,8 @@ import alert from '../../components/Alert';
 import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+
+const PushNotification = require('react-native-push-notification');
 
 const styles = StyleSheet.create({
   uri: {
@@ -114,15 +116,24 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
   const onNotificationsSwitch = async value => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
-      // user is ENABLING notifications
-      await Notifications.cleanUserOptOutFlag();
-      if (await Notifications.getPushToken()) {
-        // we already have a token, so we just need to reenable ALL level on groundcontrol:
-        await Notifications.setLevels(true);
-      } else {
-        // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-        await Notifications.tryToObtainPermissions();
-      }
+      PushNotification.checkPermissions(async permissions => {
+        if (permissions.alert !== true) {
+          alert(
+            "Bolt Card Wallet does not have permission to show send you notifications.  Please add this permission in your OS settings and try again."
+          );
+          onNotificationsSwitch(false);
+        } else {
+          // user is ENABLING notifications
+          await Notifications.cleanUserOptOutFlag();
+          if (await Notifications.getPushToken()) {
+            // we already have a token, so we just need to reenable ALL level on groundcontrol:
+            await Notifications.setLevels(true);
+          } else {
+            // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
+            await Notifications.tryToObtainPermissions();
+          }
+        }
+      });
     } else {
       // user is DISABLING notifications
       await Notifications.setLevels(false);
