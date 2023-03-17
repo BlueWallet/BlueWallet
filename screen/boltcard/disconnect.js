@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
-    BackHandler,
     NativeEventEmitter, 
     NativeModules,  
     StyleSheet, 
@@ -9,11 +8,15 @@ import {
     StatusBar,
     ScrollView,
     TextInput,
-    Image
+    Image,
+    Platform,
+    Alert,
+    TouchableOpacity
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon} from 'react-native-elements';
 import Dialog from 'react-native-dialog';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 import {
     BlueLoading,
@@ -33,7 +36,7 @@ const BoltCardDisconnect = () => {
     const { wallets, saveToDisk } = useContext(BlueStorageContext);
     const wallet = wallets.find(w => w.getID() === walletID);
     const { colors } = useTheme();
-    const { navigate, goBack, setParams } = useNavigation();
+    const { navigate, goBack, setParams, popToTop } = useNavigation();
 
     const stylesHook = StyleSheet.create({
         modalContent: {
@@ -101,29 +104,32 @@ const BoltCardDisconnect = () => {
                 error = error + ' Some keys missing, proceed with caution';
             }
             setKeyJsonError(error ? error : false)
-            enableResetMode(wipeCardDetails.k0, wipeCardDetails.k1, wipeCardDetails.k2, wipeCardDetails.k3, wipeCardDetails.k4, wipeCardDetails.uid);
+            if(Platform.OS == 'android') enableResetMode(wipeCardDetails.k0, wipeCardDetails.k1, wipeCardDetails.k2, wipeCardDetails.k3, wipeCardDetails.k4, wipeCardDetails.uid);
        }
     }, [wipeCardDetails]);
 
     useEffect(() => {
-        const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
-        const eventListener = eventEmitter.addListener('ChangeKeysResult', (event) => {
-            console.log('CHANGE KEYS', event);
-            // if(event.output == "success") {
-            //     setWriteKeysOutput("Keys reset successfully");
-            // }
-            // else {
-                setWriteKeysOutput(event.output);
-            // }
-
-            //@todo: ensure card wipe has worked.
-            setCardWiped();
-
-        });
-        
-        return () => {
-        eventListener.remove();
-        };
+        if(Platform.OS == 'android') {
+            const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
+            const eventListener = eventEmitter.addListener('ChangeKeysResult', (event) => {
+                console.log('CHANGE KEYS', event);
+                // if(event.output == "success") {
+                //     setWriteKeysOutput("Keys reset successfully");
+                // }
+                // else {
+                    setWriteKeysOutput(event.output);
+                // }
+    
+                //@todo: ensure card wipe has worked.
+                setCardWiped();
+                popToTop();
+                goBack();
+            });
+            
+            return () => {
+            eventListener.remove();
+            };
+        }
     }, []);
 
     const getWipeKeys = async (wallet) => {
@@ -144,15 +150,14 @@ const BoltCardDisconnect = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            NativeModules.MyReactModule.setCardMode("read");
+            if(Platform.OS == 'android') NativeModules.MyReactModule.setCardMode("read");
         }, [])
     );
 
     const setCardWiped = async () => {
         console.log('setCardWiped');
         if(wallet) {
-            await wallet.setCardWritten(false);
-            wallet.setWipeData(null);
+            await wallet.disconnectCard();
             saveToDisk();
         }
     }
@@ -178,6 +183,49 @@ const BoltCardDisconnect = () => {
     const disableResetMode = () => {
         NativeModules.MyReactModule.setCardMode("read");
         setResetNow(false);
+    }
+
+    const disconnectQRCode = () => {
+        const disconnect = wipeCardDetails;
+        console.log('QRCODE', disconnect);
+        return (
+            <>
+                <View style={{marginBottom: 20, marginLeft: 'auto', marginRight: 'auto'}}>
+                    <QRCodeComponent
+                        value={JSON.stringify(disconnect)}
+                        size={300}
+                    />
+                </View>
+                <View style={{marginBottom: 10}}>
+                    <BlueButton
+                        title="Instructions"
+                        onPress={() => {
+                            navigate("BoltCardDisconnectHelp")
+                        }}
+                        backgroundColor={colors.lightButton}
+                    />
+                </View>
+                <BlueButton
+                    title="I've disconnected my card"
+                    onPress={() => {
+                        Alert.alert('I\'ve disconnected my bolt card', 'Please make sure you\'ve disconnected your card before pressing the "OK" button. You won\'t be able to get the wipe key details after clicking this.', [
+                            {
+                              text: 'Cancel',
+                              onPress: () => console.log('Cancel Pressed'),
+                              style: 'cancel',
+                            },
+                            {text: 'OK', onPress: () =>{
+                                setCardWiped();
+                                popToTop();
+                                goBack();
+                            }},
+                        ]);
+                        
+                    }}
+                    // backgroundColor={colors.redBG}
+                />        
+            </>
+        );
     }
 
     return(
@@ -213,17 +261,20 @@ const BoltCardDisconnect = () => {
                     </Dialog.Container>
                     <BlueCard>
                         <BlueText style={styles.label}>
-                            <Image 
+                            {/* <Image 
                                 source={(() => {
                                 return require('../../img/bolt-card-unlink.png');
                                 })()} style={{width: 60, height: 40, marginTop:20}}
-                            />
+                            /> */}
                         </BlueText>
                         <BlueText style={styles.label}>Disconnect my bolt card</BlueText>
                         {loading ? 
                             <BlueLoading />
                         : 
                             <>
+                                {Platform.OS == 'ios' &&
+                                    disconnectQRCode()
+                                }
                                 <BlueButton 
                                     style={styles.link}
                                     title={!showDetails ? "Show Key Details ▼" : "Hide Key Details ▴"}
@@ -298,12 +349,14 @@ const BoltCardDisconnect = () => {
                                     />
                                 </>
                                 }
-                                <BlueButton 
-                                    style={styles.button}
-                                    title="Reset Again"
-                                    color="#000000"
-                                    onPress={enableResetMode}
-                                />
+                                { Platform.OS == 'android' &&
+                                    <BlueButton 
+                                        style={styles.button}
+                                        title="Reset Again"
+                                        color="#000000"
+                                        onPress={enableResetMode}
+                                    />
+                                }
                             </>
                         }
                     </BlueCard>
@@ -406,7 +459,7 @@ const styles = StyleSheet.create({
         padding: 5,
         fontFamily: 'monospace',
         textAlignVertical: 'top',
-        color:'#fff'
+        color:'#000'
     },
 });
 
@@ -415,7 +468,23 @@ BoltCardDisconnect.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
 },
-opts => ({ ...opts, title: "Disconnect bolt card" }),
+(options, { theme, navigation, route }) => (
+    {
+         ...options, 
+         title: "Disconnect bolt card", 
+        //  headerLeft: () => Platform.OS == 'ios' ? (
+        //     <TouchableOpacity
+        //     accessibilityRole="button"
+        //     disabled={route.params.isLoading === true}
+        //     onPress={() =>
+        //         navigation.navigate('BoltCardDisconnectHelp')
+        //     }
+        //     >
+        //         <Icon name="help-outline" type="material" size={22} color="#000" />
+        //     </TouchableOpacity>
+        // ) : null
+    }
+),
 );
 
 export default BoltCardDisconnect;

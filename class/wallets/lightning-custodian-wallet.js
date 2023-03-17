@@ -27,6 +27,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardWritten = false;
     this.cardEnabled = true;
     this.cardDetails = false;
+    this.createcardurl = '';
   }
 
   /**
@@ -695,6 +696,50 @@ export class LightningCustodianWallet extends LegacyWallet {
     return lnurl.authenticate(this.secret);
   }
 
+  async createcard() {
+    await this.checkLogin();
+
+    if(this.createcardurl) {
+      return this.createcardurl;
+    }
+
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else if(this.secret.indexOf('lndhub://') !== -1) {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('boltcardhub://', '').split(':')[0];
+      password = this.secret.replace('boltcardhub://', '').split(':')[1];
+    }
+
+    const response = await this._api.post('/createboltcard', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+      body: {
+        card_name: login+':'+password
+      }
+    });
+
+    const json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    if (json && json.status === 'ERROR') {
+      throw new Error('API error: ' + json.reason);
+    }
+
+    return (this.createcardurl = json);
+  }
 
   async getcardkeys() {
     await this.checkLogin();
@@ -800,6 +845,15 @@ export class LightningCustodianWallet extends LegacyWallet {
   
   async setCardWritten(status) {
     this.cardWritten = status;
+  }
+
+  async disconnectCard() {
+    this.cardKeys = false;
+    this.wipeData = false;
+    this.cardWritten = false;
+    this.cardEnabled = false;
+    this.cardDetails = false;
+    this.createcardurl = '';
   }
 
   async enableCard(status) {
@@ -954,7 +1008,9 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     //if there is a non-wiped boltcard, set the cardwritten to true
-    this.cardWritten = true;
+    if(json.uid) {
+      this.cardWritten = true;
+    }
     return (this.cardDetails = json);
   }
 

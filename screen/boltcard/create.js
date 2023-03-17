@@ -8,11 +8,14 @@ import {
     View,
     StatusBar,
     ScrollView,
-    Image
+    Image,
+    Platform,
+    TouchableOpacity
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
 import {Icon, ListItem} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import QRCodeComponent from '../../components/QRCodeComponent';
 
 import {
     BlueLoading,
@@ -66,6 +69,7 @@ const BoltCardCreate = () => {
     const [showDetails, setShowDetails] = useState(false);
 
     const [cardDetails, setCardDetails] = useState({});
+    const [createUrl, setCreateUrl] = useState('');
     const [loading, setLoading] = useState(true);
     //setup
     const [keys, setKeys] = useState([]);
@@ -98,6 +102,7 @@ const BoltCardCreate = () => {
             setKeys([cardDetails.k0,cardDetails.k1,cardDetails.k2,cardDetails.k3,cardDetails.k4])
             setlnurlw_base(cardDetails.lnurlw_base)
             setCardName(cardDetails.card_name)
+
             console.log('native', NativeModules, NativeModules.MyReactModule);
             NativeModules.MyReactModule.changeKeys(
                 cardDetails.lnurlw_base,
@@ -123,48 +128,50 @@ const BoltCardCreate = () => {
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
-        const eventEmitter = new NativeEventEmitter();
-        const boltCardEventListener = eventEmitter.addListener('CreateBoltCard', (event) => {
-            console.log('CREATE BOLTCARD LISTENER')
-            if(event.tagTypeError) setTagTypeError(event.tagTypeError);
-            if(event.cardUID) setCardUID(event.cardUID);
-            if(event.tagname) setTagname(event.tagname);
-
-            if(event.key0Changed) setKey0Changed(event.key0Changed);
-            if(event.key1Changed) setKey1Changed(event.key1Changed);
-            if(event.key2Changed) setKey2Changed(event.key2Changed);
-            if(event.key3Changed) setKey3Changed(event.key3Changed);
-            if(event.key4Changed) setKey4Changed(event.key4Changed);
-            if(event.uid_privacy) setPrivateUID(event.uid_privacy == 'Y');
-
-            if(event.ndefWritten) setNdefWritten(event.ndefWritten);
-            if(event.writekeys) setWriteKeys(event.writekeys);
-            
-            if(event.readNDEF) {
-                setNdefRead(event.readNDEF)
-                //we have the latest read from the card fire it off to the server.
-                const httpsLNURL = event.readNDEF.replace("lnurlw://", "https://");
-                fetch(httpsLNURL)
-                    .then((response) => response.json())
-                    .then((json) => {
-                        setTestBolt("success");
-                    })
-                    .catch(error => {
-                        setTestBolt("Error: "+error.message);
-                    });
-            }
-
-            if(event.testp) setTestp(event.testp);
-            if(event.testc) setTestc(event.testc);
-
-            NativeModules.MyReactModule.setCardMode('read');
-            setWriteMode(false);
-            setCardWritten('success');            
-
-        });
+        if(Platform.OS == 'android') {
+            const eventEmitter = new NativeEventEmitter();
+            const boltCardEventListener = eventEmitter.addListener('CreateBoltCard', (event) => {
+                console.log('CREATE BOLTCARD LISTENER')
+                if(event.tagTypeError) setTagTypeError(event.tagTypeError);
+                if(event.cardUID) setCardUID(event.cardUID);
+                if(event.tagname) setTagname(event.tagname);
+    
+                if(event.key0Changed) setKey0Changed(event.key0Changed);
+                if(event.key1Changed) setKey1Changed(event.key1Changed);
+                if(event.key2Changed) setKey2Changed(event.key2Changed);
+                if(event.key3Changed) setKey3Changed(event.key3Changed);
+                if(event.key4Changed) setKey4Changed(event.key4Changed);
+                if(event.uid_privacy) setPrivateUID(event.uid_privacy == 'Y');
+    
+                if(event.ndefWritten) setNdefWritten(event.ndefWritten);
+                if(event.writekeys) setWriteKeys(event.writekeys);
+                
+                if(event.readNDEF) {
+                    setNdefRead(event.readNDEF)
+                    //we have the latest read from the card fire it off to the server.
+                    const httpsLNURL = event.readNDEF.replace("lnurlw://", "https://");
+                    fetch(httpsLNURL)
+                        .then((response) => response.json())
+                        .then((json) => {
+                            setTestBolt("success");
+                        })
+                        .catch(error => {
+                            setTestBolt("Error: "+error.message);
+                        });
+                }
+    
+                if(event.testp) setTestp(event.testp);
+                if(event.testc) setTestc(event.testc);
+    
+                NativeModules.MyReactModule.setCardMode('read');
+                setWriteMode(false);
+                setCardWritten('success');            
+    
+            });
+        }
 
         return () => {
-          boltCardEventListener.remove();
+            if(Platform.OS == 'android') boltCardEventListener.remove();
           BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
         };
     }, []);
@@ -185,6 +192,23 @@ const BoltCardCreate = () => {
             });
     }
 
+    const getCreateUrl = (wallet) => {
+        wallet
+            .createcard()
+            .then(url => {
+                console.log('URL', url);
+                setCreateUrl(url);
+                wallet.setWipeData(null);
+                saveToDisk();
+                setLoading(false);
+            })
+            .catch(err => {
+                console.log('ERROR', err.message);
+                alert(err.message);
+                goBack();
+            })
+    }
+ 
     const setCardWritten = async (status) => {
         if(wallet) {
             await wallet.setCardWritten(status);
@@ -195,18 +219,24 @@ const BoltCardCreate = () => {
 
     useEffect(() => {
         if(wallet) {
-            getCardKeys(wallet);
+            if(Platform.OS == 'ios') {
+                getCreateUrl(wallet);
+            } else {
+                getCardKeys(wallet);
+            }
         }
     }, [walletID]);
 
     const updateNodeUrl = text => {
         setNodeURL(text);
-        NativeModules.MyReactModule.setNodeURL(text);
+        if(Platform.OS == 'android') {
+            NativeModules.MyReactModule.setNodeURL(text);
+        }
     }
     
     useFocusEffect(
         React.useCallback(() => {
-            NativeModules.MyReactModule.setCardMode("read");
+            if(Platform.OS == 'android') NativeModules.MyReactModule.setCardMode("read");
         }, [])
     );
 
@@ -230,7 +260,9 @@ const BoltCardCreate = () => {
 
     const writeAgain = () => {
         resetOutput();
-        NativeModules.MyReactModule.setCardMode('createBoltcard');
+        if(Platform.OS == 'android') {
+            NativeModules.MyReactModule.setCardMode('createBoltcard');
+        }
         setWriteMode(true);
     }
 
@@ -239,23 +271,25 @@ const BoltCardCreate = () => {
     }
 
     const togglePrivacy = () => {
-        NativeModules.MyReactModule.changeKeys(
-            cardDetails.lnurlw_base,
-            cardDetails.k0, 
-            cardDetails.k1, 
-            cardDetails.k2, 
-            cardDetails.k3, 
-            cardDetails.k4, 
-            !enhancedPrivacy, 
-            (response) => {
-                console.log('Change keys response', response)
-                if (response == "Success") {
-                    setLoading(false);
-                    setWriteMode(true);
+        if(Platform.OS == 'android') {
+            NativeModules.MyReactModule.changeKeys(
+                cardDetails.lnurlw_base,
+                cardDetails.k0, 
+                cardDetails.k1, 
+                cardDetails.k2, 
+                cardDetails.k3, 
+                cardDetails.k4, 
+                !enhancedPrivacy, 
+                (response) => {
+                    console.log('Change keys response', response)
+                    if (response == "Success") {
+                        setLoading(false);
+                        setWriteMode(true);
+                    }
+                    NativeModules.MyReactModule.setCardMode('createBoltcard');
                 }
-                NativeModules.MyReactModule.setCardMode('createBoltcard');
-            }
-        );
+            );
+        }
         setEnhancedPrivacy(!enhancedPrivacy)
     }
 
@@ -265,6 +299,45 @@ const BoltCardCreate = () => {
     const key3display = keys[3] ? keys[3].substring(0, 4)+"............"+ keys[3].substring(28) : "pending...";
     const key4display = keys[4] ? keys[4].substring(0, 4)+"............"+ keys[4].substring(28) : "pending...";
 
+    const CreateBoltCardQRCode = () => {
+        if(createUrl) {
+            return (
+                <>  
+                    <View style={{marginBottom: 30, marginLeft: 'auto', marginRight: 'auto'}}>
+                        <QRCodeComponent
+                            value={createUrl}
+                            size={300}
+                        />
+                    </View>
+                    <Text style={{marginBottom: 20, fontSize: 15, textAlign: 'center'}}>The QR Code can be scanned only once. Make sure you have your card ready to be written.</Text>
+                    <View style={{marginBottom: 10}}>
+                        <BlueButton
+                            title="Instructions"
+                            onPress={() => {
+                                navigate("BoltCardCreateHelp")
+                            }}
+                            backgroundColor={colors.lightButton}
+                        />
+                    </View>
+                    <BlueButton
+                        title="I've connected my card"
+                        onPress={async () => {
+                            const card = await wallet.getCardDetails(true);
+                            if(card && card.uid) {
+                                console.log('Connected');
+                                alert('Card connected to the wallet');
+                                goBack();
+                            } else {
+                                alert("Check if your card has been connected correctly.");
+                            }
+                        }}
+                        // backgroundColor={colors.redBG}
+                    />
+                </>
+            );
+        }
+        return null;
+    }
     return(
         <View style={[styles.root, stylesHook.root]}>
             <StatusBar barStyle="light-content" />
@@ -278,6 +351,12 @@ const BoltCardCreate = () => {
                             </>
                         :
                             <>
+                                {
+                                    Platform.OS == 'ios' ?
+                                        CreateBoltCardQRCode()
+                                    :
+                                    null
+                                }
                                 {writeMode ? 
                                     <>
                                         <BlueText style={styles.label}>Ready to write</BlueText>
@@ -435,7 +514,22 @@ BoltCardCreate.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
 },
-opts => ({ ...opts, title: "Create bolt card" }),
+(options, { theme, navigation, route }) => (
+    {
+         ...options, 
+         title: "Connect bolt card", 
+        //  headerLeft: () => Platform.OS == 'ios' ? (
+        //     <TouchableOpacity
+        //     accessibilityRole="button"
+        //     disabled={route.params.isLoading === true}
+        //     onPress={() =>
+        //         navigation.navigate('BoltCardCreateHelp')
+        //     }
+        //     >
+        //         <Icon name="help-outline" type="material" size={22} color="#000" />
+        //     </TouchableOpacity>
+        // ) : null
+    }),
 );
 
 export default BoltCardCreate;
