@@ -225,7 +225,7 @@ const BoltCardDetails = () => {
                             {
                               wallet.getWipeData()
                               ?
-                              <BlueText style={{fontWeight: '600'}}>CARD IS WIPED</BlueText>
+                              <BlueText style={{fontWeight: '700', marginTop: 30}}>THE CARD IS WIPED. Disconnect the card by clicking "Disconnect bolt card" button below</BlueText>
                               :
                                 <>
                                   {editMode
