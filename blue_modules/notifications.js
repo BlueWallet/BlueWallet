@@ -1,5 +1,5 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform } from 'react-native';
+import { Alert, Platform, PermissionsAndroid } from 'react-native';
 import Frisbee from 'frisbee';
 import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,6 +42,13 @@ function Notifications(props) {
         // (optional) Called when Token is generated (iOS and Android)
         onRegister: async function (token) {
           console.log('TOKEN:', token);
+
+          if(Platform.OS == 'android') {
+            const permissionGranted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+            if(!permissionGranted) {
+              await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+            }
+          }
           alreadyConfigured = true;
           await _setPushToken(token);
           resolve(true);
