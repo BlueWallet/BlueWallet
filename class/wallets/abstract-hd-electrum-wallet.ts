@@ -1487,6 +1487,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       try {
         const paymentCode = bip47_instance.getPaymentCodeFromRawNotificationTransaction(txHex);
         if (this._sender_payment_codes.includes(paymentCode)) continue; // already have it
+
+        // final check if PC is even valid (could've been constructed by a buggy code, and our code would crash with that):
+        try {
+          BIP47Factory(ecc).fromPaymentCode(paymentCode);
+        } catch (_) {
+          continue;
+        }
+
         this._sender_payment_codes.push(paymentCode);
         this._next_free_payment_code_address_index[paymentCode] = 0; // initialize
         this._balances_by_payment_code_index[paymentCode] = { c: 0, u: 0 };
