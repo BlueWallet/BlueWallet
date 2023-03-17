@@ -1,31 +1,27 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { BlueListItem, SafeBlueArea } from '../../BlueComponents';
 import Notifications from '../../blue_modules/notifications';
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueListItem } from '../../BlueComponents';
 import loc from '../../loc';
-import { isTorCapable } from '../../blue_modules/environment';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
-
-  const navigateToElectrumSettings = () => {
-    navigate('ElectrumSettings');
-  };
-
-  const navigateToTorSettings = () => {
-    navigate('TorSettings');
-  };
 
   const navigateToLightningSettings = () => {
     navigate('LightningSettings');
   };
 
+  const navigateToBoltHubSettings = () => {
+    navigate('BolthubSettings');
+  };
+
   return (
     <SafeBlueArea>
       <ScrollView>
-        <BlueListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
+        <BlueListItem title="Bolt Hub Settings" onPress={navigateToBoltHubSettings} testID="BolthubSettings" chevron />
+        {/* <BlueListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron /> */}
         {Notifications.isNotificationsCapable && (
           <BlueListItem
             title={loc.settings.notifications}
@@ -34,7 +30,6 @@ const NetworkSettings = () => {
             chevron
           />
         )}
-        {isTorCapable && <BlueListItem title={loc.settings.tor_settings} onPress={navigateToTorSettings} testID="TorSettings" chevron />}
       </ScrollView>
     </SafeBlueArea>
   );
