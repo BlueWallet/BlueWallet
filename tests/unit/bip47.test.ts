@@ -3,6 +3,10 @@ import ecc from 'tiny-secp256k1';
 import assert from 'assert';
 
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { ECPairFactory } from 'ecpair';
+const bitcoin = require('bitcoinjs-lib');
+
+const ECPair = ECPairFactory(ecc);
 
 describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
   it('should work', async () => {
@@ -64,7 +68,32 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     expect(ourNotificationAddress).toEqual('1EiP2kSqxNqRhn8MPMkrtSEqaWiCWLYyTS'); // our notif address
 
-    assert.ok(!w.weOwnAddress('1JDdmqFLhpzcUwPeinhJbUPw4Co3aWLyzW')); // alice notif address, we dont own it
+    // since we dont do network calls in unit test we cant get counterparties payment codes from our notif address,
+    // and thus, dont know collaborative addresses with our payers. lets hardcode our counterparty payment code to test
+    // this functionality
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), []);
+
+    w._sender_payment_codes = [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ];
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ]);
+
+    assert.ok(w.weOwnAddress('bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe'));
+    const pubkey = w._getPubkeyByAddress('bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe');
+    const path = w._getDerivationPathByAddress('bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe');
+    assert.ok(pubkey);
+    assert.ok(path);
+
+    const keyPair2 = ECPair.fromWIF(w._getWIFbyAddress('bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe') || '');
+    const address = bitcoin.payments.p2wpkh({
+      pubkey: keyPair2.publicKey,
+    }).address;
+
+    assert.strictEqual(address, 'bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe');
   });
 
   it('should work (sparrow)', async () => {

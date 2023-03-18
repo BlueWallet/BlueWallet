@@ -1037,6 +1037,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return path + '/1/' + c;
     }
+    for (const pc of this._sender_payment_codes) {
+      for (let c = 0; c < this._getNextFreePaymentCodeAddress(pc) + this.gap_limit; c++) {
+        // not technically correct but well, to have at least somethign in PSBT...
+        if (this._getBIP47Address(pc, c) === address) return "m/47'/0'/0'/" + c;
+      }
+    }
 
     return false;
   }
