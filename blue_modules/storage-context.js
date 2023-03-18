@@ -219,7 +219,7 @@ export const BlueStorageProvider = ({ children }) => {
   const decryptStorage = BlueApp.decryptStorage;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
-  const setisAdvancedModeEnabled = BlueApp.setisAdvancedModeEnabled;
+  const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
   const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
@@ -265,7 +265,7 @@ export const BlueStorageProvider = ({ children }) => {
         getHodlHodlApiKey,
         decryptStorage,
         isPasswordInUse,
-        setisAdvancedModeEnabled,
+        setIsAdvancedModeEnabled,
         setPreferredFiatCurrency,
         preferredFiatCurrency,
         setLanguage,
