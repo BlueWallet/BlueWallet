@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings = () => {
-  const { isAdvancedModeEnabled, setisAdvancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
+  const { isAdvancedModeEnabled, setIsAdvancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
     useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdvancedModeSwitchEnabled, setIsAdvancedModeSwitchEnabled] = useState(false);
@@ -23,7 +23,7 @@ const GeneralSettings = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
-    await setisAdvancedModeEnabled(value);
+    await setIsAdvancedModeEnabled(value);
     setIsAdvancedModeSwitchEnabled(value);
   };
   const onLegacyURv1Switch = async value => {
