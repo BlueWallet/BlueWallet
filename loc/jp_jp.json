@@ -16,7 +16,7 @@
     "seed": "シード",
     "success": "成功",
     "wallet_key": "ウォレットキー",
-    "invalid_animated_qr_code_fragment" : "無効なアニメーションQRCodeフラグメントです。再度お試しください。",
+    "invalid_animated_qr_code_fragment": "無効なアニメーションQRCodeフラグメントです。再度お試しください。",
     "file_saved": "ファイル {filePath} は {destination} に保存されました。",
     "downloads_folder": "ダウンロードフォルダ"
   },
@@ -43,13 +43,13 @@
     "network": "ネットワークエラー"
   },
   "lnd": {
-    "active":"アクティブ",
-    "inactive":"非アクティブ",
+    "active": "アクティブ",
+    "inactive": "非アクティブ",
     "channels": "チャネル",
     "no_channels": "チャネルなし",
     "claim_balance": "残高{balance}を請求",
     "close_channel": "チャネルを閉じる",
-    "new_channel" : "新規チャネル",
+    "new_channel": "新規チャネル",
     "errorInvoiceExpired": "インボイス失効",
     "force_close_channel": "チャネルを強制的に閉じますか？",
     "expired": "失効",
@@ -59,7 +59,7 @@
     "placeholder": "入金依頼",
     "open_channel": "チャネルを開く",
     "funding_amount_placeholder": "デポジット額（例：0.001）",
-    "opening_channnel_for_from":"{fromWalletLabel} の資金を使い、ウォレット {forWalletLabel} のチャネルを開きます",
+    "opening_channnel_for_from": "{fromWalletLabel} の資金を使い、ウォレット {forWalletLabel} のチャネルを開きます",
     "are_you_sure_open_channel": "本当にこのチャネルを開きますか？",
     "potentialFee": "手数料推計： {fee}",
     "remote_host": "リモートホスト",
@@ -68,7 +68,7 @@
     "refill_create": "先に進むためには、ビットコインウォレットを作成して補充してください。",
     "refill_external": "外部ウォレットで補充",
     "refill_lnd_balance": "Lightning ウォレットへ送金",
-    "sameWalletAsInvoiceError": "以前作成したウォレットと同じウォレットへの支払いはできません。",
+    "sameWalletAsInvoiceError": "インボイスを作成したのと同じウォレットで支払うことはできません。",
     "title": "資金の管理",
     "can_send": "送金可能",
     "can_receive": "受取可能",
@@ -287,7 +287,7 @@
     "network_electrum": "Electrum サーバー",
     "not_a_valid_uri": "無効なURI",
     "notifications": "通知",
-    "open_link_in_explorer" : "エクスプローラで開く",
+    "open_link_in_explorer": "エクスプローラで開く",
     "password": "パスワード",
     "password_explain": "ウォレットの復号に使用するパスワードを作成",
     "passwords_do_not_match": "パスワードが一致しません",
@@ -306,7 +306,7 @@
     "selfTest": "セルフテスト",
     "save": "保存",
     "saved": "保存済",
-    "success_transaction_broadcasted" : "成功！　取引が配信されました！",
+    "success_transaction_broadcasted": "成功！　取引が配信されました！",
     "total_balance": "合計残高",
     "total_balance_explanation": "すべてのウォレットの合計残高をホーム画面のウィジェットに表示",
     "widgets": "ウィジェット",
@@ -590,5 +590,11 @@
     "auth_answer": "{hostname}で認証成功しました！",
     "could_not_auth": "{hostname}への認証に失敗しました。",
     "authenticate": "認証"
+  },
+  "bip47": {
+    "payment_code": "支払コード",
+    "payment_codes_list": "支払コードリスト",
+    "who_can_pay_me": "あなたに支払いできる人：",
+    "purpose": "再利用・共有可能なコード (BIP47)"
   }
 }
