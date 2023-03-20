@@ -289,6 +289,7 @@ class AmountInput extends Component {
             {!disabled && amount !== BitcoinUnit.MAX && (
               <TouchableOpacity
                 accessibilityRole="button"
+                accessibilityLabel={loc._.change_input_currency} 
                 testID="changeAmountUnitButton"
                 style={styles.changeAmountUnit}
                 onPress={this.changeAmountUnit}

@@ -260,7 +260,7 @@ export default class TransactionsNavigationHeader extends Component {
           </TouchableOpacity>
         )}
         {this.state.wallet.type === LightningLdkWallet.type && (
-          <TouchableOpacity accessibilityRole="button" onPress={this.manageFundsPressed}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc.lnd.title} onPress={this.manageFundsPressed}>
             <View style={styles.manageFundsButton}>
               <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
             </View>
