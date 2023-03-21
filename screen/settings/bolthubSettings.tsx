@@ -119,7 +119,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
       PushNotification.checkPermissions(async permissions => {
         if (permissions.alert !== true) {
           alert(
-            "Bolt Card Wallet does not have permission to show send you notifications.  Please add this permission in your OS settings and try again."
+            "Bolt Card Wallet does not have permission to send you notifications.  Please add this permission in your OS settings and try again."
           );
           onNotificationsSwitch(false);
         } else {
