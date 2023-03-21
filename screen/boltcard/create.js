@@ -13,7 +13,7 @@ import {
     TouchableOpacity
 } from 'react-native';
 import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
-import {Icon, ListItem} from 'react-native-elements';
+import {Icon, ListItem, Tooltip} from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import QRCodeComponent from '../../components/QRCodeComponent';
 
@@ -319,20 +319,56 @@ const BoltCardCreate = () => {
                             backgroundColor={colors.lightButton}
                         />
                     </View>
-                    <BlueButton
-                        title="I've connected my card"
-                        onPress={async () => {
-                            const card = await wallet.getCardDetails(true);
-                            if(card && card.uid) {
-                                console.log('Connected');
-                                alert('Card connected to the wallet');
-                                goBack();
-                            } else {
-                                alert("Check if your card has been connected correctly.");
-                            }
-                        }}
-                        // backgroundColor={colors.redBG}
-                    />
+                    <View style={{marginBottom: 10}}>
+                        <BlueButton
+                            title="I've connected my card"
+                            onPress={async () => {
+                                try {
+                                    const card = await wallet.getCardDetails(true);
+                                    if(card && card.uid) {
+                                        console.log('Connected');
+                                        alert('Card connected to the wallet');
+                                        goBack();
+                                    } else {
+                                        alert("Check if your card has been connected correctly.");
+                                    }
+
+                                } catch(e) {
+                                    alert("Check if your card has been connected correctly.");
+                                }
+                            }}
+                        />
+                    </View>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <BlueButton
+                            title="Generate new QR code"
+                            onPress={async () => {
+                                setLoading(true);
+                                try {
+                                    const newUrl = await wallet.regenerateCardUrl();
+                                    setCreateUrl(newUrl);
+                                    wallet.setWipeData(null);
+                                    saveToDisk();
+                                    setLoading(false);
+                                } catch(e) {
+                                    console.log(e);
+                                    setLoading(false);
+                                    alert(e.message);
+                                }
+                            }}
+                            backgroundColor={colors.redBG}
+                        />
+                        <View style={{marginLeft: 5}}>
+                            <Tooltip 
+                                popover={<Text>Click this button if you have already scanned the QR code once and are getting an error message "one time code was used"</Text>}
+                                width={250}
+                                height={100}
+                                backgroundColor={colors.mainColor}
+                            >
+                                <Icon name="help-outline" type="material" size={22} color="#000" />
+                            </Tooltip>
+                        </View>
+                    </View>
                 </>
             );
         }

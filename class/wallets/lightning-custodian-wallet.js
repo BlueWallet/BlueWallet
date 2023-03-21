@@ -1014,6 +1014,21 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (this.cardDetails = json);
   }
 
+  async regenerateCardUrl() {
+    await this.checkLogin();
+
+    //check if the card has been created
+    if(!this.createcardurl) {
+      throw new Error('Bolt card hasn\'t been created')
+    }
+
+    //wipe the card
+    await this.wipecard();
+    await this.disconnectCard();
+    //create a new card and return card url
+    return this.createcard();
+  }
+
   
 }
 
