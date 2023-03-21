@@ -854,6 +854,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardEnabled = false;
     this.cardDetails = false;
     this.createcardurl = '';
+    return;
   }
 
   async enableCard(status) {

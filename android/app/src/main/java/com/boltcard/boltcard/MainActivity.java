@@ -780,6 +780,7 @@ public class MainActivity extends ReactActivity {
     if(resetKeys[0] == null || resetKeys[1] == null || resetKeys[2] == null || resetKeys[3] == null || resetKeys[4] == null) {
       WritableMap params = Arguments.createMap();
       params.putString("output", "Error, one or more keys not set");
+      params.putString("status", "error");
       Log.d(TAG, "Error, one or more keys not set");
       sendEvent("ChangeKeysResult", params);
       return;
@@ -804,6 +805,7 @@ public class MainActivity extends ReactActivity {
       result += "Change Key0: "+e.getMessage()+". Could be incorrect key. Aborting key reset, please use correct keys. \r\n";
       WritableMap params = Arguments.createMap();
       params.putString("output", result);
+      params.putString("status", "error");
       sendEvent("ChangeKeysResult", params);
       return;
     }
@@ -854,6 +856,7 @@ public class MainActivity extends ReactActivity {
 
     WritableMap params = Arguments.createMap();
     params.putString("output", result);
+    params.putString("status", "success");
     sendEvent("ChangeKeysResult", params);
   }
 

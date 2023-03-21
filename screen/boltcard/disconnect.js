@@ -113,17 +113,12 @@ const BoltCardDisconnect = () => {
             const eventEmitter = new NativeEventEmitter(NativeModules.ToastExample);
             const eventListener = eventEmitter.addListener('ChangeKeysResult', (event) => {
                 console.log('CHANGE KEYS', event);
-                // if(event.output == "success") {
-                //     setWriteKeysOutput("Keys reset successfully");
-                // }
-                // else {
-                    setWriteKeysOutput(event.output);
-                // }
+                if(event.status == 'success') {
+                    setCardWiped();
+                }
+                setWriteKeysOutput(event.output);
     
                 //@todo: ensure card wipe has worked.
-                setCardWiped();
-                popToTop();
-                goBack();
             });
             
             return () => {
@@ -246,7 +241,13 @@ const BoltCardDisconnect = () => {
                         </Text>
                         <Dialog.Button label="Close"
                         onPress={() => {
-                            disableResetMode();
+                            console.log('wallet', wallet.cardWritten);
+                            if(!wallet.cardWritten) {
+                                popToTop();
+                                goBack();
+                            } else {
+                                disableResetMode();
+                            }
                         }} />
                     </Dialog.Container>
                     <Dialog.Container visible={keyJsonError}>
