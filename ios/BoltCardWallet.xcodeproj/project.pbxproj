@@ -17,8 +17,6 @@
 		3271B0B5236E2E0700DA766F /* BoltCardWallet - Bitcoin Price.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3271B0A9236E2E0700DA766F /* BoltCardWallet - Bitcoin Price.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* TodayAPI.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
-		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
-		6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6D2A6461258BA92C0092292B /* Stickers.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32C5C52596CE3A008C077C /* EventEmitter.m */; };
 		6D4AF18525D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		6DD4109D266CADF10087DE03 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
@@ -59,13 +57,6 @@
 			remoteGlobalIDString = 3271B0A8236E2E0700DA766F;
 			remoteInfo = TodayExtension;
 		};
-		6D2A6466258BA92D0092292B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 6D2A6460258BA92C0092292B;
-			remoteInfo = Stickers;
-		};
 		6D9946672555A661000E52E8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -89,7 +80,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */,
 				3271B0B5236E2E0700DA766F /* BoltCardWallet - Bitcoin Price.appex in Embed App Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed App Extensions */,
 			);
@@ -195,7 +185,6 @@
 		6D294A9C24D512770039E22B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9D24D5127F0039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/Interface.strings; sourceTree = "<group>"; };
 		6D294A9E24D512800039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/MainInterface.strings; sourceTree = "<group>"; };
-		6D2A6461258BA92C0092292B /* Stickers.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Stickers.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D2A6463258BA92D0092292B /* Stickers.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Stickers.xcassets; sourceTree = "<group>"; };
 		6D2A6465258BA92D0092292B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6D2AA8072568B8F40090B089 /* FiatUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatUnit.swift; sourceTree = "<group>"; };
@@ -320,13 +309,6 @@
 				6DD4109E266CADF10087DE03 /* SwiftUI.framework in Frameworks */,
 				6DD4109D266CADF10087DE03 /* WidgetKit.framework in Frameworks */,
 				8CBB9CC9ACE4B44B45C28DF8 /* libPods-WidgetsExtension.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8889F8F93C39BB72C97DD77E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -551,7 +533,6 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* BoltCardWallet.app */,
 				3271B0A9236E2E0700DA766F /* BoltCardWallet - Bitcoin Price.appex */,
-				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 			);
 			name = Products;
@@ -673,7 +654,6 @@
 			dependencies = (
 				3271B0B4236E2E0700DA766F /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
-				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
 			);
 			name = BoltCardWallet;
@@ -697,22 +677,6 @@
 			productName = TodayExtension;
 			productReference = 3271B0A9236E2E0700DA766F /* BoltCardWallet - Bitcoin Price.appex */;
 			productType = "com.apple.product-type.app-extension";
-		};
-		6D2A6460258BA92C0092292B /* Stickers */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6D2A646B258BA92D0092292B /* Build configuration list for PBXNativeTarget "Stickers" */;
-			buildPhases = (
-				6D2A645F258BA92C0092292B /* Resources */,
-				8889F8F93C39BB72C97DD77E /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = Stickers;
-			productName = Stickers;
-			productReference = 6D2A6461258BA92C0092292B /* Stickers.appex */;
-			productType = "com.apple.product-type.app-extension.messages-sticker-pack";
 		};
 		6DD4109B266CADF10087DE03 /* WidgetsExtension */ = {
 			isa = PBXNativeTarget;
@@ -754,9 +718,6 @@
 					3271B0A8236E2E0700DA766F = {
 						CreatedOnToolsVersion = 11.2;
 						LastSwiftMigration = 1130;
-					};
-					6D2A6460258BA92C0092292B = {
-						CreatedOnToolsVersion = 12.1;
 					};
 					6DD4109B266CADF10087DE03 = {
 						CreatedOnToolsVersion = 12.5;
@@ -804,7 +765,6 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* BoltCardWallet */,
 				3271B0A8236E2E0700DA766F /* TodayExtension */,
-				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
 			);
 		};
@@ -826,14 +786,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3271B0B1236E2E0700DA766F /* MainInterface.storyboard in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6D2A645F258BA92C0092292B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1093,12 +1045,6 @@
 			target = 3271B0A8236E2E0700DA766F /* TodayExtension */;
 			targetProxy = 3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */;
 		};
-		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = 6D2A6460258BA92C0092292B /* Stickers */;
-			targetProxy = 6D2A6466258BA92D0092292B /* PBXContainerItemProxy */;
-		};
 		6D9946682555A661000E52E8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			targetProxy = 6D9946672555A661000E52E8 /* PBXContainerItemProxy */;
@@ -1180,11 +1126,12 @@
 			baseConfigurationReference = 9B3A324B70BC8C6D9314FD4F /* Pods-BoltCardWallet.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BoltCardWallet/BoltCardWallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = G2LFSW78NA;
 				ENABLE_BITCODE = NO;
@@ -1232,12 +1179,13 @@
 			baseConfigurationReference = B459EE96941AE09BCB547DC0 /* Pods-BoltCardWallet.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = BoltCardWallet/BoltCardWalletRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = G2LFSW78NA;
 				ENABLE_BITCODE = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -1345,67 +1293,6 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		6D2A6469258BA92D0092292B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = G2LFSW78NA;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.1.1;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.boltcard.boltcard.Stickers;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		6D2A646A258BA92D0092292B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = G2LFSW78NA;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = Stickers/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 0.1.1;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.boltcard.boltcard.Stickers;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1624,15 +1511,6 @@
 			buildConfigurations = (
 				3271B0B7236E2E0700DA766F /* Debug */,
 				3271B0B8236E2E0700DA766F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6D2A646B258BA92D0092292B /* Build configuration list for PBXNativeTarget "Stickers" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6D2A6469258BA92D0092292B /* Debug */,
-				6D2A646A258BA92D0092292B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
