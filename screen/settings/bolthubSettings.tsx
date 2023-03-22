@@ -184,6 +184,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
   const save = useCallback(async () => {
     setIsLoading(true);
     try {
+      let success = true;
       if (URI) {
         await LightningCustodianWallet.isValidNodeAddress(URI);
         // validating only if its not empty. empty means use default
@@ -193,15 +194,27 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
       } else {
         await AsyncStorage.removeItem(AppStorage.LNDHUB);
       }
-      await Notifications.saveUri(notificationURI);
+      if (notificationURI) {
+        // validating only if its not empty. empty means use default
+        if (await Notifications.isGroundControlUriValid(notificationURI)) {
+          await Notifications.saveUri(notificationURI);
+        } else {
+          alert(loc.settings.not_a_valid_uri);
+          success = false;
+        }
+      } else {
+        await Notifications.saveUri('');
+      }
 
-      alert(loc.settings.lightning_saved);
+      if(success) {
+        alert(loc.settings.lightning_saved);
+      }
     } catch (error) {
       alert(loc.settings.lightning_error_lndhub_uri);
       console.log(error);
     }
     setIsLoading(false);
-  }, [URI]);
+  }, [URI, notificationURI]);
 
   const importScan = () => {
     navigation.navigate('ScanQRCodeRoot', {
