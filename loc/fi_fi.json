@@ -16,7 +16,7 @@
     "seed": "Siemen",
     "success": "Onnistui",
     "wallet_key": "Lompakkoavain",
-    "invalid_animated_qr_code_fragment" : "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen",
+    "invalid_animated_qr_code_fragment": "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen",
     "file_saved": "Tiedosto {filePath} on talletettu sinun {destination}.",
     "downloads_folder": "Lataukset-kansio"
   },
@@ -43,13 +43,13 @@
     "network": "Verkkovirhe"
   },
   "lnd": {
-    "active":"Aktiivinen",
-    "inactive":"Passiivinen",
+    "active": "Aktiivinen",
+    "inactive": "Passiivinen",
     "channels": "Kanavat",
     "no_channels": "Ei kanavia",
     "claim_balance": "Lunasta saldo {balance}",
     "close_channel": "Sulje kanava",
-    "new_channel" : "Uusi kanava",
+    "new_channel": "Uusi kanava",
     "errorInvoiceExpired": "Lasku vanheni",
     "force_close_channel": "Pakota kanavan sulku?",
     "expired": "Erääntynyt",
@@ -59,7 +59,7 @@
     "placeholder": "Lasku",
     "open_channel": "Avaa kanava",
     "funding_amount_placeholder": "Rahoitettava määrä, esimerkiksi 0.001",
-    "opening_channnel_for_from":"Ota rahoitus {fromWalletLabel}:sta kanavan avaamiseksi lompakkoon {forWalletLabel}",
+    "opening_channnel_for_from": "Ota rahoitus {fromWalletLabel}:sta kanavan avaamiseksi lompakkoon {forWalletLabel}",
     "are_you_sure_open_channel": "Oletko varma että haluat avata tämän kanavan?",
     "potentialFee": "Mahdollinen siirtomaksu: {fee}",
     "remote_host": "Etäpalvelin",
@@ -287,7 +287,7 @@
     "network_electrum": "Electrum-palvelin",
     "not_a_valid_uri": "Virheellinen URI",
     "notifications": "Ilmoitukset",
-    "open_link_in_explorer" : "Avaa linkki selaimessa",
+    "open_link_in_explorer": "Avaa linkki selaimessa",
     "password": "Salasana",
     "password_explain": "Luo salasana, jota käytät tallennustilan salauksen purkamiseen",
     "passwords_do_not_match": "Salasanat eivät täsmää",
@@ -306,7 +306,7 @@
     "selfTest": "Itsetestaus ",
     "save": "Tallenna",
     "saved": "Tallennettu",
-    "success_transaction_broadcasted" : "Siirtotapahtumasi on lähetetty onnistuneesti.",
+    "success_transaction_broadcasted": "Siirtotapahtumasi on lähetetty onnistuneesti.",
     "total_balance": "Kokonaissaldo",
     "total_balance_explanation": "Näytä kaikkien lompakoiden kokonaissaldo aloitusnäytön widgeteissä.",
     "widgets": "Widgetit",
@@ -590,5 +590,11 @@
     "auth_answer": "Olet onnistuneesti todentanut itsesi {hostname}:ssä!",
     "could_not_auth": "Emme pystyneet todentamaan sinua {hostname}.",
     "authenticate": "Todenna"
+  },
+  "bip47": {
+    "payment_code": "Maksukoodi",
+    "payment_codes_list": "Maksukoodiluettelo",
+    "who_can_pay_me": "Kuka voi maksaa minulle:",
+    "purpose": "Uudelleenkäytettävä ja jaettavissa oleva koodi (BIP47)"
   }
 }
