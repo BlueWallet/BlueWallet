@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, I18nManager, Linking, StyleSheet, TextInput, TouchableWithoutFeedback, View, PermissionsAndroid } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 
-import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea, BlueCopyToClipboardButton } from '../../BlueComponents';
 import Notifications from '../../blue_modules/notifications';
 import { AppStorage } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
   buttonStyle: {
     backgroundColor: 'transparent',
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+  },
+  centered: {
+    textAlign: 'center',
   },
 });
 
@@ -74,6 +77,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
     (async () => {
       setNotificationsEnabled(await Notifications.isNotificationsEnabled());
       setNotificationURI(await Notifications.getSavedUri());
+      console.log('saved uri', await Notifications.getSavedUri())
       setTokenInfo(
         'token: ' +
           JSON.stringify(await Notifications.getPushToken()) +
@@ -112,6 +116,31 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
     }
   }, [params?.url]);
 
+  //gc useeffect
+  useEffect(() => {
+    (async () => {
+      setNotificationURI(await Notifications.getSavedUri());
+
+      if (params?.gcurl) {
+        Alert.alert(
+          loc.formatString(loc.settings.set_lndhub_as_default, { url: params.gcurl }) as string,
+          '',
+          [
+            {
+              text: loc._.ok,
+              onPress: () => {
+                params?.gcurl && setNotificationURI(params.gcurl);
+              },
+              style: 'default',
+            },
+            { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+          ],
+          { cancelable: false },
+        );
+      }
+    })();
+  }, [params?.gcurl]);
+
 
   const onNotificationsSwitch = async value => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
@@ -145,9 +174,11 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
   const setLndhubURI = (value: string) => {
     // in case user scans a QR with a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
     const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+    const setGCUrl = DeeplinkSchemaMatch.getGcUrlFromSetLndhubUrlAction(value);
     const lndhubURI = typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim();
+    const gcURI = typeof setGCUrl === 'string' ? setGCUrl.trim() : value.trim();
     setURI(lndhubURI);
-    setNotificationURI(lndhubURI.replace('8080', '8888'));
+    setNotificationURI(gcURI);
   };
 
   const save = useCallback(async () => {
@@ -220,7 +251,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
             placeholder={
               loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:8080' })
             }
-            onChangeText={setLndhubURI}
+            onChangeText={setURI}
             numberOfLines={1}
             style={styles.uriText}
             placeholderTextColor="#81868e"
@@ -237,9 +268,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
         <View style={[styles.uri, styleHook.uri]}>
           <TextInput
             value={notificationURI}
-            placeholder={
-              loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:8888' })
-            }
+            placeholder={Notifications.getDefaultUri()}
             onChangeText={setNotificationURI}
             numberOfLines={1}
             style={styles.uriText}
@@ -252,6 +281,20 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
             testID="URIInput"
           />
         </View>
+        <BlueSpacing20 />
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+          ♪ Ground Control to Major Tom ♪
+        </BlueText>
+        <BlueText style={styles.centered} onPress={() => setShowTokenInfo(isShowTokenInfo + 1)}>
+          ♪ Commencing countdown, engines on ♪
+        </BlueText>
+
+        {isShowTokenInfo >= 9 && (
+          <View>
+            <BlueCopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+          </View>
+        )}
+
         <BlueSpacing20 />
         {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>

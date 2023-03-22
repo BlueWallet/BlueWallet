@@ -28,7 +28,7 @@ const Settings = () => {
         <BlueListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
         <BlueListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
         <BlueListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />
-        <BlueListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} testID="NetworkSettings" chevron />
+        <BlueListItem title="Bolt Hub Settings" onPress={() => navigate('BolthubSettings')} testID="BoltHubSettings" chevron />
         <BlueListItem title={loc.settings.tools} onPress={() => navigate('Tools')} testID="Tools" chevron />
         <BlueListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />
       </ScrollView>

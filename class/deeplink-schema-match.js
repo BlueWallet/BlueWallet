@@ -282,6 +282,15 @@ class DeeplinkSchemaMatch {
     return false;
   }
 
+  static gup( name, url ) {
+      if (!url) url = location.href;
+      name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+      var regexS = "[\\?&]"+name+"=([^&#]*)";
+      var regex = new RegExp( regexS );
+      var results = regex.exec( url );
+      return results == null ? null : results[1];
+  }
+
   /**
    * Extracts url from a deeplink like `bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com`
    * returns FALSE if none found
@@ -291,10 +300,19 @@ class DeeplinkSchemaMatch {
    */
   static getUrlFromSetLndhubUrlAction(url) {
     if (!url.startsWith('bluewallet:setlndhuburl') && !url.startsWith('setlndhuburl')) return false;
-    const splt = url.split('url=');
-    if (splt[1]) return decodeURIComponent(splt[1]);
+    const splt = this.gup('url', url);
+    if (splt) return decodeURIComponent(splt);
     return false;
   }
+
+  static getGcUrlFromSetLndhubUrlAction(url) {
+    if (!url.startsWith('bluewallet:setlndhuburl') && !url.startsWith('setlndhuburl')) return false;
+    const splt = this.gup('gcurl', url);
+    if (splt) return decodeURIComponent(splt);
+    return false;
+  }
+
+
 
   static isTXNFile(filePath) {
     return (
