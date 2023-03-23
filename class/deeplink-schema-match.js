@@ -307,7 +307,7 @@ class DeeplinkSchemaMatch {
 
   static getGcUrlFromSetLndhubUrlAction(url) {
     if (!url.startsWith('bluewallet:setlndhuburl') && !url.startsWith('setlndhuburl')) return false;
-    const splt = this.gup('gcurl', url);
+    const splt = this.gup('gc', url);
     if (splt) return decodeURIComponent(splt);
     return false;
   }

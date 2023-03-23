@@ -204,7 +204,7 @@ const WalletTransactions = () => {
       //    setDataSource([...getTransactionsSliced(limit)]);
     }
     await Notifications.tryToObtainPermissions();
-    Notifications.majorTomToGroundControl([], [], [], [wallet.getLogin()]);
+    wallet.pushNotificationToken();
 
     setIsLoading(false);
     setTimeElapsed(prev => prev + 1);

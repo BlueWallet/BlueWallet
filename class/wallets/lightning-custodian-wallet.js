@@ -3,6 +3,8 @@ import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { isTorDaemonDisabled } from '../../blue_modules/environment';
+import Notifications from '../../blue_modules/notifications';
+
 const torrific = require('../../blue_modules/torrific');
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
@@ -28,6 +30,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.cardEnabled = true;
     this.cardDetails = false;
     this.createcardurl = '';
+    this.notificationTokenPushed = false; //set to true if the notification token has been pushed to gc for this wallet
   }
 
   /**
@@ -1028,6 +1031,17 @@ export class LightningCustodianWallet extends LegacyWallet {
     await this.disconnectCard();
     //create a new card and return card url
     return this.createcard();
+  }
+
+  async pushNotificationToken() {
+    // if(this.notificationTokenPushed) {
+    //   //token has already been pushed for this wallet
+    //   return false;
+    // }
+
+    return Notifications.majorTomToGroundControl([], [], [], [this.getLogin()]);
+    // return (this.notificationTokenPushed = true);
+    // return true;
   }
 
   

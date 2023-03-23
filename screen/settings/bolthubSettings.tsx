@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { Alert, I18nManager, Linking, StyleSheet, TextInput, TouchableWithoutFeedback, View, PermissionsAndroid } from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 
@@ -13,6 +13,7 @@ import alert from '../../components/Alert';
 import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const PushNotification = require('react-native-push-notification');
 
@@ -60,6 +61,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
   const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isShowTokenInfo, setShowTokenInfo] = useState(0);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
+  const { wallets } = useContext(BlueStorageContext);
 
   const { colors } = useTheme();
   const route = useRoute();
@@ -121,15 +123,15 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
     (async () => {
       setNotificationURI(await Notifications.getSavedUri());
 
-      if (params?.gcurl) {
+      if (params?.gc) {
         Alert.alert(
-          loc.formatString(loc.settings.set_lndhub_as_default, { url: params.gcurl }) as string,
+          loc.formatString(loc.settings.set_lndhub_as_default, { url: params.gc }) as string,
           '',
           [
             {
               text: loc._.ok,
               onPress: () => {
-                params?.gcurl && setNotificationURI(params.gcurl);
+                params?.gc && setNotificationURI(params.gc);
               },
               style: 'default',
             },
@@ -139,7 +141,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
         );
       }
     })();
-  }, [params?.gcurl]);
+  }, [params?.gc]);
 
 
   const onNotificationsSwitch = async value => {
@@ -161,6 +163,11 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
             // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
             await Notifications.tryToObtainPermissions();
           }
+
+          //get all wallets and send the token with wallet ids to groundcontrol
+          wallets.forEach(wallet => {
+            wallet.pushNotificationToken();
+          })
         }
       });
     } else {
