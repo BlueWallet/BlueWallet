@@ -6,9 +6,6 @@
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
-
-import SwiftSocket
-
 struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
@@ -21,11 +18,11 @@ extension WidgetAPI {
       return
     }
     DispatchQueue.global(qos: .background).async {
-      let client = TCPClient(address: host, port: port)
-      let send =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
-      switch client.connect(timeout: 1) {
-      case .success:
-        switch client.send(string: send) {
+      let client = TCPClient()
+      client.receiveCompletion = { result in
+        switch result {
+        case .success(let string):
+          print("Received string: \(string)")
         case .success:
           guard let data = client.read(1024*10, timeout: 1),  let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
             client.close()
@@ -45,11 +42,21 @@ extension WidgetAPI {
             completion(nil, APIError())
           }
         case .failure(let error):
-          print(error)
+          print("Error: \(error.localizedDescription)")
           client.close()
           completion(nil, APIError())
         }
-      case .failure(let error):
+      }
+      
+      if client.connect(to: host, port: port) {
+        let message =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
+        if let data = message.data(using: .utf8), client.send(data: data) {
+          print("Message sent!")
+          RunLoop.current.run(until: Date(timeIntervalSinceNow: 5))
+        }
+        client.close()
+      } else {
+        print("Connection failed")
         print(error)
         client.close()
         if userElectrumSettings.host == DefaultElectrumPeers.last?.host {
