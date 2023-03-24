@@ -20,7 +20,7 @@ extension WidgetAPI {
       return
     }
     DispatchQueue.global(qos: .background).async {
-      let client = TCPClient()
+      let client = SwiftTCPClient()
       client.receiveCompletion = { result in
         switch result {
         case .success(let data):
@@ -49,7 +49,7 @@ extension WidgetAPI {
         }
       }
       
-      if client.connect(to: host, port: UInt32(port)) {
+      if client.connect(to: host, port: UInt32(port)!) {
         let message =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
         if let data = message.data(using: .utf8), client.send(data: data) {
           print("Message sent!")

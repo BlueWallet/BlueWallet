@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TCPClient: NSObject {
+class SwiftTCPClient: NSObject {
   private var inputStream: InputStream?
    private var outputStream: OutputStream?
    private let bufferSize = 1024
@@ -74,7 +74,7 @@ class TCPClient: NSObject {
     }
 }
 
-extension TCPClient: StreamDelegate {
+extension SwiftTCPClient: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
         switch eventCode {
         case .hasBytesAvailable:
