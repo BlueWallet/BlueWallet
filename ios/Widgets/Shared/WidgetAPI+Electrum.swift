@@ -21,10 +21,9 @@ extension WidgetAPI {
       let client = TCPClient()
       client.receiveCompletion = { result in
         switch result {
-        case .success(let string):
-          print("Received string: \(string)")
-        case .success:
-          guard let data = client.read(1024*10, timeout: 1),  let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
+        case .success(let data):
+          print("Received: \(string)")
+          guard let let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
             client.close()
             completion(nil, APIError())
             return

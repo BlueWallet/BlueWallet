@@ -8,20 +8,6 @@
 
 import Foundation
 
-class MyTCPClientDelegate: TCPClientDelegate {
-    func client(_ client: TCPClient, didReceiveData data: Data) {
-        print("Received data: \(data)")
-    }
-    
-    func client(_ client: TCPClient, didReceiveString string: String) {
-        print("Received string: \(string)")
-    }
-}
-
-let client = TCPClient()
-let delegate = MyTCPClientDelegate()
-client.delegate = delegate
-
 class TCPClient: NSObject {
   private var inputStream: InputStream?
    private var outputStream: OutputStream?
@@ -33,15 +19,6 @@ class TCPClient: NSObject {
    // Add a completion block property
    var receiveCompletion: ReceiveCompletion?
   
-  client.receiveCompletion = { result in
-      switch result {
-      case .success(let string):
-          print("Received string: \(string)")
-      case .failure(let error):
-          print("Error: \(error.localizedDescription)")
-      }
-    }
-
     func connect(to host: String, port: UInt32) -> Bool {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
@@ -112,8 +89,6 @@ extension TCPClient: StreamDelegate {
                     if bytesRead > 0 {
                       et data = Data(bytes: buffer, count: bytesRead)
                       receiveCompletion?(.success(receivedString))
-
-                      
                     }
                 }
             }
