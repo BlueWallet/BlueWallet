@@ -49,7 +49,7 @@ extension WidgetAPI {
         }
       }
       
-      if client.connect(to: host, port: UInt32(port)!) {
+      if client.connect(to: host, port: UInt32(exactly: port)!) {
         let message =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
         if let data = message.data(using: .utf8), client.send(data: data) {
           print("Message sent!")
