@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useLayoutEffect } from 'react';
 import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform, Alert } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
@@ -20,6 +20,7 @@ const About = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useContext(BlueStorageContext);
+  const [uniqueId, setUniqueID] = useState('');
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -74,6 +75,10 @@ const About = () => {
       fontWeight: '600',
     },
   });
+
+  useLayoutEffect(() => {
+    getUniqueId().then(setUniqueID);
+  }, []);
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -244,7 +249,7 @@ const About = () => {
       <BlueTextCentered>
         w, h = {width}, {height}
       </BlueTextCentered>
-      <BlueTextCentered>Unique ID: {getUniqueId()}</BlueTextCentered>
+      <BlueTextCentered>Unique ID: {uniqueId}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
         <TouchableOpacity
           accessibilityRole="button"
