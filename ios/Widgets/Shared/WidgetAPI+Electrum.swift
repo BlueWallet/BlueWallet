@@ -6,6 +6,8 @@
 //  Copyright © 2020 BlueWallet. All rights reserved.
 //
 
+import Foundation
+
 struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
@@ -22,8 +24,8 @@ extension WidgetAPI {
       client.receiveCompletion = { result in
         switch result {
         case .success(let data):
-          print("Received: \(string)")
-          guard let let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
+          print("Received: \(data)")
+          guard let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
             client.close()
             completion(nil, APIError())
             return
@@ -47,7 +49,7 @@ extension WidgetAPI {
         }
       }
       
-      if client.connect(to: host, port: port) {
+      if client.connect(to: host, port: UInt32(port)) {
         let message =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
         if let data = message.data(using: .utf8), client.send(data: data) {
           print("Message sent!")
@@ -56,7 +58,6 @@ extension WidgetAPI {
         client.close()
       } else {
         print("Connection failed")
-        print(error)
         client.close()
         if userElectrumSettings.host == DefaultElectrumPeers.last?.host {
           completion(nil, APIError())

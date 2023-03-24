@@ -14,7 +14,7 @@ class TCPClient: NSObject {
    private let bufferSize = 1024
    
    // Define the completion block type
-   typealias ReceiveCompletion = (Result<String, Error>) -> Void
+   typealias ReceiveCompletion = (Result<Data, Error>) -> Void
    
    // Add a completion block property
    var receiveCompletion: ReceiveCompletion?
@@ -87,8 +87,8 @@ extension TCPClient: StreamDelegate {
                 while inputStream.hasBytesAvailable {
                     let bytesRead = inputStream.read(buffer, maxLength: bufferSize)
                     if bytesRead > 0 {
-                      et data = Data(bytes: buffer, count: bytesRead)
-                      receiveCompletion?(.success(receivedString))
+                      let data = Data(bytes: buffer, count: bytesRead)
+                      receiveCompletion?(.success(data))
                     }
                 }
             }
