@@ -64,6 +64,7 @@ const ToolTipMenu = (props, ref) => {
   ) : (
     <ContextMenuView
       ref={ref}
+      internalCleanupMode="viewController"
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
