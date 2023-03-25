@@ -59,7 +59,7 @@ const ToolTipMenu = (props, ref) => {
       }}
       style={buttonStyle}
     >
-      {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
+      {props.onPress ? <TouchableOpacity onPressOut={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuButton>
   ) : (
     <ContextMenuView
@@ -82,7 +82,7 @@ const ToolTipMenu = (props, ref) => {
           }
         : {})}
     >
-      {props.onPress ? <TouchableOpacity onPress={props.onPress}>{props.children}</TouchableOpacity> : props.children}
+      {props.onPress ? <TouchableOpacity onPressOut={props.onPress}>{props.children}</TouchableOpacity> : props.children}
     </ContextMenuView>
   );
 };
