@@ -72,7 +72,7 @@ const LNDViewInvoice = () => {
               shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
-            headerHideBackButton: true,
+            headerBackVisible: false,
 
             headerRight: () => (
               <TouchableOpacity

@@ -79,7 +79,7 @@ PleaseBackupLdk.navigationOptions = navigationStyle({
   title: loc.pleasebackup.title,
   gestureEnabled: false,
   swipeEnabled: false,
-  headerHideBackButton: true,
+  headerBackVisible: false,
 });
 
 export default PleaseBackupLdk;

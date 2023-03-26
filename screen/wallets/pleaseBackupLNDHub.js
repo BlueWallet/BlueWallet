@@ -70,7 +70,7 @@ PleaseBackupLNDHub.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );

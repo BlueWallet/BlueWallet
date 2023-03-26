@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
 LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  headerHideBackButton: true,
+  headerBackVisible: false,
   gestureEnabled: false,
   closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
 });

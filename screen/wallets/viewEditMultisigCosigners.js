@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
 ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
 );

@@ -534,7 +534,7 @@ LNDCreateInvoice.routeName = 'LNDCreateInvoice';
 LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );
