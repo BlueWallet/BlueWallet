@@ -363,7 +363,11 @@ const ReceiveDetailsStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="ReceiveDetails">
+    <ReceiveDetailsStack.Navigator
+      name="ReceiveDetailsRoot"
+      screenOptions={{ headerShadowVisible: false }}
+      initialRouteName="ReceiveDetails"
+    >
       <ReceiveDetailsStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
     </ReceiveDetailsStack.Navigator>
   );

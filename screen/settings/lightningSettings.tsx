@@ -114,6 +114,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   }, [URI]);
 
   const importScan = () => {
+    // @ts-ignore: Address types later
     navigation.navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
       params: {
