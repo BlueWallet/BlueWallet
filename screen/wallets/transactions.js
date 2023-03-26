@@ -178,7 +178,7 @@ const WalletTransactions = ({ navigation }) => {
       refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      if (wallet.allowBIP47()) {
+      if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
         const pcStart = +new Date();
         await wallet.fetchBIP47SenderPaymentCodes();
         const pcEnd = +new Date();

@@ -602,6 +602,11 @@ export class AppStorage {
           keyCloned._hdWalletInstance._txs_by_external_index = {};
           keyCloned._hdWalletInstance._txs_by_internal_index = {};
         }
+
+        if (keyCloned._bip47_instance) {
+          delete keyCloned._bip47_instance; // since it wont be restored into a proper class instance
+        }
+
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
       if (realm) realm.close();
@@ -730,7 +735,7 @@ export class AppStorage {
     console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       try {
-        if (!this.wallets[index].allowBIP47()) return;
+        if (!(this.wallets[index].allowBIP47() && this.wallets[index].isBIP47Enabled())) return;
         await this.wallets[index].fetchBIP47SenderPaymentCodes();
       } catch (error) {
         console.error('Failed to fetch sender payment codes for wallet', index, error);
@@ -738,7 +743,7 @@ export class AppStorage {
     } else {
       for (const wallet of this.wallets) {
         try {
-          if (!wallet.allowBIP47()) continue;
+          if (!(wallet.allowBIP47() && wallet.isBIP47Enabled())) continue;
           await wallet.fetchBIP47SenderPaymentCodes();
         } catch (error) {
           console.error('Failed to fetch sender payment codes for wallet', wallet.label, error);
