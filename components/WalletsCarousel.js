@@ -203,6 +203,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       shadowRadius={8}
     >
       <TouchableWithoutFeedback
+        accessibilityRole="button"
         testID={item.getLabel()}
         onPressIn={onPressedIn}
         onPressOut={onPressedOut}

@@ -133,7 +133,7 @@ const MultipleStepsListItem = props => {
           </>
         )}
         {!showActivityIndicator && props.rightButton && checked && (
-          <View style={styles.rightButtonContainer} accessibilityComponentType>
+          <View style={styles.rightButtonContainer}>
             <TouchableOpacity
               accessibilityRole="button"
               disabled={props.rightButton.disabled}

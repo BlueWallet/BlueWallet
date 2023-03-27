@@ -56,7 +56,7 @@ const navigationStyle = (
               navigation.goBack(null);
             };
         headerRight = () => (
-          <TouchableOpacity  accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.button} onPress={handleClose} testID="NavigationCloseButton"
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.button} onPress={handleClose} testID="NavigationCloseButton"
           >
             <Image source={theme.closeImage} />
           </TouchableOpacity>

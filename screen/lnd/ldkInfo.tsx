@@ -296,7 +296,7 @@ const LdkInfo = () => {
     const channelData = channel.channel.item;
 
     return (
-      <TouchableOpacity onPress={() => showModal(channel)}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => showModal(channel)}>
         <LNNodeBar
           disabled={!channelData.is_usable}
           canSend={Number(channelData.outbound_capacity_msat / 1000)}

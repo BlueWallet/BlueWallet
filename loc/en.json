@@ -24,7 +24,9 @@
     "refresh": "Refresh",
     "more": "More",
     "pick_image": "Choose image from library",
-    "pick_file": "Choose a file"
+    "pick_file": "Choose a file",
+    "enter_amount": "Enter amount",
+    "qr_custom_input_button": "Tap 10 times to enter custom input"
   },
   "alert": {
     "default": "Alert"

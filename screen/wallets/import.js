@@ -145,7 +145,7 @@ const WalletsImport = () => {
   return (
     <SafeBlueArea style={styles.root}>
       <BlueSpacing20 />
-      <TouchableWithoutFeedback onPress={speedBackdoorTap} testID="SpeedBackdoor">
+      <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
       </TouchableWithoutFeedback>
       <BlueSpacing20 />

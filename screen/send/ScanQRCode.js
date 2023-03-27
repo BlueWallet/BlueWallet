@@ -392,6 +392,8 @@ const ScanQRCode = () => {
         </View>
       )}
       <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
         onPress={async () => {

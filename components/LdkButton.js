@@ -7,7 +7,7 @@ import React from 'react';
 export const LdkButton = props => {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
       <View
         style={{
           borderColor: (props.active && colors.lnborderColor) || colors.buttonDisabledBackgroundColor,
