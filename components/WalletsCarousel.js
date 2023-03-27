@@ -311,7 +311,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
   const { width } = useWindowDimensions();
   const sliderHeight = 195;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  return (
+  return isHandset ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
@@ -331,6 +331,19 @@ const WalletsCarousel = forwardRef((props, ref) => {
       onScrollToIndexFailed={onScrollToIndexFailed}
       {...props}
     />
+  ) : (
+    <View style={cStyles.contentLargeScreen}>
+      {props.data.map((item, index) => (
+        <WalletCarouselItem
+          isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
+          item={item}
+          index={index}
+          handleLongPress={props.handleLongPress}
+          onPress={props.onPress}
+          key={index}
+        />
+      ))}
+    </View>
   );
 });
 
