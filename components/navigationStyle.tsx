@@ -2,6 +2,7 @@
 import React from 'react';
 import { Image, Keyboard, TouchableOpacity, StyleSheet } from 'react-native';
 import { Theme } from './themes';
+import loc from '../loc';
 
 const styles = StyleSheet.create({
   button: {
