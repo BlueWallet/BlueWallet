@@ -103,7 +103,7 @@ const SettingsPrivacy = () => {
 
   return (
     <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
-      <Pressable onPress={onDisablePrivacyTapped}>
+      <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
         <BlueHeaderDefaultSub leftText={loc.settings.general} rightComponent={null} />
       </Pressable>
       <BlueListItem
