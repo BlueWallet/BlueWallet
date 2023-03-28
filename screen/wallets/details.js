@@ -433,9 +433,15 @@ const WalletDetails = () => {
 
     for (const transaction of transactions) {
       const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-      csvFile +=
-        '\n' +
-        [new Date(transaction.received).toString(), transaction.hash, value, txMetadata[transaction.hash]?.memo?.trim() ?? ''].join(','); // CSV line
+
+      let hash = transaction.hash;
+      let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        hash = transaction.payment_hash;
+        memo = transaction.description;
+      }
+      csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
     }
 
     await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
@@ -629,7 +635,7 @@ const WalletDetails = () => {
               <View>
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-                {wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 && (
+                {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
