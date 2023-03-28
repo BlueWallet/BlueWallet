@@ -247,6 +247,15 @@ const WalletTransactions = ({ navigation }) => {
         )}
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+          <TouchableOpacity
+            accessibilityRole="button"
+            testID="refreshTransactions"
+            style={style}
+            onPress={refreshTransactions}
+            disabled={isLoading}
+          >
+            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
+          </TouchableOpacity>
         </View>
       </View>
     );
