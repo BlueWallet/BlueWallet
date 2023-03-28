@@ -170,17 +170,11 @@ const WalletsList = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = { opacity: isLoading ? 1.0 : 0.5 };
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isDesktop && (
-          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
-            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
