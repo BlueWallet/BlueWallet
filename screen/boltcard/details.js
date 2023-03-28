@@ -113,6 +113,7 @@ const BoltCardDetails = () => {
       wallet.updateCard(dayMax, txMax).then(response => {
         console.log('UPDATE CARD RESPONSE ', response);
         fetchCardDetails(wallet, true);
+        setEditMode(false);
       }).catch(err => {
         console.log('ERROR', err.message);
         alert(err.message);
