@@ -905,7 +905,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     return this.cardEnabled = status;
   }
 
-  async updateCard(day_max, tx_max) {
+  async updateCard(tx_max) {
     await this.checkLogin();
 
     if(!this.cardDetails) await this.getCardDetails();
@@ -937,7 +937,8 @@ export class LightningCustodianWallet extends LegacyWallet {
         enable: cardEnabled,
         card_name: login+':'+password,
         tx_max: tx_max,
-        day_max: day_max,
+        //dont update the day_limit_says
+        day_max: this.cardDetails.day_limit_sats,
       }
     });
 
