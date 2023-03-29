@@ -123,6 +123,7 @@ const WalletDetails = () => {
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
+  const [backdoorBip47Pressed, setBackdoorBip47Pressed] = useState(0);
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
@@ -565,7 +566,7 @@ const WalletDetails = () => {
                   {loc.transactions.list_title.toLowerCase()}
                 </Text>
                 <View style={styles.hardware}>
-                  <BlueText>{loc.wallets.details_display}</BlueText>
+                  <BlueText onPress={() => setBackdoorBip47Pressed(prevState => prevState + 1)}>{loc.wallets.details_display}</BlueText>
                   <Switch value={hideTransactionsInWalletsList} onValueChange={setHideTransactionsInWalletsList} />
                 </View>
               </>
@@ -576,7 +577,7 @@ const WalletDetails = () => {
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
 
-              {wallet.allowBIP47() ? (
+              {backdoorBip47Pressed >= 10 && wallet.allowBIP47() ? (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
                   <View style={styles.hardware}>

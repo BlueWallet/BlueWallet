@@ -179,6 +179,12 @@
         "source": "YadioConvert",
         "symbol": "ل.ل."
     },
+    "LKR": {
+        "endPointKey": "LKR",
+        "locale": "si-LK",
+        "source": "CoinDesk",
+        "symbol": "රු."
+    },
     "MXN": {
         "endPointKey": "MXN",
         "locale": "es-MX",

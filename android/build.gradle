@@ -15,13 +15,15 @@ buildscript {
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"
         kotlin_version = '1.8.0'
+        kotlinVersion = '1.8.0'
+
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.3.1")
+        classpath("com.android.tools.build:gradle:7.4.2")
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
         classpath 'com.google.gms:google-services:4.3.14'  // Google Services plugin
     	classpath("com.facebook.react:react-native-gradle-plugin")
