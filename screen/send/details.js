@@ -953,6 +953,7 @@ const SendDetails = () => {
         default: () => (
           <TouchableOpacity
             accessibilityRole="button"
+            accessibilityLabel={loc._.more}
             disabled={isLoading}
             style={styles.advancedOptions}
             onPress={() => {
