@@ -128,9 +128,10 @@ const BoltCardCreate = () => {
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
+        let boltCardEventListener;
         if(Platform.OS == 'android') {
             const eventEmitter = new NativeEventEmitter();
-            const boltCardEventListener = eventEmitter.addListener('CreateBoltCard', (event) => {
+            boltCardEventListener = eventEmitter.addListener('CreateBoltCard', (event) => {
                 console.log('CREATE BOLTCARD LISTENER')
                 if(event.tagTypeError) setTagTypeError(event.tagTypeError);
                 if(event.cardUID) setCardUID(event.cardUID);
@@ -162,17 +163,19 @@ const BoltCardCreate = () => {
     
                 if(event.testp) setTestp(event.testp);
                 if(event.testc) setTestc(event.testc);
-    
+                
                 NativeModules.MyReactModule.setCardMode('read');
                 setWriteMode(false);
-                setCardWritten('success');            
+                //testc is the last value returned from "CreateBoltCard" listner function
+                //if testc is returned, it means the card has been written successfully
+                if(event.testc) setCardWritten('success');
     
             });
         }
 
         return () => {
-            if(Platform.OS == 'android') boltCardEventListener.remove();
-          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+            if(boltCardEventListener) boltCardEventListener.remove();
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
         };
     }, []);
 

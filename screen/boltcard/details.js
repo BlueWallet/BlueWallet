@@ -76,14 +76,12 @@ const BoltCardDetails = () => {
     const [details, setDetails] = useState({});
     const [editMode, setEditMode] = useState(false);
 
-    const [dayMax, setDayMax] = useState(0);
     const [txMax, setTxMax] = useState(0);
 
     const fetchCardDetails = async (w, reload = false) => {
         setLoading(true);
         w.getCardDetails(reload)
             .then(response => {
-                console.log('CARD', response, response.day_limit_sats);
                 setDetails(response);
                 saveToDisk();
                 setLoading(false);
@@ -104,15 +102,13 @@ const BoltCardDetails = () => {
       if(details && details.tx_limit_sats) {
         setTxMax(details.tx_limit_sats);
       }
-      if(details && details.day_limit_sats) {
-        setDayMax(details.day_limit_sats);
-      }
     }, [details]);
 
     const updateCard = () => {
-      wallet.updateCard(dayMax, txMax).then(response => {
+      wallet.updateCard(txMax).then(response => {
         console.log('UPDATE CARD RESPONSE ', response);
         fetchCardDetails(wallet, true);
+        setEditMode(false);
       }).catch(err => {
         console.log('ERROR', err.message);
         alert(err.message);
@@ -120,7 +116,6 @@ const BoltCardDetails = () => {
     }
     
     const cancelUpdate = () => {
-      setDayMax(details.day_limit_sats);
       setTxMax(details.tx_limit_sats);
       setEditMode(false);
     }
@@ -149,23 +144,6 @@ const BoltCardDetails = () => {
                                 <>
                                     <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Card UID</Text>
                                     <BlueText>{details.uid}</BlueText>
-                                </>
-                            }
-                            {details && details.day_limit_sats &&
-                                <>
-                                    <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Day limit sats</Text>
-                                    {editMode ?
-                                      <BlueFormTextInput 
-                                        keyboardType = 'numeric' 
-                                        value={dayMax.toString()} 
-                                        onChangeText={(value) => {
-                                          var newVal = value.replace(/[^0-9]/, '');
-                                          setDayMax(newVal);
-                                        }}
-                                      />
-                                    :
-                                      <BlueText>{details.day_limit_sats}</BlueText>
-                                    }
                                 </>
                             }
                             {details && details.tx_limit_sats &&

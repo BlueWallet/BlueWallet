@@ -269,7 +269,7 @@ const BolthubSettings: React.FC & { navigationOptions: NavigationOptionsGetter }
           <TextInput
             value={URI}
             placeholder={
-              loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:8080' })
+              loc.formatString(loc.settings.lndhub_uri, { example: 'https://bolt.card.hub' })
             }
             onChangeText={setURI}
             numberOfLines={1}
