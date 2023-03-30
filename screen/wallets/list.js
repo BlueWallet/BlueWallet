@@ -103,13 +103,13 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
