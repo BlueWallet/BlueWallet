@@ -29,7 +29,7 @@ const SettingsPrivacy = () => {
     (async () => {
       try {
         setDoNotTrackSwitchValue(await isDoNotTrackEnabled());
-        setIsReadClipboardAllowed(await BlueClipboard.isReadClipboardAllowed());
+        setIsReadClipboardAllowed(await BlueClipboard().isReadClipboardAllowed());
         setStorageIsEncrypted(await isStorageEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
         setIsDisplayWidgetBalanceAllowed(await WidgetCommunication.isBalanceDisplayAllowed());
@@ -44,7 +44,7 @@ const SettingsPrivacy = () => {
   const onValueChange = async value => {
     setIsLoading(sections.CLIPBOARDREAD);
     try {
-      await BlueClipboard.setReadClipboardAllowed(value);
+      await BlueClipboard().setReadClipboardAllowed(value);
       setIsReadClipboardAllowed(value);
     } catch (e) {
       console.log(e);
@@ -110,7 +110,7 @@ const SettingsPrivacy = () => {
         hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
-        switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL, testID: 'ClipboardSwith' }}
+        switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL, testID: 'ClipboardSwitch' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
@@ -126,7 +126,7 @@ const SettingsPrivacy = () => {
               onValueChange: onQuickActionsValueChange,
               value: isQuickActionsEnabled,
               disabled: isLoading === sections.ALL,
-              testID: 'QuickActionsSwith',
+              testID: 'QuickActionsSwitch',
             }}
           />
           <BlueCard>

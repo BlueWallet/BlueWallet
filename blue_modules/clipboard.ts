@@ -1,35 +1,42 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-class BlueClipboard {
-  static STORAGE_KEY = 'ClipboardReadAllowed';
+const BlueClipboard = () => {
+  const STORAGE_KEY = 'ClipboardReadAllowed';
+  const { getItem, setItem } = useAsyncStorage(STORAGE_KEY);
 
-  static isReadClipboardAllowed = async (): Promise<boolean> => {
-    const isClipboardAccessAllowed = await useAsyncStorage(BlueClipboard.STORAGE_KEY).getItem();
+  const isReadClipboardAllowed = async () => {
     try {
-      if (isClipboardAccessAllowed === null) {
-        await useAsyncStorage(BlueClipboard.STORAGE_KEY).setItem(JSON.stringify(true));
+      const clipboardAccessAllowed = await getItem();
+      if (clipboardAccessAllowed === null) {
+        await setItem(JSON.stringify(true));
         return true;
       }
-      return !!JSON.parse(isClipboardAccessAllowed);
+      return !!JSON.parse(clipboardAccessAllowed);
     } catch {
-      await useAsyncStorage(BlueClipboard.STORAGE_KEY).setItem(JSON.stringify(true));
+      await setItem(JSON.stringify(true));
       return true;
     }
   };
 
-  static setReadClipboardAllowed = (value: boolean): void => {
-    useAsyncStorage(BlueClipboard.STORAGE_KEY).setItem(JSON.stringify(!!value));
+  const setReadClipboardAllowed = (value: boolean) => {
+    setItem(JSON.stringify(!!value));
   };
 
-  static getClipboardContent = async (): Promise<string> => {
-    const isAllowed = await BlueClipboard.isReadClipboardAllowed();
+  const getClipboardContent = async () => {
+    const isAllowed = await isReadClipboardAllowed();
     if (isAllowed) {
       return Clipboard.getString();
     } else {
       return '';
     }
   };
-}
 
-export default new BlueClipboard();
+  return {
+    isReadClipboardAllowed,
+    setReadClipboardAllowed,
+    getClipboardContent,
+  };
+};
+
+export default BlueClipboard;
