@@ -171,7 +171,7 @@ function satoshiToLocalCurrency(satoshi, format = true) {
     });
   }
 
-  return `${formatter.format(b)} ${preferredFiatCurrency.endPointKey}`;
+  return formatter.format(b);
 }
 
 function BTCToLocalCurrency(bitcoin) {
@@ -214,6 +214,10 @@ function getCurrencySymbol() {
   return preferredFiatCurrency.symbol;
 }
 
+function getCurrencyISOCode() {
+  return preferredFiatCurrency.endPointKey;
+}
+
 /**
  * Used to mock data in tests
  *
@@ -250,6 +254,7 @@ module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
 module.exports.btcToSatoshi = btcToSatoshi;
 module.exports.getCurrencySymbol = getCurrencySymbol;
+module.exports.getCurrencyISOCode = getCurrencyISOCode;
 module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
 module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests
 module.exports._setSkipUpdateExchangeRate = _setSkipUpdateExchangeRate; // export it to mock data in tests

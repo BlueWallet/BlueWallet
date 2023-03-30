@@ -22,6 +22,8 @@ import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { isHandset, isTablet, isDesktop } from '../blue_modules/environment';
+import { getCurrencyISOCode } from '../blue_modules/currency';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 const nStyles = StyleSheet.create({
   container: {
@@ -190,8 +192,10 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       ? loc.transactions.pending
       : transactionTimeToReadable(item.getLatestTransactionTime());
 
-  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
-
+  let balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+  if (item.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
+    balance = `${balance} ${getCurrencyISOCode()}`;
+  }
   return (
     <Animated.View
       style={[

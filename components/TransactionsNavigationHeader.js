@@ -11,6 +11,7 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
+import { getCurrencyISOCode } from '../blue_modules/currency';
 
 export default class TransactionsNavigationHeader extends Component {
   static propTypes = {
@@ -162,9 +163,13 @@ export default class TransactionsNavigationHeader extends Component {
   ];
 
   render() {
-    const balance =
+    let balance =
       !this.state.wallet.hideBalance &&
       formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString();
+
+    if (this.state.wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
+      balance = `${balance} ${getCurrencyISOCode()}`;
+    }
 
     return (
       <LinearGradient
