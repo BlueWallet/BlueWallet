@@ -291,7 +291,7 @@ const App = () => {
       currency.updateExchangeRate();
       const processed = await processPushNotifications();
       if (processed) return;
-      const clipboard = await BlueClipboard.getClipboardContent();
+      const clipboard = await BlueClipboard().getClipboardContent();
       const isAddressFromStoredWallet = wallets.some(wallet => {
         if (wallet.chain === Chain.ONCHAIN) {
           // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
@@ -332,38 +332,40 @@ const App = () => {
 
   const showClipboardAlert = ({ contentType }) => {
     ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-    BlueClipboard.getClipboardContent().then(clipboard => {
-      if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-        ActionSheet.showActionSheetWithOptions(
-          {
-            options: [loc._.cancel, loc._.continue],
+    BlueClipboard()
+      .getClipboardContent()
+      .then(clipboard => {
+        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+          ActionSheet.showActionSheetWithOptions(
+            {
+              options: [loc._.cancel, loc._.continue],
+              title: loc._.clipboard,
+              message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
+              cancelButtonIndex: 0,
+            },
+            buttonIndex => {
+              if (buttonIndex === 1) {
+                handleOpenURL({ url: clipboard });
+              }
+            },
+          );
+        } else {
+          ActionSheet.showActionSheetWithOptions({
+            buttons: [
+              { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+              {
+                text: loc._.continue,
+                style: 'default',
+                onPress: () => {
+                  handleOpenURL({ url: clipboard });
+                },
+              },
+            ],
             title: loc._.clipboard,
             message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-            cancelButtonIndex: 0,
-          },
-          buttonIndex => {
-            if (buttonIndex === 1) {
-              handleOpenURL({ url: clipboard });
-            }
-          },
-        );
-      } else {
-        ActionSheet.showActionSheetWithOptions({
-          buttons: [
-            { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-            {
-              text: loc._.continue,
-              style: 'default',
-              onPress: () => {
-                handleOpenURL({ url: clipboard });
-              },
-            },
-          ],
-          title: loc._.clipboard,
-          message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-        });
-      }
-    });
+          });
+        }
+      });
   };
 
   return (
