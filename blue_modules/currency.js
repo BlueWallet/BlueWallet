@@ -171,7 +171,7 @@ function satoshiToLocalCurrency(satoshi, format = true) {
     });
   }
 
-  return formatter.format(b);
+  return `${formatter.format(b)} ${preferredFiatCurrency.endPointKey}`;
 }
 
 function BTCToLocalCurrency(bitcoin) {
