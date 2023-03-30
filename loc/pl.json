@@ -239,7 +239,7 @@
     "lndhub_uri": "np. {example}",
     "electrum_host": "np. {example}",
     "electrum_offline_mode": "Tryb Offline",
-    "electrum_offline_description": "Gdy włączony, Twoje portfele Bitcoinowe nie będą usiłowały pobrać sald lub transakcji.",
+    "electrum_offline_description": "W trybie offline, Twoje portfele Bitcoinowe nie będą usiłowały pobierać sald lub transakcji.",
     "electrum_port": "Port, zazwyczaj {example}",
     "use_ssl": "Użyj SSL",
     "electrum_saved": "Zmiany zostały zachowane pomyślnie. Żeby je zobaczyć zrestartuj aplikację.",

@@ -2,8 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { isTablet, getDeviceType } from 'react-native-device-info';
 
-const isDesktop = getDeviceType() === 'Desktop';
-const getIsTorCapable = () => {
+const isDesktop: boolean = getDeviceType() === 'Desktop';
+
+const getIsTorCapable = (): boolean => {
   let capable = true;
   if (Platform.OS === 'android' && Platform.Version < 26) {
     capable = false;
@@ -13,27 +14,28 @@ const getIsTorCapable = () => {
   return capable;
 };
 
-const IS_TOR_DAEMON_DISABLED = 'is_tor_daemon_disabled';
-export async function setIsTorDaemonDisabled(disabled = true) {
+const IS_TOR_DAEMON_DISABLED: string = 'is_tor_daemon_disabled';
+
+export async function setIsTorDaemonDisabled(disabled: boolean = true): Promise<void> {
   return AsyncStorage.setItem(IS_TOR_DAEMON_DISABLED, disabled ? '1' : '');
 }
 
-export async function isTorDaemonDisabled() {
-  let isTorDaemonDisabled;
+export async function isTorDaemonDisabled(): Promise<boolean> {
+  let isTorDaemonDisabled: boolean;
   try {
     const savedValue = await AsyncStorage.getItem(IS_TOR_DAEMON_DISABLED);
     if (savedValue === null) {
       isTorDaemonDisabled = false;
     } else {
-      isTorDaemonDisabled = savedValue;
+      isTorDaemonDisabled = savedValue === '1';
     }
   } catch {
     isTorDaemonDisabled = true;
   }
 
-  return !!isTorDaemonDisabled;
+  return isTorDaemonDisabled;
 }
 
-export const isHandset = getDeviceType() === 'Handset';
-export const isTorCapable = getIsTorCapable();
+export const isHandset: boolean = getDeviceType() === 'Handset';
+export const isTorCapable: boolean = getIsTorCapable();
 export { isDesktop, isTablet };

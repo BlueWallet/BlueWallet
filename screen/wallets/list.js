@@ -170,17 +170,11 @@ const WalletsList = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = { opacity: isLoading ? 1.0 : 0.5 };
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isDesktop && (
-          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
-            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
@@ -293,11 +287,11 @@ const WalletsList = () => {
   };
 
   const copyFromClipboard = async () => {
-    onBarScanned(await BlueClipboard.getClipboardContent());
+    onBarScanned(await BlueClipboard().getClipboardContent());
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
     if (Platform.OS === 'ios') {
       const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {

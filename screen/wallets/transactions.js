@@ -178,7 +178,7 @@ const WalletTransactions = ({ navigation }) => {
       refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      if (wallet.allowBIP47()) {
+      if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
         const pcStart = +new Date();
         await wallet.fetchBIP47SenderPaymentCodes();
         const pcEnd = +new Date();
@@ -344,7 +344,7 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const copyFromClipboard = async () => {
-    onBarCodeRead({ data: await BlueClipboard.getClipboardContent() });
+    onBarCodeRead({ data: await BlueClipboard().getClipboardContent() });
   };
 
   const sendButtonPress = () => {
@@ -377,7 +377,7 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
     if (Platform.OS === 'ios') {
       const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
       if (!isClipboardEmpty) {

@@ -63,10 +63,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // privacy
     // trigger switches
     await element(by.id('SettingsPrivacy')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('ClipboardSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
-    await element(by.id('QuickActionsSwith')).tap();
+    await element(by.id('ClipboardSwitch')).tap();
+    await element(by.id('ClipboardSwitch')).tap();
+    await element(by.id('QuickActionsSwitch')).tap();
+    await element(by.id('QuickActionsSwitch')).tap();
     await device.pressBack();
 
     // enable AdvancedMode
