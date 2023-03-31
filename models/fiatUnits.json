@@ -50,7 +50,7 @@
     "CAD": {
         "endPointKey": "CAD",
         "locale": "en-CA",
-        "source": "CoinDesk",
+        "source": "CoinGecko",
         "symbol": "$"
     },
     "CHF": {

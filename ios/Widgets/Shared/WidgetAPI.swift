@@ -37,6 +37,8 @@ class WidgetAPI {
       urlString = "https://api.wazirx.com/api/v2/tickers/btcinr"
     case "Bitstamp":
       urlString = "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
+      case "CoinGecko":
+      urlString = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
     default:
       urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
     }
@@ -62,6 +64,12 @@ class WidgetAPI {
         else { break }
         let unix = Double(lastUpdated / 1_000)
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
+        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "CoinGecko":
+        guard let rateDict = json["bitcoin"] as? [String: Any],
+              let rateDouble = rateDict[endPointKey.lowercased()] as? Double
+        else { break }
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "YadioConvert":
         guard let rateDict = json as? [String: Any],

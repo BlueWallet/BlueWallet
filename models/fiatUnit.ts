@@ -2,11 +2,13 @@ import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
   CoinDesk: 'CoinDesk',
+  CoinGecko: 'CoinGecko',
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
   Exir: 'Exir',
   wazirx: 'wazirx',
   Bitstamp: 'Bitstamp',
+
 } as const;
 
 const RateExtractors = {
@@ -25,7 +27,18 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
-
+  CoinGecko: async (ticker: string): Promise<number> => {
+    let json;
+    try {
+      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${ticker.toLowerCase()}`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.bitcoin?.[ticker]; // eslint-disable-line
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
   Bitstamp: async (ticker: string): Promise<number> => {
     let json;
     try {
