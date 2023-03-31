@@ -56,7 +56,7 @@
     "CHF": {
         "endPointKey": "CHF",
         "locale": "de-CH",
-        "source": "CoinDesk",
+        "source": "CoinGecko",
         "symbol": "CHF"
     },
     "CLP": {
