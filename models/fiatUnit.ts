@@ -8,7 +8,6 @@ export const FiatUnitSource = {
   Exir: 'Exir',
   wazirx: 'wazirx',
   Bitstamp: 'Bitstamp',
-
 } as const;
 
 const RateExtractors = {
