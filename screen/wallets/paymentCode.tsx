@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import loc from '../../loc';
 
 type PaymentCodeStackParamList = {
   PaymentCode: { paymentCode: string };
@@ -13,7 +14,7 @@ export default function PaymentCode({ route }: NativeStackScreenProps<PaymentCod
 
   return (
     <View style={styles.container}>
-      {!paymentCode && <Text>Payment code not found</Text>}
+      {!paymentCode && <Text>{loc.bip47.not_found}</Text>}
       {paymentCode && (
         <>
           <QRCodeComponent value={paymentCode} />

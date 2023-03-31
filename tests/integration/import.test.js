@@ -455,4 +455,18 @@ describe('import procedure', () => {
       'receive own flight sentence tide hood silent bunker derive manage wink belt loud apology monster pill raw gate hurdle match night wish toddler achieve',
     );
   });
+
+  it('can import BIP47 wallet that only has notification transaction', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    const store = createStore('1');
+    const { promise } = startImport(process.env.BIP47_HD_MNEMONIC.split(':')[0], true, false, ...store.callbacks);
+    await promise;
+    assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
+    assert.strictEqual(store.state.wallets[1].type, HDSegwitBech32Wallet.type);
+    assert.strictEqual(store.state.wallets.length, 2);
+  });
 });
