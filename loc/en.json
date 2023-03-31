@@ -18,7 +18,15 @@
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment": "Invalid animated QRCode fragment. Please try again.",
     "file_saved": "File {filePath} has been saved in your {destination}.",
-    "downloads_folder": "Downloads Folder"
+    "downloads_folder": "Downloads Folder",
+    "close": "Close",
+    "change_input_currency": "Change input currency",
+    "refresh": "Refresh",
+    "more": "More",
+    "pick_image": "Choose image from library",
+    "pick_file": "Choose a file",
+    "enter_amount": "Enter amount",
+    "qr_custom_input_button": "Tap 10 times to enter custom input"
   },
   "alert": {
     "default": "Alert"

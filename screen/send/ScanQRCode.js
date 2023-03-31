@@ -344,14 +344,14 @@ const ScanQRCode = () => {
           <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       )}
-      <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.imagePickerTouch} onPress={showImagePicker}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.pick_image} style={styles.imagePickerTouch} onPress={showImagePicker}>
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
       {showFileImportButton && (
-        <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.pick_file} style={styles.filePickerTouch} onPress={showFilePicker}>
           <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
         </TouchableOpacity>
       )}
@@ -392,6 +392,8 @@ const ScanQRCode = () => {
         </View>
       )}
       <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
         onPress={async () => {
