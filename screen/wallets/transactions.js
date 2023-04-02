@@ -30,7 +30,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
-import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
 import PropTypes from 'prop-types';
@@ -450,14 +450,14 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+    if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         alert(loc.lnd.refill_create);
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
-    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet) {
+    } else if (id === actionKeys.RefillWithExternalWallet) {
       if (wallet.getUserHasSavedExport()) {
         navigate('ReceiveDetailsRoot', {
           screen: 'ReceiveDetails',
@@ -512,6 +512,7 @@ const WalletTransactions = ({ navigation }) => {
         <FlatList
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
+          stickyHeaderHiddenOnScroll
           onEndReached={async () => {
             // pagination in works. in this block we will add more txs to FlatList
             // so as user scrolls closer to bottom it will render mode transactions
