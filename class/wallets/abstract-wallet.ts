@@ -151,6 +151,10 @@ export class AbstractWallet {
     return false;
   }
 
+  switchBIP47(value: boolean): void {
+    throw new Error('switchBIP47: not implemented');
+  }
+
   allowReceive(): boolean {
     return true;
   }
