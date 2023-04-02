@@ -124,7 +124,7 @@ const WalletTransactions = ({ navigation }) => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, wallet, walletID]);
+  }, [walletID]);
 
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);
