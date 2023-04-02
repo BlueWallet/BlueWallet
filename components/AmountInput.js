@@ -238,7 +238,12 @@ class AmountInput extends Component {
     });
 
     return (
-      <TouchableWithoutFeedback accessibilityRole="button" accessibilityLabel={loc._.enter_amount} disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
+      <TouchableWithoutFeedback
+        accessibilityRole="button"
+        accessibilityLabel={loc._.enter_amount}
+        disabled={this.props.pointerEvents === 'none'}
+        onPress={() => this.textInput.focus()}
+      >
         <>
           <View style={styles.root}>
             {!disabled && <View style={[styles.center, stylesHook.center]} />}

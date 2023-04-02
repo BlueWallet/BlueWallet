@@ -39,7 +39,12 @@ const LdkViewLogs = () => {
       .finally(() => {
         setOptions({
           headerRight: () => (
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc.wallets.list_tryagain} style={styles.reloadLogs} onPress={getLogs}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={loc.wallets.list_tryagain}
+              style={styles.reloadLogs}
+              onPress={getLogs}
+            >
               <Icon name="redo" type="font-awesome-5" size={22} color={colors.foregroundColor} />
             </TouchableOpacity>
           ),

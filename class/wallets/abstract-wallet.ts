@@ -143,6 +143,10 @@ export class AbstractWallet {
     return BitcoinUnit.BTC;
   }
 
+  async allowOnchainAddress(): Promise<boolean> {
+    throw new Error('allowOnchainAddress: Not implemented');
+  }
+
   allowBIP47(): boolean {
     return false;
   }

@@ -347,11 +347,21 @@ const ScanQRCode = () => {
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
       </TouchableOpacity>
-      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.pick_image} style={styles.imagePickerTouch} onPress={showImagePicker}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.pick_image}
+        style={styles.imagePickerTouch}
+        onPress={showImagePicker}
+      >
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
       {showFileImportButton && (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.pick_file} style={styles.filePickerTouch} onPress={showFilePicker}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={loc._.pick_file}
+          style={styles.filePickerTouch}
+          onPress={showFilePicker}
+        >
           <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
         </TouchableOpacity>
       )}
