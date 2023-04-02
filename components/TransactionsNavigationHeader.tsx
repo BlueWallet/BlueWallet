@@ -100,8 +100,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.SATS;
     } else if (newWalletPreferredUnit === BitcoinUnit.SATS) {
       newWalletPreferredUnit = BitcoinUnit.LOCAL_CURRENCY;
-    } else if (newWalletPreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      newWalletPreferredUnit = BitcoinUnit.BTC;
     } else {
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
