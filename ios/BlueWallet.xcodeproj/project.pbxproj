@@ -1986,7 +1986,7 @@
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
 				kind = exactVersion;
-				version = 5.1.8;
+				version = 6.2.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
