@@ -18,7 +18,7 @@ interface TransactionsNavigationHeaderProps {
     navigate: (route: string, params?: any) => void;
     goBack: () => void;
   };
-  onHandleManageFundsPressed?: (id: string) => void; // Add a type definition for this prop
+  onManageFundsPressed?: (id: string) => void; // Add a type definition for this prop
   actionKeys: {
     CopyToClipboard: 'copyToClipboard';
     WalletBalanceVisibility: 'walletBalanceVisibility';
@@ -35,7 +35,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   // @ts-ignore: Ugh
   navigation,
   // @ts-ignore: Ugh
-  onHandleManageFundsPressed,
+  onManageFundsPressed,
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
@@ -82,7 +82,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
     const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
     setWallet(updatedWallet);
-    await context.saveToDisk();
+    context.saveToDisk();
   };
 
   const updateWalletWithNewUnit = (wallet: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
@@ -110,7 +110,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const handleManageFundsPressed = () => {
-    onHandleManageFundsPressed?.(actionKeys.Refill);
+    onManageFundsPressed?.(actionKeys.Refill);
   };
 
   const onPressMenuItem = (id: string) => {

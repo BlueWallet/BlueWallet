@@ -469,6 +469,12 @@ const WalletTransactions = ({ navigation }) => {
     }
   };
 
+  const getItemLayout = (_, index) => ({
+    length: 64,
+    offset: 64 * index,
+    index,
+  });
+
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
@@ -510,9 +516,9 @@ const WalletTransactions = ({ navigation }) => {
       />
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
+          getItemLayout={getItemLayout}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
-          stickyHeaderHiddenOnScroll
           onEndReached={async () => {
             // pagination in works. in this block we will add more txs to FlatList
             // so as user scrolls closer to bottom it will render mode transactions
@@ -540,6 +546,8 @@ const WalletTransactions = ({ navigation }) => {
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
+          initialNumToRender={10}
+          removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>

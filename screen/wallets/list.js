@@ -364,6 +364,7 @@ const WalletsList = () => {
       <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
+          removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
           refreshing={isLoading}
