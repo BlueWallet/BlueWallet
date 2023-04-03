@@ -18,7 +18,15 @@
     "wallet_key": "ウォレットキー",
     "invalid_animated_qr_code_fragment": "無効なアニメーションQRCodeフラグメントです。再度お試しください。",
     "file_saved": "ファイル {filePath} は {destination} に保存されました。",
-    "downloads_folder": "ダウンロードフォルダ"
+    "downloads_folder": "ダウンロードフォルダ",
+    "close": "閉じる",
+    "change_input_currency": "入金額を変更",
+    "refresh": "更新",
+    "more": "もっと",
+    "pick_image": "ライブラリから画像を選択",
+    "pick_file": "ファイルを選択",
+    "enter_amount": "額を入力",
+    "qr_custom_input_button": "10回タップしてカスタム入力"
   },
   "alert": {
     "default": "注意"
