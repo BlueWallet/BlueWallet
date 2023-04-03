@@ -12,6 +12,9 @@
 #import <React/RCTRootView.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 
+@interface AppDelegate() <UNUserNotificationCenterDelegate>
+
+@end
 
 @implementation AppDelegate
 
