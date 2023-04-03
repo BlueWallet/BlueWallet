@@ -64,9 +64,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const updateWalletVisibility = (wallet: AbstractWallet, newHideBalance: boolean) => {
-    const clonedWallet = Object.assign(Object.create(Object.getPrototypeOf(wallet)), wallet);
-    clonedWallet.hideBalance = newHideBalance;
-    return clonedWallet;
+    wallet.hideBalance = newHideBalance;
+    return wallet;
   };
 
   const handleBalanceVisibility = async () => {
@@ -86,9 +85,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const updateWalletWithNewUnit = (wallet: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
-    const clonedWallet = Object.assign(Object.create(Object.getPrototypeOf(wallet)), wallet);
-    clonedWallet.preferredBalanceUnit = newPreferredUnit;
-    return clonedWallet;
+    wallet.preferredBalanceUnit = newPreferredUnit;
+    return wallet;
   };
 
   const changeWalletBalanceUnit = () => {
@@ -122,8 +120,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const balance = useMemo(() => {
-    return !wallet.hideBalance && formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit(), true).toString();
-  }, [wallet]);
+    const hideBalance = wallet.hideBalance;
+    const balanceUnit = wallet.getPreferredBalanceUnit();
+    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true).toString();
+    return !hideBalance && balanceFormatted;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
 
   return (
     <LinearGradient
