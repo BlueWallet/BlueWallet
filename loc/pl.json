@@ -18,7 +18,15 @@
     "wallet_key": "Klucz Portfela",
     "invalid_animated_qr_code_fragment": "Nieprawidłowy fragment animowanego kodu QR, spróbuj ponownie",
     "file_saved": "Plik {filePath} został zapisany w lokalizacji {destination}",
-    "downloads_folder": "Folder Pobrane"
+    "downloads_folder": "Folder Pobrane",
+    "close": "Zamknij",
+    "change_input_currency": "Zmień walutę",
+    "refresh": "Odśwież",
+    "more": "Więcej",
+    "pick_image": "Wybierz obrazek z biblioteki",
+    "pick_file": "Wybierz plik",
+    "enter_amount": "Wprowadź kwotę",
+    "qr_custom_input_button": "Tapnij 10 razy aby wprowadzić własne dane"
   },
   "alert": {
     "default": "Powiadomienie"
