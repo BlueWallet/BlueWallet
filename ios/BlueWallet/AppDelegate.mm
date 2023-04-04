@@ -12,6 +12,9 @@
 #import <React/RCTRootView.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 
+@interface AppDelegate() <UNUserNotificationCenterDelegate>
+
+@end
 
 @implementation AppDelegate
 
@@ -34,7 +37,7 @@
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
    RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                    moduleName:@"RNWatchExample"
+                                                    moduleName:self.moduleName
                                              initialProperties:nil];
 
   if (@available(iOS 13.0, *)) {
