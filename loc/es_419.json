@@ -18,7 +18,15 @@
     "wallet_key": "Clave de la billetera",
     "invalid_animated_qr_code_fragment": "Fragmento inválido de Código QR animado. Por favor intenta de nuevo.",
     "file_saved": "El archivo {filePath} se ha guardado en tu {destination}.",
-    "downloads_folder": "Carpeta de descargas"
+    "downloads_folder": "Carpeta de descargas",
+    "close": "Cerrar",
+    "change_input_currency": "Cambiar moneda de entrada",
+    "refresh": "Actualizar",
+    "more": "Más",
+    "pick_image": "Elegir imagen de la biblioteca",
+    "pick_file": "Escoge un archivo",
+    "enter_amount": "Ingresa la cantidad",
+    "qr_custom_input_button": "Pulsa 10 veces para ingresar una entrada personalizada"
   },
   "alert": {
     "default": "Alerta"
