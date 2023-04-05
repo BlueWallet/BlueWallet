@@ -106,7 +106,7 @@
     "@ngraveio/bc-ur": "1.1.6",
     "@react-native-async-storage/async-storage": "1.18.1",
     "@react-native-clipboard/clipboard": "1.11.2",
-    "@react-native-community/push-notification-ios": "1.10.1",
+    "@react-native-community/push-notification-ios": "1.11.0",
     "@react-navigation/drawer": "5.12.9",
     "@react-navigation/native": "5.9.8",
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
