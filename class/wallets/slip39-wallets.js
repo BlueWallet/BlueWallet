@@ -67,6 +67,10 @@ export class SLIP39LegacyP2PKHWallet extends HDLegacyP2PKHWallet {
   static type = 'SLIP39legacyP2PKH';
   static typeReadable = 'SLIP39 Legacy (P2PKH)';
 
+  allowBIP47() {
+    return false;
+  }
+
   _getSeed = SLIP39Mixin._getSeed;
   validateMnemonic = SLIP39Mixin.validateMnemonic;
   setSecret = SLIP39Mixin.setSecret;
@@ -86,6 +90,10 @@ export class SLIP39SegwitP2SHWallet extends HDSegwitP2SHWallet {
 export class SLIP39SegwitBech32Wallet extends HDSegwitBech32Wallet {
   static type = 'SLIP39segwitBech32';
   static typeReadable = 'SLIP39 SegWit (Bech32)';
+
+  allowBIP47() {
+    return false;
+  }
 
   _getSeed = SLIP39Mixin._getSeed;
   validateMnemonic = SLIP39Mixin.validateMnemonic;
