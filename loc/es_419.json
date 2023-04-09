@@ -603,6 +603,7 @@
     "payment_code": "Código de pago",
     "payment_codes_list": "Lista de códigos de pago",
     "who_can_pay_me": "Quién puede pagarme:",
-    "purpose": "Código reutilizable y compartible (BIP47)"
+    "purpose": "Código reutilizable y compartible (BIP47)",
+    "not_found": "Código de pago no encontrado"
   }
 }
