@@ -214,7 +214,7 @@ function getCurrencySymbol() {
   return preferredFiatCurrency.symbol;
 }
 
-function getCurrencyISOCode() {
+export function getCurrencyISOCode() {
   return preferredFiatCurrency.endPointKey;
 }
 
@@ -254,7 +254,6 @@ module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
 module.exports.btcToSatoshi = btcToSatoshi;
 module.exports.getCurrencySymbol = getCurrencySymbol;
-module.exports.getCurrencyISOCode = getCurrencyISOCode;
 module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
 module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests
 module.exports._setSkipUpdateExchangeRate = _setSkipUpdateExchangeRate; // export it to mock data in tests

@@ -10,6 +10,7 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
+import { getCurrencyISOCode } from '../blue_modules/currency';
 
 interface TransactionsNavigationHeaderProps {
   wallet: AbstractWallet;
@@ -122,7 +123,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
     const balanceUnit = wallet.getPreferredBalanceUnit();
-    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true).toString();
+    let balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true).toString();
+    if (balanceUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      balanceFormatted = `${balance} ${getCurrencyISOCode()}`;
+    }
     return !hideBalance && balanceFormatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
