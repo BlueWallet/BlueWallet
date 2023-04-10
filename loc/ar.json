@@ -16,9 +16,17 @@
     "seed": "عبارة الاسترداد",
     "success": "نجاح",
     "wallet_key": "مفتاح المحفظة",
-    "invalid_animated_qr_code_fragment" : "قطعة من رمز الـ QRcode المتحرك غير صحيحة، حاول مرة اخرى.",
+    "invalid_animated_qr_code_fragment": "قطعة من رمز الـ QRcode المتحرك غير صحيحة، حاول مرة اخرى.",
     "file_saved": "تم حفظ الملف {filePath} في {destination}.",
-    "downloads_folder": "مجلد التنزيلات"
+    "downloads_folder": "مجلد التنزيلات",
+    "close": "اغلاق",
+    "change_input_currency": "تغيير عملة الادخال",
+    "refresh": "تحديث",
+    "more": "المزيد",
+    "pick_image": "اختر صورة من الصور",
+    "pick_file": "اختر ملف",
+    "enter_amount": "أدخل القيمة",
+    "qr_custom_input_button": "أنقر ١٠ مرات لإدخال قيمة مخصصة"
   },
   "alert": {
     "default": "تنبيه"
@@ -43,13 +51,13 @@
     "network": "خطأ في الشبكة"
   },
   "lnd": {
-    "active":"نشط",
-    "inactive":"غير نشط",
+    "active": "نشط",
+    "inactive": "غير نشط",
     "channels": "القنوات",
     "no_channels": "لا يوجد قنوات",
     "claim_balance": "المطالبة برصيد {balance}",
     "close_channel": "اغلق القناة",
-    "new_channel" : "قناة جديدة",
+    "new_channel": "قناة جديدة",
     "errorInvoiceExpired": "انتهت صلاحية الفاتورة",
     "force_close_channel": "هل تود فرض اغلاق القناة؟",
     "expired": "منتهية الصلاحية",
@@ -59,7 +67,7 @@
     "placeholder": "برقية",
     "open_channel": "فتح قناة",
     "funding_amount_placeholder": "مبلغ التمويل، على سبيل المثال 0.001",
-    "opening_channnel_for_from":"جارِ فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
+    "opening_channnel_for_from": "جارِ فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
     "are_you_sure_open_channel": "هل أنت متأكد أنك تريد فتح هذه القناة؟",
     "potentialFee": "الرسوم المحتملة: {fee}",
     "remote_host": "المضيف البعيد",
@@ -68,7 +76,7 @@
     "refill_create": "للمتابعة، يُرجى إنشاء محفظة بتكوين لإعادة التعبئة باستخدامها.",
     "refill_external": "إعادة التعبئة باستخدام محفظة خارجية",
     "refill_lnd_balance": "إعادة تعبئة رصيد محفظة البرق (Lightning)",
-    "sameWalletAsInvoiceError": "لا يمكنك دفع البرقية بنفس المحفظة المستخدمة لإنشائها.",
+    "sameWalletAsInvoiceError": "لايمكنك دفع البرقية من نفس المحفظة",
     "title": "إدارة الأموال",
     "can_send": "يمكن أن ترسل",
     "can_receive": "يمكن ان تستقبل",
@@ -287,7 +295,7 @@
     "network_electrum": "خادم Electrum",
     "not_a_valid_uri": "معرِّف URI غير صالح",
     "notifications": "الإشعارات",
-    "open_link_in_explorer" : "فتح الرابط في المتصفح",
+    "open_link_in_explorer": "فتح الرابط في المتصفح",
     "password": "كلمه المرور",
     "password_explain": "أنشئ كلمة المرور التي ستستخدمها لفك تشفير وحدة التخزين",
     "passwords_do_not_match": "كلمتا المرور لا تتطابقان",
@@ -306,7 +314,7 @@
     "selfTest": "اختبار ذاتي",
     "save": "حفظ",
     "saved": "تم الحفظ",
-    "success_transaction_broadcasted" : "تمت بنجاح! لقد تم نشر معاملتك!",
+    "success_transaction_broadcasted": "تمت بنجاح! لقد تم نشر معاملتك!",
     "total_balance": "الرصيد الاجمالي",
     "total_balance_explanation": "اعرض الرصيد الإجمالي لجميع محافظك على ويدجيت الشاشة الرئيسية الخاصة بك.",
     "widgets": "ويدجيت",
@@ -590,5 +598,11 @@
     "auth_answer": "لقد قمت بالتوثيق مع {hostname} بنجاح!",
     "could_not_auth": "لم نتمكن من توثيقك على {hostname}.",
     "authenticate": "التوثيق"
+  },
+  "bip47": {
+    "payment_code": "كود الدفع",
+    "payment_codes_list": "قائمة أكواد الدفع",
+    "who_can_pay_me": "من يستطيع الدفع لي:",
+    "purpose": "أكواد المشاركة التي يمكن أعادة استخدامها (BIP47)"
   }
 }

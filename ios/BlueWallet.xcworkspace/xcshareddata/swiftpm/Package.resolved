@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/EFPrefix/EFQRCode.git",
       "state" : {
-        "revision" : "62eff300b439d0088007b4e2e2e8c600f4b2e515",
-        "version" : "5.1.8"
+        "revision" : "2991c2f318ad9529d93b2a73a382a3f9c72c64ce",
+        "version" : "6.2.2"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ApolloZhu/swift_qrcodejs.git",
       "state" : {
-        "revision" : "f3fe9fdd39fa48e45b501000194b43a3883f732f",
-        "version" : "1.1.4"
+        "revision" : "374dc7f7b9e76c6aeb393f6a84590c6d387e1ecb",
+        "version" : "2.2.2"
       }
     }
   ],

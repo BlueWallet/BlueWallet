@@ -23,6 +23,10 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     return mn.validateMnemonic(this.secret, PREFIX);
   }
 
+  allowBIP47() {
+    return false;
+  }
+
   async generate() {
     throw new Error('Not implemented');
   }

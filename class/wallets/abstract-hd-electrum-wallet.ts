@@ -5,16 +5,16 @@ import b58 from 'bs58check';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
-
-import { randomBytes } from '../rng';
-import { AbstractHDWallet } from './abstract-hd-wallet';
 import { ECPairFactory } from 'ecpair';
-import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
-import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+
+import { randomBytes } from '../rng';
+import { AbstractHDWallet } from './abstract-hd-wallet';
+import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
@@ -336,7 +336,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         const inpTxid = txdatas[txid].vin[inpNum].txid;
         const inpVout = txdatas[txid].vin[inpNum].vout;
         // got txid and output number of _previous_ transaction we shoud look into
-        if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
+        if (vintxdatas[inpTxid]?.vout[inpVout]) {
           // extracting amount & addresses from previous output and adding it to _our_ input:
           txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
           txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
@@ -538,17 +538,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       for (const vin of tx.inputs) {
         // if input (spending) goes from our address - we are loosing!
-        if (
-          (vin.address && ownedAddressesHashmap[vin.address]) ||
-          (vin.addresses && vin.addresses[0] && ownedAddressesHashmap[vin.addresses[0]])
-        ) {
+        if ((vin.address && ownedAddressesHashmap[vin.address]) || (vin.addresses?.[0] && ownedAddressesHashmap[vin.addresses[0]])) {
           tx.value -= new BigNumber(vin.value ?? 0).multipliedBy(100000000).toNumber();
         }
       }
 
       for (const vout of tx.outputs) {
         // when output goes to our address - this means we are gaining!
-        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses[0] && ownedAddressesHashmap[vout.scriptPubKey.addresses[0]]) {
+        if (vout.scriptPubKey.addresses?.[0] && ownedAddressesHashmap[vout.scriptPubKey.addresses[0]]) {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }
@@ -864,23 +861,19 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // considering confirmed balance:
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._balances_by_external_index[c] && this._balances_by_external_index[c].c && this._balances_by_external_index[c].c > 0) {
+      if (this._balances_by_external_index?.[c]?.c > 0) {
         addressess.push(this._getExternalAddressByIndex(c));
       }
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].c && this._balances_by_internal_index[c].c > 0) {
+      if (this._balances_by_internal_index?.[c]?.c > 0) {
         addressess.push(this._getInternalAddressByIndex(c));
       }
     }
 
     for (const pc of this._sender_payment_codes) {
       for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
-        if (
-          this._balances_by_payment_code_index[pc] &&
-          this._balances_by_payment_code_index[pc].c &&
-          this._balances_by_payment_code_index[pc].c > 0
-        ) {
+        if (this._balances_by_payment_code_index?.[pc]?.c > 0) {
           addressess.push(this._getBIP47Address(pc, c));
         }
       }
@@ -888,23 +881,19 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // considering UNconfirmed balance:
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (this._balances_by_external_index[c] && this._balances_by_external_index[c].u && this._balances_by_external_index[c].u > 0) {
+      if (this._balances_by_external_index?.[c]?.u > 0) {
         addressess.push(this._getExternalAddressByIndex(c));
       }
     }
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].u && this._balances_by_internal_index[c].u > 0) {
+      if (this._balances_by_internal_index?.[c]?.u > 0) {
         addressess.push(this._getInternalAddressByIndex(c));
       }
     }
 
     for (const pc of this._sender_payment_codes) {
       for (let c = 0; c < this._next_free_payment_code_address_index[pc] + this.gap_limit; c++) {
-        if (
-          this._balances_by_payment_code_index[pc] &&
-          this._balances_by_payment_code_index[pc].u &&
-          this._balances_by_payment_code_index[pc].u > 0
-        ) {
+        if (this._balances_by_payment_code_index?.[pc]?.u > 0) {
           addressess.push(this._getBIP47Address(pc, c));
         }
       }
@@ -1334,14 +1323,29 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    * Probes zero address in external hierarchy for transactions, if there are any returns TRUE.
-   * Zero address is a pretty good indicator, since its a first one to fund the wallet. How can you use the wallet and
-   * not fund it first?
+   * Zero address is a pretty good indicator, since its a first one to fund the wallet.
+   * Q: How can you use the wallet and not fund it first?
+   * A: You can if it is a BIP47 wallet!
    *
    * @returns {Promise<boolean>}
    */
-  async wasEverUsed() {
-    const txs = await BlueElectrum.getTransactionsByAddress(this._getExternalAddressByIndex(0));
-    return txs.length > 0;
+  async wasEverUsed(): Promise<boolean> {
+    const txs1 = await BlueElectrum.getTransactionsByAddress(this._getExternalAddressByIndex(0));
+    if (txs1.length > 0) {
+      return true;
+    }
+    if (!this.allowBIP47()) {
+      return false;
+    }
+    // only check BIP47 if derivation path is regular, otherwise too many wallets will be found
+    if (!["m/84'/0'/0'", "m/44'/0'/0'", "m/49'/0'/0'"].includes(this.getDerivationPath() as string)) {
+      return false;
+    }
+
+    const bip47_instance = this.getBIP47FromSeed();
+    const address = bip47_instance.getNotificationAddress();
+    const txs2 = await BlueElectrum.getTransactionsByAddress(address);
+    return txs2.length > 0;
   }
 
   /**
@@ -1475,11 +1479,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return this._payment_code;
   }
 
+  getBIP47NotificationAddress(): string {
+    const bip47 = this.getBIP47FromSeed();
+    return bip47.getNotificationAddress();
+  }
+
   async fetchBIP47SenderPaymentCodes(): Promise<void> {
     const bip47_instance = this.getBIP47FromSeed();
-
     const address = bip47_instance.getNotificationAddress();
-
     const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
     const txHashes = histories[address].map(({ tx_hash }) => tx_hash);
 

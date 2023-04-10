@@ -953,6 +953,7 @@ const SendDetails = () => {
         default: () => (
           <TouchableOpacity
             accessibilityRole="button"
+            accessibilityLabel={loc._.more}
             disabled={isLoading}
             style={styles.advancedOptions}
             onPress={() => {
@@ -1388,7 +1389,7 @@ const SendDetails = () => {
         />
 
         {frozenBalance > 0 && (
-          <TouchableOpacity style={styles.frozenContainer} onPress={handleCoinControl}>
+          <TouchableOpacity accessibilityRole="button" style={styles.frozenContainer} onPress={handleCoinControl}>
             <BlueText>
               {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
             </BlueText>

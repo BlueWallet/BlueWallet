@@ -50,13 +50,13 @@
     "CAD": {
         "endPointKey": "CAD",
         "locale": "en-CA",
-        "source": "CoinDesk",
+        "source": "CoinGecko",
         "symbol": "$"
     },
     "CHF": {
         "endPointKey": "CHF",
         "locale": "de-CH",
-        "source": "CoinDesk",
+        "source": "CoinGecko",
         "symbol": "CHF"
     },
     "CLP": {

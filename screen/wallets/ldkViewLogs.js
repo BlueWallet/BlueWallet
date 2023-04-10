@@ -39,7 +39,12 @@ const LdkViewLogs = () => {
       .finally(() => {
         setOptions({
           headerRight: () => (
-            <TouchableOpacity style={styles.reloadLogs} onPress={getLogs}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={loc.wallets.list_tryagain}
+              style={styles.reloadLogs}
+              onPress={getLogs}
+            >
               <Icon name="redo" type="font-awesome-5" size={22} color={colors.foregroundColor} />
             </TouchableOpacity>
           ),
@@ -104,13 +109,13 @@ const LdkViewLogs = () => {
   return (
     <SafeBlueArea>
       <ScrollView style={styles.root}>
-        <TouchableOpacity onPress={selfTest} style={styles.button}>
+        <TouchableOpacity accessibilityRole="button" onPress={selfTest} style={styles.button}>
           <BlueText>self test</BlueText>
         </TouchableOpacity>
-        <TouchableOpacity onPress={exportLogs} style={styles.button}>
+        <TouchableOpacity accessibilityRole="button" onPress={exportLogs} style={styles.button}>
           <BlueText>export logs to a file</BlueText>
         </TouchableOpacity>
-        <TouchableOpacity onPress={syncBlockchain} style={styles.button}>
+        <TouchableOpacity accessibilityRole="button" onPress={syncBlockchain} style={styles.button}>
           <BlueText>sync blockchain</BlueText>
         </TouchableOpacity>
         <BlueText>Identity pubkey: {getInfo.identityPubkey}</BlueText>
