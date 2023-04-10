@@ -82,14 +82,12 @@ export default class LnurlPaySuccess extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <ScrollView>
+        <ScrollView style={styles.container}>
           {justPaid && <SuccessView />}
 
           <BlueSpacing40 />
-
-          <BlueSpacing40 />
           <BlueText style={styles.alignSelfCenter}>{domain}</BlueText>
-          <BlueText style={styles.alignSelfCenter}>{description}</BlueText>
+          <BlueText style={[styles.alignSelfCenter, styles.description]}>{description}</BlueText>
           {image && <Image style={styles.img} source={{ uri: image }} />}
           <BlueSpacing20 />
 
@@ -120,12 +118,12 @@ export default class LnurlPaySuccess extends Component {
                   this.props.navigation.navigate('ScanLndInvoiceRoot', {
                     screen: 'LnurlPay',
                     params: {
-                      lnurl: lnurl,
+                      lnurl,
                       walletID: this.state.fromWalletID,
                     },
                   });
                 }}
-                title="repeat"
+                title="repeat" // TODO: translate this
                 icon={{ name: 'refresh', type: 'font-awesome', color: '#9aa0aa' }}
               />
             ) : (
@@ -167,6 +165,9 @@ const styles = StyleSheet.create({
   root: {
     padding: 0,
   },
+  container: {
+    paddingHorizontal: 16,
+  },
   successContainer: {
     marginTop: 10,
   },
@@ -176,6 +177,9 @@ const styles = StyleSheet.create({
   },
   successValue: {
     fontWeight: 'bold',
+  },
+  description: {
+    marginTop: 20,
   },
 });
 

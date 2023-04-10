@@ -53,7 +53,7 @@ export const BlueButton = props => {
       style={{
         borderWidth: 0.7,
         borderColor: 'transparent',
-        backgroundColor: backgroundColor,
+        backgroundColor,
         minHeight: 45,
         height: 45,
         maxHeight: 45,
@@ -89,7 +89,7 @@ export const SecondButton = forwardRef((props, ref) => {
       style={{
         borderWidth: 0.7,
         borderColor: 'transparent',
-        backgroundColor: backgroundColor,
+        backgroundColor,
         minHeight: 45,
         height: 45,
         maxHeight: 45,
@@ -559,7 +559,12 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <PlusIcon onPress={props.onNewWalletPress} Component={TouchableOpacity} />
+      <PlusIcon
+        accessibilityRole="button"
+        accessibilityLabel={loc.wallets.add_title}
+        onPress={props.onNewWalletPress}
+        Component={TouchableOpacity}
+      />
     </View>
   );
 };

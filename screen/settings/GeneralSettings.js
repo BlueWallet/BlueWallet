@@ -15,16 +15,16 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings = () => {
-  const { isAdancedModeEnabled, setIsAdancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
+  const { isAdvancedModeEnabled, setIsAdvancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
     useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdancedModeSwitchEnabled, setIsAdancedModeSwitchEnabled] = useState(false);
+  const [isAdvancedModeSwitchEnabled, setIsAdvancedModeSwitchEnabled] = useState(false);
   const [isURv1SwitchEnabled, setIsURv1SwitchEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const onAdvancedModeSwitch = async value => {
-    await setIsAdancedModeEnabled(value);
-    setIsAdancedModeSwitchEnabled(value);
+    await setIsAdvancedModeEnabled(value);
+    setIsAdvancedModeSwitchEnabled(value);
   };
   const onLegacyURv1Switch = async value => {
     setIsURv1SwitchEnabled(value);
@@ -33,7 +33,7 @@ const GeneralSettings = () => {
 
   useEffect(() => {
     (async () => {
-      setIsAdancedModeSwitchEnabled(await isAdancedModeEnabled());
+      setIsAdvancedModeSwitchEnabled(await isAdvancedModeEnabled());
       setIsURv1SwitchEnabled(await isURv1Enabled());
       setIsLoading(false);
     })();
@@ -85,7 +85,7 @@ const GeneralSettings = () => {
       <BlueListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeSwitchEnabled, testID: 'AdvancedMode' }}
+        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdvancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>

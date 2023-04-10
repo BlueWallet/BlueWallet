@@ -67,7 +67,7 @@ export class AppStorage {
    */
   setItem = (key, value) => {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
     } else {
       return AsyncStorage.setItem(key, value);
     }
@@ -289,8 +289,8 @@ export class AppStorage {
       realmkeyValue.create(
         'KeyValue',
         {
-          key: key,
-          value: value,
+          key,
+          value,
         },
         Realm.UpdateMode.Modified,
       );
@@ -602,6 +602,11 @@ export class AppStorage {
           keyCloned._hdWalletInstance._txs_by_external_index = {};
           keyCloned._hdWalletInstance._txs_by_internal_index = {};
         }
+
+        if (keyCloned._bip47_instance) {
+          delete keyCloned._bip47_instance; // since it wont be restored into a proper class instance
+        }
+
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
       if (realm) realm.close();
@@ -682,6 +687,7 @@ export class AppStorage {
       }
     } else {
       for (const wallet of this.wallets) {
+        console.log('fetching balance for', wallet.getLabel());
         await wallet.fetchBalance();
       }
     }
@@ -720,6 +726,27 @@ export class AppStorage {
         }
         if (wallet.fetchUserInvoices) {
           await wallet.fetchUserInvoices();
+        }
+      }
+    }
+  };
+
+  fetchSenderPaymentCodes = async index => {
+    console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
+    if (index || index === 0) {
+      try {
+        if (!(this.wallets[index].allowBIP47() && this.wallets[index].isBIP47Enabled())) return;
+        await this.wallets[index].fetchBIP47SenderPaymentCodes();
+      } catch (error) {
+        console.error('Failed to fetch sender payment codes for wallet', index, error);
+      }
+    } else {
+      for (const wallet of this.wallets) {
+        try {
+          if (!(wallet.allowBIP47() && wallet.isBIP47Enabled())) continue;
+          await wallet.fetchBIP47SenderPaymentCodes();
+        } catch (error) {
+          console.error('Failed to fetch sender payment codes for wallet', wallet.label, error);
         }
       }
     }
@@ -789,14 +816,14 @@ export class AppStorage {
     return finalBalance;
   };
 
-  isAdancedModeEnabled = async () => {
+  isAdvancedModeEnabled = async () => {
     try {
       return !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
   };
 
-  setIsAdancedModeEnabled = async value => {
+  setIsAdvancedModeEnabled = async value => {
     await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 

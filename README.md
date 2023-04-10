@@ -83,8 +83,7 @@ npx react-native run-ios
 npm run maccatalystpatches
 ```
 
-Once the patches are applied, open Xcode and select "My Mac" as destination. If you are running macOS Catalina, you may need to remove all iOS 14 Widget targets.
-
+Once the patches are applied, open Xcode and select "My Mac" as destination.
 
 ## TESTS
 
@@ -103,7 +102,7 @@ Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projec
 
 ## Translations
 
-We accepts translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+We accept translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
 
 To participate you need to:
 1. Sign up to Transifex

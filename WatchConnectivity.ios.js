@@ -4,6 +4,7 @@ import {
   watchEvents,
   useReachability,
   useInstalled,
+  usePaired,
   transferCurrentComplicationUserInfo,
 } from 'react-native-watch-connectivity';
 import { Chain } from './models/bitcoinUnits';
@@ -17,13 +18,14 @@ function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } =
     useContext(BlueStorageContext);
   const isReachable = useReachability();
+  const isPaired = usePaired();
   const isInstalled = useInstalled(); // true | false
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
   useEffect(() => {
     let messagesListener = () => {};
-    if (isInstalled && isReachable && walletsInitialized && messagesListenerActive.current === false) {
+    if (isPaired && isInstalled && isReachable && walletsInitialized && messagesListenerActive.current === false) {
       messagesListener = watchEvents.addListener('message', handleMessages);
       messagesListenerActive.current = true;
     } else {
@@ -35,14 +37,14 @@ function WatchConnectivity() {
       messagesListenerActive.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, isReachable, isInstalled]);
+  }, [walletsInitialized, isPaired, isReachable, isInstalled]);
 
   useEffect(() => {
-    if (isInstalled && isReachable && walletsInitialized) {
+    if (isPaired && isInstalled && isReachable && walletsInitialized) {
       sendWalletsToWatch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, wallets, isReachable, isInstalled]);
+  }, [walletsInitialized, wallets, isPaired, isReachable, isInstalled]);
 
   useEffect(() => {
     updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
@@ -208,7 +210,7 @@ function WatchConnectivity() {
         balance: formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
         type: wallet.type,
         preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
-        receiveAddress: receiveAddress,
+        receiveAddress,
         transactions: watchTransactions,
         hideBalance: wallet.hideBalance,
       };

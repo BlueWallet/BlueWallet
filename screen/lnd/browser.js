@@ -54,7 +54,7 @@ var webln = {
   },
   makeInvoice: function (RequestInvoiceArgs) {
     var id = Math.random(); // eslint-disable-line
-    window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id }));
     return new Promise(function (resolve, reject) {
       var interval = setInterval(function () { // eslint-disable-line
         if (bluewalletResponses[id]) {

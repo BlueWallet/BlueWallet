@@ -1,7 +1,7 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
 import { isTorDaemonDisabled } from '../blue_modules/environment';
-import { parse } from 'url'; // eslint-disable-line node/no-deprecated-api
+import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { createHmac } from 'crypto';
 import secp256k1 from 'secp256k1';
 const CryptoJS = require('crypto-js');
@@ -289,11 +289,23 @@ export default class Lnurl {
     return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed) : false;
   }
 
+  getMin() {
+    return this?._lnurlPayServicePayload?.min ? parseInt(this._lnurlPayServicePayload.min) : false;
+  }
+
+  getMax() {
+    return this?._lnurlPayServicePayload?.max ? parseInt(this._lnurlPayServicePayload.max) : false;
+  }
+
+  getAmount() {
+    return this.getMin();
+  }
+
   authenticate(secret) {
     return new Promise((resolve, reject) => {
       if (!this._lnurl) throw new Error('this._lnurl is not set');
 
-      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl), true); // eslint-disable-line node/no-deprecated-api
+      const url = parse(Lnurl.getUrlFromLnurl(this._lnurl), true);
 
       const hmac = createHmac('sha256', secret);
       hmac.on('readable', async () => {

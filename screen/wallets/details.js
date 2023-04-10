@@ -34,7 +34,7 @@ import {
   HDAezeedWallet,
   LightningLdkWallet,
 } from '../../class';
-import loc from '../../loc';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
@@ -43,6 +43,8 @@ import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import alert from '../../components/Alert';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { writeFileAndExport } from '../../blue_modules/fs';
 
 const prompt = require('../../helpers/prompt');
 
@@ -117,19 +119,22 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
+  const [backdoorBip47Pressed, setBackdoorBip47Pressed] = useState(0);
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const { isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, navigate, setOptions, popToTop } = useNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
+  const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo(() => {
     try {
       const path = wallet.getDerivationPath();
@@ -176,7 +181,7 @@ const WalletDetails = () => {
     }
   }, [wallet]);
 
-  const setLabel = () => {
+  const save = () => {
     setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
@@ -184,6 +189,9 @@ const WalletDetails = () => {
         wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
+      if (wallet.allowBIP47()) {
+        wallet.switchBIP47(isBIP47Enabled);
+      }
     }
     saveToDisk()
       .then(() => {
@@ -197,7 +205,7 @@ const WalletDetails = () => {
   };
 
   useLayoutEffect(() => {
-    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     setOptions({
       headerRight: () => (
@@ -206,14 +214,14 @@ const WalletDetails = () => {
           testID="Save"
           disabled={isLoading}
           style={[styles.save, stylesHook.save]}
-          onPress={setLabel}
+          onPress={save}
         >
           <Text style={[styles.saveText, stylesHook.saveText]}>{loc.wallets.details_save}</Text>
         </TouchableOpacity>
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList]);
+  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
     if (wallets.some(wallet => wallet.getID() === walletID)) {
@@ -224,7 +232,11 @@ const WalletDetails = () => {
 
   const navigateToOverviewAndDeleteWallet = () => {
     setIsLoading(true);
-    Notifications.unsubscribe(wallet.getAllExternalAddresses(), [], []);
+    let externalAddresses = [];
+    try {
+      externalAddresses = wallet.getAllExternalAddresses();
+    } catch (_) {}
+    Notifications.unsubscribe(externalAddresses, [], []);
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
@@ -301,6 +313,14 @@ const WalletDetails = () => {
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
       walletID: wallet.getID(),
+    });
+
+  const navigateToPaymentCodes = () =>
+    navigate('PaymentCodeRoot', {
+      screen: 'PaymentCodesList',
+      params: {
+        walletID: wallet.getID(),
+      },
     });
 
   const exportInternals = async () => {
@@ -400,6 +420,25 @@ const WalletDetails = () => {
       const walletLabel = wallet.getLabel();
       setWalletName(walletLabel);
     }
+  };
+
+  const onExportHistoryPressed = async () => {
+    let csvFile = [
+      loc.transactions.date,
+      loc.transactions.txid,
+      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
+      loc.send.create_memo,
+    ].join(','); // CSV header
+    const transactions = wallet.getTransactions();
+
+    for (const transaction of transactions) {
+      const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
+      csvFile +=
+        '\n' +
+        [new Date(transaction.received).toString(), transaction.hash, value, txMetadata[transaction.hash]?.memo?.trim() ?? ''].join(','); // CSV line
+    }
+
+    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
   };
 
   const handleDeleteButtonTapped = () => {
@@ -529,7 +568,7 @@ const WalletDetails = () => {
                   {loc.transactions.list_title.toLowerCase()}
                 </Text>
                 <View style={styles.hardware}>
-                  <BlueText>{loc.wallets.details_display}</BlueText>
+                  <BlueText onPress={() => setBackdoorBip47Pressed(prevState => prevState + 1)}>{loc.wallets.details_display}</BlueText>
                   <Switch value={hideTransactionsInWalletsList} onValueChange={setHideTransactionsInWalletsList} />
                 </View>
               </>
@@ -539,6 +578,16 @@ const WalletDetails = () => {
                 </Text>
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
+
+              {backdoorBip47Pressed >= 10 && wallet.allowBIP47() ? (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
+                  <View style={styles.hardware}>
+                    <BlueText>{loc.bip47.purpose}</BlueText>
+                    <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
+                  </View>
+                </>
+              ) : null}
 
               <View>
                 {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
@@ -575,11 +624,17 @@ const WalletDetails = () => {
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
+            {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-
+                {wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                  </>
+                )}
                 {wallet.type === MultisigHDWallet.type && (
                   <>
                     <BlueSpacing20 />

@@ -4,33 +4,39 @@ buildscript {
     ext {
         minSdkVersion = 28
         supportLibVersion = "28.0.0"
-        buildToolsVersion = "30.0.3"
-        compileSdkVersion = 30
-        targetSdkVersion = 30
+        buildToolsVersion = "33.0.0"
+        compileSdkVersion = 33
+        targetSdkVersion = 33
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
-        firebaseMessagingVersion = "20.2.1"
-        ndkVersion = "23.0.7599858"
+        firebaseMessagingVersion = "21.1.0"
+
+        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
+        ndkVersion = "23.1.7779620"
+        kotlin_version = '1.8.0'
+        kotlinVersion = '1.8.0'
+
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:4.2.2')
+        classpath("com.android.tools.build:gradle:7.4.2")
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
         classpath 'com.google.gms:google-services:4.3.14'  // Google Services plugin
+    	classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20")
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
 allprojects {
     repositories {
+        maven {
+            url("$rootDir/../node_modules/detox/Detox-android")
+        }
         jcenter() {
             content {
                 includeModule("com.facebook.yoga", "proguard-annotations")
@@ -73,13 +79,18 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 30
                 buildToolsVersion '30.0.3'
-                compileSdkVersion 29
+                compileSdkVersion 31
                  defaultConfig {
                     minSdkVersion 28
                 }
             }
         }
     }
+}
+
+subprojects { subproject ->
+        if(project['name'] == 'react-native-widget-center') {
+            project.configurations { compile { } }
+        }
 }

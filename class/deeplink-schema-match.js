@@ -184,7 +184,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else {
-      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
+      const urlObject = url.parse(event.url, true); // eslint-disable-line n/no-deprecated-api
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
@@ -390,7 +390,8 @@ class DeeplinkSchemaMatch {
               break;
             }
           } else if (value.startsWith('lightning')) {
-            lndInvoice = `lightning:${txInfo[index + 1]}`;
+            const lnpart = txInfo[index + 1].split('&').find(el => el.toLowerCase().startsWith('ln'));
+            lndInvoice = `lightning:${lnpart}`;
             if (!this.isLightningInvoice(lndInvoice)) {
               lndInvoice = false;
               break;

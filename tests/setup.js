@@ -4,9 +4,28 @@ import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock
 
 const consoleWarnOrig = console.warn;
 console.warn = (...args) => {
-  if (!String(args[0]).startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) {
-    consoleWarnOrig.apply(consoleWarnOrig, args);
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds') ||
+      args[0].startsWith('only compressed public keys are good'))
+  ) {
+    return;
   }
+  consoleWarnOrig.apply(consoleWarnOrig, args);
+};
+
+const consoleLogOrig = console.log;
+console.log = (...args) => {
+  if (
+    typeof args[0] === 'string' &&
+    (args[0].startsWith('updating exchange rate') ||
+      args[0].startsWith('begin connection') ||
+      args[0].startsWith('TLS Connected to') ||
+      args[0].startsWith('connected to'))
+  ) {
+    return;
+  }
+  consoleLogOrig.apply(consoleLogOrig, args);
 };
 
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
@@ -136,6 +155,10 @@ jest.mock('react-native-idle-timer', () => {
   };
 });
 
+jest.mock('react-native-ios-context-menu', () => {
+  return {};
+});
+
 jest.mock('react-native-haptic-feedback', () => {
   return {
     trigger: jest.fn(),
@@ -160,7 +183,7 @@ jest.mock('../blue_modules/WidgetCommunication', () => {
   };
 });
 
-const keychainMock = {
+const mockKeychain = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
   SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
@@ -168,6 +191,6 @@ const keychainMock = {
   getGenericPassword: jest.fn().mockResolvedValue(),
   resetGenericPassword: jest.fn().mockResolvedValue(),
 };
-jest.mock('react-native-keychain', () => keychainMock);
+jest.mock('react-native-keychain', () => mockKeychain);
 
 global.alert = () => {};

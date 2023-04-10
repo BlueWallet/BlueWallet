@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
-import { RNCamera } from 'react-native-camera';
+import { CameraScreen, Camera } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
@@ -21,9 +21,6 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  rnCamera: {
-    flex: 1,
   },
   closeTouch: {
     width: 40,
@@ -82,6 +79,12 @@ const styles = StyleSheet.create({
   },
 });
 
+const CameraAuthStatus = Object.freeze({
+  AUTHORIZED: 'AUTHORIZED',
+  NOT_AUTHORIZED: 'NOT_AUTHORIZED',
+  UNKNOWN: 'UNKNOWN',
+});
+
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
@@ -91,7 +94,7 @@ const ScanQRCode = () => {
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
-  const [cameraStatus, setCameraStatus] = useState(RNCamera.Constants.CameraStatus.PENDING_AUTHORIZATION);
+  const [cameraStatus, setCameraStatus] = useState(CameraAuthStatus.UNKNOWN);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [urTotal, setUrTotal] = useState(0);
   const [urHave, setUrHave] = useState(0);
@@ -113,6 +116,35 @@ const ScanQRCode = () => {
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'ios' && Platform.OS !== 'macos') {
+        return;
+      }
+      let isUserAuthorizedCamera;
+      const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
+      switch (isCameraAuthorized) {
+        case true:
+          setCameraStatus(CameraAuthStatus.AUTHORIZED);
+          break;
+        case false:
+          setCameraStatus(CameraAuthStatus.NOT_AUTHORIZED);
+          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
+          if (isUserAuthorizedCamera) {
+            setCameraStatus(CameraAuthStatus.AUTHORIZED);
+          }
+          break;
+        case -1:
+          setCameraStatus(CameraAuthStatus.UNKNOWN);
+          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
+          if (isUserAuthorizedCamera) {
+            setCameraStatus(CameraAuthStatus.AUTHORIZED);
+          }
+          break;
+      }
+    })();
+  }, []);
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();
@@ -295,10 +327,6 @@ const ScanQRCode = () => {
     if (onDismiss) onDismiss();
   };
 
-  const handleCameraStatusChange = event => {
-    setCameraStatus(event.cameraStatus);
-  };
-
   return isLoading ? (
     <View style={styles.root}>
       <BlueLoading />
@@ -306,37 +334,34 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {isFocused && cameraStatus !== RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
-        <RNCamera
-          autoFocus
-          captureAudio={false}
-          androidCameraPermissionOptions={{
-            title: loc.send.permission_camera_title,
-            message: loc.send.permission_camera_message,
-            buttonPositive: loc._.ok,
-            buttonNegative: loc._.cancel,
-          }}
-          style={styles.rnCamera}
-          onBarCodeRead={onBarCodeRead}
-          barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
-          onStatusChange={handleCameraStatusChange}
-        />
+      {isFocused && cameraStatus !== CameraAuthStatus.NOT_AUTHORIZED && (
+        <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       )}
-      {cameraStatus === RNCamera.Constants.CameraStatus.NOT_AUTHORIZED && (
+      {cameraStatus === CameraAuthStatus.NOT_AUTHORIZED && (
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
           <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       )}
-      <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.imagePickerTouch} onPress={showImagePicker}>
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.pick_image}
+        style={styles.imagePickerTouch}
+        onPress={showImagePicker}
+      >
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
       {showFileImportButton && (
-        <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={loc._.pick_file}
+          style={styles.filePickerTouch}
+          onPress={showFilePicker}
+        >
           <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
         </TouchableOpacity>
       )}
@@ -377,6 +402,8 @@ const ScanQRCode = () => {
         </View>
       )}
       <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
         style={styles.backdoorButton}
         onPress={async () => {

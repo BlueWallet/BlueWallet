@@ -567,11 +567,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
     if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
       if (json.label) this.setLabel(json.label);
-      if (json.descriptor.startsWith('wsh(')) {
-        this.setNativeSegwit();
-      } else if (json.descriptor.startsWith('sh(wsh(')) {
+      if (json.descriptor.includes('sh(wsh(')) {
         this.setWrappedSegwit();
-      } else if (json.descriptor.startsWith('sh(')) {
+      } else if (json.descriptor.includes('wsh(')) {
+        this.setNativeSegwit();
+      } else if (json.descriptor.includes('sh(')) {
         this.setLegacy();
       }
 
@@ -624,8 +624,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       for (const pk of json.extendedPublicKeys) {
         const path = this.constructor.isPathValid(json.bip32Path) ? json.bip32Path : "m/1'";
-        // wtf, where caravan stores fingerprints..?
-        this.addCosigner(pk.xpub, '00000000', path);
+        this.addCosigner(pk.xpub, pk.xfp ?? '00000000', path);
       }
     }
 

@@ -820,9 +820,15 @@ module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHi
 
 module.exports.estimateFees = async function () {
   let histogram;
+  let timeoutId;
   try {
-    histogram = await Promise.race([mainClient.mempool_getFeeHistogram(), new Promise(resolve => setTimeout(resolve, 29000))]);
-  } catch (_) {}
+    histogram = await Promise.race([
+      mainClient.mempool_getFeeHistogram(),
+      new Promise(resolve => (timeoutId = setTimeout(resolve, 15000))),
+    ]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
 
@@ -832,7 +838,7 @@ module.exports.estimateFees = async function () {
   const _slow = await module.exports.estimateFee(144);
 
   // calculating fast fees from mempool:
-  const fast = module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram);
+  const fast = Math.max(2, module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram));
   // recalculating medium and slow fees using bitcoincore estimations only like relative weights:
   // (minimum 1 sat, just for any case)
   const medium = Math.max(1, Math.round((fast * _medium) / _fast));

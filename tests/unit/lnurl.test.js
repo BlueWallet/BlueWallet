@@ -178,6 +178,9 @@ describe('LNURL', function () {
     assert.strictEqual(LN.getImage(), undefined);
     assert.strictEqual(LN.getLnurl(), 'lnurl1dp68gurn8ghj7cmgv96zucnvd9u8gampd3kx2apwvdhk6tmpwp5j7um9dejz6ar90p6q3eqkzd');
     assert.strictEqual(LN.getCommentAllowed(), 144);
+    assert.strictEqual(LN.getAmount(), LN.getMin());
+    assert.strictEqual(LN.getMin(), 1);
+    assert.strictEqual(LN.getMax(), 1000000);
 
     // mock only to get fetched url:
     let urlUsed = '';

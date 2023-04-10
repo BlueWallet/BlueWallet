@@ -115,7 +115,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async payInvoice(invoice, freeAmount = 0) {
     const response = await this._api.post('/payinvoice', {
-      body: { invoice: invoice, amount: freeAmount },
+      body: { invoice, amount: freeAmount },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -215,7 +215,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async addInvoice(amt, memo) {
     const response = await this._api.post('/addinvoice', {
-      body: { amt: amt + '', memo: memo },
+      body: { amt: amt + '', memo },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       password = this.secret.replace('lndhub://', '').split(':')[1];
     }
     const response = await this._api.post('/auth?type=auth', {
-      body: { login: login, password: password },
+      body: { login, password },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
 

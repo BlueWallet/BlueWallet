@@ -101,8 +101,6 @@
 	<array>
 		<string>https</string>
 		<string>http</string>
-		<string>bankid</string>
-		<string>swish</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -127,6 +125,13 @@
 				<true/>
 			</dict>
 			<key>tailscale.net</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>ts.net</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>

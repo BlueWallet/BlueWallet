@@ -25,13 +25,21 @@ import alert from '../../components/Alert';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 
+/**
+ * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
+ * to satoshi, and attempt to pay this satoshi value, which might be a little bit off from `min` & `max` values
+ * provided by LnUrl. thats why we cache initial precise conversion rate so the reverse conversion wont be off.
+ */
+const _cacheFiatToSat = {};
+
 const LnurlPay = () => {
   const { wallets } = useContext(BlueStorageContext);
   const { walletID, lnurl } = useRoute().params;
+  /** @type {LightningCustodianWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
   const [unit, setUnit] = useState(wallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(true);
-  const [LN, setLN] = useState();
+  const [_LN, setLN] = useState();
   const [payButtonDisabled, setPayButtonDisabled] = useState(true);
   const [payload, setPayload] = useState();
   const { setParams, pop, navigate } = useNavigation();
@@ -73,13 +81,21 @@ const LnurlPay = () => {
 
   useEffect(() => {
     if (payload) {
-      let newAmount = payload.min;
+      /** @type {Lnurl} */
+      const LN = _LN;
+      let originalSatAmount;
+      let newAmount = (originalSatAmount = LN.getMin());
+      if (!newAmount) {
+        alert('Internal error: incorrect LNURL amount');
+        return;
+      }
       switch (unit) {
         case BitcoinUnit.BTC:
           newAmount = currency.satoshiToBTC(newAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           newAmount = currency.satoshiToLocalCurrency(newAmount, false);
+          _cacheFiatToSat[newAmount] = originalSatAmount;
           break;
       }
       setAmount(newAmount);
@@ -94,6 +110,7 @@ const LnurlPay = () => {
   const pay = async () => {
     setPayButtonDisabled(true);
     /** @type {Lnurl} */
+    const LN = _LN;
 
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
@@ -111,11 +128,13 @@ const LnurlPay = () => {
         amountSats = currency.btcToSatoshi(amountSats);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
+        if (_cacheFiatToSat[amount]) {
+          amountSats = _cacheFiatToSat[amount];
+        } else {
+          amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
+        }
         break;
     }
-
-    /** @type {LightningCustodianWallet} */
 
     let bolt11payload;
     try {

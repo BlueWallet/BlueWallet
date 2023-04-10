@@ -8,8 +8,6 @@
     "of": "{number} av {total}",
     "ok": "OK",
     "storage_is_encrypted": "Lagringen är krypterad. Lösenords krävs för att dekryptera",
-    "allow": "Tillåt",
-    "dont_allow": "Tillåt inte",
     "yes": "Ja",
     "no": "Nej",
     "save": "Spara",
@@ -40,7 +38,6 @@
   "lnd": {
     "errorInvoiceExpired": "Fakturan har förfallit",
     "expired": "Förfallen",
-    "expiredLow": "förfallen",
     "payButton": "Betala",
     "placeholder": "Faktura",
     "potentialFee": "Potentiell avgift: {avgift}",
@@ -55,7 +52,6 @@
     "additional_info": "Ytterligare information",
     "for": "För:",
     "lightning_invoice": "Lightning faktura",
-    "has_been_paid": "Denna faktura är betald",
     "open_direct_channel": "Öppna en direkt kanal med denna nod:",
     "please_pay": "Var god betala",
     "sats": "sats"
@@ -139,7 +135,6 @@
     "about_sm_telegram": "Telegram chatt",
     "about_sm_twitter": "Följ oss på Twitter",
     "currency": "Valuta",
-    "currency_source": "Priser hämtas från",
     "default_title": "Vid uppstart",
     "electrum_settings_server": "Electrum server",
     "electrum_clear_alert_cancel": "Avbryt",
@@ -171,7 +166,6 @@
     "details_copy": "Kopiera",
     "details_show_in_block_explorer": "Visa i block explorer",
     "details_title": "Transaktion",
-    "details_transaction_details": "Transaktionsdetaljer",
     "pending": "Pågående",
     "list_title": "transaktioner",
     "status_cancel": "Avbryt transaction"
@@ -179,7 +173,6 @@
   "wallets": {
     "add_create": "Skapa",
     "add_import_wallet": "Importera plånbok",
-    "add_or": "eller",
     "add_title": "ny plånbok",
     "add_wallet_name": "namn",
     "add_wallet_type": "typ",
@@ -199,7 +192,6 @@
     "export_title": "exportera plånbok",
     "import_do_import": "Importera",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
-    "import_file": "Importera fil",
     "import_imported": "Importerad",
     "import_scan_qr": "eller skanna QR-kod istället?",
     "import_success": "Import lyckad!",
