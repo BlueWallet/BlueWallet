@@ -1500,7 +1500,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
         // final check if PC is even valid (could've been constructed by a buggy code, and our code would crash with that):
         try {
-          BIP47Factory(ecc).fromPaymentCode(paymentCode);
+          bip47.fromPaymentCode(paymentCode);
         } catch (_) {
           continue;
         }

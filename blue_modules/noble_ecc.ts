@@ -9,7 +9,13 @@ import createHash from 'create-hash';
 import { createHmac } from 'crypto';
 import * as necc from '@noble/secp256k1';
 import { TinySecp256k1Interface } from 'ecpair/src/ecpair';
-import { TinySecp256k1Interface as TinySecp256k1Interface2 } from 'bip32/types/bip32';
+import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32/types/bip32';
+
+export interface TinySecp256k1InterfaceExtended {
+  pointMultiply(p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null;
+
+  pointAdd(pA: Uint8Array, pB: Uint8Array, compressed?: boolean): Uint8Array | null;
+}
 
 necc.utils.sha256Sync = (...messages: Uint8Array[]): Uint8Array => {
   const sha256 = createHash('sha256');
@@ -54,7 +60,7 @@ function isPoint(p: Uint8Array, xOnly: boolean): boolean {
   }
 }
 
-const ecc: TinySecp256k1Interface & TinySecp256k1Interface2 = {
+const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256k1InterfaceBIP32 = {
   isPoint: (p: Uint8Array): boolean => isPoint(p, false),
   isPrivate: (d: Uint8Array): boolean => {
     /* if (
@@ -84,17 +90,15 @@ const ecc: TinySecp256k1Interface & TinySecp256k1Interface2 = {
     return necc.Point.fromHex(p).toRawBytes(defaultTrue(compressed));
   },
 
-  /*
   pointMultiply: (a: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => necc.utils.pointMultiply(a, tweak, defaultTrue(compressed))),
-*/
 
-  /*  pointAdd: (a: Uint8Array, b: Uint8Array, compressed?: boolean): Uint8Array | null =>
+  pointAdd: (a: Uint8Array, b: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => {
       const A = necc.Point.fromHex(a);
       const B = necc.Point.fromHex(b);
       return A.add(B).toRawBytes(defaultTrue(compressed));
-    }), */
+    }),
 
   pointAddScalar: (p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => necc.utils.pointAddScalar(p, tweak, defaultTrue(compressed))),
