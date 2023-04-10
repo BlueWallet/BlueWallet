@@ -140,13 +140,13 @@ const Confirm = () => {
           };
           payjoinClient = new PayjoinClient({
             paymentScript,
-            payJoinWallet,
+            wallet: payJoinWallet,
             payjoinRequester: customPayjoinRequester,
           });
         } else {
           payjoinClient = new PayjoinClient({
             paymentScript,
-            payJoinWallet,
+            wallet: payJoinWallet,
             payjoinUrl,
           });
         }
