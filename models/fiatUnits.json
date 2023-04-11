@@ -44,7 +44,7 @@
     "BRL": {
         "endPointKey": "BRL",
         "locale": "pt-BR",
-        "source": "CoinDesk",
+        "source": "CoinGecko",
         "symbol": "R$"
     },
     "CAD": {
