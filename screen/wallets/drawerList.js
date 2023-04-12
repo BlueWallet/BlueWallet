@@ -30,7 +30,6 @@ const DrawerList = props => {
   }, [wallets]);
 
   const handleClick = item => {
-    console.log('handleClick', item);
     if (item?.getID) {
       const walletID = item.getID();
       props.navigation.navigate('WalletTransactions', {
