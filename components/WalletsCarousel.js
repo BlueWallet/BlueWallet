@@ -329,7 +329,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
     <View style={cStyles.contentLargeScreen}>
       {props.data.map((item, index) => (
         <WalletCarouselItem
-          isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
+          isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
           item={item}
           index={index}
           handleLongPress={props.handleLongPress}
