@@ -149,7 +149,6 @@ const WalletsList = () => {
   }, []); // call refreshTransactions() only once, when screen mounts
 
   const handleClick = item => {
-    console.log('handleClick', item);
     if (item?.getID) {
       const walletID = item.getID();
       navigate('WalletTransactions', {
