@@ -263,7 +263,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
     ({ item, index }) =>
       item ? (
         <WalletCarouselItem
-          isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
+          isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
           item={item}
           index={index}
           handleLongPress={props.handleLongPress}
