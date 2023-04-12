@@ -30,7 +30,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
-import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
 import PropTypes from 'prop-types';
@@ -124,7 +124,7 @@ const WalletTransactions = ({ navigation }) => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, wallet, walletID]);
+  }, [walletID]);
 
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);
@@ -450,14 +450,14 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+    if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         alert(loc.lnd.refill_create);
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
-    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet) {
+    } else if (id === actionKeys.RefillWithExternalWallet) {
       if (wallet.getUserHasSavedExport()) {
         navigate('ReceiveDetailsRoot', {
           screen: 'ReceiveDetails',
@@ -468,6 +468,12 @@ const WalletTransactions = ({ navigation }) => {
       }
     }
   };
+
+  const getItemLayout = (_, index) => ({
+    length: 64,
+    offset: 64 * index,
+    index,
+  });
 
   return (
     <View style={styles.flex}>
@@ -510,6 +516,7 @@ const WalletTransactions = ({ navigation }) => {
       />
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
+          getItemLayout={getItemLayout}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
@@ -539,6 +546,8 @@ const WalletTransactions = ({ navigation }) => {
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
+          initialNumToRender={10}
+          removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>

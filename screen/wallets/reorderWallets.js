@@ -103,6 +103,7 @@ const ReorderWallets = () => {
     return (
       <ScaleDecorator>
         <Pressable
+          accessibilityRole="button"
           disabled={isActive}
           onLongPress={drag}
           onPress={() => navigateToWallet(item)}

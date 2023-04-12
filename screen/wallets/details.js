@@ -189,7 +189,9 @@ const WalletDetails = () => {
         wallet.setUseWithHardwareWalletEnabled(useWithHardwareWallet);
       }
       wallet.setHideTransactionsInWalletsList(!hideTransactionsInWalletsList);
-      wallet.switchBIP47(isBIP47Enabled);
+      if (wallet.allowBIP47()) {
+        wallet.switchBIP47(isBIP47Enabled);
+      }
     }
     saveToDisk()
       .then(() => {

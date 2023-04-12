@@ -24,6 +24,10 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     return mn.validateMnemonic(this.secret, PREFIX);
   }
 
+  allowBIP47() {
+    return false;
+  }
+
   async generate() {
     throw new Error('Not implemented');
   }
