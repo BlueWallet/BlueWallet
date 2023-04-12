@@ -29,14 +29,13 @@ const DrawerList = props => {
     walletsCount.current = wallets.length;
   }, [wallets]);
 
-  const handleClick = index => {
-    console.log('click', index);
-    if (index <= wallets.length - 1) {
-      const wallet = wallets[index];
-      const walletID = wallet.getID();
+  const handleClick = item => {
+    console.log('handleClick', item);
+    if (item?.getID) {
+      const walletID = item.getID();
       props.navigation.navigate('WalletTransactions', {
-        walletID: wallet.getID(),
-        walletType: wallet.type,
+        walletID: item.getID(),
+        walletType: item.type,
         key: `WalletTransactions-${walletID}`,
       });
     } else {

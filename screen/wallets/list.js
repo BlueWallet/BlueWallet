@@ -148,17 +148,16 @@ const WalletsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
-  const handleClick = index => {
-    console.log('click', index);
-    if (index <= wallets.length - 1) {
-      const wallet = wallets[index];
-      const walletID = wallet.getID();
+  const handleClick = item => {
+    console.log('handleClick', item);
+    if (item?.getID) {
+      const walletID = item.getID();
       navigate('WalletTransactions', {
         walletID,
-        walletType: wallet.type,
+        walletType: item.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length) {
+    } else {
       navigate('AddWalletRoot');
     }
   };
