@@ -191,7 +191,7 @@
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#a128c38",
     "react-native-windows": "0.71.5",
     "readable-stream": "3.6.2",
-    "realm": "11.7.0",
+    "realm": "11.8.0",
     "rn-ldk": "github:BlueWallet/rn-ldk#v0.8.4",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
