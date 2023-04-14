@@ -11,7 +11,7 @@
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
 #import <WatchConnectivity/WatchConnectivity.h>
-#import "RNBootSplash.h" // <- add the header import
+#import <RNBootSplash/RNBootSplash.h> // <- add the header import
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
