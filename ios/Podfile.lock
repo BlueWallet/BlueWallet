@@ -392,9 +392,11 @@ PODS:
     - React-perflogger (= 0.71.6)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (11.7.0):
+  - RealmJS (11.8.0):
     - React
   - rn-ldk (0.8.4):
+    - React-Core
+  - RNBootSplash (4.6.0):
     - React-Core
   - RNCAsyncStorage (1.18.1):
     - React-Core
@@ -523,6 +525,7 @@ DEPENDENCIES:
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
   - RealmJS (from `../node_modules/realm`)
   - rn-ldk (from `../node_modules/rn-ldk`)
+  - RNBootSplash (from `../node_modules/react-native-bootsplash`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
@@ -662,6 +665,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/realm"
   rn-ldk:
     :path: "../node_modules/rn-ldk"
+  RNBootSplash:
+    :path: "../node_modules/react-native-bootsplash"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
@@ -762,8 +767,9 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 8692ac548bec648fa121980ccb4304afd136d584
   ReactCommon: 0c43eaeaaee231d7d8dc24fc5a6e4cf2b75bf196
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 10958b8a9d1f3a981c1b50bdc1da8396002e75a4
+  RealmJS: 27b8d695fa4bc9606a4a4a378de55511edc2084c
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
+  RNBootSplash: 91e0c16bfc96703cb5b0562785b9a8cbfeb298fe
   RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
