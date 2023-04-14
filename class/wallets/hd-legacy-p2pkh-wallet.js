@@ -1,6 +1,6 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 const bip32 = BIP32Factory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 

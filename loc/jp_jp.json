@@ -603,6 +603,7 @@
     "payment_code": "支払コード",
     "payment_codes_list": "支払コードリスト",
     "who_can_pay_me": "あなたに支払いできる人：",
-    "purpose": "再利用・共有可能なコード (BIP47)"
+    "purpose": "再利用・共有可能なコード (BIP47)",
+    "not_found": "支払コードが見つかりません"
   }
 }
