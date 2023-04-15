@@ -159,7 +159,7 @@
     "details_amount_field_is_not_valid": "المبلغ غير صالح",
     "details_amount_field_is_less_than_minimum_amount_sat": "المبلغ المحدد صغير جدًا. الرجاء إدخال مبلغ أكبر من 500 ساتوشي.",
     "details_create": "إنشاء برقية",
-    "details_error_decode": "يتعذَّر فك تشفير عنوان Bitcoin",
+    "details_error_decode": "يتعذَّر تجزئة وتحليل عنوان البتكوين",
     "details_fee_field_is_not_valid": "حقل الرسوم غير صالح",
     "details_frozen": "{amount} بتكوين تم تجميدها",
     "details_next": "التالي",
@@ -603,6 +603,7 @@
     "payment_code": "كود الدفع",
     "payment_codes_list": "قائمة أكواد الدفع",
     "who_can_pay_me": "من يستطيع الدفع لي:",
-    "purpose": "أكواد المشاركة التي يمكن أعادة استخدامها (BIP47)"
+    "purpose": "أكواد المشاركة التي يمكن أعادة استخدامها (BIP47)",
+    "not_found": "لم يتم العثور على كود الدفع"
   }
 }
