@@ -1,4 +1,3 @@
-export * from './app-storage';
 export * from './wallets/abstract-wallet';
 export * from './wallets/legacy-wallet';
 export * from './wallets/segwit-bech32-wallet';
