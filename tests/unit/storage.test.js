@@ -4,6 +4,12 @@ const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const assert = require('assert');
 
+jest.mock('../../blue_modules/BlueElectrum', () => {
+  return {
+    connectMain: jest.fn(),
+  };
+});
+
 it('Appstorage - loadFromDisk works', async () => {
   /** @type {AppStorage} */
   const Storage = new AppStorage();
