@@ -302,7 +302,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (11.26.1):
+  - react-native-webview (12.0.2):
     - React-Core
   - react-native-widget-center (0.0.9):
     - React
@@ -392,7 +392,7 @@ PODS:
     - React-perflogger (= 0.71.6)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (11.7.0):
+  - RealmJS (11.8.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -454,7 +454,7 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
-  - RNShare (8.2.1):
+  - RNShare (8.2.2):
     - React-Core
   - RNSVG (13.9.0):
     - React-Core
@@ -746,7 +746,7 @@ SPEC CHECKSUMS:
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
+  react-native-webview: 203b6a1c7507737f777c91d7e10c30e7e67c1a17
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-perflogger: 43392072a5b867a504e2b4857606f8fc5a403d7f
   React-RCTActionSheet: c7b67c125bebeda9fb19fc7b200d85cb9d6899c4
@@ -762,7 +762,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 8692ac548bec648fa121980ccb4304afd136d584
   ReactCommon: 0c43eaeaaee231d7d8dc24fc5a6e4cf2b75bf196
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 10958b8a9d1f3a981c1b50bdc1da8396002e75a4
+  RealmJS: 27b8d695fa4bc9606a4a4a378de55511edc2084c
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: b90b71f45b8b97be43bc4284e71a6af48ac9f547
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
@@ -780,7 +780,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: afa5bf2794aecbb2dba2525329253da0d66656df
   RNReanimated: 29295af754cdd6f8e4428427d4195e02ea8766e0
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNShare: eaee3dd5a06dad397c7d3b14762007035c5de405
+  RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
