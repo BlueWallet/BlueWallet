@@ -4,12 +4,6 @@ import { AppRegistry } from 'react-native';
 import App from './App';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 
-const consoleLogOrig = console.log;
-console.log = (...args) => {
-  args.unshift(new Date());
-  consoleLogOrig.apply(consoleLogOrig, args);
-};
-
 const A = require('./blue_modules/analytics');
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
