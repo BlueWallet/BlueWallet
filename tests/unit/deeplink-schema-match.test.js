@@ -1,6 +1,12 @@
 import assert from 'assert';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 
+jest.mock('../../blue_modules/BlueElectrum', () => {
+  return {
+    connectMain: jest.fn(),
+  };
+});
+
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
