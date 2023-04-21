@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } 
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -114,7 +114,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const handleOnPaymentCodeButtonPressed = () => {
     navigation.navigate('PaymentCodeRoot', {
       screen: 'PaymentCode',
-      params: { paymentCode: wallet.getBIP47PaymentCode() },
+      params: { paymentCode: (wallet as HDSegwitBech32Wallet).getBIP47PaymentCode() },
     });
   };
 
