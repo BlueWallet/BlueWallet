@@ -193,4 +193,6 @@ const mockKeychain = {
 };
 jest.mock('react-native-keychain', () => mockKeychain);
 
+jest.mock('react-native-tcp-socket', () => mockKeychain);
+
 global.alert = () => {};
