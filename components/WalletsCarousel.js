@@ -327,16 +327,20 @@ const WalletsCarousel = forwardRef((props, ref) => {
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
-      {props.data.map((item, index) => (
-        <WalletCarouselItem
-          isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
-          item={item}
-          index={index}
-          handleLongPress={props.handleLongPress}
-          onPress={props.onPress}
-          key={index}
-        />
-      ))}
+      {props.data.map((item, index) =>
+        item ? (
+          <WalletCarouselItem
+            isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
+            item={item}
+            index={index}
+            handleLongPress={props.handleLongPress}
+            onPress={props.onPress}
+            key={index}
+          />
+        ) : (
+          <NewWalletPanel key={index} onPress={props.onPress} />
+        ),
+      )}
     </View>
   );
 });
