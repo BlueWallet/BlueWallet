@@ -39,6 +39,7 @@ jobs:
     - name: Run tests
       run: npm test || npm test || npm test
       env:
+        BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
         HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
@@ -94,7 +95,7 @@ jobs:
         avd-name: Pixel_API_29_AOSP
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test
+        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test  || npm run e2e:release-test
       env:
         TRAVIS: 1
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}

@@ -2,6 +2,18 @@ import assert from 'assert';
 import { getAddress, sortByAddressIndex, totalBalance, filterByAddressType } from '../../screen/wallets/addresses';
 import { TABS } from '../../components/addresses/AddressTypeTabs';
 
+jest.mock('../../blue_modules/currency', () => {
+  return {
+    init: jest.fn(),
+  };
+});
+
+jest.mock('../../blue_modules/BlueElectrum', () => {
+  return {
+    connectMain: jest.fn(),
+  };
+});
+
 const mockAddressesList = [
   { index: 2, isInternal: false, key: 'third_external_address' },
   { index: 0, isInternal: true, key: 'first_internal_address' },

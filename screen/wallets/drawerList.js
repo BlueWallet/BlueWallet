@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { StatusBar, View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
@@ -29,14 +29,12 @@ const DrawerList = props => {
     walletsCount.current = wallets.length;
   }, [wallets]);
 
-  const handleClick = index => {
-    console.log('click', index);
-    if (index <= wallets.length - 1) {
-      const wallet = wallets[index];
-      const walletID = wallet.getID();
+  const handleClick = item => {
+    if (item?.getID) {
+      const walletID = item.getID();
       props.navigation.navigate('WalletTransactions', {
-        walletID: wallet.getID(),
-        walletType: wallet.type,
+        walletID: item.getID(),
+        walletType: item.type,
         key: `WalletTransactions-${walletID}`,
       });
     } else {
@@ -56,34 +54,26 @@ const DrawerList = props => {
     return props.navigation.navigate('AddWalletRoot');
   };
 
-  const ListHeaderComponent = () => {
-    return (
-      <>
-        <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
-      </>
-    );
-  };
-
-  const renderWalletsCarousel = (
-    <WalletsCarousel
-      data={wallets.concat(false)}
-      extraData={[wallets]}
-      onPress={handleClick}
-      handleLongPress={handleLongPress}
-      ref={walletsCarousel}
-      testID="WalletsList"
-      selectedWallet={selectedWallet}
-      ListHeaderComponent={ListHeaderComponent}
-      scrollEnabled={isFocused}
-    />
-  );
-
   return (
-    <DrawerContentScrollView {...props} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      <View styles={[styles.root, stylesHook.root]}>
-        <StatusBar barStyle="default" />
-        {renderWalletsCarousel}
-      </View>
+    <DrawerContentScrollView
+      {...props}
+      style={[styles.root, stylesHook.root]}
+      contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+    >
+      <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      <WalletsCarousel
+        data={wallets.concat(false)}
+        extraData={[wallets]}
+        onPress={handleClick}
+        handleLongPress={handleLongPress}
+        ref={walletsCarousel}
+        testID="WalletsList"
+        selectedWallet={selectedWallet}
+        scrollEnabled={isFocused}
+      />
     </DrawerContentScrollView>
   );
 };

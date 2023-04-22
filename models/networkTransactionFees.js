@@ -10,7 +10,7 @@ export const NetworkTransactionFeeType = Object.freeze({
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  constructor(fastestFee = 1, mediumFee = 1, slowFee = 1) {
+  constructor(fastestFee = 2, mediumFee = 1, slowFee = 1) {
     this.fastestFee = fastestFee;
     this.mediumFee = mediumFee;
     this.slowFee = slowFee;
@@ -31,12 +31,12 @@ export default class NetworkTransactionFees {
           const networkFee = new NetworkTransactionFee(response.fast, response.medium, response.slow);
           resolve(networkFee);
         } else {
-          const networkFee = new NetworkTransactionFee(1, 1, 1);
+          const networkFee = new NetworkTransactionFee(2, 1, 1);
           resolve(networkFee);
         }
       } catch (err) {
         console.warn(err);
-        const networkFee = new NetworkTransactionFee(1, 1, 1);
+        const networkFee = new NetworkTransactionFee(2, 1, 1);
         resolve(networkFee);
       }
     });

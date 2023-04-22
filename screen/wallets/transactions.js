@@ -27,12 +27,13 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
-import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
+import PropTypes from 'prop-types';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -42,7 +43,7 @@ const buttonFontSize =
     ? 22
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
-const WalletTransactions = () => {
+const WalletTransactions = ({ navigation }) => {
   const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
@@ -123,7 +124,7 @@ const WalletTransactions = () => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallets, wallet, walletID]);
+  }, [walletID]);
 
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);
@@ -177,7 +178,12 @@ const WalletTransactions = () => {
       refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      /** @type {LegacyWallet} */
+      if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
+        const pcStart = +new Date();
+        await wallet.fetchBIP47SenderPaymentCodes();
+        const pcEnd = +new Date();
+        console.log(wallet.getLabel(), 'fetch payment codes took', (pcEnd - pcStart) / 1000, 'sec');
+      }
       const balanceStart = +new Date();
       const oldBalance = wallet.getBalance();
       await wallet.fetchBalance();
@@ -338,7 +344,7 @@ const WalletTransactions = () => {
   };
 
   const copyFromClipboard = async () => {
-    onBarCodeRead({ data: await BlueClipboard.getClipboardContent() });
+    onBarCodeRead({ data: await BlueClipboard().getClipboardContent() });
   };
 
   const sendButtonPress = () => {
@@ -371,70 +377,66 @@ const WalletTransactions = () => {
   };
 
   const sendButtonLongPress = async () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: walletActionButtonsRef.current }).then(onBarCodeRead);
-    } else {
-      const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
-      if (Platform.OS === 'ios') {
-        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-        if (!isClipboardEmpty) {
-          options.push(loc.wallets.list_long_clipboard);
-        }
-        ActionSheet.showActionSheetWithOptions(
-          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-          buttonIndex => {
-            if (buttonIndex === 1) {
-              choosePhoto();
-            } else if (buttonIndex === 2) {
-              navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: name,
-                  onBarScanned: onBarCodeRead,
-                  showFileImportButton: false,
-                },
-              });
-            } else if (buttonIndex === 3) {
-              copyFromClipboard();
-            }
-          },
-        );
-      } else if (Platform.OS === 'android') {
-        const buttons = [
-          {
-            text: loc._.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: loc.wallets.list_long_choose,
-            onPress: choosePhoto,
-          },
-          {
-            text: loc.wallets.list_long_scan,
-            onPress: () =>
-              navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy: name,
-                  onBarScanned: onBarCodeRead,
-                  showFileImportButton: false,
-                },
-              }),
-          },
-        ];
-        if (!isClipboardEmpty) {
-          buttons.push({
-            text: loc.wallets.list_long_clipboard,
-            onPress: copyFromClipboard,
-          });
-        }
-        ActionSheet.showActionSheetWithOptions({
-          title: '',
-          message: '',
-          buttons,
+    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
+    if (Platform.OS === 'ios') {
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
+      }
+      ActionSheet.showActionSheetWithOptions(
+        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            choosePhoto();
+          } else if (buttonIndex === 2) {
+            navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: name,
+                onBarScanned: onBarCodeRead,
+                showFileImportButton: false,
+              },
+            });
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      const buttons = [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: loc.wallets.list_long_choose,
+          onPress: choosePhoto,
+        },
+        {
+          text: loc.wallets.list_long_scan,
+          onPress: () =>
+            navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: name,
+                onBarScanned: onBarCodeRead,
+                showFileImportButton: false,
+              },
+            }),
+        },
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: loc.wallets.list_long_clipboard,
+          onPress: copyFromClipboard,
         });
       }
+      ActionSheet.showActionSheetWithOptions({
+        title: '',
+        message: '',
+        buttons,
+      });
     }
   };
 
@@ -448,14 +450,14 @@ const WalletTransactions = () => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === TransactionsNavigationHeader.actionKeys.Refill) {
+    if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         alert(loc.lnd.refill_create);
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
-    } else if (id === TransactionsNavigationHeader.actionKeys.RefillWithExternalWallet) {
+    } else if (id === actionKeys.RefillWithExternalWallet) {
       if (wallet.getUserHasSavedExport()) {
         navigate('ReceiveDetailsRoot', {
           screen: 'ReceiveDetails',
@@ -467,10 +469,17 @@ const WalletTransactions = () => {
     }
   };
 
+  const getItemLayout = (_, index) => ({
+    length: 64,
+    offset: 64 * index,
+    index,
+  });
+
   return (
     <View style={styles.flex}>
       <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
       <TransactionsNavigationHeader
+        navigation={navigation}
         wallet={wallet}
         onWalletUnitChange={passedWallet =>
           InteractionManager.runAfterInteractions(async () => {
@@ -507,6 +516,7 @@ const WalletTransactions = () => {
       />
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
+          getItemLayout={getItemLayout}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
@@ -536,6 +546,8 @@ const WalletTransactions = () => {
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}
           renderItem={renderItem}
+          initialNumToRender={10}
+          removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>
@@ -608,6 +620,10 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
     headerBackTitleVisible: false,
   };
 });
+
+WalletTransactions.propTypes = {
+  navigation: PropTypes.shape(),
+};
 
 const styles = StyleSheet.create({
   flex: {

@@ -1,31 +1,31 @@
-import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo, extractTextFromElementById } from './helperz';
+import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
+
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
+
+/**
+ * in this suite each test requires that there is one specific wallet present, thus, we import it
+ * before anything else.
+ * we dont clean it up as we expect other test suites to do clean install of the app
+ */
 
 beforeAll(async () => {
   if (!process.env.HD_MNEMONIC_BIP84) {
     console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
     return;
   }
+  // reinstalling the app just for any case to clean up app's storage
+  await device.launchApp({ delete: true });
 
-  console.log('before all - importing bip48');
+  console.log('before all - importing bip48...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+  console.log('...imported!');
   await device.pressBack();
   await sleep(15000);
-}, 1200000);
-
-afterAll(async () => {
-  if (!process.env.HD_MNEMONIC_BIP84) {
-    console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-    return;
-  }
-
-  console.log('after all - deleting bip84');
-  await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
-});
+}, 1200_000);
 
 describe('BlueWallet UI Tests - import BIP84 wallet', () => {
-  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction; then cosign', async () => {
+  it('can create a transaction; can scanQR with bip21; can switch units', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');
@@ -34,6 +34,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    await device.launchApp({ newInstance: true });
 
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -170,16 +171,41 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(transaction.outs[0].value, 50000);
 
-    // now, testing send many feature
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 
-    await device.pressBack();
-    await device.pressBack();
-    // we already have one output, lest add another two
+  it('can batch send', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_batch_send');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    await device.launchApp({ newInstance: true });
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await element(by.id('SendButton')).tap();
+
+    // lets create real transaction:
+    await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001\n');
+
+    // setting fee rate:
+    const feeRate = 2;
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustom')).tap();
+    await element(by.type('android.widget.EditText')).replaceText(feeRate + '');
+    await element(by.text('OK')).tap();
+
+    // lest add another two outputs
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
     await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0002\n');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
 
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
@@ -194,11 +220,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('AddRecipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
-    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).typeText('0.0003\n');
+    await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
+    await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
 
     // remove second output
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
+    await sleep(5000);
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('RemoveRecipient')).tap();
 
@@ -209,22 +236,35 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     } catch (_) {}
 
     await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
+    const txhex = await extractTextFromElementById('TxhexInput');
+    const transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 3);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    assert.strictEqual(transaction.outs[0].value, 50000);
-    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    assert.strictEqual(transaction.outs[1].value, 30000);
+    assert.strictEqual(transaction.outs[0].value, 10000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
+    assert.strictEqual(transaction.outs[1].value, 30000, `got txhex ${txhex}`);
 
-    // now, testing sendMAX feature:
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack(); // go back to wallet tx list to reset the form
+  it('can sendMAX', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_sendMAX');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    await device.launchApp({ newInstance: true });
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+
     await element(by.id('SendButton')).tap();
 
     // set fee rate
+    const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
     await element(by.type('android.widget.EditText')).typeText(feeRate + '');
@@ -244,8 +284,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // created. verifying:
     await yo('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
-    txhex = await extractTextFromElementById('TxhexInput');
-    transaction = bitcoin.Transaction.fromHex(txhex);
+    let txhex = await extractTextFromElementById('TxhexInput');
+    let transaction = bitcoin.Transaction.fromHex(txhex);
     assert.strictEqual(transaction.outs.length, 1, 'should be single output, no change');
     assert.ok(transaction.outs[0].value > 100000);
 
@@ -273,12 +313,24 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[1].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     assert.strictEqual(transaction.outs[1].value, 10000);
 
-    // now, testing cosign psbt:
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
 
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
+  it('can cosign psbt', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_cosign');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    await device.launchApp({ newInstance: true });
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('SendButton')).tap();
+
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('PsbtSign')).tap();
 
@@ -295,8 +347,31 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // this is fully-signed tx, "this is tx hex" help text should appear
     await yo('DynamicCode');
-    await device.pressBack();
-    await device.pressBack();
+
+    const txhex = await extractTextFromElementById('TxhexInput');
+    console.warn(txhex);
+    const transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.ins.length, 1);
+    assert.strictEqual(transaction.outs.length, 1);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw'); // to address
+    assert.strictEqual(transaction.outs[0].value, 1000);
+
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can do basic wallet-details operations', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_walletdetails');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+    }
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    await device.launchApp({ newInstance: true });
+
+    // go inside the wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
     // let's test wallet details screens
     await element(by.id('WalletDetails')).tap();
@@ -330,10 +405,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
-    // Delete
-    await device.pressBack();
-    await device.pressBack();
-
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -346,6 +417,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    await device.launchApp({ newInstance: true });
 
     await device.launchApp({
       newInstance: true,
@@ -369,10 +441,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
 
-    await device.pressBack();
-    await device.pressBack();
-    // await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
-
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -385,7 +453,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-
+    await device.launchApp({ newInstance: true });
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
@@ -478,12 +546,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(tx2.ins.length, 3);
     assert.strictEqual(tx2.ins[0].hash.toString('hex'), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
     assert.strictEqual(tx2.ins[0].index, 0);
-
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    await device.pressBack();
-    // await helperDeleteWallet('Imported HD SegWit (BIP84 Bech32 Native)', '105526');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });

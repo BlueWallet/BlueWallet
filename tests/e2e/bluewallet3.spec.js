@@ -1,5 +1,10 @@
 import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo } from './helperz';
 
+beforeAll(async () => {
+  // reinstalling the app just for any case to clean up app's storage
+  await device.launchApp({ delete: true });
+}, 300_000);
+
 describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
   /**
    * test plan:
@@ -15,12 +20,14 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
     }
+    await device.launchApp({ newInstance: true });
     await helperImportWallet(
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
       'watchOnly',
       'Imported Watch-only',
       '0 BTC', // it used to be 0.00030666 till someone stole it from git history kek
     );
+    await sleep(15000);
 
     await element(by.id('ReceiveButton')).tap();
     try {

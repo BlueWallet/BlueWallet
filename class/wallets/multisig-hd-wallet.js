@@ -4,7 +4,7 @@ import b58 from 'bs58check';
 import { decodeUR } from '../../blue_modules/ur';
 import { ECPairFactory } from 'ecpair';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 const ECPair = ECPairFactory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
@@ -567,11 +567,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
     if (secret.indexOf('sortedmulti(') !== -1 && json.descriptor) {
       if (json.label) this.setLabel(json.label);
-      if (json.descriptor.startsWith('wsh(')) {
-        this.setNativeSegwit();
-      } else if (json.descriptor.startsWith('sh(wsh(')) {
+      if (json.descriptor.includes('sh(wsh(')) {
         this.setWrappedSegwit();
-      } else if (json.descriptor.startsWith('sh(')) {
+      } else if (json.descriptor.includes('wsh(')) {
+        this.setNativeSegwit();
+      } else if (json.descriptor.includes('sh(')) {
         this.setLegacy();
       }
 

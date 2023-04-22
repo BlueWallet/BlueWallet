@@ -143,6 +143,18 @@ export class AbstractWallet {
     return BitcoinUnit.BTC;
   }
 
+  async allowOnchainAddress(): Promise<boolean> {
+    throw new Error('allowOnchainAddress: Not implemented');
+  }
+
+  allowBIP47(): boolean {
+    return false;
+  }
+
+  switchBIP47(value: boolean): void {
+    throw new Error('switchBIP47: not implemented');
+  }
+
   allowReceive(): boolean {
     return true;
   }
@@ -355,6 +367,10 @@ export class AbstractWallet {
   }
 
   useWithHardwareWalletEnabled(): boolean {
+    return false;
+  }
+
+  isBIP47Enabled(): boolean {
     return false;
   }
 

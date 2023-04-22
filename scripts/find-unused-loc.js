@@ -3,7 +3,7 @@ const path = require('path');
 
 const mainLocFile = './loc/en.json';
 const dirsToInterate = ['components', 'screen', 'blue_modules', 'class'];
-const addFiles = ['BlueComponents.js', 'App.js', 'BlueApp.js'];
+const addFiles = ['BlueComponents.js', 'App.js', 'BlueApp.js', 'Navigation.js'];
 const allowedLocPrefixes = ['loc.lnurl_auth', 'loc.units'];
 
 const allLocKeysHashmap = {}; // loc key -> used or not

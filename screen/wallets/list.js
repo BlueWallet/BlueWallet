@@ -23,7 +23,7 @@ import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isMacCatalina, isTablet } from '../../blue_modules/environment';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -103,13 +103,25 @@ const WalletsList = () => {
       },
       headerRight: () =>
         I18nManager.isRTL ? null : (
-          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.more}
+            testID="SettingsButton"
+            style={styles.headerTouch}
+            onPress={navigateToSettings}
+          >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
       headerLeft: () =>
         I18nManager.isRTL ? (
-          <TouchableOpacity accessibilityRole="button" testID="SettingsButton" style={styles.headerTouch} onPress={navigateToSettings}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.more}
+            testID="SettingsButton"
+            style={styles.headerTouch}
+            onPress={navigateToSettings}
+          >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ) : null,
@@ -136,17 +148,15 @@ const WalletsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
-  const handleClick = index => {
-    console.log('click', index);
-    if (index <= wallets.length - 1) {
-      const wallet = wallets[index];
-      const walletID = wallet.getID();
+  const handleClick = item => {
+    if (item?.getID) {
+      const walletID = item.getID();
       navigate('WalletTransactions', {
         walletID,
-        walletType: wallet.type,
+        walletType: item.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length) {
+    } else {
       navigate('AddWalletRoot');
     }
   };
@@ -170,17 +180,11 @@ const WalletsList = () => {
   };
 
   const renderListHeaderComponent = () => {
-    const style = { opacity: isLoading ? 1.0 : 0.5 };
     return (
       <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
         <Text textBreakStrategy="simple" style={[styles.listHeaderText, stylesHook.listHeaderText]}>
           {`${loc.transactions.list_title}${'  '}`}
         </Text>
-        {isDesktop && (
-          <TouchableOpacity accessibilityRole="button" style={style} onPress={() => refreshTransactions(true)} disabled={isLoading}>
-            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-          </TouchableOpacity>
-        )}
       </View>
     );
   };
@@ -265,7 +269,7 @@ const WalletsList = () => {
         <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
-            onLongPress={isMacCatalina ? undefined : sendButtonLongPress}
+            onLongPress={sendButtonLongPress}
             icon={<Image resizeMode="stretch" source={scanImage} />}
             text={loc.send.details_scan}
           />
@@ -281,11 +285,7 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
-    } else {
-      scanqrHelper(navigate, routeName, false).then(onBarScanned);
-    }
+    scanqrHelper(navigate, routeName, false).then(onBarScanned);
   };
 
   const onBarScanned = value => {
@@ -297,32 +297,28 @@ const WalletsList = () => {
   };
 
   const copyFromClipboard = async () => {
-    onBarScanned(await BlueClipboard.getClipboardContent());
+    onBarScanned(await BlueClipboard().getClipboardContent());
   };
 
   const sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await BlueClipboard.getClipboardContent()).trim().length === 0;
+    const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
     if (Platform.OS === 'ios') {
-      if (isMacCatalina) {
-        fs.showActionSheet({ anchor: findNodeHandle(walletActionButtonsRef.current) }).then(onBarScanned);
-      } else {
-        const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-        if (!isClipboardEmpty) {
-          options.push(loc.wallets.list_long_clipboard);
-        }
-        ActionSheet.showActionSheetWithOptions(
-          { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-          buttonIndex => {
-            if (buttonIndex === 1) {
-              fs.showImagePickerAndReadImage().then(onBarScanned);
-            } else if (buttonIndex === 2) {
-              scanqrHelper(navigate, routeName, false).then(onBarScanned);
-            } else if (buttonIndex === 3) {
-              copyFromClipboard();
-            }
-          },
-        );
+      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+      if (!isClipboardEmpty) {
+        options.push(loc.wallets.list_long_clipboard);
       }
+      ActionSheet.showActionSheetWithOptions(
+        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            fs.showImagePickerAndReadImage().then(onBarScanned);
+          } else if (buttonIndex === 2) {
+            scanqrHelper(navigate, routeName, false).then(onBarScanned);
+          } else if (buttonIndex === 3) {
+            copyFromClipboard();
+          }
+        },
+      );
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
@@ -366,6 +362,7 @@ const WalletsList = () => {
       <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
+          removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
           refreshing={isLoading}

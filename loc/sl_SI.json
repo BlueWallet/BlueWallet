@@ -182,7 +182,6 @@
     "input_paste": "Prilepi",
     "input_total": "Skupaj:",
     "permission_camera_message": "Za uporabo kamere potrebujemo dovoljenje.",
-    "permission_camera_title": "Dovoljenje za uporabo kamere",
     "psbt_sign": "Podpiši transakcijo",
     "open_settings": "Odpri Nastavitve",
     "permission_storage_later": "Vprašaj me kasneje",
@@ -225,6 +224,7 @@
     "biom_no_passcode": "Vaša naprava ni zaščitena z geslom. Če želite nadaljevati, v aplikaciji Nastavitve nastavite svoje geslo.",
     "biom_remove_decrypt": "Shramba bo ponastavljena, pri tem bodo odstranjene vse denarnice. Ali ste prepričani, da želite nadaljevati?",
     "currency": "Valuta",
+    "currency_source": "Tečaji so pridobljeni iz",
     "currency_fetch_error": "Pri pridobivanju tečaja za izbrano valuto je prišlo do napake.",
     "default_desc": "Ko je onemogočeno, bo BlueWallet ob zagonu takoj odprl izbrano denarnico.",
     "default_info": "Privzeto v",
@@ -278,7 +278,7 @@
     "lightning_saved": "Spremembe so bile uspešno shranjene",
     "lightning_settings": "Lightning Nastavitve",
     "tor_settings": "Tor Nastavitve",
-    "lightning_settings_explain": "Za povezavo z lastnim LND vozliščem, prosimo namestite LndHub in tukaj vnesite URL vozlišča. Pustite prazno za uporabo BlueWallet LNDHub (lndhub.io). Z novim LNDHub-om bodo povezane samo denarnice ustvarjene po potrditvi sprememb.",
+    "lightning_settings_explain": "Za povezavo z lastnim LND vozliščem, prosimo namestite LndHub in tukaj vnesite URL vozlišča. Pustite prazno za uporabo BlueWallet LNDHub . Z novim LNDHub-om bodo povezane samo denarnice ustvarjene po potrditvi sprememb.",
     "network": "Omrežje",
     "network_broadcast": "Objavi transakcijo",
     "network_electrum": "Electrum Strežnik",
@@ -336,6 +336,7 @@
     "details_from": "Vhod",
     "details_inputs": "Vhodi",
     "details_outputs": "Izhodi",
+    "date": "Datum",
     "details_received": "Prejeto",
     "transaction_note_saved": "Opomba transakcije je bila uspešno shranjena.",
     "details_show_in_block_explorer": "Prikaži v raziskovalcu blokov",
@@ -390,6 +391,7 @@
     "details_derivation_path": "pot izpeljave (derivation path)",
     "details_display": "Prikaži na seznamu denarnic",
     "details_export_backup": "Izvozi / Varnostna kopija",
+    "details_export_history": "Izvozi zgodovino v CSV",
     "details_master_fingerprint": "Glavni prstni odtis (fingerprint)",
     "details_multisig_type": "multisig",
     "details_no_cancel": "Ne, prekliči",
@@ -409,7 +411,6 @@
     "import_passphrase_message": "Vnesite dodatno besedo/niz (passphrase), če jo uporabljate",
     "import_error": "Napaka pri uvozu. Prosimo, preverite ali so podani podatki pravilni.",
     "import_explanation": "Napišite vaš seznam besed (mnemonično seme), javni ključ, WIF, ali karkoli drugega imate. BlueWallet se bo potrudil uganiti pravilno obliko in uvoziti vašo denarnico.",
-    "import_file": "Uvozi datoteko",
     "import_imported": "Uvoženo",
     "import_scan_qr": "Skeniraj ali uvozi datoteko",
     "import_success": "Vaša denarnica je bila uspešno uvožena.",
@@ -448,7 +449,6 @@
     "select_no_bitcoin": "Trenutno ni na voljo nobena Bitcoin denarnica.",
     "select_no_bitcoin_exp": "Za napolnitev Lightning denarnic je potrebna Bitcoin denarnica. Ustvarite ali uvozite denarnico.",
     "select_wallet": "Izberite Denarnico",
-    "take_photo": "Fotografiraj",
     "xpub_copiedToClipboard": "Kopirano v odložišče.",
     "pull_to_refresh": "Povlecite za osvežitev",
     "warning_do_not_disclose": "Opozorilo! Ne razkrivajte",
@@ -569,5 +569,8 @@
     "type_receive": "Prejemni",
     "type_used": "Uporabljen",
     "transactions": "Transakcije"
+  },
+  "lnurl_auth": {
+    "register_question_part_1": "Bi želeli odpreti račun pri"
   }
 }

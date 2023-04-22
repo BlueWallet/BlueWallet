@@ -1,15 +1,9 @@
 import { LegacyWallet } from '../../class';
 import { ECPairFactory } from 'ecpair';
-const ecc = require('tiny-secp256k1');
+import ecc from '../../blue_modules/noble_ecc';
 const ECPair = ECPairFactory(ecc);
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
-
-const consoleWarnOrig = console.warn;
-console.warn = function () {
-  if (arguments[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds')) return;
-  return consoleWarnOrig.apply(arguments);
-};
 
 describe('Legacy wallet', () => {
   it('can validate addresses', () => {

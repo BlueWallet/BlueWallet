@@ -35,6 +35,10 @@ class WidgetAPI {
       urlString = "https://api.exir.io/v1/ticker?symbol=btc-irt"
     case "wazirx":
       urlString = "https://api.wazirx.com/api/v2/tickers/btcinr"
+    case "Bitstamp":
+      urlString = "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
+      case "CoinGecko":
+      urlString = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
     default:
       urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
     }
@@ -61,6 +65,12 @@ class WidgetAPI {
         let unix = Double(lastUpdated / 1_000)
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
         latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "CoinGecko":
+        guard let rateDict = json["bitcoin"] as? [String: Any],
+              let rateDouble = rateDict[endPointKey.lowercased()] as? Double
+        else { break }
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "YadioConvert":
         guard let rateDict = json as? [String: Any],
               let rateDouble = rateDict["rate"] as? Double,
@@ -72,6 +82,10 @@ class WidgetAPI {
       case "Exir":
         guard let rateDouble = json["last"] as? Double else { break }
         let rateString = String(rateDouble)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "Bitstamp":
+        guard let rateString = json["last"] as? String, let rateDouble = Double(rateString) else { break }
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       case "wazirx":

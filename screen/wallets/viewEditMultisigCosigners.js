@@ -13,7 +13,6 @@ import {
   Switch,
   Text,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -41,7 +40,6 @@ import MultipleStepsListItem, {
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import { SquareButton } from '../../components/SquareButton';
-import { isMacCatalina } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
@@ -51,7 +49,7 @@ const prompt = require('../../helpers/prompt');
 const ViewEditMultisigCosigners = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdancedModeEnabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
@@ -105,7 +103,7 @@ const ViewEditMultisigCosigners = () => {
   });
 
   useEffect(() => {
-    isAdancedModeEnabled().then(setIsAdvancedModeEnabledRender);
+    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -437,33 +435,24 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const scanOrOpenFile = () => {
-    if (isMacCatalina) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButtonRef.current) }).then(result => {
-        // Triggers FlatList re-render
-        setImportText(result);
-        //
-        _handleUseMnemonicPhrase(result);
-      });
-    } else {
-      setIsProvideMnemonicsModalVisible(false);
-      setTimeout(
-        () =>
-          navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              launchedBy: route.name,
-              onBarScanned: result => {
-                // Triggers FlatList re-render
-                setImportText(result);
-                //
-                _handleUseMnemonicPhrase(result);
-              },
-              showFileImportButton: true,
+    setIsProvideMnemonicsModalVisible(false);
+    setTimeout(
+      () =>
+        navigate('ScanQRCodeRoot', {
+          screen: 'ScanQRCode',
+          params: {
+            launchedBy: route.name,
+            onBarScanned: result => {
+              // Triggers FlatList re-render
+              setImportText(result);
+              //
+              _handleUseMnemonicPhrase(result);
             },
-          }),
-        650,
-      );
-    }
+            showFileImportButton: true,
+          },
+        }),
+      650,
+    );
   };
 
   const hideProvideMnemonicsModal = () => {

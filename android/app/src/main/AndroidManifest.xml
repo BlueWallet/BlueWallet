@@ -17,6 +17,7 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
+      android:largeHeap="true"
       android:extractNativeLibs="true"
       android:usesCleartextTraffic="true"
       android:supportsRtl="true"
@@ -75,8 +76,6 @@
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
-          <data android:scheme="bankid" />
-          <data android:scheme="swish" />
           <data android:scheme="http" />
           <data android:scheme="https" />
         </intent-filter>

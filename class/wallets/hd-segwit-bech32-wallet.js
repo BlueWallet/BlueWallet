@@ -46,4 +46,8 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   allowXpub() {
     return true;
   }
+
+  allowBIP47() {
+    return true;
+  }
 }
