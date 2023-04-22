@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } 
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -144,7 +144,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       <Image
         source={(() => {
           switch (wallet.type) {
-            case LightningLdkWallet.type:
             case LightningCustodianWallet.type:
               return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
             case MultisigHDWallet.type:
@@ -238,13 +237,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <TouchableOpacity accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
           <View style={styles.manageFundsButton}>
             <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
-      {wallet.type === LightningLdkWallet.type && (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc.lnd.title} onPress={handleManageFundsPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
           </View>
         </TouchableOpacity>
       )}

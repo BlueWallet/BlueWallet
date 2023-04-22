@@ -29,7 +29,6 @@ import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletsAddMultisigHelp from './screen/wallets/addMultisigHelp';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
-import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
 import ImportWallet from './screen/wallets/import';
 import ImportWalletDiscovery from './screen/wallets/importDiscovery';
 import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
@@ -70,8 +69,6 @@ import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
-import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
-import LdkInfo from './screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
@@ -81,7 +78,6 @@ import DrawerList from './screen/wallets/drawerList';
 import { isDesktop, isTablet, isHandset } from './blue_modules/environment';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
-import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import loc from './loc';
@@ -95,10 +91,7 @@ const WalletsRoot = () => {
     <WalletsStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionStatus" component={TransactionStatus} options={TransactionStatus.navigationOptions(theme)} />
       <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
@@ -184,7 +177,6 @@ const AddWalletRoot = () => {
         component={PleaseBackupLNDHub}
         options={PleaseBackupLNDHub.navigationOptions(theme)}
       />
-      <AddWalletStack.Screen name="PleaseBackupLdk" component={PleaseBackupLdk} options={PleaseBackupLdk.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="WalletsAddMultisig"
@@ -280,23 +272,6 @@ const ScanLndInvoiceRoot = () => {
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
     </ScanLndInvoiceStack.Navigator>
-  );
-};
-
-const LDKOpenChannelStack = createNativeStackNavigator();
-const LDKOpenChannelRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <LDKOpenChannelStack.Navigator name="LDKOpenChannelRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="SelectWallet">
-      <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
-      <LDKOpenChannelStack.Screen
-        name="LDKOpenChannelSetAmount"
-        component={LdkOpenChannel}
-        options={LdkOpenChannel.navigationOptions(theme)}
-      />
-      <LDKOpenChannelStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
-    </LDKOpenChannelStack.Navigator>
   );
 };
 
@@ -505,7 +480,6 @@ const Navigation = () => {
       <RootStack.Screen name="SelectWallet" component={SelectWallet} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
         name="ScanQRCodeRoot"
