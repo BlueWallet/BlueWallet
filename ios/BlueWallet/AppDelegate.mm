@@ -11,6 +11,7 @@
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
 #import <WatchConnectivity/WatchConnectivity.h>
+#import <RNBootSplash/RNBootSplash.h> // <- add the header import
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -40,7 +41,11 @@
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
   
-  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+  [super application:application didFinishLaunchingWithOptions:launchOptions];
+  [RNBootSplash initWithStoryboard:@"BootSplash" rootView:self.window.rootViewController.view]; // <- initialization using the storyboard file name
+
+  
+  return YES;
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

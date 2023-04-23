@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
+import React, { useContext, useLayoutEffect, useState } from 'react';
+import { View, Image, TouchableOpacity, StyleSheet, StatusBar, ActivityIndicator, useColorScheme } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import LottieView from 'lottie-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
@@ -12,14 +11,11 @@ import { isHandset } from './blue_modules/environment';
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  container: {
-    flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+
   biometric: {
-    flex: 1,
     justifyContent: 'flex-end',
     marginBottom: 58,
   },
@@ -27,9 +23,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
   },
+  iconContainer: {
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    flex: 0.6,
+  },
   icon: {
-    width: 64,
-    height: 64,
+    width: 96,
+    height: 96,
   },
 });
 
@@ -40,7 +41,6 @@ const UnlockWith = () => {
   const [biometricType, setBiometricType] = useState(false);
   const [isStorageEncryptedEnabled, setIsStorageEncryptedEnabled] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [animationDidFinish, setAnimationDidFinish] = useState(false);
   const colorScheme = useColorScheme();
 
   const initialRender = async () => {
@@ -50,9 +50,18 @@ const UnlockWith = () => {
     }
 
     setBiometricType(biometricType);
+    if (unlockOnComponentMount) {
+      const storageIsEncrypted = await isStorageEncrypted();
+      setIsStorageEncryptedEnabled(storageIsEncrypted);
+      if (!biometricType || storageIsEncrypted) {
+        unlockWithKey();
+      } else if (typeof biometricType === 'string') {
+        unlockWithBiometrics();
+      }
+    }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     initialRender();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -116,24 +125,14 @@ const UnlockWith = () => {
     }
   };
 
-  const onAnimationFinish = async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    if (unlockOnComponentMount) {
-      const storageIsEncrypted = await isStorageEncrypted();
-      setIsStorageEncryptedEnabled(storageIsEncrypted);
-      if (!biometricType || storageIsEncrypted) {
-        unlockWithKey();
-      } else if (typeof biometricType === 'string') unlockWithBiometrics();
-    }
-    setAnimationDidFinish(true);
-  };
-
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar barStyle="default" />
-      <View style={styles.container}>
-        <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
-        <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
+      <View style={styles.iconContainer}>
+        <Image source={require('./img/qr-code.png')} style={styles.icon} />
+      </View>
+      <View style={styles.biometric}>
+        <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
       </View>
     </SafeAreaView>
   );
