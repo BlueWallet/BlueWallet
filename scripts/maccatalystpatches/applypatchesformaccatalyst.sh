@@ -10,4 +10,4 @@ echo > blue_modules/torrific.js
 echo "Updating Podfile"
 cd ios && pod update && cd ..
 echo ""
-echo "NOTE: react-native-tor is not currently compatible with Mac Catalyst.
+echo "NOTE: react-native-tor and rn-dlk are not currently compatible with Mac Catalyst.
