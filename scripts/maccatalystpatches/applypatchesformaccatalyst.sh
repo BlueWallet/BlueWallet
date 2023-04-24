@@ -3,6 +3,7 @@ rm release-notes.txt release-notes.json
 echo "Applying patch for package.json"
 sed -i '' '/react-native-tor/d' ./package.json
 sed -i '' '/rn-ldk/d' ./package.json
+sed -i '' 's/"patches": "patch -p1 < scripts\/react-native-tor.patch; patch -p1 < scripts\/rn-ldk.patch",/"patches":/g' ./package.json
 rm -fr node_modules
 echo "Re-installing node_modules"
 npm i
