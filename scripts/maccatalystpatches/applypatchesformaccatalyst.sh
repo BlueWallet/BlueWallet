@@ -14,5 +14,8 @@ cp scripts/maccatalystpatches/torrific.js blue_modules/torrific.js
 cp scripts/maccatalystpatches/lightning-ldk-wallet.ts class/wallets/lightning-ldk-wallet.ts
 echo "Updating Podfile"
 cd ios && pod update && cd ..
+echo "Remove Settings.bundle from Xcode project as its only meant for iOS"
+rm -rf /ios/Settings.bundle
+sed -i '' '/Settings.bundle/d' ios/BlueWallet.xcodeproj/project.pbxproj
 echo ""
 echo "NOTE: react-native-tor and rn-dlk are not currently compatible with Mac Catalyst.
