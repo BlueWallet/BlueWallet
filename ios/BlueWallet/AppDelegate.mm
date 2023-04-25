@@ -120,7 +120,7 @@
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (void)openPreferences {
+- (void)openSettings {
   [EventEmitter.sharedInstance openSettings];
 }
 
@@ -131,9 +131,9 @@
   [builder removeMenuForIdentifier:UIMenuToolbar];
   [builder removeMenuForIdentifier:UIMenuFile];
 
-  UIKeyCommand *preferencesCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openPreferences)];
-  [preferencesCommand setTitle:@"Preferences..."];
-  UIMenu *preferences = [UIMenu menuWithTitle:@"Preferences..." image:nil identifier:@"openPreferences" options:UIMenuOptionsDisplayInline children:@[preferencesCommand]];
+  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
+  [settingsCommand setTitle:@"Settings..."];
+  UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:@"openSettings" options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
   
   [builder insertSiblingMenu:preferences afterMenuForIdentifier:UIMenuAbout];
 }
