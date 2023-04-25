@@ -135,7 +135,7 @@
   [settingsCommand setTitle:@"Settings..."];
   UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:@"openSettings" options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
   
-  [builder insertSiblingMenu:preferences afterMenuForIdentifier:UIMenuAbout];
+  [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
 
 
