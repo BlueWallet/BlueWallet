@@ -577,6 +577,34 @@ describe('BC-UR', () => {
     assert.ok(str.includes('Keystone Multisig setup file'));
   });
 
+  it('v2: can decodeUR() into accounts', () => {
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(
+      'UR:CRYPTO-ACCOUNT/OEADCYJKSKTNBKAOLSTAADMWTAADDLONAXHDCLAOJOKNIDZCPSSAJTPTRPFRCECFKKAMYKJTVTCSBTBDTKCFIYVYOETNEEYKWFNBNYNDAAHDCXGEGUNBPYCLRHUOMDLNNSGLMOOYHSCFGLAXRTWSFHYKADGESWMOWKEOSSKOGHMHZTAMTAADDYOTADLNCSGHYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYKBWFDNUYTAADMHTAADMWTAADDLONAXHDCLAOWNWFFLLDCWCXYLHFMNPLFMSOLNNERSRPKGSGRPWFHDEYJLBEWPSSCNHFRYGOMUNTAAHDCXJTPKVLIHPLBABKBKPYLREYHHZEKETSJZFRMHMHECYALDVDTEWNROFLPTNBKKKBSBAMTAADDYOTADLNCSEHYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYFSAHZMKPTAADMUTAADDLONAXHDCLAXKTGSMEBSTKATZSMTLOJTOSMWWTTLSGWENYZEDYQZGRLSYLVOBWRKMOMUBAKIWKRYAAHDCXFSOXRFCFBKDSLABYCAEHZSURUOMHHEDRLBJZVDKEJLBENLCFBYJLDAFSFXFYGMCFAMTAADDYOTADLNCSDWYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYBZHPSGHKSOPAJSLN',
+    );
+    let data = '';
+    if (decoder.isComplete()) {
+      data = decoder.toString();
+    }
+
+    const json = JSON.parse(data);
+
+    assert.ok(Array.isArray(json));
+    assert.strictEqual(json.length, 3);
+
+    assert.ok(json[0].ExtPubKey.startsWith('zpub'));
+    assert.ok(json[0].AccountKeyPath.startsWith('m/84'));
+    assert.ok(json[0].MasterFingerprint === '73C5DA0A');
+
+    assert.ok(json[1].ExtPubKey.startsWith('ypub'));
+    assert.ok(json[1].AccountKeyPath.startsWith('m/49'));
+    assert.ok(json[1].MasterFingerprint === '73C5DA0A');
+
+    assert.ok(json[2].ExtPubKey.startsWith('xpub'));
+    assert.ok(json[2].AccountKeyPath.startsWith('m/44'));
+    assert.ok(json[2].MasterFingerprint === '73C5DA0A');
+  });
+
   it('v1: decodeUR() works', async () => {
     await new Promise(resolve => setTimeout(resolve, 1000)); // sleep
     // sleep is needed because in test envirnment setUseURv1() and init function have a race condition
