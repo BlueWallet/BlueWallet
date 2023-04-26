@@ -81,6 +81,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     // 6. check if its address (watch-only wallet)
     // 7. check if its private key (segwit address P2SH) TODO
     // 7. check if its private key (legacy address) TODO
+    // 8. check if its a json array from BC-UR with multiple accounts
     let text = importTextOrig.trim();
     let password;
 
@@ -383,6 +384,22 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
         yield { wallet: s3 };
       }
     }
+
+    // is it BC-UR payload with multiple accounts?
+    yield { progress: 'BC-UR' };
+    try {
+      const json = JSON.parse(text);
+      if (Array.isArray(json)) {
+        for (const account of json) {
+          if (account.ExtPubKey && account.MasterFingerprint && account.AccountKeyPath) {
+            const wallet = new WatchOnlyWallet();
+            wallet.setSecret(JSON.stringify(account));
+            wallet.init();
+            yield { wallet };
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   // POEHALI
