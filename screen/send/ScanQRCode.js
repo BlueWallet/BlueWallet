@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
-import { CameraScreen, Camera } from 'react-native-camera-kit';
+import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
@@ -116,35 +116,6 @@ const ScanQRCode = () => {
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
-
-  useEffect(() => {
-    (async () => {
-      if (Platform.OS !== 'ios' && Platform.OS !== 'macos') {
-        return;
-      }
-      let isUserAuthorizedCamera;
-      const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
-      switch (isCameraAuthorized) {
-        case true:
-          setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          break;
-        case false:
-          setCameraStatus(CameraAuthStatus.NOT_AUTHORIZED);
-          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-          if (isUserAuthorizedCamera) {
-            setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          }
-          break;
-        case -1:
-          setCameraStatus(CameraAuthStatus.UNKNOWN);
-          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-          if (isUserAuthorizedCamera) {
-            setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          }
-          break;
-      }
-    })();
-  }, []);
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();
