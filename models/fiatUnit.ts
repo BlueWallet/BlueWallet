@@ -34,7 +34,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bitcoin?.[ticker]; // eslint-disable-line
+    let rate = json?.bitcoin?.[ticker] || json?.bitcoin?.[ticker.toLowerCase()]; // eslint-disable-line
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },

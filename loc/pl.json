@@ -603,6 +603,7 @@
     "payment_code": "Kod płatności",
     "payment_codes_list": "Lista kodów płatności",
     "who_can_pay_me": "Kto może mi płacić:",
-    "purpose": "Kod wielokrotnego użytku możliwy do udostępnienia (BIP47)"
+    "purpose": "Kod wielokrotnego użytku możliwy do udostępnienia (BIP47)",
+    "not_found": "Kod płatności nie znaleziony"
   }
 }

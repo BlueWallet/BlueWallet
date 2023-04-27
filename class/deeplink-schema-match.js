@@ -1,4 +1,4 @@
-import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
+import { LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
@@ -7,6 +7,8 @@ import Lnurl from './lnurl';
 import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
+const BlueApp = require('../BlueApp');
+const AppStorage = BlueApp.AppStorage;
 
 class DeeplinkSchemaMatch {
   static hasSchema(schemaString) {

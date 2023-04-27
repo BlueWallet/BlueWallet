@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } 
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -109,6 +109,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const handleManageFundsPressed = () => {
     onManageFundsPressed?.(actionKeys.Refill);
+  };
+
+  const handleOnPaymentCodeButtonPressed = () => {
+    navigation.navigate('PaymentCodeRoot', {
+      screen: 'PaymentCode',
+      params: { paymentCode: (wallet as HDSegwitBech32Wallet).getBIP47PaymentCode() },
+    });
   };
 
   const onPressMenuItem = (id: string) => {
@@ -227,6 +234,20 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </ToolTipMenu>
       )}
 
+      {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
+        <TouchableOpacity accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
+          <View style={styles.manageFundsButton}>
+            <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+      {wallet.type === LightningLdkWallet.type && (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc.lnd.title} onPress={handleManageFundsPressed}>
+          <View style={styles.manageFundsButton}>
+            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+          </View>
+        </TouchableOpacity>
+      )}
       {wallet.type === MultisigHDWallet.type && (
         <TouchableOpacity accessibilityRole="button" onPress={handleManageFundsPressed}>
           <View style={styles.manageFundsButton}>

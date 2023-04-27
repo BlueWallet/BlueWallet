@@ -51,7 +51,7 @@ target 'BlueWallet' do
       installer,
       # Set `mac_catalyst_enabled` to `true` in order to apply patches
       # necessary for Mac Catalyst builds
-      :mac_catalyst_enabled => false
+      :mac_catalyst_enabled => true
     )
     pod 'Bugsnag'
       plugin 'cocoapods-bugsnag'

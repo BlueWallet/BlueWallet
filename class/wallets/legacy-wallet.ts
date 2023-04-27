@@ -10,7 +10,7 @@ import coinSelectSplit from 'coinselect/split';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
-const ecc = require('tiny-secp256k1');
+import ecc from '../../blue_modules/noble_ecc';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 
 /**

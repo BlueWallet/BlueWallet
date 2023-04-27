@@ -8,11 +8,11 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
   Dimensions,
   FlatList,
+  Pressable,
 } from 'react-native';
 import { useTheme } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -157,16 +157,6 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
     Animated.spring(scaleValue, props).start();
   };
 
-  if (!item)
-    return (
-      <NewWalletPanel
-        onPress={() => {
-          onPressedOut();
-          onPress(index);
-        }}
-      />
-    );
-
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
   let image;
   switch (item.type) {
@@ -202,7 +192,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
       shadowOffset={{ width: 0, height: 3 }}
       shadowRadius={8}
     >
-      <TouchableWithoutFeedback
+      <Pressable
         accessibilityRole="button"
         testID={item.getLabel()}
         onPressIn={onPressedIn}
@@ -210,7 +200,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
         onLongPress={handleLongPress}
         onPress={() => {
           onPressedOut();
-          onPress(index);
+          onPress(item);
           onPressedOut();
         }}
       >
@@ -241,7 +231,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
             {latestTransactionText}
           </Text>
         </LinearGradient>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </Animated.View>
   );
 };
@@ -270,15 +260,18 @@ const cStyles = StyleSheet.create({
 const WalletsCarousel = forwardRef((props, ref) => {
   const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const renderItem = useCallback(
-    ({ item, index }) => (
-      <WalletCarouselItem
-        isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
-        item={item}
-        index={index}
-        handleLongPress={props.handleLongPress}
-        onPress={props.onPress}
-      />
-    ),
+    ({ item, index }) =>
+      item ? (
+        <WalletCarouselItem
+          isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
+          item={item}
+          index={index}
+          handleLongPress={props.handleLongPress}
+          onPress={props.onPress}
+        />
+      ) : (
+        <NewWalletPanel onPress={props.onPress} />
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [props.horizontal, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
   );
@@ -334,16 +327,20 @@ const WalletsCarousel = forwardRef((props, ref) => {
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
-      {props.data.map((item, index) => (
-        <WalletCarouselItem
-          isSelectedWallet={!props.horizontal && props.selectedWallet && item ? props.selectedWallet === item.getID() : undefined}
-          item={item}
-          index={index}
-          handleLongPress={props.handleLongPress}
-          onPress={props.onPress}
-          key={index}
-        />
-      ))}
+      {props.data.map((item, index) =>
+        item ? (
+          <WalletCarouselItem
+            isSelectedWallet={!props.horizontal && props.selectedWallet ? props.selectedWallet === item.getID() : undefined}
+            item={item}
+            index={index}
+            handleLongPress={props.handleLongPress}
+            onPress={props.onPress}
+            key={index}
+          />
+        ) : (
+          <NewWalletPanel key={index} onPress={props.onPress} />
+        ),
+      )}
     </View>
   );
 });
