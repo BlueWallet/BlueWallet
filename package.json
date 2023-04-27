@@ -102,7 +102,7 @@
     "@babel/preset-env": "^7.20.0",
     "@bugsnag/react-native": "7.20.2",
     "@bugsnag/source-maps": "2.3.1",
-    "@keystonehq/bc-ur-registry": "0.5.4",
+    "@keystonehq/bc-ur-registry": "0.5.5",
     "@ngraveio/bc-ur": "1.1.6",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.18.1",
