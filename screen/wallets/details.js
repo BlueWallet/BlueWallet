@@ -440,6 +440,11 @@ const WalletDetails = () => {
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash;
         memo = transaction.description;
+
+        if (hash?.type === 'Buffer' && hash?.data) {
+          const bb = Buffer.from(hash);
+          hash = bb.toString('hex');
+        }
       }
       csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
     }
