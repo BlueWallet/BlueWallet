@@ -69,7 +69,8 @@ current-branch.json
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
-	
+ios/BlueWallet.xcodeproj/xcuserdat/
+
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
 artifacts/
