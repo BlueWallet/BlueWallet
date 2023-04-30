@@ -250,8 +250,8 @@ const PsbtWithHardwareWallet = () => {
             <BlueSpacing20 />
             <SecondButton
               icon={{
-                name: 'file-import',
-                type: 'material-community',
+                name: 'login',
+                type: 'entypo',
                 color: colors.buttonTextColor,
               }}
               onPress={openSignedTransaction}
