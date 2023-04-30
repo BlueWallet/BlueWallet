@@ -6,8 +6,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
-import { openPrivacyDesktopSettings } from '../../class/camera';
+import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
 import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -79,12 +78,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const CameraAuthStatus = Object.freeze({
-  AUTHORIZED: 'AUTHORIZED',
-  NOT_AUTHORIZED: 'NOT_AUTHORIZED',
-  UNKNOWN: 'UNKNOWN',
-});
-
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
@@ -94,7 +87,6 @@ const ScanQRCode = () => {
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
-  const [cameraStatus, setCameraStatus] = useState(CameraAuthStatus.UNKNOWN);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [urTotal, setUrTotal] = useState(0);
   const [urHave, setUrHave] = useState(0);
@@ -305,15 +297,8 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {isFocused && cameraStatus !== CameraAuthStatus.NOT_AUTHORIZED && (
+      {isFocused && (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
-      )}
-      {cameraStatus === CameraAuthStatus.NOT_AUTHORIZED && (
-        <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
-          <BlueText>{loc.send.permission_camera_message}</BlueText>
-          <BlueSpacing40 />
-          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
-        </View>
       )}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
