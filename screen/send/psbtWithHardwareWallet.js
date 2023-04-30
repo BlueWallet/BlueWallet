@@ -80,7 +80,7 @@ const PsbtWithHardwareWallet = () => {
         // (passed by reference)
       }
     } catch (Err) {
-      alert(Err);
+      alert(Err.message);
     }
   };
 
