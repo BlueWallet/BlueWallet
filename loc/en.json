@@ -190,6 +190,7 @@
     "input_done": "Done",
     "input_paste": "Paste",
     "input_total": "Total:",
+    "permission_camera_message": "We need your permission to use your camera.",
     "psbt_sign": "Sign a transaction",
     "open_settings": "Open Settings",
     "permission_storage_later": "Ask me later",

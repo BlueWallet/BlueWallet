@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert, PermissionsAndroid } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -93,6 +93,7 @@ const ScanQRCode = () => {
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
+  const [cameraStatus, setCameraStatus] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -105,6 +106,30 @@ const ScanQRCode = () => {
       color: colors.foregroundColor,
     },
   });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+          title: '',
+          message: loc.send.permission_camera_message,
+          buttonNeutral: loc.send.permission_storage_later,
+          buttonNegative: loc._.no,
+          buttonPositive: loc._.yes,
+        });
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the camera');
+          setCameraStatus(true);
+        } else {
+          console.log('Camera permission denied');
+          setCameraStatus(false);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    })();
+  }, []);
+
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
   };
@@ -297,9 +322,9 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {isFocused && (
+      {isFocused && cameraStatus ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
-      )}
+      ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
       </TouchableOpacity>
