@@ -25,7 +25,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
       'watchOnly',
       'Imported Watch-only',
-      '0 BTC', // it used to be 0.00030666 till someone stole it from git history kek
+      '0.0001 BTC',
     );
     await sleep(15000);
 
@@ -36,7 +36,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
-    await expect(element(by.text('bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay'))).toBeVisible();
+    await expect(element(by.text('bc1q5vzs7ea3z5e2wt53mp97mfy927eu75l7ku4w2p'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
@@ -45,7 +45,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await sup('Test');
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
-    await expect(element(by.text('bitcoin:bc1qtc9zquvq7lgq87kzsgltvv4etwm9uxphfkvkay?amount=1&label=Test'))).toBeVisible();
+    await expect(element(by.text('bitcoin:bc1q5vzs7ea3z5e2wt53mp97mfy927eu75l7ku4w2p?amount=1&label=Test'))).toBeVisible();
     await device.pressBack();
 
     await element(by.id('SendButton')).tap();
@@ -87,7 +87,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await device.pressBack();
     await device.pressBack();
     await device.pressBack();
-    await helperDeleteWallet('Imported Watch-only');
+    await helperDeleteWallet('Imported Watch-only', '10000');
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
