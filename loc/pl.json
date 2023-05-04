@@ -190,6 +190,7 @@
     "input_done": "Gotowe",
     "input_paste": "Wklej",
     "input_total": "Łącznie:",
+    "permission_camera_message": "Potrzebujemy twojej zgody na wykorzystanie kamery",
     "psbt_sign": "Podpisz transakcję",
     "open_settings": "Otwórz ustawienia",
     "permission_storage_later": "Zapytaj mnie później",
