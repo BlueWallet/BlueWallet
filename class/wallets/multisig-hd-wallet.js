@@ -539,7 +539,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT.toUpperCase():
               this.setWrappedSegwit();
               break;
-            case MultisigHDWallet.FORMAT_P2SH:
+            case MultisigHDWallet.FORMAT_P2SH.toUpperCase():
               this.setLegacy();
               break;
           }
