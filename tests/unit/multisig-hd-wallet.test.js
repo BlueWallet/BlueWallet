@@ -1304,6 +1304,29 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getLabel(), w2.getLabel());
   });
 
+  it('can parse p2sh colcard format from caravan', () => {
+    const cc =
+      '# Coldcard Multisig setup file (exported from unchained-wallets)\n' +
+      '# https://github.com/unchained-capital/unchained-wallets\n' +
+      '# v1.0.0\n' +
+      '#\n' +
+      'Name: yIm388Ib_x3g6ruuY\n' +
+      'Policy: 2 of 3\n' +
+      'Format: P2SH\n' +
+      '\n' +
+      'Derivation: m/0/0/0/0\n' +
+      '0dfd4a3b: xpub6EDykLBC5EbV78g9QiFKZtsPnesv2m4Xtbvzi8FjwzGmBJbKVGRUDKcnpf9QyFQrv3vh6C9N92rKaqURHmhhs8EigCTZY7qAsFDGg4QeaU7\n' +
+      "Derivation: m/45'/0/0/0\n" +
+      '8887a204: xpub6Dma5xev7J5QJuVQ7tGRWGY56FNkt9qX5gCdFQe8fHp4DmtBuxUpxGMo1oBhKYi7fYxqHa2UpPR87Xdc6i7AeZt3tdFRykiqnRk7vKyDcbY\n' +
+      "Derivation: m/45'/0/0/0\n" +
+      '77c5100e: xpub6DqutttHLMzHBHk6LFJnVkv2EydG6LqN5GAFLFyCFix446y8iMqvavic9zTvgS3kynpD5ycLNKiaKx9c96qvL5VXHqfNZEuGJstJ5tpFfwL\n';
+
+    const w = new MultisigHDWallet();
+    w.setSecret(cc);
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), '3KEDMaBiSEmqvkjHgsFZt73MsArxK2LKKq');
+  });
+
   it('can import incomplete wallet from Coldcard', async () => {
     const Zpub2 = 'Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn';
 
