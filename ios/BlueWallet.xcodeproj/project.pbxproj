@@ -9,12 +9,6 @@
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		32002D9D236FAA9F00B93396 /* TodayDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32002D9C236FAA9F00B93396 /* TodayDataStore.swift */; };
-		3271B0AB236E2E0700DA766F /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3271B0AA236E2E0700DA766F /* NotificationCenter.framework */; platformFilter = ios; };
-		3271B0AE236E2E0700DA766F /* TodayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0AD236E2E0700DA766F /* TodayViewController.swift */; };
-		3271B0B1236E2E0700DA766F /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3271B0AF236E2E0700DA766F /* MainInterface.storyboard */; };
-		3271B0B5236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* TodayAPI.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
@@ -25,7 +19,6 @@
 		6D4AF16D25D21192009DD853 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEB4BFA254FBA0E00E9F9AA /* Models.swift */; };
 		6D4AF17825D211A3009DD853 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2AA8072568B8F40090B089 /* FiatUnit.swift */; };
 		6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
-		6D4AF18525D215D1009DD853 /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D4AF18325D215D1009DD853 /* UserDefaultsExtension.swift */; };
 		6DD4109D266CADF10087DE03 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3A252FE1A3004D72DF /* WidgetKit.framework */; };
 		6DD4109E266CADF10087DE03 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D333B3C252FE1A3004D72DF /* SwiftUI.framework */; };
 		6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD410A0266CADF10087DE03 /* Widgets.swift */; };
@@ -82,13 +75,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3271B0A8236E2E0700DA766F;
-			remoteInfo = TodayExtension;
-		};
 		6D2A6466258BA92D0092292B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -134,7 +120,6 @@
 			dstSubfolderSpec = 13;
 			files = (
 				6D2A6468258BA92D0092292B /* Stickers.appex in Embed App Extensions */,
-				3271B0B5236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex in Embed App Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -178,14 +163,7 @@
 		2654894D4DE44A4C8F71773D /* CoreData.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FCC2CD6FF4448229D0CE0F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
-		32002D9C236FAA9F00B93396 /* TodayDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayDataStore.swift; sourceTree = "<group>"; };
-		32475F792370F6D30070E6CF /* BlueWallet - Bitcoin Price.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BlueWallet - Bitcoin Price.entitlements"; sourceTree = "<group>"; };
-		3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "BlueWallet - Bitcoin Price.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3271B0AA236E2E0700DA766F /* NotificationCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NotificationCenter.framework; path = System/Library/Frameworks/NotificationCenter.framework; sourceTree = SDKROOT; };
-		3271B0AD236E2E0700DA766F /* TodayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayViewController.swift; sourceTree = "<group>"; };
-		3271B0B0236E2E0700DA766F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
-		3271B0B2236E2E0700DA766F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		3271B0BA236E329400DA766F /* TodayAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayAPI.swift; sourceTree = "<group>"; };
 		32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BlueWallet-Bridging-Header.h"; sourceTree = "<group>"; };
 		32B5A3292334450100F8D608 /* Bridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bridge.swift; sourceTree = "<group>"; };
 		32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BlueWalletRelease.entitlements; path = BlueWallet/BlueWalletRelease.entitlements; sourceTree = "<group>"; };
@@ -206,49 +184,27 @@
 		6A65D81712444D37BA152B06 /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
 		6D203C2025D4ED2500493AD1 /* BlueWalletWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BlueWalletWatch.entitlements; sourceTree = "<group>"; };
 		6D294A7324D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7424D510AC0039E22B /* af */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = af; path = af.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A7524D510D60039E22B /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7624D510D60039E22B /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A7724D510E60039E22B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A7824D510E60039E22B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/MainInterface.strings"; sourceTree = "<group>"; };
 		6D294A7924D510EA0039E22B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A7A24D510EA0039E22B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainInterface.strings"; sourceTree = "<group>"; };
 		6D294A7B24D510F40039E22B /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7C24D510F40039E22B /* hr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hr; path = hr.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A7D24D5111E0039E22B /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A7E24D5111E0039E22B /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A7F24D511640039E22B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8024D511640039E22B /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8124D511690039E22B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8224D511690039E22B /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8324D511720039E22B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8424D511720039E22B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8524D511750039E22B /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8624D511750039E22B /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8724D5117A0039E22B /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8824D5117A0039E22B /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = id; path = id.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8924D511800039E22B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8A24D511800039E22B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8B24D511CB0039E22B /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A8C24D511CB0039E22B /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A8D24D5121D0039E22B /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A8E24D5121D0039E22B /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/MainInterface.strings"; sourceTree = "<group>"; };
 		6D294A8F24D512230039E22B /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Interface.strings"; sourceTree = "<group>"; };
-		6D294A9024D512230039E22B /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/MainInterface.strings"; sourceTree = "<group>"; };
 		6D294A9124D512260039E22B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9224D512260039E22B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9324D512320039E22B /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9424D512320039E22B /* sk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sk; path = sk.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9524D5125F0039E22B /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9624D5125F0039E22B /* th */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = th; path = th.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9724D512620039E22B /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9824D512620039E22B /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9924D512690039E22B /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9A24D512690039E22B /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9B24D512770039E22B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9C24D512770039E22B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D294A9D24D5127F0039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/Interface.strings; sourceTree = "<group>"; };
-		6D294A9E24D512800039E22B /* xh */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = xh; path = xh.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6D2A6461258BA92C0092292B /* Stickers.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Stickers.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D2A6463258BA92D0092292B /* Stickers.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Stickers.xcassets; sourceTree = "<group>"; };
 		6D2A6465258BA92D0092292B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -276,7 +232,6 @@
 		6DD410A4266CADF40087DE03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6DD410AD266CAF1F0087DE03 /* fiatUnits.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnits.json; path = ../../../../models/fiatUnits.json; sourceTree = "<group>"; };
 		6DD410C3266CCB780087DE03 /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = SOURCE_ROOT; };
-		6DEB496F254E38DE00E9F9AA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainInterface.strings; sourceTree = "<group>"; };
 		6DEB4AB1254FB59C00E9F9AA /* WalletInformationWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformationWidget.swift; sourceTree = "<group>"; };
 		6DEB4BFA254FBA0E00E9F9AA /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		6DEB4C3A254FBF4800E9F9AA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -358,14 +313,6 @@
 				906451CAD44154C2950030EC /* libPods-BlueWallet.a in Frameworks */,
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3271B0A6236E2E0700DA766F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3271B0AB236E2E0700DA766F /* NotificationCenter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,19 +409,6 @@
 				41BD3AC9FD81723B68A63C12 /* libPods-MarketWidgetExtension.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		3271B0AC236E2E0700DA766F /* TodayExtension */ = {
-			isa = PBXGroup;
-			children = (
-				32475F792370F6D30070E6CF /* BlueWallet - Bitcoin Price.entitlements */,
-				3271B0AD236E2E0700DA766F /* TodayViewController.swift */,
-				3271B0BA236E329400DA766F /* TodayAPI.swift */,
-				3271B0AF236E2E0700DA766F /* MainInterface.storyboard */,
-				3271B0B2236E2E0700DA766F /* Info.plist */,
-				32002D9C236FAA9F00B93396 /* TodayDataStore.swift */,
-			);
-			path = TodayExtension;
 			sourceTree = "<group>";
 		};
 		4B0CACE36C3348E1BCEA92C8 /* Resources */ = {
@@ -602,7 +536,6 @@
 				00E356EF1AD99517003FC87E /* BlueWalletTests */,
 				B40D4E31225841EC00428FCC /* BlueWalletWatch */,
 				B40D4E40225841ED00428FCC /* BlueWalletWatch Extension */,
-				3271B0AC236E2E0700DA766F /* TodayExtension */,
 				6D2A6462258BA92C0092292B /* Stickers */,
 				6DD4109F266CADF10087DE03 /* Widgets */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -622,7 +555,6 @@
 				13B07F961A680F5B00A75B9A /* BlueWallet.app */,
 				B40D4E30225841EC00428FCC /* BlueWalletWatch.app */,
 				B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */,
-				3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */,
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 			);
@@ -742,7 +674,6 @@
 			);
 			dependencies = (
 				B40D4E4C225841ED00428FCC /* PBXTargetDependency */,
-				3271B0B4236E2E0700DA766F /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
@@ -751,23 +682,6 @@
 			productName = "Hello World";
 			productReference = 13B07F961A680F5B00A75B9A /* BlueWallet.app */;
 			productType = "com.apple.product-type.application";
-		};
-		3271B0A8236E2E0700DA766F /* TodayExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 3271B0B9236E2E0700DA766F /* Build configuration list for PBXNativeTarget "TodayExtension" */;
-			buildPhases = (
-				3271B0A5236E2E0700DA766F /* Sources */,
-				3271B0A6236E2E0700DA766F /* Frameworks */,
-				3271B0A7236E2E0700DA766F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = TodayExtension;
-			productName = TodayExtension;
-			productReference = 3271B0A9236E2E0700DA766F /* BlueWallet - Bitcoin Price.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 		6D2A6460258BA92C0092292B /* Stickers */ = {
 			isa = PBXNativeTarget;
@@ -859,10 +773,6 @@
 							};
 						};
 					};
-					3271B0A8236E2E0700DA766F = {
-						CreatedOnToolsVersion = 11.2;
-						LastSwiftMigration = 1130;
-					};
 					6D2A6460258BA92C0092292B = {
 						CreatedOnToolsVersion = 12.1;
 					};
@@ -928,7 +838,6 @@
 				13B07F861A680F5B00A75B9A /* BlueWallet */,
 				B40D4E2F225841EC00428FCC /* BlueWalletWatch */,
 				B40D4E3B225841ED00428FCC /* BlueWalletWatch Extension */,
-				3271B0A8236E2E0700DA766F /* TodayExtension */,
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
 			);
@@ -943,14 +852,6 @@
 				6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */,
 				84E05A842721191B001A0D3A /* Settings.bundle in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3271B0A7236E2E0700DA766F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3271B0B1236E2E0700DA766F /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1169,17 +1070,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		3271B0A5236E2E0700DA766F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3271B0BB236E329400DA766F /* TodayAPI.swift in Sources */,
-				3271B0AE236E2E0700DA766F /* TodayViewController.swift in Sources */,
-				6D4AF18525D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
-				32002D9D236FAA9F00B93396 /* TodayDataStore.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		6DD41098266CADF10087DE03 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1237,12 +1127,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		3271B0B4236E2E0700DA766F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = 3271B0A8236E2E0700DA766F /* TodayExtension */;
-			targetProxy = 3271B0B3236E2E0700DA766F /* PBXContainerItemProxy */;
-		};
 		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
@@ -1272,37 +1156,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		3271B0AF236E2E0700DA766F /* MainInterface.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				3271B0B0236E2E0700DA766F /* Base */,
-				6D294A7424D510AC0039E22B /* af */,
-				6D294A7624D510D60039E22B /* ca */,
-				6D294A7824D510E60039E22B /* zh-Hant */,
-				6D294A7A24D510EA0039E22B /* zh-Hans */,
-				6D294A7C24D510F40039E22B /* hr */,
-				6D294A7E24D5111E0039E22B /* da */,
-				6D294A8024D511640039E22B /* nl */,
-				6D294A8224D511690039E22B /* es */,
-				6D294A8424D511720039E22B /* fr */,
-				6D294A8624D511750039E22B /* it */,
-				6D294A8824D5117A0039E22B /* id */,
-				6D294A8A24D511800039E22B /* ja */,
-				6D294A8C24D511CB0039E22B /* hu */,
-				6D294A8E24D5121D0039E22B /* pt-BR */,
-				6D294A9024D512230039E22B /* pt-PT */,
-				6D294A9224D512260039E22B /* ru */,
-				6D294A9424D512320039E22B /* sk */,
-				6D294A9624D5125F0039E22B /* th */,
-				6D294A9824D512620039E22B /* vi */,
-				6D294A9A24D512690039E22B /* uk */,
-				6D294A9C24D512770039E22B /* tr */,
-				6D294A9E24D512800039E22B /* xh */,
-				6DEB496F254E38DE00E9F9AA /* en */,
-			);
-			name = MainInterface.storyboard;
-			sourceTree = "<group>";
-		};
 		B40D4E32225841EC00428FCC /* Interface.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1428,81 +1281,6 @@
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Release;
-		};
-		3271B0B7236E2E0700DA766F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 702;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = TodayExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 6.4.3;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
-				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		3271B0B8236E2E0700DA766F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "TodayExtension/BlueWallet - Bitcoin Price.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 702;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = A7W54YZ4WU;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = TodayExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 6.4.3;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.TodayExtension;
-				PRODUCT_NAME = "BlueWallet - Bitcoin Price";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1922,15 +1700,6 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		3271B0B9236E2E0700DA766F /* Build configuration list for PBXNativeTarget "TodayExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				3271B0B7236E2E0700DA766F /* Debug */,
-				3271B0B8236E2E0700DA766F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
