@@ -110,6 +110,10 @@ const ScanQRCode = () => {
   useEffect(() => {
     (async () => {
       try {
+        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+          setCameraStatus(true);
+          return;
+        }
         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
           title: '',
           message: loc.send.permission_camera_message,
