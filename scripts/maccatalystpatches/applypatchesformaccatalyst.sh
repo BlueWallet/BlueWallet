@@ -18,4 +18,4 @@ echo "Remove Settings.bundle from Xcode project as its only meant for iOS"
 rm -rf /ios/Settings.bundle
 sed -i '' '/Settings.bundle/d' ios/BlueWallet.xcodeproj/project.pbxproj
 echo ""
-echo "NOTE: react-native-tor and rn-dlk are not currently compatible with Mac Catalyst.
+echo "NOTE: react-native-tor and rn-dlk are not currently compatible with Mac Catalyst."
