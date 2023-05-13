@@ -190,7 +190,7 @@
     "react-native-webview": "12.0.2",
     "react-native-widget-center": "https://github.com/BlueWallet/react-native-widget-center#a128c38",
     "readable-stream": "3.6.2",
-    "realm": "11.8.0",
+    "realm": "11.9.0",
     "rn-ldk": "github:BlueWallet/rn-ldk#v0.8.4",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
