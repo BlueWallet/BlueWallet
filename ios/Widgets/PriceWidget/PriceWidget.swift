@@ -92,7 +92,7 @@ struct PriceWidget: Widget {
         PriceWidgetEntryView(entry: entry)
       }
       .configurationDisplayName("Price")
-      .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall, .accessoryRectangular])
+      .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
     } else {
       return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
         PriceWidgetEntryView(entry: entry)
