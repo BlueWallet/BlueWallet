@@ -414,7 +414,7 @@ PODS:
     - React
   - RNKeychain (8.1.1):
     - React-Core
-  - RNLocalize (3.0.0):
+  - RNLocalize (2.2.6):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -773,7 +773,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
-  RNLocalize: 5944c97d2fe8150913a51ddd5eab4e23a82bd80d
+  RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
