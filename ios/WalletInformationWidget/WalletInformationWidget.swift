@@ -75,7 +75,7 @@ struct WalletInformationWidget: Widget {
         WalletInformationWidgetEntryView(entry: entry)
       }
       .configurationDisplayName("Balance")
-      .description("View your accumulated balance.").supportedFamilies([.systemSmall, .accessoryRectangular])
+      .description("View your accumulated balance.").supportedFamilies([.systemSmall])
     } else {
       return StaticConfiguration(kind: kind, provider: WalletInformationWidgetProvider()) { entry in
         WalletInformationWidgetEntryView(entry: entry)
