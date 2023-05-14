@@ -21,6 +21,14 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     handler(nil)
   }
   
+  @available(watchOSApplicationExtension 7.0, *)
+  func complicationDescriptors() async -> [CLKComplicationDescriptor] {
+    return  [CLKComplicationDescriptor(
+      identifier: "io.bluewallet.bluewallet",
+      displayName: "Market Price",
+      supportedFamilies: CLKComplicationFamily.allCases)]
+  }
+  
   func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
     handler(nil)
   }
