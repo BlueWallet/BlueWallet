@@ -29,6 +29,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
+import styles from './style';
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 
@@ -446,88 +447,7 @@ const LNDCreateInvoice = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  createButton: {
-    marginHorizontal: 16,
-    marginVertical: 16,
-    minHeight: 45,
-  },
-  scanRoot: {
-    height: 36,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-  },
-  scanClick: {
-    marginLeft: 4,
-  },
-  walletRoot: {
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  walletChooseWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletChooseText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  walletNameWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  walletNameTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletNameText: {
-    fontSize: 14,
-  },
-  walletNameBalance: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
-    marginRight: 4,
-  },
-  walletNameSats: {
-    fontSize: 11,
-    fontWeight: '600',
-    textAlignVertical: 'bottom',
-    marginTop: 2,
-  },
-  root: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  amount: {
-    flex: 1,
-  },
-  fiat: {
-    flexDirection: 'row',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
-  fiat2: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
-    color: '#81868e',
-  },
-});
+
 
 export default LNDCreateInvoice;
 LNDCreateInvoice.routeName = 'LNDCreateInvoice';

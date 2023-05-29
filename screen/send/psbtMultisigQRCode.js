@@ -10,6 +10,7 @@ import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
 import alert from '../../components/Alert';
+import styles from './style';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -116,23 +117,6 @@ const PsbtMultisigQRCode = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-  modalContentShort: {
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-});
 
 PsbtMultisigQRCode.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 

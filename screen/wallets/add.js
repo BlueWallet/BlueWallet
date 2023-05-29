@@ -33,6 +33,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+import styles from './style';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -264,7 +265,7 @@ const WalletsAdd = () => {
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
-        <View style={[styles.label, stylesHook.label]}>
+        <View style={[styles.addLabel, stylesHook.label]}>
           <TextInput
             testID="WalletNameInput"
             value={label}
@@ -277,7 +278,7 @@ const WalletsAdd = () => {
           />
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
-        <View style={styles.buttons}>
+        <View style={{width: '100%',height: 'auto',}}>
           <BitcoinButton
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
@@ -395,61 +396,5 @@ WalletsAdd.navigationOptions = navigationStyle(
   },
   opts => ({ ...opts, title: loc.wallets.add_title }),
 );
-
-const styles = StyleSheet.create({
-  createButton: {
-    flex: 1,
-  },
-  label: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 16,
-    borderRadius: 4,
-  },
-  textInputCommon: {
-    flex: 1,
-    marginHorizontal: 8,
-    color: '#81868e',
-  },
-  buttons: {
-    flexDirection: 'column',
-    marginHorizontal: 20,
-    marginTop: 16,
-    borderWidth: 0,
-    minHeight: 100,
-  },
-  button: {
-    width: '100%',
-    height: 'auto',
-  },
-  advanced: {
-    marginHorizontal: 20,
-  },
-  advancedText: {
-    fontWeight: '500',
-  },
-  lndUri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 16,
-    borderRadius: 4,
-  },
-  import: {
-    marginBottom: 0,
-    marginTop: 24,
-  },
-  noPadding: {
-    paddingHorizontal: 0,
-  },
-});
 
 export default WalletsAdd;

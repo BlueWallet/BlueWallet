@@ -9,6 +9,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from '../../components/TooltipMenu';
 import alert from '../../components/Alert';
+import styles from './style';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -338,73 +339,7 @@ TransactionsDetails.actionIcons = {
   },
 };
 
-const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  rowHeader: {
-    flex: 1,
-    flexDirection: 'row',
-    marginBottom: 4,
-    justifyContent: 'space-between',
-  },
-  rowCaption: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  rowValue: {
-    color: 'grey',
-  },
-  marginBottom18: {
-    marginBottom: 18,
-  },
-  txId: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  Link: {
-    fontWeight: '600',
-    fontSize: 15,
-  },
-  weOwnAddress: {
-    fontWeight: '600',
-  },
-  save: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 34,
-  },
-  saveText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  memoTextInput: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#81868e',
-  },
-  greyButton: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 4,
-  },
-});
+
 
 export default TransactionsDetails;
 

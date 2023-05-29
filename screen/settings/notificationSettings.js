@@ -6,9 +6,9 @@ import { Button } from 'react-native-elements';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
+import styles from './style';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -157,37 +157,5 @@ const NotificationSettings = () => {
 };
 
 NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  uri: {
-    flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  centered: {
-    textAlign: 'center',
-  },
-  uriText: {
-    flex: 1,
-    color: '#81868e',
-    marginHorizontal: 8,
-    minHeight: 36,
-    height: 36,
-  },
-  buttonStyle: {
-    backgroundColor: 'transparent',
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
-});
 
 export default NotificationSettings;

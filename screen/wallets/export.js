@@ -11,6 +11,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
+import * as AllStyle from './style';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -76,7 +77,7 @@ const WalletExport = () => {
 
   if (isLoading || !wallet)
     return (
-      <View style={[styles.loading, stylesHook.loading]}>
+      <View style={[AllStyle.loading, stylesHook.loading]}>
         <ActivityIndicator />
       </View>
     );
@@ -97,7 +98,7 @@ const WalletExport = () => {
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
-          <BlueText style={[styles.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
+          <BlueText style={[AllStyle.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
         </View>
 
         {[LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) && (
@@ -135,18 +136,11 @@ const WalletExport = () => {
 };
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
+  
   scrollViewContent: {
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
-  },
-  type: {
-    fontSize: 17,
-    fontWeight: '700',
   },
   secret: {
     alignSelf: 'stretch',

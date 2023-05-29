@@ -8,6 +8,7 @@ import loc from '../../loc';
 import { Icon } from 'react-native-elements';
 import { LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
+import styles from './style';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
@@ -136,21 +137,3 @@ LdkViewLogs.navigationOptions = navigationStyle({}, opts => ({
 
 export default LdkViewLogs;
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  button: {
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 15,
-    margin: 5,
-    borderWidth: 1,
-  },
-  reloadLogs: {
-    marginHorizontal: 16,
-    minWidth: 150,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-});

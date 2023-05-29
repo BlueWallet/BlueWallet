@@ -4,6 +4,7 @@ import { useTheme } from '@react-navigation/native';
 import { SafeBlueArea, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import styles from './style';
 
 const WalletsAddMultisigHelp = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -78,47 +79,7 @@ const WalletsAddMultisigHelp = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  intro: {
-    paddingHorizontal: 32,
-    borderBottomWidth: 1,
-  },
-  introTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    marginTop: 24,
-  },
-  introText: {
-    fontSize: 15,
-    marginVertical: 24,
-  },
-  introImage: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    justifyContent: 'flex-end',
-  },
-  tips: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
-  },
-  tipsTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  tipsText: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginTop: 16,
-  },
-  imageTip: {
-    marginBottom: 24,
-    width: '100%',
-    maxWidth: 390,
-  },
-});
+
 
 WalletsAddMultisigHelp.navigationOptions = navigationStyle({
   title: '',

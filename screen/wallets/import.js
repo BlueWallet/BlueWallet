@@ -16,6 +16,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as stylesAll  from './style';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -40,13 +41,6 @@ const WalletsImport = () => {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginHorizontal: 16,
-      marginTop: 10,
-      justifyContent: 'space-between',
     },
   });
 
@@ -115,11 +109,11 @@ const WalletsImport = () => {
     <>
       {isAdvancedModeEnabledRender && (
         <>
-          <View style={styles.row}>
+          <View style={[stylesAll.row,{marginTop: 10,}]}>
             <BlueText>{loc.wallets.import_passphrase}</BlueText>
             <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
           </View>
-          <View style={styles.row}>
+          <View style={[stylesAll.row,{marginTop: 10,}]}>
             <BlueText>{loc.wallets.import_search_accounts}</BlueText>
             <Switch testID="SearchAccounts" value={searchAccounts} onValueChange={setSearchAccounts} />
           </View>

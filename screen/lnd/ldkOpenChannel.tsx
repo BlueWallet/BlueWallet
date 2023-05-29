@@ -15,6 +15,7 @@ import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
+import styles from './style';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -174,7 +175,7 @@ const LdkOpenChannel = (props: any) => {
   const render = () => {
     if (isLoading || !ldkWallet || !fundingWallet) {
       return (
-        <View style={[styles.root, styles.justifyContentCenter, stylesHook.root]}>
+        <View style={[styles.justifyContentCenter, stylesHook.root,{flex:1}]}>
           <BlueLoading style={{}} />
         </View>
       );
@@ -200,7 +201,7 @@ const LdkOpenChannel = (props: any) => {
     }
 
     return (
-      <View style={[styles.activeRoot, stylesHook.root]}>
+      <View style={[styles.activeRoot, stylesHook.root,{padding: 16}]}>
         <BlueText>
           {loc.formatString(loc.lnd.opening_channnel_for_from, {
             forWalletLabel: ldkWallet.getLabel(),
@@ -281,25 +282,6 @@ const LdkOpenChannel = (props: any) => {
     </SafeBlueArea>
   );
 };
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  justifyContentCenter: {
-    justifyContent: 'center',
-  },
-  horizontalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  activeRoot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-  },
-});
 
 LdkOpenChannel.navigationOptions = navigationStyle(
   {

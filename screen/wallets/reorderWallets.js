@@ -11,64 +11,8 @@ import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import styles from './style';
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  itemRoot: {
-    backgroundColor: 'transparent',
-    padding: 10,
-  },
-  gradient: {
-    padding: 15,
-    borderRadius: 10,
-    minHeight: 164,
-    elevation: 5,
-  },
-  image: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-  },
-  transparentText: {
-    backgroundColor: 'transparent',
-  },
-  tip: {
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 24,
-  },
-  label: {
-    backgroundColor: 'transparent',
-    fontSize: 19,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  balance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  latestTxLabel: {
-    backgroundColor: 'transparent',
-    fontSize: 13,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  latestTxValue: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-});
 
 const ReorderWallets = () => {
   const sortableList = useRef();

@@ -9,6 +9,7 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import styles from './style';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const currency = require('../../blue_modules/currency');
@@ -304,102 +305,7 @@ const PsbtMultisig = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  mstopcontainer: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  mscontainer: {
-    flex: 10,
-  },
-  msleft: {
-    width: 1,
-    borderStyle: 'dashed',
-    borderWidth: 0.8,
-    borderColor: '#c4c4c4',
-    marginLeft: 40,
-    marginTop: 130,
-  },
-  msright: {
-    flex: 90,
-    marginLeft: '-11%',
-  },
-  container: {
-    flexDirection: 'column',
-    paddingTop: 24,
-    flex: 1,
-  },
-  containerText: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  destinationTextContainer: {
-    flexDirection: 'row',
-    marginBottom: 4,
-    paddingHorizontal: 60,
-    fontSize: 14,
-    justifyContent: 'center',
-  },
-  textFiat: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 30,
-  },
-  textBtc: {
-    fontWeight: 'bold',
-    fontSize: 30,
-  },
-  textAlignCenter: {
-    textAlign: 'center',
-  },
-  textDestinationFirstFour: {
-    fontSize: 14,
-  },
-  textDestination: {
-    paddingTop: 10,
-    paddingBottom: 40,
-    fontSize: 14,
-    flexWrap: 'wrap',
-  },
-  provideSignatureButton: {
-    marginTop: 24,
-    marginLeft: 40,
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  provideSignatureButtonText: { fontWeight: '600', fontSize: 15 },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  vaultKeyCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  itemUnsignedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  vaultKeyTextSigned: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextSignedWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  flexDirectionRow: { flexDirection: 'row', paddingVertical: 12 },
-  textBtcUnit: { justifyContent: 'flex-end' },
-  bottomFeesWrapper: { justifyContent: 'center', alignItems: 'center', flexDirection: 'row' },
-  bottomWrapper: { marginTop: 16 },
-  marginConfirmButton: { marginTop: 16, marginHorizontal: 32, marginBottom: 48 },
-  height80: {
-    height: 80,
-  },
-});
+
 
 PsbtMultisig.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 

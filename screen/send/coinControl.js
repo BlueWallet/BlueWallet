@@ -27,6 +27,7 @@ import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -393,7 +394,7 @@ const CoinControl = () => {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.elevated }]}>
+    <View style={[stylesCoins.root, { backgroundColor: colors.elevated }]}>
       {utxo.length === 0 && (
         <View style={styles.empty}>
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
@@ -408,7 +409,7 @@ const CoinControl = () => {
         }}
       >
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
+          <View style={[stylesCoins.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
         </KeyboardAvoidingView>
       </BottomModal>
 
@@ -442,13 +443,9 @@ const CoinControl = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const stylesCoins = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   modalContent: {
     padding: 22,
@@ -456,21 +453,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  empty: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  tip: {
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 24,
-  },
-  sendIcon: {
-    transform: [{ rotate: '225deg' }],
   },
 });
 

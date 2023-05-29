@@ -21,6 +21,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
+import styles from './style';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -106,7 +107,7 @@ const SignVerify = () => {
 
   if (loading)
     return (
-      <View style={[stylesHooks.root, styles.loading]}>
+      <View style={[stylesHooks.root, styles.loadingInSignVeriy]}>
         <ActivityIndicator />
       </View>
     );
@@ -239,33 +240,4 @@ SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBa
 
 export default SignVerify;
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  text: {
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    marginTop: 5,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    borderRadius: 4,
-    textAlignVertical: 'top',
-  },
-  textMessage: {
-    minHeight: 50,
-  },
-  flex: {
-    flex: 1,
-  },
-  loading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+

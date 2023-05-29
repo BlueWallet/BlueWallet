@@ -5,6 +5,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import loc from '../../loc';
+import styles from './style';
 
 type PaymentCodesListStackParamList = {
   PaymentCodesList: { walletID: string };
@@ -57,11 +58,3 @@ export default function PaymentCodesList({ route }: NativeStackScreenProps<Payme
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleText: { fontSize: 20 },
-});

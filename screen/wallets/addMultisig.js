@@ -11,6 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
@@ -237,82 +238,6 @@ const WalletsAddMultisig = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  item: {
-    paddingHorizontal: 0,
-  },
-  descriptionContainer: {
-    alignContent: 'center',
-    justifyContent: 'center',
-    flex: 0.8,
-  },
-  modalContentShort: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 350,
-  },
-  borderRadius6: {
-    borderRadius: 6,
-  },
-  buttonContainer: {
-    padding: 24,
-  },
-  column: {
-    paddingRight: 20,
-    paddingLeft: 20,
-  },
-  chevron: {
-    paddingBottom: 10,
-    paddingTop: 10,
-    fontSize: 24,
-  },
-  columnOf: {
-    paddingRight: 20,
-    paddingLeft: 20,
-    justifyContent: 'center',
-  },
-  textdesc: {
-    fontWeight: '500',
-    alignSelf: 'center',
-    textAlign: 'center',
-  },
-  textdescBold: {
-    fontWeight: '700',
-    alignSelf: 'center',
-    textAlign: 'center',
-  },
-  textM: {
-    fontSize: 50,
-    fontWeight: '700',
-  },
-  textOf: {
-    fontSize: 30,
-    color: '#9AA0AA',
-  },
-  textHeader: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  textSubtitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    marginTop: 4,
-  },
-  imageWrapper: {
-    borderWidth: 0,
-    flexDirection: 'row',
-    height: 160,
-  },
-  rowCenter: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingVertical: 40,
-  },
-});
 
 WalletsAddMultisig.getCurrentFormatReadable = f => {
   switch (f) {

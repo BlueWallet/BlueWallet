@@ -17,52 +17,14 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import { BlueButton, BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
+import styles from './style';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  explain: {
-    paddingBottom: 16,
-  },
-  center: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  hex: {
-    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
-    fontWeight: '500',
-  },
-  hexInput: {
-    borderColor: '#ebebeb',
-    backgroundColor: '#d2f8d6',
-    borderRadius: 4,
-    marginTop: 20,
-    color: '#37c0a1',
-    fontWeight: '500',
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
-  },
-  action: {
-    marginVertical: 24,
-  },
-  actionText: {
-    color: '#9aa0aa',
-    fontSize: 15,
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-});
 
 export default class CPFP extends Component {
   static contextType = BlueStorageContext;
@@ -162,7 +124,7 @@ export default class CPFP extends Component {
       <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
         <SafeBlueArea style={styles.root}>
           <BlueSpacing />
-          <BlueCard style={styles.center}>
+          <BlueCard style={[styles.center,{flex: 1,}]}>
             <BlueText>{text}</BlueText>
             <BlueSpacing20 />
             <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
@@ -181,7 +143,7 @@ export default class CPFP extends Component {
   renderStage2() {
     return (
       <View style={styles.root}>
-        <BlueCard style={styles.center}>
+        <BlueCard style={[styles.center,{flex: 1,}]}>
           <BlueText style={styles.hex}>{loc.send.create_this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 

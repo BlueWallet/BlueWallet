@@ -11,7 +11,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import prompt from '../../helpers/prompt';
-
+import * as AllStyles from './style'
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
@@ -120,17 +120,17 @@ const ImportWalletDiscovery = () => {
   const keyExtractor = w => w.id;
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={[AllStyles.root, stylesHook.root]}>
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
 
       {!loading && wallets.length === 0 ? (
-        <View style={styles.noWallets}>
+        <View style={AllStyles.noWallets}>
           <BlueFormLabel>{loc.wallets.import_discovery_no_wallets}</BlueFormLabel>
         </View>
       ) : (
-        <FlatList contentContainerStyle={styles.flatListContainer} data={wallets} keyExtractor={keyExtractor} renderItem={renderItem} />
+        <FlatList contentContainerStyle={AllStyles.flatListContainer} data={wallets} keyExtractor={keyExtractor} renderItem={renderItem} />
       )}
 
       <View style={[styles.center, stylesHook.center]}>
@@ -151,7 +151,7 @@ const ImportWalletDiscovery = () => {
           />
         )}
         <BlueSpacing10 />
-        <View style={styles.buttonContainer}>
+        <View style={[AllStyles.buttonContainer,{marginBottom: 16,}]}>
           <BlueButton
             disabled={wallets.length === 0}
             title={loc.wallets.import_do_import}
@@ -167,16 +167,9 @@ const styles = StyleSheet.create({
   root: {
     paddingTop: 40,
   },
-  flatListContainer: {
-    marginHorizontal: 16,
-  },
   center: {
     marginHorizontal: 16,
     alignItems: 'center',
-  },
-  buttonContainer: {
-    height: 45,
-    marginBottom: 16,
   },
   noWallets: {
     flexGrow: 1,

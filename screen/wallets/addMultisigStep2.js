@@ -41,6 +41,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import styles from './style';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -643,7 +644,7 @@ const WalletsAddMultisigStep2 = () => {
   );
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[stylesHook.root,{paddingHorizontal: 20,}]}>
       {renderHelp()}
       <View style={styles.wrapBox}>
         <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
@@ -658,100 +659,6 @@ const WalletsAddMultisigStep2 = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  wrapBox: {
-    flex: 1,
-    marginVertical: 24,
-  },
-  buttonBottom: {
-    marginHorizontal: 20,
-    flex: 0.12,
-    marginBottom: 40,
-    justifyContent: 'flex-end',
-  },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row' },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  textDestination: { fontWeight: '600' },
-  modalContent: {
-    paddingHorizontal: 22,
-    paddingVertical: 32,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 400,
-  },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    paddingBottom: 60,
-    paddingTop: 50,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  word: {
-    width: 'auto',
-    marginRight: 8,
-    marginBottom: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderRadius: 4,
-  },
-  secretContainer: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-  },
-  wordText: {
-    fontWeight: 'bold',
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  headerText: { fontSize: 15, color: '#13244D' },
-  alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
-  helpButtonWrapper: {
-    alignItems: 'flex-end',
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-  },
-  helpButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 50,
-    flexDirection: 'row',
-  },
-  helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-});
 
 WalletsAddMultisigStep2.navigationOptions = navigationStyle({
   headerTitle: null,

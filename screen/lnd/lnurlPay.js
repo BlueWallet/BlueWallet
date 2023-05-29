@@ -22,6 +22,7 @@ import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import styles from './style';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 
@@ -240,7 +241,7 @@ const LnurlPay = () => {
   };
 
   return isLoading || wallet === undefined || amount === undefined ? (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[stylesHook.root,{flex: 1,justifyContent: 'center',}]}>
       <BlueLoading />
     </View>
   ) : (
@@ -250,53 +251,6 @@ const LnurlPay = () => {
 
 export default LnurlPay;
 
-const styles = StyleSheet.create({
-  img: { width: 200, height: 200, alignSelf: 'center' },
-  alignSelfCenter: {
-    alignSelf: 'center',
-  },
-  root: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  walletSelectRoot: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  walletSelectTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletSelectText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  walletWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  walletWrapTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletWrapLabel: {
-    fontSize: 14,
-  },
-  walletWrapBalance: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
-    marginRight: 4,
-  },
-  walletWrapSats: {
-    fontSize: 11,
-    fontWeight: '600',
-    textAlignVertical: 'bottom',
-    marginTop: 2,
-  },
-});
 
 LnurlPay.navigationOptions = navigationStyle({
   title: '',

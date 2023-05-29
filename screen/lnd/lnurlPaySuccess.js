@@ -17,6 +17,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
+import styles from './style';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -81,7 +82,7 @@ export default class LnurlPaySuccess extends Component {
     const { preamble, message, url, justPaid } = this.state;
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeBlueArea style={{ padding: 0}}>
         <ScrollView style={styles.container}>
           {justPaid && <SuccessView />}
 
@@ -157,31 +158,7 @@ LnurlPaySuccess.propTypes = {
   }),
 };
 
-const styles = StyleSheet.create({
-  img: { width: 200, height: 200, alignSelf: 'center' },
-  alignSelfCenter: {
-    alignSelf: 'center',
-  },
-  root: {
-    padding: 0,
-  },
-  container: {
-    paddingHorizontal: 16,
-  },
-  successContainer: {
-    marginTop: 10,
-  },
-  successText: {
-    textAlign: 'center',
-    margin: 4,
-  },
-  successValue: {
-    fontWeight: 'bold',
-  },
-  description: {
-    marginTop: 20,
-  },
-});
+
 
 LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',

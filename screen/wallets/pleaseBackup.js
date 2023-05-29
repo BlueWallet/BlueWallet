@@ -7,6 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 const PleaseBackup = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -66,16 +67,16 @@ const PleaseBackup = () => {
   };
 
   return isLoading ? (
-    <View style={[styles.loading, stylesHook.flex]}>
+    <View style={[stylesHook.flex,{flex: 1,justifyContent: 'center',}]}>
       <ActivityIndicator />
     </View>
   ) : (
     <SafeBlueArea style={stylesHook.flex}>
-      <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
+      <ScrollView contentContainerStyle={ {flex: 1,justifyContent: 'space-around',}} testID="PleaseBackupScrollView">
         <View style={styles.please}>
           <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
         </View>
-        <View style={styles.list}>
+        <View style={{flexGrow: 8,paddingHorizontal: 16,}}>
           <View style={styles.secret}>{renderSecret()}</View>
         </View>
         <View style={styles.bottom}>
@@ -95,58 +96,6 @@ PleaseBackup.navigationOptions = navigationStyle(
   opts => ({ ...opts, title: loc.pleasebackup.title }),
 );
 
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  flex: {
-    flex: 1,
-    justifyContent: 'space-around',
-  },
-  word: {
-    marginRight: 8,
-    marginBottom: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderRadius: 4,
-  },
-  wortText: {
-    fontWeight: 'bold',
-    textAlign: 'left',
-    fontSize: 17,
-  },
-  please: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-  },
-  list: {
-    flexGrow: 8,
-    paddingHorizontal: 16,
-  },
-  bottom: {
-    flexGrow: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  successText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  pleaseText: {
-    marginVertical: 16,
-    fontSize: 16,
-    fontWeight: '500',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  secret: {
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginTop: 14,
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-  },
-});
+
 
 export default PleaseBackup;

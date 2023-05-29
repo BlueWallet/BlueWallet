@@ -37,6 +37,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import styles from './style';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -464,105 +465,3 @@ ElectrumSettings.propTypes = {
 
 ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
-const styles = StyleSheet.create({
-  status: {
-    textAlign: 'center',
-    color: BlueCurrentTheme.colors.feeText,
-    marginBottom: 4,
-  },
-  connectWrap: {
-    width: 'auto',
-    height: 34,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  container: {
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 16,
-    paddingRight: 16,
-    borderRadius: 20,
-  },
-  containerConnected: {
-    backgroundColor: BlueCurrentTheme.colors.feeLabel,
-  },
-  containerDisconnected: {
-    backgroundColor: BlueCurrentTheme.colors.redBG,
-  },
-  textConnected: {
-    color: BlueCurrentTheme.colors.feeValue,
-    fontWeight: 'bold',
-  },
-  textDisconnected: {
-    color: BlueCurrentTheme.colors.redText,
-    fontWeight: 'bold',
-  },
-  hostname: {
-    textAlign: 'center',
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
-  usePort: {
-    textAlign: 'center',
-    color: BlueCurrentTheme.colors.foregroundColor,
-    marginHorizontal: 8,
-  },
-  explain: {
-    color: BlueCurrentTheme.colors.feeText,
-    marginBottom: -24,
-    flexShrink: 1,
-  },
-  inputWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    borderColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  portWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  inputText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 36,
-    color: '#81868e',
-    height: 36,
-  },
-  serverAddTitle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 16,
-  },
-  serverHistoryTitle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-  },
-  serverHistoryItem: {
-    flexDirection: 'row',
-    paddingVertical: 20,
-    borderBottomColor: BlueCurrentTheme.colors.formBorder,
-    borderBottomWidth: 0.5,
-    flexWrap: 'nowrap',
-  },
-  serverRow: {
-    flexGrow: 2,
-    maxWidth: '80%',
-    color: BlueCurrentTheme.colors.foregroundColor,
-  },
-  selectButton: {
-    flexGrow: 1,
-    marginLeft: 16,
-    alignItems: 'flex-end',
-  },
-});

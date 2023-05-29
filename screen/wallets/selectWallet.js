@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme, useNavigation, useNavigationState } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
@@ -27,74 +28,6 @@ const SelectWallet = () => {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check
     data = availableWallets;
   }
-  const styles = StyleSheet.create({
-    loading: {
-      flex: 1,
-      justifyContent: 'center',
-      alignContent: 'center',
-      paddingTop: 20,
-      backgroundColor: colors.background,
-    },
-    itemRoot: {
-      backgroundColor: 'transparent',
-      padding: 10,
-      marginVertical: 17,
-    },
-    gradient: {
-      padding: 15,
-      borderRadius: 10,
-      minHeight: 164,
-      elevation: 5,
-    },
-    image: {
-      width: 99,
-      height: 94,
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-    },
-    transparentText: {
-      backgroundColor: 'transparent',
-    },
-    label: {
-      backgroundColor: 'transparent',
-      fontSize: 19,
-      color: '#fff',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    },
-
-    balance: {
-      backgroundColor: 'transparent',
-      fontWeight: 'bold',
-      fontSize: 36,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-
-      color: '#fff',
-    },
-    latestTxLabel: {
-      backgroundColor: 'transparent',
-      fontSize: 13,
-      color: '#fff',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    },
-    latestTxValue: {
-      backgroundColor: 'transparent',
-      fontWeight: 'bold',
-      fontSize: 16,
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-
-      color: '#fff',
-    },
-    noWallets: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingTop: 20,
-    },
-    center: {
-      textAlign: 'center',
-    },
-  });
 
   useEffect(() => {
     console.log('SelectWallet - useEffect');
@@ -132,7 +65,7 @@ const SelectWallet = () => {
         }}
         accessibilityRole="button"
       >
-        <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
+        <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={[styles.itemRoot,{marginVertical: 17,}]}>
           <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
             <Image
               source={(() => {
@@ -175,7 +108,9 @@ const SelectWallet = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loading}>
+      <View style={[styles.loading,{alignContent: 'center',
+      paddingTop: 20,
+      backgroundColor: colors.background,}]}>
         <StatusBar barStyle="light-content" />
         <ActivityIndicator />
       </View>

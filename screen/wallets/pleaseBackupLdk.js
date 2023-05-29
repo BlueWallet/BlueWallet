@@ -7,7 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-
+import * as AllStyles from './style'
 const PleaseBackupLdk = () => {
   const { wallets } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
@@ -34,7 +34,6 @@ const PleaseBackupLdk = () => {
       alignItems: 'center',
       padding: 20,
     },
-    qrCodeContainer: { borderWidth: 6, borderRadius: 8, borderColor: '#FFFFFF' },
   });
 
   useEffect(() => {
@@ -55,7 +54,7 @@ const PleaseBackupLdk = () => {
           <BlueSpacing20 />
         </View>
         <BlueSpacing20 />
-        <View style={styles.qrCodeContainer}>
+        <View style={AllStyles.qrCodeContainer}>
           <QRCode
             value={wallet.secret}
             logo={require('../../img/qr-code.png')}

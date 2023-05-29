@@ -15,6 +15,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import styles from './style';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -438,103 +439,7 @@ const TransactionsStatus = () => {
 };
 
 export default TransactionsStatus;
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  center: {
-    alignItems: 'center',
-  },
-  value: {
-    fontSize: 36,
-    fontWeight: '600',
-  },
-  valueUnit: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  memo: {
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  memoText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-  },
-  iconRoot: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginTop: 43,
-    marginBottom: 53,
-  },
-  iconWrap: {
-    minWidth: 30,
-    minHeight: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-end',
-    borderRadius: 15,
-  },
-  margin: {
-    marginBottom: -40,
-  },
-  icon: {
-    width: 25,
-  },
-  fee: {
-    marginTop: 15,
-    marginBottom: 13,
-  },
-  feeText: {
-    fontSize: 11,
-    fontWeight: '500',
-    marginBottom: 4,
-    color: '#00c49f',
-    alignSelf: 'center',
-  },
-  confirmations: {
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmationsText: {
-    color: '#9aa0aa',
-    fontSize: 13,
-  },
-  eta: {
-    alignSelf: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actions: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  cancel: {
-    marginVertical: 16,
-  },
-  cancelText: {
-    color: '#d0021b',
-    fontSize: 15,
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  details: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 34,
-  },
-  detailsText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-});
+
 
 TransactionsStatus.navigationOptions = navigationStyle(
   {

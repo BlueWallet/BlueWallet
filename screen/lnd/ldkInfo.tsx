@@ -12,6 +12,7 @@ import Button, { ButtonStyle } from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
+import styles from './style';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -418,40 +419,6 @@ const LdkInfo = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  marginHorizontal16: {
-    marginHorizontal: 16,
-  },
-  contentContainerStyle: {
-    marginHorizontal: 16,
-  },
-  listHeaderText: {
-    marginTop: 8,
-    marginBottom: 8,
-    fontWeight: 'bold',
-    fontSize: 24,
-  },
-  listHeaderBack: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  modalContent: {
-    minHeight: 418,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    padding: 24,
-  },
-  separator: {
-    height: 1,
-    marginTop: 16,
-  },
-});
 
 LdkInfo.navigationOptions = navigationStyle(
   {

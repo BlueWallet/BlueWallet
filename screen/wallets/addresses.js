@@ -8,6 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { WatchOnlyWallet } from '../../class';
+import styles from './style';
 
 export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 
@@ -164,9 +165,3 @@ WalletAddresses.navigationOptions = navigationStyle({
 });
 
 export default WalletAddresses;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});

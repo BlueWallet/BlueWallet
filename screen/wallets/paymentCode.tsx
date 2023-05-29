@@ -4,6 +4,7 @@ import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/nati
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import loc from '../../loc';
+import styles from './style';
 
 type PaymentCodeStackParamList = {
   PaymentCode: { paymentCode: string };
@@ -25,10 +26,4 @@ export default function PaymentCode({ route }: NativeStackScreenProps<PaymentCod
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+

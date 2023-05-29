@@ -246,7 +246,7 @@ const WalletTransactions = ({ navigation }) => {
           </View>
         )}
         <View style={styles.listHeaderTextRow}>
-          <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+          <Text style={[stylesHook.listHeaderText,{marginTop: 8,marginBottom: 8,fontWeight: 'bold',fontSize: 24,}]}>{loc.transactions.list_title}</Text>
           <TouchableOpacity
             accessibilityRole="button"
             testID="refreshTransactions"
@@ -626,81 +626,5 @@ WalletTransactions.propTypes = {
 };
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
-  marginHorizontal18: {
-    marginHorizontal: 18,
-  },
-  marginBottom18: {
-    marginBottom: 18,
-  },
-  walletDetails: {
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  activityIndicator: {
-    marginVertical: 20,
-  },
-  listHeader: {
-    marginLeft: 16,
-    marginRight: 16,
-    marginVertical: 16,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  listHeaderTextRow: {
-    flex: 1,
-    marginHorizontal: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  listHeaderText: {
-    marginTop: 8,
-    marginBottom: 8,
-    fontWeight: 'bold',
-    fontSize: 24,
-  },
-  browserButton2: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 4,
-  },
-  marketpalceText1: {
-    fontSize: 18,
-  },
-  list: {
-    flex: 1,
-  },
-  emptyTxs: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    marginVertical: 16,
-  },
-  emptyTxsLightning: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  sendIcon: {
-    transform: [{ rotate: I18nManager.isRTL ? '-225deg' : '225deg' }],
-  },
-  receiveIcon: {
-    transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }],
-  },
+  
 });

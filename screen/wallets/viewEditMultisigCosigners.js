@@ -43,6 +43,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import styles from './style';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -519,7 +520,7 @@ const ViewEditMultisigCosigners = () => {
 
   if (isLoading)
     return (
-      <View style={[styles.root, stylesHook.root]}>
+      <View style={[stylesHook.root,{justifyContent:'space-between',}]}>
         <BlueLoading />
       </View>
     );
@@ -557,13 +558,13 @@ const ViewEditMultisigCosigners = () => {
   const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[ stylesHook.root,{justifyContent: 'space-between',}]}>
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         keyboardVerticalOffset={62}
-        style={[styles.mainBlock, styles.root]}
+        style={[styles.mainBlock, {justifyContent: 'space-between',}]}
       >
         <FlatList
           ListHeaderComponent={tipKeys}
@@ -585,72 +586,6 @@ const ViewEditMultisigCosigners = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 16 },
-  textDestination: { fontWeight: '600' },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    paddingVertical: 32,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    backgroundColor: 'white',
-    minHeight: 400,
-  },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  headerText: { fontSize: 15, color: '#13244D' },
-  mainBlock: { marginHorizontal: 16 },
-  alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
-  tipKeys: {
-    fontSize: 15,
-    fontWeight: '600',
-    flex: 1,
-  },
-  tipLabel: {
-    width: 30,
-    marginRight: 6,
-    position: 'relative',
-    bottom: -3,
-  },
-  tipLabelText: {
-    fontWeight: '500',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-});
 
 ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {

@@ -13,6 +13,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import selectWallet from '../../helpers/select-wallet';
 import url from 'url';
 import { SuccessView } from '../send/success';
+import styles from './style';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -63,7 +64,7 @@ const LnurlAuth = () => {
 
   if (!parsedLnurl || !wallet || authState === AuthState.IN_PROGRESS)
     return (
-      <View style={[styles.root, stylesHook.root]}>
+      <View style={[ stylesHook.root,{flex: 1,justifyContent: 'center'}]}>
         <BlueLoading />
       </View>
     );
@@ -129,46 +130,6 @@ const LnurlAuth = () => {
 
 export default LnurlAuth;
 
-const styles = StyleSheet.create({
-  alignSelfCenter: {
-    alignSelf: 'center',
-  },
-  domainName: {
-    alignSelf: 'center',
-    fontWeight: 'bold',
-    fontSize: 25,
-    paddingVertical: 10,
-  },
-  root: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  walletSelectRoot: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  walletSelectTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletSelectText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  walletWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  walletWrapTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletWrapLabel: {
-    fontSize: 14,
-  },
-});
 
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',

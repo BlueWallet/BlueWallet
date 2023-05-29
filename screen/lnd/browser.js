@@ -21,6 +21,7 @@ import Notifications from '../../blue_modules/notifications';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -222,73 +223,6 @@ window.ReactNativeWebView.postMessage('interval');
 
            `;
 
-const styles = StyleSheet.create({
-  safeRoot: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 44,
-  },
-  safeURL: {
-    flex: 1,
-    marginHorizontal: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  safeURLTextWrap: {
-    flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
-  safeURLText: {
-    flex: 1,
-    marginLeft: 4,
-    minHeight: 33,
-    color: '#81868e',
-  },
-  safeURLHome: {
-    alignContent: 'flex-end',
-    height: 44,
-    flexDirection: 'row',
-    marginHorizontal: 8,
-  },
-  sync: {
-    color: 'red',
-    backgroundColor: 'transparent',
-    paddingLeft: 15,
-  },
-  activity: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: 20,
-    alignContent: 'center',
-  },
-  goBack: {
-    backgroundColor: 'transparent',
-    paddingLeft: 10,
-  },
-  colorRed: {
-    color: 'red',
-  },
-  // eslint-disable-next-line react-native/no-unused-styles
-  colorGray: {
-    color: 'gray',
-  },
-  transparent: {
-    backgroundColor: 'transparent',
-  },
-  colorGreen: {
-    color: 'green',
-  },
-});
 
 export default class Browser extends Component {
   webView = React.createRef();

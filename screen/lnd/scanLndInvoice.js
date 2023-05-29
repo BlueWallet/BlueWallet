@@ -25,6 +25,7 @@ import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import styles from './style';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -301,7 +302,7 @@ const ScanLndInvoice = () => {
   return (
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
-      <View style={[styles.root, stylesHook.root]}>
+      <View style={[stylesHook.root,{flex: 1,}]}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
             <View style={styles.scrollMargin}>
@@ -375,76 +376,3 @@ ScanLndInvoice.navigationOptions = navigationStyle(
   opts => ({ ...opts, title: loc.send.header }),
 );
 
-const styles = StyleSheet.create({
-  walletSelectRoot: {
-    marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  loadingIndicator: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  walletSelectTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletSelectText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  walletWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  walletWrapTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  walletWrapLabel: {
-    fontSize: 14,
-  },
-  walletWrapBalance: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
-    marginRight: 4,
-  },
-  walletWrapSats: {
-    fontSize: 11,
-    fontWeight: '600',
-    textAlignVertical: 'bottom',
-    marginTop: 2,
-  },
-  root: {
-    flex: 1,
-  },
-  scroll: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  scrollMargin: {
-    marginTop: 60,
-  },
-  description: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 0,
-    borderRadius: 4,
-  },
-  descriptionText: {
-    color: '#81868e',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  expiresIn: {
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    color: '#81868e',
-    fontSize: 12,
-    left: 20,
-    top: 10,
-  },
-});

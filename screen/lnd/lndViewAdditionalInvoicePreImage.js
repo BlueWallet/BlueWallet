@@ -6,6 +6,7 @@ import { BlueCopyTextToClipboard, SafeBlueArea, BlueSpacing20, BlueTextCentered 
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import styles from './style';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
@@ -32,18 +33,6 @@ const LNDViewAdditionalInvoicePreImage = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  qrCodeContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 16,
-  },
-});
 
 export default LNDViewAdditionalInvoicePreImage;
 

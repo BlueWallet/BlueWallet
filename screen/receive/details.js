@@ -38,6 +38,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
+import * as AllStyles from './style'
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -193,16 +194,16 @@ const ReceiveDetails = () => {
   const renderConfirmedBalance = () => {
     return (
       <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+        <View style={AllStyles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              <BlueText style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
           <SuccessView />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          <BlueText style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
             {displayBalance}
           </BlueText>
         </View>
@@ -213,20 +214,20 @@ const ReceiveDetails = () => {
   const renderPendingBalance = () => {
     return (
       <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+        <View style={AllStyles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              <BlueText style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
           <TransactionPendingIconBig />
           <BlueSpacing40 />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          <BlueText style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
             {displayBalance}
           </BlueText>
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          <BlueText style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
             {eta}
           </BlueText>
         </View>
@@ -253,16 +254,16 @@ const ReceiveDetails = () => {
   const renderReceiveDetails = () => {
     return (
       <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+        <View style={AllStyles.scrollBody}>
           {isCustom && (
             <>
               {getDisplayAmount() && (
-                <BlueText testID="CustomAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
+                <BlueText testID="CustomAmountText" style={[AllStyles.amount, stylesHook.amount]} numberOfLines={1}>
                   {getDisplayAmount()}
                 </BlueText>
               )}
               {customLabel?.length > 0 && (
-                <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
+                <BlueText testID="CustomAmountDescriptionText" style={[AllStyles.label, stylesHook.label]} numberOfLines={1}>
                   {customLabel}
                 </BlueText>
               )}
@@ -272,10 +273,10 @@ const ReceiveDetails = () => {
           <QRCodeComponent value={bip21encoded} />
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
-        <View style={styles.share}>
+        <View style={AllStyles.share}>
           <BlueCard>
             <BlueButtonLink
-              style={styles.link}
+              style={AllStyles.link}
               testID="SetCustomAmountButton"
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
@@ -404,16 +405,16 @@ const ReceiveDetails = () => {
     return (
       <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
+          <View style={[AllStyles.modalContent, stylesHook.modalContent]}>
             <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
-            <View style={[styles.customAmount, stylesHook.customAmount]}>
+            <View style={[AllStyles.customAmount, stylesHook.customAmount]}>
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholderTextColor="#81868e"
                 placeholder={loc.receive.details_label}
                 value={customLabel || ''}
                 numberOfLines={1}
-                style={[styles.customAmountText, stylesHook.customAmountText]}
+                style={[AllStyles.customAmountText, stylesHook.customAmountText]}
                 testID="CustomAmountDescription"
               />
             </View>
@@ -421,7 +422,7 @@ const ReceiveDetails = () => {
             <View>
               <BlueButton
                 testID="CustomAmountSaveButton"
-                style={[styles.modalButton, stylesHook.modalButton]}
+                style={[AllStyles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}
                 onPress={createCustomAmountAddress}
               />
@@ -472,68 +473,11 @@ const ReceiveDetails = () => {
 };
 
 const styles = StyleSheet.create({
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    minHeight: 350,
-    height: 350,
-  },
-  customAmount: {
-    flexDirection: 'row',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
   root: {
     flexGrow: 1,
     justifyContent: 'space-between',
   },
-  scrollBody: {
-    marginTop: 32,
-    flexGrow: 1,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  share: {
-    justifyContent: 'flex-end',
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  link: {
-    marginVertical: 16,
-    paddingHorizontal: 32,
-  },
-  amount: {
-    fontWeight: '600',
-    fontSize: 36,
-    textAlign: 'center',
-  },
-  label: {
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingBottom: 24,
-  },
-  modalButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 70,
-    maxWidth: '80%',
-    borderRadius: 50,
-    fontWeight: '700',
-  },
-  customAmountText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
-  },
+  
 });
 
 ReceiveDetails.navigationOptions = navigationStyle(

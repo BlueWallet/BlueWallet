@@ -10,6 +10,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20, SafeBlueArea, BlueTabs } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import styles from './style';
 
 const ENTROPY_LIMIT = 256;
 
@@ -270,80 +271,6 @@ const Entropy = () => {
 
 Entropy.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.entropy.title }));
 
-const styles = StyleSheet.create({
-  entropy: {
-    padding: 5,
-    marginLeft: 10,
-    marginRight: 10,
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  entropyText: {
-    fontSize: 15,
-    fontFamily: 'Courier',
-  },
-  coinRoot: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  coinBody: {
-    flex: 0.33,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: BlueCurrentTheme.colors.lightButton,
-    margin: 10,
-    padding: 10,
-    maxWidth: 100,
-    maxHeight: 100,
-  },
-  coinImage: {
-    aspectRatio: 1,
-    width: '100%',
-    height: '100%',
-    borderRadius: 75,
-  },
-  diceContainer: {
-    alignItems: 'flex-start',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingBottom: 100,
-  },
-  diceRoot: {
-    aspectRatio: 1,
-    maxWidth: 100,
-    maxHeight: 100,
-  },
-  dice: {
-    margin: 3,
-    borderWidth: 1,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
-    borderColor: BlueCurrentTheme.colors.buttonBackgroundColor,
-  },
-  diceIcon: {
-    margin: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
-    color: 'grey',
-  },
-  buttonsIcon: {
-    backgroundColor: 'transparent',
-    transform: [{ rotate: '-45deg' }],
-    alignItems: 'center',
-  },
-});
+
 
 export default Entropy;

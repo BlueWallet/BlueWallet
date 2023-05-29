@@ -15,6 +15,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import alert from '../../components/Alert';
+import styles from './style';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 
@@ -181,7 +182,7 @@ const SendCreate = () => {
 
   return (
     <FlatList
-      contentContainerStyle={[styles.root, styleHooks.root]}
+      contentContainerStyle={[styleHooks.root,{paddingHorizontal: 20,}]}
       extraData={recipients}
       data={recipients}
       renderItem={_renderItem}
@@ -197,52 +198,7 @@ const SendCreate = () => {
 
 export default SendCreate;
 
-const styles = StyleSheet.create({
-  transactionDetailsTitle: {
-    fontWeight: '500',
-    fontSize: 17,
-    marginBottom: 2,
-  },
-  root: {
-    paddingHorizontal: 20,
-  },
-  transactionDetailsSubtitle: {
-    fontWeight: '500',
-    fontSize: 15,
-    marginBottom: 20,
-  },
-  itemOf: {
-    alignSelf: 'flex-end',
-  },
-  separator: {
-    height: 0.5,
-    marginVertical: 16,
-  },
-  cardText: {
-    fontWeight: '500',
-  },
-  cardTx: {
-    borderColor: '#ebebeb',
-    backgroundColor: '#d2f8d6',
-    borderRadius: 4,
-    marginTop: 20,
-    color: '#37c0a1',
-    fontWeight: '500',
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
-  },
-  actionTouch: {
-    marginVertical: 24,
-  },
-  actionText: {
-    color: '#9aa0aa',
-    fontSize: 15,
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-});
+
 
 SendCreate.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
   return {

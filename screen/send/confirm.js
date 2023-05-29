@@ -16,6 +16,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Psbt } from 'bitcoinjs-lib';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import alert from '../../components/Alert';
+import styles from './style';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -236,7 +237,7 @@ const Confirm = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={[stylesHook.root,{paddingTop: 19,justifyContent: 'space-between',}]}>
       <View style={styles.cardTop}>
         <FlatList
           scrollEnabled={recipients.length > 1}
@@ -271,100 +272,5 @@ const Confirm = () => {
 
 export default Confirm;
 
-const styles = StyleSheet.create({
-  transactionDetailsTitle: {
-    fontWeight: '500',
-    fontSize: 17,
-    marginBottom: 2,
-  },
-  transactionDetailsSubtitle: {
-    fontWeight: '500',
-    fontSize: 15,
-    marginBottom: 20,
-  },
-  transactionAmountFiat: {
-    fontWeight: '500',
-    fontSize: 15,
-    marginVertical: 8,
-    textAlign: 'center',
-  },
-  valueWrap: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  valueValue: {
-    fontSize: 36,
-    fontWeight: '700',
-  },
-  valueUnit: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  valueOf: {
-    alignSelf: 'flex-end',
-    marginRight: 18,
-    marginVertical: 8,
-  },
-  separator: {
-    height: 0.5,
-    margin: 16,
-  },
-  root: {
-    paddingTop: 19,
-    justifyContent: 'space-between',
-  },
-  cardTop: {
-    flexGrow: 8,
-    marginTop: 16,
-    alignItems: 'center',
-    maxHeight: '70%',
-  },
-  cardBottom: {
-    flexGrow: 2,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  cardContainer: {
-    flexGrow: 1,
-    width: '100%',
-  },
-  cardText: {
-    flexDirection: 'row',
-    color: '#37c0a1',
-    fontSize: 14,
-    marginVertical: 8,
-    marginHorizontal: 24,
-    paddingBottom: 6,
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-  txDetails: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 38,
-  },
-  txText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  payjoinWrapper: {
-    flexDirection: 'row',
-    padding: 8,
-    borderRadius: 6,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  payjoinText: {
-    color: '#81868e',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-});
 
 Confirm.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.confirm_header }));

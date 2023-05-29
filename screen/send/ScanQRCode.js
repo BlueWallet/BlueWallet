@@ -8,6 +8,7 @@ import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigati
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
 import alert from '../../components/Alert';
+import styles from './style';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -16,67 +17,7 @@ const Base43 = require('../../blue_modules/base43');
 const bitcoin = require('bitcoinjs-lib');
 let decoder = false;
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  closeTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    right: 16,
-    top: 44,
-  },
-  closeImage: {
-    alignSelf: 'center',
-  },
-  imagePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 24,
-    bottom: 48,
-  },
-  filePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 96,
-    bottom: 48,
-  },
-  openSettingsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  backdoorButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    position: 'absolute',
-  },
-  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
-  progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
-  backdoorInput: {
-    height: '50%',
-    marginTop: 5,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 4,
-    textAlignVertical: 'top',
-  },
-});
+
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -320,11 +261,11 @@ const ScanQRCode = () => {
   };
 
   return isLoading ? (
-    <View style={styles.root}>
+    <View style={{flex: 1,backgroundColor: '#000000',}}>
       <BlueLoading />
     </View>
   ) : (
-    <View style={styles.root}>
+    <View style={{flex: 1,backgroundColor: '#000000',}}>
       <StatusBar hidden />
       {isFocused && cameraStatus ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />

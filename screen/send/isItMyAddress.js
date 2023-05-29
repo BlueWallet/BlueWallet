@@ -6,6 +6,7 @@ import loc from '../../loc';
 import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
@@ -134,32 +135,4 @@ const IsItMyAddress = () => {
 export default IsItMyAddress;
 IsItMyAddress.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.is_it_my_address.title }));
 
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  blueArea: {
-    paddingTop: 19,
-  },
-  mainCard: {
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  text: {
-    padding: 8,
-    minHeight: 33,
-    color: '#81868e',
-  },
-});
+

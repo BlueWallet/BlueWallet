@@ -10,6 +10,7 @@ import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import styles from './style';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
@@ -77,7 +78,7 @@ const ExportMultisigCoordinationSetup = () => {
   ) : (
     <SafeBlueArea style={stylesHook.root}>
       <StatusBar barStyle="light-content" />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={stylesOfExportCorSteup.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
         </View>
@@ -87,43 +88,27 @@ const ExportMultisigCoordinationSetup = () => {
         {isShareButtonTapped ? (
           <ActivityIndicator />
         ) : (
-          <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportTxtFile} title={loc.multisig.share} />
+          <SquareButton style={[styles.exportButton, stylesHook.exportButton,{width: '80%',  maxWidth: 300,}]} onPress={exportTxtFile} title={loc.multisig.share} />
         )}
         <BlueSpacing20 />
-        <BlueText style={[styles.secret, stylesHook.secret]}>{wallet.getXpub()}</BlueText>
+        <BlueText style={[stylesOfExportCorSteup.secret, stylesHook.secret]}>{wallet.getXpub()}</BlueText>
       </ScrollView>
     </SafeBlueArea>
   );
 };
 
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
+const stylesOfExportCorSteup = StyleSheet.create({
+ 
   scrollViewContent: {
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
-  },
-  type: {
-    fontSize: 17,
-    fontWeight: '700',
   },
   secret: {
     alignItems: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
     lineHeight: 24,
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    width: '80%',
-    maxWidth: 300,
   },
 });
 

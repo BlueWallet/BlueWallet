@@ -21,6 +21,7 @@ import {
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
+import styles from './style';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -164,48 +165,7 @@ const Broadcast = () => {
 export default Broadcast;
 Broadcast.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.create_broadcast }));
 
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  broadcastResultWrapper: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-  },
-  mainCard: {
-    padding: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-  },
-  topFormRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-    paddingTop: 0,
-    paddingRight: 100,
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  text: {
-    padding: 8,
-    minHeight: 33,
-    color: '#81868e',
-  },
-});
+
 
 const SuccessScreen = ({ tx }) => {
   if (!tx) {

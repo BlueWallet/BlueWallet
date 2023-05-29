@@ -27,7 +27,7 @@ import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
-
+import styles from './style';
 const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -387,51 +387,4 @@ const WalletsList = () => {
 export default WalletsList;
 WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '', headerBackTitle: loc.wallets.list_title }));
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    top: 0,
-    left: 0,
-    bottom: 60,
-    right: 0,
-  },
-  walletsListWrapper: {
-    flex: 1,
-  },
-  headerTouch: {
-    height: 48,
-    paddingVertical: 10,
-  },
-  listHeaderBack: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-  },
-  listHeaderText: {
-    fontWeight: 'bold',
-    fontSize: 24,
-    marginVertical: 16,
-  },
-  footerRoot: {
-    top: 80,
-    height: 160,
-    marginBottom: 80,
-  },
-  footerEmpty: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-  footerStart: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  transaction: {
-    marginHorizontal: 0,
-  },
-});
+

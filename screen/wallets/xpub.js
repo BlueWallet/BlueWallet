@@ -10,22 +10,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
 import Share from 'react-native-share';
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  container: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  share: {
-    alignSelf: 'center',
-    width: '40%',
-  },
-});
+import styles from './style';
 
 const WalletXpub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -82,7 +67,7 @@ const WalletXpub = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
+    <SafeBlueArea style={[styles.root, stylesHook.root,{paddingTop: 20,}]} onLayout={onLayout}>
       <StatusBar barStyle="light-content" />
       <>
         <View style={styles.container}>

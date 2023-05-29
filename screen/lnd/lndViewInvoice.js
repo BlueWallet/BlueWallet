@@ -20,6 +20,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
+import styles from './style';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -289,46 +290,6 @@ const LNDViewInvoice = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  justifyContentCenter: {
-    justifyContent: 'center',
-  },
-  detailsRoot: {
-    justifyContent: 'flex-end',
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  detailsTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailsText: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  expired: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginBottom: 30,
-  },
-  activeRoot: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  activeQrcode: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 16,
-  },
-});
 
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {

@@ -8,6 +8,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import styles from './style';
 
 const LNDViewAdditionalInvoiceInformation = () => {
   const { walletID } = useRoute().params;
@@ -79,24 +80,6 @@ const LNDViewAdditionalInvoiceInformation = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  loading: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  wrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  qrcode: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  share: {
-    marginBottom: 25,
-  },
-});
 
 export default LNDViewAdditionalInvoiceInformation;
 

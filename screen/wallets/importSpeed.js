@@ -7,6 +7,7 @@ import loc from '../../loc';
 import { BlueButton, BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as allStyles from './style'
 
 const WalletsImportSpeed = () => {
   const navigation = useNavigation();
@@ -26,21 +27,6 @@ const WalletsImportSpeed = () => {
       flex: 1,
       marginHorizontal: 16,
       backgroundColor: colors.elevated,
-    },
-    pathInput: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      minHeight: 44,
-      height: 44,
-      alignItems: 'center',
-      marginVertical: 8,
-      borderRadius: 4,
-      paddingHorizontal: 8,
-      color: '#81868e',
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
     },
   });
 
@@ -78,9 +64,13 @@ const WalletsImportSpeed = () => {
       <BlueSpacing20 />
       <BlueFormMultiInput testID="SpeedMnemonicInput" value={importText} onChangeText={setImportText} />
       <BlueFormLabel>Wallet type</BlueFormLabel>
-      <TextInput testID="SpeedWalletTypeInput" value={walletType} style={styles.pathInput} onChangeText={setWalletType} />
+      <TextInput testID="SpeedWalletTypeInput" value={walletType} style={[allStyles.pathInput,{borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,}]} onChangeText={setWalletType} />
       <BlueFormLabel>Passphrase</BlueFormLabel>
-      <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
+      <TextInput testID="SpeedPassphraseInput" value={passphrase} style={[allStyles.pathInput,{borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,}]} onChangeText={setPassphrase} />
       <BlueSpacing20 />
       <View style={styles.center}>
         <BlueButton testID="SpeedDoImport" title="Import" onPress={importMnemonic} />

@@ -9,6 +9,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueButton, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
+import styles from './style';
 
 const Success = () => {
   const pop = () => {
@@ -137,51 +138,3 @@ SuccessView.propTypes = {
   shouldAnimate: PropTypes.bool,
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 19,
-  },
-  buttonContainer: {
-    paddingHorizontal: 58,
-    paddingBottom: 16,
-  },
-  amount: {
-    alignItems: 'center',
-  },
-  view: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  amountValue: {
-    fontSize: 36,
-    fontWeight: '600',
-  },
-  amountUnit: {
-    fontSize: 16,
-    marginHorizontal: 4,
-    paddingBottom: 6,
-    fontWeight: '600',
-    alignSelf: 'flex-end',
-  },
-  feeText: {
-    color: '#37c0a1',
-    fontSize: 14,
-    marginHorizontal: 4,
-    paddingVertical: 6,
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-  ready: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignSelf: 'center',
-    alignItems: 'center',
-    marginBottom: 53,
-  },
-  lottie: {
-    width: 200,
-    height: 200,
-  },
-});

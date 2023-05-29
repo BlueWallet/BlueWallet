@@ -10,6 +10,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
 import debounce from '../../blue_modules/debounce';
+import styles from './style';
 
 const WRONG_PATH = 'WRONG_PATH';
 const WALLET_FOUND = 'WALLET_FOUND';
@@ -115,7 +116,7 @@ const ImportCustomDerivationPath = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeBlueArea style={[stylesHook.root,{paddingTop: 10}]}>
       <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_derivation_subtitle}</BlueFormLabel>
@@ -136,7 +137,7 @@ const ImportCustomDerivationPath = () => {
         ListEmptyComponent={() => <BlueTextCentered>{loc.wallets.import_wrong_path}</BlueTextCentered>}
       />
 
-      <View style={[styles.center, stylesHook.center]}>
+      <View style={[stylesHook.center,{marginHorizontal: 16,alignItems: 'center',}]}>
         <View style={styles.buttonContainer}>
           <BlueButton
             disabled={wallets[path]?.[selected] === undefined}
@@ -150,34 +151,6 @@ const ImportCustomDerivationPath = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    paddingTop: 10,
-  },
-  flatListContainer: {
-    marginHorizontal: 16,
-  },
-  center: {
-    marginHorizontal: 16,
-    alignItems: 'center',
-  },
-  buttonContainer: {
-    height: 45,
-  },
-  pathInput: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    marginHorizontal: 16,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#81868e',
-  },
-});
 
 ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_derivation_title }));
 

@@ -9,46 +9,8 @@ import loc from '../../loc';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import styles from './style';
 
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  root: {
-    alignItems: 'center',
-    alignContent: 'flex-end',
-    marginTop: 66,
-  },
-  code: {
-    color: '#0c2550',
-    fontSize: 20,
-    marginTop: 20,
-    marginBottom: 90,
-  },
-  selectWallet1: {
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  selectTouch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  selectText: {
-    color: '#9aa0aa',
-    fontSize: 14,
-    marginRight: 8,
-  },
-  selectWallet2: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  selectWalletLabel: {
-    color: '#0c2550',
-    fontSize: 14,
-  },
-});
 
 export default class AztecoRedeem extends Component {
   static contextType = BlueStorageContext;

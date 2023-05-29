@@ -14,6 +14,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import alert from '../../components/Alert';
+import styles from './style';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -285,51 +286,4 @@ export default PsbtWithHardwareWallet;
 
 PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
-const styles = StyleSheet.create({
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 16,
-    paddingBottom: 16,
-  },
-  rootPadding: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  hexWrap: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  hexLabel: {
-    fontWeight: '500',
-  },
-  hexInput: {
-    borderRadius: 4,
-    marginTop: 20,
-    fontWeight: '500',
-    fontSize: 14,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    paddingTop: 16,
-  },
-  hexTouch: {
-    marginVertical: 24,
-  },
-  hexText: {
-    fontSize: 15,
-    fontWeight: '500',
-    alignSelf: 'center',
-  },
-  copyToClipboard: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  hidden: {
-    width: 0,
-    height: 0,
-  },
-});
+
