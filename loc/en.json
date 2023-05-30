@@ -64,7 +64,7 @@
     "node_alias": "Node alias",
     "expiresIn": "Expires in {time} minutes",
     "payButton": "Pay",
-    "placeholder": "Invoice",
+    "placeholder": "Invoice or address",
     "open_channel": "Open Channel",
     "funding_amount_placeholder": "Funding amount, for example 0.001",
     "opening_channnel_for_from": "Opening channel for wallet {forWalletLabel}, by funding from {fromWalletLabel}",

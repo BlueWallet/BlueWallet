@@ -228,41 +228,58 @@ class BlueURDecoder extends URDecoder {
     if (decoded.type === 'crypto-account') {
       const cryptoAccount = CryptoAccount.fromCBOR(decoded.cbor);
 
-      // now, crafting zpub out of data we have
-      const hdKey = cryptoAccount.outputDescriptors[0].getCryptoKey();
-      const derivationPath = 'm/' + hdKey.getOrigin().getPath();
-      const script = cryptoAccount.outputDescriptors[0].getScriptExpressions()[0].getExpression();
-      const isMultisig =
-        script === ScriptExpressions.WITNESS_SCRIPT_HASH.getExpression() ||
-        // fallback to paths (unreliable).
-        // dont know how to add ms p2sh (legacy) or p2sh-p2wsh (wrapped segwit) atm
-        derivationPath === MultisigHDWallet.PATH_LEGACY ||
-        derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
-        derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
-      const version = Buffer.from(isMultisig ? '02aa7ed3' : '04b24746', 'hex');
-      const parentFingerprint = hdKey.getParentFingerprint();
-      const depth = hdKey.getOrigin().getDepth();
-      const depthBuf = Buffer.alloc(1);
-      depthBuf.writeUInt8(depth);
-      const components = hdKey.getOrigin().getComponents();
-      const lastComponents = components[components.length - 1];
-      const index = lastComponents.isHardened() ? lastComponents.getIndex() + 0x80000000 : lastComponents.getIndex();
-      const indexBuf = Buffer.alloc(4);
-      indexBuf.writeUInt32BE(index);
-      const chainCode = hdKey.getChainCode();
-      const key = hdKey.getKey();
-      const data = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+      const results = [];
+      for (const outputDescriptor of cryptoAccount.outputDescriptors) {
+        // now, crafting zpub out of data we have
+        const hdKey = outputDescriptor.getCryptoKey();
+        const derivationPath = 'm/' + hdKey.getOrigin().getPath();
+        const script = cryptoAccount.outputDescriptors[0].getScriptExpressions()[0].getExpression();
+        const isMultisig =
+          script === ScriptExpressions.WITNESS_SCRIPT_HASH.getExpression() ||
+          // fallback to paths (unreliable).
+          // dont know how to add ms p2sh (legacy) or p2sh-p2wsh (wrapped segwit) atm
+          derivationPath === MultisigHDWallet.PATH_LEGACY ||
+          derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
+          derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
+        const version = Buffer.from(isMultisig ? '02aa7ed3' : '04b24746', 'hex');
+        const parentFingerprint = hdKey.getParentFingerprint();
+        const depth = hdKey.getOrigin().getDepth();
+        const depthBuf = Buffer.alloc(1);
+        depthBuf.writeUInt8(depth);
+        const components = hdKey.getOrigin().getComponents();
+        const lastComponents = components[components.length - 1];
+        const index = lastComponents.isHardened() ? lastComponents.getIndex() + 0x80000000 : lastComponents.getIndex();
+        const indexBuf = Buffer.alloc(4);
+        indexBuf.writeUInt32BE(index);
+        const chainCode = hdKey.getChainCode();
+        const key = hdKey.getKey();
+        const data = Buffer.concat([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
 
-      const zpub = b58.encode(data);
+        const zpub = b58.encode(data);
 
-      const result = {};
-      result.ExtPubKey = zpub;
-      result.MasterFingerprint = cryptoAccount.getMasterFingerprint().toString('hex').toUpperCase();
-      result.AccountKeyPath = derivationPath;
+        const result = {};
+        result.ExtPubKey = zpub;
+        result.MasterFingerprint = cryptoAccount.getMasterFingerprint().toString('hex').toUpperCase();
+        result.AccountKeyPath = derivationPath;
 
-      const str = JSON.stringify(result);
-      return str;
-      // return Buffer.from(str, 'ascii').toString('hex'); // we are expected to return hex-encoded string
+        if (derivationPath.startsWith("m/49'/0'/")) {
+          // converting to ypub
+          let data = b58.decode(result.ExtPubKey);
+          data = data.slice(4);
+          result.ExtPubKey = b58.encode(Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]));
+        }
+
+        if (derivationPath.startsWith("m/44'/0'/")) {
+          // converting to xpub
+          let data = b58.decode(result.ExtPubKey);
+          data = data.slice(4);
+          result.ExtPubKey = b58.encode(Buffer.concat([Buffer.from('0488b21e', 'hex'), data]));
+        }
+
+        results.push(result);
+      }
+
+      return JSON.stringify(results);
     }
 
     throw new Error('unsupported data format');

@@ -64,7 +64,7 @@
     "node_alias": "Alias del nodo",
     "expiresIn": "Expira en {time} minutos",
     "payButton": "Pagar",
-    "placeholder": "Factura",
+    "placeholder": "Factura o dirección",
     "open_channel": "Abrir canal",
     "funding_amount_placeholder": "Importe de la financiación, por ejemplo 0,001",
     "opening_channnel_for_from": "Abrir canal para la billetera {forWalletLabel}, por la financiación de {fromWalletLabel}",

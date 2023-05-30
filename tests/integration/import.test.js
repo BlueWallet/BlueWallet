@@ -397,6 +397,41 @@ describe('import procedure', () => {
     await promise;
     assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
     assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '7d2f0272');
+  });
+
+  it('can import watch-only Cobo vault export', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      `[{"ExtPubKey":"zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs","MasterFingerprint":"73C5DA0A","AccountKeyPath":"m/84'/0'/0'"},{"ExtPubKey":"ypub6Ww3ibxVfGzLrAH1PNcjyAWenMTbbAosGNB6VvmSEgytSER9azLDWCxoJwW7Ke7icmizBMXrzBx9979FfaHxHcrArf3zbeJJJUZPf663zsP","MasterFingerprint":"73C5DA0A","AccountKeyPath":"m/49'/0'/0'"},{"ExtPubKey":"xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj","MasterFingerprint":"73C5DA0A","AccountKeyPath":"m/44'/0'/0'"}]`,
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(
+      store.state.wallets[0].getSecret(),
+      'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
+    );
+
+    assert.strictEqual(store.state.wallets[1].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[1].getDerivationPath(), "m/49'/0'/0'");
+    assert.strictEqual(store.state.wallets[1].getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(
+      store.state.wallets[1].getSecret(),
+      'ypub6Ww3ibxVfGzLrAH1PNcjyAWenMTbbAosGNB6VvmSEgytSER9azLDWCxoJwW7Ke7icmizBMXrzBx9979FfaHxHcrArf3zbeJJJUZPf663zsP',
+    );
+
+    assert.strictEqual(store.state.wallets[2].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[2].getDerivationPath(), "m/44'/0'/0'");
+    assert.strictEqual(store.state.wallets[2].getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(
+      store.state.wallets[2].getSecret(),
+      'xpub6BosfCnifzxcFwrSzQiqu2DBVTshkCXacvNsWGYJVVhhawA7d4R5WSWGFNbi8Aw6ZRc1brxMyWMzG3DSSSSoekkudhUd9yLb6qx39T9nMdj',
+    );
   });
 
   it('can import watch-only Keystone vault export', async () => {
