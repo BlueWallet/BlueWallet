@@ -64,7 +64,6 @@
     "node_alias": "اسم النود",
     "expiresIn": "تنتهي بعد {time} دقيقة",
     "payButton": "دفع",
-    "placeholder": "برقية",
     "open_channel": "فتح قناة",
     "funding_amount_placeholder": "مبلغ التمويل، على سبيل المثال 0.001",
     "opening_channnel_for_from": "جارِ فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
@@ -183,7 +182,7 @@
     "fee_fast": "سريع",
     "fee_medium": "متوسط",
     "fee_replace_minvb": "يجب أن يكون إجمالي معدل الرسوم (ساتوشي لكل بايت افتراضي) الذي تريد دفعه أعلى من {min} ساتوشي/بايت افتراضي.",
-    "fee_satvbyte": "بساتوشي/ بايت افتراضي",
+    "fee_satvbyte": "ساتوشي/ بايت افتراضي",
     "fee_slow": "بطيء",
     "header": "إرسال",
     "input_clear": "المسح",
@@ -361,7 +360,7 @@
     "eta_10m": "الوقت المقدر للتأكيد: في حوالي 10 دقائق",
     "eta_3h": "الوقت المقدر للتأكيد: في حوالي 3 ساعات",
     "eta_1d": "الوقت المقدر للتأكيد: في حوالي يوم واحد",
-    "view_wallet": "لمشاهدة {walletLabel}",
+    "view_wallet": "عرض {walletLabel}",
     "list_title": "العمليات",
     "open_url_error": "تعذر فتح الرابط باستخدام المتصفح الافتراضي. يرجى تغيير المتصفح الافتراضي الخاص بك وحاول مرة أخرى.",
     "rbf_explain": "سنستبدل هذه المعاملة بمعاملة جديدة تدفع رسوم اعلى؛ حتى يجري تعدينها بشكلٍ أسرع. وهذا ما يُسمَّى RBF؛ أي الاستبدال بالرسوم.",
@@ -564,7 +563,7 @@
   "units": {
     "BTC": "BTC",
     "MAX": "الحد الاقصى",
-    "sat_vbyte": "بساتوشي/بايت افتراضي",
+    "sat_vbyte": "ساتوشي/بايت افتراضي",
     "sats": "ساتوشي"
   },
   "addresses": {
@@ -578,7 +577,7 @@
     "sign_placeholder_message": "الرسالة",
     "sign_placeholder_signature": "التوقيع",
     "addresses_title": "العنوان",
-    "type_change": "تغيير",
+    "type_change": "الباقي",
     "type_receive": "استلام",
     "type_used": "مستخدم",
     "transactions": "الحوالات"

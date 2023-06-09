@@ -18,7 +18,11 @@
     "wallet_key": "Ключ гаманця",
     "invalid_animated_qr_code_fragment": "Невірно зображений елемент QR-коду. Спробуйте ще раз.",
     "file_saved": "Файл {filePath} було збережено у вашому {destination}.",
-    "downloads_folder": "Папка Завантажень"
+    "downloads_folder": "Папка Завантажень",
+    "close": "Закрити",
+    "refresh": "Оновити",
+    "more": "Більше",
+    "pick_file": "Вибрати файл"
   },
   "alert": {
     "default": "Сповіщення"
@@ -32,6 +36,7 @@
   },
   "entropy": {
     "save": "Зберегти",
+    "title": "Ентропія",
     "undo": "Відмінити"
   },
   "errors": {
@@ -48,10 +53,10 @@
     "new_channel": "Новий канал",
     "expired": "Термін дії закінчився",
     "payButton": "Оплатити",
-    "placeholder": "Рахунок",
     "open_channel": "Відкрити Канал",
     "remote_host": "Віддалений хост",
     "refill": "Поповнити",
+    "refill_external": "Поповнити з зовнішнього гаманця",
     "refill_lnd_balance": "Збільшити баланс Lightning гаманця",
     "title": "Мої Кошти",
     "can_send": "Можна Надіслати",
@@ -143,7 +148,6 @@
     "input_paste": "Вставити",
     "input_total": "Загалом:",
     "permission_camera_message": "Нам потрібен дозвіл на використання камери.",
-    "permission_camera_title": "Дозвіл на використання камери",
     "psbt_sign": "Підписати транзакцію",
     "open_settings": "Відкрити Налаштування",
     "permission_storage_later": "Запитати мене пізніше",
