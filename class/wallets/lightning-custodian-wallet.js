@@ -68,6 +68,10 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async init() {
+    // un-cache refill onchain addresses on cold start. should help for cases when certain lndhub
+    // is turned off permanently, so users cant pull refill address from cache and send money to a black hole
+    this.refill_addressess = [];
+
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
