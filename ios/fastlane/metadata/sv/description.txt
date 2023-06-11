@@ -1,39 +1,46 @@
-Store, send and receive bitcoin with the wallet focus on security and simplicity.
+En Bitcoin-plånbok som låter dig lagra, skicka Bitcoin, ta emot Bitcoin med fokus på säkerhet och enkelhet.
 
-On BlueWallet you own your private keys. A Bitcoin wallet focused on us the users.
+På BlueWallet, en bitcoin-plånbok, äger du dina privata nycklar. En Bitcoin-plånbok gjord av Bitcoin-användare för samhället.
 
-You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+Du kan omedelbart handla med vem som helst i världen och förvandla det finansiella systemet direkt från fickan.
 
-Create for free unlimited number of bitcoin wallets or access your existing one on your iOS device. It's simple and fast.
+Skapa gratis obegränsat antal bitcoin-plånböcker eller importera din befintliga plånbok. Det är enkelt och snabbt.
 
 _____
 
-Here's what you get:
+Här är vad du får:
 
-1 - Security by design
 
-Open Source
-MIT licensed, you can build it and run it on your own! Made with ReactNative
+1 - Säkerhet genom design
 
-Plausible deniability
-Password which decrypts fake wallets if you are forced to disclose your access
+Öppen källkod
+MIT licensierad, du kan bygga den och köra den på egen hand! Tillverkad med ReactNative
 
-Full encryption
-On top of iOS multi-layer encryption, we encrypt everything with added passwords
+Trolig förnekelse
+Lösenord som dekrypterar falska bitcoin-plånböcker om du tvingas avslöja din åtkomst
 
-SegWit & HD wallets
-SegWit supported and HD wallets enable
+Full kryptering
+Utöver iOS flerskiktskrypteringen krypterar vi allt med tillagda lösenord
 
-2 - Focused on your experience
+Full nod
+Anslut till din Bitcoin full-nod via Electrum
 
-Be in control
-On the Bitcoin wallet the Private keys never leave your device.  You control your private keys
+Cold Storage
+Anslut till din hårdvaruplånbok och förvara dina mynt i Cold storage
 
-Flexible fees
-Starting from 1 Satoshi.  Defined by you, the user
+2 - Fokuserad på din upplevelse
+
+Ha kontroll
+Privata nycklar lämnar aldrig din enhet. Du kontrollerar dina privata nycklar
+
+Flexibla avgifter
+Från 1 Satoshi. Definierat av dig, användaren
 
 Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+(RBF) Snabba upp dina transaktioner genom att höja avgiften (BIP125)
 
-Watch-only wallets
-Allows you to keep an eye on your cold storage without touching the hardware.
+"Se bara" plånböcker 
+"Se bara" plånböcker gör att du kan hålla ett öga på din cold storage utan att röra hårdvaran.
+
+Lightning Nätverket
+Lightning-plånbok med noll-konfiguration. Superbilliga och snabba transaktioner med den bästa Bitcoin-användarupplevelsen.

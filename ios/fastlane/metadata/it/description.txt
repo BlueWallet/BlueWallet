@@ -1,50 +1,46 @@
-Un wallet per Bitcoin che ti consente di conservare, inviare, ricevere ed acquistare Bitcoin in modo sicuro e semplice.
+Un portafoglio Bitcoin che ti consente di conservare, inviare e ricevere bitcoin con particolare attenzione alla sicurezza e alla semplicità d'uso.
 
-Su BlueWallet, un wallet Bitcoin, tu solo sei in controllo delle tue chiavi private. Un wallet Bitcoin fatto da utilizzatori per la comunità Bitcoin.
+Con BlueWallet, sei tu a possedere le tue chiavi private. Un portafoglio Bitcoin realizzato da utenti Bitcoin per la comunità Bitcoin.
 
-Puoi scambiare valore instantaneamente con chiunque nel mondo e trasformare il sistema finanziario direttamente dalla tua tasca.
+Puoi effettuare transazioni in maniera istantanea con chiunque e trasformare il sistema finanziario dal palmo della tua mano.
 
-Crea gratis un numero illimitato di wallet bitcoin o importa il tuo wallet. Semplice e veloce.
+Crea nuovi portafogli Bitcoin o importa il tuo portafoglio esistente. È semplice e veloce.
 
 _____
 
-Ecco quel che ottieni:
+Caratteristiche principali:
 
 
-1 - Sicurezza by design
+1 - Focalizzato sulla sicurezza
 
 Open Source
-Licenza MIT, puoi compilarlo ed eseguirlo per conto tuo! Scritto con ReactNative
+Licenza MIT, puoi compilarlo ed eseguirlo per conto tuo! Realizzato con ReactNative
 
 Negabilità plausibile
-Una password che sblocca falsi wallet bitcoin se sei costretto a rivelare i tuoi accessi
+Una password che sblocca dei finti portafogli bitcoin se sei costretto a rivelare i tuoi accessi
 
 Crittografia completa
-In aggiunta alla crittografia multi strato di iOS, codifichiamo tutto con password aggiuntive
+In aggiunta alla crittografia multi strato di iOS, criptiamo tutto con password aggiuntive
 
 Full node
-Si connette al tuo full node Bitcoin tramite Electrum
+Connettiti al tuo full node Bitcoin tramite Electrum
 
 Cold Storage
-Connettiti al tuo hardware wallet e conserva i tuoi coins al sicuro.
+Connetti il tuo portafoglio hardware e tieni i tuoi bitcoin al sicuro
 
 2 - Focalizzato sulla tua esperienza
 
-Mantieni il controllo
-Le chiavi private non lasciano mai il tuo dispositivo.
-Tu controlli le chiavi private.
+Sei tu ad averne il pieno controllo
+Le chiavi private restano sul tuo dispositivo.
 
-Commissioni flessibili
+Costi di transazione flessibili
 A partire da 1 Satoshi. Deciso da te, l'utente
 
 Replace-By-Fee
 (RBF) Velocizza le tue transazioni aumentando le commissioni (BIP125)
 
-Portafoglio watch-only
-Il portafoglio watch-only ti permette di visualizzare il tuo cold wallet senza dover inserire la seed phrase o usare l'hardware wallet
+Portafogli watch-only
+Il portafoglio watch-only ti permette di visualizzare il saldo del tuo portafoglio hardware senza collegarlo e senza dover inserire la seed phrase.
 
 Lightning Network
-Wallet per Lightning Network con zero configurazioni necessarie. Per transazioni incredibilmente economiche e veloci con la miglior esperienza utente.
-
-Acquista Bitcoin
-Partecipa alla rivoluzione finanziaria con la possibilità di comprare Bitcoin direttamente dal tuo wallet.
+Portafoglio Lightning senza alcuna configurazione necessaria. Per transazioni incredibilmente economiche e veloci con la miglior esperienza utente.

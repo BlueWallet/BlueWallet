@@ -12,6 +12,7 @@ import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
 import ecc from '../../blue_modules/noble_ecc';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
+bitcoin.initEccLib(ecc);
 
 /**
  *  Has private key and single address like "1ABCD....."

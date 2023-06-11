@@ -64,7 +64,7 @@
     "node_alias": "ノードエイリアス",
     "expiresIn": "失効まで{time}分",
     "payButton": "支払う",
-    "placeholder": "入金依頼",
+    "placeholder": "インボイスまたはアドレス",
     "open_channel": "チャネルを開く",
     "funding_amount_placeholder": "デポジット額（例：0.001）",
     "opening_channnel_for_from": "{fromWalletLabel} の資金を使い、ウォレット {forWalletLabel} のチャネルを開きます",
