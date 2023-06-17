@@ -64,6 +64,7 @@
     "node_alias": "اسم النود",
     "expiresIn": "تنتهي بعد {time} دقيقة",
     "payButton": "دفع",
+    "placeholder": "عنوان أو برقية",
     "open_channel": "فتح قناة",
     "funding_amount_placeholder": "مبلغ التمويل، على سبيل المثال 0.001",
     "opening_channnel_for_from": "جارِ فتح قناة للمحفظة {forWalletLabel} بتمويل من {fromWalletLabel}",
