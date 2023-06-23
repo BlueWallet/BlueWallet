@@ -1,0 +1,53 @@
+{
+  "_": {
+    "bad_password": "Vale parool. Palun proovi uuesti.",
+    "cancel": "Katkesta",
+    "continue": "Jätka",
+    "enter_password": "Sisesta parool",
+    "never": "Mitte kunagi",
+    "of": "{number} {total}-st",
+    "ok": "OK",
+    "storage_is_encrypted": "Sinu hoidla on krüpteeritud. Dekrüpteerimiseks on vajalik sisestada parool.",
+    "yes": "Jah",
+    "no": "Ei",
+    "save": "Salvesta",
+    "seed": "Seeme",
+    "success": "Toiming õnnestus",
+    "wallet_key": "Rahakoti võti",
+    "invalid_animated_qr_code_fragment": "Vale animeeritud QR-koodi fragment. Palun proovi uuesti."
+  },
+  "azteco": {
+    "codeIs": "Sinu vautšeri kood on",
+    "errorBeforeRefeem": "Enne lunastamist on vajalik lisada uus Bitcoini rahakott.",
+    "errorSomething": "Midagi läks valesti. Kas see vautšer on endiselt kehtiv?",
+    "redeem": "Lunasta rahakotti.",
+    "redeemButton": "Lunasta",
+    "success": "Toiming õnnestus",
+    "title": "Lunasta Azte.co vautšer"
+  },
+  "entropy": {
+    "save": "Salvesta",
+    "title": "Entroopia",
+    "undo": "Tühista muudatus"
+  },
+  "errors": {
+    "broadcast": "Ülekanne nurjus.",
+    "error": "Viga",
+    "network": "Võrgu viga"
+  },
+  "plausibledeniability": {
+    "success": "Toiming õnnestus"
+  },
+  "send": {
+    "broadcastError": "Viga",
+    "broadcastSuccess": "Toiming õnnestus",
+    "create_to": "Sihtkoht"
+  },
+  "settings": {
+    "electrum_clear_alert_cancel": "Katkesta",
+    "save": "Salvesta"
+  },
+  "wallets": {
+    "details_save": "Salvesta"
+  }
+}

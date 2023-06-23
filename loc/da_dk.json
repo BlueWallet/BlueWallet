@@ -5,7 +5,15 @@
     "enter_password": "Indtast adgangskode",
     "never": "aldrig",
     "ok": "OK",
-    "storage_is_encrypted": "Lageret er krypteret. Indtast adgangskode for at dekryptere"
+    "storage_is_encrypted": "Lageret er krypteret. Indtast adgangskode for at dekryptere",
+    "save": "save",
+    "success": "Succes"
+  },
+  "azteco": {
+    "success": "Succes"
+  },
+  "entropy": {
+    "save": "save"
   },
   "lnd": {
     "refill": "Genopfyld",
@@ -25,12 +33,15 @@
     "title": "Sandsynlig benægtelse"
   },
   "receive": {
+    "details_create": "Opret",
     "details_label": "Beskrivelse",
     "details_setAmount": "Modtag med beløb",
     "details_share": "del",
     "header": "Modtag"
   },
   "send": {
+    "broadcastButton": "Transmitter",
+    "broadcastSuccess": "Succes",
     "confirm_header": "Bekræft",
     "confirm_sendNow": "Send nu",
     "create_amount": "Beløb",
@@ -48,16 +59,17 @@
     "details_fee_field_is_not_valid": "Gebyr feltet er ikke gyldigt",
     "details_note_placeholder": "Notat til eget brug",
     "details_total_exceeds_balance": "Beløbet du prøver at sende er større end din kontosaldo.",
+    "input_done": "Udført",
     "success_done": "Udført"
   },
   "settings": {
     "about": "Andet",
     "currency": "Valuta",
+    "electrum_clear_alert_cancel": "Annuller",
     "general_adv_mode": "Enable advanced mode",
     "header": "indstillinger",
     "language": "Sprog",
     "lightning_settings": "Lightning settings",
-    "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. ",
     "password": "Adgangskode",
     "password_explain": "Indtast den adgangskode du vil bruge til at kryptere lageret",
     "passwords_do_not_match": "Adgangskoden er ikke den samme",
@@ -66,19 +78,18 @@
     "save": "save"
   },
   "transactions": {
+    "cpfp_create": "Opret",
     "details_copy": "Kopier",
     "details_from": "Fra",
     "details_show_in_block_explorer": "Vis i block-explorer",
     "details_title": "Transaktion",
     "details_to": "Til",
-    "details_transaction_details": "Transaktions detaljer",
     "list_title": "transaktioner"
   },
   "wallets": {
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Opret",
     "add_import_wallet": "Importer wallet",
-    "add_or": "eller",
     "add_title": "Tilføj wallet",
     "add_wallet_name": "wallet navn",
     "details_address": "Adresse",
@@ -92,7 +103,6 @@
     "export_title": "wallet eksport",
     "import_do_import": "Importer",
     "import_error": "Importen lykkedes ikke. Er det en gyldig nøgle?",
-    "import_explanation": "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet",
     "import_imported": "Importeret",
     "import_scan_qr": "eller scan QR kode istedet?",
     "import_success": "Succes",
@@ -100,10 +110,20 @@
     "list_create_a_button": "Tilføj nu",
     "list_create_a_wallet": "Tilføj en tegnebog",
     "list_empty_txs1": "Dine transaktioner vil blive vist her,",
-    "list_empty_txs2": "ingen endnu",
     "list_latest_transaction": "seneste transaktion",
     "reorder_title": "Ændre rækkefølgen af wallets",
     "select_wallet": "Vælg wallet",
     "xpub_copiedToClipboard": "Kopieret til udklipsholder."
+  },
+  "multisig": {
+    "confirm": "Bekræft",
+    "share": "del",
+    "create": "Opret",
+    "ms_help_title5": "Enable advanced mode"
+  },
+  "addresses": {
+    "sign_placeholder_address": "adresse",
+    "type_receive": "Modtag",
+    "transactions": "transaktioner"
   }
 }

@@ -24,7 +24,8 @@
     "refresh": "रिफ्रेस गर्नुहोस",
     "more": "अरु",
     "pick_file": "एउटा फाइल छान्नुहोस्",
-    "enter_amount": "रकम राख्नुहोस्"
+    "enter_amount": "रकम राख्नुहोस्",
+    "qr_custom_input_button": "अनुकूल इनपुट प्रविष्ट गर्न 10 पटक ट्याप गर्नुहोस्"
   },
   "alert": {
     "default": "सचेत"
@@ -366,30 +367,74 @@
     "create": "सिर्जना गर्नुहोस्",
     "co_sign_transaction": "लेनदेनमा हस्ताक्षर गर्नुहोस्",
     "what_is_vault_wallet": "वालेट।",
+    "vault_advanced_customize": "भल्ट सेटिङहरू",
     "needs": "यसको आवश्यकता",
     "what_is_vault_description_to_spend_other": "खर्च गर्नु।",
     "wallet_type": "वालेट को प्रकार",
     "create_new_key": "नयाँ सिर्जना गर्नुहोस्",
+    "scan_or_open_file": "स्क्यान वा फाइल खोल्नुहोस्",
+    "input_fp": "फिंगरप्रिन्ट प्रविष्ट गर्नुहोस्",
     "ms_help": "सहायता",
+    "ms_help_text": "बढि सुरक्षा वा साझा हिरासतको लागि धेरै कुञ्जीहरू भएको वालेट",
+    "ms_help_title3": "भल्ट ब्याकअप",
+    "ms_help_title4": "वाल्टहरू आयात गर्दै ",
     "ms_help_title5": "अग्रिम मोड"
   },
+  "is_it_my_address": {
+    "title": "यो मेरो ठेगाना हो?",
+    "enter_address": " ठेगाना लेख्नुहोस्",
+    "check_address": "ठेगाना जाँच गर्नुहोस्",
+    "no_wallet_owns_address": "उपलब्ध वालेटहरू मध्ये कुनै पनि प्रदान गरिएको ठेगानाको स्वामित्व छैन।",
+    "view_qrcode": "QRCode हेर्नुहोस्"
+  },
   "cc": {
-    "coins_selected": "कोइन चयन गरियो ({number})",
+    "change": "परिवर्तन",
+    "coins_selected": "कोइन छानिएको ({number})",
+    "selected_summ": "{value} छानिएको",
     "empty": "यो वालेटमा अहिले कुनै पनि कोइनहरू छैन।",
-    "header": "Coin Control",
+    "freeze": "फ्रिज",
+    "freezeLabel": "फ्रिज",
+    "freezeLabel_un": "अनफ्रिज गर्नुहोस्",
+    "header": "सिक्का नियन्त्रण",
     "use_coin": "कोइन प्रयोग गर्नुहोस्",
     "use_coins": "कोइनहरू प्रयोग गर्नुहोस्"
   },
   "addresses": {
+    "sign_title": "हस्ताक्षर/प्रमाणित सन्देश",
+    "sign_help": "यहाँ तपाईले बिटकोइन ठेगानामा आधारित क्रिप्टोग्राफिक हस्ताक्षर सिर्जना वा प्रमाणित गर्न सक्नुहुन्छ।",
+    "sign_sign": "हस्ताक्षर",
+    "sign_verify": "प्रमाणित गर्नुहोस्",
+    "sign_signature_correct": "प्रमाणीकरण सफल!",
+    "sign_signature_incorrect": "प्रमाणीकरण असफल!",
     "sign_placeholder_address": "ठेगाना",
+    "sign_placeholder_message": "सन्देश",
+    "sign_placeholder_signature": "हस्ताक्षर",
+    "addresses_title": "ठेगानाहरू",
+    "type_change": "परिवर्तन",
     "type_receive": "प्राप्त गर्नुहोस्",
+    "type_used": "प्रयोग गरियो",
     "transactions": "लेनदेन"
   },
   "lnurl_auth": {
+    "register_question_part_1": "के तपाईं एक खाता दर्ता गर्न चाहनुहुन्छ",
     "register_question_part_2": "तपाईको लाइटनिङ वालेट प्रयोग गर्दै हुनुहुन्छ?",
+    "register_answer": "तपाईंले सफलतापूर्वक एक खाता दर्ता गर्नुभएको छ {hostname}!",
+    "login_question_part_1": "तपाईं लग इन गर्न चाहनुहुन्छ",
     "login_question_part_2": "तपाईको लाइटनिङ वालेट प्रयोग गर्दै हुनुहुन्छ?",
+    "login_answer": "तपाईंले सफलतापूर्वक लग इन गर्नुभयो {hostname}!",
+    "link_question_part_1": "के तपाईं आफ्नो खाता लिंक गर्न चाहनुहुन्छ",
     "link_question_part_2": "तपाईंको लाइटनिङ वालेटमा?",
     "link_answer": "तपाईंको लाइटनिङ वालेट सफलतापूर्वक {hostname} मा तपाईंको खातामा लिङ्क गरियो!",
-    "auth_question_part_2": "तपाईको लाइटनिङ वालेट प्रयोग गर्दै हुनुहुन्छ?"
+    "auth_question_part_1": "तपाईं प्रमाणीकरण गर्न चाहनुहुन्छ",
+    "auth_question_part_2": "तपाईको लाइटनिङ वालेट प्रयोग गर्दै हुनुहुन्छ?",
+    "auth_answer": "तपाईंले सफल प्रमाणीकरण गर्नुभयो {hostname}!",
+    "could_not_auth": "हामीले तपाईंलाई प्रमाणीकरण गर्न सकेनौं {hostname}.",
+    "authenticate": "प्रमाणीकरण"
+  },
+  "bip47": {
+    "payment_code": "भुक्तानी कोड",
+    "payment_codes_list": "भुक्तानी कोड सूची",
+    "who_can_pay_me": "कसले मलाई तिर्न सक्छ:",
+    "not_found": "भुक्तानी कोड फेला परेन"
   }
 }
