@@ -1,0 +1,15 @@
+{
+  "_": {
+    "cancel": "Poništi",
+    "continue": "Nastavi",
+    "enter_password": "Unesite password",
+    "never": "Nikad",
+    "of": "{number} od {total}",
+    "yes": "Da",
+    "no": "Ne",
+    "wallet_key": "Ključ novčanika"
+  },
+  "settings": {
+    "electrum_clear_alert_cancel": "Poništi"
+  }
+}

@@ -56,7 +56,6 @@
     "node_alias": "Solmun lempinimi",
     "expiresIn": "Vanhenee {time} minuutissa",
     "payButton": "Maksa",
-    "placeholder": "Lasku",
     "open_channel": "Avaa kanava",
     "funding_amount_placeholder": "Rahoitettava määrä, esimerkiksi 0.001",
     "opening_channnel_for_from": "Ota rahoitus {fromWalletLabel}:sta kanavan avaamiseksi lompakkoon {forWalletLabel}",
