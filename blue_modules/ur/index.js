@@ -282,6 +282,11 @@ class BlueURDecoder extends URDecoder {
       return JSON.stringify(results);
     }
 
+    if (decoded.type === 'crypto-output') {
+      const output = CryptoOutput.fromCBOR(decoded.cbor);
+      return output.toString();
+    }
+
     throw new Error('unsupported data format');
   }
 }
