@@ -156,16 +156,20 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            setIsLoading(false);
+      Alert.alert(
+        loc.send.scan_error,
+        loc._.invalid_animated_qr_code_fragment,
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              setIsLoading(false);
+            },
+            style: 'default',
           },
-          style: 'default',
-        },
+        ],
         { cancelabe: false },
-      ]);
+      );
     }
   };
 
@@ -200,16 +204,20 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            setIsLoading(false);
+      Alert.alert(
+        loc.send.scan_error,
+        loc._.invalid_animated_qr_code_fragment,
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              setIsLoading(false);
+            },
+            style: 'default',
           },
-          style: 'default',
-        },
+        ],
         { cancelabe: false },
-      ]);
+      );
     }
   };
 
@@ -226,6 +234,10 @@ const ScanQRCode = () => {
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
       return _onReadUniformResourceV2(ret.data);
     }
 
