@@ -601,6 +601,31 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
         }
       }
+
+      if (this.getN() === 0) {
+        // handling a case when smth went wrong and we didnt parse any cosigners, probably because
+        // string is a bit non-standard, deesnt have chars like '['
+        for (let c = 1; c < s3.length; c++) {
+          const hexFingerprint = s3[c].split('/')[0];
+          let indexOfXpub = s3[c].indexOf('xpub');
+          if (indexOfXpub === -1) {
+            // just for any case
+            indexOfXpub = s3[c].indexOf('ypub');
+          }
+          if (indexOfXpub === -1) {
+            // just for any case
+            indexOfXpub = s3[c].indexOf('zpub');
+          }
+          if (indexOfXpub === -1) {
+            throw new Error('Could not parse cosigner in a descriptor');
+          }
+
+          const xpub = s3[c].substring(indexOfXpub).replaceAll(')', '');
+          const path = 'm' + s3[c].substring(hexFingerprint.length, indexOfXpub);
+
+          this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
+        }
+      }
     }
 
     // is it caravan?
