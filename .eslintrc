@@ -5,13 +5,13 @@
     "react-native" // for no-inline-styles rule
   ],
   "extends": [
+    "@react-native",
     "standard",
     "standard-react",
     "standard-jsx",
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    // "@react-native-community", // TODO: try to enable
     "plugin:prettier/recommended" // removes all eslint rules that can mess up with prettier
   ],
   "rules": {
