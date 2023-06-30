@@ -78,6 +78,24 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   setSecret(newSecret: string): this {
+    // first, checking if it's a SeedQR:
+    try {
+      // compact seedQR should be between 32 - 64 chars long in hex format
+      if (newSecret.length === 64 || newSecret.length === 32) {
+        // not supported as mobile scanners dont recognize such QRs at all.
+        // nop
+      } else if (newSecret.length === 96 || newSecret.length === 48) {
+        // standard seedQR
+        const wordlist = bip39.wordlists[bip39.getDefaultWordlist()];
+        const words = newSecret.match(/[\d]{4}/g);
+
+        if (words) {
+          newSecret = words.map(num => wordlist[parseInt(num)]).join(' ');
+        }
+      }
+    } catch (e) {}
+    // end SeedQR
+
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
 
