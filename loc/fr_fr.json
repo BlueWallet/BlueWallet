@@ -18,7 +18,9 @@
     "wallet_key": "Clé du portefeuille",
     "invalid_animated_qr_code_fragment": "Fragment du QR Code animé invalide. Veuillez réessayer.",
     "file_saved": "Le fichier {filePath} a été enregistré dans votre {destination}.",
-    "downloads_folder": "Dossier des téléchargements"
+    "downloads_folder": "Dossier des téléchargements",
+    "pick_file": "Choisir un fichier",
+    "enter_amount": "Entrer un montant"
   },
   "alert": {
     "default": "Alerte"
@@ -56,6 +58,7 @@
     "node_alias": "Alias du node",
     "expiresIn": "Expire dans {time} minutes",
     "payButton": "Payer",
+    "placeholder": "Facture ou adresse",
     "open_channel": "Ouverture canal",
     "funding_amount_placeholder": "Montant financement, par exemple 0,001",
     "opening_channnel_for_from": "Canal d'ouverture pour le portefeuille {forWalletLabel}, financement depuis {fromWalletLabel}",
@@ -67,6 +70,7 @@
     "refill_create": "Pour continuer, veuillez créer un portefeuille Bitcoin à partir duquel déposer des fonds.",
     "refill_external": "Déposer des fonds depuis un portefeuille externe",
     "refill_lnd_balance": "Déposer des fonds dans votre portfeuille Lightning",
+    "sameWalletAsInvoiceError": "Vous ne pouvez pas payer une facture avec le même porte-feuille qui la crée",
     "title": "gérer vos fonds",
     "can_send": "Peut envoyer",
     "can_receive": "Peut recevoir",
@@ -223,6 +227,7 @@
     "biom_no_passcode": "Votre appareil n'as pas de code de passe. Pour continuer veuillez configurer un code de passe dans les paramètres.",
     "biom_remove_decrypt": "Tous vos portefeuilles seront effacés et votre espace de stockage sera déchiffré. Etes vous sure de vouloir continuer ?",
     "currency": "Devise",
+    "currency_source": "Le prix est obtenu de",
     "currency_fetch_error": "Il y a eu une erreur en essayant d'obteir le taux de la monnaie sélectionnée.",
     "default_desc": "Si désactivé, BlueWallet ouvrira immédiatement le portefeuille sélectionné au lancement.",
     "default_info": "Information par défaut",
@@ -276,6 +281,7 @@
     "lightning_saved": "Les changements ont bien été enregistrés",
     "lightning_settings": "Paramètres Lightning",
     "tor_settings": "Paramètres Tor",
+    "lightning_settings_explain": "Pour connecter votre propre noeud LND, veuillez installer LNDHub et insérez l'URL ici dans les paramètres. Veillez noter que seul les porte-feuilles crées après avoir sauvegardé les changements se connecteront au LNDHub spécifié. ",
     "network": "Réseau",
     "network_broadcast": "Diffuser une transaction",
     "network_electrum": "Serveur Electrum",

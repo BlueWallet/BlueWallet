@@ -546,10 +546,9 @@ const WalletDetails = () => {
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
                   <BlueText>
-                    {loc.formatString(loc.wallets[`details_ms_${wallet.isNativeSegwit() ? 'ns' : wallet.isWrappedSegwit() ? 'ws' : 'l'}`], {
-                      m: wallet.getM(),
-                      n: wallet.getN(),
-                    })}
+                    {`${wallet.getM()} / ${wallet.getN()} (${
+                      wallet.isNativeSegwit() ? 'native segwit' : wallet.isWrappedSegwit() ? 'wrapped segwit' : 'legacy'
+                    })`}
                   </BlueText>
                 </>
               )}

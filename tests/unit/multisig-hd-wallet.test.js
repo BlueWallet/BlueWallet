@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { MultisigHDWallet } from '../../class/';
-import { decodeUR, encodeUR } from '../../blue_modules/ur';
+import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');
@@ -1981,6 +1981,45 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getPassphrase(1), w2.getPassphrase(1));
     assert.strictEqual(w.getPassphrase(2), w2.getPassphrase(2));
     assert.strictEqual(w.getPassphrase(3), w2.getPassphrase(3));
+  });
+
+  it('can import descriptor from Sparrow', () => {
+    const payload =
+      'UR:CRYPTO-OUTPUT/TAADMETAADMSOEADAOAOLSTAADDLOLAOWKAXHDCLAOCEBDFLNNTKJTIOJSFSURBNFXRPEEHKDLGYRTEMRPYTGYZOCASWENCYMKPAVWJKHYAAHDCXJEFTGSZOIMFEYNDYHYZEJTBAMSJEHLDSRDDIYLSRFYTSZTKNRNYLRNDPAMTLDPZCAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYUOHFJPKOAXAAAYCYCSYASAVDTAADDLOLAOWKAXHDCLAXMSZTWZDIGERYDKFSFWTYDPFNDKLNAYSWTTMUHYZTOXHSETPEWSFXPEAYWLJSDEMTAAHDCXSPLTSTDPNTLESANSUTTLPRPFHNVSPFCNMHESOYGASTLRPYVAATNNDKFYHLQZPKLEAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYWZFEPLETAXAAAYCYCPCKRENBTAADDLOLAOWKAXHDCLAOLSFWYKYLKTFHJLPYEMGLCEDPFNSNRDDSRFASEOZTGWIALFLUIYDNFXHGVESFEMMEAAHDCXHTZETLJNKPHHAYLSCXWPNDSWPSTPGTEOJKKGHDAELSKPNNBKBSYAWZJTFWNNBDKTAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYSKTPJPMSAXAAAYCYCEBKWLAMTDWZGRZE\n';
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(payload);
+    console.log(decoder.isComplete());
+
+    const data = decoder.toString();
+
+    const w = new MultisigHDWallet();
+    w.setSecret(data);
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 3);
+    assert.strictEqual(w.getFingerprint(1), 'DC567276');
+    assert.strictEqual(w.getFingerprint(2), 'F245AE38');
+    assert.strictEqual(w.getFingerprint(3), 'C5D87297');
+    assert.strictEqual(w.isNativeSegwit(), true);
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(1), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(2), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getCustomDerivationPathForCosigner(3), "m/48'/0'/0'/2'");
+    assert.strictEqual(w.getFormat(), 'p2wsh');
+
+    assert.strictEqual(
+      w.getCosigner(1),
+      'xpub6DiYrfRwNnjeX4vHsWMajJVFKrbEEnu8gAW9vDuQzgTWEsEHE16sGWeXXUV1LBWQE1yCTmeprSNcqZ3W74hqVdgDbtYHUv3eM4W2TEUhpan',
+    );
+    assert.strictEqual(
+      w.getCosigner(2),
+      'xpub6DnT4E1fT8VxuAZW29avMjr5i99aYTHBp9d7fiLnpL5t4JEprQqPMbTw7k7rh5tZZ2F5g8PJpssqrZoebzBChaiJrmEvWwUTEMAbHsY39Ge',
+    );
+    assert.strictEqual(
+      w.getCosigner(3),
+      'xpub6DjrnfAyuonMaboEb3ZQZzhQ2ZEgaKV2r64BFmqymZqJqviLTe1JzMr2X2RfQF892RH7MyYUbcy77R7pPu1P71xoj8cDUMNhAMGYzKR4noZ',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q4taqq6q6l8fvguva6ftvrz3qgdjy6p3w2s0ds0nl6qrjw7t0hfhqgrqcwd');
   });
 });
 

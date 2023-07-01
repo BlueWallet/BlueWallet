@@ -1,24 +1,28 @@
 {
   "_": {
-    "allow": "Dozvoli",
     "bad_password": "Kriva lozinka, pokušaj ponovo",
     "cancel": "Otkaži",
     "continue": "Nastavi",
-    "dont_allow": "Nemoj dozvoliti",
     "enter_password": "Unesi lozinku",
     "never": "nikad",
-    "no": "Ne",
     "ok": "U redu",
+    "storage_is_encrypted": "Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.",
+    "yes": "Da",
+    "no": "Ne",
     "save": "Spremi",
     "seed": "Izvor",
-    "storage_is_encrypted": "Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.",
-    "yes": "Da"
+    "success": "Uspjeh"
+  },
+  "azteco": {
+    "success": "Uspjeh"
+  },
+  "entropy": {
+    "save": "Spremi"
   },
   "lnd": {
     "expired": "Isteklo",
     "refill": "Dopuni",
     "refill_lnd_balance": "Dopuni Lightning volet saldo",
-    "sameWalletAsInvoiceError": "Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.",
     "title": "Uredi novčeke"
   },
   "plausibledeniability": {
@@ -41,6 +45,8 @@
     "header": "Primi"
   },
   "send": {
+    "broadcastButton": "Objavi",
+    "broadcastSuccess": "Uspjeh",
     "confirm_header": "Potvrdi",
     "confirm_sendNow": "Pošalji sad",
     "create_amount": "Iznos",
@@ -48,7 +54,6 @@
     "create_details": "Detalji",
     "create_fee": "Trošak slanja",
     "create_memo": "Bilješka",
-    "create_satoshi_per_byte": "Satoshi / byte",
     "create_this_is_hex": "Ovoj je hex transakcije, potpisan i spreman za objavljivanje na mrežu.",
     "create_to": "Za",
     "create_tx_size": "TX veličina",
@@ -61,16 +66,17 @@
     "details_scan": "Skeniraj",
     "details_total_exceeds_balance": "Iznos je veći od raspoloživog.",
     "header": "Šalji",
+    "input_done": "U redu",
     "success_done": "U redu"
   },
   "settings": {
     "about": "Informacije",
     "currency": "Valuta",
+    "electrum_clear_alert_cancel": "Otkaži",
     "general_adv_mode": "Enable advanced mode",
     "header": "Postavke",
     "language": "Jezik",
     "lightning_settings": "Lightning postavke",
-    "lightning_settings_explain": "Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub i upisati njegov URL ovdje. Ostavi prazno za standardni ndHub\n ",
     "password": "Lozinka",
     "password_explain": "Upiši lozinku koja će dekriptirati spremnik.",
     "passwords_do_not_match": "Lozinke su različite",
@@ -79,18 +85,17 @@
     "save": "Spremi"
   },
   "transactions": {
+    "cpfp_create": "Stvori",
     "details_copy": "Kopiraj",
     "details_from": "Od",
     "details_show_in_block_explorer": "Prikaži u blok eksploreru",
     "details_title": "Transakcija",
     "details_to": "Za",
-    "details_transaction_details": "Detalji transakcije",
     "list_title": "transakcije"
   },
   "wallets": {
     "add_create": "Stvori",
     "add_import_wallet": "Unesi vanjski volet",
-    "add_or": "ili",
     "add_title": "Dodaj volet",
     "add_wallet_name": "ime voleta:",
     "add_wallet_type": "tip:",
@@ -107,7 +112,6 @@
     "export_title": "izvoz voleta",
     "import_do_import": "Unesi",
     "import_error": "Neuspješan unos. Molimo pažljivo provjerite ispravnost unesenih podataka.",
-    "import_explanation": "Ovdje upiši svoj mnemonik slijed riječi, privatni ključ, WIF, ili što već imaš. BlueWallet će pokušati porocijeniti format i unesti tvoj volet.",
     "import_imported": "Uneseno",
     "import_scan_qr": "ili skeniraj QR kod?",
     "import_success": "Uspjeh",
@@ -115,12 +119,23 @@
     "list_create_a_button": "dodaj sada",
     "list_create_a_wallet": "Stvori novi volet",
     "list_empty_txs1": "Vaše transakcije će se pojaviti ovdje",
-    "list_empty_txs2": "trenutno nema nijedne",
     "list_latest_transaction": "posljednja transakcija",
     "list_title": "Voleti",
     "reorder_title": "Uredi volete",
     "select_wallet": "Odaberi volet",
     "xpub_copiedToClipboard": "Kopirano u međuspremnik.",
     "xpub_title": "volet XPUB"
+  },
+  "multisig": {
+    "confirm": "Potvrdi",
+    "header": "Šalji",
+    "share": "podijeli",
+    "create": "Stvori",
+    "ms_help_title5": "Enable advanced mode"
+  },
+  "addresses": {
+    "sign_placeholder_address": "adresa",
+    "type_receive": "Primi",
+    "transactions": "transakcije"
   }
 }
