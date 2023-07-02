@@ -919,6 +919,11 @@ const SendDetails = () => {
       }
       actions.push(transactionActions, [
         {
+          id: SendDetails.actionKeys.ImportRecipients,
+          text: loc.send.details_import_recipients,
+          icon: SendDetails.actionIcons.ImportRecipients,
+        },
+        {
           id: SendDetails.actionKeys.AddRecipient,
           text: loc.send.details_add_rec_add,
           icon: SendDetails.actionIcons.AddRecipient,
@@ -1510,6 +1515,7 @@ SendDetails.actionKeys = {
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
   AddRecipient: 'AddRecipient',
+  ImportRecipients: 'ImportRecipients',
   RemoveRecipient: 'RemoveRecipient',
   AllowRBF: 'AllowRBF',
   ImportTransaction: 'ImportTransaction',
@@ -1523,6 +1529,7 @@ SendDetails.actionIcons = {
   SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
   SendMax: 'SendMax',
   AddRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.plus' },
+  ImportRecipients: { iconType: 'SYSTEM', iconValue: 'doc.badge.plus' },
   RemoveRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.minus' },
   AllowRBF: 'AllowRBF',
   ImportTransaction: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
