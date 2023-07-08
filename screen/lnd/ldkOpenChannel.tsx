@@ -217,6 +217,9 @@ const LdkOpenChannel = (props: any) => {
               case BitcoinUnit.SATS:
                 amountSats = parseInt(fundingAmount.amount);
                 break;
+              case BitcoinUnit.BITS:
+                amountSats = currency.bitsToSatoshi(fundingAmount.amount);
+                break;
               case BitcoinUnit.BTC:
                 amountSats = currency.btcToSatoshi(fundingAmount.amount);
                 break;
@@ -233,6 +236,9 @@ const LdkOpenChannel = (props: any) => {
             switch (unit) {
               case BitcoinUnit.BTC:
                 amountSats = currency.btcToSatoshi(text);
+                break;
+              case BitcoinUnit.BITS:
+                amountSats = currency.bitsToSatoshi(text);
                 break;
               case BitcoinUnit.LOCAL_CURRENCY:
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));

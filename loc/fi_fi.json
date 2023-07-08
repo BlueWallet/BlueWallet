@@ -556,7 +556,8 @@
     "BTC": "BTC",
     "MAX": "MAX",
     "sat_vbyte": "sat/tavu",
-    "sats": "sattia"
+    "sats": "sattia",
+    "bits": "bittia"
   },
   "addresses": {
     "sign_title": "Allekirjoita/Varmenna viesti",

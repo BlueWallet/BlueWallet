@@ -267,7 +267,8 @@
     "title": "Je to moja adresa?"
   },
   "units": {
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_placeholder_address": "adresa",

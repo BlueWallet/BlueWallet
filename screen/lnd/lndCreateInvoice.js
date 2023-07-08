@@ -157,6 +157,9 @@ const LNDCreateInvoice = () => {
         case BitcoinUnit.BTC:
           invoiceAmount = currency.btcToSatoshi(invoiceAmount);
           break;
+        case BitcoinUnit.BITS:
+          invoiceAmount = currency.bitsToSatoshi(invoiceAmount);
+          break;
         case BitcoinUnit.LOCAL_CURRENCY:
           // trying to fetch cached sat equivalent for this fiat amount
           invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
@@ -292,12 +295,15 @@ const LNDCreateInvoice = () => {
         throw new Error('Unsupported lnurl');
       }
 
-      // amount that comes from lnurl is always in sats
+      // amount that comes from lnurl is always in msats
       let amount = (reply.maxWithdrawable / 1000).toString();
       const sats = amount;
       switch (unit) {
         case BitcoinUnit.SATS:
           // nop
+          break;
+        case BitcoinUnit.BITS:
+          amount = currency.satoshiToBits(amount);
           break;
         case BitcoinUnit.BTC:
           amount = currency.satoshiToBTC(amount);

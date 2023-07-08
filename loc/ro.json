@@ -518,7 +518,8 @@
     "BTC": "BTC",
     "MAX": "Max",
     "sat_vbyte": "sat/vByte",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Semnează/Verifică mesaj",

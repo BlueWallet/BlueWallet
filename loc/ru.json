@@ -565,7 +565,8 @@
     "BTC": "BTC",
     "MAX": "МАКС",
     "sat_vbyte": "sat/vByte",
-    "sats": "сатоши"
+    "sats": "сатоши",
+    "bits": "бит"
   },
   "addresses": {
     "sign_title": "Подписать/Проверить сообщение",

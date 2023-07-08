@@ -259,7 +259,8 @@
   "units": {
     "BTC": "BTC",
     "MAX": "Maks",
-    "sats": "sat"
+    "sats": "sat",
+    "bits": "bits"
   },
   "addresses": {
     "sign_placeholder_address": "Adres",

@@ -459,7 +459,8 @@
   "units": {
     "BTC": "比特幣",
     "MAX": "最大",
-    "sats": "聪"
+    "sats": "聪",
+    "bits": "比特"
   },
   "addresses": {
     "sign_sign": "签署",

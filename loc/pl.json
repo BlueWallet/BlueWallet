@@ -565,7 +565,8 @@
     "BTC": "BTC",
     "MAX": "Max",
     "sat_vbyte": "sat/vBajt",
-    "sats": "satoshi"
+    "sats": "satoshi",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Podpisz/Weryfikuj wiadomość",

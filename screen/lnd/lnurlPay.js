@@ -90,6 +90,9 @@ const LnurlPay = () => {
         return;
       }
       switch (unit) {
+        case BitcoinUnit.BITS:
+          newAmount = currency.satoshiToBits(newAmount);
+          break;
         case BitcoinUnit.BTC:
           newAmount = currency.satoshiToBTC(newAmount);
           break;
@@ -123,6 +126,9 @@ const LnurlPay = () => {
     switch (unit) {
       case BitcoinUnit.SATS:
         amountSats = parseInt(amountSats); // nop
+        break;
+      case BitcoinUnit.BITS:
+        amountSats = currency.bitsToSatoshi(amountSats);
         break;
       case BitcoinUnit.BTC:
         amountSats = currency.btcToSatoshi(amountSats);

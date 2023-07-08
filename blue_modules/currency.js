@@ -174,6 +174,12 @@ function satoshiToLocalCurrency(satoshi, format = true) {
   return formatter.format(b);
 }
 
+function satoshiToBits(satoshi, format = true) {
+  const b = new BigNumber(satoshi).dividedBy(100).toFixed(2);
+  if (format === false) return b;
+  return new Intl.NumberFormat().format(b);
+}
+
 function BTCToLocalCurrency(bitcoin) {
   let sat = new BigNumber(bitcoin);
   sat = sat.multipliedBy(100000000).toNumber();
@@ -200,8 +206,18 @@ function satoshiToBTC(satoshi) {
   return b.toString(10);
 }
 
+function bitsToBTC(bits) {
+  let b = new BigNumber(bits);
+  b = b.dividedBy(1000000);
+  return b.toString(10);
+}
+
 function btcToSatoshi(btc) {
   return new BigNumber(btc).multipliedBy(100000000).toNumber();
+}
+
+function bitsToSatoshi(btc) {
+  return new BigNumber(btc).multipliedBy(100).toNumber();
 }
 
 function fiatToBTC(fiatFloat) {
@@ -245,10 +261,13 @@ module.exports.init = init;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
 module.exports.fiatToBTC = fiatToBTC;
 module.exports.satoshiToBTC = satoshiToBTC;
+module.exports.satoshiToBits = satoshiToBits;
 module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
 module.exports.btcToSatoshi = btcToSatoshi;
+module.exports.bitsToSatoshi = bitsToSatoshi;
+module.exports.bitsToBTC = bitsToBTC;
 module.exports.getCurrencySymbol = getCurrencySymbol;
 module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
 module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests

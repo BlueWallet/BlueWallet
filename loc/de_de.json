@@ -565,7 +565,8 @@
     "BTC": "BTC",
     "MAX": "MAX",
     "sat_vbyte": "sat/vByte",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Meldung signieren/verifizieren",

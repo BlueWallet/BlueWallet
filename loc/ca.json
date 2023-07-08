@@ -323,7 +323,8 @@
     "ms_help_title5": "Habilitar el mode avançat"
   },
   "units": {
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_placeholder_address": "Adreça",

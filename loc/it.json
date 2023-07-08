@@ -565,7 +565,8 @@
     "BTC": "BTC",
     "MAX": "Max",
     "sat_vbyte": "sat/vByte",
-    "sats": "sat"
+    "sats": "sat",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Firma/Verifica un messaggio",
