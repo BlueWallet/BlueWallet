@@ -17,7 +17,7 @@ const writeFileAndExportToAndroidDestionation = async ({ filename, contents, des
     buttonNegative: loc._.cancel,
     buttonPositive: loc._.ok,
   });
-  if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
     const filePath = destination + `/${filename}`;
     try {
       await RNFS.writeFile(filePath, contents);

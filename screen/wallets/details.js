@@ -371,7 +371,7 @@ const WalletDetails = () => {
         buttonPositive: loc._.ok,
       });
 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {

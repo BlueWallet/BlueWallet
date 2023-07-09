@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ScrollView, View, StyleSheet, Linking } from 'react-native';
+import { ScrollView, View, StyleSheet, Linking, Platform } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
 
 import loc from '../loc';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading, BlueButton } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
 import {
   SegwitP2SHWallet,
@@ -22,6 +22,7 @@ const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
+const fs = require('../blue_modules/fs');
 
 const styles = StyleSheet.create({
   center: {
@@ -36,6 +37,10 @@ export default class Selftest extends Component {
       isLoading: true,
     };
   }
+
+  onPressSaveToStorage = () => {
+    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success');
+  };
 
   async componentDidMount() {
     let errorMessage = '';
@@ -293,6 +298,12 @@ export default class Selftest extends Component {
                 );
               }
             })()}
+            {Platform.OS === 'android' && (
+              <>
+                <BlueSpacing20 />
+                <BlueButton title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+              </>
+            )}
           </ScrollView>
         </BlueCard>
       </SafeBlueArea>
