@@ -29,7 +29,6 @@ export default class WalletGradient {
   static ldkWallet = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { colors } = useTheme();
     return colors.lightButton;
   };

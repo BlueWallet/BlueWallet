@@ -63,9 +63,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     Clipboard.setString(formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit()).toString());
   };
 
-  const updateWalletVisibility = (wallet: AbstractWallet, newHideBalance: boolean) => {
-    wallet.hideBalance = newHideBalance;
-    return wallet;
+  const updateWalletVisibility = (w: AbstractWallet, newHideBalance: boolean) => {
+    w.hideBalance = newHideBalance;
+    return w;
   };
 
   const handleBalanceVisibility = async () => {
@@ -84,9 +84,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     context.saveToDisk();
   };
 
-  const updateWalletWithNewUnit = (wallet: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
-    wallet.preferredBalanceUnit = newPreferredUnit;
-    return wallet;
+  const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
+    w.preferredBalanceUnit = newPreferredUnit;
+    return w;
   };
 
   const changeWalletBalanceUnit = () => {

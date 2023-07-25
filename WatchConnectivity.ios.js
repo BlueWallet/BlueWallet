@@ -67,7 +67,6 @@ function WatchConnectivity() {
         console.log(e);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {
@@ -159,7 +158,7 @@ function WatchConnectivity() {
           type = 'pendingConfirmation';
         } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
           const currentDate = new Date();
-          const now = (currentDate.getTime() / 1000) | 0;
+          const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
           const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
           if (invoiceExpiration > now) {
@@ -179,7 +178,7 @@ function WatchConnectivity() {
         if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
           amount = isNaN(transaction.value) ? '0' : amount;
           const currentDate = new Date();
-          const now = (currentDate.getTime() / 1000) | 0;
+          const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
           const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
           if (invoiceExpiration > now) {

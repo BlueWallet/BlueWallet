@@ -16,6 +16,7 @@ it('BlueHeaderDefaultSub works', () => {
   expect(rendered).toBeTruthy();
 });
 
+// eslint-disable-next-line jest/no-disabled-tests
 it.skip('Settings work', () => {
   const rendered = TestRenderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();

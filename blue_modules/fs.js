@@ -185,8 +185,8 @@ const showFilePickerAndReadFile = async function () {
 
     if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
       return new Promise(resolve => {
-        const uri = res.uri.toString().replace('file://', '');
-        LocalQRCode.decode(decodeURI(uri), (error, result) => {
+        const uri2 = res.uri.toString().replace('file://', '');
+        LocalQRCode.decode(decodeURI(uri2), (error, result) => {
           if (!error) {
             resolve({ data: result, uri: decodeURI(res.uri) });
           } else {

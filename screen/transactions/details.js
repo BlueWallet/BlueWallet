@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from '../../components/TooltipMenu';
 import alert from '../../components/Alert';
 const dayjs = require('dayjs');
@@ -57,6 +57,7 @@ const TransactionsDetails = () => {
 
   useLayoutEffect(() => {
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -73,17 +74,17 @@ const TransactionsDetails = () => {
 
   useEffect(() => {
     let foundTx = {};
-    let from = [];
-    let to = [];
-    for (const tx of getTransactions(null, Infinity, true)) {
-      if (tx.hash === hash) {
-        foundTx = tx;
+    let newFrom = [];
+    let newTo = [];
+    for (const transaction of getTransactions(null, Infinity, true)) {
+      if (transaction.hash === hash) {
+        foundTx = transaction;
         for (const input of foundTx.inputs) {
-          from = from.concat(input.addresses);
+          newFrom = newFrom.concat(input.addresses);
         }
         for (const output of foundTx.outputs) {
-          if (output.addresses) to = to.concat(output.addresses);
-          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
+          if (output.addresses) newTo = newTo.concat(output.addresses);
+          if (output.scriptPubKey && output.scriptPubKey.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
         }
       }
     }
@@ -102,8 +103,8 @@ const TransactionsDetails = () => {
     }
 
     setTX(foundTx);
-    setFrom(from);
-    setTo(to);
+    setFrom(newFrom);
+    setTo(newTo);
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hash, wallets]);

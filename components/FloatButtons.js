@@ -39,9 +39,9 @@ export const FContainer = forwardRef((props, ref) => {
     const { width } = event.nativeEvent.layout;
     const withPaddings = Math.ceil(width + PADDINGS * 2);
     const len = React.Children.toArray(props.children).filter(Boolean).length;
-    let newWidth = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
-    if (len === 1 && newWidth < 90) newWidth = 90; // to add Paddings for lonely small button, like Scan on main screen
-    setNewWidth(newWidth);
+    let newW = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
+    if (len === 1 && newW < 90) newW = 90; // to add Paddings for lonely small button, like Scan on main screen
+    setNewWidth(newW);
     layoutCalculated.current = true;
   };
 

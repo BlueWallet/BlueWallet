@@ -98,6 +98,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
   // skpped because its a very specific testcase, and slow
   // unskip and test manually
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can catch up with externally modified wallet', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -133,6 +134,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can work with faulty zpub', async () => {
     // takes too much time, skipped
     if (!process.env.FAULTY_ZPUB) {

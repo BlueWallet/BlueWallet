@@ -35,7 +35,7 @@ const Language = () => {
     return (
       <BlueListItem
         onPress={() => {
-          const currentLanguage = AvailableLanguages.find(language => language.value === selectedLanguage);
+          const currentLanguage = AvailableLanguages.find(l => l.value === selectedLanguage);
           saveLanguage(item.item.value).then(() => {
             setSelectedLanguage(item.item.value);
             setLanguage();

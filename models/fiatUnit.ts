@@ -19,7 +19,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bpi?.[ticker]?.rate_float; // eslint-disable-line
+    let rate = json?.bpi?.[ticker]?.rate_float;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);
@@ -34,7 +34,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bitcoin?.[ticker] || json?.bitcoin?.[ticker.toLowerCase()]; // eslint-disable-line
+    const rate = json?.bitcoin?.[ticker] || json?.bitcoin?.[ticker.toLowerCase()];
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
@@ -115,7 +115,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.ticker?.buy; // eslint-disable-line
+    let rate = json?.ticker?.buy;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);

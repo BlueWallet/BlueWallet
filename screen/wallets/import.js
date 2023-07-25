@@ -81,8 +81,8 @@ const WalletsImport = () => {
     importMnemonic(textToImport);
   };
 
-  const importMnemonic = importText => {
-    navigation.navigate('ImportWalletDiscovery', { importText, askPassphrase, searchAccounts });
+  const importMnemonic = text => {
+    navigation.navigate('ImportWalletDiscovery', { importText: text, askPassphrase, searchAccounts });
   };
 
   const onBarScanned = value => {

@@ -191,7 +191,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
           const ret = {
             pubkey,
             host: address.addr.split(':')[0],
-            port: parseInt(address.addr.split(':')[1]),
+            port: parseInt(address.addr.split(':')[1], 10),
           };
 
           this._nodeConnectionDetailsCache[pubkey] = Object.assign({}, ret, { ts: +new Date() });
@@ -302,7 +302,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
     // if its NOT zero amount invoice, we forcefully reset passed amount argument so underlying LDK code
     // would extract amount from bolt11
-    if (decoded.num_satoshis && parseInt(decoded.num_satoshis) > 0) freeAmount = 0;
+    if (decoded.num_satoshis && parseInt(decoded.num_satoshis, 10) > 0) freeAmount = 0;
 
     if (await this.channelsNeedReestablish()) {
       await this.reestablishChannels();
@@ -382,7 +382,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
         if (receivedPayment.payment_hash === invoice.payment_hash) {
           // match! this particular payment was paid
           newInvoice.ispaid = true;
-          newInvoice.value = Math.floor(parseInt(receivedPayment.amt) / 1000);
+          newInvoice.value = Math.floor(parseInt(receivedPayment.amt, 10) / 1000);
           found = true;
         }
       }
@@ -412,14 +412,14 @@ export class LightningLdkWallet extends LightningCustodianWallet {
 
     if (this.getReceivableBalance() < amtSat) throw new Error('You dont have enough inbound capacity');
 
-    const bolt11 = await RnLdk.addInvoice(amtSat * 1000, memo);
-    if (!bolt11) return false;
+    const paymentRequest = await RnLdk.addInvoice(amtSat * 1000, memo);
+    if (!paymentRequest) return false;
 
-    const decoded = this.decodeInvoice(bolt11);
+    const decoded = this.decodeInvoice(paymentRequest);
 
     this._listInvoices = this._listInvoices || [];
     const tx = {
-      payment_request: bolt11,
+      payment_request: paymentRequest,
       ispaid: false,
       timestamp: +new Date(),
       expire_time: 3600 * 1000,
@@ -430,7 +430,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     };
     this._listInvoices.push(tx);
 
-    return bolt11;
+    return paymentRequest;
   }
 
   async getAddressAsync() {
@@ -508,7 +508,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (this._listChannels) {
       for (const channel of this._listChannels) {
         if (!channel.is_funding_locked) continue; // pending channel
-        sum += Math.floor(parseInt(channel.outbound_capacity_msat) / 1000);
+        sum += Math.floor(parseInt(channel.outbound_capacity_msat, 10) / 1000);
       }
     }
 
@@ -520,7 +520,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     if (this._listChannels) {
       for (const channel of this._listChannels) {
         if (!channel.is_funding_locked) continue; // pending channel
-        sum += Math.floor(parseInt(channel.inbound_capacity_msat) / 1000);
+        sum += Math.floor(parseInt(channel.inbound_capacity_msat, 10) / 1000);
       }
     }
     return sum;
@@ -542,7 +542,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       if (json && Array.isArray(json)) {
         for (const utxo of json) {
           if (utxo?.status?.confirmed) {
-            confirmedSat += parseInt(utxo.value);
+            confirmedSat += parseInt(utxo.value, 10);
           }
         }
       }

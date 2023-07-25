@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
@@ -340,23 +340,25 @@ const ReorderWalletsStackRoot = () => {
 };
 
 const Drawer = createDrawerNavigator();
-function DrawerRoot() {
+const DrawerRoot = () => {
   const dimensions = useWindowDimensions();
-  const isLargeScreen =
-    Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
-  const drawerStyle = { width: isLargeScreen ? 320 : '0%' };
+  const isLargeScreen = useMemo(() => {
+    return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
+  }, [dimensions.width]);
+  const drawerStyle = useMemo(() => ({ width: isLargeScreen ? 320 : '0%' }), [isLargeScreen]);
+  const drawerContent = useCallback(props => (isLargeScreen ? <DrawerList {...props} /> : null), [isLargeScreen]);
 
   return (
     <Drawer.Navigator
       drawerStyle={drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
-      drawerContent={props => (isLargeScreen ? <DrawerList {...props} /> : null)}
+      drawerContent={drawerContent}
       drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
     >
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>
   );
-}
+};
 
 const ReceiveDetailsStack = createNativeStackNavigator();
 const ReceiveDetailsStackRoot = () => {

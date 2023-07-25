@@ -57,7 +57,7 @@ const ImportWalletDiscovery = () => {
       try {
         subtitle = wallet.getDerivationPath?.();
       } catch (e) {}
-      setWallets(wallets => [...wallets, { wallet, subtitle, id }]);
+      setWallets(w => [...w, { wallet, subtitle, id }]);
     };
 
     const onPassword = async (title, subtitle) => {
@@ -78,10 +78,10 @@ const ImportWalletDiscovery = () => {
     task.current = startImport(importText, askPassphrase, searchAccounts, onProgress, onWallet, onPassword);
 
     task.current.promise
-      .then(({ cancelled, wallets }) => {
+      .then(({ cancelled, wallets: w }) => {
         if (cancelled) return;
-        if (wallets.length === 1) saveWallet(wallets[0]); // instantly save wallet if only one has been discovered
-        if (wallets.length === 0) {
+        if (w.length === 1) saveWallet(w[0]); // instantly save wallet if only one has been discovered
+        if (w.length === 0) {
           ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
         }
       })

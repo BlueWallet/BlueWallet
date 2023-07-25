@@ -38,7 +38,7 @@ export class AbstractWallet {
   label: string;
   secret: string;
   balance: number;
-  unconfirmed_balance: number; // eslint-disable-line camelcase
+  unconfirmed_balance: number;
   _address: string | false;
   utxo: Utxo[];
   _lastTxFetch: number;
@@ -49,7 +49,7 @@ export class AbstractWallet {
   userHasSavedExport: boolean;
   _hideTransactionsInWalletsList: boolean;
   _utxoMetadata: Record<string, UtxoMetadata>;
-  use_with_hardware_wallet: boolean; // eslint-disable-line camelcase
+  use_with_hardware_wallet: boolean;
   masterFingerprint: number | false;
 
   constructor() {
@@ -323,7 +323,7 @@ export class AbstractWallet {
    * @deprecated
    * TODO: be more precise on the type
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   createTx(): any {
     throw Error('not implemented');
   }

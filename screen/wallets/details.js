@@ -206,8 +206,9 @@ const WalletDetails = () => {
 
   useLayoutEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -224,7 +225,7 @@ const WalletDetails = () => {
   }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
-    if (wallets.some(wallet => wallet.getID() === walletID)) {
+    if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWallet(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

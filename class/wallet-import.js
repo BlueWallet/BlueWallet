@@ -188,8 +188,8 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     if (hd2.validateMnemonic()) {
       let walletFound = false;
       // by default we don't try all the paths and options
-      const paths = searchAccounts ? bip39WalletFormats : bip39WalletFormatsBlueWallet;
-      for (const i of paths) {
+      const searchPaths = searchAccounts ? bip39WalletFormats : bip39WalletFormatsBlueWallet;
+      for (const i of searchPaths) {
         // we need to skip m/0' p2pkh from default scan list. It could be a BRD wallet and will be handled later
         if (i.derivation_path === "m/0'" && i.script_type === 'p2pkh') continue;
         let paths;

@@ -71,7 +71,6 @@ const LdkOpenChannel = (props: any) => {
 
       setVerified(true);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [psbt]);
 
   useEffect(() => {
@@ -215,7 +214,7 @@ const LdkOpenChannel = (props: any) => {
             let amountSats = fundingAmount.amountSats;
             switch (newUnit) {
               case BitcoinUnit.SATS:
-                amountSats = parseInt(fundingAmount.amount);
+                amountSats = parseInt(fundingAmount.amount, 10);
                 break;
               case BitcoinUnit.BTC:
                 amountSats = currency.btcToSatoshi(fundingAmount.amount);
@@ -238,7 +237,7 @@ const LdkOpenChannel = (props: any) => {
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));
                 break;
               case BitcoinUnit.SATS:
-                amountSats = parseInt(text);
+                amountSats = parseInt(text, 10);
                 break;
             }
             setFundingAmount({ amount: text, amountSats });

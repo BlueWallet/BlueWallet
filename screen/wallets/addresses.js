@@ -105,21 +105,21 @@ const WalletAddresses = () => {
   }, [setOptions]);
 
   const getAddresses = () => {
-    const addressList = [];
+    const newAddresses = [];
 
     for (let index = 0; index <= walletInstance.next_free_change_address_index; index++) {
       const address = getAddress(walletInstance, index, true);
 
-      addressList.push(address);
+      newAddresses.push(address);
     }
 
     for (let index = 0; index < walletInstance.next_free_address_index + walletInstance.gap_limit; index++) {
       const address = getAddress(walletInstance, index, false);
 
-      addressList.push(address);
+      newAddresses.push(address);
     }
 
-    setAddresses(addressList);
+    setAddresses(newAddresses);
     setShowAddresses(true);
   };
 

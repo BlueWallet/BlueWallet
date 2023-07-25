@@ -17,8 +17,8 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static derivationPath = "m/0'";
 
   // track address index at which wallet switched to segwit
-  _external_segwit_index = null; // eslint-disable-line camelcase
-  _internal_segwit_index = null; // eslint-disable-line camelcase
+  _external_segwit_index = null;
+  _internal_segwit_index = null;
 
   // we need a separate function without external_addresses_cache to use in binarySearch
   _calcNodeAddressByIndex(node, index, p2wpkh = false) {

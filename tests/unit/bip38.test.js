@@ -20,6 +20,7 @@ it('bip38 decodes', async () => {
 });
 
 // too slow, even on CI. unskip and manually run it if you need it
+// eslint-disable-next-line jest/no-disabled-tests
 it.skip('bip38 decodes slow', async () => {
   if (!(process.env.CI || process.env.TRAVIS)) {
     // run only on CI

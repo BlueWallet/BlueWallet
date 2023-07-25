@@ -117,7 +117,7 @@ export default class Lnurl {
 
     if (!decoded.expiry) decoded.expiry = '3600'; // default
 
-    if (parseInt(decoded.num_satoshis) === 0 && decoded.num_millisatoshis > 0) {
+    if (parseInt(decoded.num_satoshis, 10) === 0 && decoded.num_millisatoshis > 0) {
       decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
     }
 
@@ -154,7 +154,7 @@ export default class Lnurl {
     if (metadataHash !== decoded.description_hash) {
       throw new Error(`Invoice description_hash doesn't match metadata.`);
     }
-    if (parseInt(decoded.num_satoshis) !== Math.round(amountSat)) {
+    if (parseInt(decoded.num_satoshis, 10) !== Math.round(amountSat)) {
       throw new Error(`Invoice doesn't match specified amount, got ${decoded.num_satoshis}, expected ${Math.round(amountSat)}`);
     }
 
@@ -286,15 +286,15 @@ export default class Lnurl {
   }
 
   getCommentAllowed() {
-    return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed) : false;
+    return this?._lnurlPayServicePayload?.commentAllowed ? parseInt(this._lnurlPayServicePayload.commentAllowed, 10) : false;
   }
 
   getMin() {
-    return this?._lnurlPayServicePayload?.min ? parseInt(this._lnurlPayServicePayload.min) : false;
+    return this?._lnurlPayServicePayload?.min ? parseInt(this._lnurlPayServicePayload.min, 10) : false;
   }
 
   getMax() {
-    return this?._lnurlPayServicePayload?.max ? parseInt(this._lnurlPayServicePayload.max) : false;
+    return this?._lnurlPayServicePayload?.max ? parseInt(this._lnurlPayServicePayload.max, 10) : false;
   }
 
   getAmount() {
