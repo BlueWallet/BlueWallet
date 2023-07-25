@@ -11,15 +11,15 @@
     "@babel/runtime": "^7.20.0",
     "@jest/reporters": "^27.5.1",
     "@react-native-community/eslint-config": "^3.2.0",
-    "@tsconfig/react-native": "^2.0.2",
+    "@tsconfig/react-native": "^3.0.2",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
     "@types/jest": "^29.4.0",
-    "@types/react": "^18.0.24",
+    "@types/react": "^18.2.16",
     "@types/react-native": "^0.72.0",
     "@types/react-test-renderer": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
-    "@typescript-eslint/parser": "^5.41.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-standard": "^17.0.0",
@@ -36,7 +36,7 @@
     "prettier": "^3.0.0",
     "react-test-renderer": "18.2.0",
     "ts-jest": "^29.0.5",
-    "typescript": "^4.8.4"
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": ">=10.16.0",
