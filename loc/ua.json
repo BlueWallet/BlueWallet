@@ -347,7 +347,8 @@
   "units": {
     "BTC": "BTC",
     "MAX": "Макс",
-    "sat_vbyte": "sat/vByte"
+    "sat_vbyte": "sat/vByte",
+    "bits": "біт"
   },
   "addresses": {
     "sign_sign": "Підписати",

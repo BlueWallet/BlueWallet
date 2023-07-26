@@ -346,7 +346,8 @@
   },
   "units": {
     "BTC": "บิตคอยน์",
-    "sats": "แซท"
+    "sats": "แซท",
+    "bits": "บิต"
   },
   "addresses": {
     "sign_placeholder_address": "แอดเดรส",

@@ -81,6 +81,9 @@ class AmountInput extends Component {
       case BitcoinUnit.BTC:
         sats = new BigNumber(amount).multipliedBy(100000000).toString();
         break;
+      case BitcoinUnit.BITS:
+        sats = new BigNumber(amount).multipliedBy(100).toString();
+        break;
       case BitcoinUnit.SATS:
         sats = amount;
         break;
@@ -105,12 +108,14 @@ class AmountInput extends Component {
   }
 
   /**
-   * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
+   * responsible for cycling currently selected denomination, BTC->BITS->SAT->LOCAL_CURRENCY->BTC
    */
   changeAmountUnit = () => {
     let previousUnit = this.props.unit;
     let newUnit;
     if (previousUnit === BitcoinUnit.BTC) {
+      newUnit = BitcoinUnit.BITS;
+    } else if (previousUnit === BitcoinUnit.BITS) {
       newUnit = BitcoinUnit.SATS;
     } else if (previousUnit === BitcoinUnit.SATS) {
       newUnit = BitcoinUnit.LOCAL_CURRENCY;
@@ -127,6 +132,8 @@ class AmountInput extends Component {
     switch (this.props.unit) {
       case BitcoinUnit.BTC:
         return 11;
+      case BitcoinUnit.BITS:
+        return 15;
       case BitcoinUnit.SATS:
         return 15;
       default:
@@ -146,12 +153,16 @@ class AmountInput extends Component {
       text = text.replace(',', '.');
       const split = text.split('.');
       if (split.length >= 2) {
-        text = `${parseInt(split[0], 10)}.${split[1]}`;
+        let dec = split[1];
+        if (this.props.unit === BitcoinUnit.BITS && dec.length >= 2) {
+          dec = split[1].slice(0, 2);
+        }
+        text = `${parseInt(split[0], 10)}.${dec}`;
       } else {
         text = `${parseInt(split[0], 10)}`;
       }
 
-      text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+      text = (this.props.unit === BitcoinUnit.BTC || this.props.unit === BitcoinUnit.BITS) ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
 
       if (text.startsWith('.')) {
         text = '0.';
@@ -213,6 +224,10 @@ class AmountInput extends Component {
     switch (unit) {
       case BitcoinUnit.BTC:
         sat = new BigNumber(amount).multipliedBy(100000000).toString();
+        secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        break;
+      case BitcoinUnit.BITS:
+        sat = new BigNumber(amount).multipliedBy(100).toString();
         secondaryDisplayCurrency = formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.SATS:

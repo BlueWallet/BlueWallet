@@ -387,6 +387,9 @@ const ReceiveDetails = () => {
       case BitcoinUnit.SATS:
         amount = currency.satoshiToBTC(customAmount);
         break;
+      case BitcoinUnit.BITS:
+        amount = currency.bitsToBTC(customAmount);
+        break;
       case BitcoinUnit.LOCAL_CURRENCY:
         if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesnt have rounding errors
@@ -446,6 +449,8 @@ const ReceiveDetails = () => {
       switch (customUnit) {
         case BitcoinUnit.BTC:
           return customAmount + ' BTC';
+        case BitcoinUnit.BITS:
+          return currency.bitsToBTC(customAmount) + ' BTC';
         case BitcoinUnit.SATS:
           return currency.satoshiToBTC(customAmount) + ' BTC';
         case BitcoinUnit.LOCAL_CURRENCY:

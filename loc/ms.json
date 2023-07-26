@@ -508,7 +508,8 @@
     "BTC": "BTC",
     "MAX": "Maks",
     "sat_vbyte": "sat/vBait",
-    "sats": "sat"
+    "sats": "sat",
+    "bits": "bit"
   },
   "addresses": {
     "sign_sign": "Tandatangan",

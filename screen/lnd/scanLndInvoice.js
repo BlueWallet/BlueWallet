@@ -180,6 +180,9 @@ const ScanLndInvoice = () => {
       case BitcoinUnit.SATS:
         amountSats = parseInt(amountSats); // nop
         break;
+      case BitcoinUnit.BITS:
+        amountSats = currency.bitsToSatoshi(amountSats);
+        break;
       case BitcoinUnit.BTC:
         amountSats = currency.btcToSatoshi(amountSats);
         break;

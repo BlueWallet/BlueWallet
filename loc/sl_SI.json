@@ -552,7 +552,8 @@
     "BTC": "BTC",
     "MAX": "MAX",
     "sat_vbyte": "sat/vBajt",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Podpiši / Preveri sporočilo",

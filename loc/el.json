@@ -309,7 +309,8 @@
   },
   "units": {
     "BTC": "BTC",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_placeholder_address": "Διεύθυνση",

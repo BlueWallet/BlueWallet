@@ -1346,6 +1346,9 @@ const SendDetails = () => {
                 case BitcoinUnit.SATS:
                   item.amountSats = parseInt(item.amount);
                   break;
+                case BitcoinUnit.BITS:
+                  item.amountSats = currency.bitsToSatoshi(item.amount);
+                  break;
                 case BitcoinUnit.BTC:
                   item.amountSats = currency.btcToSatoshi(item.amount);
                   break;
@@ -1369,6 +1372,9 @@ const SendDetails = () => {
               switch (units[index] || amountUnit) {
                 case BitcoinUnit.BTC:
                   item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.BITS:
+                  item.amountSats = currency.bitsToSatoshi(item.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));

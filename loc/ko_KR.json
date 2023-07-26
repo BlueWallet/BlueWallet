@@ -551,7 +551,8 @@
     "BTC": "비트코인",
     "MAX": "최대",
     "sat_vbyte": "가상바이트당 사토시",
-    "sats": "사토시"
+    "sats": "사토시",
+    "bits": "비트"
   },
   "addresses": {
     "sign_title": "메시지 사인/검증",

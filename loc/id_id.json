@@ -441,7 +441,8 @@
     "BTC": "BTC",
     "MAX": "Maks",
     "sat_vbyte": "sat/vByte",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "Tanda tangani/Verifikasi Pesan",

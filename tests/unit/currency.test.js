@@ -25,6 +25,16 @@ describe('currency', () => {
     assert.strictEqual(currency.satoshiToBTC(100000000), '1');
     assert.strictEqual(currency.satoshiToBTC(123456789123456789), '1234567891.2345678'); // eslint-disable-line @typescript-eslint/no-loss-of-precision
 
+    assert.strictEqual(currency.satoshiToBits(1), '0.01');
+    assert.strictEqual(currency.satoshiToBits(-1), '-0.01');
+    assert.strictEqual(currency.satoshiToBits(100000000), '1,000,000');
+    assert.strictEqual(currency.satoshiToBits(123456789123456), '1,234,567,891,234.56'); // eslint-disable-line @typescript-eslint/no-loss-of-precision
+
+    assert.strictEqual(currency.bitsToBTC(0.01), '0.00000001');
+    assert.strictEqual(currency.bitsToBTC(-0.01), '-0.00000001');
+    assert.strictEqual(currency.bitsToBTC(1000000), '1');
+    assert.strictEqual(currency.bitsToBTC(1234567891234.56), '1234567.89123456'); // eslint-disable-line @typescript-eslint/no-loss-of-precision
+
     currency._setPreferredFiatCurrency(FiatUnit.JPY);
     currency._setExchangeRate('BTC_JPY', 1043740.8614);
 

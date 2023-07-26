@@ -565,7 +565,8 @@
     "BTC": "BTC",
     "MAX": "最大",
     "sat_vbyte": "sat/vByte",
-    "sats": "sats"
+    "sats": "sats",
+    "bits": "bits"
   },
   "addresses": {
     "sign_title": "メッセージの署名／検証",
