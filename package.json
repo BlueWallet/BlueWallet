@@ -162,7 +162,7 @@
     "react-native-ios-context-menu": "github:BlueWallet/react-native-ios-context-menu#v1.15.3",
     "react-native-keychain": "8.1.1",
     "react-native-linear-gradient": "2.8.0",
-    "react-native-localize": "2.2.6",
+    "react-native-localize": "3.0.2",
     "react-native-modal": "13.0.1",
     "react-native-navigation-bar-color": "https://github.com/BlueWallet/react-native-navigation-bar-color#3b2894ae62fbce99a3bd24105f0921cebaef5c94",
     "react-native-obscure": "https://github.com/BlueWallet/react-native-obscure.git#f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb",
