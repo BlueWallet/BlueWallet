@@ -33,7 +33,7 @@ let usedBucketNum = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 const prompt = require('./helpers/prompt');
 const currency = require('./blue_modules/currency');
-const BlueElectrum = require('./blue_modules/BlueElectrum'); // eslint-disable-line @typescript-eslint/no-unused-vars
+const BlueElectrum = require('./blue_modules/BlueElectrum');
 BlueElectrum.connectMain();
 
 class AppStorage {
@@ -399,8 +399,8 @@ class AppStorage {
             let lndhub = false;
             try {
               lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-            } catch (Error) {
-              console.warn(Error);
+            } catch (error) {
+              console.warn(error);
             }
 
             if (unserializedWallet.baseURI) {
@@ -543,7 +543,7 @@ class AppStorage {
               {
                 walletid: id,
                 internal: false,
-                index: parseInt(index),
+                index: parseInt(index, 10),
                 tx: JSON.stringify(tx),
               },
               Realm.UpdateMode.Modified,
@@ -559,7 +559,7 @@ class AppStorage {
               {
                 walletid: id,
                 internal: true,
-                index: parseInt(index),
+                index: parseInt(index, 10),
                 tx: JSON.stringify(tx),
               },
               Realm.UpdateMode.Modified,

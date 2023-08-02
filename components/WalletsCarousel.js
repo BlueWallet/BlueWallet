@@ -257,6 +257,8 @@ const cStyles = StyleSheet.create({
   },
 });
 
+const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
+
 const WalletsCarousel = forwardRef((props, ref) => {
   const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
   const renderItem = useCallback(
@@ -276,7 +278,6 @@ const WalletsCarousel = forwardRef((props, ref) => {
     [props.horizontal, props.selectedWallet, props.handleLongPress, props.onPress, preferredFiatCurrency, language],
   );
   const flatListRef = useRef();
-  const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
 
   useImperativeHandle(ref, () => ({
     scrollToItem: ({ item }) => {

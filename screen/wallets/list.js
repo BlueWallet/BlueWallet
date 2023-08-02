@@ -101,6 +101,7 @@ const WalletsList = () => {
         shadowOpacity: 0,
         shadowOffset: { height: 0, width: 0 },
       },
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () =>
         I18nManager.isRTL ? null : (
           <TouchableOpacity
@@ -113,6 +114,7 @@ const WalletsList = () => {
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerLeft: () =>
         I18nManager.isRTL ? (
           <TouchableOpacity

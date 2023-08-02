@@ -1,7 +1,7 @@
 import { LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
-import url from 'url';
+import URL from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
@@ -186,7 +186,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else {
-      const urlObject = url.parse(event.url, true); // eslint-disable-line n/no-deprecated-api
+      const urlObject = URL.parse(event.url, true); // eslint-disable-line n/no-deprecated-api
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
@@ -380,15 +380,15 @@ class DeeplinkSchemaMatch {
   static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
       const txInfo = url.split(/(bitcoin:\/\/|BITCOIN:\/\/|bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
-      let bitcoin;
+      let btc;
       let lndInvoice;
       for (const [index, value] of txInfo.entries()) {
         try {
           // Inside try-catch. We dont wan't to  crash in case of an out-of-bounds error.
           if (value.startsWith('bitcoin') || value.startsWith('BITCOIN')) {
-            bitcoin = `bitcoin:${txInfo[index + 1]}`;
-            if (!DeeplinkSchemaMatch.isBitcoinAddress(bitcoin)) {
-              bitcoin = false;
+            btc = `bitcoin:${txInfo[index + 1]}`;
+            if (!DeeplinkSchemaMatch.isBitcoinAddress(btc)) {
+              btc = false;
               break;
             }
           } else if (value.startsWith('lightning')) {
@@ -402,10 +402,10 @@ class DeeplinkSchemaMatch {
         } catch (e) {
           console.log(e);
         }
-        if (bitcoin && lndInvoice) break;
+        if (btc && lndInvoice) break;
       }
-      if (bitcoin && lndInvoice) {
-        return { bitcoin, lndInvoice };
+      if (btc && lndInvoice) {
+        return { bitcoin: btc, lndInvoice };
       } else {
         return undefined;
       }

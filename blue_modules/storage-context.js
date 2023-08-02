@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -108,8 +107,8 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   };
 
-  const setWalletsWithNewOrder = wallets => {
-    BlueApp.wallets = wallets;
+  const setWalletsWithNewOrder = wlts => {
+    BlueApp.wallets = wlts;
     saveToDisk();
   };
 

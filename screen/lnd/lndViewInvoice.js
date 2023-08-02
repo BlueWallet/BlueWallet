@@ -74,6 +74,7 @@ const LNDViewInvoice = () => {
             gestureEnabled: false,
             headerHideBackButton: true,
 
+            // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => (
               <TouchableOpacity
                 accessibilityRole="button"
@@ -128,7 +129,7 @@ const LNDViewInvoice = () => {
                 fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
-                const now = (currentDate.getTime() / 1000) | 0;
+                const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
                 const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
@@ -202,7 +203,7 @@ const LNDViewInvoice = () => {
 
     if (typeof invoice === 'object') {
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;

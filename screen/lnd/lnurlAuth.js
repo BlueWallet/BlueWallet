@@ -11,7 +11,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import selectWallet from '../../helpers/select-wallet';
-import url from 'url';
+import URL from 'url';
 import { SuccessView } from '../send/success';
 
 const AuthState = {
@@ -28,7 +28,7 @@ const LnurlAuth = () => {
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
-    () => (lnurl ? url.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line n/no-deprecated-api
+    () => (lnurl ? URL.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line n/no-deprecated-api
     [lnurl],
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
@@ -45,7 +45,7 @@ const LnurlAuth = () => {
   });
 
   const showSelectWalletScreen = useCallback(() => {
-    selectWallet(navigate, name, Chain.OFFCHAIN).then(wallet => setParams({ walletID: wallet.getID() }));
+    selectWallet(navigate, name, Chain.OFFCHAIN).then(w => setParams({ walletID: w.getID() }));
   }, [navigate, name, setParams]);
 
   const authenticate = useCallback(() => {

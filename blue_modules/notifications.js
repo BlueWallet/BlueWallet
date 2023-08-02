@@ -69,7 +69,7 @@ function Notifications(props) {
 
           // if user is staring at the app when he receives the notification we process it instantly
           // so app refetches related wallet
-          if (payload.foreground) props.onProcessNotifications(); // eslint-disable-line react/prop-types
+          if (payload.foreground) props.onProcessNotifications();
         },
 
         // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)

@@ -5,11 +5,13 @@ import { LightningCustodianWallet } from '../../class';
 jest.setTimeout(200 * 1000);
 const baseUri = 'https://lndhub-staging.herokuapp.com';
 
+// eslint-disable-next-line jest/no-disabled-tests
 describe.skip('LightningCustodianWallet', () => {
   const l1 = new LightningCustodianWallet();
   l1.setBaseURI(baseUri);
   l1.init();
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('issue credentials', async () => {
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
@@ -108,7 +110,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.ok(decoded.num_satoshis);
-    assert.strictEqual(parseInt(decoded.num_satoshis) * 1000, parseInt(decoded.num_millisatoshis));
+    assert.strictEqual(parseInt(decoded.num_satoshis, 10) * 1000, parseInt(decoded.num_millisatoshis, 10));
 
     // checking that bad invoice cant be decoded
     invoice = 'gsom';
@@ -202,6 +204,7 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   // turned off because acinq strike is shutting down
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can pay invoice (acinq)', async () => {
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -524,27 +527,27 @@ describe.skip('LightningCustodianWallet', () => {
   });
 
   it('cant create zemo amt invoices yet', async () => {
-    const l1 = new LightningCustodianWallet();
-    l1.setBaseURI(baseUri);
-    l1.init();
-    assert.ok(l1.refill_addressess.length === 0);
-    assert.ok(l1._refresh_token_created_ts === 0);
-    assert.ok(l1._access_token_created_ts === 0);
-    l1.balance = 'FAKE';
+    const l = new LightningCustodianWallet();
+    l.setBaseURI(baseUri);
+    l.init();
+    assert.ok(l.refill_addressess.length === 0);
+    assert.ok(l._refresh_token_created_ts === 0);
+    assert.ok(l._access_token_created_ts === 0);
+    l.balance = 'FAKE';
 
-    await l1.createAccount(true);
-    await l1.authorize();
-    await l1.fetchBalance();
+    await l.createAccount(true);
+    await l.authorize();
+    await l.fetchBalance();
 
-    assert.ok(l1.access_token);
-    assert.ok(l1.refresh_token);
-    assert.ok(l1._refresh_token_created_ts > 0);
-    assert.ok(l1._access_token_created_ts > 0);
-    assert.ok(l1.balance === 0);
+    assert.ok(l.access_token);
+    assert.ok(l.refresh_token);
+    assert.ok(l._refresh_token_created_ts > 0);
+    assert.ok(l._access_token_created_ts > 0);
+    assert.ok(l.balance === 0);
 
     let err = false;
     try {
-      await l1.addInvoice(0, 'zero amt inv');
+      await l.addInvoice(0, 'zero amt inv');
     } catch (_) {
       err = true;
     }
@@ -552,7 +555,7 @@ describe.skip('LightningCustodianWallet', () => {
 
     err = false;
     try {
-      await l1.addInvoice(NaN, 'zero amt inv');
+      await l.addInvoice(NaN, 'zero amt inv');
     } catch (_) {
       err = true;
     }

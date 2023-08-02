@@ -16,14 +16,14 @@ const DefaultView = () => {
 
   useEffect(() => {
     (async () => {
-      const viewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
-      let defaultWalletLabel = '';
+      const newViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+      let newDefaultWalletLabel = '';
       const wallet = await OnAppLaunch.getSelectedDefaultWallet();
       if (wallet) {
-        defaultWalletLabel = wallet.getLabel();
+        newDefaultWalletLabel = wallet.getLabel();
       }
-      setDefaultWalletLabel(defaultWalletLabel);
-      setViewAllWalletsEnabled(viewAllWalletsEnabled);
+      setDefaultWalletLabel(newDefaultWalletLabel);
+      setViewAllWalletsEnabled(newViewAllWalletsEnabled);
     })();
   });
 

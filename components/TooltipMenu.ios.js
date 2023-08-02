@@ -43,7 +43,7 @@ const ToolTipMenu = (props, ref) => {
   const previewQRCode = props.previewQRCode ?? false;
   const previewValue = props.previewValue;
   const disabled = props.disabled ?? false;
-  // eslint-disable-next-line react/prop-types
+
   const buttonStyle = props.buttonStyle;
   return isButton ? (
     <ContextMenuButton

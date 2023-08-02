@@ -29,7 +29,7 @@ let lastTimeTriedToPay = 0;
 // this code has no use in RN, it gets copypasted in webview injected code
 //
 const bluewalletResponses = {};
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-var
 var webln = {
   enable: function () {
     window.ReactNativeWebView.postMessage(JSON.stringify({ enable: true }));
@@ -53,10 +53,11 @@ var webln = {
     });
   },
   makeInvoice: function (RequestInvoiceArgs) {
-    var id = Math.random(); // eslint-disable-line
+    var id = Math.random(); // eslint-disable-line no-var
     window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id }));
     return new Promise(function (resolve, reject) {
-      var interval = setInterval(function () { // eslint-disable-line
+      // eslint-disable-next-line no-var
+      var interval = setInterval(function () {
         if (bluewalletResponses[id]) {
           clearInterval(interval);
           resolve(bluewalletResponses[id]);

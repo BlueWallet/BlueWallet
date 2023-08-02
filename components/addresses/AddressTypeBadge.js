@@ -29,7 +29,6 @@ const AddressTypeBadge = ({ isInternal, hasTransactions }) => {
     usedText: { color: colors.alternativeTextColor },
   });
 
-  // eslint-disable-next-line prettier/prettier
   const badgeLabel = hasTransactions
     ? loc.addresses.type_used
     : isInternal

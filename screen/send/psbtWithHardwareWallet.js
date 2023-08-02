@@ -98,9 +98,9 @@ const PsbtWithHardwareWallet = () => {
     }
 
     if (deepLinkPSBT) {
-      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+      const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, psbt);
+        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
         alert(Err);

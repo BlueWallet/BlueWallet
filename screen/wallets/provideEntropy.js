@@ -247,12 +247,15 @@ const Entropy = () => {
         active={tab}
         onSwitch={setTab}
         tabs={[
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="toll" type="material" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="dice" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
