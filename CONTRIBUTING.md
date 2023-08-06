@@ -1,5 +1,11 @@
 All commits should have one of the following prefixes: REL, FIX, ADD, TST, OPS, DOC. For example `"ADD: new feature"`.
-Adding new feature is ADD, fixing a bug is FIX, something related to infrastructure is OPS etc.
+
+REL: For a new release
+FIX: For any bug fixes
+ADD: For adding new feature
+TST: For add tests
+OPS: For anything infrastructure related
+DOC: For any documentation changes
 
 Commits should be atomic: one commit - one feature, one commit - one bugfix etc.
 
