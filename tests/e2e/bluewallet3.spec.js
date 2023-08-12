@@ -22,7 +22,8 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     }
     await device.launchApp({ newInstance: true });
     await helperImportWallet(
-      'zpub6rDWXE4wbwefeCrHWehXJheXnti5F9PbpamDUeB5eFbqaY89x3jq86JADBuXpnJnSvRVwqkaTnyMaZERUg4BpxD9V4tSZfKeYh1ozPdL1xK',
+      // MNEMONICS_KEYSTONE
+      'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
       'watchOnly',
       'Imported Watch-only',
       '0.0001 BTC',
@@ -36,7 +37,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       await element(by.text(`No, and don’t ask me again`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
-    await expect(element(by.text('bc1q5vzs7ea3z5e2wt53mp97mfy927eu75l7ku4w2p'))).toBeVisible();
+    await expect(element(by.text('bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
@@ -45,7 +46,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await sup('Test');
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
-    await expect(element(by.text('bitcoin:bc1q5vzs7ea3z5e2wt53mp97mfy927eu75l7ku4w2p?amount=1&label=Test'))).toBeVisible();
+    await expect(element(by.text('bitcoin:bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv?amount=1&label=Test'))).toBeVisible();
     await device.pressBack();
 
     await element(by.id('SendButton')).tap();
@@ -54,10 +55,11 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('ImportQrTransactionButton')).tap(); // opens camera
 
+    // produced by real Keystone device using MNEMONICS_KEYSTONE
     const unsignedPsbt =
-      'ur:bytes/tzahqumzwnlszqzjqgqqqqqp6uu247pvcz6zld9p77ghlnl753q8fgygggzv9ugjxsmggyy5gqcqqqqqqqq0llllluqepssqqqqqqqqqzcqpfkxmzh6ud2yrvcl37uyy9yswr2z4mx276qqqqqqqqqgpragvxqqqqqqqqqqkqq2tgxjzwa0000egemyzygsv92j2zdwvg5ejypszwe3qctjvrwul6t2ts7yhk8e5takxwzey2z70kdnykwd43jsptrzps95d6cp4gqqqsqqqqqyqqqqqpqqqqqqqqpqqqqqqqqq0vr0lj';
+      'UR:CRYPTO-PSBT/HDRNJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWCPAMAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGACSRPLEYNVEGHAEAELAAEAEAELAAEAEAELAAEAEAEAEAEAEAEAEAEAEGETNJYFN';
     const signedPsbt =
-      'ur:bytes/tyqjuurnvf607qgq2gpqqqqqq8tn32hc9nqtgta558mezl70l6jyqa9q3ppqfsh3zg6rdpqsj3qrqqqqqqqqpllllllsryxzqqqqqqqqqqtqq9xcmv2lt34gsdnr78msss5jpcdg2hvetmgqqqqqqqqpqy04pscqqqqqqqqqzcqpfdq6gfm4aaal9r8vsg3zps42fgf4e3znxgszqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgjpsg5pzzqxjc9xv3rlhu2n6u87pm94agwcmvcywwsx9k0jpvwyng8crytgrkcpzqae6amp5xy03x2lsklv5zgnmeht0grzns27tmsjtsg2j0ne2969kqyqsxpqpqqqqqgsxqfmxyrpwfsdmnlfdfwrcj7clx30kcecty3gte7ekvjeekkx2q9vvgxqk3htqx4qqqzqqqqqqsqqqqqyqqqqqqqqyqqqqqqqqear8ke';
+      'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
 
     // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
