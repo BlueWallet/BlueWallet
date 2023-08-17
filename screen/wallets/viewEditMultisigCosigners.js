@@ -53,7 +53,7 @@ const ViewEditMultisigCosigners = () => {
   const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
-  const { walletId } = route.params;
+  const { walletId, importTextPlaceHolderReplacement } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState();
@@ -62,6 +62,7 @@ const ViewEditMultisigCosigners = () => {
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
+  const [isXpubPlaceholderModalVisible, setIsXpubPlaceholderModalVisible] = useState(false);
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
   const [importText, setImportText] = useState('');
   const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
@@ -105,6 +106,9 @@ const ViewEditMultisigCosigners = () => {
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (importTextPlaceHolderReplacement) {
+      setImportText(importTextPlaceHolderReplacement)
+    }
   }, []);
 
   const exportCosigner = () => {
@@ -234,7 +238,24 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const _renderKeyItem = el => {
+
+    return (
+      <View>
+        <MultipleStepsListItem
+          checked
+          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+          dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
+        />
+
+        {renderKey(el)}
+      </View>
+    );
+  };
+
+  const renderKey = (el) => {
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
+    const isPlaceHolder = wallet.getCosigner(el.index + 1) === ""
+
     let leftText;
     if (isXpub) {
       leftText = wallet.getCosigner(el.index + 1);
@@ -247,140 +268,165 @@ const ViewEditMultisigCosigners = () => {
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
     }
 
-    return (
-      <View>
-        <MultipleStepsListItem
-          checked
-          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
-        />
-
-        {isXpub ? (
-          <View>
-            {!vaultKeyData.isLoading && (
-              <MultipleStepsListItem
-                button={{
-                  buttonType: MultipleStepsListItemButtohType.partial,
-                  leftText,
-                  text: loc.multisig.view,
-                  disabled: vaultKeyData.isLoading,
-                  onPress: () => {
-                    const keyIndex = el.index + 1;
-                    const xpub = wallet.getCosigner(keyIndex);
-                    const fp = wallet.getFingerprint(keyIndex);
-                    const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                    setVaultKeyData({
-                      keyIndex,
-                      seed: '',
-                      xpub,
-                      fp,
-                      path,
-                      isLoading: false,
-                    });
-                    setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                    setExportFilename('bw-cosigner-' + fp + '.json');
-                    setIsMnemonicsModalVisible(true);
-                  },
-                }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
-              />
-            )}
+    if (isPlaceHolder) {
+      return (
+        <View>
+          {!vaultKeyData.isLoading && (
             <MultipleStepsListItem
-              showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               button={{
-                text: loc.multisig.i_have_mnemonics,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtohType.partial,
+                leftText,
+                text: loc.multisig.view,
+                disabled: true,
+              }}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
+            />
+          )}
+          <MultipleStepsListItem
+            showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
+            button={{
+              text: "Insert Xpub",  // todo make loc
+              buttonType: MultipleStepsListItemButtohType.full,
+              disabled: vaultKeyData.isLoading,
+              onPress: () => {
+                setCurrentlyEditingCosignerNum(el.index + 1);
+                setIsXpubPlaceholderModalVisible(true);
+              },
+            }}
+            dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+          />
+        </View>
+      )
+    } else if (isXpub) {
+      return (
+        <View>
+          {!vaultKeyData.isLoading && (
+            <MultipleStepsListItem
+              button={{
+                buttonType: MultipleStepsListItemButtohType.partial,
+                leftText,
+                text: loc.multisig.view,
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
-                  setCurrentlyEditingCosignerNum(el.index + 1);
-                  setIsProvideMnemonicsModalVisible(true);
+                  const keyIndex = el.index + 1;
+                  const xpub = wallet.getCosigner(keyIndex);
+                  const fp = wallet.getFingerprint(keyIndex);
+                  const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                  setVaultKeyData({
+                    keyIndex,
+                    seed: '',
+                    xpub,
+                    fp,
+                    path,
+                    isLoading: false,
+                  });
+                  setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                  setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                  console.log(exportStringURv2)
+                  setExportFilename('bw-cosigner-' + fp + '.json');
+                  setIsMnemonicsModalVisible(true);
                 },
               }}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
             />
-          </View>
-        ) : (
-          <View>
-            {!vaultKeyData.isLoading && (
-              <MultipleStepsListItem
-                showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-                button={{
-                  leftText,
-                  text: loc.multisig.view,
-                  disabled: vaultKeyData.isLoading,
-                  buttonType: MultipleStepsListItemButtohType.partial,
-                  onPress: () => {
-                    const keyIndex = el.index + 1;
-                    const seed = wallet.getCosigner(keyIndex);
-                    setVaultKeyData({
-                      keyIndex,
-                      seed,
-                      xpub: '',
-                      fp: '',
-                      path: '',
-                      isLoading: false,
-                    });
-                    setIsMnemonicsModalVisible(true);
-                    const fp = wallet.getFingerprint(keyIndex);
-                    const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
-                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
-                    setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                    setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                    setExportFilename('bw-cosigner-' + fp + '.json');
-                  },
-                }}
-                dashes={MultipleStepsListItemDashType.topAndBottom}
-              />
-            )}
+          )}
+          <MultipleStepsListItem
+            showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
+            button={{
+              text: loc.multisig.i_have_mnemonics,
+              buttonType: MultipleStepsListItemButtohType.full,
+              disabled: vaultKeyData.isLoading,
+              onPress: () => {
+                setCurrentlyEditingCosignerNum(el.index + 1);
+                setIsProvideMnemonicsModalVisible(true);
+              },
+            }}
+            dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+          />
+        </View>
+      )
+    } else {
+      return (
+        <View>
+          {!vaultKeyData.isLoading && (
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               button={{
-                text: loc.multisig.forget_this_seed,
+                leftText,
+                text: loc.multisig.view,
                 disabled: vaultKeyData.isLoading,
-                buttonType: MultipleStepsListItemButtohType.full,
+                buttonType: MultipleStepsListItemButtohType.partial,
                 onPress: () => {
-                  Alert.alert(
-                    loc._.seed,
-                    loc.multisig.are_you_sure_seed_will_be_lost,
-                    [
-                      {
-                        text: loc._.ok,
-                        onPress: () => {
-                          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                          setVaultKeyData({
-                            ...vaultKeyData,
-                            isLoading: true,
-                            keyIndex: el.index + 1,
-                          });
-                          setTimeout(
-                            () =>
-                              xpubInsteadOfSeed(el.index + 1).finally(() => {
-                                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                                setVaultKeyData({
-                                  ...vaultKeyData,
-                                  isLoading: false,
-                                  keyIndex: el.index + 1,
-                                });
-                              }),
-                            100,
-                          );
-                        },
-                        style: 'destructive',
+                  const keyIndex = el.index + 1;
+                  const seed = wallet.getCosigner(keyIndex);
+                  setVaultKeyData({
+                    keyIndex,
+                    seed,
+                    xpub: '',
+                    fp: '',
+                    path: '',
+                    isLoading: false,
+                  });
+                  setIsMnemonicsModalVisible(true);
+                  const fp = wallet.getFingerprint(keyIndex);
+                  const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                  const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
+                  setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
+                  setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
+                  console.log(exportStringURv2)
+                  setExportFilename('bw-cosigner-' + fp + '.json');
+                },
+              }}
+              dashes={MultipleStepsListItemDashType.topAndBottom}
+            />
+          )}
+          <MultipleStepsListItem
+            showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
+            dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+            button={{
+              text: loc.multisig.forget_this_seed,
+              disabled: vaultKeyData.isLoading,
+              buttonType: MultipleStepsListItemButtohType.full,
+              onPress: () => {
+                Alert.alert(
+                  loc._.seed,
+                  loc.multisig.are_you_sure_seed_will_be_lost,
+                  [
+                    {
+                      text: loc._.ok,
+                      onPress: () => {
+                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                        setVaultKeyData({
+                          ...vaultKeyData,
+                          isLoading: true,
+                          keyIndex: el.index + 1,
+                        });
+                        setTimeout(
+                          () =>
+                            xpubInsteadOfSeed(el.index + 1).finally(() => {
+                              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                              setVaultKeyData({
+                                ...vaultKeyData,
+                                isLoading: false,
+                                keyIndex: el.index + 1,
+                              });
+                            }),
+                          100,
+                        );
                       },
-                      { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                    ],
-                    { cancelable: false },
-                  );
-                },
-              }}
-            />
-          </View>
-        )}
-      </View>
-    );
-  };
+                      style: 'destructive',
+                    },
+                    { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+                  ],
+                  { cancelable: false },
+                );
+              },
+            }}
+          />
+        </View>
+      )
+    }
+  }
 
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
@@ -434,6 +480,31 @@ const ViewEditMultisigCosigners = () => {
     });
   };
 
+  const replacePlaceholderWithXpub = index => {
+    // extract and validate xpub data
+    let json = JSON.parse(importText)
+
+
+    if (json && json.xpub && json.xfp && json.path) {
+      try {
+        wallet.replacePlaceHolderWithXpub(currentlyEditingCosignerNum, json.xpub, json.xfp, json.path);
+      } catch (e) {
+        console.log(e);
+        return alert(e.message);
+      }
+    } else {
+      // allow other formats for import
+      return alert('"unsupported format. please use json {"xpub":"", "xfp":"", "path":""}');
+    }
+
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setWallet(wallet);
+    setIsXpubPlaceholderModalVisible(false);
+    setIsSaveButtonDisabled(false);
+    setImportText('');
+    setAskPassphrase(false);
+  }
+
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
     setTimeout(
@@ -460,6 +531,12 @@ const ViewEditMultisigCosigners = () => {
     setIsProvideMnemonicsModalVisible(false);
     setImportText('');
     setAskPassphrase(false);
+  };
+
+  const hideXpubPlaceholderModal = () => {
+    Keyboard.dismiss();
+    setIsXpubPlaceholderModalVisible(false);
+    setImportText('');
   };
 
   const hideShareModal = () => {
@@ -494,6 +571,42 @@ const ViewEditMultisigCosigners = () => {
               />
             )}
             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+          </View>
+        </KeyboardAvoidingView>
+      </BottomModal>
+    );
+  };
+
+  const renderProvideXpubPlaceholderModal = () => {
+    return (
+      <BottomModal isVisible={isXpubPlaceholderModalVisible} onClose={hideXpubPlaceholderModal}>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
+          <View style={[styles.modalContent, stylesHook.modalContent]}>
+            {/*todo needs loc*/}
+            <BlueTextCentered>{"Type your xpub"}</BlueTextCentered>
+            <BlueSpacing20 />
+            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+            {/*{isAdvancedModeEnabledRender && (*/}
+            {/*  <>*/}
+            {/*    <BlueSpacing10 />*/}
+            {/*    <View style={styles.row}>*/}
+            {/*      /!*todo needs loc*!/*/}
+            {/*      <BlueText>{loc.wallets.import_passphrase}</BlueText>*/}
+            {/*      <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />*/}
+            {/*    </View>*/}
+            {/*  </>*/}
+            {/*)}*/}
+            <BlueSpacing20 />
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <BlueButton
+                disabled={importText.trim().length === 0}
+                title={loc.wallets.import_do_import}
+                onPress={replacePlaceholderWithXpub}
+              />
+            )}
+            {/*<BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />*/}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -578,6 +691,8 @@ const ViewEditMultisigCosigners = () => {
       </KeyboardAvoidingView>
 
       {renderProvideMnemonicsModal()}
+
+      {renderProvideXpubPlaceholderModal()}
 
       {renderShareModal()}
 

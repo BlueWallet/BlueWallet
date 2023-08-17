@@ -1,10 +1,11 @@
-import { LightningCustodianWallet, WatchOnlyWallet } from './';
+import {LightningCustodianWallet, WatchOnlyWallet} from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import URL from 'url';
-import { Chain } from '../models/bitcoinUnits';
+import {Chain} from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
+
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp = require('../BlueApp');
@@ -31,7 +32,11 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(event, completionHandler, context = { wallets: [], saveToDisk: () => {}, addWallet: () => {} }) {
+  static navigationRouteFor(event, completionHandler, context = {
+    wallets: [], saveToDisk: () => {
+    }, addWallet: () => {
+    }
+  }) {
     if (event.url === null) {
       return;
     }
@@ -83,7 +88,10 @@ class DeeplinkSchemaMatch {
               },
             ]);
           } else if (action === 'openReceive') {
-            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
+            completionHandler(['LNDCreateInvoiceRoot', {
+              screen: 'LNDCreateInvoice',
+              params: {walletID: wallet.getID()}
+            }]);
           }
         }
       }
@@ -104,6 +112,48 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
       return;
+    } else if (event.url.endsWith(".txt")) {  // todo is this the right point for this check?
+      RNFS.readFile(decodeURI(event.url))
+        .then(file => {
+          if (file) {
+            completionHandler([
+              'AddWalletRoot',
+              {
+                screen: 'ImportWalletDiscovery',
+                params: {importText: file, askPassphrase: false, searchAccounts: false},
+              },
+            ]);
+          }
+        })
+        .catch(e => console.warn(e));
+    } else if (event.url.endsWith(".json")) {  // todo is this the right point for this check?
+      RNFS.readFile(decodeURI(event.url))
+        .then(file => {
+          if (file) {
+            if (this.hasValidKeysForMultiSigZpub(file)) {
+              completionHandler([
+                'SelectWallet',
+                {
+                  onWalletSelect: (wallet, {navigation}) => {
+                    navigation.pop(); // close select wallet screen
+                    navigation.navigate('ViewEditMultisigCosignersRoot', {
+                        screen: 'ViewEditMultisigCosigners',
+                        params: {
+                          walletId: wallet.getID(),
+                          importTextPlaceHolderReplacement: file
+                        },
+                      },
+                    );
+                  },
+                  params: {
+                    walletType: "HDmultisig"
+                  }
+                },
+              ]);
+            }
+          }
+        })
+        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning;
     try {
@@ -115,7 +165,7 @@ class DeeplinkSchemaMatch {
       completionHandler([
         'SelectWallet',
         {
-          onWalletSelect: (wallet, { navigation }) => {
+          onWalletSelect: (wallet, {navigation}) => {
             navigation.pop(); // close select wallet screen
             navigation.navigate(...DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning));
           },
@@ -377,6 +427,20 @@ class DeeplinkSchemaMatch {
     return text.startsWith('widget?action=');
   }
 
+  static hasValidKeysForMultiSigZpub(str) {
+    let obj;
+
+    // Check if it's a valid JSON
+    try {
+      obj = JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+
+    // Check for the existence and type of the keys
+    return typeof obj.xfp === 'string' && typeof obj.xpub === 'string' && typeof obj.path === 'string';
+  }
+
   static isBothBitcoinAndLightning(url) {
     if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
       const txInfo = url.split(/(bitcoin:\/\/|BITCOIN:\/\/|bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
@@ -405,7 +469,7 @@ class DeeplinkSchemaMatch {
         if (btc && lndInvoice) break;
       }
       if (btc && lndInvoice) {
-        return { bitcoin: btc, lndInvoice };
+        return {bitcoin: btc, lndInvoice};
       } else {
         return undefined;
       }
@@ -457,8 +521,9 @@ class DeeplinkSchemaMatch {
           payjoinUrl = parsedBitcoinUri.options.pj;
         }
       }
-    } catch (_) {}
-    return { address, amount, memo, payjoinUrl };
+    } catch (_) {
+    }
+    return {address, amount, memo, payjoinUrl};
   }
 }
 

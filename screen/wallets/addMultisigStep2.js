@@ -55,7 +55,7 @@ const WalletsAddMultisigStep2 = () => {
   const navigation = useNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
 
-  const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
+  const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path, passphrase]
   const [isLoading, setIsLoading] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
@@ -125,35 +125,78 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const _onCreate = async () => {
-    const w = new MultisigHDWallet();
-    w.setM(m);
-    switch (format) {
-      case MultisigHDWallet.FORMAT_P2WSH:
-        w.setNativeSegwit();
-        w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
-        break;
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-        w.setWrappedSegwit();
-        w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
-        break;
-      case MultisigHDWallet.FORMAT_P2SH:
-        w.setLegacy();
-        w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
-        break;
-      default:
-        throw new Error('This should never happen');
-    }
-    for (const cc of cosigners) {
-      const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
-      w.addCosigner(cc[0], fp, cc[2], cc[3]);
-    }
-    w.setLabel(walletLabel);
-    if (!isElectrumDisabled) {
-      await w.fetchBalance();
+    let emptyCosignersExist = false
+    for (const [_, cosigner] of cosigners.entries()) {
+      if (cosigner[0] === "" || cosigner[1] === "" || cosigner[2] === "") {
+        emptyCosignersExist = true
+        break
+      }
     }
 
-    addWallet(w);
+    if (emptyCosignersExist) {
+      const w = new MultisigHDWallet();
+      w.setM(m);
+      switch (format) {
+        case MultisigHDWallet.FORMAT_P2WSH:
+          w.setNativeSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+          w.setWrappedSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH:
+          w.setLegacy();
+          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
+          break;
+        default:
+          throw new Error('This should never happen');
+      }
+      for (const cc of cosigners) {
+        if (cc[0] === "") {
+          const fp = cc[1]
+          w.addCosigner("", fp, "", "", true);
+        } else {
+          const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
+          w.addCosigner(cc[0], fp, cc[2], cc[3], false);
+        }
+      }
+      w.setLabel(walletLabel);
+      addWallet(w);
+
+    } else {
+      const w = new MultisigHDWallet();
+      w.setM(m);
+      switch (format) {
+        case MultisigHDWallet.FORMAT_P2WSH:
+          w.setNativeSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+          w.setWrappedSegwit();
+          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+          break;
+        case MultisigHDWallet.FORMAT_P2SH:
+          w.setLegacy();
+          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
+          break;
+        default:
+          throw new Error('This should never happen');
+      }
+      for (const cc of cosigners) {
+        const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
+        w.addCosigner(cc[0], fp, cc[2], cc[3]);
+      }
+      w.setLabel(walletLabel);
+      if (!isElectrumDisabled) {
+        await w.fetchBalance();
+      }
+
+      addWallet(w);
+    }
+
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
@@ -179,6 +222,16 @@ const WalletsAddMultisigStep2 = () => {
         setIsLoading(false);
       }, 500);
     });
+  };
+
+  const skipKey = () => {
+    const cosignersCopy = [...cosigners];
+    cosignersCopy.push(["", "00000000", false]);
+
+    if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setCosigners(cosignersCopy);
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: "", xpub: "", isLoading: false });
+    setIsMnemonicsModalVisible(false);
   };
 
   const getPath = () => {
@@ -499,6 +552,18 @@ const WalletsAddMultisigStep2 = () => {
                 onPress: iHaveMnemonics,
                 buttonType: MultipleStepsListItemButtohType.full,
                 text: loc.wallets.import_do_import,
+                disabled: vaultKeyData.isLoading,
+              }}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              checked={isChecked}
+            />
+            <MultipleStepsListItem
+              button={{
+                onPress: () => {
+                  skipKey()
+                },
+                buttonType: MultipleStepsListItemButtohType.full,
+                text: "Skip", // todo use loc
                 disabled: vaultKeyData.isLoading,
               }}
               dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}

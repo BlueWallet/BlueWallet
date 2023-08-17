@@ -12,7 +12,7 @@ import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 const SelectWallet = () => {
-  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
+  const { chainType, walletType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { pop, navigate, setOptions, dangerouslyGetParent } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
@@ -21,6 +21,10 @@ const SelectWallet = () => {
   let data = chainType
     ? wallets.filter(item => item.chain === chainType && item.allowSend())
     : wallets.filter(item => item.allowSend()) || [];
+
+  if (walletType) {
+    data = wallets.filter(item => item.type === walletType)
+  }
 
   if (availableWallets && availableWallets.length > 0) {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check

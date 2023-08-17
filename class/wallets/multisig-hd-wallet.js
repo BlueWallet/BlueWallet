@@ -167,8 +167,18 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @param fingerprint {string} Fingerprint for cosigner that is added as xpub
    * @param path {string} Custom path (if any) for cosigner that is added as mnemonics
    * @param passphrase {string} BIP38 Passphrase (if any)
+   * @param proxy {boolean} Indicates whether live or placeholder is used
    */
-  addCosigner(key, fingerprint, path, passphrase) {
+  addCosigner(key, fingerprint, path, passphrase, proxy) {
+    if (proxy) {
+      const index = this._cosigners.length;
+      this._cosigners[index] = key;
+      if (fingerprint) this._cosignersFingerprints[index] = fingerprint.toUpperCase();
+      if (path) this._cosignersCustomPaths[index] = path;
+      if (passphrase) this._cosignersPassphrases[index] = passphrase;
+      return
+    }
+
     if (MultisigHDWallet.isXpubString(key) && !fingerprint) {
       throw new Error('fingerprint is required when adding cosigner as xpub (watch-only)');
     }
@@ -198,8 +208,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     } else {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
-      if (!bip39.validateMnemonic(key)) throw new Error('Not a valid mnemonic phrase');
-      fingerprint = fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase);
+      if (!bip39.validateMnemonic(key) && key !== "") throw new Error('Not a valid mnemonic phrase');
+      fingerprint = (fingerprint !== false && key !== "") ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
@@ -1132,6 +1142,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     const xpub = this.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonics, path, passphrase));
     this._cosigners[index] = xpub;
     this._cosignersPassphrases[index] = undefined;
+  }
+
+  replacePlaceHolderWithXpub(externalIndex, xpub, fingerprint, path) {
+    const index = externalIndex - 1;
+    this._cosigners[index] = xpub
+    this._cosignersFingerprints[index] = fingerprint
+    this._cosignersCustomPaths[index] = path
   }
 
   deleteCosigner(fp) {
