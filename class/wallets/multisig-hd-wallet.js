@@ -257,6 +257,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getExternalAddressByIndex(index) {
+    if (this._cosigners.indexOf("") !== -1) return ""
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -311,6 +312,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getInternalAddressByIndex(index) {
+    if (this._cosigners.indexOf("") !== -1) return ""
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
