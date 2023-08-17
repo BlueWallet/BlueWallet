@@ -125,11 +125,11 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const _onCreate = async () => {
-    let emptyCosignersExist = false
-    for (const [_, cosigner] of cosigners.entries()) {
-      if (cosigner[0] === "" || cosigner[1] === "" || cosigner[2] === "") {
-        emptyCosignersExist = true
-        break
+    let emptyCosignersExist = false;
+    for (const [_index, cosigner] of cosigners.entries()) {
+      if (cosigner[0] === '' || cosigner[1] === '' || cosigner[2] === '') {
+        emptyCosignersExist = true;
+        break;
       }
     }
 
@@ -154,9 +154,9 @@ const WalletsAddMultisigStep2 = () => {
           throw new Error('This should never happen');
       }
       for (const cc of cosigners) {
-        if (cc[0] === "") {
-          const fp = cc[1]
-          w.addCosigner("", fp, "", "", true);
+        if (cc[0] === '') {
+          const fp = cc[1];
+          w.addCosigner('', fp, '', '', true);
         } else {
           const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
           w.addCosigner(cc[0], fp, cc[2], cc[3], false);
@@ -164,7 +164,6 @@ const WalletsAddMultisigStep2 = () => {
       }
       w.setLabel(walletLabel);
       addWallet(w);
-
     } else {
       const w = new MultisigHDWallet();
       w.setM(m);
@@ -226,11 +225,11 @@ const WalletsAddMultisigStep2 = () => {
 
   const skipKey = () => {
     const cosignersCopy = [...cosigners];
-    cosignersCopy.push(["", "00000000", false]);
+    cosignersCopy.push(['', '00000000', false]);
 
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: "", xpub: "", isLoading: false });
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: '', xpub: '', isLoading: false });
     setIsMnemonicsModalVisible(false);
   };
 
@@ -560,10 +559,10 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               button={{
                 onPress: () => {
-                  skipKey()
+                  skipKey();
                 },
                 buttonType: MultipleStepsListItemButtohType.full,
-                text: "Skip", // todo use loc
+                text: 'Skip', // todo use loc
                 disabled: vaultKeyData.isLoading,
               }}
               dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}

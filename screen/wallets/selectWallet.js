@@ -23,7 +23,7 @@ const SelectWallet = () => {
     : wallets.filter(item => item.allowSend()) || [];
 
   if (walletType) {
-    data = wallets.filter(item => item.type === walletType)
+    data = wallets.filter(item => item.type === walletType);
   }
 
   if (availableWallets && availableWallets.length > 0) {

@@ -176,7 +176,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       if (fingerprint) this._cosignersFingerprints[index] = fingerprint.toUpperCase();
       if (path) this._cosignersCustomPaths[index] = path;
       if (passphrase) this._cosignersPassphrases[index] = passphrase;
-      return
+      return;
     }
 
     if (MultisigHDWallet.isXpubString(key) && !fingerprint) {
@@ -208,8 +208,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     } else {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
-      if (!bip39.validateMnemonic(key) && key !== "") throw new Error('Not a valid mnemonic phrase');
-      fingerprint = (fingerprint !== false && key !== "") ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
+      if (!bip39.validateMnemonic(key) && key !== '') throw new Error('Not a valid mnemonic phrase');
+      fingerprint =
+        fingerprint !== false && key !== '' ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
@@ -257,7 +258,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getExternalAddressByIndex(index) {
-    if (this._cosigners.indexOf("") !== -1) return ""
+    if (this._cosigners.indexOf('') !== -1) return '';
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -312,7 +313,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getInternalAddressByIndex(index) {
-    if (this._cosigners.indexOf("") !== -1) return ""
+    if (this._cosigners.indexOf('') !== -1) return '';
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
@@ -841,7 +842,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   howManySignaturesCanWeMake() {
     let howManyPrivKeysWeGot = 0;
     for (const cosigner of this._cosigners) {
-      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== "") howManyPrivKeysWeGot++;
+      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== '') howManyPrivKeysWeGot++;
     }
 
     return howManyPrivKeysWeGot;
@@ -1148,9 +1149,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   replacePlaceHolderWithXpub(externalIndex, xpub, fingerprint, path) {
     const index = externalIndex - 1;
-    this._cosigners[index] = xpub
-    this._cosignersFingerprints[index] = fingerprint
-    this._cosignersCustomPaths[index] = path
+    this._cosigners[index] = xpub;
+    this._cosignersFingerprints[index] = fingerprint;
+    this._cosignersCustomPaths[index] = path;
   }
 
   deleteCosigner(fp) {

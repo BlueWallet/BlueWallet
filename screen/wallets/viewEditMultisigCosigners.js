@@ -107,7 +107,7 @@ const ViewEditMultisigCosigners = () => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     if (importTextPlaceHolderReplacement) {
-      setImportText(importTextPlaceHolderReplacement)
+      setImportText(importTextPlaceHolderReplacement);
     }
   }, []);
 
@@ -238,7 +238,6 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const _renderKeyItem = el => {
-
     return (
       <View>
         <MultipleStepsListItem
@@ -252,9 +251,9 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const renderKey = (el) => {
+  const renderKey = el => {
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
-    const isPlaceHolder = wallet.getCosigner(el.index + 1) === ""
+    const isPlaceHolder = wallet.getCosigner(el.index + 1) === '';
 
     let leftText;
     if (isXpub) {
@@ -285,7 +284,7 @@ const ViewEditMultisigCosigners = () => {
           <MultipleStepsListItem
             showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
             button={{
-              text: "Insert Xpub",  // todo make loc
+              text: 'Insert Xpub', // todo make loc
               buttonType: MultipleStepsListItemButtohType.full,
               disabled: vaultKeyData.isLoading,
               onPress: () => {
@@ -296,7 +295,7 @@ const ViewEditMultisigCosigners = () => {
             dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
           />
         </View>
-      )
+      );
     } else if (isXpub) {
       return (
         <View>
@@ -322,7 +321,6 @@ const ViewEditMultisigCosigners = () => {
                   });
                   setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                   setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                  console.log(exportStringURv2)
                   setExportFilename('bw-cosigner-' + fp + '.json');
                   setIsMnemonicsModalVisible(true);
                 },
@@ -344,7 +342,7 @@ const ViewEditMultisigCosigners = () => {
             dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
           />
         </View>
-      )
+      );
     } else {
       return (
         <View>
@@ -373,7 +371,6 @@ const ViewEditMultisigCosigners = () => {
                   const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
                   setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                   setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-                  console.log(exportStringURv2)
                   setExportFilename('bw-cosigner-' + fp + '.json');
                 },
               }}
@@ -424,9 +421,9 @@ const ViewEditMultisigCosigners = () => {
             }}
           />
         </View>
-      )
+      );
     }
-  }
+  };
 
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
@@ -482,8 +479,7 @@ const ViewEditMultisigCosigners = () => {
 
   const replacePlaceholderWithXpub = index => {
     // extract and validate xpub data
-    let json = JSON.parse(importText)
-
+    const json = JSON.parse(importText);
 
     if (json && json.xpub && json.xfp && json.path) {
       try {
@@ -503,7 +499,7 @@ const ViewEditMultisigCosigners = () => {
     setIsSaveButtonDisabled(false);
     setImportText('');
     setAskPassphrase(false);
-  }
+  };
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
@@ -582,20 +578,20 @@ const ViewEditMultisigCosigners = () => {
       <BottomModal isVisible={isXpubPlaceholderModalVisible} onClose={hideXpubPlaceholderModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
-            {/*todo needs loc*/}
-            <BlueTextCentered>{"Type your xpub"}</BlueTextCentered>
+            {/* todo needs loc */}
+            <BlueTextCentered>Type your xpub</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            {/*{isAdvancedModeEnabledRender && (*/}
-            {/*  <>*/}
-            {/*    <BlueSpacing10 />*/}
-            {/*    <View style={styles.row}>*/}
-            {/*      /!*todo needs loc*!/*/}
-            {/*      <BlueText>{loc.wallets.import_passphrase}</BlueText>*/}
-            {/*      <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />*/}
-            {/*    </View>*/}
-            {/*  </>*/}
-            {/*)}*/}
+            {/* {isAdvancedModeEnabledRender && ( */}
+            {/*  <> */}
+            {/*    <BlueSpacing10 /> */}
+            {/*    <View style={styles.row}> */}
+            {/*      /!*todo needs loc*!/ */}
+            {/*      <BlueText>{loc.wallets.import_passphrase}</BlueText> */}
+            {/*      <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} /> */}
+            {/*    </View> */}
+            {/*  </> */}
+            {/* )} */}
             <BlueSpacing20 />
             {isLoading ? (
               <ActivityIndicator />
@@ -606,7 +602,7 @@ const ViewEditMultisigCosigners = () => {
                 onPress={replacePlaceholderWithXpub}
               />
             )}
-            {/*<BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />*/}
+            {/* <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} /> */}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
