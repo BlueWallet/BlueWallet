@@ -477,22 +477,71 @@ const ViewEditMultisigCosigners = () => {
     });
   };
 
-  const replacePlaceholderWithXpub = index => {
+  const replacePlaceholderWithXpub = async () => {
     // extract and validate xpub data
-    const json = JSON.parse(importText);
+    let successful = false
+    let xpub;
+    let fingerprint;
+    let path;
 
-    if (json && json.xpub && json.xfp && json.path) {
-      try {
-        wallet.replacePlaceHolderWithXpub(currentlyEditingCosignerNum, json.xpub, json.xfp, json.path);
-      } catch (e) {
-        console.log(e);
-        return alert(e.message);
-      }
-    } else {
-      // allow other formats for import
-      return alert('"unsupported format. please use json {"xpub":"", "xfp":"", "path":""}');
+    // todo why is MultisigHDWallet.isXpubForMultisig(importText) undefined
+    if (isXpubForMultisig(importText)) {
+      xpub = importText
+      const result = tryUsingXpub();
+      console.log(result)
+      fingerprint = result.fingerprint;
+      path = result.path;
+      successful = true
     }
 
+    // todo change in order to take mnemonics
+    // if (!successful) {
+    //   const hd = new HDSegwitBech32Wallet();
+    //   hd.setSecret(importText);
+    //   if (!hd.validateMnemonic()) {
+    //     successful = false
+    //   }
+    //
+    //   let passphrase;
+    //   if (askPassphrase) {
+    //     try {
+    //       passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+    //     } catch (e) {
+    //       if (e.message === 'Cancel Pressed') {
+    //         setIsLoading(false);
+    //         return;
+    //       }
+    //       throw e;
+    //     }
+    //   }
+    // }
+
+
+    if (!successful) {
+      try {
+        const json = JSON.parse(importText);
+
+        if (json && json.xpub && json.xfp && json.path) {
+          xpub = json.xpub;
+          fingerprint = json.xfp;
+          path = json.path;
+          successful = true;
+        }
+      } catch (e) {
+        console.log(e)
+        successful = false
+      }
+    }
+
+
+    if (successful) {
+      try {
+        wallet.replacePlaceHolderWithXpub(currentlyEditingCosignerNum, xpub, fingerprint, path);
+      } catch (e) {
+        console.log(e);
+        alert(e.message);
+      }
+    }
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
     setIsXpubPlaceholderModalVisible(false);
@@ -500,6 +549,37 @@ const ViewEditMultisigCosigners = () => {
     setImportText('');
     setAskPassphrase(false);
   };
+
+  const tryUsingXpub = async () => {
+    let fp;
+    try {
+      fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+      fp = (fp + '').toUpperCase();
+      if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
+    } catch(e) {
+      console.log(e)
+      // return setIsLoading(false);
+    }
+    let path;
+    try {
+      path = await prompt(
+        loc.multisig.input_path,
+        loc.formatString(loc.multisig.input_path_explain, { default: wallet.getDerivationPath() }),
+        true,
+        'plain-text',
+      );
+      if (!MultisigHDWallet.isPathValid(path)) path = wallet.getDerivationPath();
+    } catch(e) {
+      console.log(e)
+      // return setIsLoading(false);
+    }
+
+    return {fingerprint: fp, path: path}
+  }
+
+  const isXpubForMultisig = (xpub) => {
+    return ['xpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
+  }
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
@@ -533,6 +613,7 @@ const ViewEditMultisigCosigners = () => {
     Keyboard.dismiss();
     setIsXpubPlaceholderModalVisible(false);
     setImportText('');
+    // setAskPassphrase(false);
   };
 
   const hideShareModal = () => {
