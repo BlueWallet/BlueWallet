@@ -103,13 +103,12 @@ const ViewEditMultisigCosigners = () => {
     },
   });
 
-  // Intentionally running this effect only once on mount, as adding the suggested dependencies might introduce unwanted behaviors.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (importTextPlaceHolderReplacement) {
       setImportText(importTextPlaceHolderReplacement);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const exportCosigner = () => {

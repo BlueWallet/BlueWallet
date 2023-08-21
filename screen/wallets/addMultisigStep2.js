@@ -523,7 +523,7 @@ const WalletsAddMultisigStep2 = () => {
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
-            disabled: (vaultKeyData.isLoading || cosigners[el.index][0] === ""),
+            disabled: vaultKeyData.isLoading || cosigners[el.index][0] === '',
             text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
