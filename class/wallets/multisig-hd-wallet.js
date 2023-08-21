@@ -324,6 +324,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static seedToXpub(mnemonic, path, passphrase) {
+    if (mnemonic === "") return ""
     let seed;
     if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
       seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
@@ -459,15 +460,17 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
         if (coordinationSetup) {
-          const xpub = this.convertXpubToMultisignatureXpub(
-            MultisigHDWallet.seedToXpub(
-              this._cosigners[index],
-              this._cosignersCustomPaths[index] || this._derivationPath,
-              this._cosignersPassphrases[index],
-            ),
-          );
-          const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
-          ret += fingerprint + ': ' + xpub + '\n';
+          if (this._cosigners[index] !== '') {
+            const xpub = this.convertXpubToMultisignatureXpub(
+              MultisigHDWallet.seedToXpub(
+                this._cosigners[index],
+                this._cosignersCustomPaths[index] || this._derivationPath,
+                this._cosignersPassphrases[index],
+              ),
+            );
+            const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
+            ret += fingerprint + ': ' + xpub + '\n';
+          }
         } else {
           ret += 'seed: ' + this._cosigners[index];
           if (this._cosignersPassphrases[index]) ret += ' - ' + this._cosignersPassphrases[index];
