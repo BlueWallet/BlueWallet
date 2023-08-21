@@ -103,9 +103,9 @@ const ViewEditMultisigCosigners = () => {
     },
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (importTextPlaceHolderReplacement) {
       setImportText(importTextPlaceHolderReplacement);
     }
@@ -479,18 +479,18 @@ const ViewEditMultisigCosigners = () => {
 
   const replacePlaceholderWithXpub = async () => {
     // extract and validate xpub data
-    let successful = false
+    let successful = false;
     let xpub;
     let fingerprint;
     let path;
 
     // todo why is MultisigHDWallet.isXpubForMultisig(importText) undefined
     if (isXpubForMultisig(importText)) {
-      xpub = importText
+      xpub = importText;
       const result = await tryUsingXpub();
       fingerprint = result.fingerprint;
       path = result.path;
-      successful = true
+      successful = true;
     }
 
     // todo change in order to take mnemonics
@@ -515,7 +515,6 @@ const ViewEditMultisigCosigners = () => {
     //   }
     // }
 
-
     if (!successful) {
       try {
         const json = JSON.parse(importText);
@@ -527,11 +526,10 @@ const ViewEditMultisigCosigners = () => {
           successful = true;
         }
       } catch (e) {
-        console.log(e)
-        successful = false
+        console.log(e);
+        successful = false;
       }
     }
-
 
     if (successful) {
       try {
@@ -555,8 +553,8 @@ const ViewEditMultisigCosigners = () => {
       fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
       fp = (fp + '').toUpperCase();
       if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
-    } catch(e) {
-      console.log(e)
+    } catch (e) {
+      console.log(e);
       // return setIsLoading(false);
     }
     let path;
@@ -568,17 +566,17 @@ const ViewEditMultisigCosigners = () => {
         'plain-text',
       );
       if (!MultisigHDWallet.isPathValid(path)) path = wallet.getDerivationPath();
-    } catch(e) {
-      console.log(e)
+    } catch (e) {
+      console.log(e);
       // return setIsLoading(false);
     }
 
-    return {fingerprint: fp, path: path}
-  }
+    return { fingerprint: fp, path };
+  };
 
-  const isXpubForMultisig = (xpub) => {
+  const isXpubForMultisig = xpub => {
     return ['xpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
-  }
+  };
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);

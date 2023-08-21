@@ -126,7 +126,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const _onCreate = async () => {
     let emptyCosignersExist = false;
-    for (const [_index, cosigner] of cosigners.entries()) {
+    for (const [, cosigner] of cosigners.entries()) {
       if (cosigner[0] === '' || cosigner[1] === '' || cosigner[2] === '') {
         emptyCosignersExist = true;
         break;
@@ -523,7 +523,7 @@ const WalletsAddMultisigStep2 = () => {
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
-            disabled: vaultKeyData.isLoading,
+            disabled: (vaultKeyData.isLoading || cosigners[el.index][0] === ""),
             text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
