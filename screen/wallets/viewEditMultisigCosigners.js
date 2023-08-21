@@ -487,8 +487,7 @@ const ViewEditMultisigCosigners = () => {
     // todo why is MultisigHDWallet.isXpubForMultisig(importText) undefined
     if (isXpubForMultisig(importText)) {
       xpub = importText
-      const result = tryUsingXpub();
-      console.log(result)
+      const result = await tryUsingXpub();
       fingerprint = result.fingerprint;
       path = result.path;
       successful = true
