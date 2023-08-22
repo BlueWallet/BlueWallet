@@ -138,28 +138,27 @@ class DeeplinkSchemaMatch {
       // todo is this the right point for this check?
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
-          if (file) {
-            if (this.hasValidKeysForMultiSigZpub(file)) {
-              completionHandler([
-                'SelectWallet',
-                {
-                  onWalletSelect: (wallet, { navigation }) => {
-                    navigation.pop(); // close select wallet screen
-                    navigation.navigate('ViewEditMultisigCosignersRoot', {
-                      screen: 'ViewEditMultisigCosigners',
-                      params: {
-                        walletId: wallet.getID(),
-                        importTextPlaceHolderReplacement: file,
-                      },
-                    });
-                  },
-                  params: {
-                    walletType: 'HDmultisig',
-                  },
-                },
-              ]);
-            }
+          if (!file || !this.hasValidKeysForMultiSigZpub(file)) {
+            return;
           }
+          completionHandler([
+            'SelectWallet',
+            {
+              onWalletSelect: (wallet, { navigation }) => {
+                navigation.pop(); // close select wallet screen
+                navigation.navigate('ViewEditMultisigCosignersRoot', {
+                  screen: 'ViewEditMultisigCosigners',
+                  params: {
+                    walletId: wallet.getID(),
+                    importTextPlaceHolderReplacement: file,
+                  },
+                });
+              },
+              params: {
+                walletType: 'HDmultisig',
+              },
+            },
+          ]);
         })
         .catch(e => console.warn(e));
     }

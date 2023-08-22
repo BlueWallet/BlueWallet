@@ -208,7 +208,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     } else {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
-      if (!bip39.validateMnemonic(key) && key !== '') throw new Error('Not a valid mnemonic phrase');
+      if (!bip39.validateMnemonic(key) && key !== 'PLACEHOLDER_COSIGNER') throw new Error('Not a valid mnemonic phrase');
       fingerprint =
         fingerprint !== false && key !== '' ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
     }
@@ -258,7 +258,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getExternalAddressByIndex(index) {
-    if (this._cosigners.indexOf('') !== -1) return '';
+    // this blocks that false addresses are generated for an empty set of cosigners
+    if (this._cosigners.indexOf('PLACEHOLDER_COSIGNER') !== -1) return '';
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -313,7 +314,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getInternalAddressByIndex(index) {
-    if (this._cosigners.indexOf('') !== -1) return '';
+    // this blocks that false addresses are generated for an empty set of cosigners
+    if (this._cosigners.indexOf('PLACEHOLDER_COSIGNER') !== -1) return '';
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
@@ -324,7 +326,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static seedToXpub(mnemonic, path, passphrase) {
-    if (mnemonic === "") return ""
+    if (mnemonic === 'PLACEHOLDER_COSIGNER') return '';
     let seed;
     if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
       seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);

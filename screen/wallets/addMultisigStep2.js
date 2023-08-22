@@ -127,32 +127,14 @@ const WalletsAddMultisigStep2 = () => {
   const _onCreate = async () => {
     let emptyCosignersExist = false;
     for (const [, cosigner] of cosigners.entries()) {
-      if (cosigner[0] === '' || cosigner[1] === '' || cosigner[2] === '') {
+      if (cosigner[0] === 'PLACEHOLDER_COSIGNER' || cosigner[1] === '' || cosigner[2] === '') {
         emptyCosignersExist = true;
         break;
       }
     }
 
     if (emptyCosignersExist) {
-      const w = new MultisigHDWallet();
-      w.setM(m);
-      switch (format) {
-        case MultisigHDWallet.FORMAT_P2WSH:
-          w.setNativeSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-          w.setWrappedSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH:
-          w.setLegacy();
-          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
-          break;
-        default:
-          throw new Error('This should never happen');
-      }
+      const w = generateMultiSig();
       for (const cc of cosigners) {
         if (cc[0] === '') {
           const fp = cc[1];
@@ -165,25 +147,7 @@ const WalletsAddMultisigStep2 = () => {
       w.setLabel(walletLabel);
       addWallet(w);
     } else {
-      const w = new MultisigHDWallet();
-      w.setM(m);
-      switch (format) {
-        case MultisigHDWallet.FORMAT_P2WSH:
-          w.setNativeSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH:
-        case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
-          w.setWrappedSegwit();
-          w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
-          break;
-        case MultisigHDWallet.FORMAT_P2SH:
-          w.setLegacy();
-          w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
-          break;
-        default:
-          throw new Error('This should never happen');
-      }
+      const w = generateMultiSig();
       for (const cc of cosigners) {
         const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
         w.addCosigner(cc[0], fp, cc[2], cc[3]);
@@ -200,6 +164,29 @@ const WalletsAddMultisigStep2 = () => {
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
     navigation.dangerouslyGetParent().goBack();
+  };
+
+  const generateMultiSig = () => {
+    const w = new MultisigHDWallet();
+    w.setM(m);
+    switch (format) {
+      case MultisigHDWallet.FORMAT_P2WSH:
+        w.setNativeSegwit();
+        w.setDerivationPath(MultisigHDWallet.PATH_NATIVE_SEGWIT);
+        break;
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH:
+      case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT:
+        w.setWrappedSegwit();
+        w.setDerivationPath(MultisigHDWallet.PATH_WRAPPED_SEGWIT);
+        break;
+      case MultisigHDWallet.FORMAT_P2SH:
+        w.setLegacy();
+        w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
+        break;
+      default:
+        throw new Error('This should never happen');
+    }
+    return w;
   };
 
   const generateNewKey = () => {
@@ -225,11 +212,15 @@ const WalletsAddMultisigStep2 = () => {
 
   const skipKey = () => {
     const cosignersCopy = [...cosigners];
-    cosignersCopy.push(['', '00000000', false]);
+    // PLACEHOLDER_COSIGNER is added to the list of cosigners as a placeholder
+    // until the actual keys are shared after coordination.
+    // This allows for the workflow of every participant creating their own key and sharing xpubs afterwards
+    // via airdrop (and tap when implemented)
+    cosignersCopy.push(['PLACEHOLDER_COSIGNER', '00000000', false]);
 
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: '', xpub: '', isLoading: false });
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: '', xpub: 'PLACEHOLDER_COSIGNER', isLoading: false });
     setIsMnemonicsModalVisible(false);
   };
 
@@ -523,7 +514,7 @@ const WalletsAddMultisigStep2 = () => {
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
           rightButton={{
-            disabled: vaultKeyData.isLoading || (cosigners[el.index] && cosigners[el.index][0] === ''),
+            disabled: vaultKeyData.isLoading || (cosigners[el.index] && cosigners[el.index][0] === 'PLACEHOLDER_COSIGNER'),
             text: loc.multisig.share,
             onPress: () => {
               viewKey(cosigners[el.index]);
@@ -560,9 +551,10 @@ const WalletsAddMultisigStep2 = () => {
               button={{
                 onPress: () => {
                   skipKey();
+                  alert(loc.multisig.alert_can_change_placeholder);
                 },
                 buttonType: MultipleStepsListItemButtohType.full,
-                text: 'Skip', // todo use loc
+                text: loc.multisig.skip,
                 disabled: vaultKeyData.isLoading,
               }}
               dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}

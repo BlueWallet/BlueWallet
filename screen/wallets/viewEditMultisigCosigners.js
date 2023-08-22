@@ -253,7 +253,7 @@ const ViewEditMultisigCosigners = () => {
 
   const renderKey = el => {
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
-    const isPlaceHolder = wallet.getCosigner(el.index + 1) === '';
+    const isPlaceHolder = wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER';
 
     let leftText;
     if (isXpub) {
@@ -262,9 +262,11 @@ const ViewEditMultisigCosigners = () => {
       const firstFour = currentAddress.substring(0, 5);
       const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
       leftText = `${firstFour}...${lastFour}`;
+      if (wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER') leftText = 'PLACEHOLDER';
     } else {
       const secret = wallet.getCosigner(el.index + 1).split(' ');
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
+      if (wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER') leftText = 'PLACEHOLDER';
     }
 
     if (isPlaceHolder) {
@@ -284,7 +286,7 @@ const ViewEditMultisigCosigners = () => {
           <MultipleStepsListItem
             showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
             button={{
-              text: 'Insert Xpub', // todo make loc
+              text: loc.multisig.insert_xpub,
               buttonType: MultipleStepsListItemButtohType.full,
               disabled: vaultKeyData.isLoading,
               onPress: () => {
@@ -656,15 +658,13 @@ const ViewEditMultisigCosigners = () => {
       <BottomModal isVisible={isXpubPlaceholderModalVisible} onClose={hideXpubPlaceholderModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
-            {/* todo needs loc */}
-            <BlueTextCentered>Type your xpub</BlueTextCentered>
+            <BlueTextCentered>{loc.multisig.title_write_xpub_below}</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
             {/* {isAdvancedModeEnabledRender && ( */}
             {/*  <> */}
             {/*    <BlueSpacing10 /> */}
             {/*    <View style={styles.row}> */}
-            {/*      /!*todo needs loc*!/ */}
             {/*      <BlueText>{loc.wallets.import_passphrase}</BlueText> */}
             {/*      <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} /> */}
             {/*    </View> */}
