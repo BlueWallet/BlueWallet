@@ -1,6 +1,6 @@
 # Border Wallet Implementation in BlueWallet 
 
-## Features
+## New Border Wallet Features
 - Create new border wallet
    - create entropy grid mnemonic
    - select border pattern and checksum word, support both 12 or 24 seed phrase
