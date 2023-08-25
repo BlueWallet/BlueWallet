@@ -152,8 +152,6 @@ export const BitcoinButton = props => {
   );
 };
 
-<<<<<<< HEAD
-=======
 export const BorderButton = props => {
   const { colors } = useTheme();
   return (
@@ -196,7 +194,6 @@ export const BorderButton = props => {
   );
 };
 
->>>>>>> b89b2402 (add border wallet feature)
 export const VaultButton = props => {
   const { colors } = useTheme();
   return (

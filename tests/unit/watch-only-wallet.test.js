@@ -331,7 +331,6 @@ describe('Watch only wallet', () => {
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
-<<<<<<< HEAD
   it('can import wallet descriptor for BIP84 from Sparrow Wallet', async () => {
     const payload =
       'UR:CRYPTO-OUTPUT/TAADMWTAADDLOLAOWKAXHDCLAXINTOCTFTNNIERONTNYGALYEMAAWPHDAXDIEOWPJEGHKPGMKERHIABDTBLUBNMUMWAAHDCXFHSNBGTSGWSWPTDWVTDIHYHNHPLBBSJEOLSNFZBDIYJLTTPFIMEYTEECKTGSBZBDAHTAADEHOEADAEAOAEAMTAADDYOTADLNCSGHYKAEYKAEYKAOCYFNLBCYGMAXAXAYCYSRRTSPGADLMKBGTD';
@@ -359,8 +358,6 @@ describe('Watch only wallet', () => {
     );
   });
 
-=======
->>>>>>> b89b2402 (add border wallet feature)
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');

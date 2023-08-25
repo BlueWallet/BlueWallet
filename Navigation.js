@@ -45,12 +45,9 @@ import WalletAddresses from './screen/wallets/addresses';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
-<<<<<<< HEAD
-=======
 import EntropyGrid from './screen/wallets/entropyGrid';
 import EntropyGridOfGenGrid from './screen/wallets/entropyGridOfGenGrid';
 import EntropyGridOfFinalWord from './screen/wallets/entropyGridOfFinalWord';
->>>>>>> b89b2402 (add border wallet feature)
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -209,8 +206,6 @@ const AddWalletRoot = () => {
         component={WalletsAddMultisigHelp}
         options={WalletsAddMultisigHelp.navigationOptions(theme)}
       />
-<<<<<<< HEAD
-=======
       <AddWalletStack.Screen name="EntropyGrid" component={EntropyGrid} options={EntropyGrid.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="EntropyGridOfGenGrid"
@@ -222,7 +217,6 @@ const AddWalletRoot = () => {
         component={EntropyGridOfFinalWord}
         options={EntropyGridOfFinalWord.navigationOptions(theme)}
       />
->>>>>>> b89b2402 (add border wallet feature)
     </AddWalletStack.Navigator>
   );
 };

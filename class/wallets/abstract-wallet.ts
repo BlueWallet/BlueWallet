@@ -301,30 +301,6 @@ export class AbstractWallet {
       }
     }
 
-<<<<<<< HEAD
-    // is it output descriptor?
-    if (this.secret.startsWith('wpkh(') || this.secret.startsWith('pkh(') || this.secret.startsWith('sh(')) {
-      const xpubIndex = Math.max(this.secret.indexOf('xpub'), this.secret.indexOf('ypub'), this.secret.indexOf('zpub'));
-      const fpAndPath = this.secret.substring(this.secret.indexOf('(') + 1, xpubIndex);
-      const xpub = this.secret.substring(xpubIndex).replace(/\(|\)/, '');
-      const pathIndex = fpAndPath.indexOf('/');
-      const path = 'm' + fpAndPath.substring(pathIndex);
-      const fp = fpAndPath.substring(0, pathIndex);
-
-      this._derivationPath = path;
-      const mfp = Buffer.from(fp, 'hex').reverse().toString('hex');
-      this.masterFingerprint = parseInt(mfp, 16);
-
-      if (this.secret.startsWith('wpkh(')) {
-        this.secret = this._xpubToZpub(xpub);
-      } else {
-        // nop
-        this.secret = xpub;
-      }
-    }
-
-=======
->>>>>>> b89b2402 (add border wallet feature)
     return this;
   }
 
