@@ -301,6 +301,7 @@ export class AbstractWallet {
       }
     }
 
+<<<<<<< HEAD
     // is it output descriptor?
     if (this.secret.startsWith('wpkh(') || this.secret.startsWith('pkh(') || this.secret.startsWith('sh(')) {
       const xpubIndex = Math.max(this.secret.indexOf('xpub'), this.secret.indexOf('ypub'), this.secret.indexOf('zpub'));
@@ -322,6 +323,8 @@ export class AbstractWallet {
       }
     }
 
+=======
+>>>>>>> b89b2402 (add border wallet feature)
     return this;
   }
 

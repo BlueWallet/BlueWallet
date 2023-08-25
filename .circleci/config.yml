@@ -3,7 +3,11 @@ jobs:
 
   lint:
     docker:
+<<<<<<< HEAD
       - image: cimg/node:16.20.2
+=======
+      - image: cimg/node:16.20.1
+>>>>>>> b89b2402 (add border wallet feature)
 
     working_directory: ~/repo
 
@@ -26,7 +30,11 @@ jobs:
 
   unit:
     docker:
+<<<<<<< HEAD
       - image: cimg/node:16.20.2
+=======
+      - image: cimg/node:16.20.1
+>>>>>>> b89b2402 (add border wallet feature)
 
     working_directory: ~/repo
 
@@ -50,7 +58,11 @@ jobs:
 
   integration:
     docker:
+<<<<<<< HEAD
       - image: cimg/node:16.20.2
+=======
+      - image: cimg/node:16.20.1
+>>>>>>> b89b2402 (add border wallet feature)
 
     working_directory: ~/repo
 

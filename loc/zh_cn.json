@@ -293,6 +293,11 @@
   "wallets": {
     "add_bitcoin": "比特币",
     "add_bitcoin_explain": "简单而强大的比特币钱包",
+<<<<<<< HEAD
+=======
+    "add_border": "边界",
+    "add_border_explain": "快速可靠地记住比特币助记词",
+>>>>>>> b89b2402 (add border wallet feature)
     "add_create": "创建",
     "add_entropy_generated": "产生熵的{gen}个字节",
     "add_entropy_provide": "通过掷骰子提供熵",
@@ -471,5 +476,11 @@
     "type_change": "改变",
     "type_receive": "接收",
     "transactions": "交易"
+<<<<<<< HEAD
+=======
+  },
+  "entropy_grid": {
+    "title": "Entropy Grid Generator"
+>>>>>>> b89b2402 (add border wallet feature)
   }
 }

@@ -266,6 +266,17 @@ const WalletDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const navigateToMnemonicChecker = () => {
+    navigate('AddWalletRoot', {
+      screen: 'EntropyGrid',
+      params: {
+        wallet,
+        entropyType: wallet.entropyType,
+        pageType: 2,
+      },
+    });
+  };
+
   const navigateToWalletExport = () => {
     navigate('WalletExportRoot', {
       screen: 'WalletExport',
@@ -684,6 +695,12 @@ const WalletDetails = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={navigateToLdkViewLogs} testID="LdkLogs" title={loc.lnd.view_logs} />
+                  </>
+                )}
+                {wallet.isBorderWallet && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={navigateToMnemonicChecker} testID="CheckMnenomic" title={loc.wallets.check_mnemonic} />
                   </>
                 )}
                 <BlueSpacing20 />

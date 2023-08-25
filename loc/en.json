@@ -375,6 +375,11 @@
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
+<<<<<<< HEAD
+=======
+    "add_border": "Border",
+    "add_border_explain": "Quickly and reliably memorise Bitcoin seed phrases",
+>>>>>>> b89b2402 (add border wallet feature)
     "add_create": "Create",
     "add_entropy_generated": "{gen} bytes of generated entropy",
     "add_entropy_provide": "Provide entropy via dice rolls",
@@ -467,7 +472,12 @@
     "warning_do_not_disclose": "Warning! Do not disclose.",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
+<<<<<<< HEAD
     "xpub_title": "Wallet XPUB"
+=======
+    "xpub_title": "Wallet XPUB",
+    "check_mnemonic": "Check Mnemonic",
+>>>>>>> b89b2402 (add border wallet feature)
   },
   "multisig": {
     "multisig_vault": "Vault",
@@ -605,5 +615,31 @@
     "who_can_pay_me": "Who can pay me:",
     "purpose": "Reusable and shareable code (BIP47)",
     "not_found": "Payment code not found"
+<<<<<<< HEAD
+=======
+  },
+  "entropy_grid": {
+    "title": "Entropy Grid Generator",
+    "text": "Generate a grid from a BIP39 mnenomic. Then select 11 or 23 words in a pattern on the grid. Note the order of selection is important!",
+    "load_pdf": "Load PDF",
+    "generate_grid": "Generate Grid",
+    "clear_selection": "Clear Selection",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "ok_tips": "The number of selected words in a pattern on the grid must be 11 or 23.",
+    "generate_new": "Generate New",
+    "generate_seed_title": "Entropy Grid Mnemonic",
+    "generate_seed_subtitle": "Generate an entropy grid based on the 12 words provided below.",
+    "generate_seed_ok_tips": "Must generate or fill in the above 12 words and they must included in the BIP39 word list.",
+    "final_word_title": "Border Wallet Mnemonic",
+    "final_word_subtitle": "Input Your First {walletSeedNum} mnenomic",
+    "final_word_number": "Final Word Number",
+    "final_word_valid_type_error": "Final Word Recovery Number must be a number!",
+    "final_word_valid_range_error": "Final Word Recovery Number must be greater than or equal to {min} and less than or equal to {max}!",
+    "final_word_not_include_bip39": "The input word(s) is not included in the BIP39 word list.",
+    "import_title": "Import Entropy Grid",
+    "check_mnemonic_valid": "Mnemonic you memorized is valid.",
+    "check_mnemonic_invalid": "Mnemonic you memorized is invalid."
+>>>>>>> b89b2402 (add border wallet feature)
   }
 }

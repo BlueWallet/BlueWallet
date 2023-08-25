@@ -23,7 +23,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+<<<<<<< HEAD
         classpath("com.android.tools.build:gradle:7.4.2")
+=======
+        classpath('com.android.tools.build:gradle:7.4.2')
+>>>>>>> b89b2402 (add border wallet feature)
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
         classpath 'com.google.gms:google-services:4.3.14'  // Google Services plugin
     	classpath("com.facebook.react:react-native-gradle-plugin")

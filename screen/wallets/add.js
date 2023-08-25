@@ -18,6 +18,7 @@ import {
   BlueListItem,
   LightningButton,
   BitcoinButton,
+  BorderButton,
   VaultButton,
   BlueFormLabel,
   BlueButton,
@@ -25,7 +26,14 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet } from '../../class';
+import {
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  HDSegwitP2SHWallet,
+  LightningCustodianWallet,
+  LightningLdkWallet,
+  BorderWallet,
+} from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
@@ -33,6 +41,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+import { generateSeedGrid } from '../../class/border-wallet-grid';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -42,6 +51,7 @@ const ButtonSelected = Object.freeze({
   OFFCHAIN: Chain.OFFCHAIN,
   VAULT: 'VAULT',
   LDK: 'LDK',
+  BORDER: 'BORDER',
 });
 
 const WalletsAdd = () => {
@@ -57,6 +67,7 @@ const WalletsAdd = () => {
   const { navigate, goBack } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
+  const [selectedBorderIndex, setSelectedBorderIndex] = useState(0);
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -161,8 +172,39 @@ const WalletsAdd = () => {
     } else if (selectedWalletType === ButtonSelected.LDK) {
       setIsLoading(false);
       createLightningLdkWallet(w);
+    } else if (selectedWalletType === ButtonSelected.BORDER) {
+      setIsLoading(false);
+      createBorderWallet(w);
     }
   };
+
+  const createBorderWallet = async wallet => {
+    let entropyType, newGridCells, newGridSeed;
+    if (selectedBorderIndex === 1) {
+      // 19580bit / 2048!
+      entropyType = 'max';
+
+      const { cells, seed } = await generateSeedGrid(entropyType);
+      seed && (newGridSeed = seed);
+      cells && (newGridCells = cells);
+    } else {
+      // 128bit
+      entropyType = '128';
+    }
+
+    wallet = new BorderWallet(entropyType);
+    wallet.setLabel(label || loc.wallets.details_title);
+
+    A(A.ENUM.CREATED_WALLET);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    navigate('EntropyGrid', {
+      wallet,
+      entropyType,
+      pageType: 0,
+      newGridSeed,
+      newGridCells,
+    });
+  }
 
   const createLightningLdkWallet = async wallet => {
     const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);
@@ -230,7 +272,15 @@ const WalletsAdd = () => {
   };
 
   const navigateToImportWallet = () => {
-    navigate('ImportWallet');
+    if (selectedWalletType === ButtonSelected.BORDER && !selectedBorderIndex) {
+      navigate('EntropyGrid', {
+        wallet: null,
+        entropyType: selectedBorderIndex === 0 ? '128' : 'max',
+        pageType: 1,
+      });
+    } else {
+      navigate('ImportWallet');
+    }
   };
 
   const handleOnVaultButtonPressed = () => {
@@ -241,6 +291,11 @@ const WalletsAdd = () => {
   const handleOnBitcoinButtonPressed = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
+  };
+
+  const handleOnBorderButtonPressed = () => {
+    Keyboard.dismiss();
+    setSelectedWalletType(ButtonSelected.BORDER);
   };
 
   const handleOnLightningButtonPressed = () => {
@@ -284,6 +339,7 @@ const WalletsAdd = () => {
             onPress={handleOnBitcoinButtonPressed}
             style={styles.button}
           />
+          <BorderButton active={selectedWalletType === ButtonSelected.BORDER} onPress={handleOnBorderButtonPressed} style={styles.button} />
           <LightningButton
             active={selectedWalletType === ButtonSelected.OFFCHAIN}
             onPress={handleOnLightningButtonPressed}
@@ -355,6 +411,27 @@ const WalletsAdd = () => {
                     />
                   </View>
                 </>
+              );
+            } else if (selectedWalletType === ButtonSelected.BORDER && isAdvancedOptionsEnabled) {
+              return (
+                <View>
+                  <BlueSpacing20 />
+                  <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
+                  <BlueListItem
+                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
+                    bottomDivider={false}
+                    onPress={() => setSelectedBorderIndex(0)}
+                    title={BorderWallet.typesOfEntropy[0]}
+                    checkmark={selectedBorderIndex === 0}
+                  />
+                  <BlueListItem
+                    containerStyle={[styles.noPadding, stylesHook.noPadding]}
+                    bottomDivider={false}
+                    onPress={() => setSelectedBorderIndex(1)}
+                    title={BorderWallet.typesOfEntropy[1]}
+                    checkmark={selectedBorderIndex === 1}
+                  />
+                </View>
               );
             }
           })()}

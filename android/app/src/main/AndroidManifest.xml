@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
   android:installLocation="auto"
   package="io.bluewallet.bluewallet">
+=======
+  android:installLocation="auto">
+>>>>>>> b89b2402 (add border wallet feature)
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>

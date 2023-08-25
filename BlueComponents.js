@@ -152,6 +152,51 @@ export const BitcoinButton = props => {
   );
 };
 
+<<<<<<< HEAD
+=======
+export const BorderButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: (props.active && colors.newBlue) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
+          marginBottom: 8,
+        }}
+      >
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image style={{ width: 40, height: 22, marginRight: 8 }} source={require('./img/addWallet/border_wallet.png')} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+              {loc.wallets.add_border}
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              {loc.wallets.add_border_explain}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+>>>>>>> b89b2402 (add border wallet feature)
 export const VaultButton = props => {
   const { colors } = useTheme();
   return (
