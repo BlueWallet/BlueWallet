@@ -210,7 +210,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
       if (!bip39.validateMnemonic(key) && key !== 'PLACEHOLDER_COSIGNER') throw new Error('Not a valid mnemonic phrase');
       fingerprint =
-        fingerprint !== false && key !== '' ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
+        fingerprint !== false && key !== 'PLACEHOLDER_COSIGNER' ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase) : '00000000';
     }
 
     if (fingerprint && this._cosignersFingerprints.indexOf(fingerprint.toUpperCase()) !== -1 && fingerprint !== '00000000') {
@@ -450,6 +450,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ret += '\n';
 
     for (let index = 0; index < this.getN(); index++) {
+      if (this._cosigners[index] === 'PLACEHOLDER_COSIGNER') continue
       if (
         this._cosignersCustomPaths[index] &&
         ((printedGlobalDerivation && this._cosignersCustomPaths[index] !== this.getDerivationPath()) || !printedGlobalDerivation)
@@ -462,17 +463,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
         if (coordinationSetup) {
-          if (this._cosigners[index] !== '') {
-            const xpub = this.convertXpubToMultisignatureXpub(
-              MultisigHDWallet.seedToXpub(
-                this._cosigners[index],
-                this._cosignersCustomPaths[index] || this._derivationPath,
-                this._cosignersPassphrases[index],
-              ),
-            );
-            const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
-            ret += fingerprint + ': ' + xpub + '\n';
-          }
+          const xpub = this.convertXpubToMultisignatureXpub(
+            MultisigHDWallet.seedToXpub(
+              this._cosigners[index],
+              this._cosignersCustomPaths[index] || this._derivationPath,
+              this._cosignersPassphrases[index],
+            ),
+          );
+          const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
+          ret += fingerprint + ': ' + xpub + '\n';
         } else {
           ret += 'seed: ' + this._cosigners[index];
           if (this._cosignersPassphrases[index]) ret += ' - ' + this._cosignersPassphrases[index];
@@ -847,7 +846,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   howManySignaturesCanWeMake() {
     let howManyPrivKeysWeGot = 0;
     for (const cosigner of this._cosigners) {
-      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== '') howManyPrivKeysWeGot++;
+      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== 'PLACEHOLDER_COSIGNER') howManyPrivKeysWeGot++;
     }
 
     return howManyPrivKeysWeGot;
