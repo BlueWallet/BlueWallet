@@ -466,7 +466,7 @@ const WalletsAddMultisigStep2 = () => {
     return (
       <View>
         <MultipleStepsListItem
-          circledText={el.index + 1}
+          circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
