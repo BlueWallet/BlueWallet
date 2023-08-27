@@ -375,11 +375,8 @@
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
-<<<<<<< HEAD
-=======
     "add_border": "Border",
     "add_border_explain": "Quickly and reliably memorise Bitcoin seed phrases",
->>>>>>> b89b2402 (add border wallet feature)
     "add_create": "Create",
     "add_entropy_generated": "{gen} bytes of generated entropy",
     "add_entropy_provide": "Provide entropy via dice rolls",
@@ -472,12 +469,8 @@
     "warning_do_not_disclose": "Warning! Do not disclose.",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
-<<<<<<< HEAD
-    "xpub_title": "Wallet XPUB"
-=======
     "xpub_title": "Wallet XPUB",
     "check_mnemonic": "Check Mnemonic",
->>>>>>> b89b2402 (add border wallet feature)
   },
   "multisig": {
     "multisig_vault": "Vault",
@@ -615,8 +608,6 @@
     "who_can_pay_me": "Who can pay me:",
     "purpose": "Reusable and shareable code (BIP47)",
     "not_found": "Payment code not found"
-<<<<<<< HEAD
-=======
   },
   "entropy_grid": {
     "title": "Entropy Grid Generator",
@@ -640,6 +631,5 @@
     "import_title": "Import Entropy Grid",
     "check_mnemonic_valid": "Mnemonic you memorized is valid.",
     "check_mnemonic_invalid": "Mnemonic you memorized is invalid."
->>>>>>> b89b2402 (add border wallet feature)
   }
 }
