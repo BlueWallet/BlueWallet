@@ -6,10 +6,11 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { generateSeedGrid, wordList, regenerateSeedGrid } from '../../class/border-wallet-grid';
+import { PageTypes } from './entropyGrid';
 
 const EntropyGridOfGenGrid = () => {
   const { navigate, goBack } = useNavigation();
-  const { wallet, entropyType, pageType } = useRoute().params; // pageType: 0 - create / 1 - import / 2 - check
+  const { wallet, entropyType, pageType } = useRoute().params;
   const { colors } = useTheme();
   const [seedValues, setSeedValues] = useState(Array(12).fill(''));
   const [gridCells, setGridCells] = useState([]);
@@ -38,7 +39,7 @@ const EntropyGridOfGenGrid = () => {
       let cells = gridCells;
 
       // just 128bit
-      if (pageType !== 0) {
+      if (pageType !== PageTypes.CREATE) {
         const { cells: importCells, error } = regenerateSeedGrid(seedValues);
         if (error) {
           Alert.alert('Warning', error);
@@ -83,8 +84,8 @@ const EntropyGridOfGenGrid = () => {
                     textErrorStyle={styles.textErrorStyle}
                     label={`${idx + 1}.`}
                     onChangeText={val => (seedValues[idx] = val.trim().toLowerCase())}
-                    readOnly={pageType === 0}
-                    showIcon={pageType !== 0}
+                    readOnly={pageType === PageTypes.CREATE}
+                    showIcon={pageType !== PageTypes.CREATE}
                   />
                 );
               })}
@@ -96,7 +97,7 @@ const EntropyGridOfGenGrid = () => {
           testID="EntropyGridSeedGenNew"
           onPress={handleGenNewButton}
           title={loc.entropy_grid.generate_new}
-          disabled={pageType !== 0}
+          disabled={pageType !== PageTypes.CREATE}
         />
         <BlueButton testID="EntropyGridSeedCancel" onPress={handleCancelButton} title={loc.entropy_grid.cancel} />
         <BlueButton testID="EntropyGridSeedOK" onPress={handleOKButton} title={loc.entropy_grid.ok} />

@@ -7,6 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { wordList, getFinalWordNumber, generateFinalWord } from '../../class/border-wallet-grid';
+import { PageTypes } from './entropyGrid';
 
 const EntropyGridOfFinalWord = () => {
   const { goBack, dangerouslyGetParent, navigate } = useNavigation();
@@ -38,7 +39,7 @@ const EntropyGridOfFinalWord = () => {
   const init = async () => {
     let checksum = '';
 
-    if (!pageType) {
+    if (pageType === PageTypes.CREATE) {
       const finalwordNum = await getFinalWordNumber(walletSeedNum);
       setFinalWordNumber(finalwordNum.toString());
       const { checksum: fw, error } = await generateFinalWord(patternWords, finalwordNum);
@@ -63,9 +64,9 @@ const EntropyGridOfFinalWord = () => {
     if (seedValues.every(x => wordList.includes(x))) {
       const mnemonic = seedValues.join(' ');
 
-      if (pageType === 1) {
+      if (pageType === PageTypes.IMPORT) {
         navigate('ImportWalletDiscovery', { importText: mnemonic, askPassphrase: false, searchAccounts: false });
-      } else if (pageType === 2) {
+      } else if (pageType === PageTypes.CHECK) {
         if (mnemonic === wallet.secret) {
           Alert.alert('Success', loc.entropy_grid.check_mnemonic_valid);
           dangerouslyGetParent().pop();

@@ -33,3 +33,9 @@ if (typeof localStorage !== 'undefined') {
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
 require('crypto');
+
+// used in border wallet feature, the feature will use the jspdf library,
+// which needs the atob and btoa functions of Base64, so associate them with window object here
+const base64 = require('Base64');
+window.atob = base64.atob;
+window.btoa = base64.btoa;

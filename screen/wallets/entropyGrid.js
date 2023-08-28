@@ -6,14 +6,16 @@ import loc from '../../loc';
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { saveGrid, wordList, getCellsByLoadingPdf } from '../../class/border-wallet-grid';
 import EntropyGridTable from './entropyGridTable';
-import * as base64 from 'Base64';
 
-window.atob = base64.atob;
-window.btoa = base64.btoa;
+export const PageTypes = Object.freeze({
+  CREATE: 0,
+  IMPORT: 1,
+  CHECK: 2,
+});
 
 const EntropyGrid = () => {
   const { navigate, goBack } = useNavigation();
-  const { wallet, entropyType, pageType, newGridSeed, newGridCells } = useRoute().params; // pageType: 0 - create / 1 - import / 2 - check
+  const { wallet, entropyType, pageType, newGridSeed, newGridCells } = useRoute().params;
   const { colors } = useTheme();
   const [patternOfGrid, setPatternOfGrid] = useState({});
   const [gridCells, setGridCells] = useState(Array(16 * 24).fill(''));
@@ -31,7 +33,7 @@ const EntropyGrid = () => {
     handleClearSelectionButton();
     newGridCells && setGridCells(newGridCells);
     newGridSeed && setGridSeed(newGridSeed);
-    if (newGridCells && newGridCells.length === 2048 && !pageType) {
+    if (newGridCells && newGridCells.length === 2048 && pageType === PageTypes.CREATE) {
       saveGrid(newGridCells, newGridSeed);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +91,7 @@ const EntropyGrid = () => {
               testID="EntropyGridLoadPdf"
               onPress={handleLoadPdfButton}
               title={loc.entropy_grid.load_pdf}
-              disabled={pageType === 0}
+              disabled={pageType === PageTypes.CREATE}
             />
             <BlueButton
               testID="EntropyGridGenGrid"

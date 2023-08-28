@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 
@@ -24,11 +24,11 @@ export default class EntropyGridTable extends Component {
       <View style={styles.container}>
         <ScrollView horizontal={true}>
           <View>
-            <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
+            <Table borderStyle={styles.table}>
               <Row data={colHeadData} widthArr={colHeadWidthArr} style={styles.header} textStyle={styles.text} />
             </Table>
             <ScrollView style={styles.dataWrapper}>
-              <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
+              <Table borderStyle={styles.table}>
                 {cellData.map((r, i) => (
                   <TableWrapper key={i} style={styles.wrapper}>
                     <Cell key={`r-${i}-c-0`} data={rowHeadData[i]} style={{ width: cellWith }} textStyle={styles.text} />
@@ -72,10 +72,19 @@ const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
   },
+  table: {
+    borderWidth: 1, 
+    borderColor: '#C1C0B9',
+  }
 });
 
 const CellElement = ({ data, pattern, setPattern }) => {
   const [isChange, setIsChange] = useState(false);
+  const [bgColor, setBgColor] = useState('#fff');
+
+  useEffect(() => {
+    setBgColor(isChange ? '#ff7300' : '#fff');
+  }, [isChange]);
 
   const handleCellPress = () => {
     const dataIndex = Object.keys(pattern).findIndex(x => x === data);
@@ -87,7 +96,7 @@ const CellElement = ({ data, pattern, setPattern }) => {
   };
 
   return (
-    <TouchableOpacity style={{ backgroundColor: isChange ? '#ff7300' : '#fff' }} onPress={() => data && handleCellPress()}>
+    <TouchableOpacity style={{ backgroundColor: bgColor }} onPress={() => data && handleCellPress()}>
       <View style={styles.text}>
         <Text>{data}</Text>
       </View>

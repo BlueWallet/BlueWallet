@@ -45,6 +45,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import alert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { PageTypes } from './entropyGrid';
 
 const prompt = require('../../helpers/prompt');
 
@@ -272,7 +273,7 @@ const WalletDetails = () => {
       params: {
         wallet,
         entropyType: wallet.entropyType,
-        pageType: 2,
+        pageType: PageTypes.CHECK,
       },
     });
   };

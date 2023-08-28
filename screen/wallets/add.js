@@ -42,6 +42,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
 import { generateSeedGrid } from '../../class/border-wallet-grid';
+import { PageTypes } from './entropyGrid';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -200,7 +201,7 @@ const WalletsAdd = () => {
     navigate('EntropyGrid', {
       wallet,
       entropyType,
-      pageType: 0,
+      pageType: PageTypes.CREATE,
       newGridSeed,
       newGridCells,
     });
@@ -276,7 +277,7 @@ const WalletsAdd = () => {
       navigate('EntropyGrid', {
         wallet: null,
         entropyType: selectedBorderIndex === 0 ? '128' : 'max',
-        pageType: 1,
+        pageType: PageTypes.IMPORT,
       });
     } else {
       navigate('ImportWallet');
