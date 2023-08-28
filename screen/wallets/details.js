@@ -633,7 +633,7 @@ const WalletDetails = () => {
               </View>
             </BlueCard>
             {wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? (
-              !(wallet.type === MultisigHDWallet.type) ? (
+              (wallet.type !== MultisigHDWallet.type) ? (
                 <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
               ) : (
                 wallet.isWalletHasAllTheKeys() && (
