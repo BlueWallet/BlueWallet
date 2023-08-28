@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   table: {
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: '#C1C0B9',
-  }
+  },
 });
 
 const CellElement = ({ data, pattern, setPattern }) => {
@@ -89,9 +89,9 @@ const CellElement = ({ data, pattern, setPattern }) => {
   const handleCellPress = () => {
     const dataIndex = Object.keys(pattern).findIndex(x => x === data);
     if (dataIndex === -1) {
-      pattern[data] = setIsChange
-      setPattern(pattern)
-      setIsChange(true)
+      pattern[data] = setIsChange;
+      setPattern(pattern);
+      setIsChange(true);
     }
   };
 

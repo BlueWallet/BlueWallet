@@ -19,7 +19,7 @@ const EntropyGrid = () => {
   const { colors } = useTheme();
   const [patternOfGrid, setPatternOfGrid] = useState({});
   const [gridCells, setGridCells] = useState(Array(16 * 24).fill(''));
-  const [gridSeed, setGridSeed] = useState([]);
+  const [setGridSeed] = useState([]);
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.elevated,

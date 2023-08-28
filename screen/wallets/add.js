@@ -205,7 +205,7 @@ const WalletsAdd = () => {
       newGridSeed,
       newGridCells,
     });
-  }
+  };
 
   const createLightningLdkWallet = async wallet => {
     const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);

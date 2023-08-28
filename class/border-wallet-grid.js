@@ -30,13 +30,16 @@ function Mash() {
       for (let i = 0; i < data.length; i++) {
         n += data.charCodeAt(i);
         let h = 0.02519603282416938 * n;
+        // eslint-disable-next-line no-bitwise
         n = h >>> 0;
         h -= n;
         h *= n;
+        // eslint-disable-next-line no-bitwise
         n = h >>> 0;
         h -= n;
         n += h * 0x100000000; // 2^32
       }
+      // eslint-disable-next-line no-bitwise
       return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
     } else n = 0xefc8249d;
   };
@@ -54,13 +57,16 @@ function uheprng() {
     function rawprng() {
       if (++p >= o) p = 0;
       const t = 1768863 * s[p] + c * 2.3283064365386963e-10;
+      // eslint-disable-next-line no-bitwise
       return (s[p] = t - (c = t | 0));
     }
     const random = function (range = 2) {
+      // eslint-disable-next-line no-bitwise
       return Math.floor(range * (rawprng() + ((rawprng() * 0x200000) | 0) * 1.1102230246251565e-16));
     };
     random.cleanString = function (inStr = '') {
       inStr = inStr.replace(/(^\s*)|(\s*$)/gi, '');
+      // eslint-disable-next-line no-control-regex
       inStr = inStr.replace(/[\x00-\x1F]/gi, '');
       inStr = inStr.replace(/\n /, '\n');
       return inStr;
@@ -206,7 +212,7 @@ export const saveGrid = (cells, seed, typeOfGrid = 'char') => {
     })
     .text(recovery, 105, 285, {
       align: 'center',
-    })
+    });
 
   fs.writeFileAndExport(`BorderWallet${gridType}Grid.pdf`, doc.output());
 };
@@ -245,10 +251,10 @@ export const regenerateSeedGrid = (gridSeed, gridType = 'char') => {
       shuffle(words, mnemonic);
       cells = words.map(getCellValue[gridType]);
     } else {
-      error = 'Grid Seed has invalid word(s).'
+      error = 'Grid Seed has invalid word(s).';
     }
   } else {
-    error = 'Grid Seed must be 12 words.'
+    error = 'Grid Seed must be 12 words.';
   }
 
   return { cells, seed: mnemonic, error };
@@ -276,7 +282,7 @@ const validWalletSeedAndEntropy = (walletSeedsNumber, finalWordNumber) => {
   }
 
   return isValid;
-}
+};
 
 /**
  * generate final word
@@ -292,6 +298,7 @@ export const generateFinalWord = async (walletSeeds, finalWordNumber) => {
     if (words.every(x => wordList.includes(x))) {
       const numWords = words.length;
       const entLength = 11 - (numWords + 1) / 3;
+      // eslint-disable-next-line radix
       const entBits = (parseInt(finalWordNumber) - 1)
         .toString(2)
         .padStart(8, '0')
@@ -307,13 +314,13 @@ export const generateFinalWord = async (walletSeeds, finalWordNumber) => {
       const wordIsValid = wordList.includes(lastWord);
       checksum = wordIsValid ? lastWord : '';
     } else {
-      error = 'Wallet Seed has invalid word(s).'
+      error = 'Wallet Seed has invalid word(s).';
     }
   } else {
-    error = 'The wallet seed must be 11 or 23 words and the final word number must also meet the range requirements.'
+    error = 'The wallet seed must be 11 or 23 words and the final word number must also meet the range requirements.';
   }
 
-  return { checksum, error};
+  return { checksum, error };
 };
 
 /**
@@ -346,7 +353,7 @@ export const getCellsByLoadingPdf = async () => {
     const filter2 = /[a-z]{3,4}/g;
 
     cells = pdf.match(filter1)?.join('').match(filter2);
-  } 
+  }
 
-  return { cells }
-}
+  return { cells };
+};
