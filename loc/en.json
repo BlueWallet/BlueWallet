@@ -470,7 +470,7 @@
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
-    "check_mnemonic": "Check Mnemonic",
+    "check_mnemonic": "Check Mnemonic"
   },
   "multisig": {
     "multisig_vault": "Vault",
