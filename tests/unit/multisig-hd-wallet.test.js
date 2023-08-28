@@ -966,6 +966,39 @@ describe('multisig-wallet (native segwit)', () => {
     assert.ok(MultisigHDWallet.isXpubString(w3.getCosigner(2)) && MultisigHDWallet.isXpubValid(w3.getCosigner(2)));
   });
 
+  it('make sure placeholder is properly handled', () => {
+    const path = "m/48'/0'/0'/2'";
+
+    const w = new MultisigHDWallet();
+    w.addCosigner("PLACEHOLDER_COSIGNER");
+    w.addCosigner("PLACEHOLDER_COSIGNER");
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    const ww = new MultisigHDWallet();
+    ww.setSecret(w.getSecret());
+
+    assert.throws(ww._getExternalAddressByIndex(0));
+    assert.throws(ww._getInternalAddressByIndex(0));
+
+    assert.strictEqual(ww.getM(), 2);
+    assert.strictEqual(ww.getN(), 2);
+    assert.strictEqual(ww.howManySignaturesCanWeMake(), 0);
+
+    assert.strictEqual(w.getID(), ww.getID());
+    assert.ok(w.getID() !== new MultisigHDWallet().getID());
+
+    // now, exporting coordination setup:
+
+    const w3 = new MultisigHDWallet();
+    w3.setSecret(ww.getXpub());
+    assert.throws(w3._getExternalAddressByIndex(0));
+    assert.throws(w3._getInternalAddressByIndex(0));
+    assert.strictEqual(w3.getM(), 2);
+    assert.strictEqual(w3.getN(), 2);
+    assert.strictEqual(w3.howManySignaturesCanWeMake(), 0);
+  });
+
   it('can coordinate tx creation and cosign 1 of 2', async () => {
     const path = "m/48'/0'/0'/2'";
 
