@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
+    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {

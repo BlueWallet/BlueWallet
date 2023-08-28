@@ -38,7 +38,7 @@ const LNDCreateInvoice = () => {
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { name } = useRoute();
   const { colors } = useTheme();
-  const { navigate, dangerouslyGetParent, goBack, pop, setParams } = useNavigation();
+  const { navigate, getParent, goBack, pop, setParams } = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
   const [amount, setAmount] = useState();
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState(false);
@@ -119,7 +119,7 @@ const LNDCreateInvoice = () => {
           BlueAlertWalletExportReminder({
             onSuccess: () => renderReceiveDetails(),
             onFailure: () => {
-              dangerouslyGetParent().pop();
+              getParent().pop();
               NavigationService.navigate('WalletExportRoot', {
                 screen: 'WalletExport',
                 params: {

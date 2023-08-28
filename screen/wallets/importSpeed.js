@@ -61,7 +61,7 @@ const WalletsImportSpeed = () => {
       wallet.setSecret(importText);
       if (passphrase) wallet.setPassphrase(passphrase);
       await wallet.fetchBalance();
-      navigation.dangerouslyGetParent().pop();
+      navigation.getParent().pop();
       addAndSaveWallet(wallet);
     } catch (e) {
       Alert.alert(e.message);

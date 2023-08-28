@@ -17,7 +17,7 @@ const PleaseBackupLdk = () => {
   const { colors } = useTheme();
   const { height, width } = useWindowDimensions();
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
 
@@ -46,7 +46,7 @@ const PleaseBackupLdk = () => {
     };
   }, [handleBackButton]);
 
-  const pop = () => navigation.dangerouslyGetParent().pop();
+  const pop = () => navigation.getParent().pop();
   return (
     <SafeBlueArea style={styles.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
