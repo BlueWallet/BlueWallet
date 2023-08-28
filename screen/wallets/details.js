@@ -206,8 +206,9 @@ const WalletDetails = () => {
 
   useLayoutEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -224,7 +225,7 @@ const WalletDetails = () => {
   }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
-    if (wallets.some(wallet => wallet.getID() === walletID)) {
+    if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWallet(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -371,7 +372,7 @@ const WalletDetails = () => {
         buttonPositive: loc._.ok,
       });
 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
@@ -433,9 +434,20 @@ const WalletDetails = () => {
 
     for (const transaction of transactions) {
       const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-      csvFile +=
-        '\n' +
-        [new Date(transaction.received).toString(), transaction.hash, value, txMetadata[transaction.hash]?.memo?.trim() ?? ''].join(','); // CSV line
+
+      let hash = transaction.hash;
+      let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        hash = transaction.payment_hash;
+        memo = transaction.description;
+
+        if (hash?.type === 'Buffer' && hash?.data) {
+          const bb = Buffer.from(hash);
+          hash = bb.toString('hex');
+        }
+      }
+      csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
     }
 
     await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
@@ -535,10 +547,9 @@ const WalletDetails = () => {
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
                   <BlueText>
-                    {loc.formatString(loc.wallets[`details_ms_${wallet.isNativeSegwit() ? 'ns' : wallet.isWrappedSegwit() ? 'ws' : 'l'}`], {
-                      m: wallet.getM(),
-                      n: wallet.getN(),
-                    })}
+                    {`${wallet.getM()} / ${wallet.getN()} (${
+                      wallet.isNativeSegwit() ? 'native segwit' : wallet.isWrappedSegwit() ? 'wrapped segwit' : 'legacy'
+                    })`}
                   </BlueText>
                 </>
               )}
@@ -629,7 +640,7 @@ const WalletDetails = () => {
               <View>
                 <BlueSpacing20 />
                 <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
-                {wallet.chain === Chain.ONCHAIN && walletTransactionsLength > 0 && (
+                {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />

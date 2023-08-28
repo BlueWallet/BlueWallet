@@ -1,7 +1,7 @@
 import b58 from 'bs58check';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');

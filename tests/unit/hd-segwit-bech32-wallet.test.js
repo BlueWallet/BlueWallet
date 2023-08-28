@@ -257,4 +257,25 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getExternalAddressByIndex(0), 'bc1q3gsf7a6es9603g9a2k50lqxxxtd7x9pt7r5z9s');
     assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1q3ugpcustjrtt806uc5kqutlv5ue5sv0cfcr93c');
   });
+
+  it('can import from standard SeedQR', () => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret('008607501025021714880023171503630517020917211425');
+    assert.strictEqual(hd.getSecret(), 'approve fruit lens brass ring actual stool coin doll boss strong rate');
+    assert.ok(hd.validateMnemonic());
+
+    const hd2 = new HDSegwitBech32Wallet();
+    hd2.setSecret('075707570757075700000000043911730136013601360757');
+    assert.strictEqual(hd2.getSecret(), 'gadget gadget gadget gadget abandon abandon dad naive baby baby baby gadget');
+    assert.ok(hd2.validateMnemonic());
+
+    const hd3 = new HDSegwitBech32Wallet();
+    hd3.setSecret('0757075707570757000000000439117301360136013607'); // invalid length
+    assert.ok(!hd3.validateMnemonic());
+
+    const hd4 = new HDSegwitBech32Wallet();
+    hd4.setSecret('07570757075707abcdef0000043911730136013601360757'); // invalid symbols
+
+    assert.ok(!hd4.validateMnemonic());
+  });
 });

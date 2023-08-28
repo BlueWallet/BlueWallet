@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
-import { CameraScreen, Camera } from 'react-native-camera-kit';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert, PermissionsAndroid } from 'react-native';
+import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
-import { openPrivacyDesktopSettings } from '../../class/camera';
+import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
 import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -79,12 +78,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const CameraAuthStatus = Object.freeze({
-  AUTHORIZED: 'AUTHORIZED',
-  NOT_AUTHORIZED: 'NOT_AUTHORIZED',
-  UNKNOWN: 'UNKNOWN',
-});
-
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
@@ -94,13 +87,13 @@ const ScanQRCode = () => {
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
-  const [cameraStatus, setCameraStatus] = useState(CameraAuthStatus.UNKNOWN);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const [urTotal, setUrTotal] = useState(0);
   const [urHave, setUrHave] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
+  const [cameraStatus, setCameraStatus] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -113,38 +106,37 @@ const ScanQRCode = () => {
       color: colors.foregroundColor,
     },
   });
-  const HashIt = function (s) {
-    return createHash('sha256').update(s).digest().toString('hex');
-  };
 
   useEffect(() => {
     (async () => {
-      if (Platform.OS !== 'ios' && Platform.OS !== 'macos') {
-        return;
-      }
-      let isUserAuthorizedCamera;
-      const isCameraAuthorized = await Camera.checkDeviceCameraAuthorizationStatus();
-      switch (isCameraAuthorized) {
-        case true:
-          setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          break;
-        case false:
-          setCameraStatus(CameraAuthStatus.NOT_AUTHORIZED);
-          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-          if (isUserAuthorizedCamera) {
-            setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          }
-          break;
-        case -1:
-          setCameraStatus(CameraAuthStatus.UNKNOWN);
-          isUserAuthorizedCamera = await Camera.requestDeviceCameraAuthorization();
-          if (isUserAuthorizedCamera) {
-            setCameraStatus(CameraAuthStatus.AUTHORIZED);
-          }
-          break;
+      try {
+        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+          setCameraStatus(true);
+          return;
+        }
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
+          title: '',
+          message: loc.send.permission_camera_message,
+          buttonNeutral: loc.send.permission_storage_later,
+          buttonNegative: loc._.no,
+          buttonPositive: loc._.yes,
+        });
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('You can use the camera');
+          setCameraStatus(true);
+        } else {
+          console.log('Camera permission denied');
+          setCameraStatus(false);
+        }
+      } catch (err) {
+        console.warn(err);
       }
     })();
   }, []);
+
+  const HashIt = function (s) {
+    return createHash('sha256').update(s).digest().toString('hex');
+  };
 
   const _onReadUniformResourceV2 = part => {
     if (!decoder) decoder = new BlueURDecoder();
@@ -164,16 +156,20 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            setIsLoading(false);
+      Alert.alert(
+        loc.send.scan_error,
+        loc._.invalid_animated_qr_code_fragment,
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              setIsLoading(false);
+            },
+            style: 'default',
           },
-          style: 'default',
-        },
+        ],
         { cancelabe: false },
-      ]);
+      );
     }
   };
 
@@ -208,16 +204,20 @@ const ScanQRCode = () => {
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
-      Alert.alert(loc.send.scan_error, loc._.invalid_animated_qr_code_fragment, [
-        {
-          text: loc._.ok,
-          onPress: () => {
-            setIsLoading(false);
+      Alert.alert(
+        loc.send.scan_error,
+        loc._.invalid_animated_qr_code_fragment,
+        [
+          {
+            text: loc._.ok,
+            onPress: () => {
+              setIsLoading(false);
+            },
+            style: 'default',
           },
-          style: 'default',
-        },
+        ],
         { cancelabe: false },
-      ]);
+      );
     }
   };
 
@@ -234,6 +234,10 @@ const ScanQRCode = () => {
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-PSBT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
       return _onReadUniformResourceV2(ret.data);
     }
 
@@ -334,16 +338,9 @@ const ScanQRCode = () => {
   ) : (
     <View style={styles.root}>
       <StatusBar hidden />
-      {isFocused && cameraStatus !== CameraAuthStatus.NOT_AUTHORIZED && (
+      {isFocused && cameraStatus ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
-      )}
-      {cameraStatus === CameraAuthStatus.NOT_AUTHORIZED && (
-        <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
-          <BlueText>{loc.send.permission_camera_message}</BlueText>
-          <BlueSpacing40 />
-          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
-        </View>
-      )}
+      ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
       </TouchableOpacity>

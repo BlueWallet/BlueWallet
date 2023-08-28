@@ -81,8 +81,8 @@ const LdkInfo = () => {
         setChannels([]);
       }
       if (listChannels && Array.isArray(listChannels)) {
-        const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
-        setInactiveChannels(inactiveChannels);
+        const inactive = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
+        setInactiveChannels(inactive);
       } else {
         setInactiveChannels([]);
       }

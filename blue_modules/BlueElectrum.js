@@ -49,8 +49,10 @@ async function _getRealm() {
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
 const hardcodedPeers = [
+  { host: 'mainnet.foundationdevices.com', ssl: '50002' },
+  { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+  { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
   { host: 'electrum1.bluewallet.io', ssl: '443' },
-  { host: 'electrum2.bluewallet.io', ssl: '443' },
   { host: 'electrum.acinq.co', ssl: '50002' },
   { host: 'electrum.bitaroo.net', ssl: '50002' },
 ];
@@ -70,18 +72,18 @@ let latestBlockheightTimestamp = false;
 const txhashHeightCache = {};
 
 async function isDisabled() {
-  let isDisabled;
+  let result;
   try {
     const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
     if (savedValue === null) {
-      isDisabled = false;
+      result = false;
     } else {
-      isDisabled = savedValue;
+      result = savedValue;
     }
   } catch {
-    isDisabled = false;
+    result = false;
   }
-  return !!isDisabled;
+  return !!result;
 }
 
 async function setDisabled(disabled = true) {
@@ -149,8 +151,26 @@ async function connectMain() {
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
-        // TODO: once they release support for batching - disable batching only for lower versions
         disableBatching = true;
+
+        // exeptions for versions:
+        const [electrumImplementation, electrumVersion] = ver[0].split(' ');
+        switch (electrumImplementation) {
+          case 'electrs':
+            if (semVerToInt(electrumVersion) >= semVerToInt('0.9.0')) {
+              disableBatching = false;
+            }
+            break;
+          case 'electrs-esplora':
+            // its a different one, and it does NOT support batching
+            // nop
+            break;
+          case 'Fulcrum':
+            if (semVerToInt(electrumVersion) >= semVerToInt('1.9.0')) {
+              disableBatching = false;
+            }
+            break;
+        }
       }
       const header = await mainClient.blockchainHeaders_subscribe();
       if (header && header.height) {
@@ -286,7 +306,7 @@ async function getSavedPeer() {
  *
  * @returns {Promise<{tcp: number, host: string}>}
  */
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getRandomDynamicPeer() {
   try {
     let peers = JSON.parse(await AsyncStorage.getItem(storageKey));
@@ -656,8 +676,8 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
               let tx = await mainClient.blockchainTransaction_get(txid, false);
               tx = txhexToElectrumTransaction(tx);
               results.push({ result: tx, param: txid });
-            } catch (_) {
-              console.log(_);
+            } catch (error) {
+              console.log(error);
             }
           }
         } else {
@@ -672,8 +692,8 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
                 tx = txhexToElectrumTransaction(tx);
               }
               results.push({ result: tx, param: txid });
-            } catch (_) {
-              console.log(_);
+            } catch (error) {
+              console.log(error);
             }
           }
         }
@@ -697,7 +717,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
 
   // in bitcoin core 22.0.0+ they removed `.addresses` and replaced it with plain `.address`:
   for (const txid of Object.keys(ret) ?? []) {
-    for (const vout of ret[txid].vout ?? []) {
+    for (const vout of ret[txid]?.vout ?? []) {
       if (vout?.scriptPubKey?.address) vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
     }
   }
@@ -974,6 +994,17 @@ const splitIntoChunks = function (arr, chunkSize) {
     groups.push(arr.slice(i, i + chunkSize));
   }
   return groups;
+};
+
+const semVerToInt = function (semver) {
+  if (!semver) return 0;
+  if (semver.split('.').length !== 3) return 0;
+
+  const ret = semver.split('.')[0] * 1000000 + semver.split('.')[1] * 1000 + semver.split('.')[2] * 1;
+
+  if (isNaN(ret)) return 0;
+
+  return ret;
 };
 
 function txhexToElectrumTransaction(txhex) {

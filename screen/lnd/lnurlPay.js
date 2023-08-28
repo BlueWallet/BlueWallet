@@ -102,8 +102,8 @@ const LnurlPay = () => {
     }
   }, [payload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onWalletSelect = wallet => {
-    setParams({ walletID: wallet.getID() });
+  const onWalletSelect = w => {
+    setParams({ walletID: w.getID() });
     pop();
   };
 
@@ -122,7 +122,7 @@ const LnurlPay = () => {
     let amountSats = amount;
     switch (unit) {
       case BitcoinUnit.SATS:
-        amountSats = parseInt(amountSats); // nop
+        amountSats = parseInt(amountSats, 10); // nop
         break;
       case BitcoinUnit.BTC:
         amountSats = currency.btcToSatoshi(amountSats);

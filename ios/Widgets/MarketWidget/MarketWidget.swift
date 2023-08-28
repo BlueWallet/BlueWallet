@@ -78,7 +78,7 @@ struct MarketWidget: Widget {
         MarketWidgetEntryView(entry: entry)
       }
       .configurationDisplayName("Market")
-      .description("View the current market information.").supportedFamilies([.systemSmall, .accessoryRectangular])
+      .description("View the current market information.").supportedFamilies([.systemSmall])
     } else {
       return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
         MarketWidgetEntryView(entry: entry)

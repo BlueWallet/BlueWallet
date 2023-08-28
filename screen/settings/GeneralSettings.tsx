@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, Platform, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const GeneralSettings = () => {
+const GeneralSettings: React.FC = () => {
   const { isAdvancedModeEnabled, setIsAdvancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
     useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,11 +22,11 @@ const GeneralSettings = () => {
   const [isURv1SwitchEnabled, setIsURv1SwitchEnabled] = useState(false);
   const { navigate } = useNavigation();
   const { colors } = useTheme();
-  const onAdvancedModeSwitch = async value => {
+  const onAdvancedModeSwitch = async (value: boolean) => {
     await setIsAdvancedModeEnabled(value);
     setIsAdvancedModeSwitchEnabled(value);
   };
-  const onLegacyURv1Switch = async value => {
+  const onLegacyURv1Switch = async (value: boolean) => {
     setIsURv1SwitchEnabled(value);
     return value ? setUseURv1() : clearUseURv1();
   };
@@ -40,20 +40,12 @@ const GeneralSettings = () => {
   });
 
   const navigateToPrivacy = () => {
+    // @ts-ignore: Fix later
     navigate('SettingsPrivacy');
   };
 
   const stylesWithThemeHook = {
     root: {
-      ...styles.root,
-      backgroundColor: colors.background,
-    },
-    scroll: {
-      ...styles.scroll,
-      backgroundColor: colors.background,
-    },
-    scrollBody: {
-      ...styles.scrollBody,
       backgroundColor: colors.background,
     },
   };
@@ -61,19 +53,22 @@ const GeneralSettings = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <ScrollView style={stylesWithThemeHook.scroll}>
+    <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
       {wallets.length > 1 && (
         <>
+          {/* @ts-ignore: Fix later */}
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
+      {/* @ts-ignore: Fix later */}
       <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       {Platform.OS === 'ios' ? (
         <>
           <BlueListItem
+            // @ts-ignore: Fix later
             hideChevron
             title={loc.settings.general_continuity}
-            Component={TouchableWithoutFeedback}
+            Component={Pressable}
             switch={{ onValueChange: setIsHandOffUseEnabledAsyncStorage, value: isHandOffUseEnabled }}
           />
           <BlueCard>
@@ -83,7 +78,8 @@ const GeneralSettings = () => {
         </>
       ) : null}
       <BlueListItem
-        Component={TouchableWithoutFeedback}
+        // @ts-ignore: Fix later
+        Component={Pressable}
         title={loc.settings.general_adv_mode}
         switch={{ onValueChange: onAdvancedModeSwitch, value: isAdvancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
@@ -91,8 +87,10 @@ const GeneralSettings = () => {
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>
       <BlueSpacing20 />
+      {/* @ts-ignore: Fix later */}
       <BlueListItem
-        Component={TouchableWithoutFeedback}
+        // @ts-ignore: Fix later
+        Component={Pressable}
         title="Legacy URv1 QR"
         switch={{ onValueChange: onLegacyURv1Switch, value: isURv1SwitchEnabled }}
       />
@@ -101,6 +99,7 @@ const GeneralSettings = () => {
   );
 };
 
+// @ts-ignore: Fix later
 GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;

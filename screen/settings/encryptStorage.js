@@ -57,7 +57,6 @@ const EncryptStorage = () => {
       setIsLoading(false);
       setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const onEncryptStorageSwitch = async value => {
@@ -102,7 +101,6 @@ const EncryptStorage = () => {
         { cancelable: false },
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const onUseBiometricSwitch = async value => {
@@ -116,7 +114,6 @@ const EncryptStorage = () => {
       await Biometric.setBiometricUseEnabled(value);
       setBiometrics(isBiometricsEnabled);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
   const navigateToPlausibleDeniability = () => {

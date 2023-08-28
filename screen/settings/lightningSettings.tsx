@@ -6,13 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
-import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 import alert from '../../components/Alert';
+
+const BlueApp = require('../../BlueApp');
+const AppStorage = BlueApp.AppStorage;
 
 const styles = StyleSheet.create({
   uri: {

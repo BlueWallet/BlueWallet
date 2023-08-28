@@ -1,0 +1,69 @@
+{
+  "_": {
+    "bad_password": "Няправільны пароль. Калі ласка, паспрабуйце зноў.",
+    "cancel": "Адмяніць",
+    "continue": "Працягнуць",
+    "clipboard": "Буфер абмену",
+    "enter_password": "Увесьці пароль",
+    "never": "Ніколі",
+    "disabled": "Адключаны",
+    "of": "{number} ад {total}",
+    "ok": "Акей",
+    "storage_is_encrypted": "Ваша сховішча зашыфравана. Для расшыфроўкі патрабуецца пароль.",
+    "yes": "Так",
+    "no": "Не",
+    "save": "Захаваць",
+    "seed": "Семя",
+    "success": "Посьпех",
+    "wallet_key": "Ключ ад кашалька",
+    "invalid_animated_qr_code_fragment": "Несапраўдны фрагмент аніміраванага QR-коду. Калі ласка, паспрабуйце яшчэ раз.",
+    "file_saved": "Файл {filePath} быў захаваны ў вашым месцы {destination}.",
+    "downloads_folder": "Папка Запамповак"
+  },
+  "alert": {
+    "default": "Папярэджанне"
+  },
+  "azteco": {
+    "codeIs": "Ваш код ваўчара",
+    "errorBeforeRefeem": "Перад выплатай вы павінны спачатку дадаць кашалёк Bitcoin.",
+    "errorSomething": "Нешта пайшло не так. Сапраўдны ці гэты ваўчар па-ранейшаму?",
+    "redeem": "Перавесьці на кашалёк",
+    "redeemButton": "Перавесьці",
+    "success": "Посьпех"
+  },
+  "entropy": {
+    "save": "Захаваць",
+    "title": "Энтрапія",
+    "undo": "Адмяніць"
+  },
+  "errors": {
+    "broadcast": "Збой трансляцыі.",
+    "error": "Памылка",
+    "network": "Памылка Сеткі"
+  },
+  "lnd": {
+    "inactive": "Неактыўны",
+    "channels": "Каналы",
+    "no_channels": "Няма каналаў",
+    "close_channel": "Зачыніць канал",
+    "new_channel": "Новы канал",
+    "errorInvoiceExpired": "Тэрмін дзеяння рахункі скончыўся",
+    "expired": "Скончыўся",
+    "open_channel": "Адкрыць Канал"
+  },
+  "plausibledeniability": {
+    "success": "Посьпех"
+  },
+  "send": {
+    "broadcastError": "Памылка",
+    "broadcastSuccess": "Посьпех",
+    "create_to": "Да"
+  },
+  "settings": {
+    "electrum_clear_alert_cancel": "Адмяніць",
+    "save": "Захаваць"
+  },
+  "wallets": {
+    "details_save": "Захаваць"
+  }
+}

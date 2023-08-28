@@ -2,7 +2,7 @@ import * as bitcoinjs from 'bitcoinjs-lib';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
@@ -17,8 +17,8 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static derivationPath = "m/0'";
 
   // track address index at which wallet switched to segwit
-  _external_segwit_index = null; // eslint-disable-line camelcase
-  _internal_segwit_index = null; // eslint-disable-line camelcase
+  _external_segwit_index = null;
+  _internal_segwit_index = null;
 
   // we need a separate function without external_addresses_cache to use in binarySearch
   _calcNodeAddressByIndex(node, index, p2wpkh = false) {

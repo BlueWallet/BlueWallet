@@ -80,7 +80,7 @@ const PsbtWithHardwareWallet = () => {
         // (passed by reference)
       }
     } catch (Err) {
-      alert(Err);
+      alert(Err.message);
     }
   };
 
@@ -98,9 +98,9 @@ const PsbtWithHardwareWallet = () => {
     }
 
     if (deepLinkPSBT) {
-      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+      const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, psbt);
+        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
         alert(Err);
@@ -250,8 +250,8 @@ const PsbtWithHardwareWallet = () => {
             <BlueSpacing20 />
             <SecondButton
               icon={{
-                name: 'file-import',
-                type: 'material-community',
+                name: 'login',
+                type: 'entypo',
                 color: colors.buttonTextColor,
               }}
               onPress={openSignedTransaction}

@@ -101,6 +101,7 @@ const WalletsList = () => {
         shadowOpacity: 0,
         shadowOffset: { height: 0, width: 0 },
       },
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () =>
         I18nManager.isRTL ? null : (
           <TouchableOpacity
@@ -113,6 +114,7 @@ const WalletsList = () => {
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
           </TouchableOpacity>
         ),
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerLeft: () =>
         I18nManager.isRTL ? (
           <TouchableOpacity
@@ -148,17 +150,15 @@ const WalletsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
-  const handleClick = index => {
-    console.log('click', index);
-    if (index <= wallets.length - 1) {
-      const wallet = wallets[index];
-      const walletID = wallet.getID();
+  const handleClick = item => {
+    if (item?.getID) {
+      const walletID = item.getID();
       navigate('WalletTransactions', {
         walletID,
-        walletType: wallet.type,
+        walletType: item.type,
         key: `WalletTransactions-${walletID}`,
       });
-    } else if (index >= wallets.length) {
+    } else {
       navigate('AddWalletRoot');
     }
   };

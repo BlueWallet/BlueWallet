@@ -55,7 +55,7 @@ const PleaseBackup = () => {
     for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
       const text = `${index + 1}. ${secret}  `;
       component.push(
-        <View style={[styles.word, stylesHook.word]} key={`${index}`}>
+        <View style={[styles.word, stylesHook.word]} key={index}>
           <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
             {text}
           </Text>

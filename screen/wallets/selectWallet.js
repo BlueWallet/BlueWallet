@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -105,6 +104,7 @@ const SelectWallet = () => {
     setOptions(
       isModal
         ? {
+            // eslint-disable-next-line react/no-unstable-nested-components
             headerLeft: () => (
               <TouchableOpacity
                 accessibilityRole="button"

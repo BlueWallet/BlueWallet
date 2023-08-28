@@ -64,7 +64,7 @@
     "node_alias": "Alias węzła",
     "expiresIn": "Traci ważność w ciągu {time} minut",
     "payButton": "Zapłać",
-    "placeholder": "Faktura",
+    "placeholder": "Faktura lub adres",
     "open_channel": "Otwórz kanał",
     "funding_amount_placeholder": "Kwota fundująca, np. 0.001",
     "opening_channnel_for_from": "Otwieram kanał dla portfela {forWalletLabel} fundując z {fromWalletLabel}",

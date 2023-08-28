@@ -6,14 +6,20 @@
     "enter_password": "Faka inombolo yokuvula",
     "never": "Ungalingi",
     "ok": "OK",
-    "storage_is_encrypted": "Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe"
+    "storage_is_encrypted": "Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe",
+    "save": "ndoloza",
+    "success": "Iphumelele"
+  },
+  "azteco": {
+    "success": "Iphumelele"
+  },
+  "entropy": {
+    "save": "ndoloza"
   },
   "lnd": {
     "expired": "Iphelewe lixesha",
-    "placeholder": "Invoyisi",
     "refill": "Gcwalisa",
     "refill_lnd_balance": "Gcwalisa ingxowa yakho yemali",
-    "sameWalletAsInvoiceError": ": Awukwazi ukuhlawula i-invoyisi kunye ngengxowa oyisebenzisile ukudala leyo invoyisi.",
     "title": "lawula imali"
   },
   "plausibledeniability": {
@@ -36,13 +42,14 @@
     "header": "Fumana"
   },
   "send": {
+    "broadcastButton": "Sasazwa",
+    "broadcastSuccess": "Iphumelele",
     "confirm_header": "Qiniseka",
     "confirm_sendNow": "Thumela ngoku",
     "create_amount": "Isixa",
     "create_broadcast": "Sasazwa",
     "create_details": "Iinkcukacha",
     "create_fee": "Ntlawulo",
-    "create_satoshi_per_byte": "Satoshi nge-byte",
     "create_this_is_hex": "Le yi ntengo hex, ityikityiwe ilungele ukukhutshelwa kumnatha.",
     "create_to": "Iya ku",
     "create_tx_size": "TX ubungakanani",
@@ -55,16 +62,17 @@
     "details_scan": "Ukutshekisha",
     "details_total_exceeds_balance": "Imali yokuthumela idlula imali ekhoyo.",
     "header": "Thumela",
+    "input_done": "Kwenzekile",
     "success_done": "Kwenzekile"
   },
   "settings": {
     "about": "Malunga",
     "currency": "Lwemali",
+    "electrum_clear_alert_cancel": "Rhoxisa",
     "general_adv_mode": "Enable advanced mode",
     "header": "Izicwangciso",
     "language": "Ulwimi",
     "lightning_settings": "Izixhobo zokukhanyisa",
-    "lightning_settings_explain": "Ukuxhuma kwi-node yakho ye-LND nceda ufake iLndHub kwaye ufake iURL apha izicwangciso. Shiya kungenanto yokusebenzisa iLndHub (Indhub.io)",
     "password": "Inombolo yokuvula",
     "password_explain": "Ukudala iinombolo yokuvula oyisebenzisayo ukucima ukugcina",
     "passwords_do_not_match": "Inombolo yokuvula azifani",
@@ -73,12 +81,12 @@
     "save": "ndoloza"
   },
   "transactions": {
+    "cpfp_create": "Yakha",
     "details_copy": "Ikopi",
     "details_from": "Negalelo",
     "details_show_in_block_explorer": "Bonisa ibhloko umhloi",
     "details_title": "Ngeniswa",
     "details_to": "Mveliso",
-    "details_transaction_details": "Iinkcukacha zentengiselwano",
     "list_title": "ngeniswa"
   },
   "wallets": {
@@ -87,7 +95,6 @@
     "add_import_wallet": "Ukungenisa ingxowa",
     "add_lightning": "Umbane",
     "add_lightning_explain": "For spending with instant transactions",
-    "add_or": "okanye",
     "add_title": "yongeza ingxowa",
     "add_wallet_name": "igama lengxowa",
     "add_wallet_type": "uhlobo",
@@ -104,19 +111,29 @@
     "export_title": "ukuthunyelwa kweebhanki ",
     "import_do_import": "Ngeniswe",
     "import_error": "Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.",
-    "import_explanation": "Bhale apha imnemonic yakho, ngundoqo, WIF , okanye nantoni na onayo. BlueWallet uya kwenza konke okusemandleni ukuqiqa ifomathi efanelekileyo kwaye ingenise ingxowa yakho",
     "import_imported": "Ngenisiwe",
     "import_scan_qr": "okanye ukukhangela iQR code?",
     "import_success": "Iphumelele",
     "import_title": "ukungenisa",
     "list_create_a_wallet": "Yenza ingxowa",
     "list_empty_txs1": "Intengiso yakho iya kubonakala apha,",
-    "list_empty_txs2": "akuho nanye okwangoku",
     "list_latest_transaction": "Utshintsho olutsha",
     "list_title": "Ingxowa",
     "reorder_title": "Yenza kwakhona ingxowa",
     "select_wallet": "Khetha ingxowa",
     "xpub_copiedToClipboard": "Ikopishwe kwi-clipboard",
     "xpub_title": "ingxowa XPUB"
+  },
+  "multisig": {
+    "confirm": "Qiniseka",
+    "header": "Thumela",
+    "share": "yabelana",
+    "create": "Yakha",
+    "ms_help_title5": "Enable advanced mode"
+  },
+  "addresses": {
+    "sign_placeholder_address": "idilesi",
+    "type_receive": "Fumana",
+    "transactions": "ngeniswa"
   }
 }

@@ -18,7 +18,15 @@
     "wallet_key": "Klíč peněženky",
     "invalid_animated_qr_code_fragment": "Neplatný animovaný fragment QRCode, zkuste to prosím znovu",
     "file_saved": "Soubor {filePath} byl uložen ve vašem {destination}.",
-    "downloads_folder": "Složka Stažené soubory"
+    "downloads_folder": "Složka Stažené soubory",
+    "close": "Zavřít",
+    "change_input_currency": "Změnit vstupní měnu",
+    "refresh": "Obnovit",
+    "more": "Více",
+    "pick_image": "Vybrat Obrázek z galerie",
+    "pick_file": "Vybrat soubor",
+    "enter_amount": "Vložte částku",
+    "qr_custom_input_button": "Klikněte 10x k zadání vlastního vstupu"
   },
   "alert": {
     "default": "Upozornění"
@@ -56,7 +64,7 @@
     "node_alias": "Alias uzlu",
     "expiresIn": "Vyprší za {time} minut",
     "payButton": "Zaplatit",
-    "placeholder": "Faktura",
+    "placeholder": "Faktura nebo adresa",
     "open_channel": "Otevřít kanál",
     "funding_amount_placeholder": "Výše financování, např. 0.001",
     "opening_channnel_for_from": "Otevření kanálu pro peněženku {forWalletLabel}, financováním z {fromWalletLabel}",
@@ -595,6 +603,7 @@
     "payment_code": "Platební kód",
     "payment_codes_list": "Seznam platebních kódů",
     "who_can_pay_me": "Kdo mi může zaplatit:",
-    "purpose": "Opakovaně použitelný a sdílený kód (BIP47)"
+    "purpose": "Opakovaně použitelný a sdílený kód (BIP47)",
+    "not_found": "Nebyl nalezen kód platby"
   }
 }

@@ -78,10 +78,10 @@ const WalletTransactions = ({ navigation }) => {
    * Simple wrapper for `wallet.getTransactions()`, where `wallet` is current wallet.
    * Sorts. Provides limiting.
    *
-   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
+   * @param lmt {Integer} How many txs return, starting from the earliest. Default: all of them.
    * @returns {Array}
    */
-  const getTransactionsSliced = (limit = Infinity) => {
+  const getTransactionsSliced = (lmt = Infinity) => {
     let txs = wallet.getTransactions();
     for (const tx of txs) {
       tx.sort_ts = +new Date(tx.received);
@@ -89,7 +89,7 @@ const WalletTransactions = ({ navigation }) => {
     txs = txs.sort(function (a, b) {
       return b.sort_ts - a.sort_ts;
     });
-    return txs.slice(0, limit);
+    return txs.slice(0, lmt);
   };
 
   useEffect(() => {
@@ -97,7 +97,6 @@ const WalletTransactions = ({ navigation }) => {
     return () => {
       clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

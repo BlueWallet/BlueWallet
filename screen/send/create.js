@@ -76,7 +76,7 @@ const SendCreate = () => {
         buttonPositive: loc._.ok,
       });
 
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
@@ -104,6 +104,7 @@ const SendCreate = () => {
 
   useEffect(() => {
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity accessibilityRole="button" onPress={exportTXN}>
           <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />

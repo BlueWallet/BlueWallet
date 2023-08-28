@@ -3,6 +3,7 @@ import SyncedAsyncStorage from '../../class/synced-async-storage';
 const assert = require('assert');
 
 describe('', () => {
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can import & dump LDK bytes from network storage  ', async () => {
     const ldk = new LightningLdkWallet();
     ldk.setSecret('');

@@ -329,10 +329,10 @@ const ReceiveDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setAddressBIP21Encoded = address => {
-    const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
-    setParams({ address });
-    setBip21encoded(bip21encoded);
+  const setAddressBIP21Encoded = addr => {
+    const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+    setParams({ address: addr });
+    setBip21encoded(newBip21encoded);
     setShowAddress(true);
   };
 

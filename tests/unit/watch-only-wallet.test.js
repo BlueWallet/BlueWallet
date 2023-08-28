@@ -331,6 +331,33 @@ describe('Watch only wallet', () => {
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
+  it('can import wallet descriptor for BIP84 from Sparrow Wallet', async () => {
+    const payload =
+      'UR:CRYPTO-OUTPUT/TAADMWTAADDLOLAOWKAXHDCLAXINTOCTFTNNIERONTNYGALYEMAAWPHDAXDIEOWPJEGHKPGMKERHIABDTBLUBNMUMWAAHDCXFHSNBGTSGWSWPTDWVTDIHYHNHPLBBSJEOLSNFZBDIYJLTTPFIMEYTEECKTGSBZBDAHTAADEHOEADAEAOAEAMTAADDYOTADLNCSGHYKAEYKAEYKAOCYFNLBCYGMAXAXAYCYSRRTSPGADLMKBGTD';
+
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(payload);
+    let data;
+    if (decoder.isComplete()) {
+      data = decoder.toString();
+    }
+
+    const w = new WatchOnlyWallet();
+    w.setSecret(data);
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.getMasterFingerprintHex(), '3c7f1a52');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qr0y5c96xtfeulnzxnjl086f2njcmf8qmhenvpp');
+
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rkkMBH6dE8bUPM9MC3WTMYQ3pDYR1kHnNDrqEGY3FotR4EUifR1S4xd7ynwczREFCbfWyk5S4mhzPL8YuGsCSgey1AwH7fk4w9AULpyDYL',
+    );
+  });
+
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
@@ -575,6 +602,34 @@ describe('BC-UR', () => {
 
     assert.ok(str.includes('E4F0DB12'));
     assert.ok(str.includes('Keystone Multisig setup file'));
+  });
+
+  it('v2: can decodeUR() into accounts', () => {
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(
+      'UR:CRYPTO-ACCOUNT/OEADCYJKSKTNBKAOLSTAADMWTAADDLONAXHDCLAOJOKNIDZCPSSAJTPTRPFRCECFKKAMYKJTVTCSBTBDTKCFIYVYOETNEEYKWFNBNYNDAAHDCXGEGUNBPYCLRHUOMDLNNSGLMOOYHSCFGLAXRTWSFHYKADGESWMOWKEOSSKOGHMHZTAMTAADDYOTADLNCSGHYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYKBWFDNUYTAADMHTAADMWTAADDLONAXHDCLAOWNWFFLLDCWCXYLHFMNPLFMSOLNNERSRPKGSGRPWFHDEYJLBEWPSSCNHFRYGOMUNTAAHDCXJTPKVLIHPLBABKBKPYLREYHHZEKETSJZFRMHMHECYALDVDTEWNROFLPTNBKKKBSBAMTAADDYOTADLNCSEHYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYFSAHZMKPTAADMUTAADDLONAXHDCLAXKTGSMEBSTKATZSMTLOJTOSMWWTTLSGWENYZEDYQZGRLSYLVOBWRKMOMUBAKIWKRYAAHDCXFSOXRFCFBKDSLABYCAEHZSURUOMHHEDRLBJZVDKEJLBENLCFBYJLDAFSFXFYGMCFAMTAADDYOTADLNCSDWYKAEYKAEYKAOCYJKSKTNBKAXAXATTAADDYOYADLRAEWKLAWKAYCYBZHPSGHKSOPAJSLN',
+    );
+    let data = '';
+    if (decoder.isComplete()) {
+      data = decoder.toString();
+    }
+
+    const json = JSON.parse(data);
+
+    assert.ok(Array.isArray(json));
+    assert.strictEqual(json.length, 3);
+
+    assert.ok(json[0].ExtPubKey.startsWith('zpub'));
+    assert.ok(json[0].AccountKeyPath.startsWith('m/84'));
+    assert.ok(json[0].MasterFingerprint === '73C5DA0A');
+
+    assert.ok(json[1].ExtPubKey.startsWith('ypub'));
+    assert.ok(json[1].AccountKeyPath.startsWith('m/49'));
+    assert.ok(json[1].MasterFingerprint === '73C5DA0A');
+
+    assert.ok(json[2].ExtPubKey.startsWith('xpub'));
+    assert.ok(json[2].AccountKeyPath.startsWith('m/44'));
+    assert.ok(json[2].MasterFingerprint === '73C5DA0A');
   });
 
   it('v1: decodeUR() works', async () => {

@@ -25,14 +25,7 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import {
-  HDSegwitBech32Wallet,
-  SegwitP2SHWallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  AppStorage,
-  LightningLdkWallet,
-} from '../../class';
+import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
@@ -40,6 +33,8 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+const BlueApp = require('../../BlueApp');
+const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
 
 const ButtonSelected = Object.freeze({

@@ -4,7 +4,7 @@ import b58 from 'bs58check';
 import { decodeUR } from '../../blue_modules/ur';
 import { ECPairFactory } from 'ecpair';
 import BIP32Factory from 'bip32';
-import * as ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 const ECPair = ECPairFactory(ecc);
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
@@ -488,8 +488,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // is it electrum json?
     if (json && json.wallet_type && json.wallet_type !== 'standard') {
       const mofn = json.wallet_type.split('of');
-      this.setM(parseInt(mofn[0].trim()));
-      const n = parseInt(mofn[1].trim());
+      this.setM(parseInt(mofn[0].trim(), 10));
+      const n = parseInt(mofn[1].trim(), 10);
       for (let c = 1; c <= n; c++) {
         const cosignerData = json['x' + c + '/'];
         if (cosignerData) {
@@ -523,7 +523,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           break;
 
         case 'Policy':
-          this.setM(parseInt(value.trim().split('of')[0].trim()));
+          this.setM(parseInt(value.trim().split('of')[0].trim(), 10));
           break;
 
         case 'Derivation':
@@ -539,7 +539,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
             case MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT.toUpperCase():
               this.setWrappedSegwit();
               break;
-            case MultisigHDWallet.FORMAT_P2SH:
+            case MultisigHDWallet.FORMAT_P2SH.toUpperCase():
               this.setLegacy();
               break;
           }
@@ -577,8 +577,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       const s2 = json.descriptor.substr(json.descriptor.indexOf('sortedmulti(') + 12);
       const s3 = s2.split(',');
-      const m = parseInt(s3[0]);
-      if (m) this.setM(m);
+      const M = parseInt(s3[0], 10);
+      if (M) this.setM(M);
 
       for (let c = 1; c < s3.length; c++) {
         const re = /\[([^\]]+)\](.*)/;
@@ -597,6 +597,31 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           if (xpub.indexOf(')') !== -1) {
             xpub = xpub.substr(0, xpub.indexOf(')'));
           }
+
+          this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
+        }
+      }
+
+      if (this.getN() === 0) {
+        // handling a case when smth went wrong and we didnt parse any cosigners, probably because
+        // string is a bit non-standard, deesnt have chars like '['
+        for (let c = 1; c < s3.length; c++) {
+          const hexFingerprint = s3[c].split('/')[0];
+          let indexOfXpub = s3[c].indexOf('xpub');
+          if (indexOfXpub === -1) {
+            // just for any case
+            indexOfXpub = s3[c].indexOf('ypub');
+          }
+          if (indexOfXpub === -1) {
+            // just for any case
+            indexOfXpub = s3[c].indexOf('zpub');
+          }
+          if (indexOfXpub === -1) {
+            throw new Error('Could not parse cosigner in a descriptor');
+          }
+
+          const xpub = s3[c].substring(indexOfXpub).replaceAll(')', '');
+          const path = 'm' + s3[c].substring(hexFingerprint.length, indexOfXpub);
 
           this.addCosigner(xpub, hexFingerprint.toUpperCase(), path);
         }

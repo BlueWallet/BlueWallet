@@ -125,8 +125,8 @@ const ViewEditMultisigCosigners = () => {
     }
 
     // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter(w => {
-      return w.getID() !== walletId;
+    let newWallets = wallets.filter(newWallet => {
+      return newWallet.getID() !== walletId;
     });
     if (!isElectrumDisabled) {
       await wallet.fetchBalance();

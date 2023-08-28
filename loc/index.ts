@@ -23,6 +23,9 @@ const setDateTimeLocale = async () => {
     case 'ar':
       require('dayjs/locale/ar');
       break;
+    case 'be':
+      require('dayjs/locale/be');
+      break;
     case 'bg_bg':
       lang = 'bg';
       require('dayjs/locale/bg');
@@ -49,6 +52,9 @@ const setDateTimeLocale = async () => {
       // es-do it is the closes one to es_419
       lang = 'es-do';
       require('dayjs/locale/es-do');
+      break;
+    case 'et':
+      require('dayjs/locale/et');
       break;
     case 'fi_fi':
       require('dayjs/locale/fi');
@@ -81,6 +87,9 @@ const setDateTimeLocale = async () => {
     case 'ko_kr':
       lang = 'ko';
       require('dayjs/locale/ko');
+      break;
+    case 'kn':
+      require('dayjs/locale/kn');
       break;
     case 'ms':
       require('dayjs/locale/ms');
@@ -119,6 +128,10 @@ const setDateTimeLocale = async () => {
       break;
     case 'sl_si':
       require('dayjs/locale/sl');
+      break;
+    case 'sr_rs':
+      lang = 'sr-cyrl';
+      require('dayjs/locale/sr-cyrl');
       break;
     case 'sv_se':
       require('dayjs/locale/sv');
@@ -188,6 +201,7 @@ init();
 const loc = new Localization({
   en: require('./en.json'),
   ar: require('./ar.json'),
+  be: require('./be@tarask.json'),
   bg_bg: require('./bg_bg.json'),
   ca: require('./ca.json'),
   cy: require('./cy.json'),
@@ -197,6 +211,7 @@ const loc = new Localization({
   el: require('./el.json'),
   es: require('./es.json'),
   es_419: require('./es_419.json'),
+  et: require('./et_EE.json'),
   fa: require('./fa.json'),
   fi_fi: require('./fi_fi.json'),
   fr_fr: require('./fr_fr.json'),
@@ -208,6 +223,7 @@ const loc = new Localization({
   jp_jp: require('./jp_jp.json'),
   ko_kr: require('./ko_KR.json'),
   ms: require('./ms.json'),
+  kn: require('./kn.json'),
   ne: require('./ne.json'),
   nb_no: require('./nb_no.json'),
   nl_nl: require('./nl_nl.json'),
@@ -219,6 +235,7 @@ const loc = new Localization({
   si_lk: require('./si_LK.json'),
   sk_sk: require('./sk_sk.json'),
   sl_si: require('./sl_SI.json'),
+  sr_rs: require('./sr_RS.json'),
   sv_se: require('./sv_se.json'),
   th_th: require('./th_th.json'),
   tr_tr: require('./tr_tr.json'),

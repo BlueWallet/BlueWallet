@@ -331,6 +331,18 @@ const WalletsAddMultisigStep2 = () => {
   const onBarScanned = ret => {
     if (!isDesktop) navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
+
+    try {
+      let retData = JSON.parse(ret.data);
+      if (Array.isArray(retData) && retData.length === 1) {
+        // UR:CRYPTO-ACCOUNT now parses as an array of accounts, even if it is just one,
+        // so in case of cosigner data its gona be an array of 1 cosigner account. lets pop it for
+        // the code that expects it
+        retData = retData.pop();
+        ret.data = JSON.stringify(retData);
+      }
+    } catch (_) {}
+
     if (ret.data.toUpperCase().startsWith('UR')) {
       alert('BC-UR not decoded. This should never happen');
     } else if (isValidMnemonicSeed(ret.data)) {
@@ -454,7 +466,7 @@ const WalletsAddMultisigStep2 = () => {
     return (
       <View>
         <MultipleStepsListItem
-          circledText={`${el.index + 1}`}
+          circledText={String(el.index + 1)}
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
