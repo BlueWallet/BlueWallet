@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
   findNodeHandle,
+  Alert,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -550,8 +551,19 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               button={{
                 onPress: () => {
-                  skipKey();
-                  alert(loc.multisig.alert_can_change_placeholder);
+                  Alert.alert(
+                    loc.multisig.alert_can_change_placeholder_title,
+                    loc.multisig.alert_can_change_placeholder_message,
+                    [
+                      {
+                        text: "Cancel",
+                        onPress: () => { /* do nothing on purpose */ },
+                        style: "cancel"
+                      },
+                      { text: "OK", onPress: () => skipKey() }
+                    ],
+                    { cancelable: false }
+                  );
                 },
                 buttonType: MultipleStepsListItemButtohType.full,
                 text: loc.multisig.skip,

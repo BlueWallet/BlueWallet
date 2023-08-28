@@ -535,7 +535,7 @@ const WalletTransactions = ({ navigation }) => {
           ListEmptyComponent={
             <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
               <Text numberOfLines={0} style={styles.emptyTxs}>
-                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || (wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() && loc.formatString(loc.multisig.multisig_not_ready_yet, { number: wallet.numberOfPlaceHolders() })) || loc.wallets.list_empty_txs1}
               </Text>
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
             </ScrollView>
@@ -550,40 +550,41 @@ const WalletTransactions = ({ navigation }) => {
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>
-
-      <FContainer ref={walletActionButtonsRef}>
-        {wallet.allowReceive() && (
-          <FButton
-            testID="ReceiveButton"
-            text={loc.receive.header}
-            onPress={() => {
-              if (wallet.chain === Chain.OFFCHAIN) {
-                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } });
-              } else {
-                navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.getID() } });
+      {wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? <></> :
+        <FContainer ref={walletActionButtonsRef}>
+          {wallet.allowReceive() && (
+            <FButton
+              testID="ReceiveButton"
+              text={loc.receive.header}
+              onPress={() => {
+                if (wallet.chain === Chain.OFFCHAIN) {
+                  navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } });
+                } else {
+                  navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.getID() } });
+                }
+              }}
+              icon={
+                <View style={styles.receiveIcon}>
+                  <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                </View>
               }
-            }}
-            icon={
-              <View style={styles.receiveIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-              </View>
-            }
-          />
-        )}
-        {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-          <FButton
-            onLongPress={sendButtonLongPress}
-            onPress={sendButtonPress}
-            text={loc.send.header}
-            testID="SendButton"
-            icon={
-              <View style={styles.sendIcon}>
-                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-              </View>
-            }
-          />
-        )}
-      </FContainer>
+            />
+          )}
+          {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+            <FButton
+              onLongPress={sendButtonLongPress}
+              onPress={sendButtonPress}
+              text={loc.send.header}
+              testID="SendButton"
+              icon={
+                <View style={styles.sendIcon}>
+                  <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+                </View>
+              }
+            />
+          )}
+        </FContainer>
+      }
     </View>
   );
 };
@@ -592,21 +593,28 @@ export default WalletTransactions;
 
 WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
   return {
-    headerRight: () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        testID="WalletDetails"
-        disabled={route.params.isLoading === true}
-        style={styles.walletDetails}
-        onPress={() =>
-          navigation.navigate('WalletDetails', {
-            walletID: route.params.walletID,
-          })
-        }
-      >
-        <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
-      </TouchableOpacity>
-    ),
+    headerRight: () => {
+      const { wallets } = useContext(BlueStorageContext);
+      const wallet = wallets.find(w => w.getID() === route.params.walletID);
+
+      return (
+        wallet && wallet.type === MultisigHDWallet.type && wallet.isWalletHasAllTheKeys() ? (
+          <TouchableOpacity
+            accessibilityRole="button"
+            testID="WalletDetails"
+            disabled={route.params.isLoading === true}
+            style={styles.walletDetails}
+            onPress={() =>
+              navigation.navigate('WalletDetails', {
+                walletID: route.params.walletID,
+              })
+            }
+          >
+            <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+        ) : null
+      );
+    },
     title: '',
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),

@@ -261,7 +261,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   _getExternalAddressByIndex(index) {
     // this blocks that false addresses are generated for an empty set of cosigners
-    if (this._cosigners.indexOf('PLACEHOLDER_COSIGNER') !== -1) return '';
+    if (!this.isWalletHasAllTheKeys()) throw new Error('missing cosigners');
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
@@ -317,7 +317,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   _getInternalAddressByIndex(index) {
     // this blocks that false addresses are generated for an empty set of cosigners
-    if (this._cosigners.indexOf('PLACEHOLDER_COSIGNER') !== -1) return '';
+    if (!this.isWalletHasAllTheKeys()) throw new Error('missing cosigners');
     if (!this._m) throw new Error('m is not set');
     index = +index;
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
@@ -452,7 +452,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ret += '\n';
 
     for (let index = 0; index < this.getN(); index++) {
-      if (this._cosigners[index] === 'PLACEHOLDER_COSIGNER') continue;
       if (
         this._cosignersCustomPaths[index] &&
         ((printedGlobalDerivation && this._cosignersCustomPaths[index] !== this.getDerivationPath()) || !printedGlobalDerivation)
@@ -465,6 +464,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
         if (coordinationSetup) {
+          if (this._cosigners[index] === 'PLACEHOLDER_COSIGNER') continue;
           const xpub = this.convertXpubToMultisignatureXpub(
             MultisigHDWallet.seedToXpub(
               this._cosigners[index],
@@ -1189,6 +1189,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // this._cosignersFingerprints = newCosigners;
   }
 
+  numberOfPlaceHolders() {
+    return this._cosigners.reduce((total, item) => item === "PLACEHOLDER_COSIGNER" ? total + 1 : total, 0);
+  }
+
   getFormat() {
     if (this.isNativeSegwit()) return this.constructor.FORMAT_P2WSH;
     if (this.isWrappedSegwit()) return this.constructor.FORMAT_P2SH_P2WSH;
@@ -1220,5 +1224,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   isSegwit() {
     return this.isNativeSegwit() || this.isWrappedSegwit();
+  }
+
+  isWalletHasAllTheKeys() {
+    return !this._cosigners.some(i => i === 'PLACEHOLDER_COSIGNER')
   }
 }
