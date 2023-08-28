@@ -970,8 +970,8 @@ describe('multisig-wallet (native segwit)', () => {
     const path = "m/48'/0'/0'/2'";
 
     const w = new MultisigHDWallet();
-    w.addCosigner("PLACEHOLDER_COSIGNER");
-    w.addCosigner("PLACEHOLDER_COSIGNER");
+    w.addCosigner('PLACEHOLDER_COSIGNER');
+    w.addCosigner('PLACEHOLDER_COSIGNER');
     w.setDerivationPath(path);
     w.setM(2);
 
