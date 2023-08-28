@@ -628,7 +628,6 @@
     "final_word_valid_type_error": "Final Word Recovery Number must be a number!",
     "final_word_valid_range_error": "Final Word Recovery Number must be greater than or equal to {min} and less than or equal to {max}!",
     "final_word_not_include_bip39": "The input word(s) is not included in the BIP39 word list.",
-    "import_title": "Import Entropy Grid",
     "check_mnemonic_valid": "Mnemonic you memorized is valid.",
     "check_mnemonic_invalid": "Mnemonic you memorized is invalid."
   }
