@@ -27,6 +27,7 @@ export default class WalletGradient {
   static lightningCustodianWallet = ['#F1AA07', '#FD7E37'];
   static aezeedWallet = ['#8584FF', '#5351FB'];
   static ldkWallet = ['#8584FF', '#5351FB'];
+  static incompleteMultisigWallet = ['#c8cacb', '#1a1a1a'];
 
   static createWallet = () => {
     const { colors } = useTheme();
@@ -73,6 +74,9 @@ export default class WalletGradient {
         break;
       case LightningLdkWallet.type:
         gradient = WalletGradient.ldkWallet;
+        break;
+      case 'INCOMPLETE_MULTISIG_WALLET':
+        gradient = WalletGradient.incompleteMultisigWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;
@@ -136,6 +140,9 @@ export default class WalletGradient {
         break;
       case LightningLdkWallet.type:
         gradient = WalletGradient.ldkWallet;
+        break;
+      case 'INCOMPLETE_MULTISIG_WALLET':
+        gradient = WalletGradient.incompleteMultisigWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;

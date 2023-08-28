@@ -487,7 +487,7 @@
     "alert_can_change_placeholder_message": "You can add the key in \"manage keys\" later",
     "insert_xpub": "Insert Xpub",
     "title_write_xpub_below": "Type your xpub",
-    "multisig_not_ready_yet": "We still need {number} more keys to activate this wallet",
+    "multisig_not_ready_yet": "We still need {number} more keys to activate this wallet. Go to \"manage keys\" to setup the remaining keys.",
     "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "how many signatures can BlueWallet make",
     "signatures_required_to_spend": "Signatures required {number}",

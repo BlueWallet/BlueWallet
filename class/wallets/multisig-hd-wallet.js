@@ -1190,7 +1190,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   numberOfPlaceHolders() {
-    return this._cosigners.reduce((total, item) => item === "PLACEHOLDER_COSIGNER" ? total + 1 : total, 0);
+    return this._cosigners.reduce((total, item) => (item === 'PLACEHOLDER_COSIGNER' ? total + 1 : total), 0);
   }
 
   getFormat() {
@@ -1227,6 +1227,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   isWalletHasAllTheKeys() {
-    return !this._cosigners.some(i => i === 'PLACEHOLDER_COSIGNER')
+    return !this._cosigners.some(i => i === 'PLACEHOLDER_COSIGNER');
   }
 }

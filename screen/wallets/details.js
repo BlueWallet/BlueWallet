@@ -632,21 +632,31 @@ const WalletDetails = () => {
                 )}
               </View>
             </BlueCard>
-            {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
-            )}
+            {wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? (
+              !(wallet.type === MultisigHDWallet.type) ? (
+                <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+              ) : (
+                wallet.isWalletHasAllTheKeys() && (
+                  <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+                )
+              )
+            ) : null}
             {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
-                <BlueSpacing20 />
-                <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                {wallet.type === MultisigHDWallet.type && wallet.isWalletHasAllTheKeys() && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                  </>
+                )}
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
                   </>
                 )}
-                {wallet.type === MultisigHDWallet.type && (
+                {wallet.type === MultisigHDWallet.type && wallet.isWalletHasAllTheKeys() && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton

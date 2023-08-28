@@ -14,6 +14,7 @@ const MultipleStepsListItem = props => {
     circledText = '',
     leftText = '',
     checked = false,
+    showRightButtonOverride = false,
   } = props;
   const stylesHook = StyleSheet.create({
     provideKeyButton: {
@@ -132,7 +133,7 @@ const MultipleStepsListItem = props => {
             )}
           </>
         )}
-        {!showActivityIndicator && props.rightButton && checked && (
+        {((!showActivityIndicator && props.rightButton && checked) || showRightButtonOverride) && (
           <View style={styles.rightButtonContainer}>
             <TouchableOpacity
               accessibilityRole="button"

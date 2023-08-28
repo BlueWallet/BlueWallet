@@ -514,11 +514,32 @@ const WalletsAddMultisigStep2 = () => {
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
           dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
           checked={isChecked}
+          showRightButtonOverride={true}
           rightButton={{
-            disabled: vaultKeyData.isLoading || (cosigners[el.index] && cosigners[el.index][0] === 'PLACEHOLDER_COSIGNER'),
-            text: loc.multisig.share,
+            disabled: vaultKeyData.isLoading,
+            text: cosigners[el.index] ? loc.multisig.share : loc.multisig.skip,
             onPress: () => {
-              viewKey(cosigners[el.index]);
+              if (cosigners[el.index]) {
+                if (cosigners[el.index] && cosigners[el.index][0] !== 'PLACEHOLDER_COSIGNER') {
+                  viewKey(cosigners[el.index]);
+                }
+              } else {
+                Alert.alert(
+                  loc.multisig.alert_can_change_placeholder_title,
+                  loc.multisig.alert_can_change_placeholder_message,
+                  [
+                    {
+                      text: 'Cancel',
+                      onPress: () => {
+                        /* do nothing on purpose */
+                      },
+                      style: 'cancel',
+                    },
+                    { text: 'OK', onPress: () => skipKey() },
+                  ],
+                  { cancelable: false },
+                );
+              }
             },
           }}
         />
@@ -543,30 +564,6 @@ const WalletsAddMultisigStep2 = () => {
                 onPress: iHaveMnemonics,
                 buttonType: MultipleStepsListItemButtohType.full,
                 text: loc.wallets.import_do_import,
-                disabled: vaultKeyData.isLoading,
-              }}
-              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
-              checked={isChecked}
-            />
-            <MultipleStepsListItem
-              button={{
-                onPress: () => {
-                  Alert.alert(
-                    loc.multisig.alert_can_change_placeholder_title,
-                    loc.multisig.alert_can_change_placeholder_message,
-                    [
-                      {
-                        text: "Cancel",
-                        onPress: () => { /* do nothing on purpose */ },
-                        style: "cancel"
-                      },
-                      { text: "OK", onPress: () => skipKey() }
-                    ],
-                    { cancelable: false }
-                  );
-                },
-                buttonType: MultipleStepsListItemButtohType.full,
-                text: loc.multisig.skip,
                 disabled: vaultKeyData.isLoading,
               }}
               dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}

@@ -136,10 +136,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   return (
     <LinearGradient
-      colors={WalletGradient.gradientsFor(wallet.type)}
+      colors={WalletGradient.gradientsFor(
+        // @ts-ignore: Ugh
+        wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+      )}
       style={styles.lineaderGradient}
       // @ts-ignore: Ugh
-      {...WalletGradient.linearGradientProps(wallet.type)}
+      {...WalletGradient.linearGradientProps(
+        // @ts-ignore: Ugh
+        wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+      )}
     >
       <Image
         source={(() => {

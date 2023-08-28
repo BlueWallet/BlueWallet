@@ -72,6 +72,9 @@ const WalletTransactions = ({ navigation }) => {
     list: {
       backgroundColor: colors.background,
     },
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
+    },
   });
 
   /**
@@ -115,7 +118,9 @@ const WalletTransactions = ({ navigation }) => {
     setDataSource(wallet.getTransactions(15));
     setOptions({
       headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(wallet.type),
+        backgroundColor: WalletGradient.headerColorFor(
+          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+        ),
         borderBottomWidth: 0,
         elevation: 0,
         // shadowRadius: 0,
@@ -476,7 +481,13 @@ const WalletTransactions = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
-      <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={WalletGradient.headerColorFor(
+          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+        )}
+        animated
+      />
       <TransactionsNavigationHeader
         navigation={navigation}
         wallet={wallet}
@@ -534,9 +545,17 @@ const WalletTransactions = ({ navigation }) => {
           ListFooterComponent={renderListFooterComponent}
           ListEmptyComponent={
             <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
-              <Text numberOfLines={0} style={styles.emptyTxs}>
-                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || (wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() && loc.formatString(loc.multisig.multisig_not_ready_yet, { number: wallet.numberOfPlaceHolders() })) || loc.wallets.list_empty_txs1}
-              </Text>
+              {(isLightning() && loc.wallets.list_empty_txs1_lightning) ||
+              (wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys()) ? (
+                <View style={[styles.tip, stylesHook.tip]}>
+                  <Text style={{ color: colors.foregroundColor }}>
+                    {loc.formatString(loc.multisig.multisig_not_ready_yet, { number: wallet.numberOfPlaceHolders() })}
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.emptyTxs}>{loc.wallets.list_empty_txs1}</Text>
+              )}
+
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
             </ScrollView>
           }
@@ -550,7 +569,7 @@ const WalletTransactions = ({ navigation }) => {
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>
-      {wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? <></> :
+      {wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? null : (
         <FContainer ref={walletActionButtonsRef}>
           {wallet.allowReceive() && (
             <FButton
@@ -584,7 +603,7 @@ const WalletTransactions = ({ navigation }) => {
             />
           )}
         </FContainer>
-      }
+      )}
     </View>
   );
 };
@@ -592,32 +611,30 @@ const WalletTransactions = ({ navigation }) => {
 export default WalletTransactions;
 
 WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
-  return {
-    headerRight: () => {
-      const { wallets } = useContext(BlueStorageContext);
-      const wallet = wallets.find(w => w.getID() === route.params.walletID);
+  const { wallets } = useContext(BlueStorageContext);
+  const wallet = wallets.find(w => w.getID() === route.params.walletID);
 
-      return (
-        wallet && wallet.type === MultisigHDWallet.type && wallet.isWalletHasAllTheKeys() ? (
-          <TouchableOpacity
-            accessibilityRole="button"
-            testID="WalletDetails"
-            disabled={route.params.isLoading === true}
-            style={styles.walletDetails}
-            onPress={() =>
-              navigation.navigate('WalletDetails', {
-                walletID: route.params.walletID,
-              })
-            }
-          >
-            <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-        ) : null
-      );
-    },
+  return {
+    headerRight: () => (
+      <TouchableOpacity
+        accessibilityRole="button"
+        testID="WalletDetails"
+        disabled={route.params.isLoading === true}
+        style={styles.walletDetails}
+        onPress={() =>
+          navigation.navigate('WalletDetails', {
+            walletID: route.params.walletID,
+          })
+        }
+      >
+        <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
+      </TouchableOpacity>
+    ),
     title: '',
     headerStyle: {
-      backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
+      backgroundColor: WalletGradient.headerColorFor(
+        wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : route.params.walletType,
+      ),
       borderBottomWidth: 0,
       elevation: 0,
       // shadowRadius: 0,
@@ -709,5 +726,11 @@ const styles = StyleSheet.create({
   },
   receiveIcon: {
     transform: [{ rotate: I18nManager.isRTL ? '45deg' : '-45deg' }],
+  },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
   },
 });
