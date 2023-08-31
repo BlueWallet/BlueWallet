@@ -104,6 +104,33 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
       return;
+    } else if (event.url.endsWith('.json')) {
+
+      RNFS.readFile(decodeURI(event.url))
+        .then(file => {
+          if (!file || !this.hasValidKeysForMultiSigZpub(file)) {
+            return;
+          }
+          completionHandler([
+            'SelectWallet',
+            {
+              onWalletSelect: (wallet, { navigation }) => {
+                navigation.pop(); // close select wallet screen
+                navigation.navigate('ViewEditMultisigCosignersRoot', {
+                  screen: 'ViewEditMultisigCosigners',
+                  params: {
+                    walletId: wallet.getID(),
+                    importTextPlaceHolderReplacement: file,
+                  },
+                });
+              },
+              params: {
+                walletType: 'HDmultisig',
+              },
+            },
+          ]);
+        })
+        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning;
     try {
@@ -375,6 +402,20 @@ class DeeplinkSchemaMatch {
 
   static isWidgetAction(text) {
     return text.startsWith('widget?action=');
+  }
+
+  static hasValidKeysForMultiSigZpub(str) {
+    let obj;
+
+    // Check if it's a valid JSON
+    try {
+      obj = JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+
+    // Check for the existence and type of the keys
+    return typeof obj.xfp === 'string' && typeof obj.xpub === 'string' && typeof obj.path === 'string';
   }
 
   static isBothBitcoinAndLightning(url) {
