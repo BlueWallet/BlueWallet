@@ -304,7 +304,7 @@ export default class Browser extends Component {
       fromWallet: context.wallets.find(w => w.getID() === props.route.params.walletID),
       canGoBack: false,
       pageIsLoading: false,
-      stateURL: url || 'https://wwww.duckduckgo.com/',
+      stateURL: url || 'https://www.duckduckgo.com/',
     };
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
