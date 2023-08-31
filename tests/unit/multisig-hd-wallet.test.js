@@ -970,10 +970,12 @@ describe('multisig-wallet (native segwit)', () => {
     const path = "m/48'/0'/0'/2'";
 
     const w = new MultisigHDWallet();
-    w.addCosigner('PLACEHOLDER_COSIGNER');
-    w.addCosigner('PLACEHOLDER_COSIGNER');
+    w.addCosigner(MultisigHDWallet.PLACEHOLDER_COSIGNER);
+    w.addCosigner(MultisigHDWallet.PLACEHOLDER_COSIGNER);
     w.setDerivationPath(path);
     w.setM(2);
+    assert.strictEqual(w.numberOfPlaceHolders(),2)
+    assert.strictEqual(w.isWalletHasAllTheKeys(), false)
 
     const ww = new MultisigHDWallet();
     ww.setSecret(w.getSecret());
@@ -988,7 +990,15 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getID(), ww.getID());
     assert.ok(w.getID() !== new MultisigHDWallet().getID());
 
-    // now, exporting coordination setup:
+    // now make changes to w and check that placeholders are properly replaced
+    w.replacePlaceHolderWithXpub(1,"Zpub74wqWwJYJ6ic9NrMGm2BR5ogxWxYQVYiEt1hAD5j7ut7HtcZ1FxveJYHRvdQhAzuxS5jS7pbmYX5stMzUkQZQAPnppJRHndddxtjxwnBNjb", '81A47EC7','m/48\'/0\'/0\'/2\'')
+    w.replacePlaceHolderWithXpub(2,"Zpub75pYMrSC8mXXCNQ42Nr5oR1xMcFAY9G1hAiTtBTudYh4pPMET4SdoD4s4fmPgo8iXLB4rtf5dNEdTsaDiStLsQyHzavhMkAnMdX1dtGMC9U", '','')
+
+    assert.strictEqual(w.numberOfPlaceHolders(),0)
+    assert.strictEqual(w.isWalletHasAllTheKeys(), true)
+
+    assert.strictEqual(w.getM(), 2);
+    assert.strictEqual(w.getN(), 2);
 
     const w3 = new MultisigHDWallet();
     w3.setSecret(ww.getXpub());

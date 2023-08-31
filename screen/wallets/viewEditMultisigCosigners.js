@@ -253,7 +253,7 @@ const ViewEditMultisigCosigners = () => {
 
   const renderKey = el => {
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
-    const isPlaceHolder = wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER';
+    const isPlaceHolder = wallet.getCosigner(el.index + 1) === MultisigHDWallet.PLACEHOLDER_COSIGNER;
 
     let leftText;
     if (isXpub) {
@@ -262,11 +262,11 @@ const ViewEditMultisigCosigners = () => {
       const firstFour = currentAddress.substring(0, 5);
       const lastFour = currentAddress.substring(currentAddress.length - 5, currentAddress.length);
       leftText = `${firstFour}...${lastFour}`;
-      if (wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER') leftText = 'PLACEHOLDER';
+      if (wallet.getCosigner(el.index + 1) === MultisigHDWallet.PLACEHOLDER_COSIGNER) leftText = 'PLACEHOLDER';
     } else {
       const secret = wallet.getCosigner(el.index + 1).split(' ');
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
-      if (wallet.getCosigner(el.index + 1) === 'PLACEHOLDER_COSIGNER') leftText = 'PLACEHOLDER';
+      if (wallet.getCosigner(el.index + 1) === MultisigHDWallet.PLACEHOLDER_COSIGNER) leftText = 'PLACEHOLDER';
     }
 
     if (isPlaceHolder) {
@@ -557,7 +557,6 @@ const ViewEditMultisigCosigners = () => {
       if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
     } catch (e) {
       console.log(e);
-      // return setIsLoading(false);
     }
     let path;
     try {
@@ -570,7 +569,6 @@ const ViewEditMultisigCosigners = () => {
       if (!MultisigHDWallet.isPathValid(path)) path = wallet.getDerivationPath();
     } catch (e) {
       console.log(e);
-      // return setIsLoading(false);
     }
 
     return { fingerprint: fp, path };
@@ -680,7 +678,6 @@ const ViewEditMultisigCosigners = () => {
                 onPress={replacePlaceholderWithXpub}
               />
             )}
-            {/* <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} /> */}
           </View>
         </KeyboardAvoidingView>
       </BottomModal>

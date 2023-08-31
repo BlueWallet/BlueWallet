@@ -38,6 +38,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   static PATH_WRAPPED_SEGWIT = "m/48'/0'/0'/1'";
   static PATH_LEGACY = "m/45'";
 
+  static PLACEHOLDER_COSIGNER = "PLACEHOLDER_COSIGNER"
   constructor() {
     super();
     this._m = 0; //  minimum required signatures so spend (m out of n)
@@ -167,10 +168,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
    * @param fingerprint {string} Fingerprint for cosigner that is added as xpub
    * @param path {string} Custom path (if any) for cosigner that is added as mnemonics
    * @param passphrase {string} BIP38 Passphrase (if any)
-   * @param proxy {boolean} Indicates whether live or placeholder is used
+   * @param placeholder {boolean} Indicates whether real or placeholder is used
    */
-  addCosigner(key, fingerprint, path, passphrase, proxy) {
-    if (proxy) {
+  addCosigner(key, fingerprint, path, passphrase, placeholder) {
+    if (placeholder) {
       const index = this._cosigners.length;
       this._cosigners[index] = key;
       if (fingerprint) this._cosignersFingerprints[index] = fingerprint.toUpperCase();
@@ -208,9 +209,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     } else {
       // mnemonics. lets derive fingerprint (if it wasnt provided)
-      if (!bip39.validateMnemonic(key) && key !== 'PLACEHOLDER_COSIGNER') throw new Error('Not a valid mnemonic phrase');
+      if (!bip39.validateMnemonic(key) && key !== MultisigHDWallet.PLACEHOLDER_COSIGNER) throw new Error('Not a valid mnemonic phrase');
       fingerprint =
-        fingerprint !== false && key !== 'PLACEHOLDER_COSIGNER'
+        fingerprint !== false && key !== MultisigHDWallet.PLACEHOLDER_COSIGNER
           ? fingerprint || MultisigHDWallet.mnemonicToFingerprint(key, passphrase)
           : '00000000';
     }
@@ -328,7 +329,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static seedToXpub(mnemonic, path, passphrase) {
-    if (mnemonic === 'PLACEHOLDER_COSIGNER') return '';
+    if (mnemonic === MultisigHDWallet.PLACEHOLDER_COSIGNER) return '';
     let seed;
     if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
       seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
@@ -464,7 +465,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         ret += this._cosignersFingerprints[index] + ': ' + this._cosigners[index] + '\n';
       } else {
         if (coordinationSetup) {
-          if (this._cosigners[index] === 'PLACEHOLDER_COSIGNER') continue;
+          if (this._cosigners[index] === MultisigHDWallet.PLACEHOLDER_COSIGNER) continue;
           const xpub = this.convertXpubToMultisignatureXpub(
             MultisigHDWallet.seedToXpub(
               this._cosigners[index],
@@ -848,7 +849,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   howManySignaturesCanWeMake() {
     let howManyPrivKeysWeGot = 0;
     for (const cosigner of this._cosigners) {
-      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== 'PLACEHOLDER_COSIGNER')
+      if (!MultisigHDWallet.isXpubString(cosigner) && !MultisigHDWallet.isXprvString(cosigner) && cosigner !== MultisigHDWallet.PLACEHOLDER_COSIGNER)
         howManyPrivKeysWeGot++;
     }
 
@@ -1190,7 +1191,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   numberOfPlaceHolders() {
-    return this._cosigners.reduce((total, item) => (item === 'PLACEHOLDER_COSIGNER' ? total + 1 : total), 0);
+    return this._cosigners.reduce((total, item) => (item === MultisigHDWallet.PLACEHOLDER_COSIGNER ? total + 1 : total), 0);
   }
 
   getFormat() {
@@ -1227,6 +1228,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   isWalletHasAllTheKeys() {
-    return !this._cosigners.some(i => i === 'PLACEHOLDER_COSIGNER');
+    return !this._cosigners.some(i => i === MultisigHDWallet.PLACEHOLDER_COSIGNER);
   }
 }

@@ -119,7 +119,7 @@ const WalletTransactions = ({ navigation }) => {
     setOptions({
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(
-          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? WalletGradient.INCOMPLETE_MULTISIG_WALLET : wallet.type,
         ),
         borderBottomWidth: 0,
         elevation: 0,
@@ -264,6 +264,48 @@ const WalletTransactions = ({ navigation }) => {
       </View>
     );
   };
+
+  const renderSendReceiveButtons = () => {
+    if (wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys()) {
+      return null;
+    }
+
+    return (
+      <FContainer ref={walletActionButtonsRef}>
+        {wallet.allowReceive() && (
+          <FButton
+            testID="ReceiveButton"
+            text={loc.receive.header}
+            onPress={() => {
+              if (wallet.chain === Chain.OFFCHAIN) {
+                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } });
+              } else {
+                navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.getID() } });
+              }
+            }}
+            icon={
+              <View style={styles.receiveIcon}>
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+              </View>
+            }
+          />
+        )}
+        {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
+          <FButton
+            onLongPress={sendButtonLongPress}
+            onPress={sendButtonPress}
+            text={loc.send.header}
+            testID="SendButton"
+            icon={
+              <View style={styles.sendIcon}>
+                <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
+              </View>
+            }
+          />
+        )}
+      </FContainer>
+    )
+  }
 
   const renderLappBrowserButton = () => {
     return (
@@ -484,7 +526,7 @@ const WalletTransactions = ({ navigation }) => {
       <StatusBar
         barStyle="light-content"
         backgroundColor={WalletGradient.headerColorFor(
-          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : wallet.type,
+          wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? WalletGradient.INCOMPLETE_MULTISIG_WALLET : wallet.type,
         )}
         animated
       />
@@ -569,41 +611,7 @@ const WalletTransactions = ({ navigation }) => {
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         />
       </View>
-      {wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? null : (
-        <FContainer ref={walletActionButtonsRef}>
-          {wallet.allowReceive() && (
-            <FButton
-              testID="ReceiveButton"
-              text={loc.receive.header}
-              onPress={() => {
-                if (wallet.chain === Chain.OFFCHAIN) {
-                  navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } });
-                } else {
-                  navigate('ReceiveDetailsRoot', { screen: 'ReceiveDetails', params: { walletID: wallet.getID() } });
-                }
-              }}
-              icon={
-                <View style={styles.receiveIcon}>
-                  <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-                </View>
-              }
-            />
-          )}
-          {(wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-            <FButton
-              onLongPress={sendButtonLongPress}
-              onPress={sendButtonPress}
-              text={loc.send.header}
-              testID="SendButton"
-              icon={
-                <View style={styles.sendIcon}>
-                  <Icon name="arrow-down" size={buttonFontSize} type="font-awesome" color={colors.buttonAlternativeTextColor} />
-                </View>
-              }
-            />
-          )}
-        </FContainer>
-      )}
+      {renderSendReceiveButtons()}
     </View>
   );
 };
@@ -633,7 +641,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
     title: '',
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(
-        wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : route.params.walletType,
+        wallet.type === MultisigHDWallet.type && !wallet.isWalletHasAllTheKeys() ? WalletGradient.INCOMPLETE_MULTISIG_WALLET : route.params.walletType,
       ),
       borderBottomWidth: 0,
       elevation: 0,

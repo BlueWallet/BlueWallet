@@ -5,7 +5,6 @@ import URL from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
-
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp = require('../BlueApp');
@@ -32,15 +31,7 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(
-    event,
-    completionHandler,
-    context = {
-      wallets: [],
-      saveToDisk: () => {},
-      addWallet: () => {},
-    },
-  ) {
+  static navigationRouteFor(event, completionHandler, context = { wallets: [], saveToDisk: () => {}, addWallet: () => {} }) {
     if (event.url === null) {
       return;
     }
@@ -92,13 +83,7 @@ class DeeplinkSchemaMatch {
               },
             ]);
           } else if (action === 'openReceive') {
-            completionHandler([
-              'LNDCreateInvoiceRoot',
-              {
-                screen: 'LNDCreateInvoice',
-                params: { walletID: wallet.getID() },
-              },
-            ]);
+            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
           }
         }
       }
@@ -120,7 +105,6 @@ class DeeplinkSchemaMatch {
         .catch(e => console.warn(e));
       return;
     } else if (event.url.endsWith('.txt')) {
-      // todo is this the right point for this check?
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
@@ -135,7 +119,6 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
     } else if (event.url.endsWith('.json')) {
-      // todo is this the right point for this check?
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (!file || !this.hasValidKeysForMultiSigZpub(file)) {

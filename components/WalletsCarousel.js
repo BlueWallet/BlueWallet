@@ -207,7 +207,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress, isSelectedW
         <LinearGradient
           shadowColor={colors.shadowColor}
           colors={WalletGradient.gradientsFor(
-            item.type === MultisigHDWallet.type && !item.isWalletHasAllTheKeys() ? 'INCOMPLETE_MULTISIG_WALLET' : item.type,
+            item.type === MultisigHDWallet.type && !item.isWalletHasAllTheKeys() ? WalletGradient.INCOMPLETE_MULTISIG_WALLET : item.type,
           )}
           style={iStyles.grad}
         >

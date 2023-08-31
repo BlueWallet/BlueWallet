@@ -126,20 +126,24 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const _onCreate = async () => {
-    let emptyCosignersExist = false;
+    let placeholderCosignersExist = false;
     for (const [, cosigner] of cosigners.entries()) {
-      if (cosigner[0] === 'PLACEHOLDER_COSIGNER' || cosigner[1] === '' || cosigner[2] === '') {
-        emptyCosignersExist = true;
+      if (cosigner[0] === MultisigHDWallet.PLACEHOLDER_COSIGNER) {
+        placeholderCosignersExist = true;
         break;
       }
     }
 
-    if (emptyCosignersExist) {
+    /*
+    * When we have a placeholder in the set we mark it as a placeholder and in the addCosigner function
+    * where it will be added without checking that it's a valid mnemonic/xpub
+    * */
+    if (placeholderCosignersExist) {
       const w = generateMultiSig();
       for (const cc of cosigners) {
-        if (cc[0] === '') {
+        if (cc[0] === MultisigHDWallet.PLACEHOLDER_COSIGNER) {
           const fp = cc[1];
-          w.addCosigner('', fp, '', '', true);
+          w.addCosigner(MultisigHDWallet.PLACEHOLDER_COSIGNER, fp, '', '', true);
         } else {
           const fp = cc[1] || getFpCacheForMnemonics(cc[0], cc[3]);
           w.addCosigner(cc[0], fp, cc[2], cc[3], false);
@@ -217,11 +221,11 @@ const WalletsAddMultisigStep2 = () => {
     // until the actual keys are shared after coordination.
     // This allows for the workflow of every participant creating their own key and sharing xpubs afterwards
     // via airdrop (and tap when implemented)
-    cosignersCopy.push(['PLACEHOLDER_COSIGNER', '00000000', false]);
+    cosignersCopy.push([MultisigHDWallet.PLACEHOLDER_COSIGNER, '00000000', false]);
 
     if (Platform.OS !== 'android') LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setCosigners(cosignersCopy);
-    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: '', xpub: 'PLACEHOLDER_COSIGNER', isLoading: false });
+    setVaultKeyData({ keyIndex: cosignersCopy.length, seed: '', xpub: MultisigHDWallet.PLACEHOLDER_COSIGNER, isLoading: false });
     setIsMnemonicsModalVisible(false);
   };
 
@@ -520,7 +524,7 @@ const WalletsAddMultisigStep2 = () => {
             text: cosigners[el.index] ? loc.multisig.share : loc.multisig.skip,
             onPress: () => {
               if (cosigners[el.index]) {
-                if (cosigners[el.index] && cosigners[el.index][0] !== 'PLACEHOLDER_COSIGNER') {
+                if (cosigners[el.index] && cosigners[el.index][0] !== MultisigHDWallet.PLACEHOLDER_COSIGNER) {
                   viewKey(cosigners[el.index]);
                 }
               } else {
