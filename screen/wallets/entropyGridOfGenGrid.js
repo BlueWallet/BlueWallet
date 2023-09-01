@@ -34,13 +34,13 @@ const EntropyGridOfGenGrid = () => {
     goBack();
   };
 
-  const handleOKButton = () => {
+  const handleOKButton = async () => {
     if (seedValues && seedValues.every(Boolean) && seedValues.every(x => wordList.includes(x))) {
       let cells = gridCells;
 
-      // just 128bit
+      // just 128 bits
       if (pageType !== PageTypes.CREATE) {
-        const { cells: importCells, error } = regenerateSeedGrid(seedValues);
+        const { cells: importCells, error } = await regenerateSeedGrid(seedValues);
         if (error) {
           Alert.alert('Warning', error);
         } else {

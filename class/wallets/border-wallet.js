@@ -27,4 +27,9 @@ export class BorderWallet extends HDSegwitBech32Wallet {
   static typesOfEntropy = ['Deterministic (128 bit)', 'Maximum (19580 bit / 2048!)'];
 
   static defaultOfEntropy = BorderWallet.typesOfEntropy[0];
+
+  static EntropyType = {
+    DEFAULT: '128',
+    MAX: 'max',
+  };
 }

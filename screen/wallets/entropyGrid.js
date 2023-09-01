@@ -6,6 +6,7 @@ import loc from '../../loc';
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { saveGrid, wordList, getCellsByLoadingPdf } from '../../class/border-wallet-grid';
 import EntropyGridTable from './entropyGridTable';
+import { BorderWallet } from '../../class';
 
 export const PageTypes = Object.freeze({
   CREATE: 0,
@@ -19,7 +20,8 @@ const EntropyGrid = () => {
   const { colors } = useTheme();
   const [patternOfGrid, setPatternOfGrid] = useState({});
   const [gridCells, setGridCells] = useState(Array(16 * 24).fill(''));
-  const [setGridSeed] = useState([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [gridSeed, setGridSeed] = useState([]);
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.elevated,
@@ -97,7 +99,7 @@ const EntropyGrid = () => {
               testID="EntropyGridGenGrid"
               onPress={handleGenGridButton}
               title={loc.entropy_grid.generate_grid}
-              disabled={entropyType === 'max'}
+              disabled={entropyType === BorderWallet.EntropyType.MAX}
             />
             <BlueButton testID="EntropyGridClearSelection" onPress={handleClearSelectionButton} title={loc.entropy_grid.clear_selection} />
           </View>

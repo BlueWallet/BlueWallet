@@ -183,14 +183,14 @@ const WalletsAdd = () => {
     let entropyType, newGridCells, newGridSeed;
     if (selectedBorderIndex === 1) {
       // 19580bit / 2048!
-      entropyType = 'max';
+      entropyType = BorderWallet.EntropyType.MAX;
 
       const { cells, seed } = await generateSeedGrid(entropyType);
       seed && (newGridSeed = seed);
       cells && (newGridCells = cells);
     } else {
-      // 128bit
-      entropyType = '128';
+      // 128 bits
+      entropyType = BorderWallet.EntropyType.DEFAULT;
     }
 
     wallet = new BorderWallet(entropyType);
@@ -276,7 +276,7 @@ const WalletsAdd = () => {
     if (selectedWalletType === ButtonSelected.BORDER && !selectedBorderIndex) {
       navigate('EntropyGrid', {
         wallet: null,
-        entropyType: selectedBorderIndex === 0 ? '128' : 'max',
+        entropyType: selectedBorderIndex === 0 ? BorderWallet.EntropyType.DEFAULT : BorderWallet.EntropyType.MAX,
         pageType: PageTypes.IMPORT,
       });
     } else {

@@ -1,5 +1,7 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { BorderWallet } from '.';
+import { randomBytes } from './rng';
 const crypto = require('isomorphic-webcrypto');
 const fs = require('../blue_modules/fs');
 const bip39 = require('bip39');
@@ -10,8 +12,9 @@ const bytesToBinary = byteArray => byteArray.map(x => x.toString(2).padStart(8, 
 const normalizeString = str => str.trim().normalize('NFKD');
 
 const generateMnemonic = async () => {
-  await crypto.ensureSecure();
-  const entropy = crypto.getRandomValues(new Uint8Array(16));
+  // await crypto.ensureSecure();
+  // const entropy = crypto.getRandomValues(new Uint8Array(16));
+  const entropy = await randomBytes(16);
   const binary = bytesToBinary([...entropy]);
   const hash = await crypto.subtle.digest({ name: 'SHA-256' }, entropy);
   const cs = bytesToBinary([...new Uint8Array(hash)]).slice(0, 4);
@@ -96,10 +99,11 @@ function uheprng() {
   })();
 }
 
-const rnd11Bit = (limit = 2048) => {
+const rnd11Bit = async (limit = 2048) => {
   let small = limit;
   while (small >= limit) {
-    const big = crypto.getRandomValues(new Uint16Array(1))[0];
+    // const big = crypto.getRandomValues(new Uint16Array(1))[0];
+    const big = (await randomBytes(1))[0];
     const bigString = big.toString(2).padStart(16, '0');
     const smallString = bigString.slice(5);
     small = parseInt(smallString, 2);
@@ -107,7 +111,7 @@ const rnd11Bit = (limit = 2048) => {
   return small;
 };
 
-const shuffle = (array, seed) => {
+const shuffle = async (array, seed) => {
   const prng = uheprng();
   let getRandom = rnd11Bit;
   if (seed) {
@@ -116,7 +120,7 @@ const shuffle = (array, seed) => {
     getRandom = prng;
   }
   for (let i = array.length - 1; i > 0; i--) {
-    const j = getRandom(i + 1);
+    const j = await getRandom(i + 1);
     [array[i], array[j]] = [array[j], array[i]];
   }
   prng.done();
@@ -223,11 +227,11 @@ export const saveGrid = (cells, seed, typeOfGrid = 'char') => {
  * @param {*} gridType blank, char, num, idx or hex, default char
  * @returns cells and seed
  */
-export const generateSeedGrid = async (entropyType = '128', gridType = 'char') => {
+export const generateSeedGrid = async (entropyType = BorderWallet.EntropyType.DEFAULT, gridType = 'char') => {
   const words = [...wordList];
   const mnemonic = await generateMnemonic();
-  const seed = entropyType === '128' ? mnemonic : null;
-  shuffle(words, seed);
+  const seed = entropyType === BorderWallet.EntropyType.DEFAULT ? mnemonic : null;
+  await shuffle(words, seed);
   const cells = words.map(getCellValue[gridType]);
 
   return { cells, seed };
@@ -239,7 +243,7 @@ export const generateSeedGrid = async (entropyType = '128', gridType = 'char') =
  * @param {*} gridType blank, char, num, idx or hex, default char
  * @returns cells and seed
  */
-export const regenerateSeedGrid = (gridSeed, gridType = 'char') => {
+export const regenerateSeedGrid = async (gridSeed, gridType = 'char') => {
   let mnemonic, cells, error;
 
   if (gridSeed && gridSeed.length === 12) {
@@ -248,7 +252,7 @@ export const regenerateSeedGrid = (gridSeed, gridType = 'char') => {
       mnemonic = mnemonic.join(' ');
 
       const words = [...wordList];
-      shuffle(words, mnemonic);
+      await shuffle(words, mnemonic);
       cells = words.map(getCellValue[gridType]);
     } else {
       error = 'Grid Seed has invalid word(s).';
@@ -330,9 +334,11 @@ export const generateFinalWord = async (walletSeeds, finalWordNumber) => {
  */
 export const getFinalWordNumber = async n => {
   const entBits = 11 - n / 3;
-  await crypto.ensureSecure();
-  const res = crypto
-    .getRandomValues(new Uint8Array(1))[0]
+  const c = (await randomBytes(1))[0];
+  // await crypto.ensureSecure();
+  // const res = crypto
+    // .getRandomValues(new Uint8Array(1))[0]
+    const res = c
     .toString(2)
     .padStart(8, '0')
     .slice(8 - entBits);
