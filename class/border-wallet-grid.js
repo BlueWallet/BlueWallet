@@ -12,8 +12,6 @@ const bytesToBinary = byteArray => byteArray.map(x => x.toString(2).padStart(8, 
 const normalizeString = str => str.trim().normalize('NFKD');
 
 const generateMnemonic = async () => {
-  // await crypto.ensureSecure();
-  // const entropy = crypto.getRandomValues(new Uint8Array(16));
   const entropy = await randomBytes(16);
   const binary = bytesToBinary([...entropy]);
   const hash = await crypto.subtle.digest({ name: 'SHA-256' }, entropy);
@@ -102,7 +100,6 @@ function uheprng() {
 const rnd11Bit = async (limit = 2048) => {
   let small = limit;
   while (small >= limit) {
-    // const big = crypto.getRandomValues(new Uint16Array(1))[0];
     const big = (await randomBytes(1))[0];
     const bigString = big.toString(2).padStart(16, '0');
     const smallString = bigString.slice(5);
@@ -335,10 +332,7 @@ export const generateFinalWord = async (walletSeeds, finalWordNumber) => {
 export const getFinalWordNumber = async n => {
   const entBits = 11 - n / 3;
   const c = (await randomBytes(1))[0];
-  // await crypto.ensureSecure();
-  // const res = crypto
-    // .getRandomValues(new Uint8Array(1))[0]
-    const res = c
+  const res = c
     .toString(2)
     .padStart(8, '0')
     .slice(8 - entBits);
