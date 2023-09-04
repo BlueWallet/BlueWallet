@@ -65,6 +65,7 @@ export const BlueDefaultTheme = {
     changeText: '#F38C47',
     receiveBackground: '#D1F9D6',
     receiveText: '#37C0A1',
+    borderText: '#b609eb',
   },
 };
 
@@ -120,6 +121,7 @@ export const BlueDarkTheme: Theme = {
     changeText: '#F38C47',
     receiveBackground: 'rgba(210,248,214,.2)',
     receiveText: '#37C0A1',
+    borderText: '#b609eb',
   },
 };
 

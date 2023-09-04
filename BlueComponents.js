@@ -158,7 +158,7 @@ export const BorderButton = props => {
     <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
       <View
         style={{
-          borderColor: (props.active && colors.newBlue) || colors.buttonDisabledBackgroundColor,
+          borderColor: (props.active && colors.borderText) || colors.buttonDisabledBackgroundColor,
           borderWidth: 1.5,
           borderRadius: 8,
           backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -174,7 +174,9 @@ export const BorderButton = props => {
             <Image style={{ width: 40, height: 22, marginRight: 8 }} source={require('./img/addWallet/border_wallet.png')} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.newBlue, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+            <Text
+              style={{ color: colors.borderText, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}
+            >
               {loc.wallets.add_border}
             </Text>
             <Text
