@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { BorderWallet } from '.';
 import { randomBytes } from './rng';
+import loc from '../loc';
 const crypto = require('isomorphic-webcrypto');
 const fs = require('../blue_modules/fs');
 const bip39 = require('bip39');
@@ -252,10 +253,10 @@ export const regenerateSeedGrid = async (gridSeed, gridType = 'char') => {
       await shuffle(words, mnemonic);
       cells = words.map(getCellValue[gridType]);
     } else {
-      error = 'Grid Seed has invalid word(s).';
+      error = loc.entropy_grid.tools_rgs_invalid_words;
     }
   } else {
-    error = 'Grid Seed must be 12 words.';
+    error = loc.entropy_grid.tools_rgs_incorrect_count;
   }
 
   return { cells, seed: mnemonic, error };
@@ -315,10 +316,10 @@ export const generateFinalWord = async (walletSeeds, finalWordNumber) => {
       const wordIsValid = wordList.includes(lastWord);
       checksum = wordIsValid ? lastWord : '';
     } else {
-      error = 'Wallet Seed has invalid word(s).';
+      error = loc.entropy_grid.tools_gfn_invalid_words;
     }
   } else {
-    error = 'The wallet seed must be 11 or 23 words and the final word number must also meet the range requirements.';
+    error = loc.entropy_grid.tools_gfn_incorrect_count;
   }
 
   return { checksum, error };

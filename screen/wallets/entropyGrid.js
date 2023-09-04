@@ -66,7 +66,7 @@ const EntropyGrid = () => {
   const handleOKButton = () => {
     const patternWords = Object.keys(patternOfGrid);
     if (patternWords.length !== 11 && patternWords.length !== 23) {
-      Alert.alert('Warning', loc.entropy_grid.ok_tips);
+      Alert.alert(loc.entropy_grid.warning, loc.entropy_grid.ok_tips);
     } else {
       navigate('EntropyGridOfFinalWord', {
         patternWords: patternWords.map(x => wordList.find(y => y.startsWith(x))),

@@ -55,7 +55,7 @@ const EntropyGridOfFinalWord = () => {
     setFinalWord(checksum);
   };
 
-  const showWarning = msg => Alert.alert('Warning', msg);
+  const showWarning = msg => Alert.alert(loc.entropy_grid.warning, msg);
 
   const handleCancelButton = () => {
     goBack();
@@ -69,10 +69,10 @@ const EntropyGridOfFinalWord = () => {
         navigate('ImportWalletDiscovery', { importText: mnemonic, askPassphrase: false, searchAccounts: false });
       } else if (pageType === PageTypes.CHECK) {
         if (mnemonic === wallet.secret) {
-          Alert.alert('Success', loc.entropy_grid.check_mnemonic_valid);
+          Alert.alert(loc.entropy_grid.success, loc.entropy_grid.check_mnemonic_valid);
           dangerouslyGetParent().pop();
         } else {
-          Alert.alert('Failed', loc.entropy_grid.check_mnemonic_invalid);
+          Alert.alert(loc.entropy_grid.failed, loc.entropy_grid.check_mnemonic_invalid);
         }
       } else {
         wallet.setSecret(mnemonic);

@@ -629,6 +629,13 @@
     "final_word_valid_range_error": "Final Word Recovery Number must be greater than or equal to {min} and less than or equal to {max}!",
     "final_word_not_include_bip39": "The input word(s) is not included in the BIP39 word list.",
     "check_mnemonic_valid": "Mnemonic you memorized is valid.",
-    "check_mnemonic_invalid": "Mnemonic you memorized is invalid."
+    "check_mnemonic_invalid": "Mnemonic you memorized is invalid.",
+    "tools_rgs_invalid_words": "Grid Seed has invalid word(s).",
+    "tools_rgs_incorrect_count": "Grid Seed must be 12 words.",
+    "tools_gfn_invalid_words": "Wallet Seed has invalid word(s).",
+    "tools_gfn_incorrect_count": "The wallet seed must be 11 or 23 words and the final word number must also meet the range requirements.",
+    "warning": "Warning",
+    "success": "Success",
+    "failed": "Failed"
   }
 }

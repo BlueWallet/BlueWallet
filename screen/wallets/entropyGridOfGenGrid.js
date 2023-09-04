@@ -42,7 +42,7 @@ const EntropyGridOfGenGrid = () => {
       if (pageType !== PageTypes.CREATE) {
         const { cells: importCells, error } = await regenerateSeedGrid(seedValues);
         if (error) {
-          Alert.alert('Warning', error);
+          Alert.alert(loc.entropy_grid.warning, error);
         } else {
           importCells && (cells = importCells);
         }
@@ -56,7 +56,7 @@ const EntropyGridOfGenGrid = () => {
         newGridCells: cells,
       });
     } else {
-      Alert.alert('Warning', loc.entropy_grid.generate_seed_ok_tips);
+      Alert.alert(loc.entropy_grid.warning, loc.entropy_grid.generate_seed_ok_tips);
     }
   };
 
