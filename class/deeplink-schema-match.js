@@ -31,7 +31,11 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(event, completionHandler, context = { wallets: [], saveToDisk: () => {}, addWallet: () => {} }) {
+  static navigationRouteFor(
+    event,
+    completionHandler,
+    context = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
+  ) {
     if (event.url === null) {
       return;
     }
@@ -105,30 +109,12 @@ class DeeplinkSchemaMatch {
         .catch(e => console.warn(e));
       return;
     } else if (event.url.endsWith('.json')) {
-
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (!file || !this.hasValidKeysForMultiSigZpub(file)) {
             return;
           }
-          completionHandler([
-            'SelectWallet',
-            {
-              onWalletSelect: (wallet, { navigation }) => {
-                navigation.pop(); // close select wallet screen
-                navigation.navigate('ViewEditMultisigCosignersRoot', {
-                  screen: 'ViewEditMultisigCosigners',
-                  params: {
-                    walletId: wallet.getID(),
-                    importTextPlaceHolderReplacement: file,
-                  },
-                });
-              },
-              params: {
-                walletType: 'HDmultisig',
-              },
-            },
-          ]);
+          context.setSharedCosigner(file);
         })
         .catch(e => console.warn(e));
     }

@@ -30,6 +30,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isTorDisabled, setIsTorDisabled] = useState(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
+  const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
@@ -200,6 +201,10 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets([...BlueApp.getWallets()]);
   };
 
+  const setSharedCosigner = cosigner => {
+    setCurrentSharedCosigner(cosigner);
+  };
+
   let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
   const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
@@ -239,6 +244,8 @@ export const BlueStorageProvider = ({ children }) => {
         setSelectedWallet,
         addWallet,
         deleteWallet,
+        currentSharedCosigner,
+        setSharedCosigner,
         addAndSaveWallet,
         setItem,
         getItem,

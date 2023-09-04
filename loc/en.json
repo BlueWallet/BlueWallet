@@ -482,6 +482,8 @@
     "header": "Send",
     "share": "Share",
     "view": "View",
+    "shared_key_detected": "Shared cosigner",
+    "shared_key_detected_question": "A cosigner was shared with you, do you want to import it?",
     "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "how many signatures can BlueWallet make",
     "signatures_required_to_spend": "Signatures required {number}",
