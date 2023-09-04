@@ -976,6 +976,7 @@ describe('multisig-wallet (native segwit)', () => {
     w.setM(2);
     assert.strictEqual(w.numberOfPlaceHolders(),2)
     assert.strictEqual(w.isWalletHasAllTheKeys(), false)
+    assert.strictEqual(w.getN(), 2);
 
     const ww = new MultisigHDWallet();
     ww.setSecret(w.getSecret());
