@@ -30,7 +30,7 @@ describe('Border wallet grid utilities', () => {
     const { cells: cellsOriginal128, seed: seed128 } = await generateSeedGrid(BorderWallet.EntropyType.DEFAULT);
     const { cells: cellsRestored } = await regenerateSeedGrid(seed128.split(' '));
 
-    assert.strictEqual(2048, cellsRestored?.length);
+    assert.strictEqual(2048, cellsRestored.length);
     assert.strictEqual(cellsOriginal128.toString(), cellsRestored.toString());
   });
 
