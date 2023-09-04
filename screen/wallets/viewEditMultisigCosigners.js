@@ -53,7 +53,7 @@ const ViewEditMultisigCosigners = () => {
   const { navigate, goBack } = useNavigation();
   const route = useRoute();
   const openScannerButtonRef = useRef();
-  const { walletId, importTextPlaceHolderReplacement } = route.params;
+  const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState();
@@ -104,9 +104,6 @@ const ViewEditMultisigCosigners = () => {
 
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    if (importTextPlaceHolderReplacement) {
-      setImportText(importTextPlaceHolderReplacement);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
