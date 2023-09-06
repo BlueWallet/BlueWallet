@@ -1,6 +1,8 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
 import {
   ActivityIndicator,
+  ScrollView,
+  Image,
   FlatList,
   I18nManager,
   Keyboard,
@@ -52,6 +54,7 @@ const WalletsAddMultisigStep2 = () => {
   const { walletLabel } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
+  const [secret, setSecret] = useState(null);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -102,14 +105,14 @@ const WalletsAddMultisigStep2 = () => {
     setIsLoading(true);
     await sleep(100);
     const buf = await randomBytes(16);
-    this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+    setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
 	setIsLoading(false);
   };
 
   const footer = (
     <View style={styles.buttonBottom}>
-	  {!isLoading ? <BlueButtonLink style={styles.import} title="Import entropy grid" onPress={onContinue} /> : undefined}
-      {isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={onContinue} disabled={this.secret == undefined} />}
+	  {!isLoading ? <BlueButtonLink style={styles.import} title="Import entropy grid" onPress={onContinue} /> : null}
+      {isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={onContinue} disabled={secret == null} />}
     </View>
   );
 
@@ -117,6 +120,7 @@ const WalletsAddMultisigStep2 = () => {
     <View style={[styles.root, stylesHook.root]}>
 	  <View style={styles.wrapBox}>
         <BlueButton title={"Generate new entropy grid"} onPress={onGenerate} />
+		<BlueSpacing20 />
       </View>
 
       {footer}
@@ -135,7 +139,7 @@ const styles = StyleSheet.create({
   },
   buttonBottom: {
     marginHorizontal: 20,
-    flex: 0.12,
+    flex: 0.3,
     marginBottom: 40,
     justifyContent: 'flex-end',
   },
@@ -202,6 +206,16 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: 24,
   },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'white',
+  },
+  imageThumbnail: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 100,
+  }
 });
 
 WalletsAddMultisigStep2.navigationOptions = navigationStyle({
