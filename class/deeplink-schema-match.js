@@ -111,7 +111,9 @@ class DeeplinkSchemaMatch {
     } else if (event.url.endsWith('.json')) {
       RNFS.readFile(decodeURI(event.url))
         .then(file => {
-          if (!file || !this.hasValidKeysForMultiSigZpub(file)) {
+          // checks whether the necessary json keys are present in order to set a cosigner,
+          // doesn't validate the values this happens later
+          if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
             return;
           }
           context.setSharedCosigner(file);
@@ -390,7 +392,7 @@ class DeeplinkSchemaMatch {
     return text.startsWith('widget?action=');
   }
 
-  static hasValidKeysForMultiSigZpub(str) {
+  static hasNeededJsonKeysForMultiSigSharing(str) {
     let obj;
 
     // Check if it's a valid JSON

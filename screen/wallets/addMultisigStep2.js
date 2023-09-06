@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
   findNodeHandle,
-  Alert,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -42,6 +41,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import confirm from '../../helpers/confirm';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -80,28 +80,13 @@ const WalletsAddMultisigStep2 = () => {
   useEffect(() => {
     console.log(currentSharedCosigner);
     if (currentSharedCosigner) {
-      Alert.alert(
-        loc.multisig.shared_key_detected,
-        loc.multisig.shared_key_detected_question,
-        [
-          {
-            text: 'Cancel',
-            onPress: () => {
-              /* do nothing on purpose */
-            },
-            style: 'cancel',
-          },
-          {
-            text: 'OK',
-            onPress: () => {
-              setImportText(currentSharedCosigner);
-              setIsProvideMnemonicsModalVisible(true);
-              setSharedCosigner('');
-            },
-          },
-        ],
-        { cancelable: false },
-      );
+      (async function () {
+        if (await confirm(loc.multisig.shared_key_detected, loc.multisig.shared_key_detected_question)) {
+          setImportText(currentSharedCosigner);
+          setIsProvideMnemonicsModalVisible(true);
+          setSharedCosigner('');
+        }
+      })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
