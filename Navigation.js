@@ -23,6 +23,7 @@ import DefaultView from './screen/settings/defaultView';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
+import WalletsAddBorder from './screen/wallets/addBorder';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
@@ -188,6 +189,11 @@ const AddWalletRoot = () => {
       />
       <AddWalletStack.Screen name="PleaseBackupLdk" component={PleaseBackupLdk} options={PleaseBackupLdk.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions(theme)} />
+	  <AddWalletStack.Screen 
+		name="WalletsAddBorder" 
+		component={WalletsAddBorder} 
+		options={WalletsAddBorder.navigationOptions(theme)} 
+	  />
       <AddWalletStack.Screen
         name="WalletsAddMultisig"
         component={WalletsAddMultisig}

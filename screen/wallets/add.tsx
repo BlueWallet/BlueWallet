@@ -12,7 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText, LightningButton, BitcoinButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
+import { BlueText, BlueListItem, LightningButton, BitcoinButton, BorderWalletButton, VaultButton, BlueFormLabel, BlueButton, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import {
   HDSegwitBech32Wallet,
@@ -40,6 +40,7 @@ const A = require('../../blue_modules/analytics');
 enum ButtonSelected {
   // @ts-ignore: Return later to update
   ONCHAIN = Chain.ONCHAIN,
+  BORDER: 'BORDER',
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
@@ -260,7 +261,10 @@ const WalletsAdd: React.FC = () => {
           goBack();
         }
       }
-    } else if (selectedWalletType === ButtonSelected.VAULT) {
+    } else if (selectedWalletType === ButtonSelected.BORDER) {
+	  setIsLoading(false);
+	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
+	} else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       // @ts-ignore: Return later to update
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
@@ -352,6 +356,11 @@ const WalletsAdd: React.FC = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
+  
+  const handleOnBorderButtonPressed = () => {
+    Keyboard.dismiss();
+    setSelectedWalletType(ButtonSelected.BORDER);
+  };
 
   const handleOnLightningButtonPressed = () => {
     // @ts-ignore: Return later to update
@@ -390,6 +399,12 @@ const WalletsAdd: React.FC = () => {
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
+            style={styles.button}
+          />
+		  <BorderWalletButton
+            testID="ActivateBitcoinButton"
+            active={selectedWalletType === ButtonSelected.BORDER}
+            onPress={handleOnBorderButtonPressed}
             style={styles.button}
           />
           <LightningButton

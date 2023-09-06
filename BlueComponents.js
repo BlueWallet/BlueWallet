@@ -114,6 +114,48 @@ export const BitcoinButton = props => {
   );
 };
 
+export const BorderWalletButton = props => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
+      <View
+        style={{
+          borderColor: (props.active && colors.foregroundColor) || colors.buttonDisabledBackgroundColor,
+          borderWidth: 1.5,
+          borderRadius: 8,
+          backgroundColor: colors.buttonDisabledBackgroundColor,
+          minWidth: props.style.width,
+          minHeight: props.style.height,
+          height: props.style.height,
+          flex: 1,
+          marginBottom: 8,
+        }}
+      >
+        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
+          <View>
+            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/border.png')} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+              Border Wallet
+            </Text>
+            <Text
+              style={{
+                color: colors.alternativeTextColor,
+                fontSize: 13,
+                fontWeight: '500',
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
+              Quickly and reliably memorise Bitcoin seed phrases
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
 export const VaultButton = props => {
   const { colors } = useTheme();
   return (
