@@ -17,12 +17,6 @@ const WalletsAddBorder = () => {
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
   const { walletLabel = loc.multisig.default_label } = useRoute().params;
-  const [m, setM] = useState(2);
-  const [n, setN] = useState(3);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
-  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -63,133 +57,8 @@ const WalletsAddBorder = () => {
     }
   }, []);
 
-  useEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const onLetsStartPress = () => {
-    navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
-  };
-
-  const setFormatP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2WSH);
-
-  const setFormatP2shP2wsh = () => setFormat(MultisigHDWallet.FORMAT_P2SH_P2WSH);
-
-  const setFormatP2sh = () => setFormat(MultisigHDWallet.FORMAT_P2SH);
-
-  const isP2wsh = () => format === MultisigHDWallet.FORMAT_P2WSH;
-
-  const isP2shP2wsh = () => format === MultisigHDWallet.FORMAT_P2SH_P2WSH || format === MultisigHDWallet.FORMAT_P2SH_P2WSH_ALT;
-
-  const isP2sh = () => format === MultisigHDWallet.FORMAT_P2SH;
-
-  const increaseM = () => {
-    if (n === m) return;
-    if (m === 7) return;
-    setM(m + 1);
-  };
-  const decreaseM = () => {
-    if (m === 2) return;
-    setM(m - 1);
-  };
-
-  const increaseN = () => {
-    if (n === 7) return;
-    setN(n + 1);
-  };
-  const decreaseN = () => {
-    if (n === m) return;
-    setN(n - 1);
-  };
-
-  const closeModal = () => {
-    Keyboard.dismiss();
-    setIsModalVisible(false);
-  };
-
-  const renderModal = () => {
-    return (
-      <BottomModal isVisible={isModalVisible} onClose={closeModal} doneButton propagateSwipe>
-        <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
-          <ScrollView>
-            <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
-            <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
-            <View style={styles.rowCenter}>
-              <View style={styles.column}>
-                <TouchableOpacity accessibilityRole="button" onPress={increaseM} disabled={n === m || m === 7} style={styles.chevron}>
-                  <Icon
-                    name="chevron-up"
-                    size={22}
-                    type="octicon"
-                    color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
-                  />
-                </TouchableOpacity>
-                <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
-                <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.columnOf}>
-                <Text style={styles.textOf}>{loc.multisig.of}</Text>
-              </View>
-
-              <View style={styles.column}>
-                <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
-                  <Icon name="chevron-up" size={22} type="octicon" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
-                </TouchableOpacity>
-                <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
-                <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <BlueSpacing20 />
-
-            <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.wallet_type}</Text>
-            <BlueSpacing20 />
-            <BlueListItem
-              bottomDivider={false}
-              onPress={setFormatP2wsh}
-              title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
-              checkmark={isP2wsh()}
-              containerStyle={[styles.borderRadius6, styles.item, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
-            />
-            <BlueListItem
-              bottomDivider={false}
-              onPress={setFormatP2shP2wsh}
-              title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
-              checkmark={isP2shP2wsh()}
-              containerStyle={[styles.borderRadius6, styles.item, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
-            />
-            <BlueListItem
-              bottomDivider={false}
-              onPress={setFormatP2sh}
-              title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
-              checkmark={isP2sh()}
-              containerStyle={[styles.borderRadius6, styles.item, isP2sh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
-            />
-          </ScrollView>
-        </View>
-      </BottomModal>
-    );
-  };
-
-  const showAdvancedOptionsModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const getCurrentlySelectedFormat = code => {
-    switch (code) {
-      case 'format':
-        return WalletsAddMultisig.getCurrentFormatReadable(format);
-      case 'quorum':
-        return loc.formatString(loc.multisig.quorum, { m, n });
-      default:
-        throw new Error('This should never happen');
-    }
+    navigate('WalletsAddBorderStep2', { walletLabel });
   };
 
   return (
@@ -231,20 +100,10 @@ const WalletsAddBorder = () => {
         </Text>
 		
       </View>
-      {isAdvancedModeEnabledRender && (
-        <View>
-          <BlueListItem
-            onPress={showAdvancedOptionsModal}
-            title={loc.multisig.vault_advanced_customize}
-            subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
-            chevron
-          />
-        </View>
-      )}
+
       <View style={styles.buttonContainer}>
         <BlueButton buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
       </View>
-      {renderModal()}
     </SafeAreaView>
   );
 };

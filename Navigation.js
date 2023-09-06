@@ -24,6 +24,7 @@ import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import WalletsAddBorder from './screen/wallets/addBorder';
+import WalletsAddBorderStep2 from './screen/wallets/addBorderStep2';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
@@ -193,6 +194,11 @@ const AddWalletRoot = () => {
 		name="WalletsAddBorder" 
 		component={WalletsAddBorder} 
 		options={WalletsAddBorder.navigationOptions(theme)} 
+	  />
+	  <AddWalletStack.Screen 
+		name="WalletsAddBorderStep2" 
+		component={WalletsAddBorderStep2} 
+		options={WalletsAddBorderStep2.navigationOptions(theme)} 
 	  />
       <AddWalletStack.Screen
         name="WalletsAddMultisig"
