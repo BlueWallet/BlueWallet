@@ -36,8 +36,6 @@ import BottomModal from '../../components/BottomModal';
 import * as bip39 from 'bip39';
 import { randomBytes } from '../../class/rng';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
-import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 
 const prompt = require('../../helpers/prompt');
