@@ -15,6 +15,8 @@ import {
   TouchableOpacity,
   View,
   findNodeHandle,
+  VirtualizedList,
+  Animated
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
@@ -115,12 +117,73 @@ const WalletsAddMultisigStep2 = () => {
       {isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={onContinue} disabled={secret == null} />}
     </View>
   );
+  
+  const items = [];
+  for (let i = 0; i < 128; i++) {
+	  let curr = [];
+	  for (let j = 0; j < 16; j++) {
+		curr.push({id: j, title: j});
+	  }
+	  items.push({id: i, list: curr});
+  }
+  
+  let leftList = useRef(null);
+  
+  const offsetR = new Animated.Value(0);
+  offsetR.addListener(({ value }) => {
+    leftList.current.scrollToOffset({ offset: value, animated: false });
+  })
+  
+  const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
 
   return (
     <View style={[styles.root, stylesHook.root]}>
 	  <View style={styles.wrapBox}>
         <BlueButton title={"Generate new entropy grid"} onPress={onGenerate} />
 		<BlueSpacing20 />
+		<View style={{flexDirection: 'row'}}>
+			<View>
+				<View style={styles.gridBoxStyle}></View>
+				<AnimatedVirtualizedList
+					showsVerticalScrollIndicator={false}
+					ref={leftList}
+					initialNumToRender={128}
+					scrollEnabled={false}
+					renderItem={({item}) => {
+						return (<View key={item.id} style={styles.gridBoxStyle}><Text>{item.id+1}</Text></View>);
+					}}
+					keyExtractor={item => item.id}
+					getItemCount={() => items.length}
+					getItem={(data, index) => items[index]}
+				
+				/>
+			</View>
+			<ScrollView horizontal={true}>
+				<View>
+					<View style={{flexDirection: 'row'}}>{[...Array(16)].map((x, i) =>
+						<View key={i} style={styles.gridBoxStyle}><Text>{(i + 10).toString(36)}</Text></View>
+					)}</View>
+					<AnimatedVirtualizedList
+						scrollEventThrottle={16}
+						initialNumToRender={128}
+						onScroll={Animated.event(
+							[{ nativeEvent: { contentOffset: { ['y']: offsetR } } }],
+							{ useNativeDriver: true }
+						)}
+						renderItem={({item}) => {
+							return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
+								return (
+								  <TouchableOpacity key={box.id}><View style={styles.gridBoxStyle}><Text>{box.title}</Text></View></TouchableOpacity>
+								);
+							})}</View>);
+						}}
+						keyExtractor={item => item.id}
+						getItemCount={() => items.length}
+						getItem={(data, index) => items[index]}
+					/>
+				</View>
+			</ScrollView>
+		</View>
       </View>
 
       {footer}
@@ -215,6 +278,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 100,
+  },
+  gridBoxStyle: {
+	height: 24,
+	width: 56,
+	justifyContent: 'center',
+	alignItems: 'center',
+	borderWidth: 0.5
   }
 });
 
