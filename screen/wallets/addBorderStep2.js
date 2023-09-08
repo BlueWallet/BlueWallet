@@ -201,10 +201,12 @@ const WalletsAddBorderStep2 = () => {
   
   const clickGrid = (box) => {
 
-	selectedWords.current.push(box);
-	box.cell.current.setSelected(true);
-	footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
-	  
+	if (selectedWords.current.indexOf(box) < 0) {
+		selectedWords.current.push(box);
+		box.cell.current.setSelected(true);
+		footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
+	}
+	
   };
   
   const footer = React.createRef();
