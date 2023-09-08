@@ -16,7 +16,7 @@ const WalletsAddBorder = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
-  const { walletLabel = loc.multisig.default_label } = useRoute().params;
+  const { walletLabel = loc.multisig.default_label, seedPhrase } = useRoute().params;
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -58,7 +58,7 @@ const WalletsAddBorder = () => {
   }, []);
 
   const onLetsStartPress = () => {
-    navigate('WalletsAddBorderStep2', { walletLabel });
+    navigate('WalletsAddBorderStep2', { walletLabel, seedPhrase });
   };
 
   return (

@@ -18,7 +18,7 @@ import {
   VirtualizedList,
   Animated
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, Header } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -53,7 +53,7 @@ const WalletsAddMultisigStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel } = useRoute().params;
+  const { walletLabel, seedPhrase } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
   const [secret, setSecret] = useState(null);
@@ -102,29 +102,112 @@ const WalletsAddMultisigStep2 = () => {
       console.log('create MS wallet error', e);
     }
   };
-  
-  const onGenerate = async () => {
-    setIsLoading(true);
-    await sleep(100);
-    const buf = await randomBytes(16);
-    setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
-	setIsLoading(false);
-  };
 
   const footer = (
     <View style={styles.buttonBottom}>
-	  {!isLoading ? <BlueButtonLink style={styles.import} title="Import entropy grid" onPress={onContinue} /> : null}
+	  {!isLoading ? <BlueButtonLink style={styles.import} title="Clear selection" onPress={onContinue} /> : null}
       {isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={onContinue} disabled={secret == null} />}
     </View>
   );
   
+	function Mash() {
+		let n = 0xefc8249d;
+		const mash = function(data) {
+			if (data) {
+				data = data.toString();
+				for (let i = 0; i < data.length; i++) {
+					n += data.charCodeAt(i);
+					let h = 0.02519603282416938 * n;
+					n = h >>> 0;
+					h -= n;
+					h *= n;
+					n = h >>> 0;
+					h -= n;
+					n += h * 0x100000000;
+					// 2^32
+				}
+				return (n >>> 0) * 2.3283064365386963e-10;
+				// 2^-32
+			} else
+				n = 0xefc8249d;
+		};
+		return mash;
+	}
+
+	function uheprng() {
+		return (function() {
+			const o = 48;
+			let c = 1;
+			let p = o;
+			let s = new Array(o);
+			let mash = Mash();
+			function rawprng() {
+				if (++p >= o)
+					p = 0;
+				const t = 1768863 * s[p] + c * 2.3283064365386963e-10;
+				return (s[p] = t - (c = t | 0));
+			}
+			const random = function(range=2) {
+				return Math.floor(range * (rawprng() + ((rawprng() * 0x200000) | 0) * 1.1102230246251565e-16));
+			};
+			random.cleanString = function(inStr='') {
+				inStr = inStr.replace(/(^\s*)|(\s*$)/gi, '');
+				inStr = inStr.replace(/[\x00-\x1F]/gi, '');
+				inStr = inStr.replace(/\n /, '\n');
+				return inStr;
+			}
+			;
+			random.hashString = function(inStr='') {
+				inStr = random.cleanString(inStr);
+				mash(inStr);
+				for (let i = 0; i < inStr.length; i++) {
+					const k = inStr.charCodeAt(i);
+					for (let j = 0; j < o; j++) {
+						s[j] -= mash(k);
+						if (s[j] < 0)
+							s[j] += 1;
+					}
+				}
+			}
+			;
+			random.initState = function() {
+				mash();
+				for (let i = 0; i < o; i++)
+					s[i] = mash(' ');
+				c = 1;
+				p = o;
+			}
+			;
+			random.done = function() {
+				mash = null;
+			}
+			;
+			random.initState();
+			return random;
+		}
+		)();
+	}
+  
+	const words = [...bip39.wordlists[bip39.getDefaultWordlist()]];
+	const seed = seedPhrase;
+	//shuffle
+	const prng = uheprng();
+	prng.initState();
+	prng.hashString(seed);
+	for (let i = words.length - 1; i > 0; i--) {
+		const j = prng(i + 1);
+		[words[i],words[j]] = [words[j], words[i]];
+	}
+	prng.done();   
+  
   const items = [];
   for (let i = 0; i < 128; i++) {
-	  let curr = [];
-	  for (let j = 0; j < 16; j++) {
-		curr.push({id: j, title: j});
-	  }
-	  items.push({id: i, list: curr});
+	
+		let curr = [];
+		for (let j = 0; j < 16; j++) {
+			curr.push({id: j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4)});
+		}
+		items.push({id: i, list: curr});
   }
   
   let leftList = useRef(null);
@@ -138,55 +221,73 @@ const WalletsAddMultisigStep2 = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-	  <View style={styles.wrapBox}>
-        <BlueButton title={"Generate new entropy grid"} onPress={onGenerate} />
-		<BlueSpacing20 />
-		<View style={{flexDirection: 'row'}}>
-			<View>
-				<View style={styles.gridBoxStyle}></View>
-				<AnimatedVirtualizedList
-					showsVerticalScrollIndicator={false}
-					ref={leftList}
-					initialNumToRender={128}
-					scrollEnabled={false}
-					renderItem={({item}) => {
-						return (<View key={item.id} style={styles.gridBoxStyle}><Text>{item.id+1}</Text></View>);
-					}}
-					keyExtractor={item => item.id}
-					getItemCount={() => items.length}
-					getItem={(data, index) => items[index]}
-				
-				/>
-			</View>
-			<ScrollView horizontal={true}>
+		<View style={styles.wrapBox}>
+			<Text
+				adjustsFontSizeToFit
+				style={{
+				  fontWeight: 'bold',
+				  fontSize: 30,
+				  color: "#000000"
+				}}
+			>
+				{"Choose 11 or 23 boxes"}
+			</Text>
+			<Text
+				adjustsFontSizeToFit
+				style={{
+				  fontSize: 15,
+				  color: "#000000"
+				}}
+			>
+				{"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
+			</Text>
+			<BlueSpacing20 />
+			<View style={{flexDirection: 'row', flex: 1}}>
 				<View>
-					<View style={{flexDirection: 'row'}}>{[...Array(16)].map((x, i) =>
-						<View key={i} style={styles.gridBoxStyle}><Text>{(i + 10).toString(36)}</Text></View>
-					)}</View>
+					<View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
 					<AnimatedVirtualizedList
-						scrollEventThrottle={16}
+						showsVerticalScrollIndicator={false}
+						ref={leftList}
 						initialNumToRender={128}
-						onScroll={Animated.event(
-							[{ nativeEvent: { contentOffset: { ['y']: offsetR } } }],
-							{ useNativeDriver: true }
-						)}
+						scrollEnabled={false}
 						renderItem={({item}) => {
-							return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
-								return (
-								  <TouchableOpacity key={box.id}><View style={styles.gridBoxStyle}><Text>{box.title}</Text></View></TouchableOpacity>
-								);
-							})}</View>);
+							return (<View key={item.id} style={[styles.gridBoxStyle, {backgroundColor: "#00000030"}]}><Text>{item.id+1}</Text></View>);
 						}}
 						keyExtractor={item => item.id}
 						getItemCount={() => items.length}
 						getItem={(data, index) => items[index]}
+					
 					/>
 				</View>
-			</ScrollView>
+				<ScrollView style={{flex: 1}} horizontal={true}>
+					<View style={{flex: 1}}>
+						<View style={{flexDirection: 'row', height: styles.gridBoxStyle.height}}>{[...Array(16)].map((x, i) =>
+							<View key={i} style={[styles.gridBoxStyle, {backgroundColor: "#00000030", flex: 1, flexGrow: 0, flexBasis: 'auto'}]}><Text>{(i + 10).toString(36).toUpperCase()}</Text></View>
+						)}</View>
+						<AnimatedVirtualizedList
+							style={{flexGrow: 1, flexBasis: 0}}
+							scrollEventThrottle={16}
+							initialNumToRender={128}
+							onScroll={Animated.event(
+								[{ nativeEvent: { contentOffset: { ['y']: offsetR } } }],
+								{ useNativeDriver: true }
+							)}
+							renderItem={({item}) => {
+								return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
+									return (
+									  <TouchableOpacity key={box.id}><View style={styles.gridBoxStyle}><Text>{box.title}</Text></View></TouchableOpacity>
+									);
+								})}</View>);
+							}}
+							keyExtractor={item => item.id}
+							getItemCount={() => items.length}
+							getItem={(data, index) => items[index]}
+						/>
+					</View>
+				</ScrollView>
+			</View>
 		</View>
-      </View>
-
-      {footer}
+		{footer}
     </View>
   );
 };
@@ -197,13 +298,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   wrapBox: {
-    flex: 1,
-    marginVertical: 24,
+    flexGrow: 1,
+	flexBasis: 0,
+	overflow: 'hidden',
   },
   buttonBottom: {
-    marginHorizontal: 20,
-    flex: 0.3,
-    marginBottom: 40,
+    flexGrow: 0,
+	flexBasis: 'auto',
+	marginBottom: 20,
     justifyContent: 'flex-end',
   },
   textDestination: { fontWeight: '600' },

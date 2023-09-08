@@ -263,7 +263,15 @@ const WalletsAdd: React.FC = () => {
       }
     } else if (selectedWalletType === ButtonSelected.BORDER) {
 	  setIsLoading(false);
-	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
+	  let giveSeed;
+	  if (entropy) {
+		const random = await randomBytes(entropy.length < 32 ? 32 - entropy.length : 0);
+		const buf = Buffer.concat([entropy, random], 32);
+		giveSeed = bip39.entropyToMnemonic(buf.toString('hex'));
+	  } else {
+		giveSeed = bip39.entropyToMnemonic((await randomBytes(32)).toString('hex'));
+	  }
+	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label, seedPhrase: giveSeed });
 	} else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       // @ts-ignore: Return later to update
