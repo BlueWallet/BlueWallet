@@ -269,7 +269,7 @@ const WalletsAdd: React.FC = () => {
 		const buf = Buffer.concat([entropy, random], 32);
 		giveSeed = bip39.entropyToMnemonic(buf.toString('hex'));
 	  } else {
-		giveSeed = bip39.entropyToMnemonic((await randomBytes(32)).toString('hex'));
+		giveSeed = bip39.entropyToMnemonic((await randomBytes(16)).toString('hex'));
 	  }
 	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label, seedPhrase: giveSeed });
 	} else if (selectedWalletType === ButtonSelected.VAULT) {

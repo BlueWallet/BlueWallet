@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useContext, useRef, useState, useEffect, Component } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -48,7 +48,7 @@ const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
-const WalletsAddMultisigStep2 = () => {
+const WalletsAddBorderStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
@@ -56,7 +56,8 @@ const WalletsAddMultisigStep2 = () => {
   const { walletLabel, seedPhrase } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
-  const [secret, setSecret] = useState(null);
+  
+  const selectedWords = useRef([]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -90,25 +91,6 @@ const WalletsAddMultisigStep2 = () => {
       color: colors.foregroundColor,
     },
   });
-
-  const onContinue = async () => {
-    setIsLoading(true);
-    await sleep(100);
-    try {
-      //await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
-    } catch (e) {
-      setIsLoading(false);
-      alert(e.message);
-      console.log('create MS wallet error', e);
-    }
-  };
-
-  const footer = (
-    <View style={styles.buttonBottom}>
-	  {!isLoading ? <BlueButtonLink style={styles.import} title="Clear selection" onPress={onContinue} /> : null}
-      {isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={onContinue} disabled={secret == null} />}
-    </View>
-  );
   
 	function Mash() {
 		let n = 0xefc8249d;
@@ -205,7 +187,7 @@ const WalletsAddMultisigStep2 = () => {
 	
 		let curr = [];
 		for (let j = 0; j < 16; j++) {
-			curr.push({id: j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4)});
+			curr.push({id: j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4), cell: React.createRef()});
 		}
 		items.push({id: i, list: curr});
   }
@@ -217,8 +199,37 @@ const WalletsAddMultisigStep2 = () => {
     leftList.current.scrollToOffset({ offset: value, animated: false });
   })
   
-  const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
+  const clickGrid = (box) => {
 
+	selectedWords.current.push(box);
+	box.cell.current.setSelected(true);
+	footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
+	  
+  };
+  
+  const footer = React.createRef();
+  
+  const onContinue = async () => {
+    setIsLoading(true);
+    await sleep(100);
+    try {
+      //await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
+    } catch (e) {
+      setIsLoading(false);
+      alert(e.message);
+      console.log('create MS wallet error', e);
+    }
+  };
+  
+  const onClear = () => {
+    for (let i = 0; i < selectedWords.current.length; i++) {
+		selectedWords.current[i].cell.current.setSelected(false);
+	}
+	selectedWords.current.length = 0;
+	footer.current.stateChange({enableClear: false, enableContinue: false});
+  };
+  
+  const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
   return (
     <View style={[styles.root, stylesHook.root]}>
 		<View style={styles.wrapBox}>
@@ -242,6 +253,7 @@ const WalletsAddMultisigStep2 = () => {
 				{"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
 			</Text>
 			<BlueSpacing20 />
+			<Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
 			<View style={{flexDirection: 'row', flex: 1}}>
 				<View>
 					<View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
@@ -275,7 +287,7 @@ const WalletsAddMultisigStep2 = () => {
 							renderItem={({item}) => {
 								return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
 									return (
-									  <TouchableOpacity key={box.id}><View style={styles.gridBoxStyle}><Text>{box.title}</Text></View></TouchableOpacity>
+										<BorderWalletCell key={box.id} box={box} clickGrid={clickGrid} selectedWords={selectedWords.current} ref={box.cell} />
 									);
 								})}</View>);
 							}}
@@ -287,7 +299,7 @@ const WalletsAddMultisigStep2 = () => {
 				</ScrollView>
 			</View>
 		</View>
-		{footer}
+		<BorderWalletFooter ref={footer} isLoading={isLoading} onContinue={onContinue} onClear={onClear}/>
     </View>
   );
 };
@@ -368,8 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   import: {
-    marginTop: 0,
-    marginBottom: 24,
+    marginVertical: 24,
   },
   container: {
     flex: 1,
@@ -390,10 +401,50 @@ const styles = StyleSheet.create({
   }
 });
 
-WalletsAddMultisigStep2.navigationOptions = navigationStyle({
+class BorderWalletCell extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { selected: false };
+    this.setSelected = this.setSelected.bind(this);
+  }
+
+  setSelected(sel) {
+	this.setState({selected: sel});
+  }
+
+  render() {
+	let box = this.props.box;
+	let clickGrid = this.props.clickGrid;
+    return (
+      <TouchableOpacity onPress={() => clickGrid(box)}><View style={[styles.gridBoxStyle, {backgroundColor: this.state.selected ? "#007AFF" : "#ffffff00"}]}><Text style={this.state.selected ? {color: "#ffffff"} : []}>{this.state.selected ? this.props.selectedWords.indexOf(box)+1 : box.title}</Text></View></TouchableOpacity>
+    );
+  }
+}
+
+class BorderWalletFooter extends Component {
+	constructor(props) {
+    super(props);
+    this.state = { enableClear: false, enableContinue: false };
+    this.stateChange = this.stateChange.bind(this);
+  }
+
+  stateChange(sel) {
+	this.setState(sel);
+  }
+	
+	render() { return (
+    <View style={styles.buttonBottom}>
+	  {!this.props.isLoading ? <BlueButtonLink style={styles.import} activeOpacity={!this.state.enableClear ? 1 : 0.7} title="Clear selection" onPress={() => { if (this.state.enableClear) this.props.onClear() }} disabled={!this.state.enableClear} /> : null}
+      {this.props.isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={this.props.onContinue} disabled={!this.state.enableContinue} />}
+    </View>
+	); }
+	
+}
+
+WalletsAddBorderStep2.navigationOptions = navigationStyle({
   headerTitle: null,
   gestureEnabled: false,
   swipeEnabled: false,
 });
 
-export default WalletsAddMultisigStep2;
+export default WalletsAddBorderStep2;

@@ -58,7 +58,7 @@ const WalletsAddBorder = () => {
   }, []);
 
   const onLetsStartPress = () => {
-    navigate('WalletsAddBorderStep2', { walletLabel, seedPhrase });
+    navigate('WalletsAddBorderSaveGrid', { walletLabel, seedPhrase });
   };
 
   return (
