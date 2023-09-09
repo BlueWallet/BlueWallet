@@ -92,12 +92,22 @@ const WalletsAddBorderStep2 = () => {
     },
   });
   
+  const headers = [];
+  for (let i = 0; i < 16; i++) {
+	headers.push(React.createRef());
+  }
+  
+  const rownums = [];
+  for (let i = 0; i < 128; i++) {
+	rownums.push(React.createRef());
+  }
+  
   const items = [];
   for (let i = 0; i < 128; i++) {
 	
 		let curr = [];
 		for (let j = 0; j < 16; j++) {
-			curr.push({id: j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4), cell: React.createRef()});
+			curr.push({id: j, ind: (i*16) + j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4), cell: React.createRef()});
 		}
 		items.push({id: i, list: curr});
   }
@@ -114,6 +124,8 @@ const WalletsAddBorderStep2 = () => {
 	if (selectedWords.current.indexOf(box) < 0) {
 		selectedWords.current.push(box);
 		box.cell.current.setSelected(true);
+		rownums[(box.ind - box.ind % 16) / 16].current.setSelected(true);
+		headers[box.ind % 16].current.setSelected(true);
 		footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
 	}
 	
@@ -134,6 +146,12 @@ const WalletsAddBorderStep2 = () => {
   const onClear = () => {
     for (let i = 0; i < selectedWords.current.length; i++) {
 		selectedWords.current[i].cell.current.setSelected(false);
+	}
+	for (let i = 0; i < rownums.length; i++) {
+		if (rownums[i].current.isSelected()) rownums[i].current.setSelected(false);
+	}
+	for (let i = 0; i < headers.length; i++) {
+		if (headers[i].current.isSelected()) headers[i].current.setSelected(false);
 	}
 	selectedWords.current.length = 0;
 	footer.current.stateChange({enableClear: false, enableContinue: false});
@@ -173,7 +191,7 @@ const WalletsAddBorderStep2 = () => {
 						initialNumToRender={128}
 						scrollEnabled={false}
 						renderItem={({item}) => {
-							return (<View key={item.id} style={[styles.gridBoxStyle, {backgroundColor: "#00000030"}]}><Text>{item.id+1}</Text></View>);
+							return (<BorderWalletHeaderCell key={item.id} text={item.id+1} ref={rownums[item.id]}/>);
 						}}
 						keyExtractor={item => item.id}
 						getItemCount={() => items.length}
@@ -184,7 +202,7 @@ const WalletsAddBorderStep2 = () => {
 				<ScrollView style={{flex: 1}} horizontal={true}>
 					<View style={{flex: 1}}>
 						<View style={{flexDirection: 'row', height: styles.gridBoxStyle.height}}>{[...Array(16)].map((x, i) =>
-							<View key={i} style={[styles.gridBoxStyle, {backgroundColor: "#00000030", flex: 1, flexGrow: 0, flexBasis: 'auto'}]}><Text>{(i + 10).toString(36).toUpperCase()}</Text></View>
+							<BorderWalletHeaderCell key={i} text={(i + 10).toString(36).toUpperCase()} ref={headers[i]}/>
 						)}</View>
 						<AnimatedVirtualizedList
 							style={{flexGrow: 1, flexBasis: 0}}
@@ -311,6 +329,29 @@ const styles = StyleSheet.create({
   }
 });
 
+class BorderWalletHeaderCell extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { selected: false };
+    this.setSelected = this.setSelected.bind(this);
+	this.isSelected = this.isSelected.bind(this);
+  }
+  
+  isSelected() {
+	return this.state.selected;
+  }
+
+  setSelected(sel) {
+	this.setState({selected: sel});
+  }
+
+  render() {
+    return (
+      <View style={[styles.gridBoxStyle, {backgroundColor: this.state.selected ? "#004A99" : "#00000030"}]}><Text style={this.state.selected ? {color: "#ffffff"} : []}>{this.props.text}</Text></View>
+    );
+  }
+}
+
 class BorderWalletCell extends Component {
   constructor(props) {
     super(props);
@@ -326,7 +367,7 @@ class BorderWalletCell extends Component {
 	let box = this.props.box;
 	let clickGrid = this.props.clickGrid;
     return (
-      <TouchableOpacity onPress={() => clickGrid(box)}><View style={[styles.gridBoxStyle, {backgroundColor: this.state.selected ? "#007AFF" : "#ffffff00"}]}><Text style={this.state.selected ? {color: "#ffffff"} : []}>{this.state.selected ? this.props.selectedWords.indexOf(box)+1 : box.title}</Text></View></TouchableOpacity>
+      <TouchableOpacity onPress={() => clickGrid(box)}><View style={[styles.gridBoxStyle, {flex: 1, flexGrow: 0, flexBasis: 'auto', backgroundColor: this.state.selected ? "#007AFF" : "#ffffff00"}]}><Text style={this.state.selected ? {color: "#ffffff"} : []}>{this.state.selected ? this.props.selectedWords.indexOf(box)+1 : box.title}</Text></View></TouchableOpacity>
     );
   }
 }
