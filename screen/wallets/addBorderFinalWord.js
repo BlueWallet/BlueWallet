@@ -112,7 +112,8 @@ const WalletsAddBorderFinalWord = () => {
         await saveToDisk();
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        navigation.goBack();
+        navigation.popToTop();
+		navigation.goBack();
     } catch (e) {
       setIsLoading(false);
       alert(e.message);
@@ -214,12 +215,14 @@ const WalletsAddBorderFinalWord = () => {
 		
 		textBoxValue = text;
 		if (possibleWords.indexOf(text) >= 0) {
-			//TODO enable btn
+			continueFooter.current.setEnabled(true);
 		} else {
-			//disable btn
+			continueFooter.current.setEnabled(false);
 		}
 		
 	}
+	
+	const continueFooter = React.createRef();
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -261,7 +264,7 @@ const WalletsAddBorderFinalWord = () => {
 				{"To recap, you need to:\n				- Memorize:\n								- The order, location, and shape of your pattern\n								- The final word\n				- Store:\n								- Your grid PDF or grid seed phrase (from the first page)"}
 			</Text>
 			<BlueSpacing20 />
-			<BlueButton onPress={onContinue} title={"Create wallet"} />
+			<ContinueFooter onContinue={onContinue} ref={continueFooter} />
 		</View>
 		
     </View>
@@ -367,6 +370,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+class ContinueFooter extends Component {
+	constructor(props) {
+    super(props);
+    this.state = { disable: true };
+    this.setEnabled = this.setEnabled.bind(this);
+  }
+
+  setEnabled(sel) {
+	this.setState({disable: !sel});
+  }
+	
+	render() { return (
+    <BlueButton onPress={this.props.onContinue} title={"Create wallet"} disabled={this.state.disable} />
+	); }
+	
+}
 
 WalletsAddBorderFinalWord.navigationOptions = navigationStyle({
   headerTitle: null,
