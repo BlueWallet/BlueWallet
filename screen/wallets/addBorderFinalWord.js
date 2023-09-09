@@ -227,16 +227,6 @@ const WalletsAddBorderFinalWord = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
 		<View style={styles.wrapBox}>
-			<Text
-				adjustsFontSizeToFit
-				style={{
-				  fontWeight: 'bold',
-				  fontSize: 30,
-				  color: "#000000"
-				}}
-			>
-				{"Choose a final word (3/3)"}
-			</Text>
 			<BlueSpacing20 />
 			<Text style={[styles.textdesc, stylesHook.textdesc]}>
 			  Your selected words (do not save these):
@@ -264,7 +254,9 @@ const WalletsAddBorderFinalWord = () => {
 				{"To recap, you need to:\n				- Memorize:\n								- The order, location, and shape of your pattern\n								- The final word\n				- Store:\n								- Your grid PDF or grid seed phrase (from the first page)"}
 			</Text>
 			<BlueSpacing20 />
-			<ContinueFooter onContinue={onContinue} ref={continueFooter} />
+			<View style={styles.buttonBottom}>
+				<ContinueFooter onContinue={onContinue} ref={continueFooter} />
+			</View>
 		</View>
 		
     </View>
@@ -389,10 +381,9 @@ class ContinueFooter extends Component {
 }
 
 WalletsAddBorderFinalWord.navigationOptions = navigationStyle({
-  headerTitle: null,
   gestureEnabled: false,
   swipeEnabled: false,
   headerHideBackButton: true,
-}, opts => ({...opts}));
+}, opts => ({ ...opts, title: "Choose a final word (Step 3/3)" }));
 
 export default WalletsAddBorderFinalWord;
