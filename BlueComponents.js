@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, forwardRef } from 'react';
+import React, { Component, forwardRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Text, Header } from 'react-native-elements';
 import {
@@ -19,6 +19,7 @@ import {
   View,
   I18nManager,
   ImageBackground,
+  ScrollView,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
@@ -35,6 +36,104 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
+
+export const BlueAutocomplete = ({
+  value: origValue,
+  data,
+  containerStyle,
+  placeholder,
+  onChange: origOnChange,
+  style = {},
+  menuStyle = {},
+}) => {
+  const [value, setValue] = useState(origValue);
+  const [menuVisible, setMenuVisible] = useState(true);
+  const [filteredData, setFilteredData] = useState([...data.sort()]);
+
+  const filterData = (text) => {
+    return data.filter(
+      (val) => text.length > 0 ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true
+    ).sort();
+  };
+  
+  return (
+    <View style={[containerStyle]}>
+      <TextInput
+        // onBlur={() => setMenuVisible(false)}
+        style={[style, {textAlign: 'center', fontSize: 35}]}
+        onChangeText={(text) => {
+          origOnChange(text);
+          if (text != null) {
+            setFilteredData(filterData(text));
+          }
+          setMenuVisible(true);
+          setValue(text);
+        }}
+        value={value}
+		placeholder={placeholder}
+      />
+      {(menuVisible && filteredData.length > 0) ? (
+        <ScrollView
+          style={{
+            flex: 1,
+            backgroundColor: 'white',
+            borderWidth: 2,
+            flexDirection: 'column',
+			overflow: 'hidden',
+          }}
+        >
+          {filteredData.map((datum, i) => (
+			<TouchableOpacity key={i} onPress={() => {
+                setValue(datum);
+                setMenuVisible(false);
+              }} style={[{ width: '100%' }]}
+			>
+				<Text>
+				{datum}
+				</Text>
+			</TouchableOpacity>
+          ))}
+        </ScrollView>
+      ) : null}
+    </View>
+  );
+};
+
+export const BlueButton = props => {
+  const { colors } = useTheme();
+
+  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
+  let fontColor = props.buttonTextColor || colors.buttonTextColor;
+  if (props.disabled === true) {
+    backgroundColor = colors.buttonDisabledBackgroundColor;
+    fontColor = colors.buttonDisabledTextColor;
+  }
+
+  return (
+    <TouchableOpacity
+      style={{
+        borderWidth: 0.7,
+        borderColor: 'transparent',
+        backgroundColor,
+        minHeight: 45,
+        height: 45,
+        maxHeight: 45,
+        borderRadius: 25,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        flexGrow: 1,
+      }}
+      accessibilityRole="button"
+      {...props}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor, fontWeight: '500' }}>{props.title}</Text>}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 export const SecondButton = forwardRef((props, ref) => {
   const { colors } = useTheme();

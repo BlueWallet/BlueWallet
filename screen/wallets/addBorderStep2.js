@@ -214,13 +214,11 @@ const WalletsAddBorderStep2 = () => {
   const onContinue = async () => {
     setIsLoading(true);
     await sleep(100);
-    try {
-      //await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
-    } catch (e) {
-      setIsLoading(false);
-      alert(e.message);
-      console.log('create MS wallet error', e);
-    }
+	let seedSend = [];
+    for (let i = 0; i < selectedWords.current.length; i++) {
+		seedSend.push(selectedWords.current[i].word);
+	}
+	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend });
   };
   
   const onClear = () => {
@@ -243,7 +241,7 @@ const WalletsAddBorderStep2 = () => {
 				  color: "#000000"
 				}}
 			>
-				{"Choose 11 or 23 boxes"}
+				{"Choose 11 or 23 boxes (2/3)"}
 			</Text>
 			<Text
 				adjustsFontSizeToFit
@@ -256,7 +254,7 @@ const WalletsAddBorderStep2 = () => {
 			</Text>
 			<BlueSpacing20 />
 			<Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
-			<View style={{flexDirection: 'row', flex: 1}}>
+			{isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>
 				<View>
 					<View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
 					<AnimatedVirtualizedList
@@ -299,9 +297,9 @@ const WalletsAddBorderStep2 = () => {
 						/>
 					</View>
 				</ScrollView>
-			</View>
+			</View>}
 		</View>
-		<BorderWalletFooter ref={footer} isLoading={isLoading} onContinue={onContinue} onClear={onClear}/>
+		{isLoading ? <ActivityIndicator/> : <BorderWalletFooter ref={footer} isLoading={isLoading} onContinue={onContinue} onClear={onClear}/>}
     </View>
   );
 };
