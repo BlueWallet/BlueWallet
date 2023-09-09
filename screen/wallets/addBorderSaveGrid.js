@@ -45,6 +45,9 @@ import { randomBytes } from '../../class/rng';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import Share from 'react-native-share';
+
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -127,6 +130,60 @@ const WalletsAddBorderSaveGrid = () => {
     }
     return component;
   };
+  
+  const handleShare = async () => {
+	  
+	  let html =`<style>header{width:100%;height:20px;counter-increment:page;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.pgn::before{content:counter(page)}footer{margin-top:6px;width:100%;height:20px;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.s1{font-weight:800;color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.s2{color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.tdnormal{width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}.tdheader{background-color:#dbdbdb;width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}tr{height:9pt}</style>`;
+	  
+	  let footer = `<footer>Recovery Phrase: ` + seedPhrase + `</footer>`;
+	  
+	  let header1 = `<header>Pt `;
+	  let header2 = `/2 BWEG No.# ___________ Date: _____________ Checksum verified? Y/N Checksum calculator/method:________________</header>`;
+	  
+	  let tablepageheaderfooter = `<tr><td class="tdheader"><p class="s1"><br/></p></td><td class="tdheader"><p class="s1">A</p></td><td class="tdheader"><p class="s1">B</p></td><td class="tdheader"><p class="s1">C</p></td><td class="tdheader"><p class="s1">D</p></td><td class="tdheader"><p class="s1">E</p></td><td class="tdheader"><p class="s1">F</p></td><td class="tdheader"><p class="s1">G</p></td><td class="tdheader"><p class="s1">H</p></td><td class="tdheader"><p class="s1">I</p></td><td class="tdheader"><p class="s1">J</p></td><td class="tdheader"><p class="s1">K</p></td><td class="tdheader"><p class="s1">L</p></td><td class="tdheader"><p class="s1">M</p></td><td class="tdheader"><p class="s1">N</p></td><td class="tdheader"><p class="s1">O</p></td><td class="tdheader"><p class="s1">P</p></td><td class="tdheader"><p class="s1"><br/></p></td></tr>`;
+	  
+	  for (let n = 0; n < 2; n++) {
+		html += header1 + (n + 1) + header2;
+		html += `<table cellspacing=0 style=border-collapse:collapse;margin-left:5.5pt>`;
+		html += tablepageheaderfooter;
+		for (let i = 0; i < 64; i++) {
+			let nr = n*64 + i;
+			html += `<tr>`;
+			let col = `<td class="tdheader"><p class="s1">` + (nr + 1).toString().padStart(3, '0') + `</p></td>`;
+			html += col;
+			for (let j = 0; j < 16; j++) {
+				html += `<td class="tdnormal"><p class="s2">` + "you" + `</p></td>`;
+			}
+			html += col;
+			html += `</tr>`;
+		}
+		html += tablepageheaderfooter;
+		html += `</table>`;
+		html += footer;
+	  }
+	  
+		try {
+			let options = {
+			  html: html,
+			  base64: true,
+			};
+
+			let file = await RNHTMLtoPDF.convert(options);
+		  
+			const shareOptions = {
+			  title: 'Save file',
+			  failOnCancel: false,
+			  saveToFiles: true,
+			  urls: ["data:application/pdf;base64," + file.base64],
+			  filenames: ["BorderWalletEntropyGrid"]
+			};
+
+			const ShareResponse = await Share.open(shareOptions);
+		} catch (error) {
+			alert("Could not save file!");
+		}
+	  
+  };
 
   return isLoading ? (
     <View style={[styles.loading, stylesHook.flex]}>
@@ -141,8 +198,11 @@ const WalletsAddBorderSaveGrid = () => {
         <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
         </View>
+		<View style={styles.bottom}>
+		  <BlueButton onPress={handleShare} title={"Save Grid PDF ⇓"} />
+		</View>
         <View style={styles.bottom}>
-          <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
+          <BlueButton onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
       </ScrollView>
     </SafeBlueArea>
