@@ -84,7 +84,7 @@ const WalletsAddBorder = () => {
           </Text>
 		  {" "}as well as a
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {" "}12th word
+            {" "}final word
           </Text>
 			{" "}instead of memorizing every word.
         </Text>
