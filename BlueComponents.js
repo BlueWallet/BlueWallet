@@ -86,6 +86,7 @@ export const BlueAutocomplete = ({
 			<TouchableOpacity key={i} onPress={() => {
                 setValue(datum);
                 setMenuVisible(false);
+				origOnChange(datum);
               }} style={[{ width: '100%' }]}
 			>
 				<Text>

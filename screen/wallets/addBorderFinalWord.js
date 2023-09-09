@@ -98,14 +98,25 @@ const WalletsAddBorderFinalWord = () => {
   });
   
   const onContinue = async () => {
+	if (possibleWords.indexOf(textBoxValue) < 0) return;
     setIsLoading(true);
     await sleep(100);
     try {
-      //await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
+		let w = new HDSegwitBech32Wallet();
+		w.setLabel(walletLabel);
+		
+		w.setSecret(seedPhrase.join(" ") + " " + textBoxValue);
+		//TODO if (passphrase) w.setPassphrase(passphrase);
+		
+        addWallet(w);
+        await saveToDisk();
+        A(A.ENUM.CREATED_WALLET);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        navigation.goBack();
     } catch (e) {
       setIsLoading(false);
       alert(e.message);
-      console.log('create MS wallet error', e);
+      console.log('create border wallet error', e);
     }
   };
   
@@ -196,16 +207,6 @@ const WalletsAddBorderFinalWord = () => {
 
 		possibleWords.push(wordList[index]);
 	}
-
-	const confirmCreateWallet = () => {
-		
-		if (possibleWords.indexOf(text) >= 0) {
-			
-			//TODO
-			
-		}
-		
-	};
 	
 	let textBoxValue = "";
 	
@@ -260,7 +261,7 @@ const WalletsAddBorderFinalWord = () => {
 				{"To recap, you need to:\n				- Memorize:\n								- The order, location, and shape of your pattern\n								- The final word\n				- Store:\n								- Your grid PDF or grid seed phrase (from the first page)"}
 			</Text>
 			<BlueSpacing20 />
-			<BlueButton onPress={confirmCreateWallet} title={"Create wallet"} />
+			<BlueButton onPress={onContinue} title={"Create wallet"} />
 		</View>
 		
     </View>

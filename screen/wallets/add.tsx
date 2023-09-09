@@ -271,7 +271,7 @@ const WalletsAdd: React.FC = () => {
 	  } else {
 		giveSeed = bip39.entropyToMnemonic((await randomBytes(16)).toString('hex'));
 	  }
-	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label, seedPhrase: giveSeed });
+	  navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.wallets.details_title, seedPhrase: giveSeed });
 	} else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       // @ts-ignore: Return later to update
