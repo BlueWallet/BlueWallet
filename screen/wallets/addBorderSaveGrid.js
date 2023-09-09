@@ -136,7 +136,7 @@ const WalletsAddBorderSaveGrid = () => {
     <SafeBlueArea style={stylesHook.flex}>
       <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
         <View style={styles.please}>
-          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{"Please save this mnemonic and/or the grid PDF. You will need to use one of them to recover the wallet in the future. \nAlthough these cannot be used alone without your memorized pattern to recover your wallet, you should still treat them as secret information and keep them as private as possible. If you suspect someone has access to these seed words or the grid PDF, you should still move your funds as soon as possible."}</Text>
+          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{"Please save this mnemonic and/or the grid PDF. You will need to use one of them to recover the wallet in the future. \nAlthough it cannot be used alone, the nature of a user-selected pattern means that a leaked grid is still a security risk -- If you suspect someone has access to these seed words or the grid PDF, you should still move your funds as soon as possible."}</Text>
         </View>
         <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
