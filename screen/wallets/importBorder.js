@@ -12,15 +12,16 @@ import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
 
 import alert from '../../components/Alert';
 
-import DocumentPicker from 'react-native-document-picker';
-
 import { validateMnemonic } from '../../blue_modules/bip39';
+
+import * as bip39 from 'bip39';
 
 const ImportBorder = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
   const [importText, setImportText] = useState();
+  const [import2Text, setImport2Text] = useState();
   const [walletType, setWalletType] = useState();
   const { addAndSaveWallet, sleep } = useContext(BlueStorageContext);
 
@@ -30,9 +31,7 @@ const ImportBorder = () => {
       backgroundColor: colors.elevated,
     },
     center: {
-	  flex: 1,
       marginHorizontal: 16,
-      backgroundColor: colors.elevated,
     },
     pathInput: {
       flexDirection: 'row',
@@ -64,30 +63,47 @@ const ImportBorder = () => {
   };
   
   const importPDF = async () => {
-	const pickerResult = await DocumentPicker.pickSingle({
-	  presentationStyle: 'fullScreen',
-	  copyTo: 'cachesDirectory',
-	});
-	let fileLoc = pickerResult.fileCopyUri;
 	
-	//TODO read pdf text and etc
+	let imports = import2Text.split(" ");
+	if (imports.length != 11 && imports.length != 23) return;
+	
+	let wordList = bip39.wordlists[bip39.getDefaultWordlist()];
+	
+	let words = new Array(imports.length);
+	outer: for (let i = 0; i < imports.length; i++) {
+		
+		for (let j = 0; j < wordList.length; j++) {
+			let word = wordList[j];
+			if (word.startsWith(imports[i])) {
+				words[i] = word;
+				continue outer;
+			}
+		}
+		
+		return;
+		
+	}
+	
+	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true });
 	
   };
 
   return (
     <SafeBlueArea style={styles.root}>
       <BlueFormLabel>{"Enter Border Wallet entropy grid mnemonic:"}</BlueFormLabel>
-      <BlueSpacing20 />
       <BlueFormMultiInput value={importText} onChangeText={setImportText} />
 	  <BlueSpacing20 />
-      <View style={styles.center}>
-		{loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importMnemonic} />}
-		<BlueSpacing20 />
+	  <View style={styles.center}>
+	  {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importMnemonic} />}
+	  </View>
 		<BlueSpacing20 />
 		<BlueFormLabel>{"OR"}</BlueFormLabel>
 		<BlueSpacing20 />
+		<BlueFormLabel>{"From your saved PDF, enter the contents of the 11 or 23 boxes, in order, that form your pattern:"}</BlueFormLabel>
+		<BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
 		<BlueSpacing20 />
-        {loading ? <ActivityIndicator /> : <BlueButton title="Load Entropy Grid PDF" onPress={importPDF} />}
+	  <View style={styles.center}>
+	  {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importPDF} />}
 	  </View>
       <BlueSpacing20 />
     </SafeBlueArea>
