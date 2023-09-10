@@ -48,6 +48,8 @@ const fs = require('../../blue_modules/fs');
 const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
+import { BlueCurrentTheme } from '../../components/themes';
+
 const WalletsAddBorderStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
   const { colors } = useTheme();
@@ -161,25 +163,18 @@ const WalletsAddBorderStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
 		<View style={styles.wrapBox}>
-			<Text
+			<BlueText style={{
+			  fontWeight: 'bold',
+			  fontSize: 30,
+			}}>{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}</BlueText>
+			{!importing ? <BlueText
 				adjustsFontSizeToFit
 				style={{
-				  fontWeight: 'bold',
-				  fontSize: 30,
-				  color: "#000000"
-				}}
-			>
-				{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}
-			</Text>
-			{!importing ? <Text
-				adjustsFontSizeToFit
-				style={{
-				  fontSize: 15,
-				  color: "#000000"
+				  fontSize: 15
 				}}
 			>
 				{"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
-			</Text> : null}
+			</BlueText> : null}
 			<BlueSpacing20 />
 			<Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
 			{isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>
@@ -255,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: BlueCurrentTheme.colors.alternativeTextColor,
     minHeight: 400,
   },
   word: {

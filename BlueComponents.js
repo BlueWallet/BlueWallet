@@ -76,8 +76,6 @@ export const BlueAutocomplete = ({
         <ScrollView
           style={{
             flex: 1,
-            backgroundColor: 'white',
-            borderWidth: 2,
             flexDirection: 'column',
 			overflow: 'hidden',
           }}
@@ -89,9 +87,9 @@ export const BlueAutocomplete = ({
 				origOnChange(datum);
               }} style={[{ width: '100%' }]}
 			>
-				<Text>
+				<BlueText>
 				{datum}
-				</Text>
+				</BlueText>
 			</TouchableOpacity>
           ))}
         </ScrollView>

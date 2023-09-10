@@ -244,15 +244,13 @@ const WalletsAddBorderFinalWord = () => {
 				onChange={textChanged}
 			/>
 			<BlueSpacing20 />
-			{!importing ? <Text
-				adjustsFontSizeToFit
+			{!importing ? <BlueText
 				style={{
-				  fontSize: 15,
-				  color: "#000000"
+				  fontSize: 15
 				}}
 			>
 				{"To recap, you need to:\n				- Memorize:\n								- The order, location, and shape of your pattern\n								- The final word\n				- Store:\n								- Your grid PDF or grid seed phrase (from the first page)"}
-			</Text> : null}
+			</BlueText> : null}
 			<BlueSpacing20 />
 			<View style={styles.buttonBottom}>
 				<ContinueFooter onContinue={onContinue} ref={continueFooter} importing={importing} />
