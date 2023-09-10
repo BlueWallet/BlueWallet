@@ -104,6 +104,10 @@ const WalletsImport = () => {
       }),
     );
   };
+  
+  const importBorder = () => {
+	navigation.navigate('ImportBorder');
+  };
 
   const speedBackdoorTap = () => {
     setSpeedBackdoor(v => {
@@ -140,6 +144,7 @@ const WalletsImport = () => {
           />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
+		  <BlueButtonLink title={"Import a border wallet"} onPress={importBorder} />
         </>
       </View>
     </>

@@ -53,7 +53,7 @@ const WalletsAddBorderStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase, words } = useRoute().params;
+  const { walletLabel, words, importing } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
   
@@ -140,7 +140,7 @@ const WalletsAddBorderStep2 = () => {
     for (let i = 0; i < selectedWords.current.length; i++) {
 		seedSend.push(selectedWords.current[i].word);
 	}
-	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend });
+	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing });
   };
   
   const onClear = () => {
@@ -169,9 +169,9 @@ const WalletsAddBorderStep2 = () => {
 				  color: "#000000"
 				}}
 			>
-				{"Choose 11 or 23 boxes (2/3)"}
+				{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}
 			</Text>
-			<Text
+			{!importing ? <Text
 				adjustsFontSizeToFit
 				style={{
 				  fontSize: 15,
@@ -179,7 +179,7 @@ const WalletsAddBorderStep2 = () => {
 				}}
 			>
 				{"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
-			</Text>
+			</Text> : null}
 			<BlueSpacing20 />
 			<Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
 			{isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>

@@ -37,6 +37,7 @@ import ImportWallet from './screen/wallets/import';
 import ImportWalletDiscovery from './screen/wallets/importDiscovery';
 import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
 import ImportSpeed from './screen/wallets/importSpeed';
+import ImportBorder from './screen/wallets/importBorder';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
@@ -184,6 +185,7 @@ const AddWalletRoot = () => {
         options={ImportCustomDerivationPath.navigationOptions(theme)}
       />
       <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
+	  <AddWalletStack.Screen name="ImportBorder" component={ImportBorder} options={ImportBorder.navigationOptions(theme)} />
       <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"

@@ -55,7 +55,7 @@ const WalletsAddBorderFinalWord = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase } = useRoute().params;
+  const { walletLabel, seedPhrase, importing } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
   
@@ -244,7 +244,7 @@ const WalletsAddBorderFinalWord = () => {
 				onChange={textChanged}
 			/>
 			<BlueSpacing20 />
-			<Text
+			{!importing ? <Text
 				adjustsFontSizeToFit
 				style={{
 				  fontSize: 15,
@@ -252,10 +252,10 @@ const WalletsAddBorderFinalWord = () => {
 				}}
 			>
 				{"To recap, you need to:\n				- Memorize:\n								- The order, location, and shape of your pattern\n								- The final word\n				- Store:\n								- Your grid PDF or grid seed phrase (from the first page)"}
-			</Text>
+			</Text> : null}
 			<BlueSpacing20 />
 			<View style={styles.buttonBottom}>
-				<ContinueFooter onContinue={onContinue} ref={continueFooter} />
+				<ContinueFooter onContinue={onContinue} ref={continueFooter} importing={importing} />
 			</View>
 		</View>
 		
@@ -375,7 +375,7 @@ class ContinueFooter extends Component {
   }
 	
 	render() { return (
-    <BlueButton onPress={this.props.onContinue} title={"Create wallet"} disabled={this.state.disable} />
+    <BlueButton onPress={this.props.onContinue} title={this.props.importing ? "Import wallet" : "Create wallet"} disabled={this.state.disable} />
 	); }
 	
 }
