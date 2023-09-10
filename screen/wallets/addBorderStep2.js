@@ -55,7 +55,7 @@ const WalletsAddBorderStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, words, importing } = useRoute().params;
+  const { walletLabel, words, importing, walletID } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
   
@@ -142,7 +142,7 @@ const WalletsAddBorderStep2 = () => {
     for (let i = 0; i < selectedWords.current.length; i++) {
 		seedSend.push(selectedWords.current[i].word);
 	}
-	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing });
+	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing, walletID: walletID });
   };
   
   const onClear = () => {

@@ -106,7 +106,7 @@ const WalletsImport = () => {
   };
   
   const importBorder = () => {
-	navigation.navigate('ImportBorder');
+	navigation.navigate('ImportBorder', {walletID: null});
   };
 
   const speedBackdoorTap = () => {

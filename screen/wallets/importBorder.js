@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Alert, View, StatusBar, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation, useTheme, useRoute } from '@react-navigation/native';
 
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
@@ -24,6 +24,8 @@ const ImportBorder = () => {
   const [import2Text, setImport2Text] = useState();
   const [walletType, setWalletType] = useState();
   const { addAndSaveWallet, sleep } = useContext(BlueStorageContext);
+
+  const { walletID } = useRoute().params;
 
   const styles = StyleSheet.create({
     root: {
@@ -54,7 +56,7 @@ const ImportBorder = () => {
     setLoading(true);
 	await sleep(100);
 	if (validateMnemonic(importText)) {
-		navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true });
+		navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true, walletID: walletID });
 	} else {
 		alert("Invalid mnemonic!");
 	}
@@ -84,7 +86,7 @@ const ImportBorder = () => {
 		
 	}
 	
-	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true });
+	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true, walletID: walletID });
 	
   };
 

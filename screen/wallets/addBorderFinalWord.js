@@ -24,6 +24,8 @@ import { getSystemName } from 'react-native-device-info';
 import createHash from 'create-hash';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
+import Biometric from '../../class/biometrics';
+
 import {
   BlueButton,
   BlueButtonLink,
@@ -51,11 +53,11 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddBorderFinalWord = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep, wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase, importing } = useRoute().params;
+  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
   
@@ -102,15 +104,36 @@ const WalletsAddBorderFinalWord = () => {
     setIsLoading(true);
     await sleep(100);
     try {
-		let w = new HDSegwitBech32Wallet();
-		w.setLabel(walletLabel);
 		
-		w.setSecret(seedPhrase.join(" ") + " " + textBoxValue);
-		//TODO if (passphrase) w.setPassphrase(passphrase);
-		
-        addWallet(w);
-        await saveToDisk();
-        A(A.ENUM.CREATED_WALLET);
+		if (!walletID) {
+			let w = new HDSegwitBech32Wallet();
+			w.setLabel(walletLabel);
+			
+			w.setSecret(seedPhrase.join(" ") + " " + textBoxValue);
+			//TODO if (passphrase) w.setPassphrase(passphrase);
+			
+			addWallet(w);
+			await saveToDisk();
+			A(A.ENUM.CREATED_WALLET);
+		} else {
+			const wallet = wallets.find(w => w.getID() === walletID);
+			const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+            if (isBiometricsEnabled) {
+              if (!(await Biometric.unlockWithBiometrics())) {
+				alert("Could not unlock wallet.");
+                return;
+              }
+            }
+			
+			let secret = wallet.getSecret();
+			if (secret == (seedPhrase.join(" ") + " " + textBoxValue)) {
+				alert("Success, your memory is correct!");
+			} else {
+				alert("Wallets do NOT match.");
+			}
+		}
+
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         navigation.popToTop();
 		navigation.goBack();
