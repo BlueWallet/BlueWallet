@@ -193,7 +193,7 @@
     "scryptsy": "2.1.0",
     "slip39": "https://github.com/BlueWallet/slip39-js",
     "stream-browserify": "3.0.0",
-    "url": "0.11.1",
+    "url": "0.11.3",
     "wif": "2.0.6"
   },
   "react-native": {
