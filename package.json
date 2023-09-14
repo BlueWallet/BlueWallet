@@ -109,7 +109,7 @@
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
     "@spsina/bip47": "github:BlueWallet/bip47#0a2f02c90350802f2ec93afa4e6c8843be2d687c",
     "aez": "1.0.1",
-    "assert": "2.0.0",
+    "assert": "2.1.0",
     "base-x": "3.0.9",
     "bc-bech32": "file:blue_modules/bc-bech32",
     "bech32": "2.0.0",
