@@ -96,22 +96,21 @@ const WalletsAddBorderStep2 = () => {
   
   const headers = [];
   for (let i = 0; i < 16; i++) {
-	headers.push(React.createRef());
+    headers.push(React.createRef());
   }
   
   const rownums = [];
   for (let i = 0; i < 128; i++) {
-	rownums.push(React.createRef());
+    rownums.push(React.createRef());
   }
   
   const items = [];
   for (let i = 0; i < 128; i++) {
-	
-		let curr = [];
-		for (let j = 0; j < 16; j++) {
-			curr.push({id: j, ind: (i*16) + j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4), cell: React.createRef()});
-		}
-		items.push({id: i, list: curr});
+    let curr = [];
+    for (let j = 0; j < 16; j++) {
+      curr.push({id: j, ind: (i*16) + j, word: words[(i*16) + j], title: words[(i*16) + j].substr(0, 4), cell: React.createRef()});
+    }
+    items.push({id: i, list: curr});
   }
   
   let leftList = useRef(null);
@@ -122,15 +121,13 @@ const WalletsAddBorderStep2 = () => {
   })
   
   const clickGrid = (box) => {
-
-	if (selectedWords.current.indexOf(box) < 0) {
-		selectedWords.current.push(box);
-		box.cell.current.setSelected(true);
-		rownums[(box.ind - box.ind % 16) / 16].current.setSelected(true);
-		headers[box.ind % 16].current.setSelected(true);
-		footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
-	}
-	
+    if (selectedWords.current.indexOf(box) < 0) {
+      selectedWords.current.push(box);
+      box.cell.current.setSelected(true);
+      rownums[(box.ind - box.ind % 16) / 16].current.setSelected(true);
+      headers[box.ind % 16].current.setSelected(true);
+      footer.current.stateChange({enableClear: true, enableContinue: selectedWords.current.length == 11 || selectedWords.current.length == 23});
+    }
   };
   
   const footer = React.createRef();
@@ -138,91 +135,91 @@ const WalletsAddBorderStep2 = () => {
   const onContinue = async () => {
     setIsLoading(true);
     await sleep(100);
-	let seedSend = [];
+    let seedSend = [];
     for (let i = 0; i < selectedWords.current.length; i++) {
-		seedSend.push(selectedWords.current[i].word);
-	}
-	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing, walletID: walletID });
+      seedSend.push(selectedWords.current[i].word);
+    }
+    navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing, walletID: walletID });
   };
   
   const onClear = () => {
     for (let i = 0; i < selectedWords.current.length; i++) {
-		selectedWords.current[i].cell.current.setSelected(false);
-	}
-	for (let i = 0; i < rownums.length; i++) {
-		if (rownums[i].current.isSelected()) rownums[i].current.setSelected(false);
-	}
-	for (let i = 0; i < headers.length; i++) {
-		if (headers[i].current.isSelected()) headers[i].current.setSelected(false);
-	}
-	selectedWords.current.length = 0;
-	footer.current.stateChange({enableClear: false, enableContinue: false});
+      selectedWords.current[i].cell.current.setSelected(false);
+    }
+    for (let i = 0; i < rownums.length; i++) {
+      if (rownums[i].current.isSelected()) rownums[i].current.setSelected(false);
+    }
+    for (let i = 0; i < headers.length; i++) {
+      if (headers[i].current.isSelected()) headers[i].current.setSelected(false);
+    }
+    selectedWords.current.length = 0;
+    footer.current.stateChange({enableClear: false, enableContinue: false});
   };
   
   const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
   return (
     <View style={[styles.root, stylesHook.root]}>
-		<View style={styles.wrapBox}>
-			<BlueText style={{
-			  fontWeight: 'bold',
-			  fontSize: 30,
-			}}>{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}</BlueText>
-			{!importing ? <BlueText
-				adjustsFontSizeToFit
-				style={{
-				  fontSize: 15
-				}}
-			>
-				{"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
-			</BlueText> : null}
-			<BlueSpacing20 />
-			<Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
-			{isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>
-				<View>
-					<View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
-					<AnimatedVirtualizedList
-						showsVerticalScrollIndicator={false}
-						ref={leftList}
-						initialNumToRender={128}
-						scrollEnabled={false}
-						renderItem={({item}) => {
-							return (<BorderWalletHeaderCell key={item.id} text={item.id+1} ref={rownums[item.id]}/>);
-						}}
-						keyExtractor={item => item.id}
-						getItemCount={() => items.length}
-						getItem={(data, index) => items[index]}
-					
-					/>
-				</View>
-				<ScrollView style={{flex: 1}} horizontal={true}>
-					<View style={{flex: 1}}>
-						<View style={{flexDirection: 'row', height: styles.gridBoxStyle.height}}>{[...Array(16)].map((x, i) =>
-							<BorderWalletHeaderCell key={i} text={(i + 10).toString(36).toUpperCase()} ref={headers[i]}/>
-						)}</View>
-						<AnimatedVirtualizedList
-							style={{flexGrow: 1, flexBasis: 0}}
-							scrollEventThrottle={16}
-							initialNumToRender={128}
-							onScroll={Animated.event(
-								[{ nativeEvent: { contentOffset: { ['y']: offsetR } } }],
-								{ useNativeDriver: true }
-							)}
-							renderItem={({item}) => {
-								return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
-									return (
-										<BorderWalletCell key={box.id} box={box} clickGrid={clickGrid} selectedWords={selectedWords.current} ref={box.cell} />
-									);
-								})}</View>);
-							}}
-							keyExtractor={item => item.id}
-							getItemCount={() => items.length}
-							getItem={(data, index) => items[index]}
-						/>
-					</View>
-				</ScrollView>
-			</View>}
-		</View>
-		{isLoading ? <ActivityIndicator/> : <BorderWalletFooter ref={footer} isLoading={isLoading} onContinue={onContinue} onClear={onClear}/>}
+    <View style={styles.wrapBox}>
+      <BlueText style={{
+        fontWeight: 'bold',
+        fontSize: 30,
+      }}>{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}</BlueText>
+      {!importing ? <BlueText
+        adjustsFontSizeToFit
+        style={{
+          fontSize: 15
+        }}
+      >
+        {"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
+      </BlueText> : null}
+      <BlueSpacing20 />
+      <Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
+      {isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>
+        <View>
+          <View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
+          <AnimatedVirtualizedList
+            showsVerticalScrollIndicator={false}
+            ref={leftList}
+            initialNumToRender={128}
+            scrollEnabled={false}
+            renderItem={({item}) => {
+              return (<BorderWalletHeaderCell key={item.id} text={item.id+1} ref={rownums[item.id]}/>);
+            }}
+            keyExtractor={item => item.id}
+            getItemCount={() => items.length}
+            getItem={(data, index) => items[index]}
+          
+          />
+        </View>
+        <ScrollView style={{flex: 1}} horizontal={true}>
+          <View style={{flex: 1}}>
+            <View style={{flexDirection: 'row', height: styles.gridBoxStyle.height}}>{[...Array(16)].map((x, i) =>
+              <BorderWalletHeaderCell key={i} text={(i + 10).toString(36).toUpperCase()} ref={headers[i]}/>
+            )}</View>
+            <AnimatedVirtualizedList
+              style={{flexGrow: 1, flexBasis: 0}}
+              scrollEventThrottle={16}
+              initialNumToRender={128}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { ['y']: offsetR } } }],
+                { useNativeDriver: true }
+              )}
+              renderItem={({item}) => {
+                return (<View key={item.id} style={{flexDirection: 'row'}}>{item.list.map((box) => {
+                  return (
+                    <BorderWalletCell key={box.id} box={box} clickGrid={clickGrid} selectedWords={selectedWords.current} ref={box.cell} />
+                  );
+                })}</View>);
+              }}
+              keyExtractor={item => item.id}
+              getItemCount={() => items.length}
+              getItem={(data, index) => items[index]}
+            />
+          </View>
+        </ScrollView>
+      </View>}
+    </View>
+    {isLoading ? <ActivityIndicator/> : <BorderWalletFooter ref={footer} isLoading={isLoading} onContinue={onContinue} onClear={onClear}/>}
     </View>
   );
 };
@@ -234,13 +231,13 @@ const styles = StyleSheet.create({
   },
   wrapBox: {
     flexGrow: 1,
-	flexBasis: 0,
-	overflow: 'hidden',
+    flexBasis: 0,
+    overflow: 'hidden',
   },
   buttonBottom: {
     flexGrow: 0,
-	flexBasis: 'auto',
-	marginBottom: 20,
+    flexBasis: 'auto',
+    marginBottom: 20,
     justifyContent: 'flex-end',
   },
   textDestination: { fontWeight: '600' },
@@ -316,11 +313,11 @@ const styles = StyleSheet.create({
     height: 100,
   },
   gridBoxStyle: {
-	height: 24,
-	width: 56,
-	justifyContent: 'center',
-	alignItems: 'center',
-	borderWidth: 0.5
+    height: 24,
+    width: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 0.5
   }
 });
 
@@ -329,15 +326,15 @@ class BorderWalletHeaderCell extends Component {
     super(props);
     this.state = { selected: false };
     this.setSelected = this.setSelected.bind(this);
-	this.isSelected = this.isSelected.bind(this);
+    this.isSelected = this.isSelected.bind(this);
   }
   
   isSelected() {
-	return this.state.selected;
+    return this.state.selected;
   }
 
   setSelected(sel) {
-	this.setState({selected: sel});
+    this.setState({selected: sel});
   }
 
   render() {
@@ -355,12 +352,12 @@ class BorderWalletCell extends Component {
   }
 
   setSelected(sel) {
-	this.setState({selected: sel});
+    this.setState({selected: sel});
   }
 
   render() {
-	let box = this.props.box;
-	let clickGrid = this.props.clickGrid;
+    let box = this.props.box;
+    let clickGrid = this.props.clickGrid;
     return (
       <TouchableOpacity onPress={() => clickGrid(box)}><View style={[styles.gridBoxStyle, {flex: 1, flexGrow: 0, flexBasis: 'auto', backgroundColor: this.state.selected ? "#007AFF" : "#ffffff00"}]}><Text style={this.state.selected ? {color: "#ffffff"} : []}>{this.state.selected ? this.props.selectedWords.indexOf(box)+1 : box.title}</Text></View></TouchableOpacity>
     );
@@ -368,23 +365,23 @@ class BorderWalletCell extends Component {
 }
 
 class BorderWalletFooter extends Component {
-	constructor(props) {
+  constructor(props) {
     super(props);
     this.state = { enableClear: false, enableContinue: false };
     this.stateChange = this.stateChange.bind(this);
   }
 
   stateChange(sel) {
-	this.setState(sel);
+    this.setState(sel);
   }
-	
-	render() { return (
+  
+  render() { return (
     <View style={styles.buttonBottom}>
-	  {!this.props.isLoading ? <BlueButtonLink style={styles.import} activeOpacity={!this.state.enableClear ? 1 : 0.7} title="Clear selection" onPress={() => { if (this.state.enableClear) this.props.onClear() }} disabled={!this.state.enableClear} /> : null}
+      {!this.props.isLoading ? <BlueButtonLink style={styles.import} activeOpacity={!this.state.enableClear ? 1 : 0.7} title="Clear selection" onPress={() => { if (this.state.enableClear) this.props.onClear() }} disabled={!this.state.enableClear} /> : null}
       {this.props.isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={this.props.onContinue} disabled={!this.state.enableContinue} />}
     </View>
-	); }
-	
+  ); }
+  
 }
 
 WalletsAddBorderStep2.navigationOptions = navigationStyle({

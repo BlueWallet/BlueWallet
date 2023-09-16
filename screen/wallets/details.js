@@ -490,15 +490,13 @@ const WalletDetails = () => {
     );
   };
   
-  const testBorderWallet = () => {
-	  
-	  navigate('AddWalletRoot', {
-		screen: 'ImportBorder',
-		params: {
-		  walletID: wallet.getID(),
-		},
-	  });
-	  
+  const testBorderWallet = () => {  
+	navigate('AddWalletRoot', {
+	  screen: 'ImportBorder',
+	  params: {
+		walletID: wallet.getID(),
+      },
+	});
   };
 
   return (
@@ -693,7 +691,7 @@ const WalletDetails = () => {
                   </>
                 )}
 				
-				{wallet.type === HDSegwitBech32Wallet.type && (
+                {wallet.type === HDSegwitBech32Wallet.type && (
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={testBorderWallet} title={"Test border wallet memory"} />

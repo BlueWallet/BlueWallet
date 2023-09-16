@@ -70,27 +70,27 @@ export const BlueAutocomplete = ({
           setValue(text);
         }}
         value={value}
-		placeholder={placeholder}
+    placeholder={placeholder}
       />
       {(menuVisible && filteredData.length > 0) ? (
         <ScrollView
           style={{
             flex: 1,
             flexDirection: 'column',
-			overflow: 'hidden',
+      overflow: 'hidden',
           }}
         >
           {filteredData.map((datum, i) => (
-			<TouchableOpacity key={i} onPress={() => {
+      <TouchableOpacity key={i} onPress={() => {
                 setValue(datum);
                 setMenuVisible(false);
-				origOnChange(datum);
+        origOnChange(datum);
               }} style={[{ width: '100%' }]}
-			>
-				<BlueText>
-				{datum}
-				</BlueText>
-			</TouchableOpacity>
+      >
+        <BlueText>
+        {datum}
+        </BlueText>
+      </TouchableOpacity>
           ))}
         </ScrollView>
       ) : null}

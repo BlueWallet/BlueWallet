@@ -54,59 +54,55 @@ const ImportBorder = () => {
 
   const importMnemonic = async () => {
     setLoading(true);
-	await sleep(100);
-	if (validateMnemonic(importText)) {
-		navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true, walletID: walletID });
-	} else {
-		alert("Invalid mnemonic!");
-	}
-	setLoading(false);
+    await sleep(100);
+    if (validateMnemonic(importText)) {
+      navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true, walletID: walletID });
+    } else {
+      alert("Invalid mnemonic!");
+    }
+    setLoading(false);
     return true;
   };
   
   const importPDF = async () => {
-	
-	let imports = import2Text.split(" ");
-	if (imports.length != 11 && imports.length != 23) return;
-	
-	let wordList = bip39.wordlists[bip39.getDefaultWordlist()];
-	
-	let words = new Array(imports.length);
-	outer: for (let i = 0; i < imports.length; i++) {
-		
-		for (let j = 0; j < wordList.length; j++) {
-			let word = wordList[j];
-			if (word.startsWith(imports[i])) {
-				words[i] = word;
-				continue outer;
-			}
-		}
-		
-		return;
-		
-	}
-	
-	navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true, walletID: walletID });
-	
+    let imports = import2Text.split(" ");
+    if (imports.length != 11 && imports.length != 23) return;
+  
+    let wordList = bip39.wordlists[bip39.getDefaultWordlist()];
+  
+    let words = new Array(imports.length);
+    outer: for (let i = 0; i < imports.length; i++) {
+      for (let j = 0; j < wordList.length; j++) {
+        let word = wordList[j];
+        if (word.startsWith(imports[i])) {
+          words[i] = word;
+          continue outer;
+        }
+      }
+      return;
+    }
+    
+    navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true, walletID: walletID });
+  
   };
 
   return (
     <SafeBlueArea style={styles.root}>
       <BlueFormLabel>{"Enter Border Wallet entropy grid mnemonic:"}</BlueFormLabel>
       <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-	  <BlueSpacing20 />
-	  <View style={styles.center}>
-	  {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importMnemonic} />}
-	  </View>
-		<BlueSpacing20 />
-		<BlueFormLabel>{"OR"}</BlueFormLabel>
-		<BlueSpacing20 />
-		<BlueFormLabel>{"From your saved PDF, enter the contents of the 11 or 23 boxes, in order, that form your pattern:"}</BlueFormLabel>
-		<BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
-		<BlueSpacing20 />
-	  <View style={styles.center}>
-	  {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importPDF} />}
-	  </View>
+      <BlueSpacing20 />
+      <View style={styles.center}>
+        {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importMnemonic} />}
+      </View>
+      <BlueSpacing20 />
+      <BlueFormLabel>{"OR"}</BlueFormLabel>
+      <BlueSpacing20 />
+      <BlueFormLabel>{"From your saved PDF, enter the contents of the 11 or 23 boxes, in order, that form your pattern:"}</BlueFormLabel>
+      <BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
+      <BlueSpacing20 />
+      <View style={styles.center}>
+        {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importPDF} />}
+      </View>
       <BlueSpacing20 />
     </SafeBlueArea>
   );

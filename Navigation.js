@@ -194,26 +194,26 @@ const AddWalletRoot = () => {
       />
       <AddWalletStack.Screen name="PleaseBackupLdk" component={PleaseBackupLdk} options={PleaseBackupLdk.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions(theme)} />
-	  <AddWalletStack.Screen 
-		name="WalletsAddBorder" 
-		component={WalletsAddBorder} 
-		options={WalletsAddBorder.navigationOptions(theme)} 
-	  />
-	  <AddWalletStack.Screen 
-		name="WalletsAddBorderSaveGrid" 
-		component={WalletsAddBorderSaveGrid} 
-		options={WalletsAddBorderSaveGrid.navigationOptions(theme)} 
-	  />
-	  <AddWalletStack.Screen 
-		name="WalletsAddBorderStep2" 
-		component={WalletsAddBorderStep2} 
-		options={WalletsAddBorderStep2.navigationOptions(theme)} 
-	  />
-	  <AddWalletStack.Screen 
-		name="WalletsAddBorderFinalWord" 
-		component={WalletsAddBorderFinalWord} 
-		options={WalletsAddBorderFinalWord.navigationOptions(theme)} 
-	  />
+      <AddWalletStack.Screen 
+        name="WalletsAddBorder" 
+        component={WalletsAddBorder} 
+        options={WalletsAddBorder.navigationOptions(theme)} 
+      />
+      <AddWalletStack.Screen 
+        name="WalletsAddBorderSaveGrid" 
+        component={WalletsAddBorderSaveGrid} 
+        options={WalletsAddBorderSaveGrid.navigationOptions(theme)} 
+      />
+      <AddWalletStack.Screen 
+        name="WalletsAddBorderStep2" 
+        component={WalletsAddBorderStep2} 
+        options={WalletsAddBorderStep2.navigationOptions(theme)} 
+      />
+      <AddWalletStack.Screen 
+        name="WalletsAddBorderFinalWord" 
+        component={WalletsAddBorderFinalWord} 
+        options={WalletsAddBorderFinalWord.navigationOptions(theme)} 
+      />
       <AddWalletStack.Screen
         name="WalletsAddMultisig"
         component={WalletsAddMultisig}
