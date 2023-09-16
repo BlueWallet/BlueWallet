@@ -410,7 +410,6 @@ const WalletsAdd: React.FC = () => {
             style={styles.button}
           />
           <BorderWalletButton
-            testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.BORDER}
             onPress={handleOnBorderButtonPressed}
             style={styles.button}
