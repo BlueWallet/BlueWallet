@@ -266,7 +266,7 @@ class BorderWalletHeaderCell extends Component {
 
   render() {
     return (
-      <View style={[styles.gridBoxStyle, {this.state.selected ? styles.blue : styles.darkLight }]}>
+      <View style={[styles.gridBoxStyle, this.state.selected ? styles.blue : styles.darkLight]}>
         <Text style={this.state.selected ? styles.white : []}>{this.props.text}</Text>
       </View>
     );
@@ -293,7 +293,7 @@ class BorderWalletCell extends Component {
           style={[
             styles.gridBoxStyle,
             styles.autoBasis,
-			this.state.selected ? styles.darkBlue : styles.transparent },
+			this.state.selected ? styles.darkBlue : styles.transparent,
           ]}
         >
           <Text style={this.state.selected ? styles.white : []}>
