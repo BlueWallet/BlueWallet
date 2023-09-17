@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Alert, View, StatusBar, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation, useTheme, useRoute } from '@react-navigation/native';
 
 import loc from '../../loc';
@@ -22,7 +22,7 @@ const ImportBorder = () => {
   const [importText, setImportText] = useState();
   const [import2Text, setImport2Text] = useState();
   const [walletType, setWalletType] = useState();
-  const { addAndSaveWallet, sleep } = useContext(BlueStorageContext);
+  const { sleep } = useContext(BlueStorageContext);
 
   const { walletID } = useRoute().params;
 

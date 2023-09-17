@@ -52,7 +52,7 @@ export const BlueAutocomplete = ({
 
   const filterData = (text) => {
     return data.filter(
-      (val) => text.length > 0 ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true
+      (val) => (text != null && text.length > 0) ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true
     ).sort();
   };
   

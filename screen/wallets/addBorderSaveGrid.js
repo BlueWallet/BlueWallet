@@ -1,42 +1,23 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
-  Image,
-  FlatList,
   I18nManager,
-  Keyboard,
-  KeyboardAvoidingView,
   BackHandler,
-  LayoutAnimation,
-  Platform,
   StyleSheet,
-  Switch,
   Text,
-  TouchableOpacity,
-  View,
-  findNodeHandle,
-  VirtualizedList,
-  Animated
+  View
 } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
 
 import {
   BlueButton,
-  BlueButtonLink,
-  BlueFormMultiInput,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueText,
-  BlueTextCentered,
   SafeBlueArea,
 } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
@@ -44,10 +25,8 @@ import alert from '../../components/Alert';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 
-const A = require('../../blue_modules/analytics');
-
 const WalletsAddBorderSaveGrid = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
+  const { sleep } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -152,7 +131,7 @@ const WalletsAddBorderSaveGrid = () => {
         filenames: ["BorderWalletEntropyGrid"]
       };
 
-      const ShareResponse = await Share.open(shareOptions);
+      await Share.open(shareOptions);
     } catch (error) {
       alert(loc.border.save_file_error);
     }

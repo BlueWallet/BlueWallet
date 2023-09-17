@@ -1,20 +1,12 @@
-import React, { useContext, useRef, useState, useEffect, Component } from 'react';
+import React, { useContext, useRef, useState, Component } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
-  Image,
-  FlatList,
-  I18nManager,
-  Keyboard,
   KeyboardAvoidingView,
-  LayoutAnimation,
-  Platform,
   StyleSheet,
-  Switch,
   Text,
   TouchableOpacity,
   View,
-  findNodeHandle,
   VirtualizedList,
   Animated
 } from 'react-native';
@@ -23,19 +15,15 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueButton,
   BlueButtonLink,
-  BlueFormMultiInput,
-  BlueSpacing10,
   BlueSpacing20,
   BlueText,
-  BlueTextCentered,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
 
 const WalletsAddBorderStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
+  const { sleep } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();

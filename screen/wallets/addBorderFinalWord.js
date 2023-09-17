@@ -1,22 +1,9 @@
 import React, { useContext, useRef, useState, Component } from 'react';
 import {
-  ActivityIndicator,
   ScrollView,
-  Image,
-  FlatList,
-  I18nManager,
-  Keyboard,
-  KeyboardAvoidingView,
-  LayoutAnimation,
-  Platform,
   StyleSheet,
-  Switch,
   Text,
-  TouchableOpacity,
-  View,
-  findNodeHandle,
-  VirtualizedList,
-  Animated
+  View
 } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import createHash from 'create-hash';
@@ -26,12 +13,8 @@ import Biometric from '../../class/biometrics';
 
 import {
   BlueButton,
-  BlueButtonLink,
-  BlueFormMultiInput,
-  BlueSpacing10,
   BlueSpacing20,
   BlueText,
-  BlueTextCentered,
   BlueAutocomplete,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -44,15 +27,13 @@ import alert from '../../components/Alert';
 const A = require('../../blue_modules/analytics');
 
 const WalletsAddBorderFinalWord = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep, wallets } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, sleep, wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
   const { walletLabel, seedPhrase, importing, walletID } = useRoute().params;
 
   const [isLoading, setIsLoading] = useState(false);
-  
-  const selectedWords = useRef([]);
 
   const stylesHook = StyleSheet.create({
     root: {
