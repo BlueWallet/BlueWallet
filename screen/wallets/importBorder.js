@@ -59,9 +59,9 @@ const ImportBorder = () => {
     const wordList = bip39.wordlists[bip39.getDefaultWordlist()];
 
     const words = new Array(imports.length);
-	for (let j = 0; j < wordList.length; j++) {
+    for (let j = 0; j < wordList.length; j++) {
       const word = wordList[j];
-	  for (let i = 0; i < imports.length; i++) {
+      for (let i = 0; i < imports.length; i++) {
         if (word.startsWith(imports[i])) {
           words[i] = word;
           continue;

@@ -93,16 +93,11 @@ const WalletsAddBorderStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       <View style={styles.wrapBox}>
-        <BlueText
-          style={styles.bigText}
-        >
+        <BlueText style={styles.bigText}>
           {!importing ? loc.border.choose_boxes : loc.border.recover_boxes}
         </BlueText>
         {!importing ? (
-          <BlueText
-            adjustsFontSizeToFit
-            style={styles.text}
-          >
+          <BlueText adjustsFontSizeToFit style={styles.text}>
             {loc.border.instructions_memory}
           </BlueText>
         ) : null}
@@ -211,26 +206,46 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   flexRow: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     flex: 1,
   },
   dark: {
     backgroundColor: '#00000070',
   },
+  darkLight: {
+    backgroundColor: '#00000030',
+  },
+  blue: {
+    backgroundColor: '#004A99',
+  },
+  darkBlue: {
+    backgroundColor: '#007AFF',  
+  },
+  transparent: {
+    backgroundColor: '#ffffff00',
+  },
   flex: {
     flex: 1,
   },
   flexRowOnly: {
-    flexDirection: 'row',   
+    flexDirection: 'row',
   },
   rowHeaderStyle: {
-	flexDirection: 'row', 
-	height: 24,
+    flexDirection: 'row', 
+    height: 24,
   },
   listStyle: {
     flexGrow: 1,
     flexBasis: 0,
   },
+  white: {
+    color: '#ffffff',
+  },
+  autoBasis: {
+    flex: 1, 
+    flexGrow: 0, 
+    flexBasis: 'auto',
+  }
 });
 
 class BorderWalletHeaderCell extends Component {
@@ -251,8 +266,8 @@ class BorderWalletHeaderCell extends Component {
 
   render() {
     return (
-      <View style={[styles.gridBoxStyle, { backgroundColor: this.state.selected ? '#004A99' : '#00000030' }]}>
-        <Text style={this.state.selected ? { color: '#ffffff' } : []}>{this.props.text}</Text>
+      <View style={[styles.gridBoxStyle, {this.state.selected ? styles.blue : styles.darkLight }]}>
+        <Text style={this.state.selected ? styles.white : []}>{this.props.text}</Text>
       </View>
     );
   }
@@ -277,10 +292,11 @@ class BorderWalletCell extends Component {
         <View
           style={[
             styles.gridBoxStyle,
-            { flex: 1, flexGrow: 0, flexBasis: 'auto', backgroundColor: this.state.selected ? '#007AFF' : '#ffffff00' },
+            styles.autoBasis,
+			this.state.selected ? styles.darkBlue : styles.transparent },
           ]}
         >
-          <Text style={this.state.selected ? { color: '#ffffff' } : []}>
+          <Text style={this.state.selected ? styles.white : []}>
             {this.state.selected ? this.props.selectedWords.indexOf(box) + 1 : box.title}
           </Text>
         </View>

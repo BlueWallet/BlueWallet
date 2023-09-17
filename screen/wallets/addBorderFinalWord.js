@@ -1,4 +1,4 @@
-import React, { useContext, useState, Component } from 'react';
+import React, { useContext, Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import createHash from 'create-hash';
@@ -68,7 +68,6 @@ const WalletsAddBorderFinalWord = () => {
       navigation.popToTop();
       navigation.goBack();
     } catch (e) {
-      setIsLoading(false);
       alert(e.message);
       console.log('create border wallet error', e);
     }
@@ -194,9 +193,7 @@ const WalletsAddBorderFinalWord = () => {
         />
         <BlueSpacing20 />
         {!importing ? (
-          <BlueText
-            style={styles.textStyle}
-          >
+          <BlueText style={styles.textStyle}>
             {loc.border.instructions_recap}
           </BlueText>
         ) : null}
@@ -211,7 +208,7 @@ const WalletsAddBorderFinalWord = () => {
 
 const styles = StyleSheet.create({
   flex: {
-	flex: 1,
+    flex: 1,
   },
   root: {
     flex: 1,

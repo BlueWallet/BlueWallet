@@ -92,9 +92,9 @@ const styles = StyleSheet.create({
     height: 160,
   },
   imageStyle: {
-	width: 102, 
-	height: 102
-  }
+    width: 102,
+    height: 102,
+  },
 });
 
 WalletsAddBorder.navigationOptions = navigationStyle({
