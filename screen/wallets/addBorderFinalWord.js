@@ -83,16 +83,16 @@ const WalletsAddBorderFinalWord = () => {
 
         if (isBiometricsEnabled) {
           if (!(await Biometric.unlockWithBiometrics())) {
-	        alert({loc.border.memory_error_unlocking});
+	        alert(loc.border.memory_error_unlocking);
 	        return;
           }
         }
       
         let secret = wallet.getSecret();
         if (secret == (seedPhrase.join(" ") + " " + textBoxValue)) {
-          alert({loc.border.memory_success});
+          alert(loc.border.memory_success);
         } else {
-          alert("{loc.border.memory_failure});
+          alert(loc.border.memory_failure);
         }
       }
 
