@@ -2,7 +2,6 @@ import React, { useContext, useRef, useState, Component } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
-  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TouchableOpacity,

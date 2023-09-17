@@ -1,6 +1,5 @@
-import React, { useContext, useRef, useState, Component } from 'react';
+import React, { useContext, useState, Component } from 'react';
 import {
-  ScrollView,
   StyleSheet,
   Text,
   View
