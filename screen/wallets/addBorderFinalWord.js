@@ -192,7 +192,7 @@ const WalletsAddBorderFinalWord = () => {
           onChange={textChanged}
         />
         <BlueSpacing20 />
-        {!importing ? (<BlueText style={styles.textStyle}>{loc.border.instructions_recap}</BlueText>) : null}
+        {!importing ? <BlueText style={styles.textStyle}>{loc.border.instructions_recap}</BlueText> : null}
         <BlueSpacing20 />
         <View style={styles.buttonBottom}>
           <ContinueFooter onContinue={onContinue} ref={continueFooter} importing={importing} />
