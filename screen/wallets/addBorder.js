@@ -4,6 +4,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BlueButton, BlueSpacing20 } from '../../BlueComponents';
+import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 
 const WalletsAddBorder = () => {

@@ -615,7 +615,7 @@
     "border_wallet": "Border Wallet",
     "border_wallet_explain": "Quickly and reliably memorise Bitcoin seed phrases",
     "what_part_1": "A border wallet allows the easy memorization of",
-    "what_part_2": " a seed phrase."
+    "what_part_2": " a seed phrase.",
     "instructions_part_1": "You will choose and memorize an 11 or 23 square",
     "instructions_part_2": " pattern on a grid",
     "instructions_part_3": " as well as a",
@@ -647,7 +647,7 @@
     "test_memory": "Test border wallet memory",
     "import_long": "Import a border wallet",
     "invalid_mnemonic": "Invalid mnemonic!",
-    "enter_grid_mnemonic":"Enter Border Wallet entropy grid mnemonic:",
+    "enter_grid_mnemonic": "Enter Border Wallet entropy grid mnemonic:",
     "or": "OR",
     "from_pdf": "From your saved PDF, enter the contents of the 11 or 23 boxes, in order, that form your pattern:"
   }
