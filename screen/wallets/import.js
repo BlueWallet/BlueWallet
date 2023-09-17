@@ -104,9 +104,9 @@ const WalletsImport = () => {
       }),
     );
   };
-  
+
   const importBorder = () => {
-	navigation.navigate('ImportBorder', {walletID: null});
+    navigation.navigate('ImportBorder', { walletID: null });
   };
 
   const speedBackdoorTap = () => {

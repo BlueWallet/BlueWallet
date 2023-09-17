@@ -364,7 +364,7 @@ const WalletsAdd: React.FC = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
-  
+
   const handleOnBorderButtonPressed = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.BORDER);

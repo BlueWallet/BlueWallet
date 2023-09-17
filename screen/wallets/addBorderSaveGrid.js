@@ -1,21 +1,10 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import {
-  ActivityIndicator,
-  ScrollView,
-  I18nManager,
-  BackHandler,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { ActivityIndicator, ScrollView, I18nManager, BackHandler, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
 
-import {
-  BlueButton,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButton, SafeBlueArea } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
@@ -45,8 +34,8 @@ const WalletsAddBorderSaveGrid = () => {
       color: colors.labelText,
     },
   });
-  
-  let words = getShuffledEntropyWords(seedPhrase);
+
+  const words = getShuffledEntropyWords(seedPhrase);
 
   const handleBackButton = useCallback(async () => {
     setIsLoading(true);
@@ -54,6 +43,7 @@ const WalletsAddBorderSaveGrid = () => {
     navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
     setIsLoading(false);
     return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
 
   useEffect(() => {
@@ -69,7 +59,7 @@ const WalletsAddBorderSaveGrid = () => {
 
   const renderSecret = () => {
     const component = [];
-    let seedSplit = seedPhrase.split(/\s/);
+    const seedSplit = seedPhrase.split(/\s/);
     for (let i = 0; i < seedSplit.length; i++) {
       const text = `${i + 1}. ${seedSplit[i]}  `;
       component.push(
@@ -82,30 +72,29 @@ const WalletsAddBorderSaveGrid = () => {
     }
     return component;
   };
-  
-  //This avoids having to import any other libraries for PDF exports. You win some, you lose some.
+
+  // This avoids having to import any other libraries for PDF exports. You win some, you lose some.
   const handleShare = async () => {
-    
-    let html =`<style>header{width:100%;height:20px;counter-increment:page;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.pgn::before{content:counter(page)}footer{margin-top:6px;width:100%;height:20px;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.s1{font-weight:800;color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.s2{color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.tdnormal{width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}.tdheader{background-color:#dbdbdb;width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}tr{height:9pt}</style>`;
-    
-    let footer = `<footer>Recovery Phrase: ` + seedPhrase + `</footer>`;
-    
-    let header1 = `<header>Pt `;
-    let header2 = `/2 BWEG No.# ___________ Date: _____________ Checksum verified? Y/N Checksum calculator/method:________________</header>`;
-    
-    let tablepageheaderfooter = `<tr><td class="tdheader"><p class="s1"><br/></p></td><td class="tdheader"><p class="s1">A</p></td><td class="tdheader"><p class="s1">B</p></td><td class="tdheader"><p class="s1">C</p></td><td class="tdheader"><p class="s1">D</p></td><td class="tdheader"><p class="s1">E</p></td><td class="tdheader"><p class="s1">F</p></td><td class="tdheader"><p class="s1">G</p></td><td class="tdheader"><p class="s1">H</p></td><td class="tdheader"><p class="s1">I</p></td><td class="tdheader"><p class="s1">J</p></td><td class="tdheader"><p class="s1">K</p></td><td class="tdheader"><p class="s1">L</p></td><td class="tdheader"><p class="s1">M</p></td><td class="tdheader"><p class="s1">N</p></td><td class="tdheader"><p class="s1">O</p></td><td class="tdheader"><p class="s1">P</p></td><td class="tdheader"><p class="s1"><br/></p></td></tr>`;
-    
+    let html = `<style>header{width:100%;height:20px;counter-increment:page;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.pgn::before{content:counter(page)}footer{margin-top:6px;width:100%;height:20px;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.s1{font-weight:800;color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.s2{color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.tdnormal{width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}.tdheader{background-color:#dbdbdb;width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}tr{height:9pt}</style>`;
+
+    const footer = `<footer>Recovery Phrase: ` + seedPhrase + `</footer>`;
+
+    const header1 = `<header>Pt `;
+    const header2 = `/2 BWEG No.# ___________ Date: _____________ Checksum verified? Y/N Checksum calculator/method:________________</header>`;
+
+    const tablepageheaderfooter = `<tr><td class="tdheader"><p class="s1"><br/></p></td><td class="tdheader"><p class="s1">A</p></td><td class="tdheader"><p class="s1">B</p></td><td class="tdheader"><p class="s1">C</p></td><td class="tdheader"><p class="s1">D</p></td><td class="tdheader"><p class="s1">E</p></td><td class="tdheader"><p class="s1">F</p></td><td class="tdheader"><p class="s1">G</p></td><td class="tdheader"><p class="s1">H</p></td><td class="tdheader"><p class="s1">I</p></td><td class="tdheader"><p class="s1">J</p></td><td class="tdheader"><p class="s1">K</p></td><td class="tdheader"><p class="s1">L</p></td><td class="tdheader"><p class="s1">M</p></td><td class="tdheader"><p class="s1">N</p></td><td class="tdheader"><p class="s1">O</p></td><td class="tdheader"><p class="s1">P</p></td><td class="tdheader"><p class="s1"><br/></p></td></tr>`;
+
     for (let n = 0; n < 2; n++) {
       html += header1 + (n + 1) + header2;
       html += `<table cellspacing=0 style=border-collapse:collapse;margin-left:5.5pt>`;
       html += tablepageheaderfooter;
       for (let i = 0; i < 64; i++) {
-        let nr = n*64 + i;
+        const nr = n * 64 + i;
         html += `<tr>`;
-        let col = `<td class="tdheader"><p class="s1">` + (nr + 1).toString().padStart(3, '0') + `</p></td>`;
+        const col = `<td class="tdheader"><p class="s1">` + (nr + 1).toString().padStart(3, '0') + `</p></td>`;
         html += col;
         for (let j = 0; j < 16; j++) {
-          html += `<td class="tdnormal"><p class="s2">` + words[(nr*16) + j].substr(0, 4) + `</p></td>`;
+          html += `<td class="tdnormal"><p class="s2">` + words[nr * 16 + j].substr(0, 4) + `</p></td>`;
         }
         html += col;
         html += `</tr>`;
@@ -114,28 +103,27 @@ const WalletsAddBorderSaveGrid = () => {
       html += `</table>`;
       html += footer;
     }
-    
+
     try {
-      let options = {
-        html: html,
+      const options = {
+        html,
         base64: true,
       };
 
-      let file = await RNHTMLtoPDF.convert(options);
-      
+      const file = await RNHTMLtoPDF.convert(options);
+
       const shareOptions = {
         title: loc.border.save_file,
         failOnCancel: false,
         saveToFiles: true,
-        urls: ["data:application/pdf;base64," + file.base64],
-        filenames: ["BorderWalletEntropyGrid"]
+        urls: ['data:application/pdf;base64,' + file.base64],
+        filenames: ['BorderWalletEntropyGrid'],
       };
 
       await Share.open(shareOptions);
     } catch (error) {
       alert(loc.border.save_file_error);
     }
-    
   };
 
   return isLoading ? (

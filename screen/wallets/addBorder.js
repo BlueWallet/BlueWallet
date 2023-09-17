@@ -20,7 +20,7 @@ const WalletsAddBorder = () => {
     },
     textdesc: {
       color: colors.alternativeTextColor,
-    }
+    },
   });
 
   const onLetsStartPress = () => {
@@ -31,40 +31,31 @@ const WalletsAddBorder = () => {
     <SafeAreaView style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
-          <Image style={{ width: 102, height: 102 }} source={require('../../img/addWallet/border.png')} />
+          <Image style={styles.imageStyle} source={require('../../img/addWallet/border.png')} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.border.what_part_1}
-          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.border.what_part_2}
-          </Text>
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>{loc.border.what_part_2}</Text>
         </Text>
 
         <BlueSpacing20 />
 
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.border.instructions_part_1}
-          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.border.instructions_part_2}
-          </Text>
-	      {loc.border.instructions_part_3}
-          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.border.instructions_part_4}
-          </Text>
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>{loc.border.instructions_part_2}</Text>
+          {loc.border.instructions_part_3}
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>{loc.border.instructions_part_4}</Text>
           {loc.border.instructions_part_5}
         </Text>
-    
+
         <BlueSpacing20 />
-    
+
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
           {loc.border.then_part_1}
-          <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {loc.border.then_part_2}
-          </Text>
-            {loc.border.then_part_3}
+          <Text style={[styles.textdescBold, stylesHook.textdesc]}>{loc.border.then_part_2}</Text>
+          {loc.border.then_part_3}
         </Text>
-    
       </View>
 
       <View style={styles.buttonContainer}>
@@ -100,6 +91,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 160,
   },
+  imageStyle: {
+	width: 102, 
+	height: 102
+  }
 });
 
 WalletsAddBorder.navigationOptions = navigationStyle({

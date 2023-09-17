@@ -489,14 +489,14 @@ const WalletDetails = () => {
       { cancelable: false },
     );
   };
-  
-  const testBorderWallet = () => {  
-	navigate('AddWalletRoot', {
-	  screen: 'ImportBorder',
-	  params: {
-		walletID: wallet.getID(),
+
+  const testBorderWallet = () => {
+    navigate('AddWalletRoot', {
+      screen: 'ImportBorder',
+      params: {
+        walletID: wallet.getID(),
       },
-	});
+    });
   };
 
   return (
@@ -690,7 +690,7 @@ const WalletDetails = () => {
                     />
                   </>
                 )}
-				
+
                 {wallet.type === HDSegwitBech32Wallet.type && (
                   <>
                     <BlueSpacing20 />

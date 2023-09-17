@@ -50,18 +50,16 @@ export const BlueAutocomplete = ({
   const [menuVisible, setMenuVisible] = useState(true);
   const [filteredData, setFilteredData] = useState([...data.sort()]);
 
-  const filterData = (text) => {
-    return data.filter(
-      (val) => (text != null && text.length > 0) ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true
-    ).sort();
+  const filterData = text => {
+    return data.filter(val => (text != null && text.length > 0 ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true)).sort();
   };
-  
+
   return (
-    <View style={[containerStyle]}>
+    <View style={containerStyle}>
       <TextInput
         // onBlur={() => setMenuVisible(false)}
-        style={[style, {textAlign: 'center', fontSize: 35}]}
-        onChangeText={(text) => {
+        style={[style, { textAlign: 'center', fontSize: 35 }]}
+        onChangeText={text => {
           origOnChange(text);
           if (text != null) {
             setFilteredData(filterData(text));
@@ -70,27 +68,28 @@ export const BlueAutocomplete = ({
           setValue(text);
         }}
         value={value}
-    placeholder={placeholder}
+        placeholder={placeholder}
       />
-      {(menuVisible && filteredData.length > 0) ? (
+      {menuVisible && filteredData.length > 0 ? (
         <ScrollView
           style={{
             flex: 1,
             flexDirection: 'column',
-      overflow: 'hidden',
+            overflow: 'hidden',
           }}
         >
           {filteredData.map((datum, i) => (
-      <TouchableOpacity key={i} onPress={() => {
+            <TouchableOpacity
+              key={i}
+              onPress={() => {
                 setValue(datum);
                 setMenuVisible(false);
-        origOnChange(datum);
-              }} style={[{ width: '100%' }]}
-      >
-        <BlueText>
-        {datum}
-        </BlueText>
-      </TouchableOpacity>
+                origOnChange(datum);
+              }}
+              style={{ width: '100%' }}
+            >
+              <BlueText>{datum}</BlueText>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       ) : null}
@@ -234,7 +233,14 @@ export const BorderWalletButton = props => {
             <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/border.png')} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
+            <Text
+              style={{
+                color: colors.foregroundColor,
+                fontWeight: 'bold',
+                fontSize: 18,
+                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+              }}
+            >
               {loc.border.border_wallet}
             </Text>
             <Text

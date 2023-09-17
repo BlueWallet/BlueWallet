@@ -21,7 +21,6 @@ const ImportBorder = () => {
   const [loading, setLoading] = useState(false);
   const [importText, setImportText] = useState();
   const [import2Text, setImport2Text] = useState();
-  const [walletType, setWalletType] = useState();
   const { sleep } = useContext(BlueStorageContext);
 
   const { walletID } = useRoute().params;
@@ -40,34 +39,46 @@ const ImportBorder = () => {
     setLoading(true);
     await sleep(100);
     if (validateMnemonic(importText)) {
-      navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true, walletID: walletID });
+      navigation.navigate('WalletsAddBorderStep2', {
+        walletLabel: loc.wallets.details_title,
+        words: getShuffledEntropyWords(importText),
+        importing: true,
+        walletID,
+      });
     } else {
       alert(loc.border.invalid_mnemonic);
     }
     setLoading(false);
     return true;
   };
-  
+
   const importPDF = async () => {
-    let imports = import2Text.split(" ");
-    if (imports.length != 11 && imports.length != 23) return;
-  
-    let wordList = bip39.wordlists[bip39.getDefaultWordlist()];
-  
-    let words = new Array(imports.length);
-    outer: for (let i = 0; i < imports.length; i++) {
-      for (let j = 0; j < wordList.length; j++) {
-        let word = wordList[j];
+    const imports = import2Text.split(' ');
+    if (imports.length !== 11 && imports.length !== 23) return;
+
+    const wordList = bip39.wordlists[bip39.getDefaultWordlist()];
+
+    const words = new Array(imports.length);
+	for (let j = 0; j < wordList.length; j++) {
+      const word = wordList[j];
+	  for (let i = 0; i < imports.length; i++) {
         if (word.startsWith(imports[i])) {
           words[i] = word;
-          continue outer;
+          continue;
         }
       }
-      return;
     }
-    
-    navigation.navigate('WalletsAddBorderFinalWord', { walletLabel: loc.wallets.details_title, seedPhrase: words, importing: true, walletID: walletID });
-  
+
+    for (let i = 0; i < words.length; i++) {
+      if (wordList.indexOf(words[i]) === -1) return;
+    }
+
+    navigation.navigate('WalletsAddBorderFinalWord', {
+      walletLabel: loc.wallets.details_title,
+      seedPhrase: words,
+      importing: true,
+      walletID,
+    });
   };
 
   return (
@@ -84,9 +95,7 @@ const ImportBorder = () => {
       <BlueFormLabel>{loc.border.from_pdf}</BlueFormLabel>
       <BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
       <BlueSpacing20 />
-      <View style={styles.center}>
-        {loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importPDF} />}
-      </View>
+      <View style={styles.center}>{loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importPDF} />}</View>
       <BlueSpacing20 />
     </SafeBlueArea>
   );
