@@ -235,7 +235,7 @@ export const BorderWalletButton = props => {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ color: colors.foregroundColor, fontWeight: 'bold', fontSize: 18, writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr' }}>
-              Border Wallet
+              {loc.border.border_wallet}
             </Text>
             <Text
               style={{
@@ -245,7 +245,7 @@ export const BorderWalletButton = props => {
                 writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
               }}
             >
-              Quickly and reliably memorise Bitcoin seed phrases
+              {loc.border.border_wallet_explain}
             </Text>
           </View>
         </View>

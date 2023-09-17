@@ -694,7 +694,7 @@ const WalletDetails = () => {
                 {wallet.type === HDSegwitBech32Wallet.type && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={testBorderWallet} title={"Test border wallet memory"} />
+                    <SecondButton onPress={testBorderWallet} title={loc.border.test_memory} />
                   </>
                 )}
 

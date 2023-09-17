@@ -83,16 +83,16 @@ const WalletsAddBorderFinalWord = () => {
 
         if (isBiometricsEnabled) {
           if (!(await Biometric.unlockWithBiometrics())) {
-	        alert("Could not unlock wallet.");
+	        alert({loc.border.memory_error_unlocking});
 	        return;
           }
         }
       
         let secret = wallet.getSecret();
         if (secret == (seedPhrase.join(" ") + " " + textBoxValue)) {
-          alert("Success, your memory is correct!");
+          alert({loc.border.memory_success});
         } else {
-          alert("Wallets do NOT match.");
+          alert("{loc.border.memory_failure});
         }
       }
 
@@ -125,7 +125,7 @@ const WalletsAddBorderFinalWord = () => {
   
   if((seedPhrase.length + 1) % 3 > 0) {
     throw new Exception("Previous word list size must be multiple of three words, less one.");
-    }
+  }
   
   let wordList = bip39.wordlists[bip39.getDefaultWordlist()];
   
@@ -214,7 +214,7 @@ const WalletsAddBorderFinalWord = () => {
     <View style={styles.wrapBox}>
       <BlueSpacing20 />
       <Text style={[styles.textdesc, stylesHook.textdesc]}>
-        Your selected words (do not save these):
+		{loc.border.selected_words}
         <Text style={[styles.textdescBold, stylesHook.textdesc]}>
           {" " + seedPhrase.join(" ")}
         </Text>
@@ -224,7 +224,7 @@ const WalletsAddBorderFinalWord = () => {
         value={""}
         style={[]}
         containerStyle={{flex: 1}}
-        placeholder="Final word"
+        placeholder={loc.border.final_word}
         data={possibleWords}
         onChange={textChanged}
       />
@@ -234,7 +234,7 @@ const WalletsAddBorderFinalWord = () => {
           fontSize: 15
         }}
       >
-        {"To recap, you need to:\n        - Memorize:\n                - The order, location, and shape of your pattern\n                - The final word\n        - Store:\n                - Your grid PDF or grid seed phrase (from the first page)"}
+        {loc.border.instructions_recap}
       </BlueText> : null}
       <BlueSpacing20 />
       <View style={styles.buttonBottom}>
@@ -286,7 +286,7 @@ class ContinueFooter extends Component {
   }
   
   render() { return (
-    <BlueButton onPress={this.props.onContinue} title={this.props.importing ? "Import wallet" : "Create wallet"} disabled={this.state.disable} />
+    <BlueButton onPress={this.props.onContinue} title={this.props.importing ? loc.border.import : loc.border.create} disabled={this.state.disable} />
   ); }
   
 }
@@ -295,6 +295,6 @@ WalletsAddBorderFinalWord.navigationOptions = navigationStyle({
   gestureEnabled: false,
   swipeEnabled: false,
   headerHideBackButton: true,
-}, opts => ({ ...opts, title: "Choose a final word (Step 3/3)" }));
+}, opts => ({ ...opts, title: loc.border.choose_final_word }));
 
 export default WalletsAddBorderFinalWord;

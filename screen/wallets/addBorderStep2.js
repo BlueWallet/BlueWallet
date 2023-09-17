@@ -120,17 +120,17 @@ const WalletsAddBorderStep2 = () => {
       <BlueText style={{
         fontWeight: 'bold',
         fontSize: 30,
-      }}>{!importing ? "Choose 11 or 23 boxes (2/3)" : "Enter your 11 or 23 box pattern"}</BlueText>
+      }}>{!importing ? loc.border.choose_boxes : loc.border.recover_boxes}</BlueText>
       {!importing ? <BlueText
         adjustsFontSizeToFit
         style={{
           fontSize: 15
         }}
       >
-        {"You need to memorize your selected pattern in order, and the position on the grid where it's located. You do not need to memorize the words themselves."}
+        {loc.border.instructions_memory}
       </BlueText> : null}
       <BlueSpacing20 />
-      <Text style={{textAlign: 'center'}}>{"Scroll ↓→"}</Text>
+      <Text style={{textAlign: 'center'}}>{loc.border.scroll}</Text>
       {isLoading ? <ActivityIndicator/> : <View style={{flexDirection: 'row', flex: 1}}>
         <View>
           <View style={[styles.gridBoxStyle, {backgroundColor: "#00000070"}]}></View>
@@ -265,8 +265,8 @@ class BorderWalletFooter extends Component {
   
   render() { return (
     <View style={styles.buttonBottom}>
-      {!this.props.isLoading ? <BlueButtonLink style={styles.import} activeOpacity={!this.state.enableClear ? 1 : 0.7} title="Clear selection" onPress={() => { if (this.state.enableClear) this.props.onClear() }} disabled={!this.state.enableClear} /> : null}
-      {this.props.isLoading ? <ActivityIndicator /> : <BlueButton title={"Continue"} onPress={this.props.onContinue} disabled={!this.state.enableContinue} />}
+      {!this.props.isLoading ? <BlueButtonLink style={styles.import} activeOpacity={!this.state.enableClear ? 1 : 0.7} title={loc.border.clear_selection} onPress={() => { if (this.state.enableClear) this.props.onClear() }} disabled={!this.state.enableClear} /> : null}
+      {this.props.isLoading ? <ActivityIndicator /> : <BlueButton title={loc.border.continue} onPress={this.props.onContinue} disabled={!this.state.enableContinue} />}
     </View>
   ); }
   

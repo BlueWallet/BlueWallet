@@ -145,7 +145,7 @@ const WalletsAddBorderSaveGrid = () => {
       let file = await RNHTMLtoPDF.convert(options);
       
       const shareOptions = {
-        title: 'Save file',
+        title: loc.border.save_file,
         failOnCancel: false,
         saveToFiles: true,
         urls: ["data:application/pdf;base64," + file.base64],
@@ -154,7 +154,7 @@ const WalletsAddBorderSaveGrid = () => {
 
       const ShareResponse = await Share.open(shareOptions);
     } catch (error) {
-      alert("Could not save file!");
+      alert(loc.border.save_file_error);
     }
     
   };
@@ -165,15 +165,15 @@ const WalletsAddBorderSaveGrid = () => {
     </View>
   ) : (
     <SafeBlueArea style={stylesHook.flex}>
-      <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
+      <ScrollView contentContainerStyle={styles.flex}>
         <View style={styles.please}>
-          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{"Please save this mnemonic and/or the grid PDF. You will need to use one of them to recover the wallet in the future. \nAlthough it cannot be used alone, the nature of a user-selected pattern means that a leaked grid is still a security risk -- If you suspect someone has access to these seed words or the grid PDF, you should still move your funds as soon as possible."}</Text>
+          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.border.backup_desc}</Text>
         </View>
         <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
         </View>
         <View style={styles.bottom}>
-          <BlueButton onPress={handleShare} title={"Save Grid PDF ⇓"} />
+          <BlueButton onPress={handleShare} title={loc.border.backup_pdf} />
         </View>
         <View style={styles.bottom}>
           <BlueButton onPress={handleBackButton} title={loc.pleasebackup.ok} />
@@ -189,7 +189,7 @@ WalletsAddBorderSaveGrid.navigationOptions = navigationStyle(
     swipeEnabled: false,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: "Creating border wallet (Step 1/3)" }),
+  opts => ({ ...opts, title: loc.border.creating }),
 );
 
 const styles = StyleSheet.create({

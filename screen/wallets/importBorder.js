@@ -42,7 +42,7 @@ const ImportBorder = () => {
     if (validateMnemonic(importText)) {
       navigation.navigate('WalletsAddBorderStep2', { walletLabel: loc.wallets.details_title, words: getShuffledEntropyWords(importText), importing: true, walletID: walletID });
     } else {
-      alert("Invalid mnemonic!");
+      alert(loc.border.invalid_mnemonic);
     }
     setLoading(false);
     return true;
@@ -72,20 +72,20 @@ const ImportBorder = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <BlueFormLabel>{"Enter Border Wallet entropy grid mnemonic:"}</BlueFormLabel>
+      <BlueFormLabel>{loc.border.enter_grid_mnemonic}</BlueFormLabel>
       <BlueFormMultiInput value={importText} onChangeText={setImportText} />
       <BlueSpacing20 />
       <View style={styles.center}>
-        {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importMnemonic} />}
+        {loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importMnemonic} />}
       </View>
       <BlueSpacing20 />
-      <BlueFormLabel>{"OR"}</BlueFormLabel>
+      <BlueFormLabel>{loc.border.or}</BlueFormLabel>
       <BlueSpacing20 />
-      <BlueFormLabel>{"From your saved PDF, enter the contents of the 11 or 23 boxes, in order, that form your pattern:"}</BlueFormLabel>
+      <BlueFormLabel>{loc.border.from_pdf}</BlueFormLabel>
       <BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
       <BlueSpacing20 />
       <View style={styles.center}>
-        {loading ? <ActivityIndicator /> : <BlueButton title="Import" onPress={importPDF} />}
+        {loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importPDF} />}
       </View>
       <BlueSpacing20 />
     </SafeBlueArea>

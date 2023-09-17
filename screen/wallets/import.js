@@ -144,7 +144,7 @@ const WalletsImport = () => {
           />
           <BlueSpacing20 />
           <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} testID="ScanImport" />
-          <BlueButtonLink title={"Import a border wallet"} onPress={importBorder} />
+          <BlueButtonLink title={loc.border.import_long} onPress={importBorder} />
         </>
       </View>
     </>

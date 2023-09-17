@@ -34,34 +34,34 @@ const WalletsAddBorder = () => {
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
-          A border wallet allows the easy memorization of 
+          {loc.border.what_part_1}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {" "}a seed phrase.
+            {loc.border.what_part_2}
           </Text>
         </Text>
 
         <BlueSpacing20 />
 
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
-          You will choose and memorize an 11 or 23 square
+          {loc.border.instructions_part_1}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {" "}pattern on a grid
+            {loc.border.instructions_part_2}
           </Text>
-	        {" "}as well as a
+	      {loc.border.instructions_part_3}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {" "}final word
+            {loc.border.instructions_part_4}
           </Text>
-            {" "}instead of memorizing every word.
+          {loc.border.instructions_part_5}
         </Text>
     
         <BlueSpacing20 />
     
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
-          Your can then safely store your generated
+          {loc.border.then_part_1}
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>
-            {" "}entropy grid
+            {loc.border.then_part_2}
           </Text>
-            {" "}as a PDF or seed phrase in a less secure manner, as it cannot be used to recover your funds without your memorized pattern and final word.
+            {loc.border.then_part_3}
         </Text>
     
       </View>
