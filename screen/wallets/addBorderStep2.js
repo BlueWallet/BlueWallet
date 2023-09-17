@@ -93,9 +93,7 @@ const WalletsAddBorderStep2 = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       <View style={styles.wrapBox}>
-        <BlueText style={styles.bigText}>
-          {!importing ? loc.border.choose_boxes : loc.border.recover_boxes}
-        </BlueText>
+        <BlueText style={styles.bigText}>{!importing ? loc.border.choose_boxes : loc.border.recover_boxes}</BlueText>
         {!importing ? (
           <BlueText adjustsFontSizeToFit style={styles.text}>
             {loc.border.instructions_memory}
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#004A99',
   },
   darkBlue: {
-    backgroundColor: '#007AFF',  
+    backgroundColor: '#007AFF',
   },
   transparent: {
     backgroundColor: '#ffffff00',
@@ -231,7 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   rowHeaderStyle: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     height: 24,
   },
   listStyle: {
@@ -242,10 +240,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   autoBasis: {
-    flex: 1, 
-    flexGrow: 0, 
+    flex: 1,
+    flexGrow: 0,
     flexBasis: 'auto',
-  }
+  },
 });
 
 class BorderWalletHeaderCell extends Component {
@@ -289,13 +287,7 @@ class BorderWalletCell extends Component {
     const clickGrid = this.props.clickGrid;
     return (
       <TouchableOpacity onPress={() => clickGrid(box)}>
-        <View
-          style={[
-            styles.gridBoxStyle,
-            styles.autoBasis,
-			this.state.selected ? styles.darkBlue : styles.transparent,
-          ]}
-        >
+        <View style={[styles.gridBoxStyle, styles.autoBasis, this.state.selected ? styles.darkBlue : styles.transparent]}>
           <Text style={this.state.selected ? styles.white : []}>
             {this.state.selected ? this.props.selectedWords.indexOf(box) + 1 : box.title}
           </Text>
