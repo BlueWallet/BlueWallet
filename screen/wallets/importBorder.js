@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Alert, View, StatusBar, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { useNavigation, useTheme, useRoute } from '@react-navigation/native';
 
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { BlueButton, BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -34,21 +33,6 @@ const ImportBorder = () => {
     },
     center: {
       marginHorizontal: 16,
-    },
-    pathInput: {
-      flexDirection: 'row',
-      borderWidth: 1,
-      borderBottomWidth: 0.5,
-      minHeight: 44,
-      height: 44,
-      alignItems: 'center',
-      marginVertical: 8,
-      borderRadius: 4,
-      paddingHorizontal: 8,
-      color: '#81868e',
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
     },
   });
 

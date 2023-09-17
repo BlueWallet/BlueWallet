@@ -19,9 +19,7 @@ import {
   VirtualizedList,
   Animated
 } from 'react-native';
-import { Icon, Header } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
@@ -38,23 +36,15 @@ import {
 } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
-import BottomModal from '../../components/BottomModal';
-import * as bip39 from 'bip39';
-import { randomBytes } from '../../class/rng';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 
-const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
-const isDesktop = getSystemName() === 'Mac OS X';
-const staticCache = {};
 
 const WalletsAddBorderSaveGrid = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
@@ -69,42 +59,21 @@ const WalletsAddBorderSaveGrid = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    textDestination: {
-      color: colors.foregroundColor,
-    },
-    modalContent: {
-      backgroundColor: colors.modal,
-    },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    vaultKeyText: {
-      color: colors.alternativeTextColor,
-    },
-    vaultKeyCircleSuccess: {
-      backgroundColor: colors.msSuccessBG,
-    },
     word: {
       backgroundColor: colors.inputBackgroundColor,
     },
     wordText: {
       color: colors.labelText,
     },
-    helpButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    helpButtonText: {
-      color: colors.foregroundColor,
-    },
   });
   
   let words = getShuffledEntropyWords(seedPhrase);
 
   const handleBackButton = useCallback(async () => {
-  setIsLoading(true);
-  await sleep(100);
+    setIsLoading(true);
+    await sleep(100);
     navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
-  setIsLoading(false);
+    setIsLoading(false);
     return true;
   }, [navigation]);
 
@@ -121,7 +90,7 @@ const WalletsAddBorderSaveGrid = () => {
 
   const renderSecret = () => {
     const component = [];
-  let seedSplit = seedPhrase.split(/\s/);
+    let seedSplit = seedPhrase.split(/\s/);
     for (let i = 0; i < seedSplit.length; i++) {
       const text = `${i + 1}. ${seedSplit[i]}  `;
       component.push(
@@ -148,23 +117,23 @@ const WalletsAddBorderSaveGrid = () => {
     let tablepageheaderfooter = `<tr><td class="tdheader"><p class="s1"><br/></p></td><td class="tdheader"><p class="s1">A</p></td><td class="tdheader"><p class="s1">B</p></td><td class="tdheader"><p class="s1">C</p></td><td class="tdheader"><p class="s1">D</p></td><td class="tdheader"><p class="s1">E</p></td><td class="tdheader"><p class="s1">F</p></td><td class="tdheader"><p class="s1">G</p></td><td class="tdheader"><p class="s1">H</p></td><td class="tdheader"><p class="s1">I</p></td><td class="tdheader"><p class="s1">J</p></td><td class="tdheader"><p class="s1">K</p></td><td class="tdheader"><p class="s1">L</p></td><td class="tdheader"><p class="s1">M</p></td><td class="tdheader"><p class="s1">N</p></td><td class="tdheader"><p class="s1">O</p></td><td class="tdheader"><p class="s1">P</p></td><td class="tdheader"><p class="s1"><br/></p></td></tr>`;
     
     for (let n = 0; n < 2; n++) {
-    html += header1 + (n + 1) + header2;
-    html += `<table cellspacing=0 style=border-collapse:collapse;margin-left:5.5pt>`;
-    html += tablepageheaderfooter;
-    for (let i = 0; i < 64; i++) {
-      let nr = n*64 + i;
-      html += `<tr>`;
-      let col = `<td class="tdheader"><p class="s1">` + (nr + 1).toString().padStart(3, '0') + `</p></td>`;
-      html += col;
-      for (let j = 0; j < 16; j++) {
-        html += `<td class="tdnormal"><p class="s2">` + words[(nr*16) + j].substr(0, 4) + `</p></td>`;
+      html += header1 + (n + 1) + header2;
+      html += `<table cellspacing=0 style=border-collapse:collapse;margin-left:5.5pt>`;
+      html += tablepageheaderfooter;
+      for (let i = 0; i < 64; i++) {
+        let nr = n*64 + i;
+        html += `<tr>`;
+        let col = `<td class="tdheader"><p class="s1">` + (nr + 1).toString().padStart(3, '0') + `</p></td>`;
+        html += col;
+        for (let j = 0; j < 16; j++) {
+          html += `<td class="tdnormal"><p class="s2">` + words[(nr*16) + j].substr(0, 4) + `</p></td>`;
+        }
+        html += col;
+        html += `</tr>`;
       }
-      html += col;
-      html += `</tr>`;
-    }
-    html += tablepageheaderfooter;
-    html += `</table>`;
-    html += footer;
+      html += tablepageheaderfooter;
+      html += `</table>`;
+      html += footer;
     }
     
     try {
@@ -258,10 +227,6 @@ const styles = StyleSheet.create({
     flexGrow: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  successText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
   pleaseText: {
     marginVertical: 16,

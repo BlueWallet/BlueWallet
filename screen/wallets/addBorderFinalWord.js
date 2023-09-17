@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect, Component } from 'react';
+import React, { useContext, useRef, useState, Component } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -18,9 +18,7 @@ import {
   VirtualizedList,
   Animated
 } from 'react-native';
-import { Icon, Header } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
 import createHash from 'create-hash';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -37,20 +35,13 @@ import {
   BlueAutocomplete,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
-import BottomModal from '../../components/BottomModal';
 import * as bip39 from 'bip39';
-import { randomBytes } from '../../class/rng';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 
-const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
-const isDesktop = getSystemName() === 'Mac OS X';
-const staticCache = {};
 
 const WalletsAddBorderFinalWord = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep, wallets } = useContext(BlueStorageContext);
@@ -67,75 +58,47 @@ const WalletsAddBorderFinalWord = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    textDestination: {
-      color: colors.foregroundColor,
-    },
-    modalContent: {
-      backgroundColor: colors.modal,
-    },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    vaultKeyText: {
-      color: colors.alternativeTextColor,
-    },
-    vaultKeyCircleSuccess: {
-      backgroundColor: colors.msSuccessBG,
-    },
-    word: {
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    wordText: {
-      color: colors.labelText,
-    },
-    helpButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    helpButtonText: {
-      color: colors.foregroundColor,
-    },
     textdesc: {
       color: colors.alternativeTextColor,
     },
   });
   
   const onContinue = async () => {
-  if (possibleWords.indexOf(textBoxValue) < 0) return;
+    if (possibleWords.indexOf(textBoxValue) < 0) return;
     setIsLoading(true);
     await sleep(100);
     try {
-    
-    if (!walletID) {
-      let w = new HDSegwitBech32Wallet();
-      w.setLabel(walletLabel);
+      if (!walletID) {
+        let w = new HDSegwitBech32Wallet();
+        w.setLabel(walletLabel);
       
-      w.setSecret(seedPhrase.join(" ") + " " + textBoxValue);
+        w.setSecret(seedPhrase.join(" ") + " " + textBoxValue);
       
-      addWallet(w);
-      await saveToDisk();
-      A(A.ENUM.CREATED_WALLET);
-    } else {
-      const wallet = wallets.find(w => w.getID() === walletID);
-      const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-            if (isBiometricsEnabled) {
-              if (!(await Biometric.unlockWithBiometrics())) {
-        alert("Could not unlock wallet.");
-                return;
-              }
-            }
-      
-      let secret = wallet.getSecret();
-      if (secret == (seedPhrase.join(" ") + " " + textBoxValue)) {
-        alert("Success, your memory is correct!");
+        addWallet(w);
+        await saveToDisk();
+        A(A.ENUM.CREATED_WALLET);
       } else {
-        alert("Wallets do NOT match.");
-      }
-    }
+        const wallet = wallets.find(w => w.getID() === walletID);
+        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        navigation.popToTop();
-    navigation.goBack();
+        if (isBiometricsEnabled) {
+          if (!(await Biometric.unlockWithBiometrics())) {
+	        alert("Could not unlock wallet.");
+	        return;
+          }
+        }
+      
+        let secret = wallet.getSecret();
+        if (secret == (seedPhrase.join(" ") + " " + textBoxValue)) {
+          alert("Success, your memory is correct!");
+        } else {
+          alert("Wallets do NOT match.");
+        }
+      }
+
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      navigation.popToTop();
+      navigation.goBack();
     } catch (e) {
       setIsLoading(false);
       alert(e.message);
@@ -290,86 +253,14 @@ const styles = StyleSheet.create({
   },
   wrapBox: {
     flexGrow: 1,
-  flexBasis: 0,
-  overflow: 'hidden',
+    flexBasis: 0,
+    overflow: 'hidden',
   },
   buttonBottom: {
     flexGrow: 0,
-  flexBasis: 'auto',
-  marginBottom: 20,
+    flexBasis: 'auto',
+    marginBottom: 20,
     justifyContent: 'flex-end',
-  },
-  textDestination: { fontWeight: '600' },
-  modalContent: {
-    paddingHorizontal: 22,
-    paddingVertical: 32,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 400,
-  },
-  word: {
-    width: 'auto',
-    marginRight: 8,
-    marginBottom: 8,
-    paddingTop: 6,
-    paddingBottom: 6,
-    paddingLeft: 8,
-    paddingRight: 8,
-    borderRadius: 4,
-  },
-  secretContainer: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    justifyContent: 'flex-start',
-    flexWrap: 'wrap',
-  },
-  wordText: {
-    fontWeight: 'bold',
-  },
-  exportButton: {
-    height: 48,
-    borderRadius: 8,
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  headerText: { fontSize: 15, color: '#13244D' },
-  alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
-  helpButtonWrapper: {
-    alignItems: 'flex-end',
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
-  },
-  helpButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 50,
-    flexDirection: 'row',
-  },
-  helpButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    justifyContent: 'space-between',
-  },
-  import: {
-    marginVertical: 24,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'white',
-  },
-  imageThumbnail: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 100,
   },
   textdesc: {
     fontWeight: '500',
