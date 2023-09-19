@@ -482,6 +482,8 @@
     "header": "送る",
     "share": "共有",
     "view": "表示",
+    "shared_key_detected": "共同署名の共有",
+    "shared_key_detected_question": "共同署名が共有されました。インポートしますか？",
     "manage_keys": "管理キー",
     "how_many_signatures_can_bluewallet_make": "Bluewalletが作れる署名の数",
     "signatures_required_to_spend": "必要な署名 {number}",
