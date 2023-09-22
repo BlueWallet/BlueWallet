@@ -41,6 +41,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import confirm from '../../helpers/confirm';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -49,7 +50,8 @@ const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep, currentSharedCosigner, setSharedCosigner } =
+    useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -74,6 +76,20 @@ const WalletsAddMultisigStep2 = () => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log(currentSharedCosigner);
+    if (currentSharedCosigner) {
+      (async function () {
+        if (await confirm(loc.multisig.shared_key_detected, loc.multisig.shared_key_detected_question)) {
+          setImportText(currentSharedCosigner);
+          setIsProvideMnemonicsModalVisible(true);
+          setSharedCosigner('');
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSharedCosigner]);
 
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
@@ -244,7 +260,7 @@ const WalletsAddMultisigStep2 = () => {
     setIsProvideMnemonicsModalVisible(true);
   };
 
-  const tryUsingXpub = async xpub => {
+  const tryUsingXpub = async (xpub, fp, path) => {
     if (!MultisigHDWallet.isXpubForMultisig(xpub)) {
       setIsProvideMnemonicsModalVisible(false);
       setIsLoading(false);
@@ -253,25 +269,31 @@ const WalletsAddMultisigStep2 = () => {
       alert(loc.multisig.not_a_multisignature_xpub);
       return;
     }
-    let fp;
-    try {
-      fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
-      fp = (fp + '').toUpperCase();
-      if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
-    } catch {
-      return setIsLoading(false);
+    if (fp) {
+      //  do nothing, it's already set
+    } else {
+      try {
+        fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+        fp = (fp + '').toUpperCase();
+        if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
+      } catch (e) {
+        return setIsLoading(false);
+      }
     }
-    let path;
-    try {
-      path = await prompt(
-        loc.multisig.input_path,
-        loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
-        true,
-        'plain-text',
-      );
-      if (!MultisigHDWallet.isPathValid(path)) path = getPath();
-    } catch {
-      return setIsLoading(false);
+    if (path) {
+      //  do nothing, it's already set
+    } else {
+      try {
+        path = await prompt(
+          loc.multisig.input_path,
+          loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
+          true,
+          'plain-text',
+        );
+        if (!MultisigHDWallet.isPathValid(path)) path = getPath();
+      } catch {
+        return setIsLoading(false);
+      }
     }
 
     setIsProvideMnemonicsModalVisible(false);
@@ -291,6 +313,20 @@ const WalletsAddMultisigStep2 = () => {
     if (MultisigHDWallet.isXpubValid(importText)) {
       return tryUsingXpub(importText);
     }
+    try {
+      const jsonText = JSON.parse(importText);
+      let fp;
+      let path;
+      if (jsonText.xpub) {
+        if (jsonText.xfp) {
+          fp = jsonText.xfp;
+        }
+        if (jsonText.path) {
+          path = jsonText.path;
+        }
+        return tryUsingXpub(jsonText.xpub, fp, path);
+      }
+    } catch {}
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(importText);
     if (!hd.validateMnemonic()) {

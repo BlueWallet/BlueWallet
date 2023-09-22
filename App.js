@@ -58,8 +58,15 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
-    useContext(BlueStorageContext);
+  const {
+    walletsInitialized,
+    wallets,
+    addWallet,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+  } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
@@ -328,7 +335,12 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), {
+      wallets,
+      addWallet,
+      saveToDisk,
+      setSharedCosigner,
+    });
   };
 
   const showClipboardAlert = ({ contentType }) => {

@@ -31,7 +31,11 @@ class DeeplinkSchemaMatch {
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
    * @param completionHandler {function} Callback that returns [string, params: object]
    */
-  static navigationRouteFor(event, completionHandler, context = { wallets: [], saveToDisk: () => {}, addWallet: () => {} }) {
+  static navigationRouteFor(
+    event,
+    completionHandler,
+    context = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
+  ) {
     if (event.url === null) {
       return;
     }
@@ -104,6 +108,17 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
       return;
+    } else if (event.url.endsWith('.json')) {
+      RNFS.readFile(decodeURI(event.url))
+        .then(file => {
+          // checks whether the necessary json keys are present in order to set a cosigner,
+          // doesn't validate the values this happens later
+          if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
+            return;
+          }
+          context.setSharedCosigner(file);
+        })
+        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning;
     try {
@@ -375,6 +390,20 @@ class DeeplinkSchemaMatch {
 
   static isWidgetAction(text) {
     return text.startsWith('widget?action=');
+  }
+
+  static hasNeededJsonKeysForMultiSigSharing(str) {
+    let obj;
+
+    // Check if it's a valid JSON
+    try {
+      obj = JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+
+    // Check for the existence and type of the keys
+    return typeof obj.xfp === 'string' && typeof obj.xpub === 'string' && typeof obj.path === 'string';
   }
 
   static isBothBitcoinAndLightning(url) {
