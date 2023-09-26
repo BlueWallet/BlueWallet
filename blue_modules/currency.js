@@ -214,6 +214,10 @@ function getCurrencySymbol() {
   return preferredFiatCurrency.symbol;
 }
 
+export function getCurrencyISOCode() {
+  return preferredFiatCurrency.endPointKey;
+}
+
 /**
  * Used to mock data in tests
  *
