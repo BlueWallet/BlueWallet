@@ -28,7 +28,7 @@ export default class NetworkTransactionFees {
         }
         const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
-          const networkFee = new NetworkTransactionFee(response.fast, response.medium, response.slow);
+          const networkFee = new NetworkTransactionFee(response.fast + 5, response.medium + 2, response.slow);
           resolve(networkFee);
         } else {
           const networkFee = new NetworkTransactionFee(2, 1, 1);

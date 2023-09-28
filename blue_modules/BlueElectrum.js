@@ -857,6 +857,13 @@ module.exports.estimateFees = async function () {
   const _medium = await module.exports.estimateFee(18);
   const _slow = await module.exports.estimateFee(144);
 
+  /**
+   * sanity check, see
+   * @see https://github.com/cculianu/Fulcrum/issues/197
+   * (fallback to bitcoin core estimates)
+   */
+  if (!histogram || histogram?.[0]?.[0] > 1000) return { fast: _fast, medium: _medium, slow: _slow };
+
   // calculating fast fees from mempool:
   const fast = Math.max(2, module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram));
   // recalculating medium and slow fees using bitcoincore estimations only like relative weights:
