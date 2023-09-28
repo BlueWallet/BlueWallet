@@ -10,6 +10,10 @@ export const NetworkTransactionFeeType = Object.freeze({
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
+  private fastestFee: number;
+  private mediumFee: number;
+  private slowFee: number;
+
   constructor(fastestFee = 2, mediumFee = 1, slowFee = 1) {
     this.fastestFee = fastestFee;
     this.mediumFee = mediumFee;
@@ -18,7 +22,7 @@ export class NetworkTransactionFee {
 }
 
 export default class NetworkTransactionFees {
-  static recommendedFees() {
+  static recommendedFees(): Promise<NetworkTransactionFee> {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async resolve => {
       try {
