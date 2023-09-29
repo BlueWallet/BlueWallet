@@ -850,12 +850,17 @@ module.exports.estimateFees = async function () {
     clearTimeout(timeoutId);
   }
 
-  if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
-
   // fetching what electrum (which uses bitcoin core) thinks about fees:
   const _fast = await module.exports.estimateFee(1);
   const _medium = await module.exports.estimateFee(18);
   const _slow = await module.exports.estimateFee(144);
+
+  /**
+   * sanity check, see
+   * @see https://github.com/cculianu/Fulcrum/issues/197
+   * (fallback to bitcoin core estimates)
+   */
+  if (!histogram || histogram?.[0]?.[0] > 1000) return { fast: _fast, medium: _medium, slow: _slow };
 
   // calculating fast fees from mempool:
   const fast = Math.max(2, module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram));
