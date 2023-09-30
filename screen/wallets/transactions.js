@@ -210,7 +210,7 @@ const WalletTransactions = ({ navigation }) => {
     if (noErr && smthChanged) {
       console.log('saving to disk');
       await saveToDisk(); // caching
-      //    setDataSource([...getTransactionsSliced(limit)]);
+      setDataSource([...getTransactionsSliced(limit)]);
     }
     setIsLoading(false);
     setTimeElapsed(prev => prev + 1);
