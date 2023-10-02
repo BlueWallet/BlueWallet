@@ -102,7 +102,7 @@
     "@ngraveio/bc-ur": "1.1.6",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.19.3",
-    "@react-native-clipboard/clipboard": "1.11.2",
+    "@react-native-clipboard/clipboard": "1.12.1",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-navigation/drawer": "5.12.9",
     "@react-navigation/native": "5.9.8",
