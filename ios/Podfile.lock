@@ -2,7 +2,7 @@ PODS:
   - boost (1.76.0)
   - BugsnagReactNative (7.21.0):
     - React-Core
-  - BVLinearGradient (2.8.2):
+  - BVLinearGradient (2.8.3):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -20,9 +20,9 @@ PODS:
     - hermes-engine/Pre-built (= 0.71.13)
   - hermes-engine/Pre-built (0.71.13)
   - libevent (2.1.12)
-  - lottie-ios (3.4.4)
-  - lottie-react-native (5.1.6):
-    - lottie-ios (~> 3.4.0)
+  - lottie-ios (4.3.3)
+  - lottie-react-native (6.3.1):
+    - lottie-ios (~> 4.3.0)
     - React-Core
   - PasscodeAuth (1.0.0):
     - React
@@ -475,7 +475,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -550,6 +549,7 @@ SPEC REPOS:
     - CocoaAsyncSocket
     - fmt
     - libevent
+    - lottie-ios
 
 EXTERNAL SOURCES:
   boost:
@@ -568,8 +568,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
-  lottie-ios:
-    :path: "../node_modules/lottie-ios"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   PasscodeAuth:
@@ -708,7 +706,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   BugsnagReactNative: c681c456736c24344553f48013da8253eb00ee92
-  BVLinearGradient: 916632041121a658c704df89d99f04acb038de0f
+  BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 24e08bf294faea0abc0278abb2fcad7f3e446f6f
@@ -717,8 +715,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 8b9dc37355d2e12879267382f4256afd356349a1
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
-  lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
+  lottie-ios: 25e7b2675dad5c3ddad369ac9baab03560c5bfdd
+  lottie-react-native: c9f1db4f4124dcce9f8159e65d8dc6e8bcb11fb4
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: c20235648eeb64a874f55459ceae6b081956318d
