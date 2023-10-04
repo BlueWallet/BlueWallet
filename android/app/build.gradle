@@ -125,8 +125,7 @@ android {
 buildscript {
     ext {
     // ...
-        kotlinVersion = "1.6.20"
-    }
+kotlinVersion = "1.8.10"    }
     // ...
 }
     // applicationVariants are e.g. debug, release
