@@ -122,6 +122,13 @@ android {
         }
     }
 
+buildscript {
+    ext {
+    // ...
+        kotlinVersion = "1.6.20"
+    }
+    // ...
+}
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
