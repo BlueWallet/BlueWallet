@@ -506,7 +506,16 @@ const WalletDetails = () => {
                   return (
                     <>
                       <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_address.toLowerCase()}</Text>
-                      <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.getAddress()}</Text>
+                      <Text style={[styles.textValue, stylesHook.textValue]}>
+                        {(() => {
+                          // gracefully handling faulty wallets, so at least user has an option to delete the wallet
+                          try {
+                            return wallet.getAddress();
+                          } catch (error) {
+                            return error.message;
+                          }
+                        })()}
+                      </Text>
                     </>
                   );
                 }
