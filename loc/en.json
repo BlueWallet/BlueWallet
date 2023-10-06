@@ -550,6 +550,11 @@
     "no_wallet_owns_address": "None of the available wallets own the provided address.",
     "view_qrcode": "View QRCode"
   },
+  "autofill_word": {
+    "title": "Generate final mnemonic word",
+    "enter": "Enter partial mnemonic phrase",
+    "generate_word": "Generate final word",
+  },
   "cc": {
     "change": "Change",
     "coins_selected": "Coins Selected ({number})",
