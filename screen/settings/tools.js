@@ -16,11 +16,11 @@ const NetworkSettings = () => {
   const navigateToBroadcast = () => {
     navigate('Broadcast');
   };
-  
+
   const navigateToGenerateWord = () => {
     navigate('GenerateWord');
   };
-  
+
   return (
     <SafeBlueArea>
       <ScrollView>

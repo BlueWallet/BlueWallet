@@ -25,16 +25,16 @@ const GenerateWord = () => {
     },
   });
 
-  const handleUpdateMnemonic = nextValue =>  {
+  const handleUpdateMnemonic = nextValue => {
     setMnemonic(nextValue);
     setResult();
-  }
+  };
 
   const checkMnemonic = async () => {
     Keyboard.dismiss();
-    
-    const seedPhrase = mnemonic.toString().trim().split(" ");
-    
+
+    const seedPhrase = mnemonic.toString().trim().split(' ');
+
     function binarySearch(arr, el, compare_fn) {
       let m = 0;
       let n = arr.length - 1;
@@ -51,7 +51,7 @@ const GenerateWord = () => {
       }
       return ~m; // eslint-disable-line no-bitwise
     }
-    
+
     if ((seedPhrase.length + 1) % 3 > 0) {
       throw new Error('Previous word list size must be multiple of three words, less one.');
     }
@@ -122,18 +122,17 @@ const GenerateWord = () => {
 
       possibleWords.push(wordList[index]);
     }
-    
+
     const random = await randomBytes(1);
-    const randomindex = Math.round((random.readUInt8(0)/255) * (possibleWords.length-1));
+    const randomindex = Math.round((random.readUInt8(0) / 255) * (possibleWords.length - 1));
 
     const selectedRandomWord = possibleWords[randomindex];
-    
-    seedPhrase.push(selectedRandomWord);
-    
-    if (validateMnemonic(seedPhrase.join(" "))) {
-        setResult(selectedRandomWord);
-    } else setResult();
 
+    seedPhrase.push(selectedRandomWord);
+
+    if (validateMnemonic(seedPhrase.join(' '))) {
+      setResult(selectedRandomWord);
+    } else setResult();
   };
 
   const clearMnemonicInput = () => {
