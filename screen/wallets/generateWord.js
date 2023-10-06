@@ -1,9 +1,9 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
-import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 
 import { randomBytes } from '../../class/rng';
@@ -12,10 +12,7 @@ import { validateMnemonic } from '../../blue_modules/bip39';
 import createHash from 'create-hash';
 
 const GenerateWord = () => {
-  const { navigate } = useNavigation();
-  const { name } = useRoute();
   const { colors } = useTheme();
-  const scanButtonRef = useRef();
 
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');

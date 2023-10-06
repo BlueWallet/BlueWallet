@@ -553,7 +553,7 @@
   "autofill_word": {
     "title": "Generate final mnemonic word",
     "enter": "Enter partial mnemonic phrase",
-    "generate_word": "Generate final word",
+    "generate_word": "Generate final word"
   },
   "cc": {
     "change": "Change",
