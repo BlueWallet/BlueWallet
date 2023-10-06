@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { useTheme } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
