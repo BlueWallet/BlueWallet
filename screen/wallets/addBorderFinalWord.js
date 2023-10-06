@@ -115,7 +115,7 @@ const WalletsAddBorderFinalWord = () => {
   const entropyLengthBits = concatLenBits + 11 - checksumLengthBits;
   const varyingLengthBits = entropyLengthBits - concatLenBits;
 
-  const numPermutations = varyingLengthBits ** 2;
+  const numPermutations = 2 ** varyingLengthBits;
   const bitPermutations = new Array(numPermutations);
 
   for (let i = 0; i < numPermutations; i++) {
