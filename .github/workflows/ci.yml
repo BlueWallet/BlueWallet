@@ -3,6 +3,11 @@ name: Tests
 # https://dev.to/edvinasbartkus/running-react-native-detox-tests-for-ios-and-android-on-github-actions-2ekn
 # https://medium.com/@reime005/the-best-ci-cd-for-react-native-with-e2e-support-4860b4aaab29
 
+env:
+  TRAVIS: 1
+  HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+  HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
 on: [pull_request]
 
 jobs:
@@ -88,18 +93,54 @@ jobs:
     - name: Build
       run: npm run e2e:release-build
 
-    - name: run tests
+    - name: Test attempt 1
       uses: reactivecircus/android-emulator-runner@v2
+      continue-on-error: true
+      id: test1
       with:
         api-level: 31
         avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test || npm run e2e:release-test || npm run e2e:release-test  || npm run e2e:release-test
-      env:
-        TRAVIS: 1
-        HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
-        HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+        script: npm run e2e:release-test
+
+    - name: Test attempt 2
+      uses: reactivecircus/android-emulator-runner@v2
+      continue-on-error: true
+      id: test2
+      if: steps.test1.outcome != 'success'
+      with:
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test
+
+    - name: Test attempt 3
+      uses: reactivecircus/android-emulator-runner@v2
+      continue-on-error: true
+      id: test3
+      if: steps.test2.outcome != 'success'
+      with:
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test
+
+    - name: Test attempt 4
+      uses: reactivecircus/android-emulator-runner@v2
+      if: steps.test3.outcome != 'success'
+      with:
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test
 
     - uses: actions/upload-artifact@v2
       if: failure()
