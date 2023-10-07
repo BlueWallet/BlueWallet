@@ -22,7 +22,7 @@ const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const route = useRoute();
-  const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params ?? {};
+  const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
