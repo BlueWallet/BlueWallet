@@ -835,7 +835,7 @@ module.exports.calcEstimateFeeFromFeeHistorgam = function (numberOfBlocks, feeHi
     return a - b;
   });
 
-  return Math.round(percentile(histogramFlat, 0.5) || 1);
+  return Math.round(percentile(histogramFlat, 0.9) || 1);
 };
 
 module.exports.estimateFees = async function () {
