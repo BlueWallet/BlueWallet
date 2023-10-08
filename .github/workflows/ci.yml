@@ -122,7 +122,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       continue-on-error: true
       id: test3
-      if: steps.test2.outcome != 'success'
+      if: steps.test1.outcome != 'success' && steps.test2.outcome != 'success'
       with:
         api-level: 31
         avd-name: Pixel_API_29_AOSP
@@ -133,7 +133,7 @@ jobs:
 
     - name: Test attempt 4
       uses: reactivecircus/android-emulator-runner@v2
-      if: steps.test3.outcome != 'success'
+      if: steps.test1.outcome != 'success' && steps.test2.outcome != 'success' && steps.test3.outcome != 'success'
       with:
         api-level: 31
         avd-name: Pixel_API_29_AOSP
