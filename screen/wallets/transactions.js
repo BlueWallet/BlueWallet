@@ -26,7 +26,7 @@ import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOn
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
@@ -51,6 +51,7 @@ const WalletTransactions = ({ navigation }) => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
+  const [isRefreshing, setIsRefreshing] = useState(false); // a simple flag to know that wallet was being updated once
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
@@ -100,7 +101,23 @@ const WalletTransactions = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    setOptions({ headerTitle: walletTransactionUpdateStatus === walletID ? loc.transactions.updating : '' });
+    if (walletTransactionUpdateStatus === walletID) {
+      // wallet is being refreshed, drawing the 'Updating...' header:
+      setOptions({ headerTitle: loc.transactions.updating });
+      setIsRefreshing(true);
+    } else {
+      setOptions({ headerTitle: '' });
+    }
+
+    if (isRefreshing && walletTransactionUpdateStatus === WalletTransactionsStatus.NONE) {
+      // if we are here this means that wallet was being updated (`walletTransactionUpdateStatus` was set, and
+      // `isRefreshing` flag was set) and we displayed "Updating..." message,
+      // and when it ended `walletTransactionUpdateStatus` became false (flag `isRefreshing` stayed).
+      // chances are that txs list changed for the wallet, so we need to re-render:
+      console.log('re-rendering transactions');
+      setDataSource([...getTransactionsSliced(limit)]);
+      setIsRefreshing(false);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletTransactionUpdateStatus]);
 
@@ -112,7 +129,7 @@ const WalletTransactions = ({ navigation }) => {
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setIsLoading(false);
     setSelectedWallet(wallet.getID());
-    setDataSource(wallet.getTransactions(15));
+    setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.type),
@@ -191,6 +208,10 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
       const start = +new Date();
       const oldTxLen = wallet.getTransactions().length;
+      let immatureTxsConfs = ''; // a silly way to keep track if anything changed in immature transactions
+      for (const tx of wallet.getTransactions()) {
+        if (tx.confirmations < 7) immatureTxsConfs += tx.txid + ':' + tx.confirmations + ';';
+      }
       await wallet.fetchTransactions();
       if (wallet.fetchPendingTransactions) {
         await wallet.fetchPendingTransactions();
@@ -199,6 +220,13 @@ const WalletTransactions = ({ navigation }) => {
         await wallet.fetchUserInvoices();
       }
       if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+      let unconfirmedTxsConfs2 = ''; // a silly way to keep track if anything changed in immature transactions
+      for (const tx of wallet.getTransactions()) {
+        if (tx.confirmations < 7) unconfirmedTxsConfs2 += tx.txid + ':' + tx.confirmations + ';';
+      }
+      if (unconfirmedTxsConfs2 !== immatureTxsConfs) {
+        smthChanged = true;
+      }
       const end = +new Date();
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
@@ -220,7 +248,7 @@ const WalletTransactions = ({ navigation }) => {
 
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return (getTransactionsSliced(Infinity).length > limit && <ActivityIndicator style={styles.activityIndicator} />) || <View />;
+    return (wallet.getTransactions().length > limit && <ActivityIndicator style={styles.activityIndicator} />) || <View />;
   };
 
   const renderListHeaderComponent = () => {
