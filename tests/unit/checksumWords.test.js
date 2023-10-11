@@ -8,20 +8,21 @@ describe('generateChecksumWords', () => {
     const result = generateChecksumWords(input);
     assert.ok(result);
     assert.strictEqual(result.length, 128);
-    
+
     for (let i = 0; i < 128; i++) {
       assert.ok(validateMnemonic(input + ' ' + result[i]));
     }
   });
-  
+
   it('generates 8 valid words for a 23 word input', () => {
-    const input = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
+    const input = `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon 
+	abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon`;
     const result = generateChecksumWords(input);
     assert.ok(result);
     assert.strictEqual(result.length, 8);
-    
+
     for (let i = 0; i < 8; i++) {
-      assert.ok(validateMnemonic(input + ' ' + result[i]));    
+      assert.ok(validateMnemonic(input + ' ' + result[i]));
     }
   });
 

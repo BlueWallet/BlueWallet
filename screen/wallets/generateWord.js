@@ -34,10 +34,11 @@ const GenerateWord = () => {
     const seedPhrase = mnemonic.toString();
 
     const possibleWords = generateChecksumWords(seedPhrase);
-    
-    if (!possibleWords) { //likely because of an invalid mnemonic
-        setResult();
-        return;
+
+    if (!possibleWords) {
+      // likely because of an invalid mnemonic
+      setResult();
+      return;
     }
 
     const random = await randomBytes(1);
