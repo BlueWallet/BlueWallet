@@ -6,7 +6,6 @@ describe('generateChecksumWords', () => {
   it('generates 128 valid words for an 11 word input', () => {
     const input = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
     const result = generateChecksumWords(input);
-    assert.ok(result);
     assert.strictEqual(result.length, 128);
 
     for (let i = 0; i < 128; i++) {
@@ -18,7 +17,6 @@ describe('generateChecksumWords', () => {
     const input = `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon 
 	abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon`;
     const result = generateChecksumWords(input);
-    assert.ok(result);
     assert.strictEqual(result.length, 8);
 
     for (let i = 0; i < 8; i++) {
