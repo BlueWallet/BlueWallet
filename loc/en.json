@@ -553,7 +553,8 @@
   "autofill_word": {
     "title": "Generate final mnemonic word",
     "enter": "Enter partial mnemonic phrase",
-    "generate_word": "Generate final word"
+    "generate_word": "Generate final word",
+    "error": "Input is not an 11 or 23 word partial mnemonic!"
   },
   "cc": {
     "change": "Change",

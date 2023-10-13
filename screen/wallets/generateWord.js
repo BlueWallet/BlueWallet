@@ -37,7 +37,7 @@ const GenerateWord = () => {
 
     if (!possibleWords) {
       // likely because of an invalid mnemonic
-      setResult();
+      setResult(loc.autofill_word.error);
       return;
     }
 
@@ -81,14 +81,17 @@ const GenerateWord = () => {
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearMnemonicInput} />
             <BlueSpacing20 />
-            <BlueButton
-              disabled={mnemonic.trim().length === 0}
-              title={loc.autofill_word.generate_word}
-              onPress={checkMnemonic}
-              testID="GenerateWord"
-            />
+            <BlueText style={styles.center} testID="Result">{result}</BlueText>
+			<BlueSpacing20 />
+            <View style={styles.buttonwraper}>
+              <BlueButton
+                disabled={mnemonic.trim().length === 0}
+                title={loc.autofill_word.generate_word}
+                onPress={checkMnemonic}
+                testID="GenerateWord"
+              />
+            </View>
             <BlueSpacing20 />
-            <BlueText testID="Result">{result}</BlueText>
           </BlueCard>
         </View>
       </KeyboardAvoidingView>
@@ -122,9 +125,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 4,
   },
+  center: {
+    textAlign: 'center',
+  },
   text: {
     padding: 8,
     minHeight: 33,
     color: '#81868e',
+  },
+  buttonwrapper: {
+    marginBottom: 19,
   },
 });
