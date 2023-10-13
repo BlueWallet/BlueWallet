@@ -1,10 +1,11 @@
 import * as bip39 from 'bip39';
 import createHash from 'create-hash';
 
-export function generateChecksumWords(stringSeedPhrase) { // partial (11 or 23 word) seed phrase
+// partial (11 or 23 word) seed phrase
+export function generateChecksumWords(stringSeedPhrase) {
 
   const seedPhrase = stringSeedPhrase.toLowerCase().trim().split(' ');
-    
+
   if ((seedPhrase.length + 1) % 3 > 0) {
     return false; // Partial mnemonic size must be multiple of three words, less one.
   }

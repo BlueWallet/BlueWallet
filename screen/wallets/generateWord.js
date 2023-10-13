@@ -81,9 +81,11 @@ const GenerateWord = () => {
             <BlueSpacing10 />
             <BlueButton title={loc.send.input_clear} onPress={clearMnemonicInput} />
             <BlueSpacing20 />
-            <BlueText style={styles.center} testID="Result">{result}</BlueText>
-			<BlueSpacing20 />
-            <View style={styles.buttonwraper}>
+            <BlueText style={styles.center} testID="Result">
+              {result}
+			</BlueText>
+            <BlueSpacing20 />
+            <View>
               <BlueButton
                 disabled={mnemonic.trim().length === 0}
                 title={loc.autofill_word.generate_word}
@@ -132,8 +134,5 @@ const styles = StyleSheet.create({
     padding: 8,
     minHeight: 33,
     color: '#81868e',
-  },
-  buttonwrapper: {
-    marginBottom: 19,
   },
 });

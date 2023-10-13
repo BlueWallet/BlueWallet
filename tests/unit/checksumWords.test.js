@@ -16,7 +16,7 @@ describe('generateChecksumWords', () => {
 
   it('generates 8 valid words for a 23 word input', () => {
     const input = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ' +
-	'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
+    'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
     const result = generateChecksumWords(input);
     assert.ok(result);
     assert.strictEqual(result.length, 8);
@@ -30,7 +30,7 @@ describe('generateChecksumWords', () => {
     const result = generateChecksumWords('lorem ipsum dolor sit amet');
     assert.strictEqual(result, false);
   });
-  
+
   it('fails with a completed phrase', () => {
     const result = generateChecksumWords('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
     assert.strictEqual(result, false);
