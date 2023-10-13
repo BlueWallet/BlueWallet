@@ -20,9 +20,13 @@
     "file_saved": "فایل {filePath} در {destination} شما ذخیره شد.",
     "downloads_folder": "پوشهٔ دانلودها",
     "close": "بستن",
+    "change_input_currency": "ویرایش ارز ورودی",
     "refresh": "تازه‌سازی",
     "more": "بیشتر",
-    "enter_amount": "مقدار را وارد کنید"
+    "pick_image": "انتخاب عکس از گالری",
+    "pick_file": "انتخاب فایل",
+    "enter_amount": "مقدار را وارد کنید",
+    "qr_custom_input_button": "برای وارد کردن ورودی دلبخواه، 10 بار ضربه بزنید"
   },
   "alert": {
     "default": "هشدار"
@@ -60,6 +64,7 @@
     "node_alias": "نام مستعار گره",
     "expiresIn": "تا {time} دقیقهٔ دیگر منقضی می‌شود",
     "payButton": "پرداخت",
+    "placeholder": "صورت‌حساب یا آدرس",
     "open_channel": "بازکردن کانال",
     "funding_amount_placeholder": "مقدار تأمین وجه، برای مثال، ۰٫۰۰۱",
     "opening_channnel_for_from": "درحال بازکردن کانال برای کیف پول {forWalletLabel}، با تأمین وجه از {fromWalletLabel}",
@@ -71,6 +76,7 @@
     "refill_create": "جهت ادامه، لطفاً یک کیف پول بیت‌کوین جهت پرکردن ایجاد کنید.",
     "refill_external": "پرکردن با کیف پول خارجی",
     "refill_lnd_balance": "پرکردن موجودی کیف پول لایتنینگ",
+    "sameWalletAsInvoiceError": "شما نمی‌توانید صورت‌حسابی را با همان کیف پولی که برای ایجاد آن استفاده کرده‌اید بپردازید.",
     "title": "مدیریت دارایی",
     "can_send": "می‌تواند ارسال کند",
     "can_receive": "می‌تواند دریافت کند",
@@ -283,6 +289,7 @@
     "lightning_saved": "تغییرات شما با موفقیت ذخیره شدند.",
     "lightning_settings": "تنظیمات لایتنینگ",
     "tor_settings": "تنظیمات تور",
+    "lightning_settings_explain": "برای اتصال به گره LND خود، لطفاً LNDHub را نصب کرده و آدرس آن را اینجا در تنظیمات قرار دهید. توجه داشته باشید که کیف پول‌های ایجادشده بعد از ذخیرهٔ تغییرات به LNDHub مشخص‌شده متصل خواهند شد.",
     "network": "شبکه",
     "network_broadcast": "انتشار تراکنش",
     "network_electrum": "سرور الکترام",
@@ -396,6 +403,7 @@
     "details_derivation_path": "مسیر اشتقاق",
     "details_display": "نمایش در لیست کیف پول‌ها",
     "details_export_backup": "صادرکردن/نسخهٔ پشتیبان",
+    "details_export_history": "گرفتن خروجی تاریخچه به فرمت CSV",
     "details_master_fingerprint": "اثر انگشت اصلی",
     "details_multisig_type": "چندامضایی",
     "details_no_cancel": "خیر، لغو کن",
@@ -474,6 +482,8 @@
     "header": "ارسال",
     "share": "اشتراک‌گذاری",
     "view": "مشاهده",
+    "shared_key_detected": "امضاکنندهٔ مشترک",
+    "shared_key_detected_question": "یک امضاکنندهٔ با شما به اشتراک گذاشته شده، آیا می‌خواهید واردش کنید؟",
     "manage_keys": "مدیریت کلیدها",
     "how_many_signatures_can_bluewallet_make": "امضاهایی که BlueWallet می‌تواند ایجاد کند",
     "signatures_required_to_spend": "امضاهای موردنیاز: {number}",
@@ -594,6 +604,8 @@
   "bip47": {
     "payment_code": "کد پرداخت",
     "payment_codes_list": "فهرست کدهای پرداخت",
+    "who_can_pay_me": "چه کسی می‌تواند به من پرداخت کند:",
+    "purpose": "کد بازکاربردپذیر و قابل همرسانی (بیپ47)",
     "not_found": "کد پرداخت یافت نشد"
   }
 }
