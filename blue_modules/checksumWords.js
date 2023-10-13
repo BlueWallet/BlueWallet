@@ -3,7 +3,6 @@ import createHash from 'create-hash';
 
 // partial (11 or 23 word) seed phrase
 export function generateChecksumWords(stringSeedPhrase) {
-
   const seedPhrase = stringSeedPhrase.toLowerCase().trim().split(' ');
 
   if ((seedPhrase.length + 1) % 3 > 0) {
