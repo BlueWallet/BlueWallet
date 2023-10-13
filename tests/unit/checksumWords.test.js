@@ -15,8 +15,9 @@ describe('generateChecksumWords', () => {
   });
 
   it('generates 8 valid words for a 23 word input', () => {
-    const input = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ' +
-    'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
+    const input = 
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ' +
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
     const result = generateChecksumWords(input);
     assert.ok(result);
     assert.strictEqual(result.length, 8);

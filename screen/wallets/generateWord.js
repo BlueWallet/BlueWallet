@@ -83,7 +83,7 @@ const GenerateWord = () => {
             <BlueSpacing20 />
             <BlueText style={styles.center} testID="Result">
               {result}
-			</BlueText>
+            </BlueText>
             <BlueSpacing20 />
             <View>
               <BlueButton
