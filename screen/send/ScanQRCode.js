@@ -339,7 +339,14 @@ const ScanQRCode = () => {
     <View style={styles.root}>
       <StatusBar hidden />
       {isFocused && cameraStatus ? (
-        <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
+        <Camera
+        ref={cameraRef}
+        scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false}
+        style={styles.cameraPreview}
+        resetFocusWhenMotionDetected
+        maxZoom={10}
+   
+      />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
         <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
