@@ -2,7 +2,7 @@ PODS:
   - boost (1.76.0)
   - BugsnagReactNative (7.21.0):
     - React-Core
-  - BVLinearGradient (2.8.2):
+  - BVLinearGradient (2.8.3):
     - React-Core
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -285,7 +285,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.8.5):
+  - react-native-image-picker (4.10.3):
     - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
@@ -390,15 +390,15 @@ PODS:
     - React-jsi (= 0.71.13)
     - React-logger (= 0.71.13)
     - React-perflogger (= 0.71.13)
-  - ReactNativeCameraKit (13.0.0):
+  - ReactNativeCameraKit (14.0.0-beta13):
     - React-Core
-  - RealmJS (12.0.0):
+  - RealmJS (12.2.1):
     - React
   - rn-ldk (0.8.4):
     - React-Core
   - RNCAsyncStorage (1.19.3):
     - React-Core
-  - RNCClipboard (1.11.2):
+  - RNCClipboard (1.12.1):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -408,7 +408,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.13.1):
+  - RNGestureHandler (2.13.2):
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -456,7 +456,7 @@ PODS:
     - React-RCTImage
   - RNShare (8.2.2):
     - React-Core
-  - RNSVG (13.13.0):
+  - RNSVG (13.14.0):
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
@@ -708,7 +708,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
   BugsnagReactNative: c681c456736c24344553f48013da8253eb00ee92
-  BVLinearGradient: 916632041121a658c704df89d99f04acb038de0f
+  BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 24e08bf294faea0abc0278abb2fcad7f3e446f6f
@@ -738,7 +738,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
+  react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
@@ -761,16 +761,16 @@ SPEC CHECKSUMS:
   React-RCTVibration: 2271362cdf9ff2dae6a2156f5101e5c30b02694d
   React-runtimeexecutor: 35cec6420c9d4144b0d06f9fdb093cf8f02bd52c
   ReactCommon: fc9d1da17fa902910dcba550a54c16e7e1c70d2c
-  ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: fd89f477b8469188d45243c85bad4e0936d74457
+  ReactNativeCameraKit: d95d3e19c514526a234d9f93c6db7e7f10eef9ea
+  RealmJS: b36dae5c0def204602827884512252a320332c69
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: c913ede1fa163a71cea118ed4670bbaaa4b511bb
-  RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
+  RNCClipboard: d77213bfa269013bf4b857b7a9ca37ee062d8ef1
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 38aa38413896620338948fbb5c90579a7b1c3fde
+  RNGestureHandler: bb86e378287f7713baf3ca205423eb8109790022
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
@@ -781,7 +781,7 @@ SPEC CHECKSUMS:
   RNReanimated: f186e85d9f28c9383d05ca39e11dd194f59093ec
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
-  RNSVG: ed492aaf3af9ca01bc945f7a149d76d62e73ec82
+  RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   Yoga: 135109c9b8c5d1a8af3a58d21cd4c7aa7f3bf555
