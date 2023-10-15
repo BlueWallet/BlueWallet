@@ -6,7 +6,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
+import { BlueText, BlueButton } from '../../BlueComponents';
 import alert from '../../components/Alert';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -54,12 +54,6 @@ const styles = StyleSheet.create({
     left: 96,
     bottom: 48,
   },
-  openSettingsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-  },
   backdoorButton: {
     width: 40,
     height: 40,
@@ -95,9 +89,6 @@ const ScanQRCode = () => {
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
   const [cameraStatus, setCameraStatus] = useState(false);
   const stylesHook = StyleSheet.create({
-    openSettingsContainer: {
-      backgroundColor: colors.brandingColor,
-    },
     progressWrapper: { backgroundColor: colors.brandingColor, borderColor: colors.foregroundColor, borderWidth: 4 },
     backdoorInput: {
       borderColor: colors.formBorder,
@@ -331,12 +322,7 @@ const ScanQRCode = () => {
     if (onDismiss) onDismiss();
   };
 
-  return isLoading ? (
-    <View style={styles.root}>
-      <BlueLoading />
-    </View>
-  ) : (
-    <View style={styles.root}>
+  return  <View style={styles.root}>
       <StatusBar hidden />
       {isFocused && cameraStatus ? (
         <Camera
@@ -419,7 +405,6 @@ const ScanQRCode = () => {
         }}
       />
     </View>
-  );
 };
 
 export default ScanQRCode;
