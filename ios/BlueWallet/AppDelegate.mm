@@ -1,4 +1,3 @@
-#import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
 
 #import <React/RCTLinkingManager.h>
@@ -20,7 +19,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [Bugsnag start];
   [self copyDeviceUID];
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"
