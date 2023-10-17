@@ -27,8 +27,8 @@ import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { scanQrHelper } from '../../helpers/scan-qr';
 
-const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
@@ -287,7 +287,7 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    scanqrHelper(navigate, routeName, false).then(onBarScanned);
+    scanQrHelper(navigate, routeName, false).then(onBarScanned);
   };
 
   const onBarScanned = value => {
@@ -315,7 +315,7 @@ const WalletsList = () => {
           if (buttonIndex === 1) {
             fs.showImagePickerAndReadImage().then(onBarScanned);
           } else if (buttonIndex === 2) {
-            scanqrHelper(navigate, routeName, false).then(onBarScanned);
+            scanQrHelper(navigate, routeName, false).then(onBarScanned);
           } else if (buttonIndex === 3) {
             copyFromClipboard();
           }
@@ -334,7 +334,7 @@ const WalletsList = () => {
         },
         {
           text: loc.wallets.list_long_scan,
-          onPress: () => scanqrHelper(navigate, routeName, false).then(onBarScanned),
+          onPress: () => scanQrHelper(navigate, routeName, false).then(onBarScanned),
         },
       ];
       if (!isClipboardEmpty) {
