@@ -602,7 +602,7 @@ const SendDetails = () => {
     }
 
     setOptionsVisible(false);
-
+    requestCameraAuthorization().then(() => {
     navigation.navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
       params: {
@@ -610,7 +610,7 @@ const SendDetails = () => {
         showFileImportButton: false,
       },
     });
-  };
+  });
 
   const importQrTransactionOnBarScanned = ret => {
     navigation.dangerouslyGetParent().pop();
@@ -765,6 +765,7 @@ const SendDetails = () => {
 
   const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
+    requestCameraAuthorization().then(() => {
     navigation.navigate('ScanQRCodeRoot', {
       screen: 'ScanQRCode',
       params: {
@@ -772,7 +773,7 @@ const SendDetails = () => {
         showFileImportButton: true,
       },
     });
-  };
+  });
 
   const handleAddRecipient = async () => {
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) }]);

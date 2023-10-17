@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert, PermissionsAndroid } from 'react-native';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import alert from '../../components/Alert';
+import { openPrivacyDesktopSettings } from '../../class/camera';
+import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -93,7 +95,7 @@ const ScanQRCode = () => {
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
-  const [cameraStatus, setCameraStatus] = useState(false);
+  const [cameraStatusGranted, setCameraStatusGranted] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -108,30 +110,7 @@ const ScanQRCode = () => {
   });
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-          setCameraStatus(true);
-          return;
-        }
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-          title: '',
-          message: loc.send.permission_camera_message,
-          buttonNeutral: loc.send.permission_storage_later,
-          buttonNegative: loc._.no,
-          buttonPositive: loc._.yes,
-        });
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('You can use the camera');
-          setCameraStatus(true);
-        } else {
-          console.log('Camera permission denied');
-          setCameraStatus(false);
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    })();
+    isCameraAuthorizationStatusGranted().then(setCameraStatusGranted);
   }, []);
 
   const HashIt = function (s) {
@@ -331,14 +310,17 @@ const ScanQRCode = () => {
     if (onDismiss) onDismiss();
   };
 
-  return isLoading ? (
-    <View style={styles.root}>
-      <BlueLoading />
-    </View>
+  const render = isLoading ? (
+    <BlueLoading />
   ) : (
-    <View style={styles.root}>
-      <StatusBar hidden />
-      {isFocused && cameraStatus ? (
+    <>
+      {!cameraStatusGranted ? (
+        <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
+          <BlueText>{loc.send.permission_camera_message}</BlueText>
+          <BlueSpacing40 />
+          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+        </View>
+      ) : isFocused && cameraStatusGranted ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
@@ -413,6 +395,13 @@ const ScanQRCode = () => {
           setBackdoorVisible(true);
         }}
       />
+    </>
+  );
+
+  return (
+    <View style={styles.root}>
+      <StatusBar hidden />
+      {render}
     </View>
   );
 };

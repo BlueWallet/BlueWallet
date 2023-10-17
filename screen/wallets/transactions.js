@@ -34,6 +34,7 @@ import TransactionsNavigationHeader, { actionKeys } from '../../components/Trans
 import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
 import PropTypes from 'prop-types';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -416,14 +417,16 @@ const WalletTransactions = ({ navigation }) => {
           if (buttonIndex === 1) {
             choosePhoto();
           } else if (buttonIndex === 2) {
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: name,
-                onBarScanned: onBarCodeRead,
-                showFileImportButton: false,
-              },
-            });
+            requestCameraAuthorization().then(() =>
+              navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: name,
+                  onBarScanned: onBarCodeRead,
+                  showFileImportButton: false,
+                },
+              }),
+            );
           } else if (buttonIndex === 3) {
             copyFromClipboard();
           }
@@ -443,13 +446,15 @@ const WalletTransactions = ({ navigation }) => {
         {
           text: loc.wallets.list_long_scan,
           onPress: () =>
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: name,
-                onBarScanned: onBarCodeRead,
-                showFileImportButton: false,
-              },
+            requestCameraAuthorization().then(() => {
+              navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy: name,
+                  onBarScanned: onBarCodeRead,
+                  showFileImportButton: false,
+                },
+              });
             }),
         },
       ];

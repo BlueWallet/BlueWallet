@@ -37,6 +37,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -234,14 +235,17 @@ export default class ElectrumSettings extends Component {
   };
 
   importScan = () => {
-    this.props.navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: this.props.route.name,
-        onBarScanned: this.onBarScanned,
-        showFileImportButton: true,
-      },
-    });
+    () =>
+      requestCameraAuthorization().then(() =>
+        this.props.navigation.navigate('ScanQRCodeRoot', {
+          screen: 'ScanQRCode',
+          params: {
+            launchedBy: this.props.route.name,
+            onBarScanned: this.onBarScanned,
+            showFileImportButton: true,
+          },
+        }),
+      );
   };
 
   useSSLPortToggled = value => {
