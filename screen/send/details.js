@@ -41,10 +41,10 @@ import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
-const scanqr = require('../../helpers/scan-qr');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
@@ -603,14 +603,15 @@ const SendDetails = () => {
 
     setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: importQrTransactionOnBarScanned,
-        showFileImportButton: false,
-      },
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: importQrTransactionOnBarScanned,
+          showFileImportButton: false,
+        },
+      });
     });
-  });
+  };
 
   const importQrTransactionOnBarScanned = ret => {
     navigation.dangerouslyGetParent().pop();
@@ -766,14 +767,15 @@ const SendDetails = () => {
   const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned,
-        showFileImportButton: true,
-      },
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
     });
-  });
+  };
 
   const handleAddRecipient = async () => {
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) }]);

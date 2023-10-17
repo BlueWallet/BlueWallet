@@ -56,15 +56,16 @@ const IsItMyAddress = () => {
 
   const importScan = () => {
     requestCameraAuthorization().then(() => {
-    navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
+      navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
     });
-  });
+  };
 
   const clearAddressInput = () => {
     setAddress('');

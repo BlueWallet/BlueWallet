@@ -342,15 +342,16 @@ const LNDCreateInvoice = () => {
 
   const navigateToScanQRCode = () => {
     requestCameraAuthorization().then(() => {
-    NavigationService.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: processLnurl,
-        launchedBy: name,
-      },
+      NavigationService.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: processLnurl,
+          launchedBy: name,
+        },
+      });
+      Keyboard.dismiss();
     });
-    Keyboard.dismiss();
-    });
+  };
 
   const renderScanClickable = () => {
     return (
