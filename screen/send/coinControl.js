@@ -202,8 +202,8 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
 
   // save on form change. Because effect called on each event, debounce it.
   const debouncedSaveMemo = useRef(
-    debounce(async memo => {
-      wallet.setUTXOMetadata(output.txid, output.vout, { memo });
+    debounce(async m => {
+      wallet.setUTXOMetadata(output.txid, output.vout, { memo: m });
       await saveToDisk();
     }, 500),
   );
@@ -261,14 +261,14 @@ const CoinControl = () => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
   const [frozen, setFrozen] = useState(
-    utxo.filter(output => wallet.getUTXOMetadata(output.txid, output.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`),
+    utxo.filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`),
   );
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
-    debounce(async frozen => {
+    debounce(async frzn => {
       utxo.forEach(({ txid, vout }) => {
-        wallet.setUTXOMetadata(txid, vout, { frozen: frozen.includes(`${txid}:${vout}`) });
+        wallet.setUTXOMetadata(txid, vout, { frozen: frzn.includes(`${txid}:${vout}`) });
       });
       await saveToDisk();
     }, 500),
@@ -285,9 +285,7 @@ const CoinControl = () => {
         console.log('coincontrol wallet.fetchUtxo() failed'); // either sleep expired or fetchUtxo threw an exception
       }
       const freshUtxo = wallet.getUtxo(true);
-      setFrozen(
-        freshUtxo.filter(output => wallet.getUTXOMetadata(output.txid, output.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`),
-      );
+      setFrozen(freshUtxo.filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`));
       setLoading(false);
     })();
   }, [wallet, setLoading, sleep]);
@@ -321,10 +319,10 @@ const CoinControl = () => {
 
   const handleChoose = item => setOutput(item);
 
-  const handleUseCoin = utxo => {
+  const handleUseCoin = u => {
     setOutput(null);
     navigation.pop();
-    onUTXOChoose(utxo);
+    onUTXOChoose(u);
   };
 
   const handleMassFreeze = () => {
@@ -362,11 +360,11 @@ const CoinControl = () => {
         selectionStarted={selectionStarted}
         onSelect={() => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-          setSelected(selected => [...selected, `${p.item.txid}:${p.item.vout}`]);
+          setSelected(s => [...s, `${p.item.txid}:${p.item.vout}`]);
         }}
         onDeSelect={() => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-          setSelected(selected => selected.filter(i => i !== `${p.item.txid}:${p.item.vout}`));
+          setSelected(s => s.filter(i => i !== `${p.item.txid}:${p.item.vout}`));
         }}
       />
     );

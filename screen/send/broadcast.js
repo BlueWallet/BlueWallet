@@ -58,8 +58,8 @@ const Broadcast = () => {
       const walletObj = new HDSegwitBech32Wallet();
       const result = await walletObj.broadcastTx(txHex);
       if (result) {
-        const tx = bitcoin.Transaction.fromHex(txHex);
-        const txid = tx.getId();
+        const newTx = bitcoin.Transaction.fromHex(txHex);
+        const txid = newTx.getId();
         setTx(txid);
 
         setBroadcastResult(BROADCAST_RESULT.success);
@@ -86,8 +86,8 @@ const Broadcast = () => {
 
     try {
       // sould be base64 encoded PSBT
-      const tx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
-      return handleUpdateTxHex(tx.toHex());
+      const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
+      return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
   };
 

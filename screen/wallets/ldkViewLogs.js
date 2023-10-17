@@ -38,6 +38,7 @@ const LdkViewLogs = () => {
       })
       .finally(() => {
         setOptions({
+          // eslint-disable-next-line react/no-unstable-nested-components
           headerRight: () => (
             <TouchableOpacity
               accessibilityRole="button"
@@ -81,8 +82,8 @@ const LdkViewLogs = () => {
     getLogs();
     await wallet
       .getInfo()
-      .then(async info => {
-        setGetInfo(info);
+      .then(async newInfo => {
+        setGetInfo(newInfo);
         const peers = await wallet.listPeers();
         const listChannels = await wallet.listChannels();
         const version = await LightningLdkWallet.getVersion();

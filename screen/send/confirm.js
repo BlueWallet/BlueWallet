@@ -27,7 +27,7 @@ const Confirm = () => {
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
   const [isLoading, setIsLoading] = useState(false);
   const [isPayjoinEnabled, setIsPayjoinEnabled] = useState(false);
-  const wallet = wallets.find(wallet => wallet.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const payjoinUrl = wallet.allowPayJoin() ? params.payjoinUrl : false;
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
   const { navigate, setOptions } = useNavigation();
@@ -68,6 +68,7 @@ const Confirm = () => {
 
   useEffect(() => {
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -126,8 +127,8 @@ const Confirm = () => {
         await payjoinClient.run();
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
-          const tx = payjoinPsbt.extractTransaction();
-          txids2watch.push(tx.getId());
+          const tx2watch = payjoinPsbt.extractTransaction();
+          txids2watch.push(tx2watch.getId());
         }
       }
 
@@ -159,7 +160,7 @@ const Confirm = () => {
     }
   };
 
-  const broadcast = async tx => {
+  const broadcast = async transaction => {
     await BlueElectrum.ping();
     await BlueElectrum.waitTillConnected();
 
@@ -169,7 +170,7 @@ const Confirm = () => {
       }
     }
 
-    const result = await wallet.broadcastTx(tx);
+    const result = await wallet.broadcastTx(transaction);
     if (!result) {
       throw new Error(loc.errors.broadcast);
     }

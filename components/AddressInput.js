@@ -7,6 +7,7 @@ import { useTheme } from '@react-navigation/native';
 
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
+import { requestCameraAuthorization } from '../helpers/scan-qr';
 const fs = require('../blue_modules/fs');
 
 const isDesktop = getSystemName() === 'Mac OS X';
@@ -75,13 +76,15 @@ const AddressInput = ({
             if (isDesktop) {
               fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
             } else {
-              NavigationService.navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy,
-                  onBarScanned,
-                  onBarScannerDismissWithoutData,
-                },
+              requestCameraAuthorization().then(() => {
+                NavigationService.navigate('ScanQRCodeRoot', {
+                  screen: 'ScanQRCode',
+                  params: {
+                    launchedBy,
+                    onBarScanned,
+                    onBarScannerDismissWithoutData,
+                  },
+                });
               });
             }
           }}

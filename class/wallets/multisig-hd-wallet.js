@@ -488,8 +488,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // is it electrum json?
     if (json && json.wallet_type && json.wallet_type !== 'standard') {
       const mofn = json.wallet_type.split('of');
-      this.setM(parseInt(mofn[0].trim()));
-      const n = parseInt(mofn[1].trim());
+      this.setM(parseInt(mofn[0].trim(), 10));
+      const n = parseInt(mofn[1].trim(), 10);
       for (let c = 1; c <= n; c++) {
         const cosignerData = json['x' + c + '/'];
         if (cosignerData) {
@@ -523,7 +523,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           break;
 
         case 'Policy':
-          this.setM(parseInt(value.trim().split('of')[0].trim()));
+          this.setM(parseInt(value.trim().split('of')[0].trim(), 10));
           break;
 
         case 'Derivation':
@@ -577,8 +577,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       const s2 = json.descriptor.substr(json.descriptor.indexOf('sortedmulti(') + 12);
       const s3 = s2.split(',');
-      const m = parseInt(s3[0]);
-      if (m) this.setM(m);
+      const M = parseInt(s3[0], 10);
+      if (M) this.setM(M);
 
       for (let c = 1; c < s3.length; c++) {
         const re = /\[([^\]]+)\](.*)/;

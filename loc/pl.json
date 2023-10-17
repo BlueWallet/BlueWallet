@@ -482,6 +482,8 @@
     "header": "Wyślij",
     "share": "Udostępnij",
     "view": "Widok",
+    "shared_key_detected": "Współsygnatariusz",
+    "shared_key_detected_question": "Udostępniono Ci współsygnatariusza, czy chcesz go zaimportować?",
     "manage_keys": "Zarządzaj kluczami",
     "how_many_signatures_can_bluewallet_make": "ile podpisów BlueWallet może zrobić",
     "signatures_required_to_spend": "Podpisy wymagane {number}",

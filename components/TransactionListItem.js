@@ -60,7 +60,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         item.value = '0';
       }
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
@@ -83,7 +83,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
@@ -137,7 +137,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       if (!item.ispaid) {
         const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0;
+        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
         const invoiceExpiration = item.timestamp + item.expire_time;
         if (invoiceExpiration < now) {
           return (

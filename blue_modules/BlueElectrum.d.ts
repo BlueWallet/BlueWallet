@@ -43,7 +43,7 @@ export type ElectrumTransaction = {
 
 type MempoolTransaction = {
   height: 0;
-  tx_hash: string; // eslint-disable-line camelcase
+  tx_hash: string;
   fee: number;
 };
 
@@ -67,7 +67,7 @@ export function multiGetTransactionByTxid(txIds: string[], batchsize: number, ve
 
 export type MultiGetBalanceResponse = {
   balance: number;
-  unconfirmed_balance: number; // eslint-disable-line camelcase
+  unconfirmed_balance: number;
   addresses: Record<string, { confirmed: number; unconfirmed: number }>;
 };
 
@@ -80,7 +80,7 @@ export function getMempoolTransactionsByAddress(address: string): Promise<Mempoo
 export function estimateCurrentBlockheight(): number;
 
 export type ElectrumHistory = {
-  tx_hash: string; // eslint-disable-line camelcase
+  tx_hash: string;
   height: number;
   address: string;
 };

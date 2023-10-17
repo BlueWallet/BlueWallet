@@ -44,17 +44,16 @@ const UnlockWith = () => {
   const colorScheme = useColorScheme();
 
   const initialRender = async () => {
-    let biometricType = false;
+    let bt = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
-      biometricType = await Biometric.biometricType();
+      bt = await Biometric.biometricType();
     }
 
-    setBiometricType(biometricType);
+    setBiometricType(bt);
   };
 
   useEffect(() => {
     initialRender();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const successfullyAuthenticated = () => {

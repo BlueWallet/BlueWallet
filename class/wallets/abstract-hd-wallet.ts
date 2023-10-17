@@ -16,14 +16,14 @@ export class AbstractHDWallet extends LegacyWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
 
-  next_free_address_index: number; // eslint-disable-line camelcase
-  next_free_change_address_index: number; // eslint-disable-line camelcase
-  internal_addresses_cache: Record<number, string>; // eslint-disable-line camelcase
-  external_addresses_cache: Record<number, string>; // eslint-disable-line camelcase
+  next_free_address_index: number;
+  next_free_change_address_index: number;
+  internal_addresses_cache: Record<number, string>;
+  external_addresses_cache: Record<number, string>;
   _xpub: string;
   usedAddresses: string[];
-  _address_to_wif_cache: Record<string, string>; // eslint-disable-line camelcase
-  gap_limit: number; // eslint-disable-line camelcase
+  _address_to_wif_cache: Record<string, string>;
+  gap_limit: number;
   passphrase?: string;
   _node0?: BIP32Interface;
   _node1?: BIP32Interface;
@@ -90,7 +90,7 @@ export class AbstractHDWallet extends LegacyWallet {
         const words = newSecret.match(/[\d]{4}/g);
 
         if (words) {
-          newSecret = words.map(num => wordlist[parseInt(num)]).join(' ');
+          newSecret = words.map(num => wordlist[parseInt(num, 10)]).join(' ');
         }
       }
     } catch (e) {}
@@ -264,14 +264,14 @@ export class AbstractHDWallet extends LegacyWallet {
 
     // fast approach, first lets iterate over all addressess we have in cache
     for (const indexStr of Object.keys(this.internal_addresses_cache)) {
-      const index = parseInt(indexStr);
+      const index = parseInt(indexStr, 10);
       if (this._getInternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = <string>this._getInternalWIFByIndex(index));
       }
     }
 
     for (const indexStr of Object.keys(this.external_addresses_cache)) {
-      const index = parseInt(indexStr);
+      const index = parseInt(indexStr, 10);
       if (this._getExternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = <string>this._getExternalWIFByIndex(index));
       }

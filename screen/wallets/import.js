@@ -16,6 +16,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -81,8 +82,8 @@ const WalletsImport = () => {
     importMnemonic(textToImport);
   };
 
-  const importMnemonic = importText => {
-    navigation.navigate('ImportWalletDiscovery', { importText, askPassphrase, searchAccounts });
+  const importMnemonic = text => {
+    navigation.navigate('ImportWalletDiscovery', { importText: text, askPassphrase, searchAccounts });
   };
 
   const onBarScanned = value => {
@@ -92,14 +93,16 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
-    });
+    requestCameraAuthorization().then(() =>
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      }),
+    );
   };
 
   const speedBackdoorTap = () => {

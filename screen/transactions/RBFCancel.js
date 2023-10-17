@@ -43,7 +43,7 @@ export default class RBFCancel extends CPFP {
   }
 
   async createTransaction() {
-    const newFeeRate = parseInt(this.state.newFeeRate);
+    const newFeeRate = parseInt(this.state.newFeeRate, 10);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;

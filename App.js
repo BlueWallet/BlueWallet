@@ -16,9 +16,10 @@ import {
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
@@ -57,8 +58,15 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
-    useContext(BlueStorageContext);
+  const {
+    walletsInitialized,
+    wallets,
+    addWallet,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+  } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
@@ -153,7 +161,7 @@ const App = () => {
 
   const popInitialAction = async data => {
     if (data) {
-      const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
@@ -174,7 +182,7 @@ const App = () => {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
-          const wallet = wallets.find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
           if (wallet) {
             NavigationService.dispatch(
               CommonActions.navigate({
@@ -193,7 +201,7 @@ const App = () => {
   };
 
   const walletQuickActions = data => {
-    const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
     NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
@@ -327,7 +335,12 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), {
+      wallets,
+      addWallet,
+      saveToDisk,
+      setSharedCosigner,
+    });
   };
 
   const showClipboardAlert = ({ contentType }) => {

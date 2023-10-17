@@ -206,8 +206,9 @@ const WalletDetails = () => {
 
   useLayoutEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -224,7 +225,7 @@ const WalletDetails = () => {
   }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
-    if (wallets.some(wallet => wallet.getID() === walletID)) {
+    if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWallet(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -505,7 +506,16 @@ const WalletDetails = () => {
                   return (
                     <>
                       <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_address.toLowerCase()}</Text>
-                      <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.getAddress()}</Text>
+                      <Text style={[styles.textValue, stylesHook.textValue]}>
+                        {(() => {
+                          // gracefully handling faulty wallets, so at least user has an option to delete the wallet
+                          try {
+                            return wallet.getAddress();
+                          } catch (error) {
+                            return error.message;
+                          }
+                        })()}
+                      </Text>
                     </>
                   );
                 }

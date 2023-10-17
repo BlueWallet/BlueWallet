@@ -30,7 +30,6 @@ const Success = () => {
   });
   useEffect(() => {
     console.log('send/success - useEffect');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

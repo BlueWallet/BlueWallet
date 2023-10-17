@@ -68,7 +68,6 @@ const ScanLndInvoice = () => {
       Keyboard.removeAllListeners('keyboardDidShow');
       Keyboard.removeAllListeners('keyboardDidHide');
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -104,25 +103,25 @@ const ScanLndInvoice = () => {
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
-      let decoded;
+      let newDecoded;
       try {
-        decoded = wallet.decodeInvoice(data);
+        newDecoded = wallet.decodeInvoice(data);
 
-        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-        if (+new Date() > expiresIn) {
-          expiresIn = loc.lnd.expired;
+        let newExpiresIn = (newDecoded.timestamp * 1 + newDecoded.expiry * 1) * 1000; // ms
+        if (+new Date() > newExpiresIn) {
+          newExpiresIn = loc.lnd.expired;
         } else {
-          const time = Math.round((expiresIn - +new Date()) / (60 * 1000));
-          expiresIn = loc.formatString(loc.lnd.expiresIn, { time });
+          const time = Math.round((newExpiresIn - +new Date()) / (60 * 1000));
+          newExpiresIn = loc.formatString(loc.lnd.expiresIn, { time });
         }
         Keyboard.dismiss();
         setParams({ uri: undefined, invoice: data });
-        setIsAmountInitiallyEmpty(decoded.num_satoshis === '0');
+        setIsAmountInitiallyEmpty(newDecoded.num_satoshis === '0');
         setDestination(data);
         setIsLoading(false);
-        setAmount(decoded.num_satoshis);
-        setExpiresIn(expiresIn);
-        setDecoded(decoded);
+        setAmount(newDecoded.num_satoshis);
+        setExpiresIn(newExpiresIn);
+        setDecoded(newDecoded);
       } catch (Err) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         Keyboard.dismiss();
@@ -178,7 +177,7 @@ const ScanLndInvoice = () => {
     let amountSats = amount;
     switch (unit) {
       case BitcoinUnit.SATS:
-        amountSats = parseInt(amountSats); // nop
+        amountSats = parseInt(amountSats, 10); // nop
         break;
       case BitcoinUnit.BTC:
         amountSats = currency.btcToSatoshi(amountSats);
@@ -189,15 +188,15 @@ const ScanLndInvoice = () => {
     }
     setIsLoading(true);
 
-    const expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-    if (+new Date() > expiresIn) {
+    const newExpiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+    if (+new Date() > newExpiresIn) {
       setIsLoading(false);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert(loc.lnd.errorInvoiceExpired);
     }
 
     const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
-    if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
+    if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return alert(loc.lnd.sameWalletAsInvoiceError);

@@ -22,8 +22,8 @@ export class LegacyWallet extends AbstractWallet {
   static type = 'legacy';
   static typeReadable = 'Legacy (P2PKH)';
 
-  _txs_by_external_index: Transaction[] = []; // eslint-disable-line camelcase
-  _txs_by_internal_index: Transaction[] = []; // eslint-disable-line camelcase
+  _txs_by_external_index: Transaction[] = [];
+  _txs_by_internal_index: Transaction[] = [];
 
   /**
    * Simple function which says that we havent tried to fetch balance
@@ -116,8 +116,8 @@ export class LegacyWallet extends AbstractWallet {
       this.balance = Number(balance.confirmed);
       this.unconfirmed_balance = Number(balance.unconfirmed);
       this._lastBalanceFetch = +new Date();
-    } catch (Error) {
-      console.warn(Error);
+    } catch (error) {
+      console.warn(error);
     }
   }
 
@@ -151,8 +151,8 @@ export class LegacyWallet extends AbstractWallet {
       }
 
       this.utxo = newUtxos;
-    } catch (Error) {
-      console.warn(Error);
+    } catch (error) {
+      console.warn(error);
     }
   }
 
@@ -193,8 +193,8 @@ export class LegacyWallet extends AbstractWallet {
     const utxos: Utxo[] = [];
 
     const ownedAddressesHashmap: Record<string, boolean> = {};
-    const address = this.getAddress();
-    if (address) ownedAddressesHashmap[address] = true;
+    const addrs = this.getAddress();
+    if (addrs) ownedAddressesHashmap[addrs] = true;
 
     /**
      * below copypasted from
@@ -263,7 +263,7 @@ export class LegacyWallet extends AbstractWallet {
     const txs: Record<
       string,
       {
-        tx_hash: string; // eslint-disable-line camelcase
+        tx_hash: string;
         height: number;
         address: string;
       }
@@ -322,10 +322,10 @@ export class LegacyWallet extends AbstractWallet {
       for (const vin of tx.vin) {
         if ('addresses' in vin && vin.addresses && vin.addresses.indexOf(address || '') !== -1) {
           // this TX is related to our address
-          const { vin, vout, ...txRest } = tx;
+          const { vin: vin2, vout, ...txRest } = tx;
           const clonedTx: Transaction = {
             ...txRest,
-            inputs: [...vin],
+            inputs: [...vin2],
             outputs: [...vout],
           };
 
@@ -335,11 +335,11 @@ export class LegacyWallet extends AbstractWallet {
       for (const vout of tx.vout) {
         if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(address || '') !== -1) {
           // this TX is related to our address
-          const { vin, vout, ...txRest } = tx;
+          const { vin, vout: vout2, ...txRest } = tx;
           const clonedTx: Transaction = {
             ...txRest,
             inputs: [...vin],
-            outputs: [...vout],
+            outputs: [...vout2],
           };
 
           _txsByExternalIndex.push(clonedTx);

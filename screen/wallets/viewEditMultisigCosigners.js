@@ -43,6 +43,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -125,8 +126,8 @@ const ViewEditMultisigCosigners = () => {
     }
 
     // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter(w => {
-      return w.getID() !== walletId;
+    let newWallets = wallets.filter(newWallet => {
+      return newWallet.getID() !== walletId;
     });
     if (!isElectrumDisabled) {
       await wallet.fetchBalance();
@@ -436,22 +437,24 @@ const ViewEditMultisigCosigners = () => {
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
-    setTimeout(
-      () =>
-        navigate('ScanQRCodeRoot', {
-          screen: 'ScanQRCode',
-          params: {
-            launchedBy: route.name,
-            onBarScanned: result => {
-              // Triggers FlatList re-render
-              setImportText(result);
-              //
-              _handleUseMnemonicPhrase(result);
+    setTimeout(() =>
+      requestCameraAuthorization().then(
+        () =>
+          navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: route.name,
+              onBarScanned: result => {
+                // Triggers FlatList re-render
+                setImportText(result);
+                //
+                _handleUseMnemonicPhrase(result);
+              },
+              showFileImportButton: true,
             },
-            showFileImportButton: true,
-          },
-        }),
-      650,
+          }),
+        650,
+      ),
     );
   };
 

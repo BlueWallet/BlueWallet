@@ -70,18 +70,18 @@ let latestBlockheightTimestamp = false;
 const txhashHeightCache = {};
 
 async function isDisabled() {
-  let isDisabled;
+  let result;
   try {
     const savedValue = await AsyncStorage.getItem(ELECTRUM_CONNECTION_DISABLED);
     if (savedValue === null) {
-      isDisabled = false;
+      result = false;
     } else {
-      isDisabled = savedValue;
+      result = savedValue;
     }
   } catch {
-    isDisabled = false;
+    result = false;
   }
-  return !!isDisabled;
+  return !!result;
 }
 
 async function setDisabled(disabled = true) {
@@ -297,7 +297,7 @@ async function getSavedPeer() {
  *
  * @returns {Promise<{tcp: number, host: string}>}
  */
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function getRandomDynamicPeer() {
   try {
     let peers = JSON.parse(await AsyncStorage.getItem(storageKey));
@@ -667,8 +667,8 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
               let tx = await mainClient.blockchainTransaction_get(txid, false);
               tx = txhexToElectrumTransaction(tx);
               results.push({ result: tx, param: txid });
-            } catch (_) {
-              console.log(_);
+            } catch (error) {
+              console.log(error);
             }
           }
         } else {
@@ -683,8 +683,8 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
                 tx = txhexToElectrumTransaction(tx);
               }
               results.push({ result: tx, param: txid });
-            } catch (_) {
-              console.log(_);
+            } catch (error) {
+              console.log(error);
             }
           }
         }
@@ -841,12 +841,17 @@ module.exports.estimateFees = async function () {
     clearTimeout(timeoutId);
   }
 
-  if (!histogram) throw new Error('timeout while getting mempool_getFeeHistogram');
-
   // fetching what electrum (which uses bitcoin core) thinks about fees:
   const _fast = await module.exports.estimateFee(1);
   const _medium = await module.exports.estimateFee(18);
   const _slow = await module.exports.estimateFee(144);
+
+  /**
+   * sanity check, see
+   * @see https://github.com/cculianu/Fulcrum/issues/197
+   * (fallback to bitcoin core estimates)
+   */
+  if (!histogram || histogram?.[0]?.[0] > 1000) return { fast: _fast, medium: _medium, slow: _slow };
 
   // calculating fast fees from mempool:
   const fast = Math.max(2, module.exports.calcEstimateFeeFromFeeHistorgam(1, histogram));

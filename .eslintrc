@@ -11,7 +11,7 @@
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
-    // "@react-native-community", // TODO: try to enable
+    "@react-native-community",
     "plugin:prettier/recommended" // removes all eslint rules that can mess up with prettier
   ],
   "rules": {
