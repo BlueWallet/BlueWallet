@@ -416,6 +416,8 @@ PODS:
     - React-Core
   - RNLocalize (3.0.2):
     - React-Core
+  - RNPermissions (3.10.0):
+    - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
   - RNQuickAction (0.3.13):
@@ -533,6 +535,7 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
+  - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
@@ -682,6 +685,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
   RNPrivacySnapshot:
     :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
@@ -774,6 +779,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
+  RNPermissions: eae8b97d8ab0587f082966ee608f47c97b2a349b
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
@@ -786,6 +792,6 @@ SPEC CHECKSUMS:
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   Yoga: e71803b4c1fff832ccf9b92541e00f9b873119b9
 
-PODFILE CHECKSUM: 8e9e7955e2b1beadc75774b0b7f8eb52f7299757
+PODFILE CHECKSUM: 23bb5c319ccbedd7e109c44fe4273afce6efb48a
 
 COCOAPODS: 1.11.3

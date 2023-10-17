@@ -29,6 +29,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 const currency = require('../../blue_modules/currency');
 const torrific = require('../../blue_modules/torrific');
 
@@ -340,14 +341,16 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToScanQRCode = () => {
-    NavigationService.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: processLnurl,
-        launchedBy: name,
-      },
+    requestCameraAuthorization().then(() => {
+      NavigationService.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: processLnurl,
+          launchedBy: name,
+        },
+      });
+      Keyboard.dismiss();
     });
-    Keyboard.dismiss();
   };
 
   const renderScanClickable = () => {
