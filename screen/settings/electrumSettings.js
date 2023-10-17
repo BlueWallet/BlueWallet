@@ -235,17 +235,16 @@ export default class ElectrumSettings extends Component {
   };
 
   importScan = () => {
-    () =>
-      requestCameraAuthorization().then(() =>
-        this.props.navigation.navigate('ScanQRCodeRoot', {
-          screen: 'ScanQRCode',
-          params: {
-            launchedBy: this.props.route.name,
-            onBarScanned: this.onBarScanned,
-            showFileImportButton: true,
-          },
-        }),
-      );
+    requestCameraAuthorization().then(() =>
+      this.props.navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: this.props.route.name,
+          onBarScanned: this.onBarScanned,
+          showFileImportButton: true,
+        },
+      }),
+    );
   };
 
   useSSLPortToggled = value => {

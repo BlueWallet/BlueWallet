@@ -320,7 +320,7 @@ const ScanQRCode = () => {
           <BlueSpacing40 />
           <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
-      ) : isFocused && cameraStatusGranted ? (
+      ) : isFocused ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
