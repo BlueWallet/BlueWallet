@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Keyboard, Text, TouchableOpacity, StatusBar, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
+import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
@@ -153,7 +153,6 @@ export default class AztecoRedeem extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View>
-          <StatusBar barStyle="default" />
           <View style={styles.root}>
             <Text>{loc.azteco.codeIs}</Text>
             <BlueText style={styles.code}>

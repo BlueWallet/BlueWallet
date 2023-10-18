@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
-import { View, Image, Text, StyleSheet, StatusBar, I18nManager, Pressable, useColorScheme, Platform } from 'react-native';
+import { View, Image, Text, StyleSheet, I18nManager, Pressable } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
@@ -180,9 +180,6 @@ const ReorderWallets = () => {
   );
   return (
     <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
-      <StatusBar
-        barStyle={Platform.select({ ios: 'light-content', default: useColorScheme() === 'dark' ? 'light-content' : 'dark-content' })}
-      />
       <DraggableFlatList
         ListHeaderComponent={ListHeaderComponent}
         ref={sortableList}

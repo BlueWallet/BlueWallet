@@ -1,6 +1,6 @@
 #import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
-
+#import <RNScreens/UIViewController+RNScreens.h>
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTI18nUtil.h>

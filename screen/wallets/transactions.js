@@ -8,7 +8,6 @@ import {
   PixelRatio,
   Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   findNodeHandle,
@@ -509,7 +508,6 @@ const WalletTransactions = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
-      <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
       <TransactionsNavigationHeader
         navigation={navigation}
         wallet={wallet}
