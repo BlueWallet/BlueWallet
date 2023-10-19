@@ -5,10 +5,11 @@ const BlueApp = require('../BlueApp');
 let userHasOptedOut = false;
 
 if (process.env.NODE_ENV !== 'development') {
+  const uniqueID = await getUniqueId();
   Bugsnag.start({
     collectUserIp: false,
     user: {
-      id: getUniqueId(),
+      id: uniqueID,
     },
     onError: function (event) {
       return !userHasOptedOut;
