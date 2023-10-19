@@ -408,7 +408,8 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.13.2):
+  - RNGestureHandler (2.13.3):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNHandoff (0.0.3):
     - React
@@ -456,7 +457,7 @@ PODS:
   - RNScreens (3.20.0):
     - React-Core
     - React-RCTImage
-  - RNShare (8.2.2):
+  - RNShare (9.4.1):
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
@@ -775,7 +776,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: bb86e378287f7713baf3ca205423eb8109790022
+  RNGestureHandler: fa40ab6b6cafaa7609294d31f8e8fbbd0cce8ea6
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
@@ -786,7 +787,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: f186e85d9f28c9383d05ca39e11dd194f59093ec
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
-  RNShare: d82e10f6b7677f4b0048c23709bd04098d5aee6c
+  RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
