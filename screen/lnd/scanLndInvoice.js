@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   View,
   TouchableOpacity,
-  StatusBar,
   Keyboard,
   ScrollView,
   StyleSheet,
@@ -299,7 +298,6 @@ const ScanLndInvoice = () => {
 
   return (
     <SafeBlueArea style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
       <View style={[styles.root, stylesHook.root]}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
@@ -371,7 +369,7 @@ ScanLndInvoice.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.send.header }),
+  opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );
 
 const styles = StyleSheet.create({
