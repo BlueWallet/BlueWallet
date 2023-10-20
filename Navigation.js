@@ -515,7 +515,7 @@ const Navigation = () => {
       <RootStack.Screen
         name="WalletExportRoot"
         component={WalletExportStackRoot}
-        options={[...NavigationDefaultOptions, ...StatusBarLightOptions]}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <RootStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
@@ -525,17 +525,17 @@ const Navigation = () => {
       <RootStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersRoot}
-        options={[...NavigationDefaultOptions, ...StatusBarLightOptions]}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <RootStack.Screen
         name="WalletXpubRoot"
         component={WalletXpubStackRoot}
-        options={[...NavigationDefaultOptions, ...StatusBarLightOptions]}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <RootStack.Screen
         name="SignVerifyRoot"
         component={SignVerifyStackRoot}
-        options={[...NavigationDefaultOptions, ...StatusBarLightOptions]}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
