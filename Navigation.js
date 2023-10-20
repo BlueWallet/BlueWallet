@@ -473,7 +473,7 @@ const ExportMultisigCoordinationSetupRoot = () => {
     <ExportMultisigCoordinationSetupStack.Navigator
       name="ExportMultisigCoordinationSetupRoot"
       initialRouteName="ExportMultisigCoordinationSetup"
-      screenOptions={{ headerHideShadow: true }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
     >
       <ExportMultisigCoordinationSetupStack.Screen
         name="ExportMultisigCoordinationSetup"
