@@ -408,7 +408,11 @@ const WalletExportStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <WalletExportStack.Navigator name="WalletExportRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="WalletExport">
+    <WalletExportStack.Navigator
+      name="WalletExportRoot"
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
+      initialRouteName="WalletExport"
+    >
       <WalletExportStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions(theme)} />
     </WalletExportStack.Navigator>
   );
@@ -508,7 +512,11 @@ const Navigation = () => {
       <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
       {/* screens */}
-      <RootStack.Screen name="WalletExportRoot" component={WalletExportStackRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen
+        name="WalletExportRoot"
+        component={WalletExportStackRoot}
+        options={[...NavigationDefaultOptions, ...StatusBarLightOptions]}
+      />
       <RootStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
         component={ExportMultisigCoordinationSetupRoot}

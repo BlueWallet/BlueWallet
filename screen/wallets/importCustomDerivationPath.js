@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { FlatList, StatusBar, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueButton, BlueFormLabel, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
@@ -118,7 +118,6 @@ const ImportCustomDerivationPath = () => {
 
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_derivation_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
@@ -181,6 +180,10 @@ const styles = StyleSheet.create({
   },
 });
 
-ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_derivation_title }));
+ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  title: loc.wallets.import_derivation_title,
+  statusBarStyle: 'light',
+}));
 
 export default ImportCustomDerivationPath;

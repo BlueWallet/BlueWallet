@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Alert, View, StatusBar, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
+import { Alert, View, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
@@ -72,7 +72,6 @@ const WalletsImportSpeed = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
       <BlueSpacing20 />
       <BlueFormLabel>Mnemonic</BlueFormLabel>
       <BlueSpacing20 />
@@ -90,6 +89,6 @@ const WalletsImportSpeed = () => {
   );
 };
 
-WalletsImportSpeed.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
+WalletsImportSpeed.navigationOptions = navigationStyle({}, opts => ({ ...opts, statusBarStyle: 'light', title: loc.wallets.import_title }));
 
 export default WalletsImportSpeed;
