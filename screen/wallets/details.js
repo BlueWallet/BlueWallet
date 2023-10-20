@@ -14,7 +14,6 @@ import {
   StyleSheet,
   StatusBar,
   ScrollView,
-  PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
   I18nManager,
@@ -45,6 +44,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import alert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 
 const prompt = require('../../helpers/prompt');
 
@@ -364,15 +364,8 @@ const WalletDetails = () => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
+      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+      if (granted === RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
