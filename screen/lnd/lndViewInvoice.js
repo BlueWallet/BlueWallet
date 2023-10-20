@@ -282,11 +282,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return (
-    <SafeBlueArea onLayout={onLayout}>
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea onLayout={onLayout}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({

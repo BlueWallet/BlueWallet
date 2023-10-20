@@ -11,10 +11,9 @@ import {
   UIManager,
   useColorScheme,
   View,
-  StatusBar,
   LogBox,
 } from 'react-native';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { NavigationContainer, CommonActions, useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -70,6 +69,7 @@ const App = () => {
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
+  const { setOptions } = useNavigation();
 
   const onNotificationReceived = async notification => {
     const payload = Object.assign({}, notification, notification.data);
@@ -112,6 +112,12 @@ const App = () => {
         break;
     }
   };
+
+  useEffect(() => {
+    setOptions({
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    });
+  }, [colorScheme, setOptions]);
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -384,7 +390,6 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <View style={styles.root}>
-        <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
