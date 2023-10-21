@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -273,12 +273,7 @@ const LdkOpenChannel = (props: any) => {
     );
   };
 
-  return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea styles={[styles.root, stylesHook.root]}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({
@@ -310,6 +305,7 @@ LdkOpenChannel.navigationOptions = navigationStyle(
       ...options,
       headerTitle: loc.lnd.new_channel,
       headerLargeTitle: true,
+      statusBarStyle: 'auto',
     };
   },
 );

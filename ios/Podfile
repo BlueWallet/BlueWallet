@@ -16,7 +16,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 workspace 'BlueWallet'
 platform :ios, '13.0'
 prepare_react_native_project!
-setup_permissions(['Camera'])
+setup_permissions(['Camera', 'Notifications'])
 # If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
 # because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
 #
