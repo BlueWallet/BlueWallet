@@ -184,4 +184,4 @@ AztecoRedeem.propTypes = {
   }),
 };
 
-AztecoRedeem.navigationOptions = navigationStyleTx({}, opts => ({ ...opts, title: loc.azteco.title }));
+AztecoRedeem.navigationOptions = navigationStyleTx({}, opts => ({ ...opts, title: loc.azteco.title, statusBarStyle: 'auto' }));

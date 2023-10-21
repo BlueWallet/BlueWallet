@@ -500,6 +500,10 @@ const WalletTransactions = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    setOptions({ statusBarStyle: 'light', barTintColor: WalletGradient.headerColorFor(wallet.type) });
+  }, [setOptions, wallet.type]);
+
   const getItemLayout = (_, index) => ({
     length: 64,
     offset: 64 * index,

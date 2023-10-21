@@ -539,7 +539,7 @@ ReceiveDetails.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.receive.header }),
+  opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );
 
 export default ReceiveDetails;

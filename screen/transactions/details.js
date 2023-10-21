@@ -217,7 +217,6 @@ const TransactionsDetails = () => {
         type={HandoffComponent.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
-
       <BlueCard>
         <View>
           <TextInput
@@ -412,6 +411,7 @@ export default TransactionsDetails;
 TransactionsDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerStyle: {
       backgroundColor: theme.colors.customHeader,
       borderBottomWidth: 0,

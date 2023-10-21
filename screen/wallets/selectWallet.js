@@ -101,6 +101,14 @@ const SelectWallet = () => {
   }, []);
 
   useEffect(() => {
+    if (isLoading || data.length === 0) {
+      setOptions({ statusBarStyle: 'light' });
+    } else {
+      setOptions({ statusBarStyle: 'auto' });
+    }
+  }, [isLoading, data.length, setOptions]);
+
+  useEffect(() => {
     setOptions(
       isModal
         ? {

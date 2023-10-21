@@ -369,7 +369,7 @@ ScanLndInvoice.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.send.header }),
+  opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );
 
 const styles = StyleSheet.create({

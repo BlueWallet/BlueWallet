@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, ScrollView, ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, View, TextInput, StyleSheet } from 'react-native';
+import {
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+  TextInput,
+  StyleSheet,
+  useColorScheme,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BlueText,
@@ -34,6 +45,7 @@ const ButtonSelected = Object.freeze({
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
+  const colorScheme = useColorScheme();
   const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState('');
@@ -42,7 +54,7 @@ const WalletsAdd = () => {
   const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(1);
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, setOptions } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
   const stylesHook = {
@@ -76,6 +88,12 @@ const WalletsAdd = () => {
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdvancedOptionsEnabled]);
+
+  useEffect(() => {
+    setOptions({
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    });
+  }, [colorScheme, setOptions]);
 
   const entropyGenerated = newEntropy => {
     let entropyTitle;

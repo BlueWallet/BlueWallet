@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerTitle: loc.lndViewInvoice.lightning_invoice,
     headerStyle: {
       backgroundColor: theme.colors.customHeader,

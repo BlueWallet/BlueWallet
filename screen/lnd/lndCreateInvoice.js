@@ -535,6 +535,7 @@ LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

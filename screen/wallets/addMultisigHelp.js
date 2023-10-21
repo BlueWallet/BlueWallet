@@ -132,6 +132,7 @@ WalletsAddMultisigHelp.navigationOptions = navigationStyle({
   },
   headerTintColor: '#FFFFFF',
   headerBackTitleVisible: false,
+  statusBarStyle: 'light',
 });
 
 export default WalletsAddMultisigHelp;

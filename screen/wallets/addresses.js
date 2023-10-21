@@ -160,6 +160,7 @@ const WalletAddresses = () => {
 
 WalletAddresses.navigationOptions = navigationStyle({
   title: loc.addresses.addresses_title,
+  statusBarStyle: 'auto',
 });
 
 export default WalletAddresses;

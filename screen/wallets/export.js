@@ -163,6 +163,7 @@ WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),
 );

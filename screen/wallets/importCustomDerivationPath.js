@@ -180,6 +180,10 @@ const styles = StyleSheet.create({
   },
 });
 
-ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_derivation_title }));
+ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  title: loc.wallets.import_derivation_title,
+  statusBarStyle: 'light',
+}));
 
 export default ImportCustomDerivationPath;

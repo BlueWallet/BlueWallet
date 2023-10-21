@@ -1679,4 +1679,5 @@ const styles = StyleSheet.create({
 SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   ...options,
   title: loc.send.header,
+  statusBarStyle: 'light',
 }));

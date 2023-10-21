@@ -459,6 +459,7 @@ LdkInfo.navigationOptions = navigationStyle(
   (options, { theme, navigation, route }) => {
     return {
       ...options,
+      statusBarStyle: 'auto',
     };
   },
 );

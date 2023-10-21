@@ -521,6 +521,7 @@ Browser.navigationOptions = navigationStyle(
   {
     headerHideBackButton: true,
     closeButton: true,
+    statusBarStyle: 'auto',
   },
   opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
 );

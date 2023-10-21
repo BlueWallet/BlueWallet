@@ -657,6 +657,7 @@ ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
 );

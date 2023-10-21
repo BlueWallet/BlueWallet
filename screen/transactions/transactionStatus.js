@@ -539,6 +539,7 @@ const styles = StyleSheet.create({
 TransactionsStatus.navigationOptions = navigationStyle(
   {
     headerTitle: '',
+    statusBarStyle: 'auto',
   },
   (options, { theme }) => ({
     ...options,

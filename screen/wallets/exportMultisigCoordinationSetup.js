@@ -130,6 +130,7 @@ ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
 );

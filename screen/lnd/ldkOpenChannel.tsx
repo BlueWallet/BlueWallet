@@ -305,6 +305,7 @@ LdkOpenChannel.navigationOptions = navigationStyle(
       ...options,
       headerTitle: loc.lnd.new_channel,
       headerLargeTitle: true,
+      statusBarStyle: 'auto',
     };
   },
 );
