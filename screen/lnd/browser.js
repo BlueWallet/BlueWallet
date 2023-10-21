@@ -1,18 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  ActivityIndicator,
-  Alert,
-  BackHandler,
-  Keyboard,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import { SafeBlueArea } from '../../BlueComponents';
@@ -440,8 +429,6 @@ export default class Browser extends Component {
     return (
       <SafeBlueArea>
         <View style={styles.safeRoot}>
-          <StatusBar barStyle="default" />
-
           <Button
             icon={{
               type: 'ionicon',
@@ -534,6 +521,7 @@ Browser.navigationOptions = navigationStyle(
   {
     headerHideBackButton: true,
     closeButton: true,
+    statusBarStyle: 'auto',
   },
   opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
 );

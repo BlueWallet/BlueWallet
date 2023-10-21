@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
+import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -282,12 +282,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return (
-    <SafeBlueArea onLayout={onLayout}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea onLayout={onLayout}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({
@@ -334,6 +329,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerTitle: loc.lndViewInvoice.lightning_invoice,
     headerStyle: {
       backgroundColor: theme.colors.customHeader,

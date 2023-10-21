@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 
 import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
@@ -76,7 +76,6 @@ const ExportMultisigCoordinationSetup = () => {
     </View>
   ) : (
     <SafeBlueArea style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
@@ -131,6 +130,7 @@ ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
 );

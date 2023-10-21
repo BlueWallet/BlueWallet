@@ -302,7 +302,7 @@ PODS:
     - React-Core
   - react-native-tor (0.1.8):
     - React
-  - react-native-webview (12.4.0):
+  - react-native-webview (13.6.2):
     - React-Core
   - react-native-widget-center (0.0.9):
     - React
@@ -404,7 +404,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (8.7.1):
+  - RNDeviceInfo (10.11.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -461,7 +461,7 @@ PODS:
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
-  - RNVectorIcons (9.2.0):
+  - RNVectorIcons (10.0.0):
     - React-Core
   - RNWatch (1.1.0):
     - React
@@ -752,7 +752,7 @@ SPEC CHECKSUMS:
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
-  react-native-webview: 65f1143983cfeaedf02fd25b2621d3f4a37075de
+  react-native-webview: 8fc09f66a1a5b16bbe37c3878fda27d5982bb776
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-perflogger: 4987ad83731c23d11813c84263963b0d3028c966
   React-RCTActionSheet: 5ad952b2a9740d87a5bd77280c4bc23f6f89ea0c
@@ -774,13 +774,13 @@ SPEC CHECKSUMS:
   RNCClipboard: d77213bfa269013bf4b857b7a9ca37ee062d8ef1
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: aad3c663b25752a52bf8fce93f2354001dd185aa
+  RNDeviceInfo: bf8a32acbcb875f568217285d1793b0e8588c974
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: fa40ab6b6cafaa7609294d31f8e8fbbd0cce8ea6
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
   RNLocalize: dbea38dcb344bf80ff18a1757b1becf11f70cae4
-  RNPermissions: eae8b97d8ab0587f082966ee608f47c97b2a349b
+  RNPermissions: e9e703e08dfe50cf4d2ca45852eb45c4ac98f7b7
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
@@ -789,10 +789,10 @@ SPEC CHECKSUMS:
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
-  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  RNVectorIcons: 8b5bb0fa61d54cd2020af4f24a51841ce365c7e9
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   Yoga: e71803b4c1fff832ccf9b92541e00f9b873119b9
 
-PODFILE CHECKSUM: 23bb5c319ccbedd7e109c44fe4273afce6efb48a
+PODFILE CHECKSUM: 27db07925dc3a89e9ecced7e377a50dba9deb58a
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.13.0

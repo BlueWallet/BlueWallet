@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   Switch,
   Text,
@@ -561,7 +560,6 @@ const ViewEditMultisigCosigners = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -659,6 +657,7 @@ ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
 );
