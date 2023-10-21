@@ -32,7 +32,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
-import useAsyncPromise from '../../class/useAsyncPromise';
+import useAsyncPromise from '../../hooks/useAsyncPromise';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
