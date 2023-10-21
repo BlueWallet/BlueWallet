@@ -57,17 +57,17 @@
 			</array>
 		</dict>
 		<dict>
-            <key>CFBundleTypeName</key>
-            <string>JSON File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>public.json</string>
-            </array>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-        </dict>
+			<key>CFBundleTypeName</key>
+			<string>JSON File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -219,7 +219,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
