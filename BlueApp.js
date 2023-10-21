@@ -851,7 +851,7 @@ class AppStorage {
     try {
       const doNotTrackValue = !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
       if (doNotTrackValue) {
-        await DefaultPreference.set(AppStorage.DO_NOT_TRACK, doNotTrackValue ? '1' : '');
+        await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
         AsyncStorage.clear(AppStorage.DO_NOT_TRACK);
       } 
       return !!(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
@@ -860,7 +860,11 @@ class AppStorage {
   };
 
   setDoNotTrack = async value => {
-    await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    if (value) {
+      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    } else {
+      await DefaultPreference.clear(AppStorage.DO_NOT_TRACK, value);
+    }
   };
 
   /**
