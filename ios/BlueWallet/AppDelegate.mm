@@ -20,7 +20,11 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [Bugsnag start];
+  NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
+  if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
+    [Bugsnag start];
+  }
   [self copyDeviceUID];
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"

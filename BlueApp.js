@@ -25,6 +25,7 @@ import {
 } from './class/';
 import { randomBytes } from './class/rng';
 import alert from './components/Alert';
+import DefaultPreference from 'react-native-default-preference';
 
 const encryption = require('./blue_modules/encryption');
 const Realm = require('realm');
@@ -848,13 +849,18 @@ class AppStorage {
 
   isDoNotTrackEnabled = async () => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
+      const doNotTrackValue = !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
+      if (doNotTrackValue) {
+        await DefaultPreference.set(AppStorage.DO_NOT_TRACK, doNotTrackValue ? '1' : '');
+        AsyncStorage.clear(AppStorage.DO_NOT_TRACK);
+      } 
+      return !!(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
     } catch (_) {}
     return false;
   };
 
   setDoNotTrack = async value => {
-    await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
   };
 
   /**
