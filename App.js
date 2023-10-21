@@ -120,17 +120,6 @@ const App = () => {
   }, [walletsInitialized]);
 
   useEffect(() => {
-    return () => {
-      Linking.removeEventListener('url', handleOpenURL);
-      AppState.removeEventListener('change', handleAppStateChange);
-      eventEmitter?.removeAllListeners('onNotificationReceived');
-      eventEmitter?.removeAllListeners('openSettings');
-      eventEmitter?.removeAllListeners('onUserActivityOpen');
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     if (colorScheme) {
       if (colorScheme === 'light') {
         changeNavigationBarColor(BlueDefaultTheme.colors.background, true, true);

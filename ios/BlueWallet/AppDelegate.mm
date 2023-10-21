@@ -20,7 +20,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [Bugsnag start];
+  BugsnagConfiguration *config = [BugsnagConfiguration loadConfig];
+  // To prevent sending launch crashes synchronously;
+  config.sendLaunchCrashesSynchronously = NO;
+  [Bugsnag startWithConfiguration:config];
   [self copyDeviceUID];
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"

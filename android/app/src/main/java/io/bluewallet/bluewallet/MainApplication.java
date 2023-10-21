@@ -57,7 +57,10 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public void onCreate() {
     super.onCreate();
-    Bugsnag.start(this);
+    Configuration config = Configuration.load(this);
+    // To prevent sending launch crashes synchronously
+    config.setSendLaunchCrashesSynchronously(false);
+    Bugsnag.start(this, config);
     I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
     sharedI18nUtilInstance.allowRTL(getApplicationContext(), true);
     SoLoader.init(this, /* native exopackage */ false);
