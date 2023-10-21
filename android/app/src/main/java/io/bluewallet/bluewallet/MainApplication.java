@@ -2,6 +2,8 @@ package io.bluewallet.bluewallet;
 
 import android.app.Application;
 import android.content.Context;
+
+import com.bugsnag.android.Configuration;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
