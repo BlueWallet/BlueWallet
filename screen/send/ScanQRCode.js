@@ -315,6 +315,7 @@ const ScanQRCode = () => {
         <Camera
           style={styles.root}
           scanBarcode
+          resetFocusWhenMotionDetected
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
         />
