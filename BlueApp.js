@@ -861,7 +861,7 @@ class AppStorage {
 
   setDoNotTrack = async value => {
     if (value) {
-      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
     } else {
       await DefaultPreference.clear(AppStorage.DO_NOT_TRACK, value);
     }
