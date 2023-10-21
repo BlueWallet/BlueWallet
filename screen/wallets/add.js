@@ -32,6 +32,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+import useAsyncPromise from '../../class/useAsyncPromise';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -51,7 +52,7 @@ const WalletsAdd = () => {
   const [walletBaseURI, setWalletBaseURI] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [label, setLabel] = useState('');
-  const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
+  const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled());
   const [selectedWalletType, setSelectedWalletType] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(1);
   const { navigate, goBack, setOptions } = useNavigation();
@@ -82,11 +83,8 @@ const WalletsAdd = () => {
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
       .then(url => setWalletBaseURI(url))
-      .catch(() => setWalletBaseURI(''));
-    isAdvancedModeEnabled()
-      .then(setIsAdvancedOptionsEnabled)
+      .catch(() => setWalletBaseURI(''))
       .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdvancedOptionsEnabled]);
 
   useEffect(() => {
@@ -306,7 +304,7 @@ const WalletsAdd = () => {
 
         <View style={styles.advanced}>
           {(() => {
-            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled) {
+            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled.data) {
               return (
                 <View>
                   <BlueSpacing20 />
@@ -361,7 +359,7 @@ const WalletsAdd = () => {
               );
             }
           })()}
-          {isAdvancedOptionsEnabled && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
+          {isAdvancedOptionsEnabled.data && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
