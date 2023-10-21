@@ -51,7 +51,14 @@ const Language: React.FC = () => {
   };
 
   return (
-    <View />
+    <FlatList
+      style={[styles.flex, stylesHook.flex]}
+      keyExtractor={(_item, index) => `${index}`}
+      data={AvailableLanguages as { label: string; value: string; isRTL: boolean }[]}
+      renderItem={renderItem}
+      initialNumToRender={25}
+      contentInsetAdjustmentBehavior="automatic"
+    />
   );
 };
 // @ts-ignore: Fix later
