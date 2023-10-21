@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   TextInput,
   TouchableWithoutFeedback,
@@ -113,7 +112,6 @@ const SignVerify = () => {
 
   return (
     <SafeBlueArea style={[styles.root, stylesHooks.root]}>
-      <StatusBar barStyle="light-content" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
           {!isKeyboardVisible && (
@@ -232,7 +230,7 @@ const SignVerify = () => {
   );
 };
 
-SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBackButton: true }, opts => ({
+SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBackButton: true, statusBarStyle: 'light' }, opts => ({
   ...opts,
   title: loc.addresses.sign_title,
 }));

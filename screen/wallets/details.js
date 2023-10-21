@@ -12,7 +12,6 @@ import {
   Platform,
   Linking,
   StyleSheet,
-  StatusBar,
   ScrollView,
   InteractionManager,
   ActivityIndicator,
@@ -489,8 +488,6 @@ const WalletDetails = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View>
             <BlueCard style={styles.address}>
-              <StatusBar barStyle="default" />
-
               {(() => {
                 if (
                   [LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) ||
@@ -702,6 +699,10 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.details_title }));
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  headerTitle: loc.wallets.details_title,
+  statusBarStyle: 'auto',
+}));
 
 export default WalletDetails;

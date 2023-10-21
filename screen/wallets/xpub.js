@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { InteractionManager, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
+import { InteractionManager, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueButton } from '../../BlueComponents';
@@ -83,7 +83,6 @@ const WalletXpub = () => {
     </View>
   ) : (
     <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
-      <StatusBar barStyle="light-content" />
       <>
         <View style={styles.container}>
           {wallet && (
