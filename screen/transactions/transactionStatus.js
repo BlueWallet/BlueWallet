@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, BackHandler } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -361,7 +361,6 @@ const TransactionsStatus = () => {
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 
-      <StatusBar barStyle="default" />
       <View style={styles.container}>
         <BlueCard>
           <View style={styles.center}>
@@ -540,6 +539,7 @@ const styles = StyleSheet.create({
 TransactionsStatus.navigationOptions = navigationStyle(
   {
     headerTitle: '',
+    statusBarStyle: 'auto',
   },
   (options, { theme }) => ({
     ...options,

@@ -4,7 +4,6 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -404,7 +403,6 @@ const LNDCreateInvoice = () => {
   if (!wallet.current) {
     return (
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <BlueLoading />
       </View>
     );
@@ -413,7 +411,6 @@ const LNDCreateInvoice = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <AmountInput
@@ -538,6 +535,7 @@ LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

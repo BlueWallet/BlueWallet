@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, PermissionsAndroid, Alert } from 'react-native';
+import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, Alert } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
@@ -15,6 +15,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import alert from '../../components/Alert';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 
@@ -68,15 +69,8 @@ const SendCreate = () => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
+      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+      if (granted === RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {

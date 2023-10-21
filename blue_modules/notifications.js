@@ -4,6 +4,7 @@ import Frisbee from 'frisbee';
 import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../loc';
+import { requestNotifications } from 'react-native-permissions';
 
 const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
@@ -38,75 +39,80 @@ function Notifications(props) {
    */
   const configureNotifications = async function () {
     return new Promise(function (resolve) {
-      PushNotification.configure({
-        // (optional) Called when Token is generated (iOS and Android)
-        onRegister: async function (token) {
-          console.log('TOKEN:', token);
-          alreadyConfigured = true;
-          await _setPushToken(token);
-          resolve(true);
-        },
+      requestNotifications(['alert', 'sound', 'badge']).then(({ status, _ }) => {
+        if (status === 'granted') {
+          PushNotification.configure({
+            // (optional) Called when Token is generated (iOS and Android)
+            onRegister: async function (token) {
+              console.log('TOKEN:', token);
+              alreadyConfigured = true;
+              await _setPushToken(token);
+              resolve(true);
+            },
 
-        // (required) Called when a remote is received or opened, or local notification is opened
-        onNotification: async function (notification) {
-          // since we do not know whether we:
-          // 1) received notification while app is in background (and storage is not decrypted so wallets are not loaded)
-          // 2) opening this notification right now but storage is still unencrypted
-          // 3) any of the above but the storage is decrypted, and app wallets are loaded
-          //
-          // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
+            // (required) Called when a remote is received or opened, or local notification is opened
+            onNotification: async function (notification) {
+              // since we do not know whether we:
+              // 1) received notification while app is in background (and storage is not decrypted so wallets are not loaded)
+              // 2) opening this notification right now but storage is still unencrypted
+              // 3) any of the above but the storage is decrypted, and app wallets are loaded
+              //
+              // ...we save notification in internal notifications queue thats gona be processed later (on unsuspend with decrypted storage)
 
-          const payload = Object.assign({}, notification, notification.data);
-          if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-          delete payload.data;
-          // ^^^ weird, but sometimes payload data is not in `data` but in root level
-          console.log('got push notification', payload);
+              const payload = Object.assign({}, notification, notification.data);
+              if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+              delete payload.data;
+              // ^^^ weird, but sometimes payload data is not in `data` but in root level
+              console.log('got push notification', payload);
 
-          await Notifications.addNotification(payload);
+              await Notifications.addNotification(payload);
 
-          // (required) Called when a remote is received or opened, or local notification is opened
-          notification.finish(PushNotificationIOS.FetchResult.NoData);
+              // (required) Called when a remote is received or opened, or local notification is opened
+              notification.finish(PushNotificationIOS.FetchResult.NoData);
 
-          // if user is staring at the app when he receives the notification we process it instantly
-          // so app refetches related wallet
-          if (payload.foreground) props.onProcessNotifications();
-        },
+              // if user is staring at the app when he receives the notification we process it instantly
+              // so app refetches related wallet
+              if (payload.foreground) props.onProcessNotifications();
+            },
 
-        // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
-        onAction: function (notification) {
-          console.log('ACTION:', notification.action);
-          console.log('NOTIFICATION:', notification);
+            // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
+            onAction: function (notification) {
+              console.log('ACTION:', notification.action);
+              console.log('NOTIFICATION:', notification);
 
-          // process the action
-        },
+              // process the action
+            },
 
-        // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
-        onRegistrationError: function (err) {
-          console.error(err.message, err);
-          resolve(false);
-        },
+            // (optional) Called when the user fails to register for remote notifications. Typically occurs when APNS is having issues, or the device is a simulator. (iOS)
+            onRegistrationError: function (err) {
+              console.error(err.message, err);
+              resolve(false);
+            },
 
-        // IOS ONLY (optional): default: all - Permissions to register.
-        permissions: {
-          alert: true,
-          badge: true,
-          sound: true,
-        },
+            // IOS ONLY (optional): default: all - Permissions to register.
+            permissions: {
+              alert: true,
+              badge: true,
+              sound: true,
+            },
 
-        // Should the initial notification be popped automatically
-        // default: true
-        popInitialNotification: true,
+            // Should the initial notification be popped automatically
+            // default: true
+            popInitialNotification: true,
 
-        /**
-         * (optional) default: true
-         * - Specified if permissions (ios) and token (android and ios) will requested or not,
-         * - if not, you must call PushNotificationsHandler.requestPermissions() later
-         * - if you are not using remote notification or do not have Firebase installed, use this:
-         *     requestPermissions: Platform.OS === 'ios'
-         */
-        requestPermissions: true,
+            /**
+             * (optional) default: true
+             * - Specified if permissions (ios) and token (android and ios) will requested or not,
+             * - if not, you must call PushNotificationsHandler.requestPermissions() later
+             * - if you are not using remote notification or do not have Firebase installed, use this:
+             *     requestPermissions: Platform.OS === 'ios'
+             */
+            requestPermissions: true,
+          });
+        }
       });
     });
+    // …
   };
 
   Notifications.cleanUserOptOutFlag = async function () {
@@ -227,8 +233,7 @@ function Notifications(props) {
     if (!pushToken || !pushToken.token || !pushToken.os) return;
 
     const api = new Frisbee({ baseURI });
-
-    return await api.post(
+    const postCall = await api.post(
       '/unsubscribe',
       Object.assign({}, _getHeaders(), {
         body: {
@@ -240,6 +245,8 @@ function Notifications(props) {
         },
       }),
     );
+    Notifications.abandonPermissions();
+    return postCall;
   };
 
   Notifications.isNotificationsEnabled = async function () {
