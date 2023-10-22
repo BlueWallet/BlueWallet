@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler'; // should be on top
 import React, { useEffect } from 'react';
 import './shim.js';
 import { AppRegistry } from 'react-native';

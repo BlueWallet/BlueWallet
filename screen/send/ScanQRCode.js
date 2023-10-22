@@ -317,6 +317,8 @@ const ScanQRCode = () => {
           scanBarcode
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
+          // android only, to handle weird exceptions that are reproduceable only on e2e/CI
+          onError={e => console.log(e.nativeEvent.errorMessage)}
         />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
