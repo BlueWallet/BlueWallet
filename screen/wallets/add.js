@@ -52,7 +52,7 @@ const WalletsAdd = () => {
   const [walletBaseURI, setWalletBaseURI] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [label, setLabel] = useState('');
-  const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled());
+  const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(1);
   const { navigate, goBack, setOptions } = useNavigation();
