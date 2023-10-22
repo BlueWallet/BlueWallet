@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform, Alert } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueId, hasGmsSync } from 'react-native-device-info';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueIdSync, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -20,7 +20,6 @@ const About = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useContext(BlueStorageContext);
-  const [uniqueID, setUniqueID] = useState();
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -75,10 +74,6 @@ const About = () => {
       fontWeight: '600',
     },
   });
-
-  useEffect(() => {
-    getUniqueId().then(setUniqueID);
-  }, []);
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -249,12 +244,12 @@ const About = () => {
       <BlueTextCentered>
         w, h = {width}, {height}
       </BlueTextCentered>
-      <BlueTextCentered>Unique ID: {uniqueID}</BlueTextCentered>
+      <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
       <View style={styles.copyToClipboard}>
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => {
-            const stringToCopy = 'userId:' + uniqueID;
+            const stringToCopy = 'userId:' + getUniqueIdSync();
             A.logError('copied unique id');
             Clipboard.setString(stringToCopy);
           }}
