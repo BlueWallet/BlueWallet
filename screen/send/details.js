@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -1439,7 +1438,6 @@ const SendDetails = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        <StatusBar barStyle="light-content" />
         <View>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <FlatList
@@ -1681,4 +1679,5 @@ const styles = StyleSheet.create({
 SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   ...options,
   title: loc.send.header,
+  statusBarStyle: 'light',
 }));

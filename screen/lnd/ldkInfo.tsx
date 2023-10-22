@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
+import { View, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -373,7 +373,6 @@ const LdkInfo = () => {
   // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
       <SectionList
         ref={(ref: SectionList) => {
           sectionList.current = ref;
@@ -460,6 +459,7 @@ LdkInfo.navigationOptions = navigationStyle(
   (options, { theme, navigation, route }) => {
     return {
       ...options,
+      statusBarStyle: 'auto',
     };
   },
 );

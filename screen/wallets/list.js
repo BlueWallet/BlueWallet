@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  StatusBar,
   View,
   TouchableOpacity,
   Text,
@@ -39,7 +38,7 @@ const WalletsList = () => {
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
     useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
-  const { colors, scanImage, barStyle } = useTheme();
+  const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
@@ -361,7 +360,6 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           removeClippedSubviews

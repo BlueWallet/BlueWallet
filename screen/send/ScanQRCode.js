@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
+import { Image, View, TouchableOpacity, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { Camera } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -315,6 +315,7 @@ const ScanQRCode = () => {
         <Camera
           style={styles.root}
           scanBarcode
+          resetFocusWhenMotionDetected
           onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })}
           showFrame={false}
           // android only, to handle weird exceptions that are reproduceable only on e2e/CI
@@ -396,12 +397,7 @@ const ScanQRCode = () => {
     </>
   );
 
-  return (
-    <View style={styles.root}>
-      <StatusBar hidden />
-      {render}
-    </View>
-  );
+  return <View style={styles.root}>{render}</View>;
 };
 
 export default ScanQRCode;
