@@ -55,16 +55,19 @@ const PleaseBackup: React.FC = () => {
 
   const renderSecret = () => {
     const component: JSX.Element[] = [];
-    for (const [index, secret] of wallet?.getSecret().split(/\s/).entries()) {
-      if (secret) {
-        const text = `${index + 1}. ${secret}  `;
-        component.push(
-          <View style={[styles.word, stylesHook.word]} key={index}>
-            <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
-              {text}
-            </Text>
-          </View>,
-        );
+    const entries = wallet?.getSecret().split(/\s/).entries();
+    if (entries) {
+      for (const [index, secret] of entries) {
+        if (secret) {
+          const text = `${index + 1}. ${secret}  `;
+          component.push(
+            <View style={[styles.word, stylesHook.word]} key={index}>
+              <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
+                {text}
+              </Text>
+            </View>,
+          );
+        }
       }
     }
     return component;
