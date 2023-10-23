@@ -23,6 +23,7 @@ type NavigationOptions = {
     fontWeight: string;
     color: string;
   };
+  headerLargeTitle?: boolean;
   gestureEnabled?: boolean;
   swipeEnabled?: boolean;
   headerHideBackButton?: boolean;
