@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -41,10 +40,10 @@ import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
+import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
-const scanqr = require('../../helpers/scan-qr');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
@@ -602,13 +601,14 @@ const SendDetails = () => {
     }
 
     setOptionsVisible(false);
-
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: importQrTransactionOnBarScanned,
-        showFileImportButton: false,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: importQrTransactionOnBarScanned,
+          showFileImportButton: false,
+        },
+      });
     });
   };
 
@@ -765,12 +765,14 @@ const SendDetails = () => {
 
   const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned,
-        showFileImportButton: true,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
     });
   };
 
@@ -809,7 +811,7 @@ const SendDetails = () => {
     setIsLoading(true);
     setOptionsVisible(false);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
-    const scannedData = await scanqr(navigation.navigate, name);
+    const scannedData = await scanQrHelper(navigation.navigate, name);
     if (!scannedData) return setIsLoading(false);
 
     let tx;
@@ -1436,7 +1438,6 @@ const SendDetails = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        <StatusBar barStyle="light-content" />
         <View>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <FlatList
@@ -1678,4 +1679,5 @@ const styles = StyleSheet.create({
 SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   ...options,
   title: loc.send.header,
+  statusBarStyle: 'light',
 }));

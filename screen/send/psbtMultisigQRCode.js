@@ -10,6 +10,7 @@ import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
 import alert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -64,13 +65,15 @@ const PsbtMultisigQRCode = () => {
     if (isDesktop) {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
-      navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
+      requestCameraAuthorization().then(() =>
+        navigate('ScanQRCodeRoot', {
+          screen: 'ScanQRCode',
+          params: {
+            onBarScanned,
+            showFileImportButton: true,
+          },
+        }),
+      );
     }
   };
 

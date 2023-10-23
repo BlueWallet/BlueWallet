@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, useRef, useEffect, useLayoutEffect } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View, StatusBar } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import Privacy from '../../blue_modules/Privacy';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -142,7 +142,6 @@ const WalletAddresses = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
       <FlatList
         contentContainerStyle={stylesHook.root}
         ref={addressList}
@@ -161,6 +160,7 @@ const WalletAddresses = () => {
 
 WalletAddresses.navigationOptions = navigationStyle({
   title: loc.addresses.addresses_title,
+  statusBarStyle: 'auto',
 });
 
 export default WalletAddresses;
