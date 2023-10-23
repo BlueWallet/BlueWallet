@@ -42,7 +42,7 @@ describe('BlueElectrum', () => {
         [2, 590559],
         [1, 1648473],
       ]),
-      22,
+      86,
     );
     assert.strictEqual(
       BlueElectrum.calcEstimateFeeFromFeeHistorgam(18, [
@@ -64,7 +64,7 @@ describe('BlueElectrum', () => {
         [2, 590559],
         [1, 1648473],
       ]),
-      4,
+      11,
     );
     assert.strictEqual(
       BlueElectrum.calcEstimateFeeFromFeeHistorgam(144, [
@@ -86,7 +86,7 @@ describe('BlueElectrum', () => {
         [2, 590559],
         [1, 1648473],
       ]),
-      4,
+      11,
     );
   });
 
