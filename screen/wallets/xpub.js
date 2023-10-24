@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { InteractionManager, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useFocusEffect, useRoute, useNavigation, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueButton } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
@@ -10,6 +10,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
 import Share from 'react-native-share';
+import { useTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   root: {

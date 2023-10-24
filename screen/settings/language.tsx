@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueListItem } from '../../BlueComponents';
 import loc, { saveLanguage } from '../../loc';
 import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   flex: {

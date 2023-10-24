@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useRoute, useTheme } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
@@ -20,6 +20,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
 
 const SignVerify = () => {
   const { colors } = useTheme();

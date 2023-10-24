@@ -1,7 +1,7 @@
 import React, { useState, useRef, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;

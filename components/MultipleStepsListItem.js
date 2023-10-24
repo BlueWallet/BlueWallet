@@ -1,8 +1,9 @@
 import React from 'react';
-import { useTheme } from '@react-navigation/native';
+
 import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
+import { useTheme } from './themes';
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
 

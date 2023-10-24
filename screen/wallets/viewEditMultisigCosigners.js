@@ -14,7 +14,7 @@ import {
   View,
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
   BlueButton,
   BlueButtonLink,
@@ -43,6 +43,7 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 

@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -86,6 +85,7 @@ import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import loc from './loc';
+import { useTheme } from './components/themes';
 
 const WalletsStack = createNativeStackNavigator();
 

@@ -3,10 +3,11 @@ import { ScrollView, Platform, Pressable, TouchableOpacity, StyleSheet } from 'r
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isURv1Enabled, clearUseURv1, setUseURv1 } from '../../blue_modules/ur';
+import { useTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   root: {

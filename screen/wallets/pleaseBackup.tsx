@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -8,6 +8,7 @@ import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
+import { useTheme } from '../../components/themes';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -19,19 +20,15 @@ const PleaseBackup: React.FC = () => {
 
   const stylesHook = StyleSheet.create({
     flex: {
-      // @ts-ignore: Ignore
       backgroundColor: colors.elevated,
     },
     word: {
-      // @ts-ignore: Ignore
       backgroundColor: colors.inputBackgroundColor,
     },
     wortText: {
-      // @ts-ignore: Ignore
       color: colors.labelText,
     },
     pleaseText: {
-      // @ts-ignore: Ignore
       color: colors.foregroundColor,
     },
   });

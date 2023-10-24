@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text } from 'react-native';
 import { openSettings } from 'react-native-permissions';
-import { useTheme } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueText, BlueSpacing20, BlueListItem, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
@@ -10,6 +9,7 @@ import DeviceQuickActions from '../../class/quick-actions';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
+import { useTheme } from '../../components/themes';
 
 const A = require('../../blue_modules/analytics');
 

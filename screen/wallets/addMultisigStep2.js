@@ -15,7 +15,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -43,6 +43,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
