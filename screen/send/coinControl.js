@@ -16,7 +16,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import * as RNLocalize from 'react-native-localize';
 
 import loc, { formatBalance } from '../../loc';
@@ -27,6 +27,7 @@ import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useTheme } from '../../components/themes';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();

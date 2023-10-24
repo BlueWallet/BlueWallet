@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
 import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 const WalletToImport = ({ title, subtitle, active, onPress }) => {
   const { colors } = useTheme();

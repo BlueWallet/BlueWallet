@@ -5,7 +5,7 @@ import ToolTipMenu from './TooltipMenu';
 import Share from 'react-native-share';
 import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 interface QRCodeComponentProps {
   value: string;

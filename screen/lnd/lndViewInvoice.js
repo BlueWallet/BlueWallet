@@ -4,7 +4,7 @@ import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   BlueText,
@@ -20,6 +20,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
+import { useTheme } from '../../components/themes';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;

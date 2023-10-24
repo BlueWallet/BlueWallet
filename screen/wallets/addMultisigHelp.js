@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+
 import { SafeBlueArea, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
 
 const WalletsAddMultisigHelp = () => {
   const [isLoading, setIsLoading] = useState(true);
