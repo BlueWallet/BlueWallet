@@ -6,8 +6,7 @@ import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
 import { readFile } from 'react-native-bw-file-access';
-import {platform} from "process";
-import {Platform} from "react-native";
+import { Platform } from 'react-native';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -113,7 +112,7 @@ class DeeplinkSchemaMatch {
         .catch(e => console.warn(e));
       return;
     } else if (event.url.endsWith('.bwcosigner')) {
-      if( Platform.OS !== 'ios') {
+      if (Platform.OS !== 'ios') {
         return;
       }
       readFile(event.url)
