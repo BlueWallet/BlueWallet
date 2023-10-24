@@ -12,9 +12,6 @@
     "target": "esnext",
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "paths": {
-      "react-native-bw-file-access": ["./blue_modules/react-native-bw-file-access/index"]
-    }
   },
   "extends": "@tsconfig/react-native/tsconfig.json",
   "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],

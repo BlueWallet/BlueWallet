@@ -111,20 +111,30 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
       return;
-    } else if (event.url.endsWith('.bwcosigner')) {
-      if (Platform.OS !== 'ios') {
-        return;
+    } else if (DeeplinkSchemaMatch.isPossiblyCosignerFile(event.url)) {
+      if (Platform.OS === 'ios') {
+        readFile(event.url)
+          .then(file => {
+            // checks whether the necessary json keys are present in order to set a cosigner,
+            // doesn't validate the values this happens later
+            if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
+              return;
+            }
+            context.setSharedCosigner(file);
+          })
+          .catch(e => console.warn(e));
+      } else {
+        RNFS.readFile(decodeURI(event.url))
+          .then(file => {
+            // checks whether the necessary json keys are present in order to set a cosigner,
+            // doesn't validate the values this happens later
+            if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
+              return;
+            }
+            context.setSharedCosigner(file);
+          })
+          .catch(e => console.warn(e));
       }
-      readFile(event.url)
-        .then(fileContent => {
-          // checks whether the necessary json keys are present in order to set a cosigner,
-          // doesn't validate the values this happens later
-          if (!fileContent || !this.hasNeededJsonKeysForMultiSigSharing(fileContent)) {
-            return;
-          }
-          context.setSharedCosigner(fileContent);
-        })
-        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning;
     try {
@@ -337,6 +347,13 @@ class DeeplinkSchemaMatch {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('.psbt')
+    );
+  }
+
+  static isPossiblyCosignerFile(filePath) {
+    return (
+      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
+      filePath.toLowerCase().endsWith('.bwcosigner')
     );
   }
 
