@@ -57,17 +57,31 @@
 			</array>
 		</dict>
 		<dict>
-            <key>CFBundleTypeName</key>
-            <string>JSON File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>public.json</string>
-            </array>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-        </dict>
+			<key>CFBundleTypeName</key>
+			<string>JSON File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.json</string>
+			</array>
+		</dict>
+		<dict>
+		    <key>CFBundleTypeIconFiles</key>
+        	<array/>
+			<key>CFBundleTypeName</key>
+			<string>BW COSIGNER</string>
+			<key>CFBundleTypeRole</key>
+			<string>Owner</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>io.bluewallet.bwcosigner</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -77,11 +91,6 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>io.bluewallet.bluewallet.receiveonchain</string>
-		<string>io.bluewallet.bluewallet.xpub</string>
-	</array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -117,6 +126,8 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -176,6 +187,12 @@
 	<string>In order to import an image for scanning, we need your permission to access your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>io.bluewallet.bluewallet.receiveonchain</string>
+		<string>io.bluewallet.bluewallet.xpub</string>
+		<string>io.bluewallet.bluewallet.bwcosigner</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -238,6 +255,25 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>psbt</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>BW COSIGNER</string>
+			<key>UTTypeIconFiles</key>
+			<array/>
+			<key>UTTypeIdentifier</key>
+			<string>io.bluewallet.bwcosigner</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>bwcosigner</string>
 				</array>
 			</dict>
 		</dict>
@@ -343,6 +379,25 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+        	<key>UTTypeConformsTo</key>
+        	<array>
+        		<string>public.json</string>
+        	</array>
+        	<key>UTTypeDescription</key>
+        	<string>BW COSIGNER</string>
+        	<key>UTTypeIconFiles</key>
+        	<array/>
+        	<key>UTTypeIdentifier</key>
+        	<string>io.bluewallet.bwcosigner</string>
+        	<key>UTTypeTagSpecification</key>
+        	<dict>
+        		<key>public.filename-extension</key>
+        		<array>
+        			<string>bwcosigner</string>
+        		</array>
+        	</dict>
+        </dict>
 	</array>
 	<key>bugsnag</key>
 	<dict>
