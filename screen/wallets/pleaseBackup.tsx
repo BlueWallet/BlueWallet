@@ -20,19 +20,15 @@ const PleaseBackup: React.FC = () => {
 
   const stylesHook = StyleSheet.create({
     flex: {
-      // @ts-ignore: Ignore
       backgroundColor: colors.elevated,
     },
     word: {
-      // @ts-ignore: Ignore
       backgroundColor: colors.inputBackgroundColor,
     },
     wortText: {
-      // @ts-ignore: Ignore
       color: colors.labelText,
     },
     pleaseText: {
-      // @ts-ignore: Ignore
       color: colors.foregroundColor,
     },
   });
