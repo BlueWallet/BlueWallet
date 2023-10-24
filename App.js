@@ -173,7 +173,6 @@ const App = () => {
       );
     } else {
       const url = await Linking.getInitialURL();
-      console.log(url);
       if (url) {
         if (DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
