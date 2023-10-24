@@ -4,10 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>io.bluewallet.bluewallet.fetchTxsForWallet</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -152,30 +148,14 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
 	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to use FaceID please confirm your permission.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSMotionUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Your authorization is required to save this image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>In order to import an image for scanning, we need your permission to access your photo library.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

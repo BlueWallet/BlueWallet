@@ -304,7 +304,7 @@
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
     "privacy_quickactions": "Wallet Shortcuts",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon on your Home Screen to quickly view your wallet’s balance.",
+    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
