@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useTheme, useNavigation, useNavigationState } from '@react-navigation/native';
@@ -101,6 +101,14 @@ const SelectWallet = () => {
   }, []);
 
   useEffect(() => {
+    if (isLoading || data.length === 0) {
+      setOptions({ statusBarStyle: 'light' });
+    } else {
+      setOptions({ statusBarStyle: 'auto' });
+    }
+  }, [isLoading, data.length, setOptions]);
+
+  useEffect(() => {
     setOptions(
       isModal
         ? {
@@ -176,14 +184,12 @@ const SelectWallet = () => {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <StatusBar barStyle="light-content" />
         <ActivityIndicator />
       </View>
     );
   } else if (data.length <= 0) {
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
@@ -194,7 +200,6 @@ const SelectWallet = () => {
   } else {
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="default" />
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>
     );

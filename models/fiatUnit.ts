@@ -1,6 +1,7 @@
 import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
+  Coinbase: 'Coinbase',
   CoinDesk: 'CoinDesk',
   CoinGecko: 'CoinGecko',
   Yadio: 'Yadio',
@@ -11,6 +12,21 @@ export const FiatUnitSource = {
 } as const;
 
 const RateExtractors = {
+  Coinbase: async (ticker: string): Promise<number> => {
+    let json;
+    try {
+      const res = await fetch(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/buy`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.data?.amount;
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
   CoinDesk: async (ticker: string): Promise<number> => {
     let json;
     try {

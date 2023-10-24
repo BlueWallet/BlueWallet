@@ -68,7 +68,7 @@
     "CNY": {
         "endPointKey": "CNY",
         "locale": "zh-CN",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "¥"
     },
     "COP": {

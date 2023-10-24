@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   TextInput,
   View,
@@ -459,7 +458,6 @@ const ReceiveDetails = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent title={loc.send.details_address} type={HandoffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
@@ -541,7 +539,7 @@ ReceiveDetails.navigationOptions = navigationStyle(
     closeButton: true,
     headerHideBackButton: true,
   },
-  opts => ({ ...opts, title: loc.receive.header }),
+  opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );
 
 export default ReceiveDetails;
