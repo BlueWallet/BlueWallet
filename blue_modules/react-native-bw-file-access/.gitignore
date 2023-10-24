@@ -1,7 +1,7 @@
 # OSX
 #
 .DS_Store
-
+**/package-lock.json
 # node.js
 #
 node_modules/
