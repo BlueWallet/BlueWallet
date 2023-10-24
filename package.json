@@ -124,7 +124,7 @@
     "buffer": "6.0.3",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.13",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "dayjs": "1.11.10",
     "detox": "20.13.1",
     "ecpair": "2.0.1",
