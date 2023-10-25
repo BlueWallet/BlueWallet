@@ -14,7 +14,7 @@ import {
   FlatList,
   Pressable,
 } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+
 import LinearGradient from 'react-native-linear-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
@@ -22,6 +22,7 @@ import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { isHandset, isTablet, isDesktop } from '../blue_modules/environment';
+import { useTheme } from './themes';
 
 const nStyles = StyleSheet.create({
   container: {

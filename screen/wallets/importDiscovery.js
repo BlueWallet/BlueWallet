@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { ActivityIndicator, Alert, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueButton, BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -11,6 +11,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import prompt from '../../helpers/prompt';
+import { useTheme } from '../../components/themes';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();

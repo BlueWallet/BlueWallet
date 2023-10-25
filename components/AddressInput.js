@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
 import { findNodeHandle, Image, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { getSystemName } from 'react-native-device-info';
-import { useTheme } from '@react-navigation/native';
-
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import { requestCameraAuthorization } from '../helpers/scan-qr';
+import { useTheme } from './themes';
 const fs = require('../blue_modules/fs');
 
 const isDesktop = getSystemName() === 'Mac OS X';

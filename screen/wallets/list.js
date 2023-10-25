@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  StatusBar,
   View,
   TouchableOpacity,
   Text,
@@ -21,13 +20,14 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -39,7 +39,7 @@ const WalletsList = () => {
   const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
     useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
-  const { colors, scanImage, barStyle } = useTheme();
+  const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
@@ -76,10 +76,7 @@ const WalletsList = () => {
     if (wallets.length > walletsCount.current) {
       walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
-    // wallet has been deleted
-    if (wallets.length < walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
+
     walletsCount.current = wallets.length;
   }, [wallets]);
 
@@ -361,7 +358,6 @@ const WalletsList = () => {
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           removeClippedSubviews

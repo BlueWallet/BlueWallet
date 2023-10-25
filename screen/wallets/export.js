@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
-import { InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet, AppState } from 'react-native';
-import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
+import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -11,6 +11,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
+import { useTheme } from '../../components/themes';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -94,7 +95,6 @@ const WalletExport = () => {
 
   return (
     <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
-      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
@@ -164,6 +164,7 @@ WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),
 );

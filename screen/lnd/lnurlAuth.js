@@ -9,10 +9,11 @@ import Lnurl from '../../class/lnurl';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import selectWallet from '../../helpers/select-wallet';
 import URL from 'url';
 import { SuccessView } from '../send/success';
+import { useTheme } from '../../components/themes';
 
 const AuthState = {
   USER_PROMPT: 0,

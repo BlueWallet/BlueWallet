@@ -4,10 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>io.bluewallet.bluewallet.fetchTxsForWallet</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -57,17 +53,17 @@
 			</array>
 		</dict>
 		<dict>
-            <key>CFBundleTypeName</key>
-            <string>JSON File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>public.json</string>
-            </array>
-            <key>LSHandlerRank</key>
-            <string>Owner</string>
-        </dict>
+			<key>CFBundleTypeName</key>
+			<string>JSON File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.json</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -77,11 +73,6 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>io.bluewallet.bluewallet.receiveonchain</string>
-		<string>io.bluewallet.bluewallet.xpub</string>
-	</array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -152,30 +143,19 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
+	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to use FaceID please confirm your permission.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSMotionUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Your authorization is required to save this image.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>In order to import an image for scanning, we need your permission to access your photo library.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>io.bluewallet.bluewallet.receiveonchain</string>
+		<string>io.bluewallet.bluewallet.xpub</string>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>
@@ -196,8 +176,6 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>fetch</string>
-		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -219,7 +197,7 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

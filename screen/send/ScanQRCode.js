@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert } from 'react-native';
+import { Image, View, TouchableOpacity, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
-import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import alert from '../../components/Alert';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -398,12 +399,7 @@ const ScanQRCode = () => {
     </>
   );
 
-  return (
-    <View style={styles.root}>
-      <StatusBar hidden />
-      {render}
-    </View>
-  );
+  return <View style={styles.root}>{render}</View>;
 };
 
 export default ScanQRCode;

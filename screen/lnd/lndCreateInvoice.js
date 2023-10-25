@@ -4,7 +4,6 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -16,7 +15,7 @@ import {
 } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueAlertWalletExportReminder, BlueButton, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -30,6 +29,7 @@ import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 
 const LNDCreateInvoice = () => {
@@ -389,7 +389,6 @@ const LNDCreateInvoice = () => {
   if (!wallet.current) {
     return (
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <BlueLoading />
       </View>
     );
@@ -398,7 +397,6 @@ const LNDCreateInvoice = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <AmountInput
@@ -523,6 +521,7 @@ LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

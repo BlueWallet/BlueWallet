@@ -23,6 +23,10 @@ type NavigationOptions = {
     fontWeight: string;
     color: string;
   };
+  headerLargeTitle?: boolean;
+  gestureEnabled?: boolean;
+  swipeEnabled?: boolean;
+  headerHideBackButton?: boolean;
   headerLeft?: (() => React.ReactElement) | null;
   headerRight?: (() => React.ReactElement) | null;
   headerBackTitleVisible?: false;

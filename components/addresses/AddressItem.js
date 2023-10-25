@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { AddressTypeBadge } from './AddressTypeBadge';
@@ -8,6 +8,7 @@ import loc, { formatBalance } from '../../loc';
 import TooltipMenu from '../TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
+import { useTheme } from '../themes';
 
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) => {
   const { colors } = useTheme();

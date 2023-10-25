@@ -14,12 +14,12 @@ function DeviceQuickActions() {
       isStorageEncrypted()
         .then(value => {
           if (value) {
-            QuickActions.clearShortcutItems();
+            removeShortcuts();
           } else {
             setQuickActions();
           }
         })
-        .catch(() => QuickActions.clearShortcutItems());
+        .catch(() => removeShortcuts());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, walletsInitialized, preferredFiatCurrency]);
@@ -27,7 +27,7 @@ function DeviceQuickActions() {
   DeviceQuickActions.setEnabled = (enabled = true) => {
     return AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {
       if (!enabled) {
-        QuickActions.clearShortcutItems();
+        removeShortcuts();
       } else {
         setQuickActions();
       }
@@ -49,6 +49,20 @@ function DeviceQuickActions() {
       return !!JSON.parse(isEnabled);
     } catch {
       return true;
+    }
+  };
+
+  const removeShortcuts = async () => {
+    if (Platform.OS === 'android') {
+      QuickActions.clearShortcutItems();
+    } else {
+      /* iOS has a bug where if you nil the array or send an empty one it will restore the previous array on device reboot. */
+      QuickActions.setShortcutItems([
+        {
+          type: 'EmptyWallets', // Required
+          title: '',
+        },
+      ]);
     }
   };
 
@@ -75,7 +89,7 @@ function DeviceQuickActions() {
         }
       });
     } else {
-      QuickActions.clearShortcutItems();
+      removeShortcuts();
     }
   };
 

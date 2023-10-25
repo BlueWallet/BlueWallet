@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 export const ButtonStyle = { default: 'default', destroy: 'destroy', grey: 'grey' };
 const Button = props => {

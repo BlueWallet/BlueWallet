@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BlueButton, BlueListItem, BlueSpacing20 } from '../../BlueComponents';
@@ -11,6 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useTheme } from '../../components/themes';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();

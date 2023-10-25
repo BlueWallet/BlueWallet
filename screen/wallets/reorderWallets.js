@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
-import { View, Image, Text, StyleSheet, StatusBar, I18nManager, Pressable, useColorScheme, Platform } from 'react-native';
+import { View, Image, Text, StyleSheet, I18nManager, Pressable, useColorScheme, Platform } from 'react-native';
 import { BluePrivateBalance } from '../../BlueComponents';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   root: {
@@ -74,8 +75,8 @@ const ReorderWallets = () => {
   const sortableList = useRef();
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
-
-  const { navigate } = useNavigation();
+  const colorScheme = useColorScheme();
+  const { navigate, setOptions } = useNavigation();
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -89,6 +90,12 @@ const ReorderWallets = () => {
   useEffect(() => {
     setWalletData(wallets);
   }, [wallets]);
+
+  useEffect(() => {
+    setOptions({
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    });
+  }, [colorScheme, setOptions]);
 
   const navigateToWallet = wallet => {
     const walletID = wallet.getID();
@@ -178,11 +185,9 @@ const ReorderWallets = () => {
       <Text style={{ color: colors.foregroundColor }}>{loc.wallets.reorder_instructions}</Text>
     </View>
   );
+
   return (
     <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
-      <StatusBar
-        barStyle={Platform.select({ ios: 'light-content', default: useColorScheme() === 'dark' ? 'light-content' : 'dark-content' })}
-      />
       <DraggableFlatList
         ListHeaderComponent={ListHeaderComponent}
         ref={sortableList}
