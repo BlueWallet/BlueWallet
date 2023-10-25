@@ -1,13 +1,10 @@
 import { LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNFS from 'react-native-fs';
 import URL from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
-import { readFile } from 'react-native-bw-file-access';
-import { Platform } from 'react-native';
-import readFileOutsideSandbox from '../blue_modules/fs';
+import { readFileOutsideSandbox } from '../blue_modules/fs';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
