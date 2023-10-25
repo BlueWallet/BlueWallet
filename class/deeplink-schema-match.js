@@ -7,6 +7,7 @@ import Lnurl from './lnurl';
 import Azteco from './azteco';
 import { readFile } from 'react-native-bw-file-access';
 import { Platform } from 'react-native';
+import readFileOutsideSandbox from '../blue_modules/fs';
 
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
@@ -95,7 +96,7 @@ class DeeplinkSchemaMatch {
         }
       }
     } else if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
-      RNFS.readFile(decodeURI(event.url))
+      readFileOutsideSandbox(decodeURI(event.url))
         .then(file => {
           if (file) {
             completionHandler([
@@ -112,29 +113,16 @@ class DeeplinkSchemaMatch {
         .catch(e => console.warn(e));
       return;
     } else if (DeeplinkSchemaMatch.isPossiblyCosignerFile(event.url)) {
-      if (Platform.OS === 'ios') {
-        readFile(event.url)
-          .then(file => {
-            // checks whether the necessary json keys are present in order to set a cosigner,
-            // doesn't validate the values this happens later
-            if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
-              return;
-            }
-            context.setSharedCosigner(file);
-          })
-          .catch(e => console.warn(e));
-      } else {
-        RNFS.readFile(decodeURI(event.url))
-          .then(file => {
-            // checks whether the necessary json keys are present in order to set a cosigner,
-            // doesn't validate the values this happens later
-            if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
-              return;
-            }
-            context.setSharedCosigner(file);
-          })
-          .catch(e => console.warn(e));
-      }
+      readFileOutsideSandbox(decodeURI(event.url))
+        .then(file => {
+          // checks whether the necessary json keys are present in order to set a cosigner,
+          // doesn't validate the values this happens later
+          if (!file || !this.hasNeededJsonKeysForMultiSigSharing(file)) {
+            return;
+          }
+          context.setSharedCosigner(file);
+        })
+        .catch(e => console.warn(e));
     }
     let isBothBitcoinAndLightning;
     try {
