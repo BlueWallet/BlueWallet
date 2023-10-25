@@ -66,7 +66,7 @@ const WalletsAddMultisigStep2 = () => {
   const [isRenderCosignersXpubModalVisible, setIsRenderCosignersXpubModalVisible] = useState(false);
   const [cosignerXpub, setCosignerXpub] = useState(''); // string used in exportCosigner()
   const [cosignerXpubURv2, setCosignerXpubURv2] = useState(''); // string displayed in renderCosignersXpubModal()
-  const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.json');
+  const [cosignerXpubFilename, setCosignerXpubFilename] = useState('bw-cosigner.bwcosigner');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
@@ -222,7 +222,7 @@ const WalletsAddMultisigStep2 = () => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
       setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]))[0]);
-      setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.json');
+      setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.bwcosigner');
       setIsRenderCosignersXpubModalVisible(true);
     } else {
       const path = getPath();
@@ -231,7 +231,7 @@ const WalletsAddMultisigStep2 = () => {
       const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
-      setCosignerXpubFilename('bw-cosigner-' + fp + '.json');
+      setCosignerXpubFilename('bw-cosigner-' + fp + '.bwcosigner');
       setIsRenderCosignersXpubModalVisible(true);
     }
   };
