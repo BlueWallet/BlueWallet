@@ -76,10 +76,7 @@ const WalletsList = () => {
     if (wallets.length > walletsCount.current) {
       walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
-    // wallet has been deleted
-    if (wallets.length < walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
+
     walletsCount.current = wallets.length;
   }, [wallets]);
 
