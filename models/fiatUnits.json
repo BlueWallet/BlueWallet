@@ -245,6 +245,12 @@
         "source": "CoinDesk",
         "symbol": "ر.ق."
     },
+    "RON": {
+        "endPointKey": "RON",
+        "locale": "ro-RO",
+        "source": "BNR",
+        "symbol": "lei"
+    },
     "RUB": {
         "endPointKey": "RUB",
         "locale": "ru-RU",
