@@ -10,12 +10,23 @@ import WatchKit
 import WatchConnectivity
 import Foundation
 
-class InterfaceController: WKInterfaceController {
+class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
-
+  var session: WCSession?
+  
+  override func awake(withContext context: Any?) {
+    super.awake(withContext: context)
+    if WCSession.isSupported() {
+      print("Activating watch session")
+      self.session = WCSession.default
+      self.session?.delegate = self
+      self.session?.activate()
+    }
+  }
+  
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
@@ -54,4 +65,26 @@ class InterfaceController: WKInterfaceController {
     return rowIndex;
   }
   
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+    WatchDataSource.shared.processData(data: applicationContext)
+  }
+  
+  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+    WatchDataSource.shared.processData(data: applicationContext)
+  }
+  
+  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+    WatchDataSource.shared.processData(data: userInfo)
+  }
+  
+  func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+    if activationState == .activated {
+      WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: { (replyData) in
+      }) { (error) in
+        print(error)
+      }
+    } else {
+      WatchDataSource.shared.companionWalletsInitialized = false
+    }
+  }
 }

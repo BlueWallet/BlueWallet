@@ -103,7 +103,7 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  if ([[WCSession defaultSession] isReachable]) {
+  if ([WCSession defaultSession].activationState == WCSessionActivationStateActivated && [[WCSession defaultSession] isReachable]) {
     [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
   }
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
