@@ -20,7 +20,7 @@ const writeFileAndExportToAndroidDestionation = async ({ filename, contents, des
   if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
     const filePath = destination + `/${filename}`;
     try {
-      await RNFS.writeFile(filePath, contents);
+      await RNFS.writeFile(filePath, contents, 'base64');
       alert(loc.formatString(loc._.file_saved, { filePath: filename, destination: destinationLocalizedString }));
     } catch (e) {
       console.log(e);
@@ -44,7 +44,7 @@ const writeFileAndExportToAndroidDestionation = async ({ filename, contents, des
 const writeFileAndExport = async function (filename, contents) {
   if (Platform.OS === 'ios') {
     const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
-    await RNFS.writeFile(filePath, contents);
+    await RNFS.writeFile(filePath, contents, 'base64');
     await Share.open({
       url: 'file://' + filePath,
       saveToFiles: isDesktop,

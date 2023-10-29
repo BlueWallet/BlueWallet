@@ -58,7 +58,7 @@ const SendCreate = () => {
     const fileName = `${Date.now()}.txn`;
     if (Platform.OS === 'ios') {
       const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
-      await RNFS.writeFile(filePath, tx);
+      await RNFS.writeFile(filePath, tx, 'base64');
       Share.open({
         url: 'file://' + filePath,
         saveToFiles: isDesktop,
@@ -75,7 +75,7 @@ const SendCreate = () => {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
-          await RNFS.writeFile(filePath, tx);
+          await RNFS.writeFile(filePath, tx, 'base64');
           alert(loc.formatString(loc.send.txSaved, { filePath }));
         } catch (e) {
           console.log(e);
