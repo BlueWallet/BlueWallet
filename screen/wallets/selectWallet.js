@@ -8,9 +8,17 @@ import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../..
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
+import { MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import { isDesktop } from '../../blue_modules/environment';
+let lightningLDKWalletModule;
+if (isDesktop) {
+  lightningLDKWalletModule = require('../../scripts/maccatalystpatches/lightning-ldk-wallet'); // Import an alternative module
+} else {
+  lightningLDKWalletModule = require('./wallets/lightning-ldk-wallet');
+}
+const LightningLdkWallet = lightningLDKWalletModule.LightningLdkWallet;
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;

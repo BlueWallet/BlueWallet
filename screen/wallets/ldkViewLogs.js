@@ -6,10 +6,18 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { Icon } from 'react-native-elements';
-import { LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import { isDesktop } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
+
+let lightningLDKWalletModule;
+if (isDesktop) {
+  lightningLDKWalletModule = require('../../scripts/maccatalystpatches/lightning-ldk-wallet'); // Import an alternative module
+} else {
+  lightningLDKWalletModule = require('./wallets/lightning-ldk-wallet');
+}
+const LightningLdkWallet = lightningLDKWalletModule.LightningLdkWallet;
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();
