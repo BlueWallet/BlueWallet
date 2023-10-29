@@ -18,7 +18,7 @@ we do review the code
 The idea is that by default BW doesn’t use public electrum servers, only
 ones hosted by BlueWallet, so they are kinda trusted. And end-user has an
 option to change Electrum server to something he provides, so he knows what
-he is doing and trusts his own electrum server.
+he is doing and trusts his own Electrum server.
 
 We would definitely need proper SPV verification if we used random
 electrum server every time from a pool of public servers.
