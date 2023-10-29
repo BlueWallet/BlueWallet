@@ -10,7 +10,7 @@ const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
-const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
+const torrific = isTorCapable ? require('./torrific') : require('../scripts/maccatalystpatches/torrific.js');
 
 const Realm = require('realm');
 
