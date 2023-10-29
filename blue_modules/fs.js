@@ -199,6 +199,9 @@ const showFilePickerAndReadFile = async function () {
     file = await RNFS.readFile(uri);
     return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
+    if (!DocumentPicker.isCancel(err)) {
+      alert(err.message);
+    }
     return { data: false, uri: false };
   }
 };
