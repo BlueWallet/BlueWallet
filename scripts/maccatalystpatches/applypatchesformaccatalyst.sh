@@ -7,8 +7,7 @@ sed -i '' 's/"patches": "patch -p1 < scripts\/react-native-tor.patch; patch -p1 
 rm -fr node_modules
 echo "Re-installing node_modules"
 npm i
-echo "Deleting torrific.js and lightning-ldk-wallet.ts content"
-cp scripts/maccatalystpatches/torrific.js blue_modules/torrific.js
+echo "Deleting lightning-ldk-wallet.ts content"
 cp scripts/maccatalystpatches/lightning-ldk-wallet.ts class/wallets/lightning-ldk-wallet.ts
 echo "Updating Podfile"
 cd ios && pod update && cd ..

@@ -1,12 +1,13 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
-import { isTorDaemonDisabled } from '../blue_modules/environment';
+import { isTorCapable, isTorDaemonDisabled } from '../blue_modules/environment';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { createHmac } from 'crypto';
 import secp256k1 from 'secp256k1';
 const CryptoJS = require('crypto-js');
 const createHash = require('create-hash');
-const torrific = require('../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
+
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 
 /**
