@@ -30,6 +30,18 @@ export default class Azteco {
 
   static getParamsFromUrl(u) {
     const urlObject = URL.parse(u, true); // eslint-disable-line n/no-deprecated-api
+
+    if (urlObject.query.code) {
+      // newer format of the url
+      return {
+        uri: u,
+        c1: urlObject.query.code.substring(0, 4),
+        c2: urlObject.query.code.substring(4, 8),
+        c3: urlObject.query.code.substring(8, 12),
+        c4: urlObject.query.code.substring(12, 16),
+      };
+    }
+
     return {
       uri: u,
       c1: urlObject.query.c1,
