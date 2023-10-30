@@ -14,7 +14,6 @@ class InterfaceController: WKInterfaceController {
   
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
-  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
