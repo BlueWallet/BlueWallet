@@ -9,6 +9,7 @@ export const FiatUnitSource = {
   Exir: 'Exir',
   wazirx: 'wazirx',
   Bitstamp: 'Bitstamp',
+  BNR: 'BNR',
 } as const;
 
 const RateExtractors = {
@@ -74,7 +75,30 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate from Bitstamp for ${ticker}: data is wrong`);
     return rate;
   },
+  BNR: async (): Promise<number> => {
+    try {
+      const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
+      const xmlData = await response.text();
 
+      const targetCurrency = 'USD';
+
+      const pattern = new RegExp(`<Rate currency="${targetCurrency}">([\\d.]+)<\\/Rate>`);
+
+      const matches = xmlData.match(pattern);
+
+      if (matches && matches[1]) {
+        const ronExchangeRate = parseFloat(matches[1]);
+
+        if (!isNaN(ronExchangeRate) && ronExchangeRate > 0) {
+          return ronExchangeRate;
+        }
+      }
+
+      throw new Error(`Could not find a valid exchange rate for ${targetCurrency}`);
+    } catch (error: any) {
+      throw new Error(`Could not fetch RON exchange rate: ${error.message}`);
+    }
+  },
   Yadio: async (ticker: string): Promise<number> => {
     let json;
     try {

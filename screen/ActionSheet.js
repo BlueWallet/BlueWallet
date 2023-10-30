@@ -1,7 +1,9 @@
-import { Alert } from 'react-native';
+import { Alert, InteractionManager } from 'react-native';
 
 export default class ActionSheet {
   static showActionSheetWithOptions(options) {
-    Alert.alert(options.title, options.message, options.buttons, { cancelable: true });
+    InteractionManager.runAfterInteractions(() => {
+      Alert.alert(options.title, options.message, options.buttons, { cancelable: true });
+    });
   }
 }
