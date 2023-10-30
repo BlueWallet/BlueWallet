@@ -30,8 +30,9 @@ import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
-const torrific = require('../../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWallet, isTorDisabled } = useContext(BlueStorageContext);

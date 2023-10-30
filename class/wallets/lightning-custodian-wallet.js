@@ -2,8 +2,9 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { isTorDaemonDisabled } from '../../blue_modules/environment';
-const torrific = require('../../blue_modules/torrific');
+import { isTorDaemonDisabled, isTorCapable } from '../../blue_modules/environment';
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
+
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';

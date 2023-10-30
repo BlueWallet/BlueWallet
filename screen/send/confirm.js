@@ -17,11 +17,12 @@ import { Psbt } from 'bitcoinjs-lib';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const torrific = require('../../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const Confirm = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDisabled } = useContext(BlueStorageContext);
