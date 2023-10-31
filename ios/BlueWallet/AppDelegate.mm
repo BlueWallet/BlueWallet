@@ -10,7 +10,6 @@
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
-#import <WatchConnectivity/WatchConnectivity.h>
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -103,9 +102,6 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  if ([[WCSession defaultSession] isReachable]) {
-    [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
-  }
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   [defaults removeObjectForKey:@"onUserActivityOpen"];
 }
