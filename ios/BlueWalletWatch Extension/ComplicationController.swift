@@ -11,6 +11,7 @@ import ClockKit
 
 class ComplicationController: NSObject, CLKComplicationDataSource {
   
+  private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
   // MARK: - Timeline Configuration
   
   func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
@@ -43,7 +44,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
     for complication: CLKComplication,
     withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void)
   {
-    let marketData: WidgetDataStore? = UserDefaults.standard.codable(forKey: MarketData.string)
+    let marketData: WidgetDataStore? = groupUserDefaults?.codable(forKey: MarketData.string)
     let entry: CLKComplicationTimelineEntry
     let date: Date
     let valueLabel: String
@@ -55,7 +56,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
       valueLabel = price
       timeLabel = lastUpdated
       valueSmallLabel = priceAbbreviated
-      if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+      if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
         currencySymbol = preferredFiatUnit.symbol
       } else {
         currencySymbol = fiatUnit(currency: "USD")!.symbol
