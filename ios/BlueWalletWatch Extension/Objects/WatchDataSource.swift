@@ -22,6 +22,8 @@ class WatchDataSource: NSObject {
   var wallets: [Wallet] = [Wallet]()
   var companionWalletsInitialized = false
   private let keychain = KeychainSwift()
+  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
   
   override init() {
     super.init()
@@ -98,9 +100,10 @@ class WatchDataSource: NSObject {
 
   
   func processData(data: [String: Any]) {
+    
     if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-      UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
-      UserDefaults.standard.synchronize()
+      groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
+      groupUserDefaults?.synchronize()
         ExtensionDelegate.preferredFiatCurrencyChanged()
     } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
       companionWalletsInitialized = isWalletsInitialized

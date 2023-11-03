@@ -39,17 +39,16 @@ function WatchConnectivity() {
   }, [walletsInitialized, isReachable, isInstalled]);
 
   useEffect(() => {
-    console.warn(isInstalled, isReachable, walletsInitialized);
+    console.log(`Apple Watch: isInstalled: ${isInstalled}, isReachable: ${isReachable}, walletsInitialized: ${walletsInitialized}`);
     if (isInstalled && walletsInitialized) {
       constructWalletsToSendToWatch().then(walletsToProcess => {
-        console.warn(walletsToProcess);
         if (walletsToProcess) {
           if (isReachable) {
             transferUserInfo(walletsToProcess);
-            console.warn('sent info to watch transferUserInfo');
+            console.log('Apple Watch: sent info to watch transferUserInfo');
           } else {
             updateApplicationContext(walletsToProcess);
-            console.warn('sent info to watch context');
+            console.log('Apple Watch: sent info to watch context');
           }
         }
       });

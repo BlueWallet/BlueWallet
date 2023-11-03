@@ -151,7 +151,7 @@ class WidgetAPI {
   }
 
   static func getLastSelectedCurrency() -> String {
-    guard let dataStore = UserDefaults.standard.string(forKey: "currency") else {
+    guard let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue), let dataStore = userDefaults.string(forKey: "currency") else {
       return "USD"
     }
 
