@@ -162,6 +162,7 @@
     "details_error_decode": "Unable to decode Bitcoin address",
     "details_fee_field_is_not_valid": "The fee is not valid.",
     "details_frozen": "{amount} BTC is frozen",
+    "details_import_recipients": "Import Recipients",
     "details_next": "Next",
     "details_no_signed_tx": "The selected file doesn’t contain a transaction that can be imported.",
     "details_note_placeholder": "Note to Self",
