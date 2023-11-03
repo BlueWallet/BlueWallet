@@ -1,7 +1,8 @@
 import React from 'react';
-import { useTheme } from '@react-navigation/native';
+
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import PropTypes from 'prop-types';
+import { useTheme } from './themes';
 
 export const SquareEnumeratedWordsContentAlign = Object.freeze({ left: 'flex-start', center: 'center', right: 'flex-end' });
 const SquareEnumeratedWords = props => {

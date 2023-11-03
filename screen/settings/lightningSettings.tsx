@@ -12,6 +12,7 @@ import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 import alert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
@@ -116,15 +117,17 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   }, [URI]);
 
   const importScan = () => {
-    // @ts-ignore: Address types later
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        onBarScanned: setLndhubURI,
-        showFileImportButton: true,
-      },
-    });
+    requestCameraAuthorization().then(() =>
+       // @ts-ignore: Address types later
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          onBarScanned: setLndhubURI,
+          showFileImportButton: true,
+        },
+      }),
+    );
   };
 
   return (

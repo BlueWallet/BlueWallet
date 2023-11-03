@@ -11,6 +11,7 @@ const getIsTorCapable = (): boolean => {
   } else if (isDesktop) {
     capable = false;
   }
+  console.log('getIsTorCapable', capable);
   return capable;
 };
 

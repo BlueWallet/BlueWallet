@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
 import {
@@ -22,6 +22,7 @@ import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 

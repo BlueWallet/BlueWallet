@@ -4,7 +4,6 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -16,7 +15,7 @@ import {
 } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueAlertWalletExportReminder, BlueButton, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -29,8 +28,11 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
-const torrific = require('../../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWallet, isTorDisabled } = useContext(BlueStorageContext);
@@ -340,14 +342,16 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToScanQRCode = () => {
-    NavigationService.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: processLnurl,
-        launchedBy: name,
-      },
+    requestCameraAuthorization().then(() => {
+      NavigationService.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: processLnurl,
+          launchedBy: name,
+        },
+      });
+      Keyboard.dismiss();
     });
-    Keyboard.dismiss();
   };
 
   const renderScanClickable = () => {
@@ -401,7 +405,6 @@ const LNDCreateInvoice = () => {
   if (!wallet.current) {
     return (
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <BlueLoading />
       </View>
     );
@@ -410,7 +413,6 @@ const LNDCreateInvoice = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, styleHooks.root]}>
-        <StatusBar barStyle="light-content" />
         <View style={[styles.amount, styleHooks.amount]}>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <AmountInput
@@ -535,6 +537,7 @@ LNDCreateInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerBackVisible: false,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.receive.header }),
 );

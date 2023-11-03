@@ -68,7 +68,7 @@
     "CNY": {
         "endPointKey": "CNY",
         "locale": "zh-CN",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "¥"
     },
     "COP": {
@@ -244,6 +244,12 @@
         "locale": "ar-QA",
         "source": "CoinDesk",
         "symbol": "ر.ق."
+    },
+    "RON": {
+        "endPointKey": "RON",
+        "locale": "ro-RO",
+        "source": "BNR",
+        "symbol": "lei"
     },
     "RUB": {
         "endPointKey": "RUB",

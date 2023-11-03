@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
-  StatusBar,
   TextInput,
   StyleSheet,
   useColorScheme,
@@ -27,12 +26,14 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useTheme, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
+import useAsyncPromise from '../../hooks/useAsyncPromise';
+import { useTheme } from '../../components/themes';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -46,15 +47,16 @@ const ButtonSelected = Object.freeze({
 
 const WalletsAdd = () => {
   const { colors } = useTheme();
+  const colorScheme = useColorScheme();
   const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const [walletBaseURI, setWalletBaseURI] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [label, setLabel] = useState('');
-  const [isAdvancedOptionsEnabled, setIsAdvancedOptionsEnabled] = useState(false);
+  const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled);
   const [selectedWalletType, setSelectedWalletType] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(1);
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, setOptions } = useNavigation();
   const [entropy, setEntropy] = useState();
   const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
   const stylesHook = {
@@ -82,12 +84,15 @@ const WalletsAdd = () => {
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
       .then(url => setWalletBaseURI(url))
-      .catch(() => setWalletBaseURI(''));
-    isAdvancedModeEnabled()
-      .then(setIsAdvancedOptionsEnabled)
+      .catch(() => setWalletBaseURI(''))
       .finally(() => setIsLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdvancedOptionsEnabled]);
+
+  useEffect(() => {
+    setOptions({
+      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    });
+  }, [colorScheme, setOptions]);
 
   const entropyGenerated = newEntropy => {
     let entropyTitle;
@@ -258,9 +263,6 @@ const WalletsAdd = () => {
 
   return (
     <ScrollView style={stylesHook.root}>
-      <StatusBar
-        barStyle={Platform.select({ ios: 'light-content', default: useColorScheme() === 'dark' ? 'light-content' : 'dark-content' })}
-      />
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
@@ -303,7 +305,7 @@ const WalletsAdd = () => {
 
         <View style={styles.advanced}>
           {(() => {
-            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled) {
+            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled.data) {
               return (
                 <View>
                   <BlueSpacing20 />
@@ -358,7 +360,7 @@ const WalletsAdd = () => {
               );
             }
           })()}
-          {isAdvancedOptionsEnabled && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
+          {isAdvancedOptionsEnabled.data && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />

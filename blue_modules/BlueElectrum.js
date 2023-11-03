@@ -4,13 +4,14 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } fro
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
-import { isTorDaemonDisabled } from './environment';
+import { isTorCapable, isTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
-const torrific = require('./torrific');
+const torrific = isTorCapable ? require('./torrific') : require('../scripts/maccatalystpatches/torrific.js');
+
 const Realm = require('realm');
 
 const ELECTRUM_HOST = 'electrum_host';

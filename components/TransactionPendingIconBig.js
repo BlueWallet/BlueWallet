@@ -1,8 +1,9 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import { useTheme } from '@react-navigation/native';
+
 import { StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import React from 'react';
+import { useTheme } from './themes';
 
 export const TransactionPendingIconBig = props => {
   const { colors } = useTheme();

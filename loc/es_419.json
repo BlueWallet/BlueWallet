@@ -482,6 +482,8 @@
     "header": "Enviar",
     "share": "Compartir",
     "view": "Vista",
+    "shared_key_detected": "Cofirmante compartido",
+    "shared_key_detected_question": "Se compartió un cosignatario contigo, ¿quieres importarlo?",
     "manage_keys": "Administrar Claves",
     "how_many_signatures_can_bluewallet_make": "cuántas firmas puede hacer BlueWallet",
     "signatures_required_to_spend": "Se requieren firmas {number}",

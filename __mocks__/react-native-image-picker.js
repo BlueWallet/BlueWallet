@@ -1,4 +1,4 @@
-import {NativeModules} from 'react-native';
+import { NativeModules } from 'react-native';
 
 // Mock the ImagePickerManager native module to allow us to unit test the JavaScript code
 NativeModules.ImagePickerManager = {

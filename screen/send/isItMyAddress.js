@@ -1,11 +1,13 @@
 import React, { useState, useContext, useRef } from 'react';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
 import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
@@ -54,13 +56,15 @@ const IsItMyAddress = () => {
   };
 
   const importScan = () => {
-    navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
+    requestCameraAuthorization().then(() => {
+      navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
     });
   };
 

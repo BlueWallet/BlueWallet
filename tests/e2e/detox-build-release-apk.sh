@@ -1,5 +1,4 @@
 # script thats used to build & sign release APK in preparation for Detox e2e testing.
-# should be copied in .detoxrc.json - apps - android.release - build
 
 # deleting old artifacts
 find android | grep '\.apk' --color=never | xargs -l rm

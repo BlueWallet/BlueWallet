@@ -4,11 +4,12 @@ import LottieView from 'lottie-react-native';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueButton, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
 
 const Success = () => {
   const pop = () => {

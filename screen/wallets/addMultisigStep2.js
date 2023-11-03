@@ -15,7 +15,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -42,6 +42,8 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -466,16 +468,18 @@ const WalletsAddMultisigStep2 = () => {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      setTimeout(
-        () =>
-          navigation.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              onBarScanned,
-              showFileImportButton: true,
-            },
-          }),
-        650,
+      setTimeout(() =>
+        requestCameraAuthorization().then(
+          () =>
+            navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                onBarScanned,
+                showFileImportButton: true,
+              },
+            }),
+          650,
+        ),
       );
     }
   };

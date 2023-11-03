@@ -6,12 +6,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
@@ -38,6 +37,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
+import { useTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -459,7 +459,6 @@ const ReceiveDetails = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent title={loc.send.details_address} type={HandoffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
@@ -541,7 +540,7 @@ ReceiveDetails.navigationOptions = navigationStyle(
     closeButton: true,
     headerBackVisible: false,
   },
-  opts => ({ ...opts, title: loc.receive.header }),
+  opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );
 
 export default ReceiveDetails;

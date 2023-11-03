@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 export const LNNodeBar = props => {
   const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS } = props;

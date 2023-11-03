@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from '../themes';
 
 const styles = StyleSheet.create({
   ball: {

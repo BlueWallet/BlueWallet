@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
+import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   BlueText,
@@ -20,6 +20,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
+import { useTheme } from '../../components/themes';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -282,12 +283,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return (
-    <SafeBlueArea onLayout={onLayout}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea onLayout={onLayout}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({
@@ -334,6 +330,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerTitle: loc.lndViewInvoice.lightning_invoice,
     headerStyle: {
       backgroundColor: theme.colors.customHeader,
