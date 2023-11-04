@@ -216,7 +216,12 @@ const SendDetailsRoot = () => {
 
   return (
     <SendDetailsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions(theme)} />
+      <SendDetailsStack.Screen
+        name="SendDetails"
+        component={SendDetails}
+        options={SendDetails.navigationOptions(theme)}
+        initialParams={{ isEditable: true }}
+      />
       <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
       <SendDetailsStack.Screen
         name="PsbtWithHardwareWallet"
