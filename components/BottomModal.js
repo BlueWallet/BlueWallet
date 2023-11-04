@@ -4,7 +4,7 @@ import { StyleSheet, Platform, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { BlueButton, BlueSpacing10 } from '../BlueComponents';
 import loc from '../loc';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 const styles = StyleSheet.create({
   root: {

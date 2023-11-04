@@ -4,13 +4,14 @@ import { BluePrivateBalance } from '../../BlueComponents';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useTheme } from '../../components/themes';
 
 const styles = StyleSheet.create({
   root: {

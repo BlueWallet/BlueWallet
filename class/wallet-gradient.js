@@ -12,7 +12,7 @@ import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitP2SHWallet, SLIP39SegwitBech32Wallet } from './wallets/slip39-wallets';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from '../components/themes';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#007AFF', '#0040FF'];

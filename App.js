@@ -25,7 +25,6 @@ import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
-import { isDesktop } from './blue_modules/environment';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
@@ -386,8 +385,8 @@ const App = () => {
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
         </NavigationContainer>
-        {walletsInitialized && !isDesktop && <WatchConnectivity />}
       </View>
+      <WatchConnectivity />
       <DeviceQuickActions />
       <Biometric />
       <WidgetCommunication />

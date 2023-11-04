@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
 import { Badge, Icon, Text } from 'react-native-elements';
 import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+
 import confirm from '../helpers/confirm';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros } from '../loc';
 import { BlueText } from '../BlueComponents';
 import dayjs from 'dayjs';
+import { useTheme } from './themes';
 const currency = require('../blue_modules/currency');
 dayjs.extend(require('dayjs/plugin/localizedFormat'));
 

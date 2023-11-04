@@ -19,15 +19,16 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
   static func preferredFiatCurrencyChanged() {
     let fiatUnitUserDefaults: FiatUnit
-    if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+    let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
       fiatUnitUserDefaults = preferredFiatUnit
     } else {
       fiatUnitUserDefaults = fiatUnit(currency: "USD")!
     }
     WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { (data, error) in
       if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
-        UserDefaults.standard.set(encodedData, forKey: MarketData.string)
-        UserDefaults.standard.synchronize()
+        groupUserDefaults?.set(encodedData, forKey: MarketData.string)
+        groupUserDefaults?.synchronize()
         let server = CLKComplicationServer.sharedInstance()
         
         for complication in server.activeComplications ?? [] {
@@ -80,15 +81,15 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
         
         scheduleNextReload()
           let fiatUnitUserDefaults: FiatUnit
-          if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+        if let preferredFiatCurrency = WatchDataSource.shared.groupUserDefaults?.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
             fiatUnitUserDefaults = preferredFiatUnit
           } else {
             fiatUnitUserDefaults = fiatUnit(currency: "USD")!
           }
           WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { [weak self] (data, error) in
           if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
-            UserDefaults.standard.set(encodedData, forKey: MarketData.string)
-            UserDefaults.standard.synchronize()
+            WatchDataSource.shared.groupUserDefaults?.set(encodedData, forKey: MarketData.string)
+            WatchDataSource.shared.groupUserDefaults?.synchronize()
             self?.reloadActiveComplications()
             backgroundTask.setTaskCompletedWithSnapshot(false)
           }

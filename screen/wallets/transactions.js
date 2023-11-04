@@ -16,7 +16,7 @@ import {
   I18nManager,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
@@ -34,6 +34,7 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import alert from '../../components/Alert';
 import PropTypes from 'prop-types';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');

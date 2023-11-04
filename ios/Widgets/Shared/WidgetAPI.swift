@@ -37,6 +37,8 @@ class WidgetAPI {
       urlString = "https://api.wazirx.com/api/v2/tickers/btcinr"
     case "Bitstamp":
       urlString = "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
+    case "Coinbase":
+      urlString = "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/buy"
       case "CoinGecko":
       urlString = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
     default:
@@ -95,6 +97,13 @@ class WidgetAPI {
         else { break }
         let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
         latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+      case "Coinbase":
+       guard let data = json["data"] as? Dictionary<String, Any>,
+              let rateString = data["amount"] as? String,
+              let rateDouble = Double(rateString)
+        else { break }
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
       default:
         guard let bpi = json["bpi"] as? Dictionary<String, Any>,
               let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>,
@@ -142,7 +151,7 @@ class WidgetAPI {
   }
 
   static func getLastSelectedCurrency() -> String {
-    guard let dataStore = UserDefaults.standard.string(forKey: "currency") else {
+    guard let userDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue), let dataStore = userDefaults.string(forKey: "currency") else {
       return "USD"
     }
 

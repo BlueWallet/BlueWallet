@@ -3,7 +3,7 @@ import { ActivityIndicator, TouchableOpacity, ScrollView, View, TextInput, Linki
 import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
@@ -15,6 +15,7 @@ import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');

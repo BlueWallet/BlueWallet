@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useTheme } from '@react-navigation/native';
 import { StyleSheet, View, Text } from 'react-native';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import { useTheme } from '../themes';
 
 const styles = StyleSheet.create({
   container: {

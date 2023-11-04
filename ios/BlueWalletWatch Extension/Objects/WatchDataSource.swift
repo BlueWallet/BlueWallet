@@ -10,7 +10,7 @@
 import Foundation
 import WatchConnectivity
 
-class WatchDataSource: NSObject, WCSessionDelegate {
+class WatchDataSource: NSObject {
   struct NotificationName {
     static let dataUpdated = Notification.Name(rawValue: "Notification.WalletDataSource.Updated")
   }
@@ -22,6 +22,8 @@ class WatchDataSource: NSObject, WCSessionDelegate {
   var wallets: [Wallet] = [Wallet]()
   var companionWalletsInitialized = false
   private let keychain = KeychainSwift()
+  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
   
   override init() {
     super.init()
@@ -29,11 +31,6 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       guard let walletData = walletData, walletData != self.wallets  else { return }
       wallets = walletData
       WatchDataSource.postDataUpdatedNotification()
-    }
-    if WCSession.isSupported() {
-      print("Activating watch session")
-      WCSession.default.delegate = self
-      WCSession.default.activate()
     }
   }
   
@@ -100,40 +97,19 @@ class WatchDataSource: NSObject, WCSessionDelegate {
       
     }
   }
-  
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-    processData(data: applicationContext)
-  }
-  
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-    processData(data: applicationContext)
-  }
+
   
   func processData(data: [String: Any]) {
+    
     if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-      UserDefaults.standard.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
-      UserDefaults.standard.synchronize()
+      groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
+      groupUserDefaults?.synchronize()
         ExtensionDelegate.preferredFiatCurrencyChanged()
     } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
       companionWalletsInitialized = isWalletsInitialized
       NotificationCenter.default.post(Notifications.dataUpdated)
     } else {
       WatchDataSource.shared.processWalletsData(walletsInfo: data)
-    }
-  }
-  
-  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
-    processData(data: userInfo)
-  }
-  
-  func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    if activationState == .activated {
-      WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: { (replyData) in
-      }) { (error) in
-        print(error)
-      }
-    } else {
-      WatchDataSource.shared.companionWalletsInitialized = false
     }
   }
   

@@ -3,8 +3,7 @@ import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } 
 import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useTheme } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import * as NavigationService from '../NavigationService';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
@@ -19,6 +18,7 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
+import { useTheme } from './themes';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);

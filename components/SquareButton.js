@@ -2,7 +2,7 @@
 import React, { forwardRef } from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 export const SquareButton = forwardRef((props, ref) => {
   const { colors } = useTheme();

@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -45,6 +44,7 @@ import WalletAddresses from './screen/wallets/addresses';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
+import GenerateWord from './screen/wallets/generateWord';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -86,6 +86,7 @@ import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import loc from './loc';
+import { useTheme } from './components/themes';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -145,6 +146,7 @@ const WalletsRoot = () => {
       />
       <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions(theme)} />
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
+      <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
@@ -214,7 +216,12 @@ const SendDetailsRoot = () => {
 
   return (
     <SendDetailsStack.Navigator screenOptions={{ headerHideShadow: true }}>
-      <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions(theme)} />
+      <SendDetailsStack.Screen
+        name="SendDetails"
+        component={SendDetails}
+        options={SendDetails.navigationOptions(theme)}
+        initialParams={SendDetails.initialParams}
+      />
       <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
       <SendDetailsStack.Screen
         name="PsbtWithHardwareWallet"
