@@ -1682,3 +1682,5 @@ SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   title: loc.send.header,
   statusBarStyle: 'light',
 }));
+
+SendDetails.initialParams = { isEditable: true };

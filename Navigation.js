@@ -220,7 +220,7 @@ const SendDetailsRoot = () => {
         name="SendDetails"
         component={SendDetails}
         options={SendDetails.navigationOptions(theme)}
-        initialParams={{ isEditable: true }}
+        initialParams={SendDetails.initialParams}
       />
       <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
       <SendDetailsStack.Screen
