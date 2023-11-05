@@ -18,7 +18,10 @@ const WalletsAddBorderSaveGrid = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase } = useRoute().params as { walletLabel: string, seedPhrase: string };
+  const { walletLabel, seedPhrase } = useRoute().params as { 
+    walletLabel: string;
+    seedPhrase: string;
+  };
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,16 +39,18 @@ const WalletsAddBorderSaveGrid = () => {
 
   const words = getShuffledEntropyWords(seedPhrase);
 
-  const handleBackButton = useCallback(function(): boolean {
-    setIsLoading(true);
-    setTimeout(function() {
-      navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
-      setIsLoading(false);
-    }, 100);
+  const handleBackButton = useCallback(
+    function(): boolean {
+      setIsLoading(true);
+      setTimeout( function () {
+        navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
+        setIsLoading(false); }
+      , 100);
 
-    return true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigation]);
+      return true;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [navigation]);
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -128,14 +133,14 @@ const WalletsAddBorderSaveGrid = () => {
   };
 
   return isLoading ? (
-    <View style={[styles.loading]}>
+    <View style={styles.loading}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={[]}>
+    <SafeBlueArea>
       <ScrollView contentContainerStyle={styles.flex}>
         <View style={styles.please}>
-          <Text style={[styles.pleaseText]}>{loc.border.backup_desc}</Text>
+          <Text style={styles.pleaseText}>{loc.border.backup_desc}</Text>
         </View>
         <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
@@ -16,12 +16,46 @@ import alert from '../../components/Alert';
 
 const A = require('../../blue_modules/analytics');
 
+type ContinueFooterProps = {
+  onContinue: any;
+  importing: boolean;
+}
+type ContinueFooterState = {
+  disable: boolean;
+}
+class ContinueFooter extends React.Component<ContinueFooterProps, ContinueFooterState> {
+  constructor(props: ContinueFooterProps) {
+    super(props);
+    this.state = { disable: true } as ContinueFooterState;
+    this.setEnabled = this.setEnabled.bind(this);
+  }
+
+  setEnabled(sel: boolean) {
+    this.setState({ disable: !sel });
+  }
+
+  render() {
+    return (
+      <BlueButton
+        onPress={(this.props as ContinueFooterProps).onContinue}
+        title={(this.props as ContinueFooterProps).importing ? loc.border.import : loc.border.create}
+        disabled={(this.state as ContinueFooterState).disable}
+      />
+    );
+  }
+}
+
 const WalletsAddBorderFinalWord = () => {
   const { addWallet, saveToDisk, sleep, wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation<any>();
-  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params as { walletLabel: string, seedPhrase: string[], importing: boolean, walletID: string };
+  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params as { 
+    walletLabel: string;
+    seedPhrase: string[];
+    importing: boolean;
+    walletID: string;
+  };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -77,14 +111,14 @@ const WalletsAddBorderFinalWord = () => {
 
   let textBoxValue = '';
 
-  const textChanged = function(text: string) {
+  const textChanged = useCallback(function(text: string) {
     textBoxValue = text;
     if (possibleWords.indexOf(text) >= 0) {
       continueFooter.current?.setEnabled(true);
     } else {
       continueFooter.current?.setEnabled(false);
     }
-  };
+  }, [navigation]);
 
   const continueFooter = React.createRef<ContinueFooter>();
 
@@ -149,35 +183,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
-type ContinueFooterProps = {
-  onContinue: any;
-  importing: boolean;
-}
-type ContinueFooterState = {
-  disable: boolean;
-}
-class ContinueFooter extends React.Component<ContinueFooterProps, ContinueFooterState> {
-  constructor(props: ContinueFooterProps) {
-    super(props);
-    this.state = { disable: true } as ContinueFooterState;
-    this.setEnabled = this.setEnabled.bind(this);
-  }
-
-  setEnabled(sel: boolean) {
-    this.setState({ disable: !sel });
-  }
-
-  render() {
-    return (
-      <BlueButton
-        onPress={(this.props as ContinueFooterProps).onContinue}
-        title={(this.props as ContinueFooterProps).importing ? loc.border.import : loc.border.create}
-        disabled={(this.state as ContinueFooterState).disable}
-      />
-    );
-  }
-}
 
 // @ts-ignore: Ignore
 WalletsAddBorderFinalWord.navigationOptions = navigationStyle(
