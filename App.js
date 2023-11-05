@@ -32,7 +32,6 @@ import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
-import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
@@ -128,16 +127,6 @@ const App = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    if (colorScheme) {
-      if (colorScheme === 'light') {
-        changeNavigationBarColor(BlueDefaultTheme.colors.background, true, true);
-      } else {
-        changeNavigationBarColor(BlueDarkTheme.colors.buttonBackgroundColor, false, true);
-      }
-    }
-  }, [colorScheme]);
 
   const addListeners = () => {
     Linking.addEventListener('url', handleOpenURL);

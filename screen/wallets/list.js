@@ -90,6 +90,7 @@ const WalletsList = () => {
 
   useLayoutEffect(() => {
     setOptions({
+      navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
