@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import {  View } from 'react-native';
-
+import { View } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
