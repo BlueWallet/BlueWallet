@@ -1,7 +1,6 @@
 import React, { useContext, Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import createHash from 'create-hash';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Biometric from '../../class/biometrics';
@@ -10,7 +9,6 @@ import { BlueButton, BlueSpacing20, BlueText, BlueAutocomplete } from '../../Blu
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
-import * as bip39 from 'bip39';
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
@@ -74,7 +72,7 @@ const WalletsAddBorderFinalWord = () => {
     }
   };
 
-  let possibleWords = generateChecksumWords(seedPhrase.join(' '));
+  const possibleWords = generateChecksumWords(seedPhrase.join(' '));
 
   let textBoxValue = '';
 
