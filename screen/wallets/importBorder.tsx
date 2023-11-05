@@ -24,7 +24,7 @@ const ImportBorder = () => {
   const [import2Text, setImport2Text] = useState<string>();
   const { sleep } = useContext(BlueStorageContext);
 
-  const { walletID } = useRoute().params as { 
+  const { walletID } = useRoute().params as {
     walletID: string;
   };
 

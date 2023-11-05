@@ -18,7 +18,7 @@ const WalletsAddBorderSaveGrid = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase } = useRoute().params as { 
+  const { walletLabel, seedPhrase } = useRoute().params as {
     walletLabel: string;
     seedPhrase: string;
   };
@@ -40,17 +40,18 @@ const WalletsAddBorderSaveGrid = () => {
   const words = getShuffledEntropyWords(seedPhrase);
 
   const handleBackButton = useCallback(
-    function(): boolean {
+    function() : boolean {
       setIsLoading(true);
-      setTimeout( function () {
+      setTimeout(function () {
         navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
-        setIsLoading(false); }
-      , 100);
+        setIsLoading(false);
+      }, 100);
 
       return true;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
-    [navigation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigation]
+  );
 
   useEffect(() => {
     Privacy.enableBlur();

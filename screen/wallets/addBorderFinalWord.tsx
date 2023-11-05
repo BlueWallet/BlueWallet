@@ -1,4 +1,4 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
@@ -19,10 +19,10 @@ const A = require('../../blue_modules/analytics');
 type ContinueFooterProps = {
   onContinue: any;
   importing: boolean;
-}
+};
 type ContinueFooterState = {
   disable: boolean;
-}
+};
 class ContinueFooter extends React.Component<ContinueFooterProps, ContinueFooterState> {
   constructor(props: ContinueFooterProps) {
     super(props);
@@ -50,7 +50,7 @@ const WalletsAddBorderFinalWord = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation<any>();
-  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params as { 
+  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params as {
     walletLabel: string;
     seedPhrase: string[];
     importing: boolean;
@@ -67,14 +67,16 @@ const WalletsAddBorderFinalWord = () => {
   });
 
   const onContinue = async () => {
-    if (possibleWords.indexOf(textBoxValue) < 0) return;
+    if (textBoxValue.current === null || textBoxValue.current === undefined) return;
+    const tBc = textBoxValue.current;
+    if (possibleWords.indexOf(tBc) < 0) return;
     await sleep(100);
     try {
       if (!walletID) {
         const w: any = new HDSegwitBech32Wallet();
         w.setLabel(walletLabel);
 
-        w.setSecret(seedPhrase.join(' ') + ' ' + textBoxValue);
+        w.setSecret(seedPhrase.join(' ') + ' ' + tBc);
 
         addWallet(w);
         await saveToDisk();
@@ -91,7 +93,7 @@ const WalletsAddBorderFinalWord = () => {
         }
 
         const secret = wallet.getSecret();
-        if (secret === seedPhrase.join(' ') + ' ' + textBoxValue) {
+        if (secret === seedPhrase.join(' ') + ' ' + tBc) {
           alert(loc.border.memory_success);
         } else {
           alert(loc.border.memory_failure);
@@ -109,16 +111,19 @@ const WalletsAddBorderFinalWord = () => {
 
   const possibleWords = generateChecksumWords(seedPhrase.join(' ')) as string[];
 
-  let textBoxValue = '';
+  const textBoxValue = useRef<string>('');
 
-  const textChanged = useCallback(function(text: string) {
-    textBoxValue = text;
-    if (possibleWords.indexOf(text) >= 0) {
-      continueFooter.current?.setEnabled(true);
-    } else {
-      continueFooter.current?.setEnabled(false);
-    }
-  }, [navigation]);
+  const textChanged = useCallback(
+    function(text: string) {
+      textBoxValue.current = text;
+      if (possibleWords.indexOf(text) >= 0) {
+        continueFooter.current?.setEnabled(true);
+      } else {
+        continueFooter.current?.setEnabled(false);
+      }
+    },
+    [navigation]
+  );
 
   const continueFooter = React.createRef<ContinueFooter>();
 

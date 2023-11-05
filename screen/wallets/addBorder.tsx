@@ -11,7 +11,7 @@ import loc from '../../loc';
 const WalletsAddBorder = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const { walletLabel = loc.multisig.default_label, seedPhrase } = useRoute().params as { 
+  const { walletLabel = loc.multisig.default_label, seedPhrase } = useRoute().params as {
     walletLabel: string;
     seedPhrase: string;
   };

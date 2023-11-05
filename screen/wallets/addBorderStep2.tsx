@@ -10,10 +10,10 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 
 type BorderWalletHeaderCellProps = {
   text: string;
-}
+};
 type BorderWalletHeaderCellState = {
   selected: boolean;
-}
+};
 class BorderWalletHeaderCell extends React.Component<BorderWalletHeaderCellProps, BorderWalletHeaderCellState> {
   constructor(props: BorderWalletHeaderCellProps) {
     super(props);
@@ -33,7 +33,9 @@ class BorderWalletHeaderCell extends React.Component<BorderWalletHeaderCellProps
   render() {
     return (
       <View style={[styles.gridBoxStyle, (this.state as BorderWalletHeaderCellState).selected ? styles.blue : styles.darkLight]}>
-        <Text style={(this.state as BorderWalletHeaderCellState).selected ? styles.white : []}>{(this.props as BorderWalletHeaderCellProps).text}</Text>
+        <Text style={(this.state as BorderWalletHeaderCellState).selected ? styles.white : []}>
+          {(this.props as BorderWalletHeaderCellProps).text}
+        </Text>
       </View>
     );
   }
@@ -43,10 +45,10 @@ type BorderWalletCellProps = {
   selectedWords: string[];
   box: any;
   clickGrid: any;
-}
+};
 type BorderWalletCellState = {
   selected: boolean;
-}
+};
 class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWalletCellState> {
   constructor(props: BorderWalletCellProps) {
     super(props);
@@ -63,7 +65,13 @@ class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWall
     const clickGrid = (this.props as BorderWalletCellProps).clickGrid;
     return (
       <TouchableOpacity onPress={() => clickGrid(box)}>
-        <View style={[styles.gridBoxStyle, styles.autoBasis, (this.state as BorderWalletCellState).selected ? styles.darkBlue : styles.transparent]}>
+        <View 
+          style={[
+            styles.gridBoxStyle,
+            styles.autoBasis,
+            (this.state as BorderWalletCellState).selected ? styles.darkBlue : styles.transparent
+          ]}
+        >
           <Text style={(this.state as BorderWalletCellState).selected ? styles.white : []}>
             {(this.state as BorderWalletCellState).selected ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1 : box.title}
           </Text>
@@ -77,11 +85,11 @@ type BorderWalletFooterProps = {
   isLoading: boolean;
   onContinue: any;
   onClear: any;
-}
+};
 type BorderWalletFooterState = {
   enableClear: boolean;
   enableContinue: boolean;
-}
+};
 class BorderWalletFooter extends React.Component<BorderWalletFooterProps, BorderWalletFooterState> {
   
   constructor(props: BorderWalletFooterProps) {
