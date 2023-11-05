@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, ScrollView, I18nManager, BackHandler, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
@@ -9,7 +9,6 @@ import { BlueButton, SafeBlueArea } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
