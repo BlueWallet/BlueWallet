@@ -164,7 +164,6 @@
     "react-native-linear-gradient": "2.8.3",
     "react-native-localize": "3.0.2",
     "react-native-modal": "13.0.1",
-    "react-native-navigation-bar-color": "https://github.com/BlueWallet/react-native-navigation-bar-color#3b2894ae62fbce99a3bd24105f0921cebaef5c94",
     "react-native-obscure": "https://github.com/BlueWallet/react-native-obscure.git#f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb",
     "react-native-passcode-auth": "https://github.com/BlueWallet/react-native-passcode-auth#a2ff977ba92b36f8d0a5567f59c05cc608e8bd12",
     "react-native-permissions": "3.10.1",
