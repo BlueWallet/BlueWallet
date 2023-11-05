@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, Component } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View, VirtualizedList, Animated } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';

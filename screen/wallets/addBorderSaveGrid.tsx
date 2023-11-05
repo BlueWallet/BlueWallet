@@ -16,7 +16,6 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 
 const WalletsAddBorderSaveGrid = () => {
-  const { sleep } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const navigation = useNavigation();
