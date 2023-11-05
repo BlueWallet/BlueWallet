@@ -117,17 +117,6 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
-  useEffect(() => {
-    return () => {
-      Linking.removeEventListener('url', handleOpenURL);
-      AppState.removeEventListener('change', handleAppStateChange);
-      eventEmitter?.removeAllListeners('onNotificationReceived');
-      eventEmitter?.removeAllListeners('openSettings');
-      eventEmitter?.removeAllListeners('onUserActivityOpen');
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const addListeners = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
