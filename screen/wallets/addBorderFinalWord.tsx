@@ -1,6 +1,7 @@
 import React, { useContext, Component } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../components/themes';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Biometric from '../../class/biometrics';
@@ -19,8 +20,8 @@ const WalletsAddBorderFinalWord = () => {
   const { addWallet, saveToDisk, sleep, wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
-  const navigation = useNavigation();
-  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params;
+  const navigation = useNavigation<any>();
+  const { walletLabel, seedPhrase, importing, walletID } = useRoute().params as { walletLabel: string, seedPhrase: string[], importing: boolean, walletID: string };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -36,7 +37,7 @@ const WalletsAddBorderFinalWord = () => {
     await sleep(100);
     try {
       if (!walletID) {
-        const w = new HDSegwitBech32Wallet();
+        const w: any = new HDSegwitBech32Wallet();
         w.setLabel(walletLabel);
 
         w.setSecret(seedPhrase.join(' ') + ' ' + textBoxValue);
@@ -45,11 +46,11 @@ const WalletsAddBorderFinalWord = () => {
         await saveToDisk();
         A(A.ENUM.CREATED_WALLET);
       } else {
-        const wallet = wallets.find(w => w.getID() === walletID);
-        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+        const wallet = wallets.find((w: any) => w.getID() === walletID);
+        const isBiometricsEnabled = await (Biometric as any).isBiometricUseCapableAndEnabled();
 
         if (isBiometricsEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
+          if (!(await (Biometric as any).unlockWithBiometrics())) {
             alert(loc.border.memory_error_unlocking);
             return;
           }
@@ -66,26 +67,26 @@ const WalletsAddBorderFinalWord = () => {
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       navigation.popToTop();
       navigation.goBack();
-    } catch (e) {
+    } catch (e: any) {
       alert(e.message);
       console.log('create border wallet error', e);
     }
   };
 
-  const possibleWords = generateChecksumWords(seedPhrase.join(' '));
+  const possibleWords = generateChecksumWords(seedPhrase.join(' ')) as string[];
 
   let textBoxValue = '';
 
-  const textChanged = text => {
+  const textChanged = function(text: string) {
     textBoxValue = text;
     if (possibleWords.indexOf(text) >= 0) {
-      continueFooter.current.setEnabled(true);
+      continueFooter.current?.setEnabled(true);
     } else {
-      continueFooter.current.setEnabled(false);
+      continueFooter.current?.setEnabled(false);
     }
   };
 
-  const continueFooter = React.createRef();
+  const continueFooter = React.createRef<ContinueFooter>();
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -149,28 +150,36 @@ const styles = StyleSheet.create({
   },
 });
 
-class ContinueFooter extends Component {
-  constructor(props) {
+type ContinueFooterProps = {
+  onContinue: any;
+  importing: boolean;
+}
+type ContinueFooterState = {
+  disable: boolean;
+}
+class ContinueFooter extends React.Component<ContinueFooterProps, ContinueFooterState> {
+  constructor(props: ContinueFooterProps) {
     super(props);
-    this.state = { disable: true };
+    this.state = { disable: true } as ContinueFooterState;
     this.setEnabled = this.setEnabled.bind(this);
   }
 
-  setEnabled(sel) {
+  setEnabled(sel: boolean) {
     this.setState({ disable: !sel });
   }
 
   render() {
     return (
       <BlueButton
-        onPress={this.props.onContinue}
-        title={this.props.importing ? loc.border.import : loc.border.create}
-        disabled={this.state.disable}
+        onPress={(this.props as ContinueFooterProps).onContinue}
+        title={(this.props as ContinueFooterProps).importing ? loc.border.import : loc.border.create}
+        disabled={(this.state as ContinueFooterState).disable}
       />
     );
   }
 }
 
+// @ts-ignore: Ignore
 WalletsAddBorderFinalWord.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,

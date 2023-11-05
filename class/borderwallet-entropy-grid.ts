@@ -1,10 +1,10 @@
 // implemented based on https://github.com/microchad/borderwallets/releases/latest/download/borderwallets.html
 import * as bip39 from 'bip39';
 
-export const getShuffledEntropyWords = seed => {
-  function Mash() {
+export const getShuffledEntropyWords = function (seed: string): string[] {
+  function Mash(): any {
     let n = 0xefc8249d;
-    const mash = function (data) {
+    const mash = function (data: any) {
       if (data) {
         data = data.toString();
         for (let i = 0; i < data.length; i++) {

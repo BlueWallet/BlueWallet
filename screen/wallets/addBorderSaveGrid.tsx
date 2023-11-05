@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, ScrollView, I18nManager, BackHandler, StyleSheet, Text, View } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../components/themes';
 
 import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
 
@@ -19,7 +20,7 @@ const WalletsAddBorderSaveGrid = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, seedPhrase } = useRoute().params;
+  const { walletLabel, seedPhrase } = useRoute().params as { walletLabel: string, seedPhrase: string };
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,11 +38,13 @@ const WalletsAddBorderSaveGrid = () => {
 
   const words = getShuffledEntropyWords(seedPhrase);
 
-  const handleBackButton = useCallback(async () => {
+  const handleBackButton = useCallback(function(): boolean {
     setIsLoading(true);
-    await sleep(100);
-    navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
-    setIsLoading(false);
+    setTimeout(function() {
+      navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
+      setIsLoading(false);
+    }, 100);
+
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation]);
@@ -64,7 +67,7 @@ const WalletsAddBorderSaveGrid = () => {
       const text = `${i + 1}. ${seedSplit[i]}  `;
       component.push(
         <View style={[styles.word, stylesHook.word]} key={i}>
-          <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
+          <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
             {text}
           </Text>
         </View>,
@@ -127,14 +130,14 @@ const WalletsAddBorderSaveGrid = () => {
   };
 
   return isLoading ? (
-    <View style={[styles.loading, stylesHook.flex]}>
+    <View style={[styles.loading]}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.flex}>
+    <SafeBlueArea style={[]}>
       <ScrollView contentContainerStyle={styles.flex}>
         <View style={styles.please}>
-          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.border.backup_desc}</Text>
+          <Text style={[styles.pleaseText]}>{loc.border.backup_desc}</Text>
         </View>
         <View style={styles.list}>
           <View style={styles.secret}>{renderSecret()}</View>
@@ -150,6 +153,7 @@ const WalletsAddBorderSaveGrid = () => {
   );
 };
 
+// @ts-ignore: Ignore
 WalletsAddBorderSaveGrid.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
@@ -177,7 +181,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     borderRadius: 4,
   },
-  wortText: {
+  wordText: {
     fontWeight: 'bold',
     textAlign: 'left',
     fontSize: 17,

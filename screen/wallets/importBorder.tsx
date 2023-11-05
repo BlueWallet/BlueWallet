@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useNavigation, useTheme, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../components/themes';
 
 import loc from '../../loc';
 import { BlueButton, BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
@@ -19,11 +20,11 @@ const ImportBorder = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
-  const [importText, setImportText] = useState();
-  const [import2Text, setImport2Text] = useState();
+  const [importText, setImportText] = useState<string>();
+  const [import2Text, setImport2Text] = useState<string>();
   const { sleep } = useContext(BlueStorageContext);
 
-  const { walletID } = useRoute().params;
+  const { walletID } = useRoute().params as { walletID: string };
 
   const styles = StyleSheet.create({
     root: {
@@ -38,7 +39,7 @@ const ImportBorder = () => {
   const importMnemonic = async () => {
     setLoading(true);
     await sleep(100);
-    if (validateMnemonic(importText)) {
+    if (importText !== undefined && validateMnemonic(importText)) {
       navigation.navigate('WalletsAddBorderStep2', {
         walletLabel: loc.wallets.details_title,
         words: getShuffledEntropyWords(importText),
@@ -53,6 +54,7 @@ const ImportBorder = () => {
   };
 
   const importPDF = async () => {
+    if (import2Text === undefined) return;
     const imports = import2Text.split(' ');
     if (imports.length !== 11 && imports.length !== 23) return;
 

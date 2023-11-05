@@ -1,6 +1,7 @@
 import React, { useContext, useRef, useState, Component } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View, VirtualizedList, Animated } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useTheme } from '../../components/themes';
 
 import { BlueButton, BlueButtonLink, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -12,7 +13,7 @@ const WalletsAddBorderStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, words, importing, walletID } = useRoute().params;
+  const { walletLabel, words, importing, walletID } = useRoute().params as { walletLabel: string, words: string[], importing: boolean, walletID: string };
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,19 +25,30 @@ const WalletsAddBorderStep2 = () => {
     },
   });
 
-  const headers = [];
+  const headers: any[] = [];
   for (let i = 0; i < 16; i++) {
     headers.push(React.createRef());
   }
 
-  const rownums = [];
+  const rownums: any[] = [];
   for (let i = 0; i < 128; i++) {
     rownums.push(React.createRef());
   }
-
-  const items = [];
+  
+  type GridColumn = {
+    id: number;
+    ind: number;
+    word: string;
+    title: string;
+    cell: any;
+  }
+  type GridRow = {
+    id: number;
+    list: GridColumn[];
+  }
+  const items: GridRow[] = [];
   for (let i = 0; i < 128; i++) {
-    const curr = [];
+    const curr: GridColumn[] = [];
     for (let j = 0; j < 16; j++) {
       curr.push({ id: j, ind: i * 16 + j, word: words[i * 16 + j], title: words[i * 16 + j].substr(0, 4), cell: React.createRef() });
     }
@@ -47,37 +59,40 @@ const WalletsAddBorderStep2 = () => {
 
   const offsetR = new Animated.Value(0);
   offsetR.addListener(({ value }) => {
-    leftList.current.scrollToOffset({ offset: value, animated: false });
+    (leftList.current as any).scrollToOffset({ offset: value, animated: false });
   });
 
-  const clickGrid = box => {
-    if (selectedWords.current.indexOf(box) < 0) {
-      selectedWords.current.push(box);
+  const clickGrid = function(box: GridColumn) {
+    let sw = selectedWords.current as GridColumn[];
+    if (sw.indexOf(box) < 0) {
+      sw.push(box);
       box.cell.current.setSelected(true);
       rownums[(box.ind - (box.ind % 16)) / 16].current.setSelected(true);
       headers[box.ind % 16].current.setSelected(true);
-      footer.current.stateChange({
+      footer.current?.stateChange({
         enableClear: true,
-        enableContinue: selectedWords.current.length === 11 || selectedWords.current.length === 23,
+        enableContinue: sw.length === 11 || sw.length === 23,
       });
     }
   };
 
-  const footer = React.createRef();
+  const footer = React.createRef<BorderWalletFooter>();
 
   const onContinue = async () => {
+    let sw = selectedWords.current as GridColumn[];
     setIsLoading(true);
     await sleep(100);
     const seedSend = [];
-    for (let i = 0; i < selectedWords.current.length; i++) {
-      seedSend.push(selectedWords.current[i].word);
+    for (let i = 0; i < sw.length; i++) {
+      seedSend.push(sw[i].word);
     }
     navigation.navigate('WalletsAddBorderFinalWord', { walletLabel, seedPhrase: seedSend, importing, walletID });
   };
 
   const onClear = () => {
-    for (let i = 0; i < selectedWords.current.length; i++) {
-      selectedWords.current[i].cell.current.setSelected(false);
+    let sw = selectedWords.current as GridColumn[];
+    for (let i = 0; i < sw.length; i++) {
+      sw[i].cell.current.setSelected(false);
     }
     for (let i = 0; i < rownums.length; i++) {
       if (rownums[i].current.isSelected()) rownums[i].current.setSelected(false);
@@ -85,8 +100,8 @@ const WalletsAddBorderStep2 = () => {
     for (let i = 0; i < headers.length; i++) {
       if (headers[i].current.isSelected()) headers[i].current.setSelected(false);
     }
-    selectedWords.current.length = 0;
-    footer.current.stateChange({ enableClear: false, enableContinue: false });
+    sw.length = 0;
+    footer.current?.stateChange({ enableClear: false, enableContinue: false });
   };
 
   const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
@@ -112,10 +127,11 @@ const WalletsAddBorderStep2 = () => {
                 ref={leftList}
                 initialNumToRender={128}
                 scrollEnabled={false}
-                renderItem={({ item }) => {
-                  return <BorderWalletHeaderCell key={item.id} text={item.id + 1} ref={rownums[item.id]} />;
+                renderItem={function (it: any): any {
+                  const item = it.item as GridColumn;
+                  return <BorderWalletHeaderCell key={item.id} text={(item.id + 1).toString()} ref={rownums[item.id]} />;
                 }}
-                keyExtractor={item => item.id}
+                keyExtractor={function (item: unknown, index: number): string { return (item as {id: number}).id.toString(); }}
                 getItemCount={() => items.length}
                 getItem={(data, index) => items[index]}
               />
@@ -132,10 +148,11 @@ const WalletsAddBorderStep2 = () => {
                   scrollEventThrottle={16}
                   initialNumToRender={128}
                   onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: offsetR } } }], { useNativeDriver: true })}
-                  renderItem={({ item }) => {
+                  renderItem={function (it: any): any {
+                    const item = it.item as GridRow;
                     return (
                       <View key={item.id} style={styles.flexRowOnly}>
-                        {item.list.map(box => {
+                        {item.list.map(function(box: GridColumn): any {
                           return (
                             <BorderWalletCell
                               key={box.id}
@@ -149,7 +166,7 @@ const WalletsAddBorderStep2 = () => {
                       </View>
                     );
                   }}
-                  keyExtractor={item => item.id}
+                  keyExtractor={function (item: unknown, index: number): string { return (item as {id: number}).id.toString(); }}
                   getItemCount={() => items.length}
                   getItem={(data, index) => items[index]}
                 />
@@ -246,50 +263,64 @@ const styles = StyleSheet.create({
   },
 });
 
-class BorderWalletHeaderCell extends Component {
-  constructor(props) {
+type BorderWalletHeaderCellProps = {
+  text: string;
+}
+type BorderWalletHeaderCellState = {
+  selected: boolean;
+}
+class BorderWalletHeaderCell extends React.Component<BorderWalletHeaderCellProps, BorderWalletHeaderCellState> {
+  constructor(props: BorderWalletHeaderCellProps) {
     super(props);
-    this.state = { selected: false };
+    this.state = { selected: false } as BorderWalletHeaderCellState;
     this.setSelected = this.setSelected.bind(this);
     this.isSelected = this.isSelected.bind(this);
   }
 
   isSelected() {
-    return this.state.selected;
+    return (this.state as BorderWalletHeaderCellState).selected;
   }
 
-  setSelected(sel) {
+  setSelected(sel: boolean) {
     this.setState({ selected: sel });
   }
 
   render() {
     return (
-      <View style={[styles.gridBoxStyle, this.state.selected ? styles.blue : styles.darkLight]}>
-        <Text style={this.state.selected ? styles.white : []}>{this.props.text}</Text>
+      <View style={[styles.gridBoxStyle, (this.state as BorderWalletHeaderCellState).selected ? styles.blue : styles.darkLight]}>
+        <Text style={(this.state as BorderWalletHeaderCellState).selected ? styles.white : []}>{(this.props as BorderWalletHeaderCellProps).text}</Text>
       </View>
     );
   }
 }
 
-class BorderWalletCell extends Component {
-  constructor(props) {
+type BorderWalletCellProps = {
+  selectedWords: string[];
+  box: any;
+  clickGrid: any;
+}
+type BorderWalletCellState = {
+  selected: boolean;
+}
+class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWalletCellState> {
+  constructor(props: BorderWalletCellProps) {
     super(props);
-    this.state = { selected: false };
+    this.state = { selected: false } as BorderWalletCellState;
     this.setSelected = this.setSelected.bind(this);
   }
 
-  setSelected(sel) {
+  setSelected(sel: boolean) {
     this.setState({ selected: sel });
   }
 
   render() {
-    const box = this.props.box;
-    const clickGrid = this.props.clickGrid;
+    const box = (this.props as BorderWalletCellProps).box;
+    const clickGrid = (this.props as BorderWalletCellProps).clickGrid;
     return (
       <TouchableOpacity onPress={() => clickGrid(box)}>
-        <View style={[styles.gridBoxStyle, styles.autoBasis, this.state.selected ? styles.darkBlue : styles.transparent]}>
-          <Text style={this.state.selected ? styles.white : []}>
-            {this.state.selected ? this.props.selectedWords.indexOf(box) + 1 : box.title}
+        <View style={[styles.gridBoxStyle, styles.autoBasis, (this.state as BorderWalletCellState).selected ? styles.darkBlue : styles.transparent]}>
+          <Text style={(this.state as BorderWalletCellState).selected ? styles.white : []}>
+            {(this.state as BorderWalletCellState).selected ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1 : box.title}
           </Text>
         </View>
       </TouchableOpacity>
@@ -297,41 +328,52 @@ class BorderWalletCell extends Component {
   }
 }
 
-class BorderWalletFooter extends Component {
-  constructor(props) {
+type BorderWalletFooterProps = {
+  isLoading: boolean;
+  onContinue: any;
+  onClear: any;
+}
+type BorderWalletFooterState = {
+  enableClear: boolean;
+  enableContinue: boolean;
+}
+class BorderWalletFooter extends React.Component<BorderWalletFooterProps, BorderWalletFooterState> {
+  
+  constructor(props: BorderWalletFooterProps) {
     super(props);
-    this.state = { enableClear: false, enableContinue: false };
+    this.state = { enableClear: false, enableContinue: false } as BorderWalletFooterState;
     this.stateChange = this.stateChange.bind(this);
   }
 
-  stateChange(sel) {
+  stateChange(sel: BorderWalletFooterState) {
     this.setState(sel);
   }
 
   render() {
     return (
       <View style={styles.buttonBottom}>
-        {!this.props.isLoading ? (
+        {!(this.props as BorderWalletFooterProps).isLoading ? (
           <BlueButtonLink
             style={styles.import}
-            activeOpacity={!this.state.enableClear ? 1 : 0.7}
+            activeOpacity={!(this.state as BorderWalletFooterState).enableClear ? 1 : 0.7}
             title={loc.border.clear_selection}
             onPress={() => {
-              if (this.state.enableClear) this.props.onClear();
+              if ((this.state as BorderWalletFooterState).enableClear) (this.props as BorderWalletFooterProps).onClear();
             }}
-            disabled={!this.state.enableClear}
+            disabled={!(this.state as BorderWalletFooterState).enableClear}
           />
         ) : null}
-        {this.props.isLoading ? (
+        {(this.props as BorderWalletFooterProps).isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton title={loc.border.continue} onPress={this.props.onContinue} disabled={!this.state.enableContinue} />
+          <BlueButton title={loc.border.continue} onPress={(this.props as BorderWalletFooterProps).onContinue} disabled={!(this.state as BorderWalletFooterState).enableContinue} />
         )}
       </View>
     );
   }
 }
 
+// @ts-ignore: Ignore
 WalletsAddBorderStep2.navigationOptions = navigationStyle({
   headerTitle: null,
   gestureEnabled: false,
