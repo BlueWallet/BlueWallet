@@ -103,7 +103,7 @@ const bStyles = StyleSheet.create({
 
 interface FButtonProps {
   text: string;
-  icon: ReactNode; // Updated the type to ReactNode
+  icon: ReactNode;
   width?: number;
   first?: boolean;
   last?: boolean;
