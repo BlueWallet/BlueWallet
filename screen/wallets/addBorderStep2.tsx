@@ -75,8 +75,8 @@ class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWall
         >
           <Text style={(this.state as BorderWalletCellState).selected ? styles.white : []}>
             {(this.state as BorderWalletCellState).selected
-              ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1 : box.title
-            }
+              ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1
+              : box.title}
           </Text>
         </View>
       </TouchableOpacity>
