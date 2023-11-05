@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import React, { useContext, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View, VirtualizedList, Animated } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -73,9 +74,8 @@ class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWall
           ]}
         >
           <Text style={(this.state as BorderWalletCellState).selected ? styles.white : []}>
-            {(this.state as BorderWalletCellState).selected 
-              ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1
-              : box.title
+            {(this.state as BorderWalletCellState).selected
+              ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1 : box.title
             }
           </Text>
         </View>
@@ -121,7 +121,7 @@ class BorderWalletFooter extends React.Component<BorderWalletFooterProps, Border
         {(this.props as BorderWalletFooterProps).isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton 
+          <BlueButton
             title={loc.border.continue}
             onPress={(this.props as BorderWalletFooterProps).onContinue}
             disabled={!(this.state as BorderWalletFooterState).enableContinue}
@@ -233,8 +233,8 @@ const WalletsAddBorderStep2 = () => {
     footer.current?.stateChange({ enableClear: false, enableContinue: false });
   };
 
-  const ke = function (item: unknown, index: number): string { 
-    return (item as {id: number}).id.toString();
+  const ke = function (item: unknown, index: number): string {
+    return (item as { id: number }).id.toString();
   };
 
   const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
