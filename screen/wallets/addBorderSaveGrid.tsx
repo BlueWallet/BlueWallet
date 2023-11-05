@@ -40,7 +40,7 @@ const WalletsAddBorderSaveGrid = () => {
   const words = getShuffledEntropyWords(seedPhrase);
 
   const handleBackButton = useCallback(
-    function() : boolean {
+    function (): boolean {
       setIsLoading(true);
       setTimeout(function () {
         navigation.navigate('WalletsAddBorderStep2', { walletLabel, words, importing: false });
@@ -50,7 +50,7 @@ const WalletsAddBorderSaveGrid = () => {
       return true;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [navigation]
+    [navigation],
   );
 
   useEffect(() => {

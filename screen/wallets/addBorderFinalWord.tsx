@@ -114,7 +114,7 @@ const WalletsAddBorderFinalWord = () => {
   const textBoxValue = useRef<string>('');
 
   const textChanged = useCallback(
-    function(text: string) {
+    function (text: string) {
       textBoxValue.current = text;
       if (possibleWords.indexOf(text) >= 0) {
         continueFooter.current?.setEnabled(true);
@@ -122,7 +122,8 @@ const WalletsAddBorderFinalWord = () => {
         continueFooter.current?.setEnabled(false);
       }
     },
-    [navigation]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigation],
   );
 
   const continueFooter = React.createRef<ContinueFooter>();

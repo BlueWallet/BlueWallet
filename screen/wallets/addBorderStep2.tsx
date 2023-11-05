@@ -65,15 +65,18 @@ class BorderWalletCell extends React.Component<BorderWalletCellProps, BorderWall
     const clickGrid = (this.props as BorderWalletCellProps).clickGrid;
     return (
       <TouchableOpacity onPress={() => clickGrid(box)}>
-        <View 
+        <View
           style={[
             styles.gridBoxStyle,
             styles.autoBasis,
-            (this.state as BorderWalletCellState).selected ? styles.darkBlue : styles.transparent
+            (this.state as BorderWalletCellState).selected ? styles.darkBlue : styles.transparent,
           ]}
         >
           <Text style={(this.state as BorderWalletCellState).selected ? styles.white : []}>
-            {(this.state as BorderWalletCellState).selected ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1 : box.title}
+            {(this.state as BorderWalletCellState).selected 
+              ? (this.props as BorderWalletCellProps).selectedWords.indexOf(box) + 1
+              : box.title
+            }
           </Text>
         </View>
       </TouchableOpacity>
@@ -91,7 +94,6 @@ type BorderWalletFooterState = {
   enableContinue: boolean;
 };
 class BorderWalletFooter extends React.Component<BorderWalletFooterProps, BorderWalletFooterState> {
-  
   constructor(props: BorderWalletFooterProps) {
     super(props);
     this.state = { enableClear: false, enableContinue: false } as BorderWalletFooterState;
@@ -119,7 +121,11 @@ class BorderWalletFooter extends React.Component<BorderWalletFooterProps, Border
         {(this.props as BorderWalletFooterProps).isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton title={loc.border.continue} onPress={(this.props as BorderWalletFooterProps).onContinue} disabled={!(this.state as BorderWalletFooterState).enableContinue} />
+          <BlueButton 
+            title={loc.border.continue}
+            onPress={(this.props as BorderWalletFooterProps).onContinue}
+            disabled={!(this.state as BorderWalletFooterState).enableContinue}
+          />
         )}
       </View>
     );
@@ -131,7 +137,7 @@ const WalletsAddBorderStep2 = () => {
   const { colors } = useTheme();
 
   const navigation = useNavigation();
-  const { walletLabel, words, importing, walletID } = useRoute().params as { 
+  const { walletLabel, words, importing, walletID } = useRoute().params as {
     walletLabel: string;
     words: string[];
     importing: boolean;
@@ -157,18 +163,18 @@ const WalletsAddBorderStep2 = () => {
   for (let i = 0; i < 128; i++) {
     rownums.push(React.createRef());
   }
-  
+
   type GridColumn = {
     id: number;
     ind: number;
     word: string;
     title: string;
     cell: any;
-  }
+  };
   type GridRow = {
     id: number;
     list: GridColumn[];
-  }
+  };
   const items: GridRow[] = [];
   for (let i = 0; i < 128; i++) {
     const curr: GridColumn[] = [];
@@ -185,7 +191,7 @@ const WalletsAddBorderStep2 = () => {
     (leftList.current as any).scrollToOffset({ offset: value, animated: false });
   });
 
-  const clickGrid = function(box: GridColumn) {
+  const clickGrid = function (box: GridColumn) {
     const sw = selectedWords.current as GridColumn[];
     if (sw.indexOf(box) < 0) {
       sw.push(box);
@@ -227,7 +233,9 @@ const WalletsAddBorderStep2 = () => {
     footer.current?.stateChange({ enableClear: false, enableContinue: false });
   };
 
-  const ke = function (item: unknown, index: number): string { return (item as {id: number}).id.toString(); };
+  const ke = function (item: unknown, index: number): string { 
+    return (item as {id: number}).id.toString();
+  };
 
   const AnimatedVirtualizedList = Animated.createAnimatedComponent(VirtualizedList);
   return (
@@ -277,7 +285,7 @@ const WalletsAddBorderStep2 = () => {
                     const item = it.item as GridRow;
                     return (
                       <View key={item.id} style={styles.flexRowOnly}>
-                        {item.list.map(function(box: GridColumn): any {
+                        {item.list.map(function (box: GridColumn): any {
                           return (
                             <BorderWalletCell
                               key={box.id}
