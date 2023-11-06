@@ -558,12 +558,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <PlusIcon
-        accessibilityRole="button"
-        accessibilityLabel={loc.wallets.add_title}
-        onPress={props.onNewWalletPress}
-        Component={TouchableOpacity}
-      />
+      <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={props.onNewWalletPress} />
     </View>
   );
 };
