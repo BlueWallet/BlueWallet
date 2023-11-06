@@ -78,7 +78,6 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                buildToolsVersion '30.0.3'
                 compileSdkVersion 33
                  defaultConfig {
                     minSdkVersion 28
