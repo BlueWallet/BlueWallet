@@ -22,7 +22,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.4.2")
+        classpath("com.android.tools.build:gradle:7.6.0")
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
         classpath 'com.google.gms:google-services:4.4.0'  // Google Services plugin
     	classpath("com.facebook.react:react-native-gradle-plugin")
