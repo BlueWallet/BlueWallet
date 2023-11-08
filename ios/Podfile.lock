@@ -285,7 +285,7 @@ PODS:
     - React
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (4.8.5):
+  - react-native-image-picker (5.2.0):
     - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
@@ -390,7 +390,7 @@ PODS:
     - React-jsi (= 0.71.14)
     - React-logger (= 0.71.14)
     - React-perflogger (= 0.71.14)
-  - ReactNativeCameraKit (13.0.0):
+  - ReactNativeCameraKit (14.0.0-beta13):
     - React-Core
   - RealmJS (12.3.0):
     - React
@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: cd420f97f6ed6ff74fc4686d27dbcfdbd051db91
+  react-native-image-picker: d60541a8ad96ff1a2396457b6ff119aeaf17d0c8
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
@@ -770,7 +770,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 64e412b9ac684c4edc938fa1187135ada9af7faf
   React-runtimeexecutor: ffe826b7b1cfbc32a35ed5b64d5886c0ff75f501
   ReactCommon: 7f3dd5e98a9ec627c6b03d26c062bf37ea9fc888
-  ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
+  ReactNativeCameraKit: 7c273034b2674cf5ccbaab2e25d9ff15b3e7d698
   RealmJS: 4c52a15602e70b64cd9230b0a17a9c12741371f4
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 3a8f7145d17cdd9f88e7b77666c94a09e4f759c8
