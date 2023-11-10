@@ -1,0 +1,13 @@
+--- ../node_modules/react-native-tor/ios/Tor.swift	2023-11-10 11:17:20
++++ ../node_modules/react-native-tor/ios/Tor.swift	2023-11-10 11:17:16
+@@ -42,6 +42,10 @@
+     var streams:Dictionary<String,OpaquePointer> = [:];
+     var hasLnser = false;
+     var clienTimeout:TimeInterval = 60;
++    
++    override class func requiresMainQueueSetup() -> Bool {
++        return false
++    }
+     
+     func getProxiedClient(headers:Optional<NSDictionary>,socksPort:UInt16,trustInvalidSSL: Bool = false)->URLSession{
+         let config = URLSessionConfiguration.default;
