@@ -53,7 +53,7 @@
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run podinstall; npm run patches",
-    "patches": "patch -p1   < scripts/react-native-tor.patch; patch -p1   < scripts/rn-ldk.patch",
+    "patches": "patch -p1   < scripts/react-native-tor.patch; patch -p1   < scripts/react-native-tor-ios.patch; patch -p1   < scripts/rn-ldk.patch",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
