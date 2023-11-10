@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Image, Keyboard, TouchableOpacity, StyleSheet } from 'react-native';
 import { Theme } from './themes';
@@ -24,6 +23,10 @@ type NavigationOptions = {
     fontWeight: string;
     color: string;
   };
+  headerLargeTitle?: boolean;
+  gestureEnabled?: boolean;
+  swipeEnabled?: boolean;
+  headerHideBackButton?: boolean;
   headerLeft?: (() => React.ReactElement) | null;
   headerRight?: (() => React.ReactElement) | null;
   headerBackTitleVisible?: false;

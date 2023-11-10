@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -10,6 +10,7 @@ import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useTheme } from '../../components/themes';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
@@ -76,7 +77,6 @@ const ExportMultisigCoordinationSetup = () => {
     </View>
   ) : (
     <SafeBlueArea style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
@@ -131,6 +131,7 @@ ExportMultisigCoordinationSetup.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerHideBackButton: true,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.multisig.export_coordination_setup }),
 );

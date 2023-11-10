@@ -24,8 +24,7 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@react-navigation/native';
-import { BlueCurrentTheme } from './components/themes';
+import { BlueCurrentTheme, useTheme } from './components/themes';
 import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 
@@ -559,12 +558,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <PlusIcon
-        accessibilityRole="button"
-        accessibilityLabel={loc.wallets.add_title}
-        onPress={props.onNewWalletPress}
-        Component={TouchableOpacity}
-      />
+      <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={props.onNewWalletPress} />
     </View>
   );
 };
@@ -797,7 +791,7 @@ export class BlueReplaceFeeSuggestions extends Component {
                 paddingLeft: 5,
               }}
               onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
-              defaultValue={`${this.props.transactionMinimum}`}
+              defaultValue={this.props.transactionMinimum}
               placeholder={loc.send.fee_satvbyte}
               placeholderTextColor="#81868e"
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}

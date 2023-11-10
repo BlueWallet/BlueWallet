@@ -304,7 +304,7 @@
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
     "privacy_quickactions": "Wallet Shortcuts",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon on your Home Screen to quickly view your wallet’s balance.",
+    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
@@ -482,6 +482,8 @@
     "header": "Send",
     "share": "Share",
     "view": "View",
+    "shared_key_detected": "Shared cosigner",
+    "shared_key_detected_question": "A cosigner was shared with you, do you want to import it?",
     "manage_keys": "Manage Keys",
     "how_many_signatures_can_bluewallet_make": "how many signatures can BlueWallet make",
     "signatures_required_to_spend": "Signatures required {number}",
@@ -547,6 +549,12 @@
     "check_address": "Check address",
     "no_wallet_owns_address": "None of the available wallets own the provided address.",
     "view_qrcode": "View QRCode"
+  },
+  "autofill_word": {
+    "title": "Generate final mnemonic word",
+    "enter": "Enter partial mnemonic phrase",
+    "generate_word": "Generate final word",
+    "error": "Input is not an 11 or 23 word partial mnemonic!"
   },
   "cc": {
     "change": "Change",

@@ -40,7 +40,7 @@ class ViewQRCodefaceController: WKInterfaceController {
 
     DispatchQueue.main.async {
       guard let cgImage = EFQRCode.generate(
-        content: passedContext) else {
+        for: passedContext) else {
           return
       }
       let image = UIImage(cgImage: cgImage)

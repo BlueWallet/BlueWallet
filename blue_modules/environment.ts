@@ -11,6 +11,7 @@ const getIsTorCapable = (): boolean => {
   } else if (isDesktop) {
     capable = false;
   }
+  console.log('getIsTorCapable', capable);
   return capable;
 };
 
@@ -21,19 +22,19 @@ export async function setIsTorDaemonDisabled(disabled: boolean = true): Promise<
 }
 
 export async function isTorDaemonDisabled(): Promise<boolean> {
-  let isTorDaemonDisabled: boolean;
+  let result: boolean;
   try {
     const savedValue = await AsyncStorage.getItem(IS_TOR_DAEMON_DISABLED);
     if (savedValue === null) {
-      isTorDaemonDisabled = false;
+      result = false;
     } else {
-      isTorDaemonDisabled = savedValue === '1';
+      result = savedValue === '1';
     }
   } catch {
-    isTorDaemonDisabled = true;
+    result = true;
   }
 
-  return isTorDaemonDisabled;
+  return result;
 }
 
 export const isHandset: boolean = getDeviceType() === 'Handset';

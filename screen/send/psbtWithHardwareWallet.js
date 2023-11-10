@@ -3,7 +3,7 @@ import { ActivityIndicator, TouchableOpacity, ScrollView, View, TextInput, Linki
 import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
@@ -14,6 +14,8 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import alert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -98,9 +100,9 @@ const PsbtWithHardwareWallet = () => {
     }
 
     if (deepLinkPSBT) {
-      const psbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+      const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
-        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, psbt);
+        const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
         alert(Err);
@@ -208,13 +210,15 @@ const PsbtWithHardwareWallet = () => {
   };
 
   const openScanner = () => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        showFileImportButton: false,
-        onBarScanned,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          showFileImportButton: false,
+          onBarScanned,
+        },
+      });
     });
   };
 

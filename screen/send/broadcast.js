@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import loc from '../../loc';
@@ -21,6 +21,7 @@ import {
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
+import { useTheme } from '../../components/themes';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -58,8 +59,8 @@ const Broadcast = () => {
       const walletObj = new HDSegwitBech32Wallet();
       const result = await walletObj.broadcastTx(txHex);
       if (result) {
-        const tx = bitcoin.Transaction.fromHex(txHex);
-        const txid = tx.getId();
+        const newTx = bitcoin.Transaction.fromHex(txHex);
+        const txid = newTx.getId();
         setTx(txid);
 
         setBroadcastResult(BROADCAST_RESULT.success);
@@ -86,8 +87,8 @@ const Broadcast = () => {
 
     try {
       // sould be base64 encoded PSBT
-      const tx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
-      return handleUpdateTxHex(tx.toHex());
+      const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
+      return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
   };
 

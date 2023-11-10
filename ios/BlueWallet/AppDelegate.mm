@@ -1,6 +1,6 @@
+#import <RNScreens/UIViewController+RNScreens.h>
 #import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
-
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTI18nUtil.h>
@@ -10,7 +10,6 @@
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
-#import <WatchConnectivity/WatchConnectivity.h>
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -92,7 +91,6 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   [defaults removeObjectForKey:@"onUserActivityOpen"];
 }

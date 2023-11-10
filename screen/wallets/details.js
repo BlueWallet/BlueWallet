@@ -12,9 +12,7 @@ import {
   Platform,
   Linking,
   StyleSheet,
-  StatusBar,
   ScrollView,
-  PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
   I18nManager,
@@ -35,7 +33,7 @@ import {
   LightningLdkWallet,
 } from '../../class';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -45,6 +43,8 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import alert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
+import { useTheme } from '../../components/themes';
 
 const prompt = require('../../helpers/prompt');
 
@@ -206,8 +206,9 @@ const WalletDetails = () => {
 
   useLayoutEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -224,7 +225,7 @@ const WalletDetails = () => {
   }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
 
   useEffect(() => {
-    if (wallets.some(wallet => wallet.getID() === walletID)) {
+    if (wallets.some(w => w.getID() === walletID)) {
       setSelectedWallet(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -363,15 +364,8 @@ const WalletDetails = () => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+      if (granted === RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
@@ -495,8 +489,6 @@ const WalletDetails = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View>
             <BlueCard style={styles.address}>
-              <StatusBar barStyle="default" />
-
               {(() => {
                 if (
                   [LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) ||
@@ -505,7 +497,16 @@ const WalletDetails = () => {
                   return (
                     <>
                       <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_address.toLowerCase()}</Text>
-                      <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.getAddress()}</Text>
+                      <Text style={[styles.textValue, stylesHook.textValue]}>
+                        {(() => {
+                          // gracefully handling faulty wallets, so at least user has an option to delete the wallet
+                          try {
+                            return wallet.getAddress();
+                          } catch (error) {
+                            return error.message;
+                          }
+                        })()}
+                      </Text>
                     </>
                   );
                 }
@@ -699,6 +700,10 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.details_title }));
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  headerTitle: loc.wallets.details_title,
+  statusBarStyle: 'auto',
+}));
 
 export default WalletDetails;

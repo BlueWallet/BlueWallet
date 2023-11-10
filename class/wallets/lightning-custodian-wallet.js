@@ -2,8 +2,9 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { isTorDaemonDisabled } from '../../blue_modules/environment';
-const torrific = require('../../blue_modules/torrific');
+import { isTorDaemonDisabled, isTorCapable } from '../../blue_modules/environment';
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
+
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
@@ -156,7 +157,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    */
   async getUserInvoices(limit = false) {
     let limitString = '';
-    if (limit) limitString = '?limit=' + parseInt(limit);
+    if (limit) limitString = '?limit=' + parseInt(limit, 10);
     const response = await this._api.get('/getuserinvoices' + limitString, {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -386,7 +387,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
-        tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1);
+        tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1, 10);
       }
 
       if (tx.type === 'paid_invoice') {
@@ -401,7 +402,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (tx.type === 'user_invoice') {
         // incoming ln tx
-        tx.value = parseInt(tx.amt);
+        tx.value = parseInt(tx.amt, 10);
         tx.memo = tx.description || 'Lightning invoice';
       }
 
@@ -554,7 +555,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     if (!decoded.expiry) decoded.expiry = '3600'; // default
 
-    if (parseInt(decoded.num_satoshis) === 0 && decoded.num_millisatoshis > 0) {
+    if (parseInt(decoded.num_satoshis, 10) === 0 && decoded.num_millisatoshis > 0) {
       decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
     }
 

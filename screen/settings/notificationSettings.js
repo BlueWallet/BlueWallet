@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking, View, TextInput } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+
 import { Button } from 'react-native-elements';
 
 import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
-import { BlueCurrentTheme } from '../../components/themes';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 

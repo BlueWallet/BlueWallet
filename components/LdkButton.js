@@ -1,8 +1,9 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import { useTheme } from '@react-navigation/native';
+
 import { Image, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import React from 'react';
+import { useTheme } from './themes';
 
 export const LdkButton = props => {
   const { colors } = useTheme();

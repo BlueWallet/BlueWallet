@@ -5,7 +5,7 @@ import ToolTipMenu from './TooltipMenu';
 import Share from 'react-native-share';
 import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 interface QRCodeComponentProps {
   value: string;
@@ -108,7 +108,6 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       size={size}
       logoSize={logoSize}
       color="#000000"
-      // @ts-ignore: logoBackgroundColor is not in the type definition
       logoBackgroundColor={colors.brandingColor}
       backgroundColor="#FFFFFF"
       ecl={ecl}

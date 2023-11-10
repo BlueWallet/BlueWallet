@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import {
   updateApplicationContext,
   watchEvents,
   useReachability,
   useInstalled,
-  usePaired,
   transferCurrentComplicationUserInfo,
+  transferUserInfo,
 } from 'react-native-watch-connectivity';
 import { Chain } from './models/bitcoinUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
@@ -18,14 +18,13 @@ function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } =
     useContext(BlueStorageContext);
   const isReachable = useReachability();
-  const isPaired = usePaired();
   const isInstalled = useInstalled(); // true | false
   const messagesListenerActive = useRef(false);
   const lastPreferredCurrency = useRef(FiatUnit.USD.endPointKey);
 
   useEffect(() => {
     let messagesListener = () => {};
-    if (isPaired && isInstalled && isReachable && walletsInitialized && messagesListenerActive.current === false) {
+    if (isInstalled && isReachable && walletsInitialized && messagesListenerActive.current === false) {
       messagesListener = watchEvents.addListener('message', handleMessages);
       messagesListenerActive.current = true;
     } else {
@@ -37,14 +36,25 @@ function WatchConnectivity() {
       messagesListenerActive.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, isPaired, isReachable, isInstalled]);
+  }, [walletsInitialized, isReachable, isInstalled]);
 
   useEffect(() => {
-    if (isPaired && isInstalled && isReachable && walletsInitialized) {
-      sendWalletsToWatch();
+    console.log(`Apple Watch: isInstalled: ${isInstalled}, isReachable: ${isReachable}, walletsInitialized: ${walletsInitialized}`);
+    if (isInstalled && walletsInitialized) {
+      constructWalletsToSendToWatch().then(walletsToProcess => {
+        if (walletsToProcess) {
+          if (isReachable) {
+            transferUserInfo(walletsToProcess);
+            console.log('Apple Watch: sent info to watch transferUserInfo');
+          } else {
+            updateApplicationContext(walletsToProcess);
+            console.log('Apple Watch: sent info to watch context');
+          }
+        }
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized, wallets, isPaired, isReachable, isInstalled]);
+  }, [walletsInitialized, wallets, isReachable, isInstalled]);
 
   useEffect(() => {
     updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
@@ -67,7 +77,6 @@ function WatchConnectivity() {
         console.log(e);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preferredFiatCurrency, walletsInitialized, isReachable, isInstalled]);
 
   const handleMessages = (message, reply) => {
@@ -79,8 +88,11 @@ function WatchConnectivity() {
           reply({});
         });
     } else if (message.message === 'sendApplicationContext') {
-      sendWalletsToWatch();
-      reply({});
+      constructWalletsToSendToWatch().then(walletsToProcess => {
+        if (walletsToProcess) {
+          updateApplicationContext(walletsToProcess);
+        }
+      });
     } else if (message.message === 'fetchTransactions') {
       fetchWalletTransactions()
         .then(() => saveToDisk())
@@ -117,7 +129,7 @@ function WatchConnectivity() {
     }
   };
 
-  const sendWalletsToWatch = async () => {
+  const constructWalletsToSendToWatch = async () => {
     if (!Array.isArray(wallets)) {
       console.log('No Wallets set to sync with Watch app. Exiting...');
       return;
@@ -159,7 +171,7 @@ function WatchConnectivity() {
           type = 'pendingConfirmation';
         } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
           const currentDate = new Date();
-          const now = (currentDate.getTime() / 1000) | 0;
+          const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
           const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
           if (invoiceExpiration > now) {
@@ -179,7 +191,7 @@ function WatchConnectivity() {
         if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
           amount = isNaN(transaction.value) ? '0' : amount;
           const currentDate = new Date();
-          const now = (currentDate.getTime() / 1000) | 0;
+          const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
           const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
           if (invoiceExpiration > now) {
@@ -219,10 +231,10 @@ function WatchConnectivity() {
       }
       walletsToProcess.push(walletInformation);
     }
-    updateApplicationContext({ wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) });
+    return { wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) };
   };
 
-  return null;
+  return <></>;
 }
 
 export default WatchConnectivity;

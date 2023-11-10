@@ -11,14 +11,14 @@ import {
   UIManager,
   useColorScheme,
   View,
-  StatusBar,
   LogBox,
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
@@ -26,14 +26,12 @@ import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
 import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
-import { isDesktop } from './blue_modules/environment';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
-import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
@@ -57,8 +55,15 @@ if (Platform.OS === 'android') {
 }
 
 const App = () => {
-  const { walletsInitialized, wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } =
-    useContext(BlueStorageContext);
+  const {
+    walletsInitialized,
+    wallets,
+    addWallet,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+  } = useContext(BlueStorageContext);
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
@@ -112,27 +117,6 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
-  useEffect(() => {
-    return () => {
-      Linking.removeEventListener('url', handleOpenURL);
-      AppState.removeEventListener('change', handleAppStateChange);
-      eventEmitter?.removeAllListeners('onNotificationReceived');
-      eventEmitter?.removeAllListeners('openSettings');
-      eventEmitter?.removeAllListeners('onUserActivityOpen');
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (colorScheme) {
-      if (colorScheme === 'light') {
-        changeNavigationBarColor(BlueDefaultTheme.colors.background, true, true);
-      } else {
-        changeNavigationBarColor(BlueDarkTheme.colors.buttonBackgroundColor, false, true);
-      }
-    }
-  }, [colorScheme]);
-
   const addListeners = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
@@ -153,7 +137,7 @@ const App = () => {
 
   const popInitialAction = async data => {
     if (data) {
-      const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
@@ -174,7 +158,7 @@ const App = () => {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
-          const wallet = wallets.find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
           if (wallet) {
             NavigationService.dispatch(
               CommonActions.navigate({
@@ -193,7 +177,7 @@ const App = () => {
   };
 
   const walletQuickActions = data => {
-    const wallet = wallets.find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
     NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
@@ -327,7 +311,12 @@ const App = () => {
   };
 
   const handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), { wallets, addWallet, saveToDisk });
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), {
+      wallets,
+      addWallet,
+      saveToDisk,
+      setSharedCosigner,
+    });
   };
 
   const showClipboardAlert = ({ contentType }) => {
@@ -371,13 +360,12 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <View style={styles.root}>
-        <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
         </NavigationContainer>
-        {walletsInitialized && !isDesktop && <WatchConnectivity />}
       </View>
+      <WatchConnectivity />
       <DeviceQuickActions />
       <Biometric />
       <WidgetCommunication />

@@ -1,6 +1,7 @@
 import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
+  Coinbase: 'Coinbase',
   CoinDesk: 'CoinDesk',
   CoinGecko: 'CoinGecko',
   Yadio: 'Yadio',
@@ -8,9 +9,25 @@ export const FiatUnitSource = {
   Exir: 'Exir',
   wazirx: 'wazirx',
   Bitstamp: 'Bitstamp',
+  BNR: 'BNR',
 } as const;
 
 const RateExtractors = {
+  Coinbase: async (ticker: string): Promise<number> => {
+    let json;
+    try {
+      const res = await fetch(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/buy`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    }
+    let rate = json?.data?.amount;
+    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    return rate;
+  },
   CoinDesk: async (ticker: string): Promise<number> => {
     let json;
     try {
@@ -19,7 +36,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bpi?.[ticker]?.rate_float; // eslint-disable-line
+    let rate = json?.bpi?.[ticker]?.rate_float;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);
@@ -34,7 +51,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bitcoin?.[ticker] || json?.bitcoin?.[ticker.toLowerCase()]; // eslint-disable-line
+    const rate = json?.bitcoin?.[ticker] || json?.bitcoin?.[ticker.toLowerCase()];
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
     return rate;
   },
@@ -58,7 +75,30 @@ const RateExtractors = {
     if (!(rate >= 0)) throw new Error(`Could not update rate from Bitstamp for ${ticker}: data is wrong`);
     return rate;
   },
+  BNR: async (): Promise<number> => {
+    try {
+      const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
+      const xmlData = await response.text();
 
+      const targetCurrency = 'USD';
+
+      const pattern = new RegExp(`<Rate currency="${targetCurrency}">([\\d.]+)<\\/Rate>`);
+
+      const matches = xmlData.match(pattern);
+
+      if (matches && matches[1]) {
+        const ronExchangeRate = parseFloat(matches[1]);
+
+        if (!isNaN(ronExchangeRate) && ronExchangeRate > 0) {
+          return ronExchangeRate;
+        }
+      }
+
+      throw new Error(`Could not find a valid exchange rate for ${targetCurrency}`);
+    } catch (error: any) {
+      throw new Error(`Could not fetch RON exchange rate: ${error.message}`);
+    }
+  },
   Yadio: async (ticker: string): Promise<number> => {
     let json;
     try {
@@ -115,7 +155,7 @@ const RateExtractors = {
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.ticker?.buy; // eslint-disable-line
+    let rate = json?.ticker?.buy;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);

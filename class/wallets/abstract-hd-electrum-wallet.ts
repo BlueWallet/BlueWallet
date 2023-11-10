@@ -1482,8 +1482,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   getBIP47NotificationAddress(): string {
-    const bip47 = this.getBIP47FromSeed();
-    return bip47.getNotificationAddress();
+    const bip47Local = this.getBIP47FromSeed();
+    return bip47Local.getNotificationAddress();
   }
 
   async fetchBIP47SenderPaymentCodes(): Promise<void> {

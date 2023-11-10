@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar, BackHandler } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -62,6 +62,7 @@ const TransactionsStatus = () => {
 
   useLayoutEffect(() => {
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -77,9 +78,9 @@ const TransactionsStatus = () => {
   }, [colors, tx]);
 
   useEffect(() => {
-    for (const tx of wallet.current.getTransactions()) {
-      if (tx.hash === hash) {
-        setTX(tx);
+    for (const newTx of wallet.current.getTransactions()) {
+      if (newTx.hash === hash) {
+        setTX(newTx);
         break;
       }
     }
@@ -191,8 +192,8 @@ const TransactionsStatus = () => {
   }, [tx, wallets]);
 
   useEffect(() => {
-    const walletID = wallet.current?.getID();
-    if (walletID) {
+    const wID = wallet.current?.getID();
+    if (wID) {
       setSelectedWallet(wallet.current?.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -360,7 +361,6 @@ const TransactionsStatus = () => {
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 
-      <StatusBar barStyle="default" />
       <View style={styles.container}>
         <BlueCard>
           <View style={styles.center}>
@@ -539,6 +539,7 @@ const styles = StyleSheet.create({
 TransactionsStatus.navigationOptions = navigationStyle(
   {
     headerTitle: '',
+    statusBarStyle: 'auto',
   },
   (options, { theme }) => ({
     ...options,

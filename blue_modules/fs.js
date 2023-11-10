@@ -17,7 +17,7 @@ const writeFileAndExportToAndroidDestionation = async ({ filename, contents, des
     buttonNegative: loc._.cancel,
     buttonPositive: loc._.ok,
   });
-  if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
     const filePath = destination + `/${filename}`;
     try {
       await RNFS.writeFile(filePath, contents);
@@ -185,8 +185,8 @@ const showFilePickerAndReadFile = async function () {
 
     if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
       return new Promise(resolve => {
-        const uri = res.uri.toString().replace('file://', '');
-        LocalQRCode.decode(decodeURI(uri), (error, result) => {
+        const uri2 = res.uri.toString().replace('file://', '');
+        LocalQRCode.decode(decodeURI(uri2), (error, result) => {
           if (!error) {
             resolve({ data: result, uri: decodeURI(res.uri) });
           } else {
@@ -199,6 +199,9 @@ const showFilePickerAndReadFile = async function () {
     file = await RNFS.readFile(uri);
     return { data: file, uri: decodeURI(res.uri) };
   } catch (err) {
+    if (!DocumentPicker.isCancel(err)) {
+      alert(err.message);
+    }
     return { data: false, uri: false };
   }
 };

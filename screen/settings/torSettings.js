@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View } from 'react-native';
-
 import navigationStyle from '../../components/navigationStyle';
 import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import { isTorCapable } from '../../blue_modules/environment';
 
-const torrific = require('../../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 /*
   TorSettings is not displayed in Settings menu if isTorCapable is false. No need to provide code protection.
@@ -60,7 +60,6 @@ const TorSettings = () => {
     return () => {
       clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

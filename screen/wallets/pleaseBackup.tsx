@@ -1,20 +1,23 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { AbstractWallet } from '../../class';
+import { useTheme } from '../../components/themes';
 
-const PleaseBackup = () => {
+const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
-  const { walletID } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const { walletID } = useRoute().params as { walletID: string };
+  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
+
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.elevated,
@@ -25,17 +28,14 @@ const PleaseBackup = () => {
     wortText: {
       color: colors.labelText,
     },
-
-    successText: {
-      color: colors.foregroundColor,
-    },
     pleaseText: {
       color: colors.foregroundColor,
     },
   });
 
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    // @ts-ignore: Ignore
+    navigation.dangerouslyGetParent()?.pop();
     return true;
   }, [navigation]);
 
@@ -51,41 +51,47 @@ const PleaseBackup = () => {
   }, []);
 
   const renderSecret = () => {
-    const component = [];
-    for (const [index, secret] of wallet.getSecret().split(/\s/).entries()) {
-      const text = `${index + 1}. ${secret}  `;
-      component.push(
-        <View style={[styles.word, stylesHook.word]} key={`${index}`}>
-          <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
-            {text}
-          </Text>
-        </View>,
-      );
+    const component: JSX.Element[] = [];
+    const entries = wallet?.getSecret().split(/\s/).entries();
+    if (entries) {
+      for (const [index, secret] of entries) {
+        if (secret) {
+          const text = `${index + 1}. ${secret}  `;
+          component.push(
+            <View style={[styles.word, stylesHook.word]} key={index}>
+              <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
+                {text}
+              </Text>
+            </View>,
+          );
+        }
+      }
     }
     return component;
   };
 
-  return isLoading ? (
-    <View style={[styles.loading, stylesHook.flex]}>
-      <ActivityIndicator />
-    </View>
-  ) : (
-    <SafeBlueArea style={stylesHook.flex}>
-      <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
-        <View style={styles.please}>
-          <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
-        </View>
-        <View style={styles.list}>
-          <View style={styles.secret}>{renderSecret()}</View>
-        </View>
-        <View style={styles.bottom}>
-          <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
-        </View>
-      </ScrollView>
+  return (
+    <SafeBlueArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
+          <View style={styles.please}>
+            <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+          </View>
+          <View style={styles.list}>
+            <View style={styles.secret}>{renderSecret()}</View>
+          </View>
+          <View style={styles.bottom}>
+            <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
+          </View>
+        </ScrollView>
+      )}
     </SafeBlueArea>
   );
 };
 
+// @ts-ignore: Ignore
 PleaseBackup.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
@@ -130,10 +136,6 @@ const styles = StyleSheet.create({
     flexGrow: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  successText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
   pleaseText: {
     marginVertical: 16,

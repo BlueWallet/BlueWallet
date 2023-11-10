@@ -1328,7 +1328,7 @@ describe('multisig-wallet (native segwit)', () => {
   });
 
   it('can import incomplete wallet from Coldcard', async () => {
-    const Zpub2 = 'Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn';
+    const Zpub = 'Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn';
 
     const w = new MultisigHDWallet();
     w.setSecret(coldcardExport);
@@ -1338,8 +1338,8 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(w.getM(), 0); // zero means unknown
     assert.strictEqual(w.getN(), 1); // added only one cosigner
-    assert.strictEqual(w.getCosigner(1), Zpub2);
-    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), Zpub2);
+    assert.strictEqual(w.getCosigner(1), Zpub);
+    assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), Zpub);
     assert.strictEqual(w.getDerivationPath(), ''); // unknown
   });
 

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
-import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { View, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -12,6 +12,7 @@ import Button, { ButtonStyle } from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -32,7 +33,7 @@ const LdkInfo = () => {
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
-  const { colors }: { colors: any } = useTheme();
+  const { colors } = useTheme();
   const { setOptions, navigate } = useNavigation();
   const name = useRoute().name;
   const [isLoading, setIsLoading] = useState(true);
@@ -81,8 +82,8 @@ const LdkInfo = () => {
         setChannels([]);
       }
       if (listChannels && Array.isArray(listChannels)) {
-        const inactiveChannels = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
-        setInactiveChannels(inactiveChannels);
+        const inactive = listChannels.filter(channel => !channel.is_usable && channel.is_funding_locked);
+        setInactiveChannels(inactive);
       } else {
         setInactiveChannels([]);
       }
@@ -373,7 +374,6 @@ const LdkInfo = () => {
   // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
   return (
     <SafeBlueArea styles={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
       <SectionList
         ref={(ref: SectionList) => {
           sectionList.current = ref;
@@ -460,6 +460,7 @@ LdkInfo.navigationOptions = navigationStyle(
   (options, { theme, navigation, route }) => {
     return {
       ...options,
+      statusBarStyle: 'auto',
     };
   },
 );

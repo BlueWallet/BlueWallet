@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { ActivityIndicator, Alert, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BlueButton, BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -11,6 +11,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import prompt from '../../helpers/prompt';
+import { useTheme } from '../../components/themes';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();
@@ -57,7 +58,7 @@ const ImportWalletDiscovery = () => {
       try {
         subtitle = wallet.getDerivationPath?.();
       } catch (e) {}
-      setWallets(wallets => [...wallets, { wallet, subtitle, id }]);
+      setWallets(w => [...w, { wallet, subtitle, id }]);
     };
 
     const onPassword = async (title, subtitle) => {
@@ -78,10 +79,10 @@ const ImportWalletDiscovery = () => {
     task.current = startImport(importText, askPassphrase, searchAccounts, onProgress, onWallet, onPassword);
 
     task.current.promise
-      .then(({ cancelled, wallets }) => {
+      .then(({ cancelled, wallets: w }) => {
         if (cancelled) return;
-        if (wallets.length === 1) saveWallet(wallets[0]); // instantly save wallet if only one has been discovered
-        if (wallets.length === 0) {
+        if (w.length === 1) saveWallet(w[0]); // instantly save wallet if only one has been discovered
+        if (w.length === 0) {
           ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
         }
       })

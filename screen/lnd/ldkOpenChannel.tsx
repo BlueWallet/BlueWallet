@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StatusBar, StyleSheet } from 'react-native';
-import { RouteProp, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { View, StyleSheet } from 'react-native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -15,6 +15,7 @@ import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -71,7 +72,6 @@ const LdkOpenChannel = (props: any) => {
 
       setVerified(true);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [psbt]);
 
   useEffect(() => {
@@ -215,7 +215,7 @@ const LdkOpenChannel = (props: any) => {
             let amountSats = fundingAmount.amountSats;
             switch (newUnit) {
               case BitcoinUnit.SATS:
-                amountSats = parseInt(fundingAmount.amount);
+                amountSats = parseInt(fundingAmount.amount, 10);
                 break;
               case BitcoinUnit.BTC:
                 amountSats = currency.btcToSatoshi(fundingAmount.amount);
@@ -238,7 +238,7 @@ const LdkOpenChannel = (props: any) => {
                 amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));
                 break;
               case BitcoinUnit.SATS:
-                amountSats = parseInt(text);
+                amountSats = parseInt(text, 10);
                 break;
             }
             setFundingAmount({ amount: text, amountSats });
@@ -274,12 +274,7 @@ const LdkOpenChannel = (props: any) => {
     );
   };
 
-  return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea styles={[styles.root, stylesHook.root]}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({
@@ -311,6 +306,7 @@ LdkOpenChannel.navigationOptions = navigationStyle(
       ...options,
       headerTitle: loc.lnd.new_channel,
       headerLargeTitle: true,
+      statusBarStyle: 'auto',
     };
   },
 );

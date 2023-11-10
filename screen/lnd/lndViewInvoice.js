@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
+import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   BlueText,
@@ -20,6 +20,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
+import { useTheme } from '../../components/themes';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -74,6 +75,7 @@ const LNDViewInvoice = () => {
             gestureEnabled: false,
             headerHideBackButton: true,
 
+            // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => (
               <TouchableOpacity
                 accessibilityRole="button"
@@ -128,7 +130,7 @@ const LNDViewInvoice = () => {
                 fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
-                const now = (currentDate.getTime() / 1000) | 0;
+                const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
                 const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
@@ -202,7 +204,7 @@ const LNDViewInvoice = () => {
 
     if (typeof invoice === 'object') {
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;
@@ -281,12 +283,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return (
-    <SafeBlueArea onLayout={onLayout}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeBlueArea onLayout={onLayout}>{render()}</SafeBlueArea>;
 };
 
 const styles = StyleSheet.create({
@@ -333,6 +330,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerTitle: loc.lndViewInvoice.lightning_invoice,
     headerStyle: {
       backgroundColor: theme.colors.customHeader,

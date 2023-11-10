@@ -7,7 +7,7 @@ const ToolTipMenu = (props, ref) => {
   const menuRef = useRef();
   const disabled = props.disabled ?? false;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
-  // eslint-disable-next-line react/prop-types
+
   const buttonStyle = props.buttonStyle ?? {};
   const handleToolTipSelection = selection => {
     props.onPressMenuItem(selection.id);

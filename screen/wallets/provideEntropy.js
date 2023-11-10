@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueCurrentTheme } from '../../components/themes';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20, SafeBlueArea, BlueTabs } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -247,12 +247,15 @@ const Entropy = () => {
         active={tab}
         onSwitch={setTab}
         tabs={[
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="toll" type="material" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="dice" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
+          // eslint-disable-next-line react/no-unstable-nested-components
           ({ active }) => (
             <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),

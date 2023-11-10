@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -31,6 +30,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isTorDisabled, setIsTorDisabled] = useState(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
+  const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
@@ -108,8 +108,8 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   };
 
-  const setWalletsWithNewOrder = wallets => {
-    BlueApp.wallets = wallets;
+  const setWalletsWithNewOrder = wlts => {
+    BlueApp.wallets = wlts;
     saveToDisk();
   };
 
@@ -201,6 +201,10 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets([...BlueApp.getWallets()]);
   };
 
+  const setSharedCosigner = cosigner => {
+    setCurrentSharedCosigner(cosigner);
+  };
+
   let txMetadata = BlueApp.tx_metadata || {};
   const getTransactions = BlueApp.getTransactions;
   const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
@@ -240,6 +244,8 @@ export const BlueStorageProvider = ({ children }) => {
         setSelectedWallet,
         addWallet,
         deleteWallet,
+        currentSharedCosigner,
+        setSharedCosigner,
         addAndSaveWallet,
         setItem,
         getItem,

@@ -3,8 +3,7 @@ import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } 
 import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useTheme } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import * as NavigationService from '../NavigationService';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
@@ -19,6 +18,7 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
+import { useTheme } from './themes';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
@@ -60,7 +60,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         item.value = '0';
       }
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
@@ -83,7 +83,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
@@ -137,7 +137,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       if (!item.ispaid) {
         const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0;
+        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
         const invoiceExpiration = item.timestamp + item.expire_time;
         if (invoiceExpiration < now) {
           return (

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Image, View, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
+
 import { SafeBlueArea, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
 
 const WalletsAddMultisigHelp = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +40,6 @@ const WalletsAddMultisigHelp = () => {
     <BlueLoading />
   ) : (
     <SafeBlueArea style={stylesHook.root}>
-      <StatusBar barStyle="light-content" />
       <ScrollView>
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>
@@ -133,6 +133,7 @@ WalletsAddMultisigHelp.navigationOptions = navigationStyle({
   },
   headerTintColor: '#FFFFFF',
   headerBackTitleVisible: false,
+  statusBarStyle: 'light',
 });
 
 export default WalletsAddMultisigHelp;

@@ -14,13 +14,15 @@ import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Psbt } from 'bitcoinjs-lib';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
+import { isTorCapable } from '../../blue_modules/environment';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const torrific = require('../../blue_modules/torrific');
+const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const Confirm = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDisabled } = useContext(BlueStorageContext);
@@ -29,7 +31,7 @@ const Confirm = () => {
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
   const [isLoading, setIsLoading] = useState(false);
   const [isPayjoinEnabled, setIsPayjoinEnabled] = useState(false);
-  const wallet = wallets.find(wallet => wallet.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const payjoinUrl = wallet.allowPayJoin() ? params.payjoinUrl : false;
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
   const { navigate, setOptions } = useNavigation();
@@ -70,6 +72,7 @@ const Confirm = () => {
 
   useEffect(() => {
     setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
@@ -124,14 +127,14 @@ const Confirm = () => {
           console.warn('trying TOR....');
           // working through TOR - crafting custom requester that will handle TOR http request
           const customPayjoinRequester = {
-            requestPayjoin: async function (psbt) {
-              console.warn('requesting payjoin with psbt:', psbt.toBase64());
+            requestPayjoin: async function (psbt2) {
+              console.warn('requesting payjoin with psbt:', psbt2.toBase64());
               const api = new torrific.Torsbee();
               const torResponse = await api.post(payjoinUrl, {
                 headers: {
                   'Content-Type': 'text/plain',
                 },
-                body: psbt.toBase64(),
+                body: psbt2.toBase64(),
               });
               console.warn('got torResponse.body');
               if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
@@ -153,8 +156,8 @@ const Confirm = () => {
         await payjoinClient.run();
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
-          const tx = payjoinPsbt.extractTransaction();
-          txids2watch.push(tx.getId());
+          const tx2watch = payjoinPsbt.extractTransaction();
+          txids2watch.push(tx2watch.getId());
         }
       }
 
@@ -186,7 +189,7 @@ const Confirm = () => {
     }
   };
 
-  const broadcast = async tx => {
+  const broadcast = async transaction => {
     await BlueElectrum.ping();
     await BlueElectrum.waitTillConnected();
 
@@ -196,7 +199,7 @@ const Confirm = () => {
       }
     }
 
-    const result = await wallet.broadcastTx(tx);
+    const result = await wallet.broadcastTx(transaction);
     if (!result) {
       throw new Error(loc.errors.broadcast);
     }

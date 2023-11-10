@@ -1,6 +1,6 @@
 import React, { useState, useContext, useLayoutEffect } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useNavigation, useTheme } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
@@ -9,6 +9,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import dayjs from 'dayjs';
 import alert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
 dayjs.extend(require('dayjs/plugin/calendar'));
 const currency = require('../../blue_modules/currency');
 

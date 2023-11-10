@@ -41,6 +41,7 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getTransactions().length, 2);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can fetch tx from huge wallet', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('1NDyJtNTjmwk5xPNhjgAMu4HDHigtobu1s'); // binance wallet
