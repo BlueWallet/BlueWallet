@@ -25,13 +25,36 @@ jobs:
     - name: Set up Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
-        xcode-version: '15.0.1' # Specify Xcode version here
+        xcode-version: 'latest' # Replace with the specific version if needed
+
+    - name: Install Apple Certificate
+      uses: apple-actions/import-certs@v1
+      with:
+        p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+        p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+
+    - name: Install Provisioning Profile
+      run: |
+        echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > /tmp/provisioning_profile.mobileprovision
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp /tmp/provisioning_profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
     - name: Install CocoaPods dependencies
       run: |
         sudo gem install cocoapods
         pod install --project-directory=ios
 
-    - name: Build Mac Catalyst app
+    - name: Build and Archive Mac Catalyst app
       run: |
-        xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' build
+        xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -destination 'generic/platform=macOS,variant=Mac Catalyst' archive -archivePath $PWD/build/BlueWallet.xcarchive
+
+    - name: Export DMG
+      run: |
+        # Add commands to convert the xcarchive to a DMG file
+        # This might require a custom script or tool
+
+    - name: Upload DMG as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: BlueWallet-MacCatalyst
+        path: path/to/your/BlueWallet.dmg
