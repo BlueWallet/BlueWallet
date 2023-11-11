@@ -1,6 +1,6 @@
-function DeviceQuickActions() {
-  DeviceQuickActions.STORAGE_KEY = 'DeviceQuickActionsEnabled';
+export const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
+function DeviceQuickActions() {
   DeviceQuickActions.setEnabled = () => {};
 
   DeviceQuickActions.getEnabled = async () => {
