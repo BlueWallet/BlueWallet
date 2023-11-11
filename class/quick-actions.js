@@ -1,13 +1,18 @@
 import QuickActions from 'react-native-quick-actions';
-import { Platform } from 'react-native';
+import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import { formatBalance } from '../loc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import DeeplinkSchemaMatch from './deeplink-schema-match';
+import OnAppLaunch from './on-app-launch';
+import * as NavigationService from '../NavigationService';
+import { CommonActions } from '@react-navigation/native';
 
 function DeviceQuickActions() {
   DeviceQuickActions.STORAGE_KEY = 'DeviceQuickActionsEnabled';
-  const { wallets, walletsInitialized, isStorageEncrypted, preferredFiatCurrency } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized, isStorageEncrypted, preferredFiatCurrency, addWallet, saveToDisk, setSharedCosigner } =
+    useContext(BlueStorageContext);
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -23,6 +28,15 @@ function DeviceQuickActions() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, walletsInitialized, preferredFiatCurrency]);
+
+  useEffect(() => {
+    if (walletsInitialized) {
+      DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
+      DeviceQuickActions.popInitialAction().then(popInitialAction);
+      return () => DeviceEventEmitter.removeListener('quickActionShortcut', walletQuickActions);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]);
 
   DeviceQuickActions.setEnabled = (enabled = true) => {
     return AsyncStorage.setItem(DeviceQuickActions.STORAGE_KEY, JSON.stringify(enabled)).then(() => {
@@ -50,6 +64,70 @@ function DeviceQuickActions() {
     } catch {
       return true;
     }
+  };
+
+  const popInitialAction = async data => {
+    if (data) {
+      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
+      NavigationService.dispatch(
+        CommonActions.navigate({
+          name: 'WalletTransactions',
+          key: `WalletTransactions-${wallet.getID()}`,
+          params: {
+            walletID: wallet.getID(),
+            walletType: wallet.type,
+          },
+        }),
+      );
+    } else {
+      const url = await Linking.getInitialURL();
+      if (url) {
+        if (DeeplinkSchemaMatch.hasSchema(url)) {
+          handleOpenURL({ url });
+        }
+      } else {
+        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+        if (!isViewAllWalletsEnabled) {
+          const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
+          const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
+          if (wallet) {
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  walletID: wallet.getID(),
+                  walletType: wallet.type,
+                },
+              }),
+            );
+          }
+        }
+      }
+    }
+  };
+
+  const handleOpenURL = event => {
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), {
+      wallets,
+      addWallet,
+      saveToDisk,
+      setSharedCosigner,
+    });
+  };
+
+  const walletQuickActions = data => {
+    const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'WalletTransactions',
+        key: `WalletTransactions-${wallet.getID()}`,
+        params: {
+          walletID: wallet.getID(),
+          walletType: wallet.type,
+        },
+      }),
+    );
   };
 
   const removeShortcuts = async () => {

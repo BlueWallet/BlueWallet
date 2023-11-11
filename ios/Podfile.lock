@@ -396,7 +396,7 @@ PODS:
     - React
   - rn-ldk (0.8.4):
     - React-Core
-  - RNCAsyncStorage (1.19.4):
+  - RNCAsyncStorage (1.19.5):
     - React-Core
   - RNCClipboard (1.12.1):
     - React-Core
@@ -773,7 +773,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 4c52a15602e70b64cd9230b0a17a9c12741371f4
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: 3a8f7145d17cdd9f88e7b77666c94a09e4f759c8
+  RNCAsyncStorage: f2974eca860c16a3e56eea5771fda8d12e2d2057
   RNCClipboard: d77213bfa269013bf4b857b7a9ca37ee062d8ef1
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
