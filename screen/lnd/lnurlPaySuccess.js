@@ -129,7 +129,7 @@ export default class LnurlPaySuccess extends Component {
             ) : (
               <BlueButton
                 onPress={() => {
-                  this.props.navigation.dangerouslyGetParent().popToTop();
+                  this.props.navigation.getParent().popToTop();
                 }}
                 title={loc.send.success_done}
               />
@@ -145,7 +145,7 @@ LnurlPaySuccess.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    dangerouslyGetParent: PropTypes.func,
+    getParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
 LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  headerHideBackButton: true,
+  headerBackVisible: false,
   gestureEnabled: false,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

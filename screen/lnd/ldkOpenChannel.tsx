@@ -109,6 +109,7 @@ const LdkOpenChannel = (props: any) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
     fetchAndSaveWalletTransactions(fundingWalletID);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    // @ts-ignore: Address types later
     navigate('Success', { amount: undefined });
     setIsLoading(false);
   };
@@ -144,6 +145,7 @@ const LdkOpenChannel = (props: any) => {
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
+      // @ts-ignore: Address types later
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
@@ -168,6 +170,7 @@ const LdkOpenChannel = (props: any) => {
 
   const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
+    // @ts-ignore: Address types later
     setParams({ remoteHostWithPubkey: ret.data });
   };
 
@@ -252,7 +255,10 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={text => setParams({ remoteHostWithPubkey: text })}
+          onChangeText={text =>
+            // @ts-ignore: Address types later
+            setParams({ remoteHostWithPubkey: text })
+          }
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
@@ -261,7 +267,9 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey] });
+            if (nodes[newKey])
+              // @ts-ignore: Address types later
+              setParams({ remoteHostWithPubkey: nodes[newKey] });
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
@@ -299,7 +307,7 @@ const styles = StyleSheet.create({
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
+    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {

@@ -174,5 +174,5 @@ const styles = StyleSheet.create({
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

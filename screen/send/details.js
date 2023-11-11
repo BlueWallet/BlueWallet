@@ -78,7 +78,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-  const { isEditable = true } = routeParams;
+  const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -614,7 +614,7 @@ const SendDetails = () => {
   };
 
   const importQrTransactionOnBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
@@ -751,7 +751,7 @@ const SendDetails = () => {
   };
 
   const onBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');

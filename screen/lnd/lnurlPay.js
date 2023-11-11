@@ -302,5 +302,5 @@ const styles = StyleSheet.create({
 LnurlPay.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

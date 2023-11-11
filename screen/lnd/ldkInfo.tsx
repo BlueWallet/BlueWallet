@@ -318,6 +318,7 @@ const LdkInfo = () => {
     if (availableWallets.length === 0) {
       return alert(loc.lnd.refill_create);
     }
+    // @ts-ignore: Address types later
     navigate('LDKOpenChannelRoot', {
       screen: 'SelectWallet',
       params: {
@@ -326,6 +327,7 @@ const LdkInfo = () => {
         onWalletSelect: (selectedWallet: AbstractWallet) => {
           const selectedWalletID = selectedWallet.getID();
           selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
+          // @ts-ignore: Address types later
           navigate('LDKOpenChannelRoot', {
             screen: 'LDKOpenChannelSetAmount',
             params: {

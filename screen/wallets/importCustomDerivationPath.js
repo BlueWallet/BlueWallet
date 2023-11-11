@@ -94,7 +94,7 @@ const ImportCustomDerivationPath = () => {
     importing.current = true;
     const wallet = wallets[path][type];
     addAndSaveWallet(wallet);
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
   };
 
   const renderItem = ({ item }) => {

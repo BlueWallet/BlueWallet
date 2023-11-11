@@ -45,7 +45,7 @@ const ImportWalletDiscovery = () => {
     if (importing.current) return;
     importing.current = true;
     addAndSaveWallet(wallet);
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
   };
 
   useEffect(() => {

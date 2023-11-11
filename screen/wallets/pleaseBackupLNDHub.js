@@ -18,7 +18,7 @@ const PleaseBackupLNDHub = () => {
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
   const styles = StyleSheet.create({
@@ -44,7 +44,7 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
-  const pop = () => navigation.dangerouslyGetParent().pop();
+  const pop = () => navigation.getParent().pop();
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
@@ -71,7 +71,7 @@ PleaseBackupLNDHub.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );

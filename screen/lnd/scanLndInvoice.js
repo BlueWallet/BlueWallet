@@ -368,7 +368,7 @@ export default ScanLndInvoice;
 ScanLndInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );

@@ -118,6 +118,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
 
   const importScan = () => {
     requestCameraAuthorization().then(() =>
+       // @ts-ignore: Address types later
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {

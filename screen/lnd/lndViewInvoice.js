@@ -27,7 +27,7 @@ const LNDViewInvoice = () => {
   const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
-  const { goBack, navigate, setParams, setOptions, dangerouslyGetParent } = useNavigation();
+  const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
@@ -73,7 +73,7 @@ const LNDViewInvoice = () => {
               shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
-            headerHideBackButton: true,
+            headerBackVisible: false,
 
             // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => (
@@ -81,7 +81,7 @@ const LNDViewInvoice = () => {
                 accessibilityRole="button"
                 style={styles.button}
                 onPress={() => {
-                  dangerouslyGetParent().pop();
+                  getParent().pop();
                 }}
                 testID="NavigationCloseButton"
               >

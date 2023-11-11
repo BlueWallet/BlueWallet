@@ -18,7 +18,7 @@ const PleaseBackupLdk = () => {
   const { colors } = useTheme();
   const { height, width } = useWindowDimensions();
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
 
@@ -47,7 +47,7 @@ const PleaseBackupLdk = () => {
     };
   }, [handleBackButton]);
 
-  const pop = () => navigation.dangerouslyGetParent().pop();
+  const pop = () => navigation.getParent().pop();
   return (
     <SafeBlueArea style={styles.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
@@ -80,7 +80,7 @@ PleaseBackupLdk.navigationOptions = navigationStyle({
   title: loc.pleasebackup.title,
   gestureEnabled: false,
   swipeEnabled: false,
-  headerHideBackButton: true,
+  headerBackVisible: false,
 });
 
 export default PleaseBackupLdk;

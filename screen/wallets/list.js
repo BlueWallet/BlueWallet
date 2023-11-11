@@ -266,7 +266,7 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef}>
+        <FContainer ref={walletActionButtonsRef.current}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={sendButtonLongPress}

@@ -35,7 +35,7 @@ const PleaseBackup: React.FC = () => {
 
   const handleBackButton = useCallback(() => {
     // @ts-ignore: Ignore
-    navigation.dangerouslyGetParent()?.pop();
+    navigation.getParent()?.pop();
     return true;
   }, [navigation]);
 
@@ -96,7 +96,7 @@ PleaseBackup.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerHideBackButton: false,
   },
   opts => ({ ...opts, title: loc.pleasebackup.title }),
 );
