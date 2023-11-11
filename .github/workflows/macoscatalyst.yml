@@ -1,0 +1,37 @@
+name: Mac Catalyst Build for React Native
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14' # Specify Node.js version here
+
+    - name: Run custom script for Mac Catalyst patches
+      run: |
+        npm run maccatalystpatches
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.0.1' # Specify Xcode version here
+
+    - name: Install CocoaPods dependencies
+      run: |
+        sudo gem install cocoapods
+        pod install --project-directory=ios
+
+    - name: Build Mac Catalyst app
+      run: |
+        xcodebuild -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -destination 'platform=macOS,arch=x86_64,variant=Mac Catalyst' build
