@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -52,7 +52,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   };
 
   return (
-    <SafeAreaView
+    <View
       ref={ref}
       onLayout={onLayout}
       style={[
@@ -81,7 +81,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               });
             })
         : props.children}
-    </SafeAreaView>
+    </View>
   );
 });
 
