@@ -19,6 +19,7 @@ const cStyles = StyleSheet.create({
   rootInline: {},
   rootPre: {
     position: 'absolute',
+    bottom: -1000,
   },
   rootPost: {
     borderRadius: BORDER_RADIUS,
@@ -57,8 +58,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       style={[
         cStyles.root,
         props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
-        newWidth ? cStyles.rootPost : cStyles.rootPre,
         bottomInsets,
+        newWidth ? cStyles.rootPost : cStyles.rootPre,
       ]}
     >
       {newWidth
