@@ -1,6 +1,7 @@
 import React, { useState, useRef, forwardRef, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio, SafeAreaView } from 'react-native';
 import { useTheme } from './themes';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -14,12 +15,10 @@ const cStyles = StyleSheet.create({
   },
   rootAbsolute: {
     position: 'absolute',
-    bottom: 30,
   },
   rootInline: {},
   rootPre: {
     position: 'absolute',
-    bottom: -1000,
   },
   rootPost: {
     borderRadius: BORDER_RADIUS,
@@ -36,6 +35,8 @@ interface FContainerProps {
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
+  const insets = useSafeAreaInsets();
+  const bottomInsets = { bottom: insets.bottom };
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
@@ -50,10 +51,15 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       ref={ref}
       onLayout={onLayout}
-      style={[cStyles.root, props.inline ? cStyles.rootInline : cStyles.rootAbsolute, newWidth ? cStyles.rootPost : cStyles.rootPre]}
+      style={[
+        cStyles.root,
+        props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
+        newWidth ? cStyles.rootPost : cStyles.rootPre,
+        bottomInsets,
+      ]}
     >
       {newWidth
         ? React.Children.toArray(props.children)
@@ -74,7 +80,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               });
             })
         : props.children}
-    </View>
+    </SafeAreaView>
   );
 });
 
