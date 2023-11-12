@@ -35,6 +35,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+pod 'react-native-bw-file-access', :path => '../blue_modules/react-native-bw-file-access'
 
 target 'BlueWallet' do
   config = use_native_modules!

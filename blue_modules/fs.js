@@ -7,6 +7,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
 import { isDesktop } from '../blue_modules/environment';
 import alert from '../components/Alert';
+import { readFile } from './react-native-bw-file-access';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
@@ -206,8 +207,18 @@ const showFilePickerAndReadFile = async function () {
   }
 };
 
+// todo expand with other platforms if necessary
+const readFileOutsideSandbox = filePath => {
+  if (Platform.OS === 'ios') {
+    return readFile(filePath);
+  } else {
+    return RNFS.readFile(filePath);
+  }
+};
+
 module.exports.writeFileAndExport = writeFileAndExport;
 module.exports.openSignedTransaction = openSignedTransaction;
 module.exports.showFilePickerAndReadFile = showFilePickerAndReadFile;
 module.exports.showImagePickerAndReadImage = showImagePickerAndReadImage;
 module.exports.takePhotoWithImagePickerAndReadPhoto = takePhotoWithImagePickerAndReadPhoto;
+module.exports.readFileOutsideSandbox = readFileOutsideSandbox;
