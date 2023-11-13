@@ -81,8 +81,9 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   const getPreferredCurrency = async () => {
-    const item = await getPreferredCurrencyAsyncStorage();
+    const item = JSON.parse(await getPreferredCurrencyAsyncStorage());
     _setPreferredFiatCurrency(item);
+    return item;
   };
 
   const setPreferredFiatCurrency = () => {
