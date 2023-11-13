@@ -19,25 +19,25 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatch (Complication).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>126</integer>
+			<integer>125</integer>
 		</dict>
 		<key>BlueWalletWatch (Glance).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>14</integer>
 		</dict>
-		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatch (Notification).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>125</integer>
+			<integer>123</integer>
 		</dict>
-		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatch.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>124</integer>
+			<integer>121</integer>
 		</dict>
 		<key>Stickers.xcscheme</key>
 		<dict>
@@ -73,6 +73,11 @@
 			<true/>
 		</dict>
 		<key>3271B0A8236E2E0700DA766F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B40D4E2F225841EC00428FCC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
