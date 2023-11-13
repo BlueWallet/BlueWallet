@@ -279,6 +279,8 @@ PODS:
     - glog
   - react-native-blue-crypto (1.0.0):
     - React
+  - react-native-bw-file-access (1.0.0):
+    - React-Core
   - react-native-document-picker (9.0.1):
     - React-Core
   - react-native-fingerprint-scanner (6.0.0):
@@ -459,7 +461,7 @@ PODS:
   - RNScreens (3.27.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNShare (9.4.1):
+  - RNShare (10.0.1):
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
@@ -500,6 +502,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
+  - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-fingerprint-scanner (from `../node_modules/react-native-fingerprint-scanner`)
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
@@ -611,6 +614,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   react-native-blue-crypto:
     :path: "../node_modules/react-native-blue-crypto"
+  react-native-bw-file-access:
+    :path: "../blue_modules/react-native-bw-file-access"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-fingerprint-scanner:
@@ -744,6 +749,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 7bf923954b4e035f494b01ac16633963412660d7
   React-logger: 655ff5db8bd922acfbe76a4983ffab048916343e
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
+  react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-fingerprint-scanner: ac6656f18c8e45a7459302b84da41a44ad96dbbe
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
@@ -790,12 +796,12 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: be07c7ae209074d0e8a84cf38b7909457ac59a32
   RNScreens: 3c2d122f5e08c192e254c510b212306da97d2581
-  RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
+  RNShare: bed7c4fbe615f3d977f22feb0902af9a790c1660
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: 23b6e11af4aaf104d169b1b0afa7e5cf96c676ce
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   Yoga: e71803b4c1fff832ccf9b92541e00f9b873119b9
 
-PODFILE CHECKSUM: 27db07925dc3a89e9ecced7e377a50dba9deb58a
+PODFILE CHECKSUM: 5b3364373487cc6199b7c1394de61911ee0bdf1c
 
 COCOAPODS: 1.13.0
