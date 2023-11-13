@@ -14,15 +14,15 @@
 			<key>orderHint</key>
 			<integer>71</integer>
 		</dict>
-		<key>BlueWallet-tvOS.xcscheme_^#shared#^_</key>
+		<key>BlueWallet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>BlueWallet.xcscheme_^#shared#^_</key>
+		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>126</integer>
 		</dict>
 		<key>BlueWalletWatch (Glance).xcscheme_^#shared#^_</key>
 		<dict>
@@ -32,17 +32,27 @@
 		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>125</integer>
 		</dict>
 		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>124</integer>
+		</dict>
+		<key>Stickers.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
 		</dict>
 		<key>Stickers.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>9</integer>
+		</dict>
+		<key>WidgetsExtension.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
 		</dict>
 		<key>WidgetsExtension.xcscheme_^#shared#^_</key>
 		<dict>
@@ -63,11 +73,6 @@
 			<true/>
 		</dict>
 		<key>3271B0A8236E2E0700DA766F</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>B40D4E2F225841EC00428FCC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
