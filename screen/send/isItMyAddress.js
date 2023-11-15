@@ -3,7 +3,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
-import { BlueButton, BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
@@ -121,7 +121,7 @@ const IsItMyAddress = () => {
                 <BlueSpacing20 />
               </>
             )}
-            <BlueButton
+            <Button
               disabled={address.trim().length === 0}
               title={loc.is_it_my_address.check_address}
               onPress={checkAddress}

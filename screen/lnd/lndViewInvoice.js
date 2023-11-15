@@ -5,15 +5,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import {
-  BlueLoading,
-  BlueText,
-  SafeBlueArea,
-  BlueButton,
-  BlueCopyTextToClipboard,
-  BlueSpacing20,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueLoading, BlueText, SafeBlueArea, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -273,7 +265,7 @@ const LNDViewInvoice = () => {
             <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
             <BlueSpacing20 />
-            <BlueButton
+            <Button
               style={stylesHook.additionalInfo}
               onPress={handleOnViewAdditionalInformationPressed}
               title={loc.lndViewInvoice.additional_info}

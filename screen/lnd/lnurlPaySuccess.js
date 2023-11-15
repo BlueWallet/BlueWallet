@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import {
-  BlueButton,
   BlueButtonLink,
   BlueCard,
   BlueLoading,
@@ -17,6 +15,7 @@ import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
+import Button from '../../components/Button';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -113,7 +112,7 @@ export default class LnurlPaySuccess extends Component {
 
           <BlueCard>
             {repeatable ? (
-              <BlueButton
+              <Button
                 onPress={() => {
                   this.props.navigation.navigate('ScanLndInvoiceRoot', {
                     screen: 'LnurlPay',
@@ -127,7 +126,7 @@ export default class LnurlPaySuccess extends Component {
                 icon={{ name: 'refresh', type: 'font-awesome', color: '#9aa0aa' }}
               />
             ) : (
-              <BlueButton
+              <Button
                 onPress={() => {
                   this.props.navigation.getParent().popToTop();
                 }}

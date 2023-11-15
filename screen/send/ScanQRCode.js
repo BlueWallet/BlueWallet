@@ -6,7 +6,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
 import alert from '../../components/Alert';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
@@ -370,7 +370,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <BlueButton
+          <Button
             title="OK"
             testID="scanQrBackdoorOkButton"
             onPress={() => {

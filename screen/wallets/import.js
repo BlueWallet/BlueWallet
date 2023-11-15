@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-
 import {
-  BlueButton,
   BlueButtonLink,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueFormLabel,
@@ -18,6 +16,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -133,7 +132,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton
+          <Button
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
             testID="DoImport"
