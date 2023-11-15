@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
-import { Button } from 'react-native-elements';
+import { ButtonRNElements } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,7 +13,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { Button as BlueButton } from '../../components/Button';
+import { Button } from '../../components/Button';
 
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
@@ -137,7 +137,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
-      <Button
+      <ButtonRNElements
         icon={{
           name: 'github',
           type: 'font-awesome',
