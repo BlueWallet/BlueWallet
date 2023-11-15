@@ -4,11 +4,12 @@ import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking,
 import { Button } from 'react-native-elements';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueButton, BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
+import { Button as BlueButton } from '../../components/Button';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);

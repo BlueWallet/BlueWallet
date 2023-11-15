@@ -3,11 +3,12 @@ import { useTheme } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
-import { BlueButton, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 
 import { randomBytes } from '../../class/rng';
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
+import Button from '../../components/Button';
 
 const GenerateWord = () => {
   const { colors } = useTheme();
@@ -79,14 +80,14 @@ const GenerateWord = () => {
             </View>
 
             <BlueSpacing10 />
-            <BlueButton title={loc.send.input_clear} onPress={clearMnemonicInput} />
+            <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
             <BlueSpacing20 />
             <BlueText style={styles.center} testID="Result">
               {result}
             </BlueText>
             <BlueSpacing20 />
             <View>
-              <BlueButton
+              <Button
                 disabled={mnemonic.trim().length === 0}
                 title={loc.autofill_word.generate_word}
                 onPress={checkMnemonic}

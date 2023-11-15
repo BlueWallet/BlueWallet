@@ -17,7 +17,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueAlertWalletExportReminder, BlueButton, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import { BlueAlertWalletExportReminder, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
@@ -31,6 +31,7 @@ import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import { isTorCapable } from '../../blue_modules/environment';
+import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
@@ -332,11 +333,7 @@ const LNDCreateInvoice = () => {
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
-        {isLoading ? (
-          <ActivityIndicator />
-        ) : (
-          <BlueButton disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
-        )}
+        {isLoading ? <ActivityIndicator /> : <Button disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />}
       </View>
     );
   };

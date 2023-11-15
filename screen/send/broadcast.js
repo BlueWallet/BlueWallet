@@ -10,7 +10,6 @@ import { HDSegwitBech32Wallet } from '../../class';
 import navigationStyle from '../../components/navigationStyle';
 import {
   BlueBigCheckmark,
-  BlueButton,
   BlueButtonLink,
   BlueCard,
   BlueFormLabel,
@@ -22,6 +21,7 @@ import {
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -143,10 +143,10 @@ const Broadcast = () => {
               </View>
               <BlueSpacing20 />
 
-              <BlueButton title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+              <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
               <BlueSpacing20 />
 
-              <BlueButton
+              <Button
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
                 disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}

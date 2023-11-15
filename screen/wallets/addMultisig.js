@@ -5,13 +5,14 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BlueButton, BlueListItem, BlueSpacing20 } from '../../BlueComponents';
+import { BlueListItem, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
@@ -231,7 +232,7 @@ const WalletsAddMultisig = () => {
         </View>
       )}
       <View style={styles.buttonContainer}>
-        <BlueButton buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
+        <Button buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
       </View>
       {renderModal()}
     </SafeAreaView>

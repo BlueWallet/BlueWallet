@@ -5,15 +5,7 @@ import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Vie
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
-import {
-  BlueButton,
-  BlueCard,
-  BlueDismissKeyboardInputAccessory,
-  BlueLoading,
-  BlueSpacing20,
-  BlueText,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
@@ -23,6 +15,7 @@ import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 
@@ -231,7 +224,7 @@ const LnurlPay = () => {
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
-            {payButtonDisabled ? <BlueLoading /> : <BlueButton title={loc.lnd.payButton} onPress={pay} />}
+            {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
             <BlueSpacing20 />
           </BlueCard>
         </ScrollView>

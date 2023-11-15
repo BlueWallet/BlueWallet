@@ -3,10 +3,11 @@ import { Alert, View, StyleSheet, TextInput, ActivityIndicator } from 'react-nat
 import { useNavigation } from '@react-navigation/native';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
-import { BlueButton, BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const WalletsImportSpeed = () => {
   const navigation = useNavigation();
@@ -82,7 +83,7 @@ const WalletsImportSpeed = () => {
       <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
       <BlueSpacing20 />
       <View style={styles.center}>
-        <BlueButton testID="SpeedDoImport" title="Import" onPress={importMnemonic} />
+        <Button testID="SpeedDoImport" title="Import" onPress={importMnemonic} />
         {loading && <ActivityIndicator />}
       </View>
     </SafeBlueArea>

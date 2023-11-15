@@ -21,13 +21,14 @@ import * as RNLocalize from 'react-native-localize';
 
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
+import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueListItem } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -234,7 +235,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
       <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
       <View style={mStyles.buttonContainer}>
-        <BlueButton testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
+        <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
       </View>
       <BlueSpacing20 />
     </>

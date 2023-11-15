@@ -21,6 +21,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -269,7 +270,7 @@ const LNDViewInvoice = () => {
             )}
             <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
 
-            <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
             <BlueSpacing20 />
             <BlueButton

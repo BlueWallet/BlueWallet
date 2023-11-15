@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { InteractionManager, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueButton } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
@@ -11,6 +11,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
 import Share from 'react-native-share';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const styles = StyleSheet.create({
   root: {
@@ -101,7 +102,7 @@ const WalletXpub = () => {
         </View>
         <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
         <View style={styles.share}>
-          <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
         </View>
       </>
     </SafeBlueArea>
