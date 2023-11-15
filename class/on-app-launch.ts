@@ -26,7 +26,7 @@ export default class OnAppLaunch {
     }
   }
 
-  static async getSelectedDefaultWallet(): Promise<AbstractWallet | boolean> {
+  static async getSelectedDefaultWallet(): Promise<AbstractWallet | false> {
     let selectedWallet: AbstractWallet | false = false;
     try {
       const selectedWalletID = JSON.parse((await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY)) || 'null');

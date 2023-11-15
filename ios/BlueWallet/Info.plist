@@ -4,10 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>io.bluewallet.bluewallet.fetchTxsForWallet</string>
-	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -68,20 +64,6 @@
 				<string>public.json</string>
 			</array>
 		</dict>
-		<dict>
-		    <key>CFBundleTypeIconFiles</key>
-        	<array/>
-			<key>CFBundleTypeName</key>
-			<string>BW COSIGNER</string>
-			<key>CFBundleTypeRole</key>
-			<string>Owner</string>
-			<key>LSHandlerRank</key>
-			<string>Owner</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>io.bluewallet.bwcosigner</string>
-			</array>
-		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -91,12 +73,6 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
-	<key>NSUserActivityTypes</key>
-    <array>
-        <string>io.bluewallet.bluewallet.receiveonchain</string>
-        <string>io.bluewallet.bluewallet.xpub</string>
-        <string>io.bluewallet.bluewallet.bwcosigner</string>
-    </array>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -132,8 +108,6 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -203,7 +177,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
-		<string>processing</string>
 		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
@@ -244,25 +217,6 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>psbt</string>
-				</array>
-			</dict>
-		</dict>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.json</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>BW COSIGNER</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>io.bluewallet.bwcosigner</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>bwcosigner</string>
 				</array>
 			</dict>
 		</dict>
@@ -368,25 +322,6 @@
 				</array>
 			</dict>
 		</dict>
-		<dict>
-        	<key>UTTypeConformsTo</key>
-        	<array>
-        		<string>public.json</string>
-        	</array>
-        	<key>UTTypeDescription</key>
-        	<string>BW COSIGNER</string>
-        	<key>UTTypeIconFiles</key>
-        	<array/>
-        	<key>UTTypeIdentifier</key>
-        	<string>io.bluewallet.bwcosigner</string>
-        	<key>UTTypeTagSpecification</key>
-        	<dict>
-        		<key>public.filename-extension</key>
-        		<array>
-        			<string>bwcosigner</string>
-        		</array>
-        	</dict>
-        </dict>
 	</array>
 	<key>bugsnag</key>
 	<dict>
