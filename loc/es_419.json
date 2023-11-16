@@ -304,7 +304,7 @@
     "privacy_read_clipboard": "Leer portapapeles",
     "privacy_system_settings": "Configuración de sistema",
     "privacy_quickactions": "Atajos de la Billetera",
-    "privacy_quickactions_explanation": "Mantén presionado el ícono de la aplicación BlueWallet en tu pantalla de inicio para ver rápidamente el saldo de tu billetera.",
+    "privacy_quickactions_explanation": "Mantén pulsado el icono de la aplicación BlueWallet para ver rápidamente el saldo de tu cartera.",
     "privacy_clipboard_explanation": "Proporciona atajos si encuentras una dirección o factura en tu portapapeles.",
     "privacy_do_not_track": "Desactivar análisis",
     "privacy_do_not_track_explanation": "La información de rendimiento y confiabilidad no se enviará para su análisis.",
@@ -549,6 +549,12 @@
     "check_address": "Verificar dirección",
     "no_wallet_owns_address": "Ninguna de las carteras disponibles posee la dirección proporcionada.",
     "view_qrcode": "Ver el código QR"
+  },
+  "autofill_word": {
+    "title": "Generar una palabra mnemotécnica final",
+    "enter": "Introduce una frase mnemotécnica parcial",
+    "generate_word": "Generar la última palabra",
+    "error": "¡La entrada no es una frase mnemónica parcial de 11 o 23 palabras!"
   },
   "cc": {
     "change": "Cambio",
