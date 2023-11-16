@@ -19,7 +19,6 @@ import {
   BitcoinButton,
   VaultButton,
   BlueFormLabel,
-  BlueButton,
   BlueButtonLink,
   BlueSpacing20,
 } from '../../BlueComponents';
@@ -34,6 +33,7 @@ import { LdkButton } from '../../components/LdkButton';
 import alert from '../../components/Alert';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -366,7 +366,7 @@ const WalletsAdd = () => {
           <BlueSpacing20 />
           <View style={styles.createButton}>
             {!isLoading ? (
-              <BlueButton
+              <Button
                 testID="Create"
                 title={loc.wallets.add_create}
                 disabled={!selectedWalletType || (selectedWalletType === Chain.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)}

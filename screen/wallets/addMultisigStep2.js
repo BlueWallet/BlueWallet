@@ -19,15 +19,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import {
-  BlueButton,
-  BlueButtonLink,
-  BlueFormMultiInput,
-  BlueSpacing10,
-  BlueSpacing20,
-  BlueText,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import loc from '../../loc';
@@ -44,6 +36,7 @@ import alert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -598,11 +591,7 @@ const WalletsAddMultisigStep2 = () => {
           <BlueSpacing10 />
           <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
           <BlueSpacing20 />
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
-          )}
+          {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />}
         </View>
       </BottomModal>
     );
@@ -636,7 +625,7 @@ const WalletsAddMultisigStep2 = () => {
             {isLoading ? (
               <ActivityIndicator />
             ) : (
-              <BlueButton disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
+              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
             )}
             <BlueButtonLink ref={openScannerButton} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
@@ -690,7 +679,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const footer = (
     <View style={styles.buttonBottom}>
-      {isLoading ? <ActivityIndicator /> : <BlueButton title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
+      {isLoading ? <ActivityIndicator /> : <Button title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
     </View>
   );
 

@@ -4,10 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import navigationStyle from '../components/navigationStyle';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
+import Button from '../components/Button';
 const prompt = require('../helpers/prompt');
 
 const PlausibleDeniability = () => {
@@ -62,7 +63,7 @@ const PlausibleDeniability = () => {
 
           <BlueSpacing20 />
 
-          <BlueButton
+          <Button
             testID="CreateFakeStorageButton"
             title={loc.plausibledeniability.create_fake_storage}
             onPress={handleOnCreateFakeStorageButtonPressed}

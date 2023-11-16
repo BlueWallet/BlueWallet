@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueButton, BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const LNDViewAdditionalInvoiceInformation = () => {
   const { walletID } = useRoute().params;
@@ -60,7 +61,7 @@ const LNDViewAdditionalInvoiceInformation = () => {
         <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
         <BlueCopyTextToClipboard text={walletInfo.uris[0]} />
         <View style={styles.share}>
-          <BlueButton
+          <Button
             icon={{
               name: 'share-alternative',
               type: 'entypo',

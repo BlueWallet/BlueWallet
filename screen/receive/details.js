@@ -16,7 +16,6 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
-  BlueButton,
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
@@ -38,6 +37,7 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -280,7 +280,7 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -419,7 +419,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton
+              <Button
                 testID="CustomAmountSaveButton"
                 style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}

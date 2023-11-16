@@ -1,18 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { SafeBlueArea, BlueButton, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
+import { SafeBlueArea, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalance } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
-import Button, { ButtonStyle } from '../../components/Button';
+import Button from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import StyledButton, { StyledButtonType } from '../../components/StyledButton';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -268,12 +269,16 @@ const LdkInfo = () => {
 
           {status === LdkNodeInfoChannelStatus.INACTIVE && (
             <>
-              <Button onPress={() => handleOnConnectPeerTapped(channelData)} text={loc.lnd.reconnect_peer} buttonStyle={ButtonStyle.grey} />
+              <StyledButton
+                onPress={() => handleOnConnectPeerTapped(channelData)}
+                text={loc.lnd.reconnect_peer}
+                buttonStyle={StyledButtonType.grey}
+              />
               <BlueSpacing20 />
             </>
           )}
 
-          <Button onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={ButtonStyle.destroy} />
+          <StyledButton onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={StyledButtonType.destroy} />
           <BlueSpacing20 />
         </View>
       </BottomModal>
@@ -398,7 +403,7 @@ const LdkInfo = () => {
       <View style={styles.marginHorizontal16}>
         {wBalance && wBalance.confirmedBalance ? (
           <>
-            <BlueButton
+            <Button
               onPress={claimBalance}
               title={loc.formatString(loc.lnd.claim_balance, {
                 balance: formatBalance(wBalance.confirmedBalance, wallet.getPreferredBalanceUnit()),
@@ -413,7 +418,7 @@ const LdkInfo = () => {
           </Text>
         ) : null}
         {maturingEta ? <Text style={stylesHook.detailsText}>ETA: {maturingEta}</Text> : null}
-        <Button text={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
+        <Button title={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
         <BlueSpacing20 />
       </View>
     </SafeBlueArea>

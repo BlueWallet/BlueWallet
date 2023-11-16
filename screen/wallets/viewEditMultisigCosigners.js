@@ -16,7 +16,6 @@ import {
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
-  BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
@@ -44,6 +43,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -218,7 +218,7 @@ const ViewEditMultisigCosigners = () => {
             </>
           )}
           <BlueSpacing20 />
-          <BlueButton
+          <Button
             title={loc.multisig.share}
             onPress={() => {
               setIsMnemonicsModalVisible(false);
@@ -228,7 +228,7 @@ const ViewEditMultisigCosigners = () => {
             }}
           />
           <BlueSpacing20 />
-          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
         </View>
       </BottomModal>
     );
@@ -490,11 +490,7 @@ const ViewEditMultisigCosigners = () => {
             {isLoading ? (
               <ActivityIndicator />
             ) : (
-              <BlueButton
-                disabled={importText.trim().length === 0}
-                title={loc.wallets.import_do_import}
-                onPress={handleUseMnemonicPhrase}
-              />
+              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
@@ -557,7 +553,7 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <View style={[styles.root, stylesHook.root]}>

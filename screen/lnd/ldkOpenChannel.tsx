@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
@@ -16,6 +16,7 @@ import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -196,7 +197,7 @@ const LdkOpenChannel = (props: any) => {
           <BlueText>{loc.lnd.are_you_sure_open_channel}</BlueText>
           <BlueSpacing20 />
           <View style={styles.horizontalButtons}>
-            <BlueButton onPress={finalizeOpenChannel} title={loc._.continue} />
+            <Button onPress={finalizeOpenChannel} title={loc._.continue} />
           </View>
         </View>
       );
@@ -276,7 +277,7 @@ const LdkOpenChannel = (props: any) => {
         />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>
-          <BlueButton onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
+          <Button onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
         </View>
       </View>
     );

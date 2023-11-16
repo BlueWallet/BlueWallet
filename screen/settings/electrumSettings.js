@@ -20,7 +20,6 @@ import loc from '../../loc';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
 import {
-  BlueButton,
   BlueButtonLink,
   BlueCard,
   BlueLoading,
@@ -38,6 +37,7 @@ import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import Button from '../../components/Button';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -380,7 +380,7 @@ export default class ElectrumSettings extends Component {
               </TouchableOpacity>
             </View>
             <BlueSpacing20 />
-            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
+            {this.state.isLoading ? <BlueLoading /> : <Button testID="Save" onPress={this.save} title={loc.settings.save} />}
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
