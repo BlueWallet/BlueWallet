@@ -552,7 +552,7 @@
   },
   "autofill_word": {
     "title": "Generar una palabra mnemónica final",
-    "enter": "Introduce una frase mnemotécnica parcial",
+    "enter": "Introduce una frase mnemónica parcial",
     "generate_word": "Generar la última palabra",
     "error": "¡La entrada no es una frase mnemónica parcial de 11 o 23 palabras!"
   },
