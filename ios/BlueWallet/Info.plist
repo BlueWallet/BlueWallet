@@ -74,7 +74,7 @@
 			<key>CFBundleTypeName</key>
 			<string>BW COSIGNER</string>
 			<key>CFBundleTypeRole</key>
-			<string>Owner</string>
+			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
