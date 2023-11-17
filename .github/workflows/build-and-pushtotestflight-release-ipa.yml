@@ -1,0 +1,53 @@
+name: iOS Build and Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          cd ios && pod install
+
+      - name: Install Apple Certificate
+        uses: apple-actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.P12_FILE_BASE64 }}
+          p12-password: ${{ secrets.P12_PASSWORD }}
+
+      - name: Build and Sign IPA for Each Target
+        run: |
+          for target in Target1 Target2 Target3 Target4 Target5
+          do
+            xcodebuild -workspace ios/YourWorkspace.xcworkspace -scheme $target -sdk iphoneos -configuration Release archive -archivePath $target.xcarchive
+            xcodebuild -exportArchive -archivePath $target.xcarchive -exportOptionsPlist ios/exportOptions.plist -exportPath ./build/$target
+          done
+
+      - name: Push to TestFlight
+        run: |
+          for target in Target1 Target2 Target3 Target4 Target5
+          do
+            xcrun altool --upload-app -f ./build/$target/$target.ipa -t ios -u ${{ secrets.APPLE_ID }} -p ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          done
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipa-files
+          path: ./build/*/*.ipa
