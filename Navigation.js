@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from 'react-native-screens/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 
@@ -44,7 +44,6 @@ import WalletAddresses from './screen/wallets/addresses';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
-import GenerateWord from './screen/wallets/generateWord';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -94,7 +93,7 @@ const WalletsRoot = () => {
   const theme = useTheme();
 
   return (
-    <WalletsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <WalletsStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
@@ -146,7 +145,6 @@ const WalletsRoot = () => {
       />
       <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions(theme)} />
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
-      <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
@@ -168,7 +166,7 @@ const AddWalletRoot = () => {
   const theme = useTheme();
 
   return (
-    <AddWalletStack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <AddWalletStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen
@@ -215,13 +213,8 @@ const SendDetailsRoot = () => {
   const theme = useTheme();
 
   return (
-    <SendDetailsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <SendDetailsStack.Screen
-        name="SendDetails"
-        component={SendDetails}
-        options={SendDetails.navigationOptions(theme)}
-        initialParams={SendDetails.initialParams}
-      />
+    <SendDetailsStack.Navigator screenOptions={{ headerHideShadow: true }}>
+      <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions(theme)} />
       <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
       <SendDetailsStack.Screen
         name="PsbtWithHardwareWallet"
@@ -254,7 +247,7 @@ const LNDCreateInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
-    <LNDCreateInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <LNDCreateInvoiceStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <LNDCreateInvoiceStack.Screen
         name="LNDCreateInvoice"
         component={LNDCreateInvoice}
@@ -282,7 +275,7 @@ const ScanLndInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
-    <ScanLndInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <ScanLndInvoiceStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
@@ -297,7 +290,7 @@ const LDKOpenChannelRoot = () => {
   const theme = useTheme();
 
   return (
-    <LDKOpenChannelStack.Navigator name="LDKOpenChannelRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="SelectWallet">
+    <LDKOpenChannelStack.Navigator name="LDKOpenChannelRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="SelectWallet">
       <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <LDKOpenChannelStack.Screen
         name="LDKOpenChannelSetAmount"
@@ -314,7 +307,7 @@ const AztecoRedeemRoot = () => {
   const theme = useTheme();
 
   return (
-    <AztecoRedeemStack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <AztecoRedeemStack.Navigator screenOptions={{ headerHideShadow: true }}>
       <AztecoRedeemStack.Screen name="AztecoRedeem" component={AztecoRedeem} options={AztecoRedeem.navigationOptions(theme)} />
       <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} />
     </AztecoRedeemStack.Navigator>
@@ -323,7 +316,9 @@ const AztecoRedeemRoot = () => {
 
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, presentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
+  <ScanQRCodeStack.Navigator
+    screenOptions={{ statusBarHidden: true, headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}
+  >
     <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} />
   </ScanQRCodeStack.Navigator>
 );
@@ -340,7 +335,7 @@ const ReorderWalletsStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerShadowVisible: false }}>
+    <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerHideShadow: true }}>
       <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions(theme)} />
     </ReorderWalletsStack.Navigator>
   );
@@ -357,7 +352,7 @@ const DrawerRoot = () => {
 
   return (
     <Drawer.Navigator
-      screenOptions={drawerStyle}
+      drawerStyle={drawerStyle}
       drawerType={isLargeScreen ? 'permanent' : null}
       drawerContent={drawerContent}
       drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
@@ -372,11 +367,7 @@ const ReceiveDetailsStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <ReceiveDetailsStack.Navigator
-      name="ReceiveDetailsRoot"
-      screenOptions={{ headerShadowVisible: false }}
-      initialRouteName="ReceiveDetails"
-    >
+    <ReceiveDetailsStack.Navigator name="ReceiveDetailsRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="ReceiveDetails">
       <ReceiveDetailsStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
     </ReceiveDetailsStack.Navigator>
   );
@@ -389,7 +380,7 @@ const WalletXpubStackRoot = () => {
   return (
     <WalletXpubStack.Navigator
       name="WalletXpubRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
       initialRouteName="WalletXpub"
     >
       <WalletXpubStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions(theme)} />
@@ -404,7 +395,7 @@ const SignVerifyStackRoot = () => {
   return (
     <SignVerifyStack.Navigator
       name="SignVerifyRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
       initialRouteName="SignVerify"
     >
       <SignVerifyStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
@@ -419,7 +410,7 @@ const WalletExportStackRoot = () => {
   return (
     <WalletExportStack.Navigator
       name="WalletExportRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
       initialRouteName="WalletExport"
     >
       <WalletExportStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions(theme)} />
@@ -432,7 +423,7 @@ const LappBrowserStackRoot = () => {
   const theme = useTheme();
 
   return (
-    <LappBrowserStack.Navigator name="LappBrowserRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="LappBrowser">
+    <LappBrowserStack.Navigator name="LappBrowserRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="LappBrowser">
       <LappBrowserStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions(theme)} />
     </LappBrowserStack.Navigator>
   );
@@ -445,7 +436,7 @@ const InitRoot = () => (
     <InitStack.Screen
       name="ReorderWallets"
       component={ReorderWalletsStackRoot}
-      options={{ headerShown: false, gestureEnabled: false, presentation: isDesktop ? 'containedModal' : 'modal' }}
+      options={{ headerShown: false, gestureEnabled: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' }}
     />
     <InitStack.Screen
       name={isHandset ? 'Navigation' : 'DrawerRoot'}
@@ -463,7 +454,7 @@ const ViewEditMultisigCosignersRoot = () => {
     <ViewEditMultisigCosignersStack.Navigator
       name="ViewEditMultisigCosignersRoot"
       initialRouteName="ViewEditMultisigCosigners"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
     >
       <ViewEditMultisigCosignersStack.Screen
         name="ViewEditMultisigCosigners"
@@ -482,7 +473,7 @@ const ExportMultisigCoordinationSetupRoot = () => {
     <ExportMultisigCoordinationSetupStack.Navigator
       name="ExportMultisigCoordinationSetupRoot"
       initialRouteName="ExportMultisigCoordinationSetup"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
+      screenOptions={{ headerHideShadow: true, statusBarStyle: 'light' }}
     >
       <ExportMultisigCoordinationSetupStack.Screen
         name="ExportMultisigCoordinationSetup"
@@ -496,7 +487,7 @@ const ExportMultisigCoordinationSetupRoot = () => {
 const PaymentCodeStack = createNativeStackNavigator();
 const PaymentCodeStackRoot = () => {
   return (
-    <PaymentCodeStack.Navigator name="PaymentCodeRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="PaymentCode">
+    <PaymentCodeStack.Navigator name="PaymentCodeRoot" screenOptions={{ headerHideShadow: true }} initialRouteName="PaymentCode">
       <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: loc.bip47.payment_code }} />
       <PaymentCodeStack.Screen
         name="PaymentCodesList"
@@ -508,7 +499,7 @@ const PaymentCodeStackRoot = () => {
 };
 
 const RootStack = createNativeStackNavigator();
-const NavigationDefaultOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'modal' };
+const NavigationDefaultOptions = { headerShown: false, stackPresentation: isDesktop ? 'containedModal' : 'modal' };
 const StatusBarLightOptions = { statusBarStyle: 'light' };
 const Navigation = () => {
   return (
@@ -556,7 +547,7 @@ const Navigation = () => {
         component={ScanQRCodeRoot}
         options={{
           headerShown: false,
-          presentation: isDesktop ? 'containedModal' : 'fullScreenModal',
+          stackPresentation: isDesktop ? 'containedModal' : 'fullScreenModal',
           statusBarHidden: true,
         }}
       />

@@ -207,7 +207,7 @@ const ReorderWallets = () => {
 
 ReorderWallets.navigationOptions = navigationStyle(
   {
-    headerBackVisible: false,
+    headerHideBackButton: true,
     headerLargeTitle: true,
     closeButton: true,
   },

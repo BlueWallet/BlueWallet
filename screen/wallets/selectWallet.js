@@ -15,7 +15,7 @@ import { useTheme } from '../../components/themes';
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
-  const { pop, navigate, setOptions, getParent } = useNavigation();
+  const { pop, navigate, setOptions, dangerouslyGetParent } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
   const { colors, closeImage } = useTheme();
   const isModal = useNavigationState(state => state.routes.length) === 1;
@@ -119,7 +119,7 @@ const SelectWallet = () => {
                 accessibilityRole="button"
                 style={styles.button}
                 onPress={() => {
-                  getParent().pop();
+                  dangerouslyGetParent().pop();
                 }}
                 testID="NavigationCloseButton"
               >

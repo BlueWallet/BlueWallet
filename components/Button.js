@@ -3,9 +3,9 @@ import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import { useTheme } from './themes';
 
-export const StyledButtonType = { default: 'default', destroy: 'destroy', grey: 'grey' };
-const StyledButton = props => {
-  const { onPress, text = '', disabled = false, buttonStyle = StyledButtonType.default } = props;
+export const ButtonStyle = { default: 'default', destroy: 'destroy', grey: 'grey' };
+const Button = props => {
+  const { onPress, text = '', disabled = false, buttonStyle = ButtonStyle.default } = props;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     buttonGrey: {
@@ -16,9 +16,9 @@ const StyledButton = props => {
     },
   });
   const textStyles = () => {
-    if (buttonStyle === StyledButtonType.grey) {
+    if (buttonStyle === ButtonStyle.grey) {
       return stylesHook.textGray;
-    } else if (buttonStyle === StyledButtonType.destroy) {
+    } else if (buttonStyle === ButtonStyle.destroy) {
       return styles.textDestroy;
     } else {
       return styles.textDefault;
@@ -26,9 +26,9 @@ const StyledButton = props => {
   };
 
   const buttonStyles = () => {
-    if (buttonStyle === StyledButtonType.grey) {
+    if (buttonStyle === ButtonStyle.grey) {
       return stylesHook.buttonGrey;
-    } else if (buttonStyle === StyledButtonType.destroy) {
+    } else if (buttonStyle === ButtonStyle.destroy) {
       return styles.buttonDestroy;
     } else {
       return styles.buttonDefault;
@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StyledButton;
-StyledButton.propTypes = {
+export default Button;
+Button.propTypes = {
   onPress: PropTypes.func.isRequired,
   text: PropTypes.string.isRequired,
   disabled: PropTypes.bool,

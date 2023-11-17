@@ -2,6 +2,7 @@ import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef } from 'react';
 import {
   AppState,
+  DeviceEventEmitter,
   NativeModules,
   NativeEventEmitter,
   Linking,
@@ -15,9 +16,11 @@ import {
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { Chain } from './models/bitcoinUnits';
+import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
@@ -29,6 +32,7 @@ import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
@@ -114,9 +118,32 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
+  useEffect(() => {
+    return () => {
+      Linking.removeEventListener('url', handleOpenURL);
+      AppState.removeEventListener('change', handleAppStateChange);
+      eventEmitter?.removeAllListeners('onNotificationReceived');
+      eventEmitter?.removeAllListeners('openSettings');
+      eventEmitter?.removeAllListeners('onUserActivityOpen');
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (colorScheme) {
+      if (colorScheme === 'light') {
+        changeNavigationBarColor(BlueDefaultTheme.colors.background, true, true);
+      } else {
+        changeNavigationBarColor(BlueDarkTheme.colors.buttonBackgroundColor, false, true);
+      }
+    }
+  }, [colorScheme]);
+
   const addListeners = () => {
     Linking.addEventListener('url', handleOpenURL);
     AppState.addEventListener('change', handleAppStateChange);
+    DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
+    DeviceQuickActions.popInitialAction().then(popInitialAction);
     EventEmitter?.getMostRecentUserActivity()
       .then(onUserActivityOpen)
       .catch(() => console.log('No userActivity object sent'));
@@ -128,6 +155,61 @@ const App = () => {
     eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter?.addListener('openSettings', openSettings);
     eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
+  };
+
+  const popInitialAction = async data => {
+    if (data) {
+      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
+      NavigationService.dispatch(
+        CommonActions.navigate({
+          name: 'WalletTransactions',
+          key: `WalletTransactions-${wallet.getID()}`,
+          params: {
+            walletID: wallet.getID(),
+            walletType: wallet.type,
+          },
+        }),
+      );
+    } else {
+      const url = await Linking.getInitialURL();
+      if (url) {
+        if (DeeplinkSchemaMatch.hasSchema(url)) {
+          handleOpenURL({ url });
+        }
+      } else {
+        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+        if (!isViewAllWalletsEnabled) {
+          const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
+          const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
+          if (wallet) {
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  walletID: wallet.getID(),
+                  walletType: wallet.type,
+                },
+              }),
+            );
+          }
+        }
+      }
+    }
+  };
+
+  const walletQuickActions = data => {
+    const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'WalletTransactions',
+        key: `WalletTransactions-${wallet.getID()}`,
+        params: {
+          walletID: wallet.getID(),
+          walletType: wallet.type,
+        },
+      }),
+    );
   };
 
   /**

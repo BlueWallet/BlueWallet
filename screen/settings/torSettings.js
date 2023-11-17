@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View } from 'react-native';
+import {  View } from 'react-native';
+
 import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { isTorCapable } from '../../blue_modules/environment';
-import Button from '../../components/Button';
 
 const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
@@ -91,13 +91,13 @@ const TorSettings = () => {
             <BlueText>Daemon Status: {daemonStatus}</BlueText>
           </BlueCard>
           <BlueCard>
-            <Button title={loc.send.dynamic_start} onPress={startIfNotStarted} />
+            <BlueButton title={loc.send.dynamic_start} onPress={startIfNotStarted} />
             <BlueSpacing20 />
-            <Button title={loc.send.dynamic_stop} onPress={stopIfRunning} />
+            <BlueButton title={loc.send.dynamic_stop} onPress={stopIfRunning} />
             <BlueSpacing20 />
-            <Button title="Test Socket" onPress={testSocket} />
+            <BlueButton title="Test Socket" onPress={testSocket} />
             <BlueSpacing20 />
-            <Button title="Test HTTP" onPress={testHttp} />
+            <BlueButton title="Test HTTP" onPress={testHttp} />
           </BlueCard>
         </>
       )}

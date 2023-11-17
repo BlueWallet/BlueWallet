@@ -16,6 +16,7 @@ import {
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
+  BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
@@ -43,7 +44,6 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -218,7 +218,7 @@ const ViewEditMultisigCosigners = () => {
             </>
           )}
           <BlueSpacing20 />
-          <Button
+          <BlueButton
             title={loc.multisig.share}
             onPress={() => {
               setIsMnemonicsModalVisible(false);
@@ -228,7 +228,7 @@ const ViewEditMultisigCosigners = () => {
             }}
           />
           <BlueSpacing20 />
-          <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
         </View>
       </BottomModal>
     );
@@ -490,7 +490,11 @@ const ViewEditMultisigCosigners = () => {
             {isLoading ? (
               <ActivityIndicator />
             ) : (
-              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
+              <BlueButton
+                disabled={importText.trim().length === 0}
+                title={loc.wallets.import_do_import}
+                onPress={handleUseMnemonicPhrase}
+              />
             )}
             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
@@ -553,7 +557,7 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -653,7 +657,7 @@ const styles = StyleSheet.create({
 ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerBackVisible: false,
+    headerHideBackButton: true,
     statusBarStyle: 'light',
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),

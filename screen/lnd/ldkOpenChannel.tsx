@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
@@ -16,7 +16,6 @@ import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -110,7 +109,6 @@ const LdkOpenChannel = (props: any) => {
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
     fetchAndSaveWalletTransactions(fundingWalletID);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-    // @ts-ignore: Address types later
     navigate('Success', { amount: undefined });
     setIsLoading(false);
   };
@@ -146,7 +144,6 @@ const LdkOpenChannel = (props: any) => {
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
-      // @ts-ignore: Address types later
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
@@ -171,7 +168,6 @@ const LdkOpenChannel = (props: any) => {
 
   const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
-    // @ts-ignore: Address types later
     setParams({ remoteHostWithPubkey: ret.data });
   };
 
@@ -197,7 +193,7 @@ const LdkOpenChannel = (props: any) => {
           <BlueText>{loc.lnd.are_you_sure_open_channel}</BlueText>
           <BlueSpacing20 />
           <View style={styles.horizontalButtons}>
-            <Button onPress={finalizeOpenChannel} title={loc._.continue} />
+            <BlueButton onPress={finalizeOpenChannel} title={loc._.continue} />
           </View>
         </View>
       );
@@ -256,10 +252,7 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={text =>
-            // @ts-ignore: Address types later
-            setParams({ remoteHostWithPubkey: text })
-          }
+          onChangeText={text => setParams({ remoteHostWithPubkey: text })}
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
@@ -268,16 +261,14 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey])
-              // @ts-ignore: Address types later
-              setParams({ remoteHostWithPubkey: nodes[newKey] });
+            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey] });
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
         />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>
-          <Button onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
+          <BlueButton onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
         </View>
       </View>
     );
@@ -308,7 +299,7 @@ const styles = StyleSheet.create({
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
+    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {

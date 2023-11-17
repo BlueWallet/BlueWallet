@@ -90,7 +90,6 @@ const WalletsList = () => {
 
   useLayoutEffect(() => {
     setOptions({
-      navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
@@ -266,7 +265,7 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef.current}>
+        <FContainer ref={walletActionButtonsRef}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={sendButtonLongPress}

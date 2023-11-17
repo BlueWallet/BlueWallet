@@ -6,12 +6,11 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
 import alert from '../../components/Alert';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -127,7 +126,7 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate(launchedBy);
         }
         onBarScanned({ data });
       } else {
@@ -176,7 +175,7 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate(launchedBy);
         }
         onBarScanned({ data });
       } else {
@@ -239,7 +238,7 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
 
       if (launchedBy) {
-        navigation.navigate(launchedBy, {});
+        navigation.navigate(launchedBy);
       }
       onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
@@ -249,7 +248,7 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate(launchedBy);
         }
         onBarScanned(ret.data);
       } catch (e) {
@@ -305,7 +304,7 @@ const ScanQRCode = () => {
   const dismiss = () => {
     onBarScannerDismissWithoutData();
     if (launchedBy) {
-      navigation.navigate(launchedBy, {});
+      navigation.navigate(launchedBy);
     } else {
       navigation.goBack();
     }
@@ -320,7 +319,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
-          <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       ) : isFocused ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
@@ -370,7 +369,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <Button
+          <BlueButton
             title="OK"
             testID="scanQrBackdoorOkButton"
             onPress={() => {

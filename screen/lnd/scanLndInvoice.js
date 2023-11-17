@@ -14,7 +14,7 @@ import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
@@ -25,7 +25,6 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -351,7 +350,7 @@ const ScanLndInvoice = () => {
                   </View>
                 ) : (
                   <View>
-                    <Button title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                    <BlueButton title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
                   </View>
                 )}
               </BlueCard>
@@ -369,7 +368,7 @@ export default ScanLndInvoice;
 ScanLndInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerBackVisible: false,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );

@@ -14,15 +14,15 @@
 			<key>orderHint</key>
 			<integer>71</integer>
 		</dict>
-		<key>BlueWallet.xcscheme_^#shared#^_</key>
+		<key>BlueWallet-tvOS.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
+		<key>BlueWallet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>1</integer>
 		</dict>
 		<key>BlueWalletWatch (Glance).xcscheme_^#shared#^_</key>
 		<dict>
@@ -32,22 +32,22 @@
 		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>4</integer>
+			<integer>3</integer>
 		</dict>
 		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>2</integer>
 		</dict>
 		<key>Stickers.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>4</integer>
 		</dict>
 		<key>WidgetsExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>129</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>

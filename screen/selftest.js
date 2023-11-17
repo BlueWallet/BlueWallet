@@ -6,7 +6,7 @@ import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
 
 import loc from '../loc';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading, BlueButton } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
 import {
   SegwitP2SHWallet,
@@ -17,7 +17,6 @@ import {
   SLIP39LegacyP2PKHWallet,
 } from '../class';
 import ecc from '../blue_modules/noble_ecc';
-import Button from '../components/Button';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -302,7 +301,7 @@ export default class Selftest extends Component {
             {Platform.OS === 'android' && (
               <>
                 <BlueSpacing20 />
-                <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+                <BlueButton title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
               </>
             )}
           </ScrollView>

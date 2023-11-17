@@ -10,7 +10,6 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
-import { FiatUnit } from '../models/fiatUnit';
 
 interface TransactionsNavigationHeaderProps {
   wallet: AbstractWallet;
@@ -41,7 +40,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
 
-  const { preferredFiatCurrency, saveToDisk } = useContext(BlueStorageContext);
+  const context = useContext(BlueStorageContext);
   const menuRef = useRef(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
@@ -82,7 +81,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
     const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
     setWallet(updatedWallet);
-    saveToDisk();
+    context.saveToDisk();
   };
 
   const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
@@ -156,18 +155,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         })()}
         style={styles.chainIcon}
       />
-
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel}>
         {wallet.getLabel()}
       </Text>
       <ToolTipMenu
         onPress={changeWalletBalanceUnit}
         ref={menuRef}
-        title={`${loc.wallets.balance} (${
-          wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-            ? preferredFiatCurrency.endPointKey ?? FiatUnit.USD
-            : wallet.getPreferredBalanceUnit()
-        })`}
+        title={loc.wallets.balance}
         onPressMenuItem={onPressMenuItem}
         actions={
           wallet.hideBalance

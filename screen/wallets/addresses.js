@@ -99,7 +99,7 @@ const WalletAddresses = () => {
 
   useLayoutEffect(() => {
     setOptions({
-      headerSearchBarOptions: {
+      searchBar: {
         onChangeText: event => setSearch(event.nativeEvent.text),
       },
     });

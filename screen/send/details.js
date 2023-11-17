@@ -24,7 +24,7 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -42,7 +42,6 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
@@ -79,7 +78,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-  const { isEditable } = routeParams;
+  const { isEditable = true } = routeParams;
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -615,7 +614,7 @@ const SendDetails = () => {
   };
 
   const importQrTransactionOnBarScanned = ret => {
-    navigation.getParent().pop();
+    navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
@@ -752,7 +751,7 @@ const SendDetails = () => {
   };
 
   const onBarScanned = ret => {
-    navigation.getParent().pop();
+    navigation.dangerouslyGetParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
@@ -1288,7 +1287,7 @@ const SendDetails = () => {
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Button onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <BlueButton onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -1683,5 +1682,3 @@ SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   title: loc.send.header,
   statusBarStyle: 'light',
 }));
-
-SendDetails.initialParams = { isEditable: true };

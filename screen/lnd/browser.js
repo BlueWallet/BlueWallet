@@ -519,7 +519,7 @@ Browser.contextType = BlueStorageContext;
 
 Browser.navigationOptions = navigationStyle(
   {
-    headerBackVisible: false,
+    headerHideBackButton: true,
     closeButton: true,
     statusBarStyle: 'auto',
   },

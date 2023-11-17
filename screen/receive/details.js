@@ -16,6 +16,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
+  BlueButton,
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
@@ -37,7 +38,6 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -280,7 +280,7 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -419,7 +419,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <Button
+              <BlueButton
                 testID="CustomAmountSaveButton"
                 style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
 ReceiveDetails.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerBackVisible: false,
+    headerHideBackButton: true,
   },
   opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );

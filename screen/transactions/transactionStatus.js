@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -15,8 +15,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -289,7 +287,7 @@ const TransactionsStatus = () => {
     } else if (isCPFPPossible === buttonStatus.possible) {
       return (
         <>
-          <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
+          <BlueButton onPress={navigateToCPFP} title={loc.transactions.status_bump} />
           <BlueSpacing10 />
         </>
       );
@@ -328,7 +326,7 @@ const TransactionsStatus = () => {
     } else if (isRBFBumpFeePossible === buttonStatus.possible) {
       return (
         <>
-          <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
+          <BlueButton onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
           <BlueSpacing10 />
         </>
       );

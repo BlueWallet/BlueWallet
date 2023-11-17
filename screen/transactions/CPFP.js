@@ -15,7 +15,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
@@ -23,7 +23,6 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
-import Button from '../../components/Button';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -168,7 +167,7 @@ export default class CPFP extends Component {
             <BlueSpacing20 />
             <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
             <BlueSpacing />
-            <Button
+            <BlueButton
               disabled={this.state.newFeeRate <= this.state.feeRate}
               onPress={() => this.createTransaction()}
               title={loc.transactions.cpfp_create}
@@ -196,7 +195,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <Button disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <BlueButton disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );

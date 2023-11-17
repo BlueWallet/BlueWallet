@@ -1,11 +1,10 @@
 import { LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 import URL from 'url';
 import { Chain } from '../models/bitcoinUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
-import { readFileOutsideSandbox } from '../blue_modules/fs';
-
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp = require('../BlueApp');
@@ -93,7 +92,7 @@ class DeeplinkSchemaMatch {
         }
       }
     } else if (DeeplinkSchemaMatch.isPossiblySignedPSBTFile(event.url)) {
-      readFileOutsideSandbox(decodeURI(event.url))
+      RNFS.readFile(decodeURI(event.url))
         .then(file => {
           if (file) {
             completionHandler([
@@ -109,8 +108,8 @@ class DeeplinkSchemaMatch {
         })
         .catch(e => console.warn(e));
       return;
-    } else if (DeeplinkSchemaMatch.isPossiblyCosignerFile(event.url)) {
-      readFileOutsideSandbox(decodeURI(event.url))
+    } else if (event.url.endsWith('.json')) {
+      RNFS.readFile(decodeURI(event.url))
         .then(file => {
           // checks whether the necessary json keys are present in order to set a cosigner,
           // doesn't validate the values this happens later
@@ -332,13 +331,6 @@ class DeeplinkSchemaMatch {
     return (
       (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
       filePath.toLowerCase().endsWith('.psbt')
-    );
-  }
-
-  static isPossiblyCosignerFile(filePath) {
-    return (
-      (filePath.toLowerCase().startsWith('file:') || filePath.toLowerCase().startsWith('content:')) &&
-      filePath.toLowerCase().endsWith('.bwcosigner')
     );
   }
 

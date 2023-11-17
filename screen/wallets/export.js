@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
 WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerBackVisible: false,
+    headerHideBackButton: true,
     statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),

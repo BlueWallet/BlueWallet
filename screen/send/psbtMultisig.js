@@ -3,14 +3,13 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButton, BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const currency = require('../../blue_modules/currency');
@@ -257,7 +256,7 @@ const PsbtMultisig = () => {
         </View>
       </View>
       <View style={styles.marginConfirmButton}>
-        <Button disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
+        <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
       </View>
     </>
   );
