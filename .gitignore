@@ -13,14 +13,10 @@ build/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-xcuserdata
-*.xccheckout
 *.moved-aside
 DerivedData
 *.hmap
 *.ipa
-*.xcuserstate
-ios/.xcode.env.local
 *.hprof
 .cxx/
 *.keystore
@@ -68,7 +64,6 @@ current-branch.json
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
-ios/BlueWallet.xcodeproj/xcuserdata/
 
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
