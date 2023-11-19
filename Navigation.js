@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
+import { Platform, useWindowDimensions, Dimensions } from 'react-native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
