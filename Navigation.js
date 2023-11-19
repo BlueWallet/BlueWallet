@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Platform, useWindowDimensions, Dimensions } from 'react-native';
+import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -353,7 +353,11 @@ const DrawerRoot = () => {
     return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   }, [dimensions.width]);
   const drawerStyle = useMemo(
-    () => ({ drawerStyle: { width: isLargeScreen ? 320 : '0%' }, drawerType: isLargeScreen ? 'permanent' : 'back' }),
+    () => ({
+      drawerPosition: I18nManager.isRTL ? 'right' : 'left',
+      drawerStyle: { width: isLargeScreen ? 320 : '0%' },
+      drawerType: isLargeScreen ? 'permanent' : 'back',
+    }),
     [isLargeScreen],
   );
   const drawerContent = useCallback(props => <DrawerList {...props} />, []);
