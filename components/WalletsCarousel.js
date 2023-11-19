@@ -318,12 +318,12 @@ const WalletsCarousel = forwardRef((props, ref) => {
       disableIntervalMomentum={horizontal}
       snapToInterval={itemWidth} // Adjust to your content width
       decelerationRate="fast"
-      contentContainerStyle={horizontal ? cStyles.content : cStyles.contentLargeScreen}
+      contentContainerStyle={cStyles.content}
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
       ListHeaderComponent={ListHeaderComponent}
-      style={horizontal ? { minHeight: sliderHeight + 9 } : {}}
+      style={{ minHeight: sliderHeight + 9 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       {...props}
     />
