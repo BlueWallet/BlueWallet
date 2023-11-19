@@ -86,8 +86,7 @@ const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, showFileImportButton, onBarScannerDismissWithoutData = () => {} } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -404,3 +403,14 @@ const ScanQRCode = () => {
 };
 
 export default ScanQRCode;
+ScanQRCode.initialParams = {
+  isLoading: false,
+  cameraStatusGranted: undefined,
+  backdoorPressed: undefined,
+  launchedBy: undefined,
+  urTotal: undefined,
+  urHave: undefined,
+  backdoorText: '',
+  backdoorVisible: false,
+  animatedQRCodeData: {},
+}
