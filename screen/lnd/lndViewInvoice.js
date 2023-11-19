@@ -17,7 +17,7 @@ import Button from '../../components/Button';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
-  const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
   const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();
@@ -98,7 +98,7 @@ const LNDViewInvoice = () => {
   }, [colors, isModal]);
 
   useEffect(() => {
-    setSelectedWallet(walletID);
+    setSelectedWalletID(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {

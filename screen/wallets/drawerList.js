@@ -13,7 +13,7 @@ import { useTheme } from '../../components/themes';
 
 const DrawerList = props => {
   const walletsCarousel = useRef();
-  const { wallets, selectedWallet } = useContext(BlueStorageContext);
+  const { wallets, selectedWalletID, setSelectedWalletID } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const walletsCount = useRef(wallets.length);
   const isFocused = useIsFocused();
@@ -33,6 +33,7 @@ const DrawerList = props => {
   const handleClick = item => {
     if (item?.getID) {
       const walletID = item.getID();
+      setSelectedWalletID(walletID);
       props.navigation.navigate('WalletTransactions', {
         walletID: item.getID(),
         walletType: item.type,
@@ -72,7 +73,7 @@ const DrawerList = props => {
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
         testID="WalletsList"
-        selectedWallet={selectedWallet}
+        selectedWallet={selectedWalletID}
         scrollEnabled={isFocused}
       />
     </DrawerContentScrollView>
