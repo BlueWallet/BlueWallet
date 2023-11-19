@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   FlatList,
   I18nManager,
+  InteractionManager,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -461,17 +462,15 @@ const WalletsAddMultisigStep2 = () => {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      setTimeout(() =>
-        requestCameraAuthorization().then(
-          () =>
-            navigation.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                onBarScanned,
-                showFileImportButton: true,
-              },
-            }),
-          650,
+      InteractionManager.runAfterInteractions(() =>
+        requestCameraAuthorization().then(() =>
+          navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              onBarScanned,
+              showFileImportButton: true,
+            },
+          }),
         ),
       );
     }
@@ -795,7 +794,7 @@ const styles = StyleSheet.create({
 });
 
 WalletsAddMultisigStep2.navigationOptions = navigationStyle({
-  headerTitle: null,
+  title: null,
   gestureEnabled: false,
   swipeEnabled: false,
 });

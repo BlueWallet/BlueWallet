@@ -562,6 +562,7 @@ const Navigation = () => {
           presentation: isDesktop ? 'containedModal' : 'fullScreenModal',
           statusBarHidden: true,
         }}
+        initialParams={ScanQRCode.initialParams}
       />
 
       <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
