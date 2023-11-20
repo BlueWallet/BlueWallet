@@ -450,7 +450,6 @@ const WalletDetails = () => {
       const data = [new Date(transaction.received).toString(), hash, value, memo];
 
       if (wallet.chain === Chain.OFFCHAIN) {
-        // Replace 'condition' with your specific condition
         data.push(status);
       }
 
