@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useReducer } from 'react';
 import {
   Text,
   ScrollView,
@@ -45,20 +45,58 @@ const ButtonSelected = Object.freeze({
   LDK: 'LDK',
 });
 
+const initialState = {
+  isLoading: true,
+  walletBaseURI: '',
+  selectedIndex: 0,
+  label: '',
+  selectedWalletType: ButtonSelected.ONCHAIN,
+  backdoorPressed: 1,
+  entropy: undefined,
+  entropyButtonText: loc.wallets.add_entropy_provide,
+};
+
+const walletReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.payload };
+    case 'SET_WALLET_BASE_URI':
+      return { ...state, walletBaseURI: action.payload };
+    case 'SET_SELECTED_INDEX':
+      return { ...state, selectedIndex: action.payload };
+    case 'SET_LABEL':
+      return { ...state, label: action.payload };
+    case 'SET_SELECTED_WALLET_TYPE':
+      return { ...state, selectedWalletType: action.payload };
+    case 'INCREMENT_BACKDOOR_PRESSED':
+      return { ...state, backdoorPressed: state.backdoorPressed + 1 };
+    case 'SET_ENTROPY':
+      return { ...state, entropy: action.payload };
+    case 'SET_ENTROPY_BUTTON_TEXT':
+      return { ...state, entropyButtonText: action.payload };
+    default:
+      return state;
+  }
+};
+
 const WalletsAdd = () => {
   const { colors } = useTheme();
+
+  // State
+  const [state, dispatch] = useReducer(walletReducer, initialState);
+  const isLoading = state.isLoading;
+  const walletBaseURI = state.walletBaseURI;
+  const selectedIndex = state.selectedIndex;
+  const label = state.label;
+  const selectedWalletType = state.selectedWalletType;
+  const backdoorPressed = state.backdoorPressed;
+  const entropy = state.entropy;
+  const entropyButtonText = state.entropyButtonText;
+  //
   const colorScheme = useColorScheme();
   const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [walletBaseURI, setWalletBaseURI] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [label, setLabel] = useState('');
   const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled);
-  const [selectedWalletType, setSelectedWalletType] = useState(false);
-  const [backdoorPressed, setBackdoorPressed] = useState(1);
   const { navigate, goBack, setOptions } = useNavigation();
-  const [entropy, setEntropy] = useState();
-  const [entropyButtonText, setEntropyButtonText] = useState(loc.wallets.add_entropy_provide);
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -83,10 +121,10 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(url => setWalletBaseURI(url))
-      .catch(() => setWalletBaseURI(''))
-      .finally(() => setIsLoading(false));
-  }, [isAdvancedOptionsEnabled]);
+      .then(url => dispatch({ type: 'SET_WALLET_BASE_URI', payload: url }))
+      .catch(() => dispatch({ type: 'SET_WALLET_BASE_URI', payload: '' }))
+      .finally(() => dispatch({ type: 'SET_LOADING', payload: false }));
+  }, []);
 
   useEffect(() => {
     setOptions({
@@ -110,6 +148,38 @@ const WalletsAdd = () => {
     }
     setEntropy(newEntropy);
     setEntropyButtonText(entropyTitle);
+  };
+
+  const setIsLoading = value => {
+    dispatch({ type: 'SET_LOADING', payload: value });
+  };
+
+  const setWalletBaseURI = value => {
+    dispatch({ type: 'SET_WALLET_BASE_URI', payload: value });
+  };
+
+  const setSelectedIndex = value => {
+    dispatch({ type: 'SET_SELECTED_INDEX', payload: value });
+  };
+
+  const setLabel = value => {
+    dispatch({ type: 'SET_LABEL', payload: value });
+  };
+
+  const setSelectedWalletType = value => {
+    dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
+  };
+
+  const setBackdoorPressed = value => {
+    dispatch({ type: 'INCREMENT_BACKDOOR_PRESSED', payload: value });
+  };
+
+  const setEntropy = value => {
+    dispatch({ type: 'SET_ENTROPY', payload: value });
+  };
+
+  const setEntropyButtonText = value => {
+    dispatch({ type: 'SET_ENTROPY_BUTTON_TEXT', payload: value });
   };
 
   const createWallet = async () => {
