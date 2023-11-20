@@ -227,7 +227,6 @@ export const BlueStorageProvider = ({ children }) => {
   const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
-  const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
   const setDoNotTrack = BlueApp.setDoNotTrack;
   const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
   const getItem = BlueApp.getItem;
@@ -250,7 +249,6 @@ export const BlueStorageProvider = ({ children }) => {
         addAndSaveWallet,
         setItem,
         getItem,
-        getHodlHodlContracts,
         isAdvancedModeEnabled,
         fetchWalletBalances,
         fetchWalletTransactions,
