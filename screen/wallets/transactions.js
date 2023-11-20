@@ -45,7 +45,7 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = ({ navigation }) => {
-  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -129,7 +129,7 @@ const WalletTransactions = ({ navigation }) => {
     setTimeElapsed(0);
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setIsLoading(false);
-    setSelectedWallet(wallet.getID());
+    setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
       headerStyle: {
@@ -141,7 +141,7 @@ const WalletTransactions = ({ navigation }) => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
+  }, [wallet]);
 
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);

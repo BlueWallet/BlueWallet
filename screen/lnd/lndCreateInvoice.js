@@ -36,7 +36,7 @@ const currency = require('../../blue_modules/currency');
 const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWallet, isTorDisabled } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID, isTorDisabled } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { name } = useRoute();
@@ -106,7 +106,7 @@ const LNDCreateInvoice = () => {
       const newWallet = wallets.find(w => w.getID() === walletID);
       if (newWallet) {
         wallet.current = newWallet;
-        setSelectedWallet(newWallet.getID());
+        setSelectedWalletID(newWallet.getID());
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,7 +115,7 @@ const LNDCreateInvoice = () => {
   useFocusEffect(
     useCallback(() => {
       if (wallet.current) {
-        setSelectedWallet(walletID);
+        setSelectedWalletID(walletID);
         if (wallet.current.getUserHasSavedExport()) {
           renderReceiveDetails();
         } else {

@@ -352,16 +352,18 @@ const DrawerRoot = () => {
   const isLargeScreen = useMemo(() => {
     return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   }, [dimensions.width]);
-  const drawerStyle = useMemo(() => ({ width: isLargeScreen ? 320 : '0%' }), [isLargeScreen]);
-  const drawerContent = useCallback(props => (isLargeScreen ? <DrawerList {...props} /> : null), [isLargeScreen]);
+  const drawerStyle = useMemo(
+    () => ({
+      drawerPosition: I18nManager.isRTL ? 'right' : 'left',
+      drawerStyle: { width: isLargeScreen ? 320 : '0%' },
+      drawerType: isLargeScreen ? 'permanent' : 'back',
+    }),
+    [isLargeScreen],
+  );
+  const drawerContent = useCallback(props => <DrawerList {...props} />, []);
 
   return (
-    <Drawer.Navigator
-      screenOptions={drawerStyle}
-      drawerType={isLargeScreen ? 'permanent' : null}
-      drawerContent={drawerContent}
-      drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
-    >
+    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={drawerContent}>
       <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
     </Drawer.Navigator>
   );
@@ -509,13 +511,14 @@ const PaymentCodeStackRoot = () => {
 
 const RootStack = createNativeStackNavigator();
 const NavigationDefaultOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'modal' };
+const NavigationFormModalOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'formSheet' };
 const StatusBarLightOptions = { statusBarStyle: 'light' };
 const Navigation = () => {
   return (
     <RootStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ headerHideShadow: true, statusBarStyle: 'auto' }}>
       {/* stacks */}
       <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, translucent: false }} />
-      <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationFormModalOptions} />
       <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />

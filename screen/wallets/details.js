@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -226,7 +226,7 @@ const WalletDetails = () => {
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
-      setSelectedWallet(walletID);
+      setSelectedWalletID(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
