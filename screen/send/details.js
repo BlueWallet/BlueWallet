@@ -49,7 +49,7 @@ const fs = require('../../blue_modules/fs');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWallet, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const { name, params: routeParams } = useRoute();
   const scrollView = useRef();
@@ -230,7 +230,7 @@ const SendDetails = () => {
   // change header and reset state on wallet change
   useEffect(() => {
     if (!wallet) return;
-    setSelectedWallet(wallet.getID());
+    setSelectedWalletID(wallet.getID());
 
     // reset other values
     setUtxo(null);

@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -226,7 +226,7 @@ const WalletDetails = () => {
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
-      setSelectedWallet(walletID);
+      setSelectedWalletID(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -417,12 +417,17 @@ const WalletDetails = () => {
   };
 
   const onExportHistoryPressed = async () => {
-    let csvFile = [
+    const csvFileArray = [
       loc.transactions.date,
       loc.transactions.txid,
       `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
       loc.send.create_memo,
-    ].join(','); // CSV header
+    ];
+    if (wallet.chain === Chain.OFFCHAIN) {
+      csvFileArray.push(loc.lnd.payment);
+    }
+
+    let csvFile = csvFileArray.join(','); // CSV header
     const transactions = wallet.getTransactions();
 
     for (const transaction of transactions) {
@@ -430,17 +435,25 @@ const WalletDetails = () => {
 
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
+      let status;
 
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash;
         memo = transaction.description;
-
+        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
           const bb = Buffer.from(hash);
           hash = bb.toString('hex');
         }
       }
-      csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
+
+      const data = [new Date(transaction.received).toString(), hash, value, memo];
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        data.push(status);
+      }
+
+      csvFile += '\n' + data.join(','); // CSV line
     }
 
     await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);

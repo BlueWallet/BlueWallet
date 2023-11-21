@@ -25,7 +25,7 @@ const buttonStatus = Object.freeze({
 });
 
 const TransactionsStatus = () => {
-  const { setSelectedWallet, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { setSelectedWalletID, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { hash, walletID } = useRoute().params;
   const { navigate, setOptions, goBack } = useNavigation();
   const { colors } = useTheme();
@@ -196,7 +196,7 @@ const TransactionsStatus = () => {
   useEffect(() => {
     const wID = wallet.current?.getID();
     if (wID) {
-      setSelectedWallet(wallet.current?.getID());
+      setSelectedWalletID(wallet.current?.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.current]);

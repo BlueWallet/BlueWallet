@@ -19,7 +19,7 @@ export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [selectedWallet, setSelectedWallet] = useState('');
+  const [selectedWalletID, setSelectedWalletID] = useState('');
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
@@ -227,7 +227,6 @@ export const BlueStorageProvider = ({ children }) => {
   const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
-  const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
   const setDoNotTrack = BlueApp.setDoNotTrack;
   const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
   const getItem = BlueApp.getItem;
@@ -241,8 +240,8 @@ export const BlueStorageProvider = ({ children }) => {
         txMetadata,
         saveToDisk,
         getTransactions,
-        selectedWallet,
-        setSelectedWallet,
+        selectedWalletID,
+        setSelectedWalletID,
         addWallet,
         deleteWallet,
         currentSharedCosigner,
@@ -250,7 +249,6 @@ export const BlueStorageProvider = ({ children }) => {
         addAndSaveWallet,
         setItem,
         getItem,
-        getHodlHodlContracts,
         isAdvancedModeEnabled,
         fetchWalletBalances,
         fetchWalletTransactions,
