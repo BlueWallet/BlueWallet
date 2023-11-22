@@ -332,7 +332,7 @@ const WalletsAdd = () => {
   };
 
   return (
-    <ScrollView style={stylesHook.root}>
+    <ScrollView style={stylesHook.root} testID="ScrollView">
       <BlueSpacing20 />
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
