@@ -13,7 +13,13 @@ platform :ios do
     cocoapods(repo_update: true)
 
     # Synchronize certificates and provisioning profiles for each scheme
-    synchronize_profiles(schemes: ["BlueWallet", "BlueWalletWatch", "BlueWalletWatch Extension", "Stickers", "WidgetsExtension"])
+    synchronize_profiles(schemes: {
+      "BlueWallet" => "io.bluewallet.bluewallet",
+      "BlueWalletWatch" => "io.bluewallet.bluewallet.watch",
+      "BlueWalletWatch Extension" => "io.bluewallet.bluewallet.watch.extension",
+      "Stickers" => "io.bluewallet.bluewallet.stickers",
+      "WidgetsExtension" => "io.bluewallet.bluewallet.widgets"
+    })
 
     # Build the main app
     build_app(
@@ -33,8 +39,8 @@ platform :ios do
   end
 
   private_lane :synchronize_profiles do |options|
-    options[:schemes].each do |scheme|
-      match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.#{scheme.downcase}"])
+    options[:schemes].each do |scheme, identifier|
+      match(type: "appstore", app_identifier: identifier)
     end
   end
 end
