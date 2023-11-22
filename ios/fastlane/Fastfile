@@ -17,8 +17,8 @@ platform :ios do
       "BlueWallet" => "io.bluewallet.bluewallet",
       "BlueWalletWatch" => "io.bluewallet.bluewallet.watch",
       "BlueWalletWatch Extension" => "io.bluewallet.bluewallet.watch.extension",
-      "Stickers" => "io.bluewallet.bluewallet.stickers",
-      "WidgetsExtension" => "io.bluewallet.bluewallet.widgets"
+      "Stickers" => "io.bluewallet.bluewallet.Stickers",
+      "WidgetsExtension" => "io.bluewallet.bluewallet.MarketWidget"
     })
 
     # Build the main app
