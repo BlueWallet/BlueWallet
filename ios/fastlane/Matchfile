@@ -2,7 +2,7 @@ git_url("https://github.com/BlueWallet/fastlane.git")
 
 storage_mode("git")
 
-type("development") # The default type, can be: appstore, adhoc, enterprise or development
+type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
 
 app_identifier(["io.bluewallet.bluewallet"])
 username(ENV["APPLE_ID"]) # Your Apple Developer Portal username

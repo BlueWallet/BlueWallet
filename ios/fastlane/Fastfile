@@ -28,19 +28,28 @@ platform :ios do
     cocoapods(repo_update: true)
 
     # Match - Synchronize certificates and provisioning profiles
-    match(type: "appstore", readonly: true) # Set readonly to false if you want to generate new profiles
+    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet"])
+    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.watch"])
+    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.watch.extension"])
+    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.Stickers"])
+    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.MarketWidget"])
 
-    # Build the app
+    # Build and sign the app
     build_app(
       scheme: "BlueWallet", # Update the scheme name if different
       workspace: "BlueWallet.xcworkspace", # Update workspace path
       export_method: "app-store", # Use 'app-store' for TestFlight
       include_bitcode: true,
-      include_symbols: true
+      include_symbols: true,
+      # export_options: {
+      #   provisioningProfiles: { 
+      #     "io.bluewallet.bluewallet" => "Provisioning Profile Name" # Replace with your app's bundle identifier and provisioning profile name
+      #   }
+      # }
     )
 
     # Upload to TestFlight
-    upload_to_testflight(skip_waiting_for_build_processing: true) # Set to false to wait for processing
+    upload_to_testflight(skip_waiting_for_build_processing: false) # Changed to false to wait for processing
 
     # Clean up build artifacts
     clean_build_artifacts
