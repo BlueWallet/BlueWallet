@@ -1,13 +1,9 @@
-git_url("https://github.com/BlueWallet/fastlane.git")
+git_url("https://github.com/BlueWallet/fastlane.git") # Replace with your Git repo URL
 
 storage_mode("git")
 
-type("appstore") # The default type, can be: appstore, adhoc, enterprise or development
+type("appstore") # Define the type of profile (appstore, adhoc, development, enterprise)
 
-app_identifier(["io.bluewallet.bluewallet"])
-username(ENV["APPLE_ID"]) # Your Apple Developer Portal username
+app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]) # List all app identifiers
 
-# For all available options run `fastlane match --help`
-# Remove the # in the beginning of the line to enable the other options
-
-# The docs are available on https://docs.fastlane.tools/actions/match
+username(ENV["APPLE_ID"]) 

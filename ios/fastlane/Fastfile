@@ -1,18 +1,3 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
 default_platform(:ios)
 
 platform :ios do
@@ -27,46 +12,29 @@ platform :ios do
     # Install pods
     cocoapods(repo_update: true)
 
-    # Match - Synchronize certificates and provisioning profiles
-    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet"])
-    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.watch"])
-    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.watch.extension"])
-    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.Stickers"])
-    match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.MarketWidget"])
+    # Synchronize certificates and provisioning profiles for each scheme
+    synchronize_profiles(schemes: ["BlueWallet", "BlueWalletWatch", "BlueWalletWatch Extension", "Stickers", "WidgetsExtension"])
 
-    # Build and sign the app
+    # Build the main app
     build_app(
-      scheme: "BlueWallet", # Update the scheme name if different
-      workspace: "BlueWallet.xcworkspace", # Update workspace path
-      export_method: "app-store", # Use 'app-store' for TestFlight
-      include_bitcode: true,
-      include_symbols: true,
-      # export_options: {
-      #   provisioningProfiles: { 
-      #     "io.bluewallet.bluewallet" => "Provisioning Profile Name" # Replace with your app's bundle identifier and provisioning profile name
-      #   }
-      # }
+      scheme: "BlueWallet",
+      workspace: "BlueWallet.xcworkspace",
+      export_method: "app-store"
     )
 
     # Upload to TestFlight
-    upload_to_testflight(skip_waiting_for_build_processing: false) # Changed to false to wait for processing
+    upload_to_testflight(skip_waiting_for_build_processing: false)
 
     # Clean up build artifacts
     clean_build_artifacts
 
-    # Commit the version bump
-    commit_version_bump(
-      xcodeproj: "BlueWallet.xcodeproj", # Update path as needed
-      message: "Increment version number [skip ci]"
-    )
+    # Versioning and Git operations
+    # ...
+  end
 
-    # Ensure git status is clean after version bump
-    ensure_git_status_clean
-
-    # Optionally, add a tag for the new version
-    add_git_tag(tag: get_version_number + "." + get_build_number)
-    
-    # Push changes back to the repository
-    push_to_git_remote
+  private_lane :synchronize_profiles do |options|
+    options[:schemes].each do |scheme|
+      match(type: "appstore", app_identifier: ["io.bluewallet.bluewallet.#{scheme.downcase}"])
+    end
   end
 end
