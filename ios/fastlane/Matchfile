@@ -7,3 +7,5 @@ type("appstore") # Define the type of profile (appstore, adhoc, development, ent
 app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]) # List all app identifiers
 
 username(ENV["APPLE_ID"]) 
+
+team_id("A7W54YZ4WU") # Your Apple Developer Program Team ID
