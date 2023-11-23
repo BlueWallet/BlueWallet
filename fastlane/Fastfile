@@ -1,0 +1,63 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Deploy to TestFlight"
+  lane :deploy do
+    # Ensure git status is clean
+    ensure_git_status_clean
+
+    # Increment the build number
+    increment_build_number(xcodeproj: "ios/BlueWallet.xcodeproj") # Update path as needed
+
+    # Install pods
+    cocoapods(repo_update: true)
+
+    # Match - Synchronize certificates and provisioning profiles
+    match(type: "appstore", readonly: true) # Set readonly to false if you want to generate new profiles
+
+    # Build the app
+    build_app(
+      scheme: "BlueWallet", # Update the scheme name if different
+      workspace: "ios/BlueWallet.xcworkspace", # Update workspace path
+      export_method: "app-store", # Use 'app-store' for TestFlight
+      include_bitcode: true,
+      include_symbols: true
+    )
+
+    # Upload to TestFlight
+    upload_to_testflight(skip_waiting_for_build_processing: true) # Set to false to wait for processing
+
+    # Clean up build artifacts
+    clean_build_artifacts
+
+    # Commit the version bump
+    commit_version_bump(
+      xcodeproj: "ios/BlueWallet.xcodeproj", # Update path as needed
+      message: "Increment version number [skip ci]"
+    )
+
+    # Ensure git status is clean after version bump
+    ensure_git_status_clean
+
+    # Optionally, add a tag for the new version
+    add_git_tag(tag: get_version_number + "." + get_build_number)
+    
+    # Push changes back to the repository
+    push_to_git_remote
+  end
+end
