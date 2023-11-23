@@ -12,9 +12,9 @@ platform :ios do
   lane :deploy do
   ensure_git_status_clean
 
-  increment_build_number(xcodeproj: "BlueWallet.xcodeproj") # Update path as needed
+  increment_build_number(xcodeproj: "ios/BlueWallet.xcodeproj") # Update path as needed
 
-  sh "cd ../ && npm install && cd ios"
+  sh "npm install"
 
   # Install pods
   cocoapods(repo_update: true)
@@ -44,7 +44,7 @@ platform :ios do
     # Build the main app
     build_app(
       scheme: "BlueWallet",
-      workspace: "BlueWallet.xcworkspace",
+      workspace: "ios/BlueWallet.xcworkspace",
       export_method: "app-store",
       export_team_id: ENV["ITC_TEAM_ID"],
     )

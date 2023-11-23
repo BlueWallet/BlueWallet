@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="00: default_platform" time="0.000406">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="01: app_store_connect_api_key" time="0.002554">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="02: increment_build_number" time="0.215086">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="03: cocoapods" time="12.244749">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="04: match" time="28.154747">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="05: Switch to ios synchronize_profiles lane" time="0.000115">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="06: match" time="8.456797">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="07: match" time="4.626901">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="08: match" time="5.139574">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="09: match" time="5.479889">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="10: match" time="44.347888">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="11: build_app" time="552.382067">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="12: upload_to_testflight" time="467.828673">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="13: clean_build_artifacts" time="0.071072">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
