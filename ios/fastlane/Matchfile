@@ -1,4 +1,4 @@
-git_url("https://github.com/BlueWallet/fastlane.git") # Replace with your Git repo URL
+git_url(ENV["GIT_URL") # Replace with your Git repo URL
 
 storage_mode("git")
 
@@ -8,4 +8,4 @@ app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "i
 
 username(ENV["APPLE_ID"]) 
 
-team_id("A7W54YZ4WU") # Your Apple Developer Program Team ID
+team_id(ENV["ITC_TEAM_ID"]) # Your Apple Developer Program Team ID

@@ -1,30 +1,36 @@
 default_platform(:ios)
 
+app_store_connect_api_key(
+  key_id: ENV["FASTLANE_APP_STORE_CONNECT_API_KEY_ID"],
+  issuer_id: ENV["FASTLANE_APP_STORE_CONNECT_API_ISSUER_ID"],
+  key_filepath: ENV["FASTLANE_APP_STORE_CONNECT_API_KEY_FILEPATH"],
+  in_house: false
+)
+
 platform :ios do
   desc "Deploy to TestFlight"
   lane :deploy do
-    # Ensure git status is clean
-   
-   # ensure_git_status_clean
+  ensure_git_status_clean
 
-    # Increment the build number
-    increment_build_number(xcodeproj: "BlueWallet.xcodeproj") # Update path as needed
+  increment_build_number(xcodeproj: "BlueWallet.xcodeproj") # Update path as needed
 
-    # Install pods
-    cocoapods(repo_update: true)
+  sh "cd ../ && npm install && cd ios"
 
-    match(
-      type: "appstore",
-      app_identifier: [
-        "io.bluewallet.bluewallet",                # Main App
-        "io.bluewallet.bluewallet.watch",          # Watch App
-        "io.bluewallet.bluewallet.watch.extension",# Watch Extension
-        "io.bluewallet.bluewallet.Stickers",       # Stickers Extension
-        "io.bluewallet.bluewallet.MarketWidget",         # Widget Extension
-      ],
-      team_id: "A7W54YZ4WU", # Your Apple Developer Account Team ID
-      team_name: "Apple Distribution: Bluewallet Services, S. R. L." # Optional: Your Apple Developer Account Team Name
-    )
+  # Install pods
+  cocoapods(repo_update: true)
+
+  match(
+    type: "appstore",
+    app_identifier: [
+      "io.bluewallet.bluewallet",                # Main App
+      "io.bluewallet.bluewallet.watch",          # Watch App
+      "io.bluewallet.bluewallet.watch.extension",# Watch Extension
+      "io.bluewallet.bluewallet.Stickers",       # Stickers Extension
+      "io.bluewallet.bluewallet.MarketWidget",         # Widget Extension
+    ],
+    team_id: ENV["ITC_TEAM_ID"], # Your Apple Developer Account Team ID
+    team_name: ENV["ITC_TEAM_NAME"] # Optional: Your Apple Developer Account Team Name
+  )
 
     # Synchronize certificates and provisioning profiles for each scheme
     synchronize_profiles(schemes: {
@@ -40,7 +46,7 @@ platform :ios do
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
-      export_team_id: "A7W54YZ4WU"
+      export_team_id: ENV["ITC_TEAM_ID"],
     )
 
     # Upload to TestFlight
@@ -48,14 +54,11 @@ platform :ios do
 
     # Clean up build artifacts
     clean_build_artifacts
-
-    # Versioning and Git operations
-    # ...
   end
 
   private_lane :synchronize_profiles do |options|
     options[:schemes].each do |scheme, identifier|
-      match(type: "appstore", app_identifier: identifier, team_id: "A7W54YZ4WU") # Specify the team ID here
+      match(type: "appstore", app_identifier: identifier, team_id: ENV["ITC_TEAM_ID"]) # Specify the team ID here
     end
   end
 end
