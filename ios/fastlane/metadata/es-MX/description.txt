@@ -1,0 +1,46 @@
+Una billetera de Bitcoin que te permite almacenar, enviar Bitcoin, recibir Bitcoin con un enfoque en la seguridad y la simplicidad.
+
+En BlueWallet, una billetera bitcoin posee sus claves privadas. Una billetera Bitcoin hecha por usuarios de Bitcoin para la comunidad.
+
+Puedes realizar transacciones instantáneamente con cualquier persona en el mundo y transformar el sistema financiero directamente desde tu bolsillo.
+
+Crea gratis un número ilimitado de billeteras bitcoin o importa tu billetera existente. Es simple y rápido
+
+_____
+
+Esto es lo que obtienes:
+
+
+1 - Seguridad por diseño
+
+Open Source
+Con licencia del MIT, ¡puedes construirlo y ejecutarlo por tu cuenta! Hecho con ReactNative
+
+Negación plausible
+Contraseña que descifra carteras de bitcoins falsas si te ves obligado a revelar tu acceso
+
+Cifrado completo
+Además del cifrado multicapa de iOS, ciframos todo con contraseñas añadidas
+
+Nodo completo
+Conéctate a tu nodo completo de Bitcoin a través de Electrum
+
+Almacenamiento en frio
+Conéctate a tu billetera de hardware y mantén tus monedas en almacenamiento en frío
+
+2 - Centrado en tu experiencia
+
+Está en control
+Las llaves privadas nunca salen de tu dispositivo. Tú controlas tus llaves privadas
+
+Tarifas flexibles
+A partir de 1 Satoshi. Definido por ti, el usuario
+
+Reemplazar por tarifa
+(RBF) Acelera tus transacciones aumentando la tarifa (BIP125)
+
+Carteras solo-vista
+Las carteras de solo vista te permiten vigilar tu almacenamiento en frío sin tocar el hardware.
+
+Red Lightning
+Cartera Lightning con configuración cero. Transacciones injustamente baratas y rápidas con la mejor experiencia de usuario de Bitcoin.
