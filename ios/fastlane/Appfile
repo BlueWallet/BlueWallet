@@ -1,6 +1,3 @@
-# app_identifier("[[APP_IDENTIFIER]]") # The bundle identifier of your app
-# apple_id("[[APPLE_ID]]") # Your Apple email address
-
-
-# For more information about the Appfile, see:
-#     https://docs.fastlane.tools/advanced/#appfile
+app_identifier("io.bluewallet.bluewallet")
+apple_id(ENV["APPLE_ID"]) # Your Apple email ID
+itc_team_id(ENV["ITC_TEAM_ID"]) # App Store Connect Team ID
