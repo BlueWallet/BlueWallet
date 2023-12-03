@@ -46,26 +46,8 @@ jobs:
 
       - name: Install CocoaPods
         run: sudo gem install cocoapods
-
-      - name: Use npm caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-
-      # Very slow.
-      # - name: Use node_modules caches
-      #   id: cache-nm
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: node_modules
-      #     key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
-
+  
       - name: Install node_modules
-        if: steps.cache-nm.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Set up Git Authentication
@@ -108,13 +90,8 @@ jobs:
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
-      - name: Decode and Save API Key
-        env:
-          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-        run: |
-          echo -n "${APP_STORE_CONNECT_API_KEY_CONTENT}" | base64 -d > ios/appstore_api_key.p8
-          export APP_STORE_CONNECT_API_KEY_PATH=$(pwd)/ios/appstore_api_key.p8
-          echo $APP_STORE_CONNECT_API_KEY_PATH
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
       - name: Upload to TestFlight
         env: 
@@ -130,9 +107,15 @@ jobs:
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
 
-      - name: Clean Build Artifacts
-        run: bundle exec fastlane ios clean_build_artifacts_lane
-        working-directory: ./ios
+      - name: Read IPA Output Name
+        id: ipa_name
+        run: echo "::set-output name=ipa_output_name::$(cat output_name.txt)"
+
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.ipa_name.outputs.ipa_output_name }}
+          path: ./build/${{ steps.ipa_name.outputs.ipa_output_name }}
 
       - name: Upload Fastlane logs as Artifact
         if: always()

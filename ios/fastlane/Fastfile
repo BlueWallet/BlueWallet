@@ -50,8 +50,18 @@ platform :ios do
 
   desc "Increment build number"
   lane :increment_build_number_lane do
-    UI.message("Incrementing build number...")
-    increment_build_number(xcodeproj: "BlueWallet.xcodeproj")
+    UI.message("Incrementing build number to current timestamp...")
+  
+    # Get current Unix timestamp
+    @new_build_number = Time.now.to_i.to_s
+  
+    # Set the new build number
+    increment_build_number(
+      xcodeproj: "BlueWallet.xcodeproj", 
+      build_number: @new_build_number
+    )
+  
+    UI.message("Build number set to: #{@new_build_number}")
   end
 
   desc "Install CocoaPods dependencies"
@@ -83,7 +93,8 @@ platform :ios do
         }
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
-      output_directory: "./build_output",
+      output_directory: "./build", # Directory where the IPA file will be stored
+      output_name: "BlueWallet_#{@new_build_number}.ipa", # Using the build number in the file name
       buildlog_path: "./build_logs"
     )
   end
@@ -91,18 +102,7 @@ platform :ios do
   desc "Upload to TestFlight"
   lane :upload_to_testflight_lane do
     UI.message("Uploading to TestFlight...")
-    api_key = app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_filepath: "./appstore_api_key.p8"
-    )
-    upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
-  end
-
-  desc "Clean up build artifacts"
-  lane :clean_build_artifacts_lane do
-    UI.message("Cleaning up build artifacts...")
-    clean_build_artifacts
+    upload_to_testflight(api_key_path: "appstore_api_key.json", ipa: "./build/BlueWallet_#{@new_build_number}.ipa", skip_waiting_for_build_processing: true)
   end
 
   desc "Deploy to TestFlight"
@@ -123,7 +123,6 @@ platform :ios do
 
     build_app_lane
     upload_to_testflight_lane
-    clean_build_artifacts_lane
 
     # Clean up and delete the temporary keychain
     delete_keychain(name: "temp_keychain")
@@ -132,5 +131,7 @@ platform :ios do
     last_commit = last_git_commit
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
+    File.write("output_name.txt", "BlueWallet_#{@new_build_number}.ipa")
   end
+
 end
