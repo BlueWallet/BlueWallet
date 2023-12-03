@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest-xl
+    runs-on: macos-latest
     timeout-minutes: 180
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
