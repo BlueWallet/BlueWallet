@@ -102,7 +102,14 @@ platform :ios do
   desc "Upload to TestFlight"
   lane :upload_to_testflight_lane do
     UI.message("Uploading to TestFlight...")
-    upload_to_testflight(api_key_path: "appstore_api_key.json", ipa: "./build/BlueWallet_#{@new_build_number}.ipa", skip_waiting_for_build_processing: true)
+    changelog = options[:changelog]
+
+    upload_to_testflight(
+      api_key_path: "appstore_api_key.json", 
+      ipa: "./build/BlueWallet_#{@new_build_number}.ipa", 
+      skip_waiting_for_build_processing: true, 
+      changelog: changelog
+    )
   end
 
   desc "Deploy to TestFlight"
