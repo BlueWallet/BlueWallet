@@ -73,6 +73,9 @@ platform :ios do
   desc "Build the application"
   lane :build_app_lane do
     UI.message("Building the application...")
+    branch_name = ENV["BRANCH_NAME"] || 'master'
+    output_ipa = "BlueWallet_#{branch_name}_#{@new_build_number}.ipa"
+
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
@@ -94,7 +97,7 @@ platform :ios do
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
       output_directory: "./build", # Directory where the IPA file will be stored
-      output_name: "BlueWallet_#{@new_build_number}.ipa", # Using the build number in the file name
+      output_name: output_ipa, # Updated to include the branch name
       buildlog_path: "./build_logs"
     )
   end
