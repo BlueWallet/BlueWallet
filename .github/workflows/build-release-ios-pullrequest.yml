@@ -1,4 +1,4 @@
-name: BuildReleaseTestflight
+name: BuildReleaseiOSPullRequest
 
 on:
   pull_request:
