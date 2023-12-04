@@ -100,9 +100,9 @@ platform :ios do
   end
 
   desc "Upload to TestFlight"
-  lane :upload_to_testflight_lane do |options|
+  lane :upload_to_testflight_lane do
     UI.message("Uploading to TestFlight...")
-    changelog = options[:changelog]
+    changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
     upload_to_testflight(
       api_key_path: "appstore_api_key.json", 

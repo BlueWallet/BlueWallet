@@ -108,7 +108,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane changelog:"${{ env.LATEST_COMMIT_MESSAGE }}"
+        run: bundle exec fastlane ios upload_to_testflight_lane"
         working-directory: ./ios
 
       - name: Read IPA Output Name
