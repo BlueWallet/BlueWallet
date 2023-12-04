@@ -103,7 +103,7 @@ platform :ios do
   end
 
   desc "Upload to TestFlight"
-  lane :upload_to_testflight_lane do
+  lane :upload_to_testflight_lane do |options|
     UI.message("Uploading to TestFlight...")
     changelog = options[:changelog]
 
