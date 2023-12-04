@@ -113,7 +113,7 @@ jobs:
 
       - name: Read IPA Output Name
         id: ipa_name
-        run: echo "::set-output name=ipa_output_name::$(cat output_name.txt)"
+        run: echo "::set-output name=ipa_output_name::$(cat ios/output_name.txt)"
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
