@@ -93,8 +93,12 @@ jobs:
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
+      - name: Get Latest Commit Message
+        run: echo "LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
       - name: Upload to TestFlight
         env: 
+          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -104,7 +108,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
+        run: bundle exec fastlane ios upload_to_testflight_lane changelog:"${{ env.LATEST_COMMIT_MESSAGE }}"
         working-directory: ./ios
 
       - name: Read IPA Output Name
