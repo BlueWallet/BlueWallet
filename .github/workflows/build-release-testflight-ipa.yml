@@ -46,6 +46,12 @@ jobs:
 
       - name: Install CocoaPods
         run: sudo gem install cocoapods
+
+      - name: Clean Workspace
+        run: |
+          rm -rf node_modules
+          rm release-notes.txt
+          rm release-notes.json
   
       - name: Install node_modules
         run: npm install
@@ -111,9 +117,18 @@ jobs:
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
 
+      - name: List contents of the root directory
+        run: ls -l
+
+      - name: List contents of the ios/build directory
+        run: ls -l ios/build
+
       - name: Read IPA Output Name
         id: ipa_name
         run: echo "::set-output name=ipa_output_name::$(cat ios/output_name.txt)"
+
+      - name: Display the Contents of output_name.txt
+        run: cat output_name.txt
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
