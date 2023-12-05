@@ -90,11 +90,11 @@ jobs:
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-
       - name: Get Latest Commit Message
         run: echo "LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
       - name: Upload to TestFlight
         env: 
