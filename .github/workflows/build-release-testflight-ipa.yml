@@ -119,7 +119,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.ipa_name.outputs.ipa_output_name }}
-          path: ./build/${{ steps.ipa_name.outputs.ipa_output_name }}
+          path: ./ios/build/${{ steps.ipa_name.outputs.ipa_output_name }}
 
       - name: Upload Fastlane logs as Artifact
         if: always()
