@@ -1,3 +1,5 @@
+@new_build_number = Time.now.to_i.to_s
+
 platform :ios do
 
   before_all do |lane, options|
@@ -59,10 +61,7 @@ platform :ios do
   desc "Increment build number"
   lane :increment_build_number_lane do
     UI.message("Incrementing build number to current timestamp...")
-  
-    # Get current Unix timestamp
-    @new_build_number = Time.now.to_i.to_s
-  
+    
     # Set the new build number
     increment_build_number(
       xcodeproj: "BlueWallet.xcodeproj", 
