@@ -98,6 +98,10 @@ jobs:
         run: bundle exec fastlane ios install_pods
         working-directory: ./ios
 
+      - name: Run UI Tests
+        run: bundle exec fastlane ios ui_tests
+        working-directory: ./ios     
+
       - name: Build App
         env:
           NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
