@@ -11,7 +11,13 @@ jobs:
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Specify node version
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 16
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -53,9 +59,6 @@ jobs:
   
       - name: Install node_modules
         run: npm install
-
-      - name: Run postinstall script
-        run: npm run postinstall
 
       - name: Set up Git Authentication
         env:
