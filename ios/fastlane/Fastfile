@@ -105,15 +105,30 @@ platform :ios do
 
   desc "Upload to TestFlight"
   lane :upload_to_testflight_lane do
-    UI.message("Uploading to TestFlight...")
-    changelog = ENV["LATEST_COMMIT_MESSAGE"]
+    attempts = 0
+    max_attempts = 3
+    begin
+      UI.message("Uploading to TestFlight...")
+      changelog = ENV["LATEST_COMMIT_MESSAGE"]
 
-    upload_to_testflight(
-      api_key_path: "appstore_api_key.json", 
-      ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa", 
-      skip_waiting_for_build_processing: true, 
-      changelog: changelog
-    )
+      upload_to_testflight(
+        api_key_path: "appstore_api_key.json", 
+        ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa", 
+        skip_waiting_for_build_processing: true, 
+        changelog: changelog
+      )
+    rescue => exception
+      attempts += 1
+      if attempts < max_attempts
+        wait_time = 60 # Time in seconds
+        UI.message("Attempt ##{attempts} failed, waiting #{wait_time} seconds before trying again...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+        raise exception
+      end
+    end
   end
 
   desc "Deploy to TestFlight"
