@@ -50,8 +50,6 @@ jobs:
       - name: Clean Workspace
         run: |
           rm -rf node_modules
-          rm release-notes.txt
-          rm release-notes.json
   
       - name: Install node_modules
         run: npm install
