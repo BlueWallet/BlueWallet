@@ -142,7 +142,6 @@ platform :ios do
     last_commit = last_git_commit
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
-    File.write("output_name.txt", "BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa")
   end
 
 end

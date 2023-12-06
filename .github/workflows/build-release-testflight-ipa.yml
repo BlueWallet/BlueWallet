@@ -131,21 +131,12 @@ jobs:
       - name: List contents of the ios/build directory
         run: ls -l ios/build
 
-      - name: Read IPA Output Name
-        id: ipa_name
-        run: echo "::set-output name=ipa_output_name::$(cat ios/output_name.txt)"
-
-      - name: Display the Contents of output_name.txt
-        run: cat ios/output_name.txt
-
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         with:
-          name: ${{ steps.ipa_name.outputs.ipa_output_name }}
-          path: ./ios/build/${{ steps.ipa_name.outputs.ipa_output_name }}
-
+          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
+          path: ./ios/build/BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
+      
       - name: Upload Fastlane logs as Artifact
         if: always()
         uses: actions/upload-artifact@v2
