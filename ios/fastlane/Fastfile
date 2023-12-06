@@ -3,11 +3,15 @@
 platform :ios do
 
   before_all do |lane, options|
+    UI.message("Setting up for all lanes...")
+
+    # Set the new build number to current Unix timestamp
+    @new_build_number = Time.now.to_i.to_s
+    UI.message("Build number set to: #{@new_build_number}")
+
     UI.message("Discarding all untracked changes before running any lane...")
-  
-    sh("git clean -fd")   # Remove untracked files and directories
-    sh("git checkout -- .")  # Discard changes in tracked files
-  
+    sh("git clean -fd")
+    sh("git checkout -- .")
   end
 
   desc "Create a temporary keychain"
