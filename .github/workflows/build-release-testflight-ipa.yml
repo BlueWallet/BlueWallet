@@ -54,6 +54,9 @@ jobs:
       - name: Install node_modules
         run: npm install
 
+      - name: Run postinstall script
+        run: npm run postinstall
+
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
