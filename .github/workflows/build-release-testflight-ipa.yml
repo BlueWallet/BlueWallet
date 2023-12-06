@@ -82,7 +82,12 @@ jobs:
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
 
+      - name: Generate Build Number
+        run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
+
       - name: Increment Build Number
+        env:
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios increment_build_number_lane
         working-directory: ./ios
 
@@ -91,6 +96,8 @@ jobs:
         working-directory: ./ios
 
       - name: Build App
+        env:
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
@@ -114,6 +121,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
 
@@ -132,6 +140,8 @@ jobs:
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
+        env:
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         with:
           name: ${{ steps.ipa_name.outputs.ipa_output_name }}
           path: ./ios/build/${{ steps.ipa_name.outputs.ipa_output_name }}

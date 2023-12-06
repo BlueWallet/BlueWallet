@@ -1,14 +1,7 @@
-@new_build_number = Time.now.to_i.to_s
-
 platform :ios do
 
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
-
-    # Set the new build number to current Unix timestamp
-    @new_build_number = Time.now.to_i.to_s
-    UI.message("Build number set to: #{@new_build_number}")
-
     UI.message("Discarding all untracked changes before running any lane...")
     sh("git clean -fd")
     sh("git checkout -- .")
@@ -69,10 +62,10 @@ platform :ios do
     # Set the new build number
     increment_build_number(
       xcodeproj: "BlueWallet.xcodeproj", 
-      build_number: @new_build_number
-    )
+      build_number: ENV["NEW_BUILD_NUMBER"]
+      )
   
-    UI.message("Build number set to: #{@new_build_number}")
+    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
   end
 
   desc "Install CocoaPods dependencies"
@@ -105,7 +98,7 @@ platform :ios do
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
       output_directory: "./build", # Directory where the IPA file will be stored
-      output_name: "BlueWallet_#{@new_build_number}.ipa", # Using the build number in the file name
+      output_name: "BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa",
       buildlog_path: "./build_logs"
     )
   end
@@ -117,7 +110,7 @@ platform :ios do
 
     upload_to_testflight(
       api_key_path: "appstore_api_key.json", 
-      ipa: "./build/BlueWallet_#{@new_build_number}.ipa", 
+      ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa", 
       skip_waiting_for_build_processing: true, 
       changelog: changelog
     )
@@ -149,7 +142,7 @@ platform :ios do
     last_commit = last_git_commit
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
-    File.write("output_name.txt", "BlueWallet_#{@new_build_number}.ipa")
+    File.write("output_name.txt", "BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa")
   end
 
 end
