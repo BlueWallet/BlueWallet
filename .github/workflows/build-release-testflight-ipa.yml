@@ -60,7 +60,6 @@ jobs:
       - name: Install node_modules
         run: |
           npm install
-          npm postinstall
 
       - name: Set up Git Authentication
         env:
