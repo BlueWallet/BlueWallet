@@ -79,7 +79,7 @@ platform :ios do
     scan(
       workspace: "BlueWallet.xcworkspace",
       scheme: "BlueWalletUITests", # Replace with your UI Test Scheme
-      device: "iOS Simulator", # Specify the devices you want to run the tests on
+      device: "iPhone 8 (16.2)", # Specify the devices you want to run the tests on
       clean: true,
       code_coverage: true,
       output_directory: "./test_output" # Directory where test reports will be stored
