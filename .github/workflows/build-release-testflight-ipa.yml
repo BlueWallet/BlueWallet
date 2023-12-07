@@ -58,7 +58,9 @@ jobs:
           rm -rf node_modules
   
       - name: Install node_modules
-        run: npm install
+        run: |
+          npm install
+          npm postinstall
 
       - name: Set up Git Authentication
         env:
@@ -88,10 +90,10 @@ jobs:
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
 
-      - name: Generate Build Number
+      - name: Generate Build Number based on timestamp
         run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Increment Build Number
+      - name: Set Build Number
         env:
           NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios increment_build_number_lane
