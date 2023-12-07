@@ -74,18 +74,6 @@ platform :ios do
     cocoapods
   end
 
-  desc "Run UI tests"
-  lane :ui_tests do
-    scan(
-      workspace: "BlueWallet.xcworkspace",
-      scheme: "BlueWalletUITests", # Replace with your UI Test Scheme
-      device: "iPhone 8 (16.2)", # Specify the devices you want to run the tests on
-      clean: true,
-      code_coverage: true,
-      output_directory: "./test_output" # Directory where test reports will be stored
-    )
-  end
-
   desc "Build the application"
   lane :build_app_lane do
     UI.message("Building the application...")
