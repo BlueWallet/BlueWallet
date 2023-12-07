@@ -103,25 +103,25 @@ platform :ios do
     )
   end
 
-  desc "Upload to TestFlight"
+  desc "Upload to TestFlight without Processing Wait"
   lane :upload_to_testflight_lane do
     attempts = 0
     max_attempts = 3
     begin
-      UI.message("Uploading to TestFlight...")
+      UI.message("Uploading to TestFlight without processing wait...")
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
-
+  
       upload_to_testflight(
-        api_key_path: "appstore_api_key.json", 
-        ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa", 
-        skip_waiting_for_build_processing: true, 
+        api_key_path: "appstore_api_key.json",
+        ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        skip_waiting_for_build_processing: true, # Do not wait for processing
         changelog: changelog
       )
     rescue => exception
       attempts += 1
-      if attempts < max_attempts
-        wait_time = 60 # Time in seconds
-        UI.message("Attempt ##{attempts} failed, waiting #{wait_time} seconds before trying again...")
+      if attempts <= max_attempts
+        wait_time = 180 # 3 minutes in seconds
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
         sleep(wait_time)
         retry
       else
