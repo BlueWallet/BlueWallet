@@ -50,88 +50,88 @@ jobs:
       - name: Display release-notes.json
         run: cat release-notes.json
 
-      - name: Set up Git Authentication
-        env:
-          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-        run: |
-          git config --global credential.helper 'cache --timeout=3600'
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
+      # - name: Set up Git Authentication
+      #   env:
+      #     ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+      #   run: |
+      #     git config --global credential.helper 'cache --timeout=3600'
+      #     git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
 
-      - name: Create Temporary Keychain
-        run: bundle exec fastlane ios create_temp_keychain
-        working-directory: ./ios
-        env: 
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      # - name: Create Temporary Keychain
+      #   run: bundle exec fastlane ios create_temp_keychain
+      #   working-directory: ./ios
+      #   env: 
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
-      - name: Setup Provisioning Profiles
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios setup_provisioning_profiles
-        working-directory: ./ios
+      # - name: Setup Provisioning Profiles
+      #   env:
+      #     MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      #     MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
+      #     GIT_URL: ${{ secrets.GIT_URL }}
+      #     ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+      #     ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      #   run: bundle exec fastlane ios setup_provisioning_profiles
+      #   working-directory: ./ios
 
-      - name: Generate Build Number based on timestamp
-        run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
+      # - name: Generate Build Number based on timestamp
+      #   run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Set Build Number
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: bundle exec fastlane ios increment_build_number_lane
-        working-directory: ./ios
+      # - name: Set Build Number
+      #   env:
+      #     NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+      #   run: bundle exec fastlane ios increment_build_number_lane
+      #   working-directory: ./ios
 
-      - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
-        working-directory: ./ios
+      # - name: Install CocoaPods Dependencies
+      #   run: bundle exec fastlane ios install_pods
+      #   working-directory: ./ios
 
-      - name: Build App
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: bundle exec fastlane ios build_app_lane
-        working-directory: ./ios
+      # - name: Build App
+      #   env:
+      #     NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+      #   run: bundle exec fastlane ios build_app_lane
+      #   working-directory: ./ios
 
-      - name: Get Latest Commit Message
-        run: |
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+      # - name: Get Latest Commit Message
+      #   run: |
+      #     LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+      #     echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+      # - name: Create App Store Connect API Key JSON
+      #   run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
-      - name: Upload to TestFlight
-        env: 
-          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
-        working-directory: ./ios
+      # - name: Upload to TestFlight
+      #   env: 
+      #     LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
+      #     APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+      #     MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      #     MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
+      #     GIT_URL: ${{ secrets.GIT_URL }}
+      #     ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+      #     ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+      #     APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      #     APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      #     NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+      #   run: bundle exec fastlane ios upload_to_testflight_lane
+      #   working-directory: ./ios
 
-      - name: List contents of the root directory
-        run: ls -l
+      # - name: List contents of the root directory
+      #   run: ls -l
 
-      - name: List contents of the ios/build directory
-        run: ls -l ios/build
+      # - name: List contents of the ios/build directory
+      #   run: ls -l ios/build
 
-      - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ./ios/build/BlueWallet_${{ env.NEW_BUILD_NUMBER }}.ipa
+      # - name: Upload IPA as Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
+      #     path: ./ios/build/BlueWallet_${{ env.NEW_BUILD_NUMBER }}.ipa
       
-      - name: Upload Fastlane logs as Artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: fastlane-logs
-          path: fastlane.log
+      # - name: Upload Fastlane logs as Artifact
+      #   if: always()
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: fastlane-logs
+      #     path: fastlane.log
