@@ -1,4 +1,4 @@
-name: BuildReleaseTestflight
+name: Build and Deploy to TestFlight
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
