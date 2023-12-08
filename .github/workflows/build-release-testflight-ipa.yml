@@ -42,8 +42,13 @@ jobs:
         working-directory: ./ios
   
       - name: Install node_modules
-        run: |
-          npm install
+        run: npm install
+
+      - name: Display release-notes.txt
+        run: cat release-notes.txt
+
+      - name: Display release-notes.json
+        run: cat release-notes.json
 
       - name: Set up Git Authentication
         env:
