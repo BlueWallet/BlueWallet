@@ -3,6 +3,13 @@
 # Enable debugging
 set -x
 
+# Fetch all tags
+git fetch --tags
+
+# List all tags for debugging
+git tag
+
+
 # Get the current branch name
 HEAD=$(git rev-parse --abbrev-ref --symbolic-full-name HEAD)
 echo "Current branch: $HEAD"
