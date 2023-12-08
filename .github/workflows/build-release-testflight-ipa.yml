@@ -37,9 +37,9 @@ jobs:
       - name: Install CocoaPods
         run: sudo gem install cocoapods
 
-      - name: Clean Workspace
-        run: |
-          rm -rf node_modules
+      - name: Clear Derived Data
+        run: bundle exec fastlane ios clear_derived_data_lane
+        working-directory: ./ios
   
       - name: Install node_modules
         run: |
@@ -67,10 +67,6 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios setup_provisioning_profiles
-        working-directory: ./ios
-
-      - name: Clear Derived Data
-        run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
 
       - name: Generate Build Number based on timestamp
