@@ -54,9 +54,6 @@ jobs:
       - name: Display release-notes.txt
         run: cat release-notes.txt
 
-      - name: Display release-notes.json
-        run: cat release-notes.json
-
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -108,10 +105,11 @@ jobs:
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
-      - name: Get iOS Project Version
+      - name: Determine Marketing Version
         run: |
-          VERSION=$(defaults read $(pwd)/path/to/Info.plist CFBundleShortVersionString)
-          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+          PROJECT_VERSION=$(xcodebuild -project ./ios/BlueWallet/BlueWallet.xcodeproj -showBuildSettings | grep MARKETING_VERSION | tr -s ' ' | cut -d ' ' -f3)
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=project_version::$PROJECT_VERSION"
 
       - name: Generate Build Number based on timestamp
         run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
@@ -143,11 +141,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
-      
-      - name: Upload Fastlane logs as Artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: fastlane-logs
-          path: fastlane.log
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).
