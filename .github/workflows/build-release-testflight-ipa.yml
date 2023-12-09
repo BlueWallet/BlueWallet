@@ -93,6 +93,10 @@ jobs:
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
+      - name: Expected IPA file name
+        run: |
+          echo "IPA file name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa"
+  
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
         working-directory: ./ios
