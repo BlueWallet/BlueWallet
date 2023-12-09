@@ -87,6 +87,12 @@ jobs:
         run: bundle exec fastlane ios increment_build_number_lane
         working-directory: ./ios
 
+      - name: Determine Marketing Version
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=project_version::$MARKETING_VERSION"
+
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
         working-directory: ./ios
@@ -105,15 +111,6 @@ jobs:
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
-      - name: Determine Marketing Version
-        run: |
-          PROJECT_VERSION=$(xcodebuild -project ./ios/BlueWallet/BlueWallet.xcodeproj -showBuildSettings | grep MARKETING_VERSION | tr -s ' ' | cut -d ' ' -f3)
-          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=project_version::$PROJECT_VERSION"
-
-      - name: Generate Build Number based on timestamp
-        run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
-
       - name: Upload to TestFlight
         env: 
           LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
@@ -130,12 +127,6 @@ jobs:
           PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-
-      - name: List contents of the root directory
-        run: ls -l
-
-      - name: List contents of the ios/build directory
-        run: ls -l ios/build
 
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
