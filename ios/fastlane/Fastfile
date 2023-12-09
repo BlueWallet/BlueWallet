@@ -98,7 +98,8 @@ platform :ios do
       },
       xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
       output_directory: "./build", # Directory where the IPA file will be stored
-      output_name: "BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+
+      output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
       buildlog_path: "./build_logs"
     )
   end
@@ -113,7 +114,7 @@ platform :ios do
   
       upload_to_testflight(
         api_key_path: "appstore_api_key.json",
-        ipa: "./build/BlueWallet_#{ENV['NEW_BUILD_NUMBER']}.ipa",
+        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
         skip_waiting_for_build_processing: true, # Do not wait for processing
         changelog: changelog
       )
