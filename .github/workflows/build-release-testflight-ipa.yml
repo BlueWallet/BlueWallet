@@ -132,4 +132,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
