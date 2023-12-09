@@ -1,25 +1,22 @@
-name: BuildReleaseTestflight
+name: Build and Deploy to TestFlight
 
-concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-  
 on:
-  push:
+  pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
     timeout-minutes: 180
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetches all history
+          fetch-depth: 0
 
       - name: Specify node version
         uses: actions/setup-node@v2-beta
@@ -47,7 +44,7 @@ jobs:
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
-  
+
       - name: Install node_modules
         run: npm install
 
@@ -108,13 +105,23 @@ jobs:
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
-      - name: Get iOS Project Version
-        run: |
-          VERSION=$(defaults read $(pwd)/path/to/Info.plist CFBundleShortVersionString)
-          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          path: ./ios/build/BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
-      - name: Generate Build Number based on timestamp
-        run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
+  testflight-upload:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
       - name: Upload to TestFlight
         env: 
@@ -129,25 +136,5 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-          PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-
-      - name: List contents of the root directory
-        run: ls -l
-
-      - name: List contents of the ios/build directory
-        run: ls -l ios/build
-
-      - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
-      
-      - name: Upload Fastlane logs as Artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: fastlane-logs
-          path: fastlane.log
