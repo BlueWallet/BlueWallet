@@ -93,8 +93,6 @@ jobs:
         run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
 
       - name: Set Build Number
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios increment_build_number_lane
         working-directory: ./ios
 
@@ -114,7 +112,6 @@ jobs:
 
       - name: Build App
         env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
@@ -141,7 +138,6 @@ jobs:
 
       - name: Upload to TestFlight
         env: 
-          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -151,8 +147,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-          PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
 
