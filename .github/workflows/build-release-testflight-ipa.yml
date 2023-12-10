@@ -104,7 +104,7 @@ jobs:
 
       - name: Expected IPA file name
         run: |
-          echo "IPA file name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa"
+          echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
   
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
@@ -117,7 +117,7 @@ jobs:
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
 
@@ -136,7 +136,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build
 
       - name: Create App Store Connect API Key JSON
