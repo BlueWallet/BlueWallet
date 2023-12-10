@@ -113,6 +113,13 @@ jobs:
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
+     
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
+
 
   testflight-upload:
     needs: build
@@ -129,7 +136,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
+          name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa
           path: ./ios/build
 
       - name: Create App Store Connect API Key JSON
@@ -148,9 +155,3 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-
-      - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
