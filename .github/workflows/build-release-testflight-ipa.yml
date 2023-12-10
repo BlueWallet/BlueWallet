@@ -111,7 +111,6 @@ jobs:
         working-directory: ./ios
 
       - name: Build App
-        env:
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
