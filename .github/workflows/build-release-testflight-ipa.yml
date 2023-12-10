@@ -98,7 +98,7 @@ jobs:
 
       - name: Determine Marketing Version
         run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
@@ -113,7 +113,7 @@ jobs:
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
-     
+
       - name: Upload IPA as Artifact
         uses: actions/upload-artifact@v2
         with:
