@@ -5,9 +5,10 @@ concurrency:
   cancel-in-progress: true
   
 on:
-  push:
+  pull_request:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -128,6 +129,7 @@ jobs:
 
 
   testflight-upload:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     needs: build
     runs-on: macos-latest
     env:
