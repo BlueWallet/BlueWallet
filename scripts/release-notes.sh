@@ -17,7 +17,10 @@ HASH=`git show-ref -s $TAG`
 apply_filter() {
     case $FILTER_TYPE in
         "apple")
-            sed '/android/I d; /google/I d'
+            sed '/android/I d; /google/I d' | \
+            sed '/Update dependency/I d' | \
+            sed '/Translate loc/I d' | \
+            sed '/Update /I d'
             ;;
         *)
             cat
@@ -25,14 +28,16 @@ apply_filter() {
     esac
 }
 
-# Main log extraction command with filter applied
+# Main log extraction command with filters applied
 git log --pretty=format:'* %s %b' $HASH..HEAD | \
 sed '/Merge branch '\''master'\''/I d' | \
 sed '/Merge remote-tracking branch '\''origin\/master'\''/I d' | \
 sed '/Merge pull request/I d' | \
 awk -F 'review completed for the source file' '{print $1;}' | \
-sed '/on the(.*)language./I d' | \
+sed -E '/^on '\''[^'\'']+'\''/d' | \
 awk -F 'Snyk has created this PR' '{print $1;}' | \
 sed '/See this package in npm/I d; /https:\/\/www.npmjs.com\//I d; /See this project in Snyk/I d; /https:\/\/app.snyk.io/I d' | \
-awk '!/^$/' | \
+awk '{$1=$1};1' | \
+awk 'length($0) > 5' | \
+sed -E '/^\* (WIP|FIX|REF|ADD|DEL) *$/d' | \
 apply_filter
