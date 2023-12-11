@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# Accept a parameter to determine the filter type
+FILTER_TYPE=$1
+
 HEAD=`git rev-parse --abbrev-ref --symbolic-full-name HEAD`
 if [ "$HEAD" = "master" ]
 then
@@ -8,4 +12,30 @@ else
     TAG=`git describe --abbrev=0 --tags $CURRENTTAG^`
 fi
 HASH=`git show-ref -s $TAG`
-git  log --pretty=format:'* %s %b' $HASH..HEAD | grep -v "Merge branch 'master'" | grep -v "Merge remote-tracking branch 'origin/master'" | grep -v  "Merge pull request" | awk -F 'review completed for the source file' '{print $1;}' |  grep -E -v 'on the(.*)language.' | awk -F 'Snyk has created this PR' '{print $1;}' | grep -E -v 'See this package in npm|https://www.npmjs.com/|See this project in Snyk|https://app.snyk.io' | awk '!/^$/'
+
+# Define a function to apply the filter based on the parameter
+apply_filter() {
+    case $FILTER_TYPE in
+        "apple")
+            grep -v -i "android\|google"
+            ;;
+        "android")
+            grep -v -i "apple\|ios\|mac\|apple watch"
+            ;;
+        *)
+            cat
+            ;;
+    esac
+}
+
+# Main log extraction command with filter applied
+git log --pretty=format:'* %s %b' $HASH..HEAD | \
+grep -v "Merge branch 'master'" | \
+grep -v "Merge remote-tracking branch 'origin/master'" | \
+grep -v  "Merge pull request" | \
+awk -F 'review completed for the source file' '{print $1;}' | \
+grep -E -v 'on the(.*)language.' | \
+awk -F 'Snyk has created this PR' '{print $1;}' | \
+grep -E -v 'See this package in npm|https://www.npmjs.com/|See this project in Snyk|https://app.snyk.io' | \
+awk '!/^$/' | \
+apply_filter
