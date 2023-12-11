@@ -17,10 +17,7 @@ HASH=`git show-ref -s $TAG`
 apply_filter() {
     case $FILTER_TYPE in
         "apple")
-            grep -v -i "android\|google"
-            ;;
-        "android")
-            grep -v -i "apple\|ios\|mac\|apple watch"
+            sed '/android/I d; /google/I d'
             ;;
         *)
             cat
@@ -30,12 +27,12 @@ apply_filter() {
 
 # Main log extraction command with filter applied
 git log --pretty=format:'* %s %b' $HASH..HEAD | \
-grep -v "Merge branch 'master'" | \
-grep -v "Merge remote-tracking branch 'origin/master'" | \
-grep -v  "Merge pull request" | \
+sed '/Merge branch '\''master'\''/I d' | \
+sed '/Merge remote-tracking branch '\''origin\/master'\''/I d' | \
+sed '/Merge pull request/I d' | \
 awk -F 'review completed for the source file' '{print $1;}' | \
-grep -E -v 'on the(.*)language.' | \
+sed '/on the(.*)language./I d' | \
 awk -F 'Snyk has created this PR' '{print $1;}' | \
-grep -E -v 'See this package in npm|https://www.npmjs.com/|See this project in Snyk|https://app.snyk.io' | \
+sed '/See this package in npm/I d; /https:\/\/www.npmjs.com\//I d; /See this project in Snyk/I d; /https:\/\/app.snyk.io/I d' | \
 awk '!/^$/' | \
 apply_filter
