@@ -64,6 +64,7 @@
     "node_alias": "ノードエイリアス",
     "expiresIn": "失効まで{time}分",
     "payButton": "支払う",
+    "payment": "支払い",
     "placeholder": "インボイスまたはアドレス",
     "open_channel": "チャネルを開く",
     "funding_amount_placeholder": "デポジット額（例：0.001）",
@@ -304,7 +305,7 @@
     "privacy_read_clipboard": "クリップボードを読む",
     "privacy_system_settings": "システム設定",
     "privacy_quickactions": "ウォレットショートカット",
-    "privacy_quickactions_explanation": "ホーム画面でBlueWalletアプリのアイコンをタッチして長押しすると、ウォレットの残高を素早く確認することができます。",
+    "privacy_quickactions_explanation": "BlueWalletアプリのアイコンをタッチして長押しすると、ウォレットの残高を素早く確認することができます。",
     "privacy_clipboard_explanation": "アドレスやインボイスがクリップボードにあった場合、ショートカットを提供する。",
     "privacy_do_not_track": "分析を無効にする",
     "privacy_do_not_track_explanation": "パフォーマンスと信頼性の情報を分析のために送信しません。",
@@ -549,6 +550,12 @@
     "check_address": "アドレスチェック",
     "no_wallet_owns_address": "利用可能なウォレットの中にそのアドレスを持つものはありません。",
     "view_qrcode": "QRコードを見る"
+  },
+  "autofill_word": {
+    "title": "ニーモニックの最後のワードを生成",
+    "enter": "部分的なニーモニックフレーズを入力",
+    "generate_word": "最後のワードを生成",
+    "error": "入力されたのは11または23語の部分的なニーモニックではありません！"
   },
   "cc": {
     "change": "チェンジ",
