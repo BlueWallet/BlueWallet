@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
   center: {
     marginHorizontal: 16,
     alignItems: 'center',
+    top: -100,
   },
   buttonContainer: {
     height: 45,
