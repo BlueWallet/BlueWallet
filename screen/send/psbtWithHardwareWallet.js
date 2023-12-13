@@ -77,7 +77,7 @@ const PsbtWithHardwareWallet = () => {
       if (launchedBy) {
         // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
         // most likely for LN channel opening
-        navigation.navigate(launchedBy, { psbt });
+        navigation.navigate({ name: launchedBy, params: { psbt }, merge: true });
         // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
         // (passed by reference)
       }

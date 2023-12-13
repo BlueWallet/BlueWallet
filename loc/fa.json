@@ -64,6 +64,7 @@
     "node_alias": "نام مستعار گره",
     "expiresIn": "تا {time} دقیقهٔ دیگر منقضی می‌شود",
     "payButton": "پرداخت",
+    "payment": "پرداخت",
     "placeholder": "صورت‌حساب یا آدرس",
     "open_channel": "بازکردن کانال",
     "funding_amount_placeholder": "مقدار تأمین وجه، برای مثال، ۰٫۰۰۱",
@@ -198,7 +199,7 @@
     "permission_storage_denied_message": "برنامهٔ BlueWallet قادر به ذخیرهٔ این فایل نیست. لطفاً تنظیمات دستگاه خود را باز کرده و «اجازهٔ ذخیره‌سازی» (Storage Permission) را فعال کنید.",
     "permission_storage_title": "مجوز دسترسی به فضای ذخیره‌سازی",
     "psbt_clipboard": "کپی به کلیپ‌بورد",
-    "psbt_this_is_psbt": "این یک تراکنش بیت‌کوین ناقص‌امضاشده (Partially Signed Bitcoin Transaction) است. لطفاً برای اتمام آن را در کیف پول سخت‌افزاری خود امضا کنید.",
+    "psbt_this_is_psbt": "این یک تراکنش بیت‌کوین ناقص امضاشده (Partially Signed Bitcoin Transaction) است. لطفاً برای اتمام آن را در کیف پول سخت‌افزاری خود امضا کنید.",
     "psbt_tx_export": "صادرکردن به فایل",
     "no_tx_signing_in_progress": "هیچ امضای تراکنشی درحال‌انجام نیست.",
     "outdated_rate": "آخرین به‌روزرسانی نرخ: {date}",
@@ -549,6 +550,12 @@
     "check_address": "بررسی آدرس",
     "no_wallet_owns_address": "آدرس ارائه‌شده متعلق به هیچ‌کدام از کیف پول‌های موجود نیست.",
     "view_qrcode": "مشاهدهٔ کد QR"
+  },
+  "autofill_word": {
+    "title": "تولید کلمهٔ یادیار (mnemonic) آخر",
+    "enter": "عبارت یادیار (mnemonic phrase) ناقص را وارد کنید",
+    "generate_word": "تولید کلمهٔ آخر",
+    "error": "متن واردشده یک عبارت یادیار (mnemonic phrase) ناقص ۱۱ یا ۲۳ کلمه‌ای نیست!"
   },
   "cc": {
     "change": "باقی‌مانده (change)",
