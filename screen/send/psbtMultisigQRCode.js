@@ -58,7 +58,7 @@ const PsbtMultisigQRCode = () => {
       alert(loc.wallets.import_error);
     } else {
       // psbt base64?
-      navigate('PsbtMultisig', { receivedPSBTBase64: ret.data });
+      navigate('PsbtMultisig', { receivedPSBTBase64: ret.data }, { merge: true});
     }
   };
 
