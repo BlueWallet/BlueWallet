@@ -1,23 +1,163 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-
-default_platform(:ios)
-
 platform :ios do
-  desc "Description of what the lane does"
-  lane :custom_lane do
-    # add actions here: https://docs.fastlane.tools/actions
+
+  before_all do |lane, options|
+    UI.message("Setting up for all lanes...")
+    UI.message("Discarding all untracked changes before running any lane...")
+    sh("git clean -fd")
+    sh("git checkout -- .")
   end
+
+  desc "Create a temporary keychain"
+  lane :create_temp_keychain do
+    UI.message("Creating a temporary keychain...")
+  
+    create_keychain(
+      name: "temp_keychain",
+      password: ENV["KEYCHAIN_PASSWORD"],
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+  
+    UI.message("Temporary keychain created successfully.")
+  end
+
+  desc "Synchronize certificates and provisioning profiles"
+  lane :setup_provisioning_profiles do
+    UI.message("Setting up provisioning profiles...")
+    target_to_app_identifier = {
+      'BlueWallet' => 'io.bluewallet.bluewallet',
+      'BlueWalletWatch' => 'io.bluewallet.bluewallet.watch',
+      'BlueWalletWatchExtension' => 'io.bluewallet.bluewallet.watch.extension',
+      'Stickers' => 'io.bluewallet.bluewallet.Stickers',
+      'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
+    }
+
+    target_to_app_identifier.each do |target, app_identifier|
+      match(
+        git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"],
+        git_url: ENV["GIT_URL"],
+        type: "appstore",
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+    end
+  end
+
+  desc "Clear derived data"
+  lane :clear_derived_data_lane do
+    UI.message("Clearing derived data...")
+    clear_derived_data
+  end
+
+  desc "Increment build number"
+  lane :increment_build_number_lane do
+    UI.message("Incrementing build number to current timestamp...")
+    
+    # Set the new build number
+    increment_build_number(
+      xcodeproj: "BlueWallet.xcodeproj", 
+      build_number: ENV["NEW_BUILD_NUMBER"]
+      )
+  
+    UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
+  end
+
+  desc "Install CocoaPods dependencies"
+  lane :install_pods do
+    UI.message("Installing CocoaPods dependencies...")
+    cocoapods
+  end
+
+  desc "Build the application"
+  lane :build_app_lane do
+    UI.message("Building the application...")
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "BlueWallet.xcworkspace",
+      export_method: "app-store",
+      include_bitcode: true,
+      configuration: "Release",
+      skip_profile_detection: true,
+      include_symbols: true,
+      export_team_id: ENV["ITC_TEAM_ID"],
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+        }
+      },
+      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+      output_directory: "./build", # Directory where the IPA file will be stored
+
+      output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+      buildlog_path: "./build_logs"
+    )
+  end
+
+  desc "Upload to TestFlight without Processing Wait"
+  lane :upload_to_testflight_lane do
+    attempts = 0
+    max_attempts = 3
+    begin
+      UI.message("Uploading to TestFlight without processing wait...")
+      changelog = ENV["LATEST_COMMIT_MESSAGE"]
+  
+      upload_to_testflight(
+        api_key_path: "appstore_api_key.json",
+        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        skip_waiting_for_build_processing: true, # Do not wait for processing
+        changelog: changelog
+      )
+    rescue => exception
+      attempts += 1
+      if attempts <= max_attempts
+        wait_time = 180 # 3 minutes in seconds
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+        raise exception
+      end
+    end
+  end
+
+  desc "Deploy to TestFlight"
+  lane :deploy do |options|
+    UI.message("Starting build process...")
+
+    # Update the WWDR certificate
+    update_wwdr_certificate
+
+    setup_app_store_connect_api_key
+    setup_provisioning_profiles
+    clear_derived_data_lane
+    increment_build_number_lane
+
+    unless File.directory?("Pods")
+      install_pods
+    end
+
+    build_app_lane
+    upload_to_testflight_lane
+
+    # Clean up and delete the temporary keychain
+    delete_keychain(name: "temp_keychain")
+
+    # Mark deployment as completed for the current commit
+    last_commit = last_git_commit
+    already_built_flag = ".already_built_#{last_commit[:sha]}"
+    File.write(already_built_flag, Time.now.to_s)
+  end
+
 end
