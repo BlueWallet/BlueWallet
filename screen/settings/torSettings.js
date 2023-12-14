@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueListItem, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { isTorCapable } from '../../blue_modules/environment';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
@@ -79,12 +80,7 @@ const TorSettings = () => {
 
   return (
     <SafeBlueArea>
-      <BlueListItem
-        hideChevron
-        title={loc._.disabled}
-        Component={View}
-        switch={{ onValueChange: setIsTorDisabled, value: isTorDisabled }}
-      />
+      <ListItem hideChevron title={loc._.disabled} Component={View} switch={{ onValueChange: setIsTorDisabled, value: isTorDisabled }} />
       {!isTorDisabled && (
         <>
           <BlueCard>

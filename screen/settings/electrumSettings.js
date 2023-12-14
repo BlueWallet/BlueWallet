@@ -28,7 +28,6 @@ import {
   SafeBlueArea,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
-  BlueListItem,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
 import { isDesktop, isTorCapable } from '../../blue_modules/environment';
@@ -38,6 +37,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -433,7 +433,7 @@ export default class ElectrumSettings extends Component {
     return (
       <SafeBlueArea>
         <ScrollView keyboardShouldPersistTaps="always">
-          <BlueListItem
+          <ListItem
             Component={Pressable}
             title={loc.settings.electrum_offline_mode}
             switch={{

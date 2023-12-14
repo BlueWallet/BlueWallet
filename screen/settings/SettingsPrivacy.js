@@ -3,13 +3,14 @@ import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, 
 import { openSettings } from 'react-native-permissions';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueText, BlueSpacing20, BlueListItem, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
 import DeviceQuickActions from '../../class/quick-actions';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
 
 const A = require('../../blue_modules/analytics');
 
@@ -112,7 +113,7 @@ const SettingsPrivacy = () => {
       <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
         {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
       </Pressable>
-      <BlueListItem
+      <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
@@ -124,7 +125,7 @@ const SettingsPrivacy = () => {
       <BlueSpacing20 />
       {!storageIsEncrypted && (
         <>
-          <BlueListItem
+          <ListItem
             hideChevron
             title={loc.settings.privacy_quickactions}
             Component={TouchableWithoutFeedback}
@@ -140,7 +141,7 @@ const SettingsPrivacy = () => {
           </BlueCard>
         </>
       )}
-      <BlueListItem
+      <ListItem
         hideChevron
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
@@ -155,7 +156,7 @@ const SettingsPrivacy = () => {
           <Text adjustsFontSizeToFit style={[styles.widgetsHeader, styleHooks.widgetsHeader]}>
             {loc.settings.widgets}
           </Text>
-          <BlueListItem
+          <ListItem
             hideChevron
             title={loc.settings.total_balance}
             Component={TouchableWithoutFeedback}
@@ -173,7 +174,7 @@ const SettingsPrivacy = () => {
       <BlueSpacing20 />
 
       <BlueSpacing20 />
-      <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
+      <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
       <BlueSpacing20 />
     </ScrollView>
   );

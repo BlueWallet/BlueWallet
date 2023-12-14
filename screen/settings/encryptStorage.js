@@ -5,11 +5,12 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { colors } from 'react-native-elements';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueListItem, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import ListItem from '../../components/ListItem';
 const prompt = require('../../helpers/prompt');
 
 const EncryptStorage = () => {
@@ -130,7 +131,7 @@ const EncryptStorage = () => {
         {biometrics.isDeviceBiometricCapable && (
           <>
             <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
-            <BlueListItem
+            <ListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
               switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
@@ -142,7 +143,7 @@ const EncryptStorage = () => {
           </>
         )}
         <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
-        <BlueListItem
+        <ListItem
           testID="EncyptedAndPasswordProtected"
           hideChevron
           title={loc.settings.encrypt_enc_and_pass}
@@ -150,7 +151,7 @@ const EncryptStorage = () => {
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
         />
         {storageIsEncryptedSwitchEnabled && (
-          <BlueListItem
+          <ListItem
             onPress={navigateToPlausibleDeniability}
             title={loc.settings.plausible_deniability}
             chevron

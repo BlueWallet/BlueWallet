@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as RNLocalize from 'react-native-localize';
-
+import { ListItem as BlueListItem } from '../../components/ListItem';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueListItem } from '../../BlueComponents';
