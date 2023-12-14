@@ -13,6 +13,10 @@ jobs:
   build:
     runs-on: macos-latest
     timeout-minutes: 180
+    outputs:
+      new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
+      project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
+      latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
     steps:
@@ -54,6 +58,13 @@ jobs:
       - name: Display release-notes.txt
         run: cat release-notes.txt
 
+      - name: Get Latest Commit Message
+        id: get_latest_commit_message
+        run: |
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
+
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -79,45 +90,79 @@ jobs:
         working-directory: ./ios
 
       - name: Generate Build Number based on timestamp
-        run: echo "NEW_BUILD_NUMBER=$(date +%s)" >> $GITHUB_ENV
+        id: generate_build_number
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
 
       - name: Set Build Number
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios increment_build_number_lane
         working-directory: ./ios
 
       - name: Determine Marketing Version
+        id: determine_marketing_version
         run: |
           MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
+
       - name: Expected IPA file name
         run: |
-          echo "IPA file name: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).ipa"
+          echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
   
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
         working-directory: ./ios
 
       - name: Build App
-        env:
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
 
-      - name: Get Latest Commit Message
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
+
+
+  testflight-upload:
+    needs: build
+    runs-on: macos-latest
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Install dependencies with Bundler
         run: |
-          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          path: ./ios/build
 
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
 
       - name: Upload to TestFlight
         env: 
-          LATEST_COMMIT_MESSAGE: ${{ env.LATEST_COMMIT_MESSAGE }}
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -127,13 +172,5 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-          PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-
-      - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet.${{ env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
