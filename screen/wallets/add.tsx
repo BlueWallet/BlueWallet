@@ -23,7 +23,14 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet } from '../../class';
+import {
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  HDSegwitP2SHWallet,
+  LightningCustodianWallet,
+  LightningLdkWallet,
+  AbstractWallet,
+} from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
@@ -38,14 +45,32 @@ const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
 
-const ButtonSelected = Object.freeze({
-  ONCHAIN: Chain.ONCHAIN,
-  OFFCHAIN: Chain.OFFCHAIN,
-  VAULT: 'VAULT',
-  LDK: 'LDK',
-});
+enum ButtonSelected {
+  // @ts-ignore: Return later to update
+  ONCHAIN = Chain.ONCHAIN,
+  // @ts-ignore: Return later to update
+  OFFCHAIN = Chain.OFFCHAIN,
+  VAULT = 'VAULT',
+  LDK = 'LDK',
+}
 
-const initialState = {
+interface State {
+  isLoading: boolean;
+  walletBaseURI: string;
+  selectedIndex: number;
+  label: string;
+  selectedWalletType: ButtonSelected;
+  backdoorPressed: number;
+  entropy: string | any[] | undefined;
+  entropyButtonText: string;
+}
+
+interface Action {
+  type: string;
+  payload?: any;
+}
+
+const initialState: State = {
   isLoading: true,
   walletBaseURI: '',
   selectedIndex: 0,
@@ -56,7 +81,7 @@ const initialState = {
   entropyButtonText: loc.wallets.add_entropy_provide,
 };
 
-const walletReducer = (state, action) => {
+const walletReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
@@ -79,7 +104,7 @@ const walletReducer = (state, action) => {
   }
 };
 
-const WalletsAdd = () => {
+const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
 
   // State
@@ -121,7 +146,7 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(url => setWalletBaseURI(url))
+      .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
       .catch(() => setWalletBaseURI(''))
       .finally(() => setIsLoading(false));
   }, []);
@@ -132,7 +157,7 @@ const WalletsAdd = () => {
     });
   }, [colorScheme, setOptions]);
 
-  const entropyGenerated = newEntropy => {
+  const entropyGenerated = (newEntropy: string | any[]) => {
     let entropyTitle;
     if (!newEntropy) {
       entropyTitle = loc.wallets.add_entropy_provide;
@@ -150,46 +175,45 @@ const WalletsAdd = () => {
     setEntropyButtonText(entropyTitle);
   };
 
-  const setIsLoading = value => {
+  const setIsLoading = (value: boolean) => {
     dispatch({ type: 'SET_LOADING', payload: value });
   };
 
-  const setWalletBaseURI = value => {
+  const setWalletBaseURI = (value: string) => {
     dispatch({ type: 'SET_WALLET_BASE_URI', payload: value });
   };
 
-  const setSelectedIndex = value => {
+  const setSelectedIndex = (value: number) => {
     dispatch({ type: 'SET_SELECTED_INDEX', payload: value });
   };
 
-  const setLabel = value => {
+  const setLabel = (value: string) => {
     dispatch({ type: 'SET_LABEL', payload: value });
   };
 
-  const setSelectedWalletType = value => {
+  const setSelectedWalletType = (value: ButtonSelected) => {
     dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
   };
 
-  const setBackdoorPressed = value => {
+  const setBackdoorPressed = (value: number) => {
     dispatch({ type: 'INCREMENT_BACKDOOR_PRESSED', payload: value });
   };
 
-  const setEntropy = value => {
+  const setEntropy = (value: string | any[]) => {
     dispatch({ type: 'SET_ENTROPY', payload: value });
   };
 
-  const setEntropyButtonText = value => {
+  const setEntropyButtonText = (value: string) => {
     dispatch({ type: 'SET_ENTROPY_BUTTON_TEXT', payload: value });
   };
 
   const createWallet = async () => {
     setIsLoading(true);
 
-    let w;
-
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
-      createLightningWallet(w);
+      createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
+      let w: HDSegwitBech32Wallet | SegwitP2SHWallet | HDSegwitP2SHWallet;
       if (selectedIndex === 2) {
         // zero index radio - HD segwit
         w = new HDSegwitP2SHWallet();
@@ -208,8 +232,9 @@ const WalletsAdd = () => {
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
+            // @ts-ignore: Return later to update
             await w.generateFromEntropy(entropy);
-          } catch (e) {
+          } catch (e: any) {
             console.log(e.toString());
             alert(e.toString());
             goBack();
@@ -223,6 +248,7 @@ const WalletsAdd = () => {
         A(A.ENUM.CREATED_WALLET);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
+          // @ts-ignore: Return later to update
           navigate('PleaseBackup', {
             walletID: w.getID(),
           });
@@ -232,20 +258,21 @@ const WalletsAdd = () => {
       }
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
+      // @ts-ignore: Return later to update
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
     } else if (selectedWalletType === ButtonSelected.LDK) {
       setIsLoading(false);
-      createLightningLdkWallet(w);
+      createLightningLdkWallet();
     }
   };
 
-  const createLightningLdkWallet = async wallet => {
-    const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);
+  const createLightningLdkWallet = async () => {
+    const foundLdk = wallets.find((w: AbstractWallet) => w.type === LightningLdkWallet.type);
     if (foundLdk) {
       return alert('LDK wallet already exists');
     }
     setIsLoading(true);
-    wallet = new LightningLdkWallet();
+    const wallet = new LightningLdkWallet();
     wallet.setLabel(label || loc.wallets.details_title);
 
     await wallet.generate();
@@ -256,13 +283,14 @@ const WalletsAdd = () => {
 
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    // @ts-ignore: Return later to update
     navigate('PleaseBackupLdk', {
       walletID: wallet.getID(),
     });
   };
 
-  const createLightningWallet = async wallet => {
-    wallet = new LightningCustodianWallet();
+  const createLightningWallet = async () => {
+    const wallet = new LightningCustodianWallet();
     wallet.setLabel(label || loc.wallets.details_title);
 
     try {
@@ -278,7 +306,7 @@ const WalletsAdd = () => {
       }
       await wallet.createAccount();
       await wallet.authorize();
-    } catch (Err) {
+    } catch (Err: any) {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
       if (Err.message) {
@@ -295,16 +323,19 @@ const WalletsAdd = () => {
 
     A(A.ENUM.CREATED_WALLET);
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    // @ts-ignore: Return later to update
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),
     });
   };
 
   const navigateToEntropy = () => {
+    // @ts-ignore: Return later to update
     navigate('ProvideEntropy', { onGenerated: entropyGenerated });
   };
 
   const navigateToImportWallet = () => {
+    // @ts-ignore: Return later to update
     navigate('ImportWallet');
   };
 
@@ -319,7 +350,8 @@ const WalletsAdd = () => {
   };
 
   const handleOnLightningButtonPressed = () => {
-    setBackdoorPressed(prevState => {
+    // @ts-ignore: Return later to update
+    setBackdoorPressed((prevState: number) => {
       return prevState + 1;
     });
     Keyboard.dismiss();
@@ -334,7 +366,7 @@ const WalletsAdd = () => {
   return (
     <ScrollView style={stylesHook.root} testID="ScrollView">
       <BlueSpacing20 />
-      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
+      <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={62}>
         <BlueFormLabel>{loc.wallets.add_wallet_name}</BlueFormLabel>
         <View style={[styles.label, stylesHook.label]}>
           <TextInput
@@ -381,6 +413,7 @@ const WalletsAdd = () => {
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
                   <BlueListItem
+                    // @ts-ignore: Return later to update
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
@@ -388,6 +421,7 @@ const WalletsAdd = () => {
                     checkmark={selectedIndex === 0}
                   />
                   <BlueListItem
+                    // @ts-ignore: Return later to update
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
@@ -395,6 +429,7 @@ const WalletsAdd = () => {
                     checkmark={selectedIndex === 1}
                   />
                   <BlueListItem
+                    /* @ts-ignore: Return later to update */
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}
@@ -430,7 +465,7 @@ const WalletsAdd = () => {
               );
             }
           })()}
-          {isAdvancedOptionsEnabled.data && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
+          {isAdvancedOptionsEnabled.data === true && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
@@ -439,7 +474,9 @@ const WalletsAdd = () => {
               <Button
                 testID="Create"
                 title={loc.wallets.add_create}
-                disabled={!selectedWalletType || (selectedWalletType === Chain.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)}
+                disabled={
+                  !selectedWalletType || (selectedWalletType === ButtonSelected.OFFCHAIN && (walletBaseURI ?? '').trim().length === 0)
+                }
                 onPress={createWallet}
               />
             ) : (
@@ -460,6 +497,7 @@ const WalletsAdd = () => {
   );
 };
 
+/* @ts-ignore: Return later to update */
 WalletsAdd.navigationOptions = navigationStyle(
   {
     closeButton: true,
