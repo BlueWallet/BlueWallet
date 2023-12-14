@@ -121,9 +121,9 @@ const WalletsAdd = () => {
 
   useEffect(() => {
     AsyncStorage.getItem(AppStorage.LNDHUB)
-      .then(url => dispatch({ type: 'SET_WALLET_BASE_URI', payload: url }))
-      .catch(() => dispatch({ type: 'SET_WALLET_BASE_URI', payload: '' }))
-      .finally(() => dispatch({ type: 'SET_LOADING', payload: false }));
+      .then(url => setWalletBaseURI(url))
+      .catch(() => setWalletBaseURI(''))
+      .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
