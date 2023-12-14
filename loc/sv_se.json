@@ -64,6 +64,7 @@
     "node_alias": "Node alias",
     "expiresIn": "Går ut om {time} minuter",
     "payButton": "Betala",
+    "payment": "Betalning",
     "placeholder": "Faktura eller adress",
     "open_channel": "Öppna kanal",
     "funding_amount_placeholder": "Sätt in summa, tex 0.001",
@@ -304,7 +305,7 @@
     "privacy_read_clipboard": "Läs Urklipp",
     "privacy_system_settings": "Systeminställningar",
     "privacy_quickactions": "Plånboksgenvägar",
-    "privacy_quickactions_explanation": "Tryck och håll in BlueWallet-appikonen på startskärmen för att snabbt se saldot i din plånbok.",
+    "privacy_quickactions_explanation": "Tryck och håll in BlueWallet-appikonen för att snabbt se saldot i din plånbok.",
     "privacy_clipboard_explanation": "Ange genvägar om en adress eller faktura hittas i ditt urklipp.",
     "privacy_do_not_track": "Inaktivera Analytics",
     "privacy_do_not_track_explanation": "Information om prestanda och tillförlitlighet kommer inte att skickas in för analys.",
@@ -482,6 +483,8 @@
     "header": "Skicka",
     "share": "dela",
     "view": "Granska",
+    "shared_key_detected": "Delade cosigner",
+    "shared_key_detected_question": "En cosigner delades med dig, vill du importera den?",
     "manage_keys": "Hantera nycklar",
     "how_many_signatures_can_bluewallet_make": "hur många signaturer kan BlueWallet göra",
     "signatures_required_to_spend": "Signaturer krävs {number}",
@@ -547,6 +550,12 @@
     "check_address": "Kontrollera adressen",
     "no_wallet_owns_address": "Ingen av de tillgängliga plånböckerna äger den angivna adressen.",
     "view_qrcode": "Visa QR-koden"
+  },
+  "autofill_word": {
+    "title": "Generera sista mnemoniska ord",
+    "enter": "Ange en delvis mnemonisk fras",
+    "generate_word": "Generera sista ordet",
+    "error": "Indata är inte en 11 eller 23 ords partiell mnemonic!"
   },
   "cc": {
     "change": "ändra",
