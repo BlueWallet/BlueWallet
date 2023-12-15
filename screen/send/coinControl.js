@@ -18,7 +18,6 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as RNLocalize from 'react-native-localize';
-import { ListItem as BlueListItem } from '../../components/ListItem';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SafeBlueArea, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
@@ -29,6 +28,7 @@ import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -232,7 +232,7 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         ]}
         onChangeText={onMemoChange}
       />
-      <BlueListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
+      <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
       <BlueSpacing20 />
       <View style={mStyles.buttonContainer}>
         <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
