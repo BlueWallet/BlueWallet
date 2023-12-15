@@ -6,7 +6,6 @@
     "clipboard": "Clipboard",
     "enter_password": "Masukkan kata sandi",
     "never": "Tidak Pernah",
-    "disabled": "Tidak aktif",
     "of": "{number} dari {total}",
     "ok": "OK",
     "storage_is_encrypted": "Ruang penyimpanan terenkripsi. Masukkan kata sandi untuk decript:",

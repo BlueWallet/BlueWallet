@@ -6,7 +6,6 @@ import { FiatUnit } from '../models/fiatUnit';
 import Notifications from '../blue_modules/notifications';
 import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
-import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
@@ -28,13 +27,11 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
-  const [isTorDisabled, setIsTorDisabled] = useState(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-    isTorDaemonDisabled().then(setIsTorDisabled);
   }, []);
 
   useEffect(() => {
@@ -43,10 +40,6 @@ export const BlueStorageProvider = ({ children }) => {
       alert('Privacy blur has been disabled.');
     }
   }, [isPrivacyBlurEnabled]);
-
-  useEffect(() => {
-    setIsTorDaemonDisabled(isTorDisabled);
-  }, [isTorDisabled]);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -283,8 +276,6 @@ export const BlueStorageProvider = ({ children }) => {
         isDoNotTrackEnabled,
         isElectrumDisabled,
         setIsElectrumDisabled,
-        isTorDisabled,
-        setIsTorDisabled,
         isPrivacyBlurEnabled,
         setIsPrivacyBlurEnabled,
       }}

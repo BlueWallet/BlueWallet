@@ -145,7 +145,6 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
-    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

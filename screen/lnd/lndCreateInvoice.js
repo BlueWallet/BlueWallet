@@ -30,13 +30,11 @@ import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
-import { isTorCapable } from '../../blue_modules/environment';
 import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
-const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWalletID, isTorDisabled } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { name } = useRoute();
@@ -202,20 +200,12 @@ const LNDCreateInvoice = () => {
         const { callback, k1 } = lnurlParams;
         const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
 
-        let reply;
-        if (!isTorDisabled && callbackUrl.includes('.onion')) {
-          const api = new torrific.Torsbee();
-          const torResponse = await api.get(callbackUrl);
-          reply = torResponse.body;
-          if (reply && typeof reply === 'string') reply = JSON.parse(reply);
-        } else {
-          const resp = await fetch(callbackUrl, { method: 'GET' });
-          if (resp.status >= 300) {
-            const text = await resp.text();
-            throw new Error(text);
-          }
-          reply = await resp.json();
+        const resp = await fetch(callbackUrl, { method: 'GET' });
+        if (resp.status >= 300) {
+          const text = await resp.text();
+          throw new Error(text);
         }
+        const reply = await resp.json();
 
         if (reply.status === 'ERROR') {
           throw new Error('Reply from server: ' + reply.reason);
@@ -260,22 +250,14 @@ const LNDCreateInvoice = () => {
     }
 
     // calling the url
-    let reply;
     try {
-      if (!isTorDisabled && url.includes('.onion')) {
-        const api = new torrific.Torsbee();
-        const torResponse = await api.get(url);
-        reply = torResponse.body;
-        if (reply && typeof reply === 'string') reply = JSON.parse(reply);
-      } else {
-        const resp = await fetch(url, { method: 'GET' });
-        if (resp.status >= 300) {
-          throw new Error('Bad response from server');
-        }
-        reply = await resp.json();
-        if (reply.status === 'ERROR') {
-          throw new Error('Reply from server: ' + reply.reason);
-        }
+      const resp = await fetch(url, { method: 'GET' });
+      if (resp.status >= 300) {
+        throw new Error('Bad response from server');
+      }
+      const reply = await resp.json();
+      if (reply.status === 'ERROR') {
+        throw new Error('Reply from server: ' + reply.reason);
       }
 
       if (reply.tag === Lnurl.TAG_PAY_REQUEST) {

@@ -6,7 +6,6 @@
     "clipboard": "Clipboard",
     "enter_password": "Introdu parola",
     "never": "Niciodată",
-    "disabled": "Dezactivat",
     "of": "{number} din {total}",
     "ok": "OK",
     "storage_is_encrypted": "Spațiul tău de stocare este criptat. E necesară parola pentru decriptare.",

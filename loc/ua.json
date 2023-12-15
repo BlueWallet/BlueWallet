@@ -6,7 +6,6 @@
     "clipboard": "Буфер обміну",
     "enter_password": "Введіть пароль",
     "never": "Ніколи",
-    "disabled": "Вимкнено",
     "of": "{number} з {total}",
     "ok": "OK",
     "storage_is_encrypted": "Ваше сховище зашифроване. Введіть пароль для розшифровки",
