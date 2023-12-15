@@ -5,7 +5,6 @@
     "continue": "Continuar",
     "enter_password": "Inserir password",
     "never": "nunca",
-    "disabled": "Desativado",
     "of": "6\n{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "O armazenamento está encriptado. Uma password é necessária para desencriptar.",

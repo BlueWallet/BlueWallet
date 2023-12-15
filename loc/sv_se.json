@@ -6,7 +6,6 @@
     "clipboard": "Urklipp",
     "enter_password": "Ange lösenord",
     "never": "aldrig",
-    "disabled": "Inaktiverad",
     "of": "{number} av {total}",
     "ok": "OK",
     "storage_is_encrypted": "Lagringen är krypterad. Lösenords krävs för att dekryptera",

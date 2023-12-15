@@ -6,7 +6,6 @@
     "clipboard": "Porta-retalls",
     "enter_password": "Introduïu la contrasenya",
     "never": "mai",
-    "disabled": "Desactivat",
     "of": "{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "L'informació està xifrada. Es requereix la contrasenya per a desxifrar-la.",

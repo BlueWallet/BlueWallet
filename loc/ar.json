@@ -6,7 +6,6 @@
     "clipboard": "الحافظة",
     "enter_password": "إدخال كلمة المرور",
     "never": "أبدًا",
-    "disabled": "معطّل",
     "of": "{number} من {total}",
     "ok": "موافق",
     "storage_is_encrypted": "وحدة التخزين مشفرة. أنت بحاجة إلى كلمة المرور لفك تشفيرها",
