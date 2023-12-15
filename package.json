@@ -99,7 +99,7 @@
     "@bugsnag/source-maps": "2.3.1",
     "@keystonehq/bc-ur-registry": "0.6.4",
     "@ngraveio/bc-ur": "1.1.6",
-    "@noble/secp256k1": "1.6.3",
+    "@noble/secp256k1": "2.0.0",
     "@react-native-async-storage/async-storage": "1.21.0",
     "@react-native-clipboard/clipboard": "1.13.0",
     "@react-native-community/push-notification-ios": "1.11.0",
