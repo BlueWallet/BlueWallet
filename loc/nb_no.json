@@ -6,7 +6,6 @@
     "clipboard": "Utklippstavle",
     "enter_password": "Oppgi passord",
     "never": "Aldri",
-    "disabled": "Deaktivert",
     "of": "{number} av {total}",
     "ok": "OK",
     "storage_is_encrypted": "Din lagring er kryptert. Passord er nødvendig for å dekryptere det.",

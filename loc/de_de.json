@@ -6,7 +6,6 @@
     "clipboard": "Zwischenablage",
     "enter_password": "Passwort eingeben",
     "never": "nie",
-    "disabled": "Deaktiviert",
     "of": "{number} von {total}",
     "ok": "OK",
     "storage_is_encrypted": "Zum Entschlüsseln des Speichers das Passwort eingeben.",

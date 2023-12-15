@@ -6,7 +6,6 @@
     "clipboard": "Clipboard",
     "enter_password": "Enter password",
     "never": "Never",
-    "disabled": "Disabled",
     "of": "{number} of {total}",
     "ok": "OK",
     "storage_is_encrypted": "Your storage is encrypted. Password is required to decrypt it.",

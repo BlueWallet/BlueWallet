@@ -6,7 +6,6 @@
     "clipboard": "Presse-papier",
     "enter_password": "Saisir le mot de passe",
     "never": "Jamais",
-    "disabled": "Désactivé",
     "of": "{number} sur {total}",
     "ok": "OK",
     "storage_is_encrypted": "L'espace de stockage est chiffré. le mot de passe est requis pour le déchiffrer.",

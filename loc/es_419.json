@@ -6,7 +6,6 @@
     "clipboard": "Portapapeles",
     "enter_password": "Ingresar contraseña",
     "never": "Nunca",
-    "disabled": "Desactivado",
     "of": "{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "Tu almacenamiento está encriptado. Se requiere contraseña para descifrarlo.",

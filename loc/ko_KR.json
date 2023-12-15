@@ -6,7 +6,6 @@
     "clipboard": "붙여넣기판",
     "enter_password": "비밀번호 입력",
     "never": "불가합니다",
-    "disabled": "사용불가",
     "of": "{total} 개중 {number}",
     "ok": "확인",
     "storage_is_encrypted": "저장된 데이터가 암호화되었습니다. 암호화를 해독하려면 비밀번호를 입력하십시오.",

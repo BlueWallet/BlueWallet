@@ -413,4 +413,4 @@ ScanQRCode.initialParams = {
   backdoorText: '',
   backdoorVisible: false,
   animatedQRCodeData: {},
-}
+};

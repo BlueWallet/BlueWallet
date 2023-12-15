@@ -6,7 +6,6 @@
     "clipboard": "Odložišče",
     "enter_password": "Vnesite geslo",
     "never": "Nikoli",
-    "disabled": "Onemogoči",
     "of": "{number} od {total}",
     "ok": "OK",
     "storage_is_encrypted": "Shramba je šifrirana. Za dešifriranje je potrebno geslo.",

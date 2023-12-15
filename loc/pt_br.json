@@ -6,7 +6,6 @@
     "clipboard": "Área de transferência",
     "enter_password": "Insira a senha",
     "never": "Nunca",
-    "disabled": "Desativado",
     "of": "{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "Os arquivos estão criptografados, uma senha é necessária para descriptografá-los.",

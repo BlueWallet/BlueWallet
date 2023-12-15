@@ -6,7 +6,6 @@
     "clipboard": "クリップボード",
     "enter_password": "パスワードを入力",
     "never": "データなし",
-    "disabled": "無効",
     "of": "{number} / {total}",
     "ok": "OK",
     "storage_is_encrypted": "ウォレットは暗号化されています。復号にはパスワードが必要です。",
