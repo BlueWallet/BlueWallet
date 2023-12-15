@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Icon, ListItem } from 'react-native-elements';
+import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
 import {
   ActivityIndicator,
   FlatList,
@@ -21,7 +21,7 @@ import * as RNLocalize from 'react-native-localize';
 import { ListItem as BlueListItem } from '../../components/ListItem';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueListItem } from '../../BlueComponents';
+import { SafeBlueArea, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -83,22 +83,22 @@ const OutputList = ({
   }
 
   return (
-    <ListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
+    <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
       <Avatar
         rounded
         overlayContainerStyle={oStyles.avatar}
         onPress={selected ? onDeSelect : onSelect}
         icon={selected ? { name: 'check' } : undefined}
       />
-      <ListItem.Content>
-        <ListItem.Title style={oStyles.amount}>{amount}</ListItem.Title>
-        <ListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+      <RNElementsListItem.Content>
+        <RNElementsListItem.Title style={oStyles.amount}>{amount}</RNElementsListItem.Title>
+        <RNElementsListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
           {memo || address}
-        </ListItem.Subtitle>
-      </ListItem.Content>
+        </RNElementsListItem.Subtitle>
+      </RNElementsListItem.Content>
       {change && <ChangeBadge />}
       {frozen && <FrozenBadge />}
-    </ListItem>
+    </RNElementsListItem>
   );
 };
 
@@ -142,26 +142,26 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, 
   );
 
   return (
-    <ListItem bottomDivider containerStyle={oStyles.container}>
+    <RNElementsListItem bottomDivider containerStyle={oStyles.container}>
       <Avatar rounded overlayContainerStyle={oStyles.avatar} />
-      <ListItem.Content>
-        <ListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
+      <RNElementsListItem.Content>
+        <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
           {amount}
           <View style={oStyles.tranContainer}>
             <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
           </View>
-        </ListItem.Title>
+        </RNElementsListItem.Title>
         {memo ? (
           <>
-            <ListItem.Subtitle style={oStyles.memo}>{memo}</ListItem.Subtitle>
+            <RNElementsListItem.Subtitle style={oStyles.memo}>{memo}</RNElementsListItem.Subtitle>
             <BlueSpacing10 />
           </>
         ) : null}
-        <ListItem.Subtitle style={oStyles.memo}>{address}</ListItem.Subtitle>
+        <RNElementsListItem.Subtitle style={oStyles.memo}>{address}</RNElementsListItem.Subtitle>
         <BlueSpacing10 />
-        <ListItem.Subtitle style={oStyles.memo}>{fullId}</ListItem.Subtitle>
-      </ListItem.Content>
-    </ListItem>
+        <RNElementsListItem.Subtitle style={oStyles.memo}>{fullId}</RNElementsListItem.Subtitle>
+      </RNElementsListItem.Content>
+    </RNElementsListItem>
   );
 };
 
