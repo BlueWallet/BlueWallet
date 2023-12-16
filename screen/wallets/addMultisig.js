@@ -18,7 +18,7 @@ const WalletsAddMultisig = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
-  const { walletLabel = loc.multisig.default_label } = useRoute().params;
+  const { walletLabel } = useRoute().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -333,5 +333,9 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
 WalletsAddMultisig.navigationOptions = navigationStyle({
   headerTitle: null,
 });
+
+WalletsAddMultisig.initialParams = {
+  walletLabel: loc.multisig.default_label,
+};
 
 export default WalletsAddMultisig;
