@@ -13,20 +13,17 @@ import Biometric from '../../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { Psbt } from 'bitcoinjs-lib';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
-import { isTorCapable } from '../../blue_modules/environment';
 import Button from '../../components/Button';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const Confirm = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled, isTorDisabled } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
@@ -123,37 +120,11 @@ const Confirm = () => {
       } else {
         const payJoinWallet = new PayjoinTransaction(psbt, txHex => broadcast(txHex), wallet);
         const paymentScript = getPaymentScript();
-        let payjoinClient;
-        if (!isTorDisabled && payjoinUrl.includes('.onion')) {
-          console.warn('trying TOR....');
-          // working through TOR - crafting custom requester that will handle TOR http request
-          const customPayjoinRequester = {
-            requestPayjoin: async function (psbt2) {
-              console.warn('requesting payjoin with psbt:', psbt2.toBase64());
-              const api = new torrific.Torsbee();
-              const torResponse = await api.post(payjoinUrl, {
-                headers: {
-                  'Content-Type': 'text/plain',
-                },
-                body: psbt2.toBase64(),
-              });
-              console.warn('got torResponse.body');
-              if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
-              return Psbt.fromBase64(torResponse.body);
-            },
-          };
-          payjoinClient = new PayjoinClient({
-            paymentScript,
-            wallet: payJoinWallet,
-            payjoinRequester: customPayjoinRequester,
-          });
-        } else {
-          payjoinClient = new PayjoinClient({
-            paymentScript,
-            wallet: payJoinWallet,
-            payjoinUrl,
-          });
-        }
+        const payjoinClient = new PayjoinClient({
+          paymentScript,
+          wallet: payJoinWallet,
+          payjoinUrl,
+        });
         await payjoinClient.run();
         const payjoinPsbt = payJoinWallet.getPayjoinPsbt();
         if (payjoinPsbt) {
