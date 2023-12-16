@@ -3,13 +3,14 @@ import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueListItem, BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
+import { SafeBlueArea, BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
 import { FiatUnit, FiatUnitSource, getFiatRate } from '../../models/fiatUnit';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import dayjs from 'dayjs';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
 dayjs.extend(require('dayjs/plugin/calendar'));
 const currency = require('../../blue_modules/currency');
 
@@ -63,7 +64,7 @@ const Currency = () => {
         extraData={data}
         renderItem={({ item }) => {
           return (
-            <BlueListItem
+            <ListItem
               disabled={isSavingNewPreferredCurrency}
               title={`${item.endPointKey} (${item.symbol})`}
               checkmark={selectedCurrency.endPointKey === item.endPointKey}

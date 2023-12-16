@@ -2,12 +2,12 @@ import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueListItem } from '../../BlueComponents';
 import loc, { saveLanguage } from '../../loc';
 import { AvailableLanguages } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
 
 const styles = StyleSheet.create({
   flex: {
@@ -33,8 +33,7 @@ const Language: React.FC = () => {
 
   const renderItem = ({ item }: { item: { label: string; value: string; isRTL: boolean } }) => {
     return (
-      <BlueListItem
-        // @ts-ignore: Fix later
+      <ListItem
         onPress={() => {
           const currentLanguage = AvailableLanguages.find(l => l.value === selectedLanguage);
           saveLanguage(item.value).then(() => {
