@@ -65,8 +65,22 @@ interface State {
   entropyButtonText: string;
 }
 
+// Action Type Constants as a Nested Object
+const ActionTypes = {
+  SET_LOADING: 'SET_LOADING',
+  SET_WALLET_BASE_URI: 'SET_WALLET_BASE_URI',
+  SET_SELECTED_INDEX: 'SET_SELECTED_INDEX',
+  SET_LABEL: 'SET_LABEL',
+  SET_SELECTED_WALLET_TYPE: 'SET_SELECTED_WALLET_TYPE',
+  INCREMENT_BACKDOOR_PRESSED: 'INCREMENT_BACKDOOR_PRESSED',
+  SET_ENTROPY: 'SET_ENTROPY',
+  SET_ENTROPY_BUTTON_TEXT: 'SET_ENTROPY_BUTTON_TEXT',
+} as const; // Use 'as const' to get literal types instead of string
+
+type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
+
 interface Action {
-  type: string;
+  type: ActionTypes;
   payload?: any;
 }
 
@@ -83,21 +97,21 @@ const initialState: State = {
 
 const walletReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'SET_LOADING':
+    case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
-    case 'SET_WALLET_BASE_URI':
+    case ActionTypes.SET_WALLET_BASE_URI:
       return { ...state, walletBaseURI: action.payload };
-    case 'SET_SELECTED_INDEX':
+    case ActionTypes.SET_SELECTED_INDEX:
       return { ...state, selectedIndex: action.payload };
-    case 'SET_LABEL':
+    case ActionTypes.SET_LABEL:
       return { ...state, label: action.payload };
-    case 'SET_SELECTED_WALLET_TYPE':
+    case ActionTypes.SET_SELECTED_WALLET_TYPE:
       return { ...state, selectedWalletType: action.payload };
-    case 'INCREMENT_BACKDOOR_PRESSED':
+    case ActionTypes.INCREMENT_BACKDOOR_PRESSED:
       return { ...state, backdoorPressed: state.backdoorPressed + 1 };
-    case 'SET_ENTROPY':
+    case ActionTypes.SET_ENTROPY:
       return { ...state, entropy: action.payload };
-    case 'SET_ENTROPY_BUTTON_TEXT':
+    case ActionTypes.SET_ENTROPY_BUTTON_TEXT:
       return { ...state, entropyButtonText: action.payload };
     default:
       return state;
