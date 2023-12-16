@@ -6,7 +6,6 @@
     "clipboard": "Schowek",
     "enter_password": "Wprowadź hasło",
     "never": "Nigdy",
-    "disabled": "Wyłączone",
     "of": "{number} z {total}",
     "ok": "OK",
     "storage_is_encrypted": "Twoje dane są zaszyfrowane. Hasło jest wymagane do ich rozszyfrowania",
@@ -64,6 +63,7 @@
     "node_alias": "Alias węzła",
     "expiresIn": "Traci ważność w ciągu {time} minut",
     "payButton": "Zapłać",
+    "payment": "Płatność",
     "placeholder": "Faktura lub adres",
     "open_channel": "Otwórz kanał",
     "funding_amount_placeholder": "Kwota fundująca, np. 0.001",
@@ -266,8 +266,6 @@
     "electrum_history": "Historia serwerów",
     "electrum_reset_to_default": "Czy na pewno ustawić domyślne ustawienia Electrum?",
     "electrum_clear": "Wyczyść",
-    "tor_supported": "Sieć Tor obsługiwana",
-    "tor_unsupported": "Połączenia Tor nie są wspierane.",
     "encrypt_decrypt": "Odszyfruj Schowek",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
     "encrypt_enc_and_pass": "Szyfrowany i chroniony hasłem",
@@ -288,7 +286,6 @@
     "lightning_error_lndhub_uri": "Nieprawidłowy adres LNDHub",
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
-    "tor_settings": "Ustawienia sieci Tor",
     "lightning_settings_explain": "Aby połączyć się z własnym węzłem LND, zainstaluj LNDHub i wpisz jego adres URL w ustawieniach. Pamiętaj, że portfele utworzone po tej zmianie będą łączyć się z podanym serwerem LNDHub.",
     "network": "Sieć",
     "network_broadcast": "Rozgłoś transakcję",
@@ -549,6 +546,12 @@
     "check_address": "Sprawdź adres",
     "no_wallet_owns_address": "Żaden z dostępnych portfeli nie posiada podanego adresu.",
     "view_qrcode": "Pokaż kod QR"
+  },
+  "autofill_word": {
+    "title": "Generuj ostatnie słowo mnemoniku",
+    "enter": "Wprowadź częściową frazę mnemoniku",
+    "generate_word": "Generuj ostatnie słowo",
+    "error": "Dane wejściowe nie są częściowym mnemonikiem składającym się z 11 lub 23 słów!"
   },
   "cc": {
     "change": "Reszta",

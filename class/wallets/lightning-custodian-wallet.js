@@ -2,8 +2,6 @@ import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { isTorDaemonDisabled, isTorCapable } from '../../blue_modules/environment';
-const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
@@ -76,13 +74,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     this._api = new Frisbee({
       baseURI: this.baseURI,
     });
-    const isTorDisabled = await isTorDaemonDisabled();
-
-    if (!isTorDisabled && this.baseURI && this.baseURI?.indexOf('.onion') !== -1) {
-      this._api = new torrific.Torsbee({
-        baseURI: this.baseURI,
-      });
-    }
   }
 
   accessTokenExpired() {
@@ -587,16 +578,9 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static async isValidNodeAddress(address) {
-    const isTorDisabled = await isTorDaemonDisabled();
-    const isTor = address.indexOf('.onion') !== -1;
-    const apiCall =
-      isTor && !isTorDisabled
-        ? new torrific.Torsbee({
-            baseURI: address,
-          })
-        : new Frisbee({
-            baseURI: address,
-          });
+    const apiCall = new Frisbee({
+      baseURI: address,
+    });
     const response = await apiCall.get('/getinfo', {
       headers: {
         'Access-Control-Allow-Origin': '*',
