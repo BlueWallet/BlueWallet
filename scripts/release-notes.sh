@@ -17,7 +17,7 @@ HASH=`git show-ref -s $TAG`
 apply_filter() {
     case $FILTER_TYPE in
         "apple")
-            sed '/android/I d; /google/I d' | \
+            sed 's/android/other devices/Ig; s/google/other devices/Ig' | \
             sed '/Update dependency/I d' | \
             sed '/Translate loc/I d' | \
             sed '/Update /I d'
