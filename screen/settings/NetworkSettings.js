@@ -5,18 +5,12 @@ import Notifications from '../../blue_modules/notifications';
 import navigationStyle from '../../components/navigationStyle';
 import { SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
-import { isTorCapable } from '../../blue_modules/environment';
-import ListItem from '../../components/ListItem';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
 
   const navigateToElectrumSettings = () => {
     navigate('ElectrumSettings');
-  };
-
-  const navigateToTorSettings = () => {
-    navigate('TorSettings');
   };
 
   const navigateToLightningSettings = () => {
@@ -36,7 +30,6 @@ const NetworkSettings = () => {
             chevron
           />
         )}
-        {isTorCapable && <ListItem title={loc.settings.tor_settings} onPress={navigateToTorSettings} testID="TorSettings" chevron />}
       </ScrollView>
     </SafeBlueArea>
   );

@@ -263,8 +263,8 @@ const LdkInfo = () => {
             {status === LdkNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
               : channelData?.is_usable
-              ? loc.lnd.active
-              : loc.lnd.inactive}
+                ? loc.lnd.active
+                : loc.lnd.inactive}
           </Text>
 
           {status === LdkNodeInfoChannelStatus.INACTIVE && (

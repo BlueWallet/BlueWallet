@@ -30,7 +30,6 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isDesktop, isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -161,11 +160,6 @@ export default class ElectrumSettings extends Component {
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
-
-    if (isDesktop && host.endsWith('.onion')) {
-      alert(loc.settings.tor_unsupported);
-      return;
-    }
 
     this.setState({ isLoading: true }, async () => {
       try {
@@ -308,10 +302,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={
-                  loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' }) +
-                  (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
-                }
+                placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
                 value={this.state.host}
                 onChangeText={text => {
                   const host = text.trim();

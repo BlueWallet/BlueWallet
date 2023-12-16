@@ -230,7 +230,6 @@
     "lightning_error_lndhub_uri": "URI de LNDHub inválido",
     "lightning_saved": "As alterações foram guardadas com sucesso",
     "lightning_settings": "Definições de Lightning",
-    "tor_settings": "Definições de Tor",
     "network": "Rede",
     "network_broadcast": "Transmitir transação",
     "network_electrum": "Electrum server",
