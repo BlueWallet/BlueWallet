@@ -192,6 +192,7 @@ const AddWalletRoot = () => {
         name="WalletsAddMultisig"
         component={WalletsAddMultisig}
         options={WalletsAddMultisig.navigationOptions(theme)}
+        initialParams={WalletsAddMultisig.initialParams}
       />
       <AddWalletStack.Screen
         name="WalletsAddMultisigStep2"
