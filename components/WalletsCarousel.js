@@ -176,10 +176,10 @@ const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWalle
     walletTransactionUpdateStatus === true || walletTransactionUpdateStatus === item.getID()
       ? loc.transactions.updating
       : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-      ? loc.wallets.pull_to_refresh
-      : item.getTransactions().find(tx => tx.confirmations === 0)
-      ? loc.transactions.pending
-      : transactionTimeToReadable(item.getLatestTransactionTime());
+        ? loc.wallets.pull_to_refresh
+        : item.getTransactions().find(tx => tx.confirmations === 0)
+          ? loc.transactions.pending
+          : transactionTimeToReadable(item.getLatestTransactionTime());
 
   const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
 
