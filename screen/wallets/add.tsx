@@ -65,7 +65,6 @@ interface State {
   entropyButtonText: string;
 }
 
-// Action Type Constants as a Nested Object
 const ActionTypes = {
   SET_LOADING: 'SET_LOADING',
   SET_WALLET_BASE_URI: 'SET_WALLET_BASE_URI',
@@ -75,8 +74,7 @@ const ActionTypes = {
   INCREMENT_BACKDOOR_PRESSED: 'INCREMENT_BACKDOOR_PRESSED',
   SET_ENTROPY: 'SET_ENTROPY',
   SET_ENTROPY_BUTTON_TEXT: 'SET_ENTROPY_BUTTON_TEXT',
-} as const; // Use 'as const' to get literal types instead of string
-
+} as const;
 type ActionTypes = (typeof ActionTypes)[keyof typeof ActionTypes];
 
 interface Action {
