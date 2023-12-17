@@ -12,16 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  BlueText,
-  BlueListItem,
-  LightningButton,
-  BitcoinButton,
-  VaultButton,
-  BlueFormLabel,
-  BlueButtonLink,
-  BlueSpacing20,
-} from '../../BlueComponents';
+import { BlueText, LightningButton, BitcoinButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import {
   HDSegwitBech32Wallet,
@@ -41,6 +32,7 @@ import alert from '../../components/Alert';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -424,24 +416,21 @@ const WalletsAdd: React.FC = () => {
                 <View>
                   <BlueSpacing20 />
                   <Text style={[styles.advancedText, stylesHook.advancedText]}>{loc.settings.advanced_options}</Text>
-                  <BlueListItem
-                    // @ts-ignore: Return later to update
+                  <ListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(0)}
                     title={HDSegwitBech32Wallet.typeReadable}
                     checkmark={selectedIndex === 0}
                   />
-                  <BlueListItem
-                    // @ts-ignore: Return later to update
+                  <ListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(1)}
                     title={SegwitP2SHWallet.typeReadable}
                     checkmark={selectedIndex === 1}
                   />
-                  <BlueListItem
-                    /* @ts-ignore: Return later to update */
+                  <ListItem
                     containerStyle={[styles.noPadding, stylesHook.noPadding]}
                     bottomDivider={false}
                     onPress={() => setSelectedIndex(2)}

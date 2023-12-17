@@ -4,12 +4,13 @@ import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking,
 import { Button as ButtonRNElements } from 'react-native-elements';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueCopyToClipboardButton, BlueListItem, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import { Button } from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -96,7 +97,7 @@ const NotificationSettings = () => {
     <BlueLoading />
   ) : (
     <ScrollView style={stylesWithThemeHook.scroll}>
-      <BlueListItem
+      <ListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
         switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
