@@ -25,7 +25,7 @@ import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
-import WalletsAddMultisigHelp from './screen/wallets/addMultisigHelp';
+import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
@@ -202,7 +202,7 @@ const AddWalletRoot = () => {
       <AddWalletStack.Screen
         name="WalletsAddMultisigHelp"
         component={WalletsAddMultisigHelp}
-        options={WalletsAddMultisigHelp.navigationOptions(theme)}
+        options={WalletAddMultisigHelpNavigationOptions}
       />
     </AddWalletStack.Navigator>
   );
