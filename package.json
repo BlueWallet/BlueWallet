@@ -71,6 +71,7 @@
     "windows": "react-native run-windows"
   },
   "jest": {
+    "preset": "react-native",
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
     },
