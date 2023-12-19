@@ -1,8 +1,5 @@
 apply plugin: "com.android.application"
-apply plugin: "kotlin-android"
 apply plugin: "com.facebook.react"
-
-import com.android.build.OutputFile
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -76,6 +73,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    namespace "io.bluewallet.bluewallet"
     defaultConfig {
         applicationId "io.bluewallet.bluewallet"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -95,8 +93,6 @@ android {
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
-    namespace 'io.bluewallet.bluewallet'
-
 }
 
 dependencies {
@@ -114,4 +110,5 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
+
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
