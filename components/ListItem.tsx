@@ -5,7 +5,7 @@ import { useTheme } from './themes';
 
 // Update the type for the props
 interface ListItemProps {
-  rightIcon?: object;
+  rightIcon?: any;
   leftAvatar?: React.Component;
   containerStyle?: object;
   Component?: typeof React.Component | typeof PressableWrapper;
@@ -17,7 +17,7 @@ interface ListItemProps {
   hideChevron?: boolean;
   disabled?: boolean;
   switch?: object; // Define more specific type if needed
-  leftIcon?: object; // Define more specific type if needed
+  leftIcon?: any; // Define more specific type if needed
   title: string;
   subtitle?: string;
   subtitleNumberOfLines?: number;
