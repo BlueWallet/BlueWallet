@@ -1,0 +1,35 @@
+# Matchfile
+
+# URL of the Git repository to store the certificates
+git_url(ENV["GIT_URL"])
+
+# Define the type of match to run, could be one of 'appstore', 'adhoc', 'development', or 'enterprise'.
+# For example, use 'appstore' for App Store builds, 'adhoc' for Ad Hoc distribution, 
+# 'development' for development builds, and 'enterprise' for In-House (enterprise) distribution.
+type("appstore")
+
+app_identifier(["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]) # Replace with your app identifiers
+
+# List of app identifiers to create provisioning profiles for.
+# Replace with your app's bundle identifier(s).
+
+# Your Apple Developer account email address.
+username(ENV["APPLE_ID"])
+
+# The ID of your Apple Developer team if you're part of multiple teams
+team_id(ENV["ITC_TEAM_ID"])
+
+# Set this to true if match should only read existing certificates and profiles
+# and not create new ones.
+readonly(true)
+
+# Optional: The Git branch that is used for match.
+# Default is 'master'.
+
+# Optional: Path to a specific SSH key to be used by match.
+# Only needed if you're using a private repository and match needs to use SSH keys for authentication.
+# ssh_key("/path/to/your/private/key")
+
+# Optional: Define the platform to use, can be 'ios', 'macos', or 'tvos'.
+# For React Native projects, you'll typically use 'ios'.
+platform("ios")

@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Text, Header, ListItem, Avatar } from 'react-native-elements';
+import { Icon, Text, Header } from 'react-native-elements';
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,6 @@ import {
   Platform,
   SafeAreaView,
   StyleSheet,
-  Switch,
   TextInput,
   TouchableOpacity,
   View,
@@ -36,42 +35,6 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
-
-export const BlueButton = props => {
-  const { colors } = useTheme();
-
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
-  let fontColor = props.buttonTextColor || colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  return (
-    <TouchableOpacity
-      style={{
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        flexGrow: 1,
-      }}
-      accessibilityRole="button"
-      {...props}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor, fontWeight: '500' }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 export const SecondButton = forwardRef((props, ref) => {
   const { colors } = useTheme();
@@ -386,73 +349,6 @@ export const BlueTextCentered = props => {
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
 
-export const BlueListItem = React.memo(props => {
-  const { colors } = useTheme();
-
-  return (
-    <ListItem
-      containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
-      Component={props.Component ?? TouchableOpacity}
-      bottomDivider={props.bottomDivider !== undefined ? props.bottomDivider : true}
-      topDivider={props.topDivider !== undefined ? props.topDivider : false}
-      testID={props.testID}
-      onPress={props.onPress}
-      onLongPress={props.onLongPress}
-      disabled={props.disabled}
-      accessible={props.switch === undefined}
-    >
-      {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
-      {props.leftIcon && <Avatar icon={props.leftIcon} />}
-      <ListItem.Content>
-        <ListItem.Title
-          style={{
-            color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
-            fontSize: 16,
-            fontWeight: '500',
-            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-          }}
-          numberOfLines={0}
-          accessible={props.switch === undefined}
-        >
-          {props.title}
-        </ListItem.Title>
-        {props.subtitle && (
-          <ListItem.Subtitle
-            numberOfLines={props.subtitleNumberOfLines ?? 1}
-            accessible={props.switch === undefined}
-            style={{
-              flexWrap: 'wrap',
-              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-              color: colors.alternativeTextColor,
-              fontWeight: '400',
-              fontSize: 14,
-            }}
-          >
-            {props.subtitle}
-          </ListItem.Subtitle>
-        )}
-      </ListItem.Content>
-      {props.rightTitle && (
-        <ListItem.Content right>
-          <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
-            {props.rightTitle}
-          </ListItem.Title>
-        </ListItem.Content>
-      )}
-      {props.isLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <>
-          {props.chevron && <ListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
-          {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
-          {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
-        </>
-      )}
-    </ListItem>
-  );
-});
-
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
 
@@ -558,12 +454,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <PlusIcon
-        accessibilityRole="button"
-        accessibilityLabel={loc.wallets.add_title}
-        onPress={props.onNewWalletPress}
-        Component={TouchableOpacity}
-      />
+      <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={props.onNewWalletPress} />
     </View>
   );
 };

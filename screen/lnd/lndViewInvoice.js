@@ -5,15 +5,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import {
-  BlueLoading,
-  BlueText,
-  SafeBlueArea,
-  BlueButton,
-  BlueCopyTextToClipboard,
-  BlueSpacing20,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { BlueLoading, BlueText, SafeBlueArea, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -21,13 +13,14 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
-  const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
-  const { goBack, navigate, setParams, setOptions, dangerouslyGetParent } = useNavigation();
+  const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
@@ -73,7 +66,7 @@ const LNDViewInvoice = () => {
               shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
-            headerHideBackButton: true,
+            headerBackVisible: false,
 
             // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => (
@@ -81,7 +74,7 @@ const LNDViewInvoice = () => {
                 accessibilityRole="button"
                 style={styles.button}
                 onPress={() => {
-                  dangerouslyGetParent().pop();
+                  getParent().pop();
                 }}
                 testID="NavigationCloseButton"
               >
@@ -105,7 +98,7 @@ const LNDViewInvoice = () => {
   }, [colors, isModal]);
 
   useEffect(() => {
-    setSelectedWallet(walletID);
+    setSelectedWalletID(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
@@ -269,10 +262,10 @@ const LNDViewInvoice = () => {
             )}
             <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
 
-            <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
             <BlueSpacing20 />
-            <BlueButton
+            <Button
               style={stylesHook.additionalInfo}
               onPress={handleOnViewAdditionalInformationPressed}
               title={loc.lndViewInvoice.additional_info}

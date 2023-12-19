@@ -2,10 +2,23 @@ import { getUniqueId } from 'react-native-device-info';
 import Bugsnag from '@bugsnag/react-native';
 const BlueApp = require('../BlueApp');
 
+/**
+ * in case Bugsnag was started, but user decided to opt out while using the app, we have this
+ * flag `userHasOptedOut` and we forbid logging in `onError` handler
+ * @type {boolean}
+ */
 let userHasOptedOut = false;
 
 if (process.env.NODE_ENV !== 'development') {
-  getUniqueId().then(uniqueID => {
+  (async () => {
+    const uniqueID = await getUniqueId();
+    const doNotTrack = await BlueApp.isDoNotTrackEnabled();
+
+    if (doNotTrack) {
+      // dont start Bugsnag at all
+      return;
+    }
+
     Bugsnag.start({
       collectUserIp: false,
       user: {
@@ -15,12 +28,8 @@ if (process.env.NODE_ENV !== 'development') {
         return !userHasOptedOut;
       },
     });
-  });
+  })();
 }
-
-BlueApp.isDoNotTrackEnabled().then(value => {
-  if (value) userHasOptedOut = true;
-});
 
 const A = async event => {};
 

@@ -5,19 +5,21 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BlueButton, BlueListItem, BlueSpacing20 } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
-  const { walletLabel = loc.multisig.default_label } = useRoute().params;
+  const { walletLabel } = useRoute().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -151,21 +153,21 @@ const WalletsAddMultisig = () => {
 
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2wsh}
               title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
               checkmark={isP2wsh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2shP2wsh}
               title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
               checkmark={isP2shP2wsh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2sh}
               title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
@@ -222,7 +224,7 @@ const WalletsAddMultisig = () => {
       </View>
       {isAdvancedModeEnabledRender && (
         <View>
-          <BlueListItem
+          <ListItem
             onPress={showAdvancedOptionsModal}
             title={loc.multisig.vault_advanced_customize}
             subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
@@ -231,7 +233,7 @@ const WalletsAddMultisig = () => {
         </View>
       )}
       <View style={styles.buttonContainer}>
-        <BlueButton buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
+        <Button buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
       </View>
       {renderModal()}
     </SafeAreaView>
@@ -332,5 +334,9 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
 WalletsAddMultisig.navigationOptions = navigationStyle({
   headerTitle: null,
 });
+
+WalletsAddMultisig.initialParams = {
+  walletLabel: loc.multisig.default_label,
+};
 
 export default WalletsAddMultisig;

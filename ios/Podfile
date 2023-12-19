@@ -57,6 +57,8 @@ target 'BlueWallet' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+  pod 'react-native-bw-file-access', :path => '../blue_modules/react-native-bw-file-access'
+
 
   post_install do |installer|
     react_native_post_install(

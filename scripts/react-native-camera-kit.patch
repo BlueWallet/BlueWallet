@@ -1,0 +1,11 @@
+--- ../node_modules/react-native-camera-kit/android/src/main/java/com/rncamerakit/CKCamera.kt	2023-11-10 11:25:36
++++ ../node_modules/react-native-camera-kit/android/src/main/java/com/rncamerakit/CKCamera.kt	2023-11-10 11:25:42
+@@ -180,7 +180,7 @@
+             orientationListener!!.enable()
+ 
+             val scaleDetector =  ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+-                override fun onScale(detector: ScaleGestureDetector?): Boolean {
++                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                     if (zoomMode == "off") return true
+                     val cameraControl = camera?.cameraControl ?: return true
+                     val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true

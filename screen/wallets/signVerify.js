@@ -231,7 +231,7 @@ const SignVerify = () => {
   );
 };
 
-SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBackButton: true, statusBarStyle: 'light' }, opts => ({
+SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerBackVisible: false, statusBarStyle: 'light' }, opts => ({
   ...opts,
   title: loc.addresses.sign_title,
 }));

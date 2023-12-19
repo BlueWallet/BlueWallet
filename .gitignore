@@ -25,7 +25,6 @@ ios/.xcode.env.local
 .cxx/
 *.keystore
 !debug.keystore
-
 # Android/IntelliJ
 #
 build/
@@ -57,6 +56,7 @@ buck-out/
 */fastlane/Preview.html
 */fastlane/screenshots
 **/fastlane/test_output
+ios/fastlane
 
 # Bundle artifact
 *.jsbundle

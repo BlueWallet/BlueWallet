@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
-import { Button } from 'react-native-elements';
+import { Button as ButtonRNElements } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
-import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { isTorCapable } from '../../blue_modules/environment';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { Button } from '../../components/Button';
 
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
@@ -118,6 +117,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
 
   const importScan = () => {
     requestCameraAuthorization().then(() =>
+      // @ts-ignore: Address types later
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -135,7 +135,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
-      <Button
+      <ButtonRNElements
         icon={{
           name: 'github',
           type: 'font-awesome',
@@ -153,10 +153,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <View style={[styles.uri, styleHook.uri]}>
           <TextInput
             value={URI}
-            placeholder={
-              loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' }) +
-              (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
-            }
+            placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
             onChangeText={setLndhubURI}
             numberOfLines={1}
             style={styles.uriText}
@@ -172,7 +169,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueSpacing20 />
         <BlueButtonLink title={loc.wallets.import_scan_qr} testID="ImportScan" onPress={importScan} />
         <BlueSpacing20 />
-        {isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={save} title={loc.settings.save} />}
+        {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
     </SafeBlueArea>
   );

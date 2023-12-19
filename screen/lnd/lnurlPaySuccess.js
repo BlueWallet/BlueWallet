@@ -2,21 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import {
-  BlueButton,
-  BlueButtonLink,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
+import Button from '../../components/Button';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -113,7 +104,7 @@ export default class LnurlPaySuccess extends Component {
 
           <BlueCard>
             {repeatable ? (
-              <BlueButton
+              <Button
                 onPress={() => {
                   this.props.navigation.navigate('ScanLndInvoiceRoot', {
                     screen: 'LnurlPay',
@@ -127,9 +118,9 @@ export default class LnurlPaySuccess extends Component {
                 icon={{ name: 'refresh', type: 'font-awesome', color: '#9aa0aa' }}
               />
             ) : (
-              <BlueButton
+              <Button
                 onPress={() => {
-                  this.props.navigation.dangerouslyGetParent().popToTop();
+                  this.props.navigation.getParent().popToTop();
                 }}
                 title={loc.send.success_done}
               />
@@ -145,7 +136,7 @@ LnurlPaySuccess.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    dangerouslyGetParent: PropTypes.func,
+    getParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
@@ -186,7 +177,7 @@ const styles = StyleSheet.create({
 LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  headerHideBackButton: true,
+  headerBackVisible: false,
   gestureEnabled: false,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

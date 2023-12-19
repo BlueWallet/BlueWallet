@@ -36,7 +36,7 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
+  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID, isElectrumDisabled } =
     useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -66,7 +66,7 @@ const WalletsList = () => {
   useFocusEffect(
     useCallback(() => {
       verifyBalance();
-      setSelectedWallet('');
+      setSelectedWalletID(undefined);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -90,6 +90,7 @@ const WalletsList = () => {
 
   useLayoutEffect(() => {
     setOptions({
+      navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
@@ -265,7 +266,7 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef}>
+        <FContainer ref={walletActionButtonsRef.current}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={sendButtonLongPress}

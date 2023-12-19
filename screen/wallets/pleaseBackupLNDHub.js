@@ -2,13 +2,14 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
-import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -18,7 +19,7 @@ const PleaseBackupLNDHub = () => {
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
   const styles = StyleSheet.create({
@@ -44,7 +45,7 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
-  const pop = () => navigation.dangerouslyGetParent().pop();
+  const pop = () => navigation.getParent().pop();
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
@@ -61,7 +62,7 @@ const PleaseBackupLNDHub = () => {
         <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
         <BlueCopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
-        <BlueButton onPress={pop} title={loc.pleasebackup.ok_lnd} />
+        <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
     </SafeBlueArea>
   );
@@ -71,7 +72,7 @@ PleaseBackupLNDHub.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );

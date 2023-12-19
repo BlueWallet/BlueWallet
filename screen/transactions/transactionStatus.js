@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import { BlueButton, BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -15,6 +15,8 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -23,7 +25,7 @@ const buttonStatus = Object.freeze({
 });
 
 const TransactionsStatus = () => {
-  const { setSelectedWallet, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { setSelectedWalletID, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const { hash, walletID } = useRoute().params;
   const { navigate, setOptions, goBack } = useNavigation();
   const { colors } = useTheme();
@@ -194,7 +196,7 @@ const TransactionsStatus = () => {
   useEffect(() => {
     const wID = wallet.current?.getID();
     if (wID) {
-      setSelectedWallet(wallet.current?.getID());
+      setSelectedWalletID(wallet.current?.getID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.current]);
@@ -287,7 +289,7 @@ const TransactionsStatus = () => {
     } else if (isCPFPPossible === buttonStatus.possible) {
       return (
         <>
-          <BlueButton onPress={navigateToCPFP} title={loc.transactions.status_bump} />
+          <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
           <BlueSpacing10 />
         </>
       );
@@ -326,7 +328,7 @@ const TransactionsStatus = () => {
     } else if (isRBFBumpFeePossible === buttonStatus.possible) {
       return (
         <>
-          <BlueButton onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
+          <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
           <BlueSpacing10 />
         </>
       );

@@ -20,7 +20,6 @@ import loc from '../../loc';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import navigationStyle from '../../components/navigationStyle';
 import {
-  BlueButton,
   BlueButtonLink,
   BlueCard,
   BlueLoading,
@@ -29,15 +28,15 @@ import {
   SafeBlueArea,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
-  BlueListItem,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { isDesktop, isTorCapable } from '../../blue_modules/environment';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -161,11 +160,6 @@ export default class ElectrumSettings extends Component {
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
     const serverHistory = this.state.serverHistory || [];
-
-    if (isDesktop && host.endsWith('.onion')) {
-      alert(loc.settings.tor_unsupported);
-      return;
-    }
 
     this.setState({ isLoading: true }, async () => {
       try {
@@ -308,10 +302,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={
-                  loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' }) +
-                  (isTorCapable ? ' (' + loc.settings.tor_supported + ')' : '')
-                }
+                placeholder={loc.formatString(loc.settings.electrum_host, { example: '10.20.30.40' })}
                 value={this.state.host}
                 onChangeText={text => {
                   const host = text.trim();
@@ -380,7 +371,7 @@ export default class ElectrumSettings extends Component {
               </TouchableOpacity>
             </View>
             <BlueSpacing20 />
-            {this.state.isLoading ? <BlueLoading /> : <BlueButton testID="Save" onPress={this.save} title={loc.settings.save} />}
+            {this.state.isLoading ? <BlueLoading /> : <Button testID="Save" onPress={this.save} title={loc.settings.save} />}
             <BlueSpacing20 />
             <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={this.importScan} />
             <BlueSpacing20 />
@@ -433,7 +424,7 @@ export default class ElectrumSettings extends Component {
     return (
       <SafeBlueArea>
         <ScrollView keyboardShouldPersistTaps="always">
-          <BlueListItem
+          <ListItem
             Component={Pressable}
             title={loc.settings.electrum_offline_mode}
             switch={{

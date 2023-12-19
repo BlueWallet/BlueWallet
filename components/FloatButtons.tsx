@@ -1,7 +1,7 @@
-import React, { useState, useRef, forwardRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useRef, forwardRef, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from './themes';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -15,7 +15,6 @@ const cStyles = StyleSheet.create({
   },
   rootAbsolute: {
     position: 'absolute',
-    bottom: 30,
   },
   rootInline: {},
   rootPre: {
@@ -29,18 +28,25 @@ const cStyles = StyleSheet.create({
   },
 });
 
-export const FContainer = forwardRef((props, ref) => {
-  const [newWidth, setNewWidth] = useState();
-  const layoutCalculated = useRef(false);
+interface FContainerProps {
+  children: ReactNode | ReactNode[];
+  inline?: boolean;
+}
 
-  const onLayout = event => {
+export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
+  const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
+  const layoutCalculated = useRef(false);
+  const insets = useSafeAreaInsets();
+  const bottomInsets = { bottom: insets.bottom };
+
+  const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
     const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 20;
     const { width } = event.nativeEvent.layout;
     const withPaddings = Math.ceil(width + PADDINGS * 2);
     const len = React.Children.toArray(props.children).filter(Boolean).length;
     let newW = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
-    if (len === 1 && newW < 90) newW = 90; // to add Paddings for lonely small button, like Scan on main screen
+    if (len === 1 && newW < 90) newW = 90;
     setNewWidth(newW);
     layoutCalculated.current = true;
   };
@@ -49,28 +55,35 @@ export const FContainer = forwardRef((props, ref) => {
     <View
       ref={ref}
       onLayout={onLayout}
-      style={[cStyles.root, props.inline ? cStyles.rootInline : cStyles.rootAbsolute, newWidth ? cStyles.rootPost : cStyles.rootPre]}
+      style={[
+        cStyles.root,
+        props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
+        bottomInsets,
+        newWidth ? cStyles.rootPost : cStyles.rootPre,
+      ]}
     >
       {newWidth
         ? React.Children.toArray(props.children)
             .filter(Boolean)
-            .map((c, index, array) =>
-              React.cloneElement(c, {
+            .map((child, index, array) => {
+              if (typeof child === 'string') {
+                return (
+                  <View key={index} style={{ width: newWidth }}>
+                    <Text>{child}</Text>
+                  </View>
+                );
+              }
+              return React.cloneElement(child as React.ReactElement<any>, {
                 width: newWidth,
                 key: index,
                 first: index === 0,
                 last: index === array.length - 1,
-              }),
-            )
+              });
+            })
         : props.children}
     </View>
   );
 });
-
-FContainer.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element]),
-  inline: PropTypes.bool,
-};
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -95,7 +108,16 @@ const bStyles = StyleSheet.create({
   },
 });
 
-export const FButton = ({ text, icon, width, first, last, ...props }) => {
+interface FButtonProps {
+  text: string;
+  icon: ReactNode;
+  width?: number;
+  first?: boolean;
+  last?: boolean;
+  disabled?: boolean;
+}
+
+export const FButton = ({ text, icon, width, first, last, ...props }: FButtonProps) => {
   const { colors } = useTheme();
   const bStylesHook = StyleSheet.create({
     root: {
@@ -108,7 +130,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
       color: colors.formBorder,
     },
   });
-  const style = {};
+  const style: Record<string, any> = {};
 
   if (width) {
     const paddingLeft = first ? BORDER_RADIUS / 2 : PADDINGS;
@@ -126,13 +148,4 @@ export const FButton = ({ text, icon, width, first, last, ...props }) => {
       </Text>
     </TouchableOpacity>
   );
-};
-
-FButton.propTypes = {
-  text: PropTypes.string,
-  icon: PropTypes.element,
-  width: PropTypes.number,
-  first: PropTypes.bool,
-  last: PropTypes.bool,
-  disabled: PropTypes.bool,
 };
