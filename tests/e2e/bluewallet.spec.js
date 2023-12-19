@@ -593,6 +593,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
     // going to Import Wallet screen and importing mnemonic
     await element(by.id('CreateAWallet')).tap();
+    await element(by.id('ScrollView')).swipe('up', 'fast', 0.9); // in case emu screen is small and it doesnt fit
     await element(by.id('ImportWallet')).tap();
     await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
