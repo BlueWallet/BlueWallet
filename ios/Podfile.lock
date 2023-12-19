@@ -399,7 +399,7 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.21.0):
     - React-Core
-  - RNCClipboard (1.13.0):
+  - RNCClipboard (1.13.1):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -750,7 +750,7 @@ SPEC CHECKSUMS:
   RealmJS: df182f726ad95adf5aba0fbe57b6146dd0ac65bf
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 618d03a5f52fbccb3d7010076bc54712844c18ef
-  RNCClipboard: 204b94473a99932e314b730a81363e0bf795a60d
+  RNCClipboard: 90e241893de33a2f5962fc34d76ada4576033e49
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: db5c64a060e66e5db3102d041ebe3ef307a85120
