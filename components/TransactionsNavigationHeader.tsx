@@ -165,7 +165,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ref={menuRef}
         title={`${loc.wallets.balance} (${
           wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-            ? preferredFiatCurrency.endPointKey ?? FiatUnit.USD
+            ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
             : wallet.getPreferredBalanceUnit()
         })`}
         onPressMenuItem={onPressMenuItem}
