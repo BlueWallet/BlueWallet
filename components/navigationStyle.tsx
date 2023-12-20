@@ -24,6 +24,7 @@ type NavigationOptions = {
     color: string;
   };
   headerLargeTitle?: boolean;
+  headerBackVisible?: boolean;
   gestureEnabled?: boolean;
   swipeEnabled?: boolean;
   headerHideBackButton?: boolean;
@@ -42,6 +43,7 @@ const navigationStyle = (
   {
     closeButton = false,
     closeButtonFunc,
+    headerBackVisible = true,
     ...opts
   }: NavigationOptions & {
     closeButton?: boolean;

@@ -17,7 +17,7 @@ import {
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton, BlueListItem } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -45,6 +45,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
 
 const prompt = require('../../helpers/prompt');
 
@@ -646,9 +647,9 @@ const WalletDetails = () => {
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+              <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
+            {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
