@@ -1,0 +1,98 @@
+{
+  "_": {
+    "bad_password": "Құпиясөз қате. Қайталап көріңіз.",
+    "cancel": "Бас тарту",
+    "continue": "Жалғастыру",
+    "enter_password": "Құпиясөзді еңгізіңіз",
+    "never": "Ешқашан",
+    "of": "{number} / {total}",
+    "ok": "ОК",
+    "yes": "Иә",
+    "no": "Жоқ",
+    "save": "Сақтау",
+    "close": "Жабу",
+    "more": "Толығырақ білу",
+    "pick_file": "Файл таңдау"
+  },
+  "entropy": {
+    "save": "Сақтау",
+    "undo": "Болдырмау"
+  },
+  "errors": {
+    "error": "Қате"
+  },
+  "lnd": {
+    "expiresIn": "Мерзімі {time} минутта аяқталады",
+    "payButton": "Төлем жасау",
+    "refill": "Қайта толтыру",
+    "can_send": "Жібере алу"
+  },
+  "lndViewInvoice": {
+    "sats": "сат."
+  },
+  "plausibledeniability": {
+    "create_password": "Құпиясөз еңгізу",
+    "passwords_do_not_match": "Құпия сөздер сәйкес келмейді. Қайталап көріңіз."
+  },
+  "receive": {
+    "details_create": "Жасау",
+    "details_share": "Бөлісу"
+  },
+  "send": {
+    "broadcastError": "Қате",
+    "broadcastPending": "Күтілуде",
+    "confirm_header": "Растау",
+    "confirm_sendNow": "Қазір жіберу",
+    "create_fee": "Комиссия",
+    "details_add_rec_add": "Алушыны қосу",
+    "details_add_rec_rem": "Алушыны алып тастау",
+    "details_address": "Адрес",
+    "details_next": "Ары қарай",
+    "details_scan": "Скан жасау",
+    "dynamic_next": "Ары қарай",
+    "dynamic_start": "Бастау",
+    "dynamic_stop": "Тоқтау",
+    "fee_10m": "10 минут",
+    "fee_1d": "1 күн",
+    "fee_3h": "3 сағат",
+    "header": "Жіберу",
+    "input_done": "Дайын",
+    "open_settings": "Баптауларды ашу",
+    "success_done": "Дайын"
+  },
+  "settings": {
+    "about_license": "MIT License",
+    "electrum_clear_alert_cancel": "Бас тарту",
+    "header": "Баптаулар",
+    "save": "Сақтау"
+  },
+  "transactions": {
+    "cpfp_create": "Жасау",
+    "pending": "Күтілуде"
+  },
+  "wallets": {
+    "add_create": "Жасау",
+    "details_address": "Адрес",
+    "details_no_cancel": "Жоқ, бас тарту",
+    "details_save": "Сақтау",
+    "import_do_import": "Еңгізу",
+    "import_search_accounts": "Шот іздеу",
+    "import_title": "Енгізу",
+    "list_tryagain": "Қайталау"
+  },
+  "multisig": {
+    "confirm": "Растау",
+    "header": "Жіберу",
+    "share": "Бөлісу",
+    "create": "Жасау"
+  },
+  "addresses": {
+    "sign_verify": "Растау",
+    "sign_placeholder_address": "Адрес"
+  },
+  "bip47": {
+    "payment_code": "Төлем коды",
+    "payment_codes_list": "Төлем код тізбесі",
+    "not_found": "Төлем коды табылмады"
+  }
+}

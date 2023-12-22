@@ -15,7 +15,7 @@
     "seed": "シード",
     "success": "成功",
     "wallet_key": "ウォレットキー",
-    "invalid_animated_qr_code_fragment": "無効なアニメーションQRCodeフラグメントです。再度お試しください。",
+    "invalid_animated_qr_code_fragment": "無効なアニメーションQRコードフラグメントです。再度お試しください。",
     "file_saved": "ファイル {filePath} は {destination} に保存されました。",
     "downloads_folder": "ダウンロードフォルダ",
     "close": "閉じる",
@@ -109,11 +109,11 @@
     "ask": "ウォレットのバックアップフレーズは書きとめましたか？バックアップフレーズはこのデバイスを紛失した際に資金を失わないために必要になります。書きとめていなかった場合、資金を取り戻すことはできません。",
     "ask_no": "書きとめていません",
     "ask_yes": "書きとめました",
-    "ok": "はい、書き留めました",
-    "ok_lnd": "はい、保存しました",
+    "ok": "はい、書き取りました",
+    "ok_lnd": "はい、書きとめました",
     "text": "このニーモニック・フレーズを紙に書き留めておいてください。\nウォレットを復元するために使用するバックアップとなります。",
     "text_lnd": "このLNDHub認証を保存しておいてください。これはあなたのバックアップであり、他のデバイス上でウォレットを復元するために使用できます。",
-    "title": "ウォレットが作成されました"
+    "title": "ウォレットを作成しています..."
   },
   "receive": {
     "details_create": "作成",
@@ -311,7 +311,7 @@
     "selfTest": "セルフテスト",
     "save": "保存",
     "saved": "保存済",
-    "success_transaction_broadcasted": "成功！　取引が配信されました！",
+    "success_transaction_broadcasted": "トランザクションの配信に成功しました！",
     "total_balance": "合計残高",
     "total_balance_explanation": "すべてのウォレットの合計残高をホーム画面のウィジェットに表示",
     "widgets": "ウィジェット",
@@ -320,7 +320,7 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "支払いを受けた際に通知を受け取りますか？",
     "no_and_dont_ask": "いいえ。もう聞かないでください。",
-    "ask_me_later": "あとで"
+    "ask_me_later": "後で聞く"
   },
   "transactions": {
     "cancel_explain": "このトランザクションを、あなたに支払いを行う、より高い手数料を持つものに置き換えます。これは事実上、最初のトランザクションをキャンセルします。これはReplace By Fee - RBFと呼ばれています。",
