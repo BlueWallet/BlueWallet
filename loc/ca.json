@@ -15,8 +15,16 @@
     "seed": "Llavor",
     "success": "Èxit",
     "wallet_key": "Clau del moneder",
-    "invalid_animated_qr_code_fragment": "Fragment QRCode animat no vàlid. Siusplau torna-ho a provar.",
-    "downloads_folder": "Carpeta de descàrregues"
+    "file_saved": "Fitxer {filePath} s'ha guardat al teu {destination}.",
+    "downloads_folder": "Carpeta de descàrregues",
+    "close": "Tancar",
+    "change_input_currency": "Canviar moneda d'entrada",
+    "refresh": "Refresca",
+    "more": "Més",
+    "pick_image": "Trieu una imatge de la biblioteca",
+    "pick_file": "Trieu un fitxer",
+    "enter_amount": "Introdueix la quantitat",
+    "qr_custom_input_button": "Toqueu 10 vegades per introduir una entrada personalitzada"
   },
   "alert": {
     "default": "Alerta"
@@ -48,28 +56,30 @@
     "claim_balance": "Reclamar el saldo {balance}",
     "close_channel": "Tancar el canal",
     "new_channel": "Nou canal",
-    "errorInvoiceExpired": "La factura ha caducat",
     "force_close_channel": "Forçar tancar el canal?",
     "expired": "Caducat",
     "node_alias": "Àlies del node",
     "expiresIn": "Caduca en {time} minuts",
     "payButton": "Pagar",
-    "placeholder": "Factura",
+    "payment": "Pagament",
+    "placeholder": "Factura o adreça",
     "open_channel": "Obra el canal",
-    "potentialFee": "Comissió potencial: {fee}",
+    "are_you_sure_open_channel": "Esteu segur que voleu obrir aquest canal?",
     "refill": "Recarregar",
     "refill_external": "Recarregar amb un moneder extern",
     "refill_lnd_balance": "Recarregar el balanç del moneder Lightning",
     "sameWalletAsInvoiceError": "No pots pagar una factura amb el mateix moneder que l'ha creat.",
     "title": "gestionar fons",
     "can_send": "Pots enviar",
-    "can_receive": "Pots rebre"
+    "can_receive": "Pots rebre",
+    "view_logs": "Veure Registres"
   },
   "lndViewInvoice": {
     "additional_info": "Informació addicional",
     "for": "Per:",
     "lightning_invoice": "Factura Lightning",
     "open_direct_channel": "Obrir un canal directe amb aquest node:",
+    "please_pay_between_and": "Si us plau, pagui entre {min} i {max}",
     "please_pay": "Si us plau, pagui",
     "sats": "sats",
     "wasnt_paid_and_expired": "Aquesta factura no ha estat pagada i ha caducat"
@@ -88,11 +98,9 @@
   },
   "pleasebackup": {
     "ask": "Heu desat la frase de recuperació del vostre moneder? Aquesta frase de recuperació és necessària per accedir als vostres fons en cas que perdeu aquest dispositiu. Sense la frase de recuperació, els vostres fons es perdran permanentment.",
-    "ask_no": "No, no en tinc",
-    "ask_yes": "Si, en tinc",
     "ok_lnd": "D'acord, l'he guardat",
     "text_lnd": "Si us plau, deseu aquesta còpia de seguretat del moneder. Permet restaurar el moneder en cas de pèrdua.",
-    "title": "El teu moneder ha estat creat"
+    "title": "El teu moneder ha estat creat..."
   },
   "receive": {
     "details_create": "Crear",
@@ -133,7 +141,6 @@
     "details_amount_field_is_less_than_minimum_amount_sat": "La quantitat especificada és massa petita. Introduïu una quantitat superior a 500 sats.",
     "details_create": "Crear",
     "details_fee_field_is_not_valid": "Comissió invalida",
-    "details_frozen": "{amount} BTC està bloquejat",
     "details_next": "Següent",
     "details_note_placeholder": "comentari (útil per tu)",
     "details_scan": "Escanejar",
@@ -161,7 +168,6 @@
     "permission_camera_message": "Necessitem el vostre permís per usar la vostra càmera.",
     "psbt_sign": "Signar una transacció",
     "open_settings": "Obre configuració",
-    "permission_storage_later": "Pregunta'm després",
     "permission_storage_message": "BlueWallet necessita el vostre permís per accedir al vostre emmagatzematge per desar aquest fitxer.",
     "permission_storage_title": "Permís d'accés a emmagatzematge",
     "psbt_clipboard": "Copiar al portapapers",
@@ -224,10 +230,6 @@
     "total_balance": "Saldo total",
     "tools": "Eines"
   },
-  "notifications": {
-    "no_and_dont_ask": "No, i no m'ho tornis a preguntar",
-    "ask_me_later": "Pregunta'm després"
-  },
   "transactions": {
     "cancel_title": "Cancel·lar aquesta transacció (RBF)",
     "confirmations_lowercase": "{confirmations} confirmacions",
@@ -287,8 +289,6 @@
     "import_scan_qr": "o escanejar codi QR?",
     "import_success": "Èxit",
     "import_title": "importar",
-    "import_derivation_found": "trobat",
-    "import_derivation_found_not": "No trobat",
     "list_create_a_button": "Afegir ara",
     "list_create_a_wallet": "Afegeix un moneder",
     "list_empty_txs1": "Les seves transaccions apareixeran aquí,",

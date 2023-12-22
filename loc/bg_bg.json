@@ -14,7 +14,6 @@
     "seed": "Сиид",
     "success": "Успех",
     "wallet_key": "Парола на портфейла",
-    "invalid_animated_qr_code_fragment": "Невалиден анимиран QRCode фрагмент. Моля, опитай отново.",
     "file_saved": "Файлът {filePath} беше запазен в {destination}.",
     "downloads_folder": "Папка с изтегляния"
   },
@@ -38,16 +37,13 @@
     "network": "Грешка с мрежата"
   },
   "lnd": {
-    "errorInvoiceExpired": "Изтекла фактура",
     "expired": "Изтекла",
     "payButton": "Плати",
-    "placeholder": "Фактура",
     "potentialFee": "Възможна такса: {fee}",
     "refill": "Зареди",
     "refill_create": "За да продължите, моля създайте Биткойн портфейл",
     "refill_external": "Зареди с Външен Портфейл",
     "refill_lnd_balance": "Зареди Лайтнинг Баланс",
-    "sameWalletAsInvoiceError": "Не можете да платите фактура със същия портфейл в който е създадена",
     "title": "Управление на средства"
   },
   "lndViewInvoice": {
@@ -73,9 +69,9 @@
   },
   "pleasebackup": {
     "ask": "Запазихте ли паролата - 12/24 думи за портфейла? В случай, че изгубите достъп до устройството, паролата е необходима за да въстановите средствата. В случай, че загубите паролата - 12/24 думи, перманентно ще изгубите достъп до средствата.",
-    "ask_no": "Не, не съм",
-    "ask_yes": "Да",
-    "text_lnd": "Моля, запазете паролата/ думите. Те ви позволяват да възтановите портфейла и средствата си на друго устройство."
+    "ok_lnd": "Да, запазих паролата.",
+    "text_lnd": "Моля, запазете паролата/ думите. Те ви позволяват да възтановите портфейла и средствата си на друго устройство.",
+    "title": "Портфейла е създаден."
   },
   "receive": {
     "details_create": "Създай",
@@ -116,7 +112,6 @@
     "details_error_decode": "Биткойн адреса не може да бъде разпознат",
     "details_fee_field_is_not_valid": "Не валидна такса",
     "details_next": "Следващ",
-    "details_no_signed_tx": "Избраният файл не съдържа транзакция която може да бъде въведена.",
     "details_note_placeholder": "Бележка за мен",
     "details_scan": "Сканирай",
     "details_total_exceeds_balance": "Сумата надвишава наличният баланс.",
@@ -140,10 +135,8 @@
     "input_paste": "Постави",
     "input_total": "Тотално:",
     "permission_camera_message": "Необходимо е вашето разрешение за достъп до камерата.",
-    "permission_camera_title": "Разрешение за достъп до камерата",
     "psbt_sign": "Подпиши транзакция",
     "open_settings": "Отвори настройки",
-    "permission_storage_later": "Питай ме по-късно",
     "permission_storage_message": "Блу Уолет се нуждае от достъп до папките с файлове за да запази този файл.",
     "permission_storage_title": "Достъп до папките с файлове",
     "psbt_clipboard": "Копирай",
@@ -182,7 +175,6 @@
     "default_wallets": "Виж всички портфейли",
     "electrum_connected": "Свързан",
     "electrum_connected_not": "Няма връзка",
-    "electrum_error_connect": "Невъзможно свързване със посочения Електрум сървър",
     "electrum_saved": "Промените бяха запазени успешно. Моля, рестартирайте Блу Уолет за да видите промените.",
     "set_electrum_server_as_default": "Задайте {server} като Електрум сървър по подразбиране? ",
     "set_lndhub_as_default": "Задайте {url} като LNDHub сървър по подразбиране?",
@@ -208,9 +200,6 @@
     "plausible_deniability": "Plausible Deniability",
     "retype_password": "Повторете паролата",
     "save": "Запази"
-  },
-  "notifications": {
-    "ask_me_later": "Питай ме по-късно"
   },
   "transactions": {
     "cpfp_create": "Създай",
