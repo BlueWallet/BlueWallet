@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: self-hosted
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -132,7 +132,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-latest
+    runs-on: self-hosted
     if: github.event_name == 'push'
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -183,7 +183,7 @@ jobs:
     needs: build
     outputs:
       browserstack_url: ${{ steps.upload_to_browserstack.outputs.browserstack_url }}
-    runs-on: macos-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
