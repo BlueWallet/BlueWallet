@@ -288,7 +288,9 @@ export class LegacyWallet extends AbstractWallet {
     const vinTxids = [];
     for (const txdata of transactions) {
       for (const vin of txdata.vin) {
-        vinTxids.push(vin.txid);
+        // vinTxids.push(vin.txid);
+        vin.txid && vinTxids.push(vin.txid);
+        // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
       }
     }
     const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
