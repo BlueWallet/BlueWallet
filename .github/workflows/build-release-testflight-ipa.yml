@@ -8,6 +8,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master 
 
 jobs:
   build:
@@ -130,6 +133,7 @@ jobs:
   testflight-upload:
     needs: build
     runs-on: macos-latest
+    if: github.event_name == 'push'
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
