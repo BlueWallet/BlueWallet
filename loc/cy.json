@@ -28,11 +28,8 @@
     "network": "Camgymeriad rhwydwaith"
   },
   "lnd": {
-    "errorInvoiceExpired": "Anfoneb wedi gorffen",
     "expired": "Gorffen",
     "payButton": "Talu",
-    "placeholder": "Anfoneb",
-    "potentialFee": "Ffi Tebygol: {fee}",
     "refill": "Ail-lenwi",
     "refill_create": "Er mwyn parhau, ffurfia waled Bitcoin i'w ail-lenwi. ",
     "refill_external": "Ail-lenwi efo Waled Allanol",
@@ -56,6 +53,9 @@
     "passwords_do_not_match": "Cyfrineiriau ddim yn gweddu. Tria eto.",
     "retype_password": "Ail-deipio'r cyfrinair",
     "success": "Llwyddiant"
+  },
+  "pleasebackup": {
+    "title": "Mae dy waled wedi cael ei chreu."
   },
   "receive": {
     "details_create": "Creu",
@@ -104,7 +104,6 @@
     "input_paste": "Pastio",
     "input_total": "Cyfanswm:",
     "permission_camera_message": "Angen dy ganiatad i ddefnyddio dy gamera.",
-    "permission_camera_title": "Caniatad i ddefnyddio'r camera",
     "psbt_sign": "Arwyddo trafodyn",
     "open_settings": "Agor Gosodiadau",
     "success_done": "Wedi Cwblhau"
