@@ -1,3 +1,6 @@
+require 'net/http'
+require 'uri'
+require 'json'
 platform :ios do
 
   before_all do |lane, options|
@@ -132,19 +135,6 @@ platform :ios do
     end
   end
 
-  desc "Upload to BrowserStack"
-  lane :upload_to_browserstack do
-    UI.message("Uploading to BrowserStack...")
-    upload_to_browserstack(
-      browserstack_username: ENV["BROWSERSTACK_USERNAME"],
-      browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
-      app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-      app_name: "BlueWallet",
-      app_bundle_id: "io.bluewallet.bluewallet",
-      app_version: ENV['PROJECT_VERSION'],
-      app_build_number: ENV['NEW_BUILD_NUMBER'])
-  end
-
   desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")
@@ -172,5 +162,47 @@ platform :ios do
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
   end
+
+  desc "Upload to BrowserStack and get the app URL"
+lane :upload_to_browserstack do
+  UI.message("Uploading to BrowserStack...")
+  result = upload_to_browserstack(
+    browserstack_username: ENV["BROWSERSTACK_USERNAME"],
+    browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
+    app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+    app_name: "BlueWallet",
+    app_bundle_id: "io.bluewallet.bluewallet",
+    app_version: ENV['PROJECT_VERSION'],
+    app_build_number: ENV['NEW_BUILD_NUMBER']
+  )
+
+  # Assuming `result` has the unique app identifier or URL to fetch details
+  app_url = fetch_browserstack_app_url(result)
+  UI.message("App URL on BrowserStack: #{app_url}")
+  lane_context[SharedValues::CUSTOM_VALUE] = app_url
+end
+
+def fetch_browserstack_app_url(app_identifier)
+  uri = URI.parse("https://api-cloud.browserstack.com/app-automate/recent_apps")
+  request = Net::HTTP::Get.new(uri)
+  request.basic_auth(ENV["BROWSERSTACK_USERNAME"], ENV["BROWSERSTACK_ACCESS_KEY"])
+
+  req_options = {
+    use_ssl: uri.scheme == "https",
+  }
+
+  response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+    http.request(request)
+  end
+
+  if response.code == '200'
+    apps = JSON.parse(response.body)
+    app = apps.find { |a| a['custom_id'] == app_identifier }
+    return app['app_url'] if app
+  else
+    UI.error("Failed to fetch app URL from BrowserStack: #{response.body}")
+    return nil
+  end
+end
 
 end

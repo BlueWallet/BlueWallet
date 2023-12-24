@@ -177,6 +177,8 @@ jobs:
 
   browserstack-upload:
     needs: build
+    outputs:
+      browserstack_url: ${{ steps.upload_to_browserstack.outputs.browserstack_url }}
     runs-on: macos-latest
     steps:
       - name: Checkout project
@@ -202,8 +204,20 @@ jobs:
           path: ./ios/build
 
       - name: Upload to BrowserStack
+        id: upload_to_browserstack
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-        run: bundle exec fastlane ios upload_to_browserstack
+        run: |
+          output=$(bundle exec fastlane ios upload_to_browserstack)
+          echo "browserstack_url=$output" >> $GITHUB_ENV
+          echo "::set-output name=browserstack_url::$output"
         working-directory: ./ios
+
+      - name: Post BrowserStack URL to PR
+        if: github.event_name == 'pull_request'
+        uses: unsplash/comment-on-pr@v1.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          msg: "BrowserStack App URL: ${{ steps.upload_to_browserstack.outputs.browserstack_url }}"
