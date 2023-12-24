@@ -174,3 +174,36 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
+
+  browserstack-upload:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          path: ./ios/build
+
+      - name: Upload to BrowserStack
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: bundle exec fastlane ios upload_to_browserstack
+        working-directory: ./ios

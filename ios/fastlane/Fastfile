@@ -132,6 +132,19 @@ platform :ios do
     end
   end
 
+  desc "Upload to BrowserStack"
+  lane :upload_to_browserstack do
+    UI.message("Uploading to BrowserStack...")
+    upload_to_browserstack(
+      browserstack_username: ENV["BROWSERSTACK_USERNAME"],
+      browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
+      app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+      app_name: "BlueWallet",
+      app_bundle_id: "io.bluewallet.bluewallet",
+      app_version: ENV['PROJECT_VERSION'],
+      app_build_number: ENV['NEW_BUILD_NUMBER'])
+  end
+
   desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")
