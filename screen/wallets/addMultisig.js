@@ -199,7 +199,7 @@ const WalletsAddMultisig = () => {
     <SafeAreaView style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
-          <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
+          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay ref={loadingAnimation} loop={false} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
@@ -296,6 +296,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: '#9AA0AA',
   },
+  lottie: {
+    width: 233,
+    height: 176,
+  },
   textHeader: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -307,8 +311,7 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     borderWidth: 0,
-    flexDirection: 'row',
-    height: 160,
+    alignItems: 'center',
   },
   rowCenter: {
     flexDirection: 'row',
@@ -332,7 +335,7 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
 };
 
 WalletsAddMultisig.navigationOptions = navigationStyle({
-  headerTitle: null,
+  title: '',
 });
 
 WalletsAddMultisig.initialParams = {
