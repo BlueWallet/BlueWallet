@@ -3,30 +3,31 @@ name: BuildReleaseTestflight
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-  
+
 on:
   push:
     branches:
       - master
   pull_request:
     branches:
-      - master 
+      - master
+    types: [opened, synchronize, labeled, unlabeled]
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ${{ (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'use-macos-latest')) && 'macos-latest' || 'self-hosted' }}
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetches all history
+          fetch-depth: 0
 
       - name: Specify node version
         uses: actions/setup-node@v2-beta
@@ -54,7 +55,7 @@ jobs:
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
-  
+
       - name: Install node_modules
         run: npm install
 
@@ -110,11 +111,10 @@ jobs:
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
-
       - name: Expected IPA file name
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
-  
+
       - name: Install CocoaPods Dependencies
         run: bundle exec fastlane ios install_pods
         working-directory: ./ios
@@ -129,10 +129,9 @@ jobs:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
-
   testflight-upload:
     needs: build
-    runs-on: self-hosted
+    runs-on: ${{ (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'use-macos-latest')) && 'macos-latest' || 'self-hosted' }}
     if: github.event_name == 'push'
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -178,12 +177,11 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-
   browserstack-upload:
     needs: build
     outputs:
       browserstack_url: ${{ steps.upload_to_browserstack.outputs.browserstack_url }}
-    runs-on: self-hosted
+    runs-on: ${{ (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'use-macos-latest')) && 'macos-latest' || 'self-hosted' }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
