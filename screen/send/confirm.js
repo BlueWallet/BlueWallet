@@ -15,7 +15,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');

@@ -31,7 +31,7 @@ import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './class/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 

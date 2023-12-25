@@ -12,7 +12,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import prompt from '../../helpers/prompt';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();

@@ -9,7 +9,7 @@ export const enum HapticFeedbackTypes {
   Selection = 'selection',
   NotificationSuccess = 'notificationSuccess',
   NotificationWarning = 'notificationWarning',
-  NotificationError = 'notificationError'
+  NotificationError = 'notificationError',
 }
 
 const triggerHapticFeedback = (type: HapticFeedbackTypes) => {

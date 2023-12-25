@@ -20,7 +20,7 @@ import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
-import triggerHapticFeedback from '../../class/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -73,7 +73,7 @@ const SignVerify = () => {
       setSignature(newSignature);
       setIsShareVisible(true);
     } catch (e) {
-      triggerHapticFeedback({ type: 'notificationError' });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       Alert.alert(loc.errors.error, e.message);
     }
 
@@ -90,10 +90,10 @@ const SignVerify = () => {
         res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
       );
       if (res) {
-        triggerHapticFeedback({ type: 'notificationSuccess' });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (e) {
-      triggerHapticFeedback({ type: 'notificationError' });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       Alert.alert(loc.errors.error, e.message);
     }
     setLoading(false);

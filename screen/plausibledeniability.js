@@ -8,7 +8,7 @@ import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
 import Button from '../components/Button';
-import triggerHapticFeedback from '../class/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 const prompt = require('../helpers/prompt');
 
 const PlausibleDeniability = () => {
@@ -23,7 +23,7 @@ const PlausibleDeniability = () => {
       const isProvidedPasswordInUse = p1 === cachedPassword || (await isPasswordInUse(p1));
       if (isProvidedPasswordInUse) {
         setIsLoading(false);
-        triggerHapticFeedback('notificationError');
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert(loc.plausibledeniability.password_should_not_match);
       }
       if (!p1) {
@@ -33,13 +33,13 @@ const PlausibleDeniability = () => {
       const p2 = await prompt(loc.plausibledeniability.retype_password);
       if (p1 !== p2) {
         setIsLoading(false);
-        triggerHapticFeedback('notificationError');
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert(loc.plausibledeniability.passwords_do_not_match);
       }
 
       await createFakeStorage(p1);
       await resetWallets();
-      triggerHapticFeedback('notificationSuccess');
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       alert(loc.plausibledeniability.success);
       popToTop();
     } catch {
