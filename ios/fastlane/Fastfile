@@ -201,26 +201,34 @@ platform :ios do
   
   desc "Upload to BrowserStack and get the app URL"
   lane :upload_to_browserstack do
-    UI.message("Uploading to BrowserStack...")
-
-    app_url = upload_to_browserstack(
-      browserstack_username: ENV["BROWSERSTACK_USERNAME"],
-      browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
-      app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-      app_name: "BlueWallet",
-      app_bundle_id: "io.bluewallet.bluewallet",
-      app_version: ENV['PROJECT_VERSION'],
-      app_build_number: ENV['NEW_BUILD_NUMBER']
-    )
-
-    if app_url.nil? || app_url.empty?
-      UI.error("Failed to upload to BrowserStack or fetch the app URL.")
-      return nil  # This will result in an empty output in the GitHub Actions step
+    begin
+      UI.message("Uploading to BrowserStack...")
+      
+      # Add verbose logging if necessary
+      # UI.message("BrowserStack Username: #{ENV['BROWSERSTACK_USERNAME']}")
+      # UI.message("BrowserStack Access Key: #{ENV['BROWSERSTACK_ACCESS_KEY']}")
+  
+      result = upload_to_browserstack(
+        browserstack_username: ENV["BROWSERSTACK_USERNAME"],
+        browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
+        app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        app_name: "BlueWallet",
+        app_bundle_id: "io.bluewallet.bluewallet",
+        app_version: ENV['PROJECT_VERSION'],
+        app_build_number: ENV['NEW_BUILD_NUMBER']
+      )
+  
+      if result.nil? || result.empty?
+        UI.error("Failed to upload app to BrowserStack.")
+        return nil
+      end
+  
+      puts result  # Assuming result is the URL or identifier
+  
+    rescue => e
+      UI.error("An error occurred while uploading to BrowserStack: #{e.message}")
+      return nil
     end
-
-    # Print the BrowserStack app URL as the last line of output
-    puts app_url  # This line is crucial as its output will be captured by GitHub Actions
-  end
-
+  end  
 
 end
