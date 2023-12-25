@@ -49,7 +49,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
-        .catch((e: any) => {
+        .catch((e: Error) => {
           console.log('This Lndhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
