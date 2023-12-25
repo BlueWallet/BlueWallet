@@ -49,8 +49,9 @@ jobs:
       - name: Install Fastlane 2.217.0
         run: gem install fastlane -v 2.217.0
 
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods
+      - name: Install CocoaPods Dependencies
+        run: bundle install
+        working-directory: ./ios
 
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
