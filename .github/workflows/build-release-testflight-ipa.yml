@@ -221,16 +221,8 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         run: |
-          set -e
           output=$(bundle exec fastlane ios upload_to_browserstack)
-          if [ $? -eq 0 ]; then
-            echo "browserstack_url=$output" >> $GITHUB_ENV
-            echo "::set-output name=browserstack_url::$output"
-          else
-            echo "Fastlane script failed"
-            exit 1
-          fi
-        working-directory: ./ios
+          echo "$output" > browserstack_url.txt
 
       - name: Post BrowserStack URL to PR
         if: github.event_name == 'pull_request'
@@ -238,4 +230,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          msg: "BrowserStack App URL: ${{ steps.upload_to_browserstack.outputs.browserstack_url }}"
+          msg: "BrowserStack App URL: $(cat browserstack_url.txt)"

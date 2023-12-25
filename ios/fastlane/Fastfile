@@ -202,7 +202,8 @@ platform :ios do
   desc "Upload to BrowserStack and get the app URL"
   lane :upload_to_browserstack do
     UI.message("Uploading to BrowserStack...")
-    result = upload_to_browserstack(
+
+    app_url = upload_to_browserstack(
       browserstack_username: ENV["BROWSERSTACK_USERNAME"],
       browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
       app_path: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
@@ -211,19 +212,15 @@ platform :ios do
       app_version: ENV['PROJECT_VERSION'],
       app_build_number: ENV['NEW_BUILD_NUMBER']
     )
-  
-    unless result
-      UI.error("Failed to upload app to BrowserStack.")
-      return nil
+
+    if app_url.nil? || app_url.empty?
+      UI.error("Failed to upload to BrowserStack or fetch the app URL.")
+      return nil  # This will result in an empty output in the GitHub Actions step
     end
-  
-    app_url = fetch_browserstack_app_url(result)
-    if app_url
-      UI.message("App URL on BrowserStack: #{app_url}")
-      lane_context[SharedValues::CUSTOM_VALUE] = app_url
-    else
-      UI.error("Failed to fetch the BrowserStack app URL.")
-    end
-  end  
+
+    # Print the BrowserStack app URL as the last line of output
+    puts app_url  # This line is crucial as its output will be captured by GitHub Actions
+  end
+
 
 end
