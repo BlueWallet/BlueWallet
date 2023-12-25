@@ -181,6 +181,24 @@ platform :ios do
     File.write(already_built_flag, Time.now.to_s)
   end
 
+  private_lane :fetch_browserstack_app_url do |app_identifier|
+    uri = URI.parse("https://api-cloud.browserstack.com/app-automate/recent_apps")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(ENV["BROWSERSTACK_USERNAME"], ENV["BROWSERSTACK_ACCESS_KEY"])
+  
+    response = perform_http_request(uri, request)
+    return nil unless response
+  
+    begin
+      apps = JSON.parse(response.body)
+      app = apps.find { |a| a['custom_id'] == app_identifier }
+      app ? app['app_url'] : nil
+    rescue JSON::ParserError => e
+      UI.error("JSON Parsing Error: #{e.message}")
+      return nil
+    end
+  end
+  
   desc "Upload to BrowserStack and get the app URL"
   lane :upload_to_browserstack do
     UI.message("Uploading to BrowserStack...")
@@ -193,24 +211,19 @@ platform :ios do
       app_version: ENV['PROJECT_VERSION'],
       app_build_number: ENV['NEW_BUILD_NUMBER']
     )
-
-    # Assuming `result` has the unique app identifier or URL to fetch details
+  
+    unless result
+      UI.error("Failed to upload app to BrowserStack.")
+      return nil
+    end
+  
     app_url = fetch_browserstack_app_url(result)
-    UI.message("App URL on BrowserStack: #{app_url}")
-    lane_context[SharedValues::CUSTOM_VALUE] = app_url
-  end
-
-  private_lane :fetch_browserstack_app_url do |app_identifier|
-    uri = URI.parse("https://api-cloud.browserstack.com/app-automate/recent_apps")
-    request = Net::HTTP::Get.new(uri)
-    request.basic_auth(ENV["BROWSERSTACK_USERNAME"], ENV["BROWSERSTACK_ACCESS_KEY"])
-
-    response = perform_http_request(uri, request)
-    return nil unless response
-
-    apps = JSON.parse(response.body)
-    app = apps.find { |a| a['custom_id'] == app_identifier }
-    app ? app['app_url'] : nil
+    if app_url
+      UI.message("App URL on BrowserStack: #{app_url}")
+      lane_context[SharedValues::CUSTOM_VALUE] = app_url
+    else
+      UI.error("Failed to fetch the BrowserStack app URL.")
+    end
   end  
 
 end

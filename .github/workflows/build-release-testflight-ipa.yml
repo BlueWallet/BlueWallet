@@ -24,6 +24,14 @@ jobs:
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
+      - name: Print Runner Info
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ] && echo "${{ github.event.pull_request.labels.*.name }}" | grep -q "use-macos-latest"; then
+            echo "Using Runner: macos-latest"
+          else
+            echo "Using Runner: self-hosted"
+          fi
+
       - name: Checkout project
         uses: actions/checkout@v3
         with:
@@ -178,6 +186,7 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
+
   browserstack-upload:
     needs: build
     outputs:
@@ -212,9 +221,15 @@ jobs:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         run: |
+          set -e
           output=$(bundle exec fastlane ios upload_to_browserstack)
-          echo "browserstack_url=$output" >> $GITHUB_ENV
-          echo "::set-output name=browserstack_url::$output"
+          if [ $? -eq 0 ]; then
+            echo "browserstack_url=$output" >> $GITHUB_ENV
+            echo "::set-output name=browserstack_url::$output"
+          else
+            echo "Fastlane script failed"
+            exit 1
+          fi
         working-directory: ./ios
 
       - name: Post BrowserStack URL to PR
