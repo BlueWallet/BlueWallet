@@ -19,7 +19,6 @@ import {
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -44,6 +43,7 @@ import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr'
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
@@ -486,7 +486,7 @@ const SendDetails = () => {
         scrollView.current.scrollToIndex({ index });
         setIsLoading(false);
         Alert.alert(loc.errors.error, error);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return;
       }
     }
@@ -496,7 +496,7 @@ const SendDetails = () => {
     } catch (Err) {
       setIsLoading(false);
       Alert.alert(loc.errors.error, Err.message);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
 
@@ -1001,7 +1001,7 @@ const SendDetails = () => {
   };
 
   const onUseAllPressed = () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning');
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
       loc.send.details_adv_full,

@@ -1,8 +1,8 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import alert from '../components/Alert';
 import { ECPairFactory } from 'ecpair';
 import ecc from '../blue_modules/noble_ecc';
+import triggerHapticFeedback from './hapticFeedback';
 const ECPair = ECPairFactory(ecc);
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -74,7 +74,7 @@ export default class PayjoinTransaction {
       const result = await this.broadcastTx(txHex);
       if (result === '') {
         // TODO: Improve the wording of this error message
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback('notificationError');
         alert('Something was wrong with the payjoin transaction, the original transaction sucessfully broadcast.');
       }
     });

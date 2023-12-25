@@ -2,9 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueText, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -17,6 +15,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -142,7 +141,7 @@ const Confirm = () => {
       }
 
       amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       navigate('Success', {
         fee: Number(fee),
         amount,
@@ -153,9 +152,7 @@ const Confirm = () => {
       await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
       fetchAndSaveWalletTransactions(walletID);
     } catch (error) {
-      ReactNativeHapticFeedback.trigger('notificationError', {
-        ignoreAndroidSystemSettings: false,
-      });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       alert(error.message);
     }

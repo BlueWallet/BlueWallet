@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useNavigation, useNavigationState } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
@@ -11,6 +10,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
@@ -136,7 +136,7 @@ const SelectWallet = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
           onWalletSelect(item, { navigation: { pop, navigate } });
         }}
         accessibilityRole="button"

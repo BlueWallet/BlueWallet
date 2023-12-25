@@ -20,7 +20,6 @@ import {
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import {
   HDSegwitBech32Wallet,
@@ -46,6 +45,7 @@ import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
 
 const prompt = require('../../helpers/prompt');
 
@@ -242,11 +242,11 @@ const WalletDetails = () => {
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
   };
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
@@ -259,7 +259,7 @@ const WalletDetails = () => {
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
       } else {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
         alert(loc.wallets.details_del_wb_err);
       }
@@ -461,7 +461,7 @@ const WalletDetails = () => {
   };
 
   const handleDeleteButtonTapped = () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     Alert.alert(
       loc.wallets.details_delete_wallet,
       loc.wallets.details_are_you_sure,

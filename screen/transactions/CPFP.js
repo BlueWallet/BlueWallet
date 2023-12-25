@@ -13,8 +13,6 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Text } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
 import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -24,6 +22,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../class/hapticFeedback';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -92,12 +91,12 @@ export default class CPFP extends Component {
         if (result) {
           this.onSuccessBroadcast();
         } else {
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           this.setState({ isLoading: false });
           alert(loc.errors.broadcast);
         }
       } catch (error) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         this.setState({ isLoading: false });
         alert(error.message);
       }

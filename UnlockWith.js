@@ -6,8 +6,8 @@ import LottieView from 'lottie-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { isHandset } from './blue_modules/environment';
+import triggerHapticFeedback from './class/hapticFeedback';
 const lottieJson = require('./img/bluewalletsplash.json');
 
 const styles = StyleSheet.create({
@@ -86,7 +86,8 @@ const UnlockWith = () => {
   const unlockWithKey = async () => {
     setIsAuthenticating(true);
     if (await startAndDecrypt()) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback({ type: 'notificationSuccess' });
+
       successfullyAuthenticated();
     } else {
       setIsAuthenticating(false);
