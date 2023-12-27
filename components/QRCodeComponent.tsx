@@ -72,7 +72,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       const shareImageBase64 = {
         url: `data:image/png;base64,${data}`,
       };
-      Share.open(shareImageBase64).catch((error: any) => console.log(error));
+      Share.open(shareImageBase64).catch((error: Error) => console.log(error));
     });
   };
 

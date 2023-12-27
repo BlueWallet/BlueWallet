@@ -22,7 +22,7 @@ function useAsyncPromise<T>(promiseFn: () => Promise<T>) {
           setLoading(false);
         }
       })
-      .catch(err => {
+      .catch((err: Error) => {
         if (isMounted) {
           setError(err);
           setLoading(false);
