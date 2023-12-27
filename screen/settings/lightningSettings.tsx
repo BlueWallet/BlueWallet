@@ -4,7 +4,7 @@ import { Button as ButtonRNElements } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
@@ -12,6 +12,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
@@ -130,7 +131,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   };
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
@@ -171,7 +172,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueSpacing20 />
         {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

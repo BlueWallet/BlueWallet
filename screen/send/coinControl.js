@@ -20,7 +20,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import * as RNLocalize from 'react-native-localize';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { SafeBlueArea, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
+import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -29,6 +29,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import SafeArea from '../../components/SafeArea';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -386,9 +387,9 @@ const CoinControl = () => {
 
   if (loading) {
     return (
-      <SafeBlueArea style={[styles.center, { backgroundColor: colors.elevated }]}>
+      <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
         <ActivityIndicator testID="Loading" />
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 

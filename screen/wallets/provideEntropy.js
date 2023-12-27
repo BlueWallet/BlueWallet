@@ -5,11 +5,12 @@ import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
+import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueSpacing20, SafeBlueArea, BlueTabs } from '../../BlueComponents';
+import { BlueSpacing20, BlueTabs } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
+import SafeArea from '../../components/SafeArea';
 
 const ENTROPY_LIMIT = 256;
 
@@ -235,7 +236,7 @@ const Entropy = () => {
   bits = ' '.repeat(bits.length < 3 ? 3 - bits.length : 0) + bits;
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueSpacing20 />
       <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
         <View style={[styles.entropy, stylesHook.entropy]}>
@@ -267,7 +268,7 @@ const Entropy = () => {
       {tab === 2 && <Dice sides={20} push={push} />}
 
       <Buttons pop={pop} save={save} colors={colors} />
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

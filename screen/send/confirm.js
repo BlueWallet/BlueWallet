@@ -4,7 +4,7 @@ import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
 import PropTypes from 'prop-types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import { BlueText, SafeBlueArea, BlueCard } from '../../BlueComponents';
+import { BlueText, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
@@ -16,6 +16,7 @@ import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
@@ -208,7 +209,7 @@ const Confirm = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <View style={styles.cardTop}>
         <FlatList
           scrollEnabled={recipients.length > 1}
@@ -237,7 +238,7 @@ const Confirm = () => {
           {isLoading ? <ActivityIndicator /> : <Button disabled={isElectrumDisabled} onPress={send} title={loc.send.confirm_sendNow} />}
         </BlueCard>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { ActivityIndicator, Alert, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
@@ -13,6 +13,7 @@ import prompt from '../../helpers/prompt';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();
@@ -122,7 +123,7 @@ const ImportWalletDiscovery = () => {
   const keyExtractor = w => w.id;
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_discovery_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
@@ -161,13 +162,14 @@ const ImportWalletDiscovery = () => {
           />
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     paddingTop: 40,
+    flex: 1,
   },
   flatListContainer: {
     marginHorizontal: 16,

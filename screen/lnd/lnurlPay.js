@@ -4,7 +4,7 @@ import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Vie
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
@@ -16,6 +16,7 @@ import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 
@@ -196,7 +197,7 @@ const LnurlPay = () => {
 
   const renderGotPayload = () => {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <ScrollView contentContainertyle={{ justifyContent: 'space-around' }}>
           <BlueCard>
             <AmountInput
@@ -229,7 +230,7 @@ const LnurlPay = () => {
           </BlueCard>
         </ScrollView>
         {renderWalletSelectionButton}
-      </SafeBlueArea>
+      </SafeArea>
     );
   };
 

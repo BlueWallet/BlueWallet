@@ -3,12 +3,13 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
 
 import loc from '../../loc';
-import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
@@ -85,7 +86,7 @@ const IsItMyAddress = () => {
   };
 
   return (
-    <SafeBlueArea style={styles.blueArea}>
+    <SafeArea style={styles.blueArea}>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -132,7 +133,7 @@ const IsItMyAddress = () => {
           </BlueCard>
         </View>
       </KeyboardAvoidingView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
