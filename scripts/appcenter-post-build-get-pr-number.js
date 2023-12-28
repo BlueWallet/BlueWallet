@@ -1,7 +1,5 @@
 const https = require('https');
 
-const auth = 'Basic ' + Buffer.from(process.env.GITHUB).toString('base64');
-
 const gitCommand = "git log -n 1 --pretty=%d HEAD | awk '{print $2}' | sed 's/origin\\///' | sed 's/)//'";
 const branch = require('child_process').execSync(gitCommand).toString().trim();
 
@@ -13,7 +11,7 @@ const req = https.request(
     port: 443,
     path: '/repos/BlueWallet/BlueWallet/pulls',
     method: 'GET',
-    headers: { 'User-Agent': 'BlueWallet bot', Authorization: auth },
+    headers: { 'User-Agent': 'BlueWallet bot' },
   },
   resp => {
     let data = '';
