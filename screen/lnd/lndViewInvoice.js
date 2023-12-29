@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
@@ -14,6 +13,7 @@ import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -129,7 +129,7 @@ const LNDViewInvoice = () => {
                   // invoice expired :-(
                   fetchAndSaveWalletTransactions(walletID);
                   setIsFetchingInvoices(false);
-                  ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
                   clearInterval(fetchInvoiceInterval.current);
                   fetchInvoiceInterval.current = undefined;
                 }
@@ -177,7 +177,7 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     if (invoiceStatusChanged) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     }
   }, [invoiceStatusChanged]);
 

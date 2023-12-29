@@ -11,7 +11,6 @@ import {
   I18nManager,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
@@ -26,6 +25,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -81,7 +81,7 @@ const ScanLndInvoice = () => {
   useFocusEffect(
     useCallback(() => {
       if (!wallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         goBack();
         setTimeout(() => alert(loc.wallets.no_ln_wallet_error), 500);
       }
@@ -124,7 +124,7 @@ const ScanLndInvoice = () => {
         setExpiresIn(newExpiresIn);
         setDecoded(newDecoded);
       } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
@@ -192,14 +192,14 @@ const ScanLndInvoice = () => {
     const newExpiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
     if (+new Date() > newExpiresIn) {
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(loc.lnd.errorInvoiceExpired);
     }
 
     const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
     if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(loc.lnd.sameWalletAsInvoiceError);
     }
 
@@ -208,7 +208,7 @@ const ScanLndInvoice = () => {
     } catch (Err) {
       console.log(Err.message);
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(Err.message);
     }
 

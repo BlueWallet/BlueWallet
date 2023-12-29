@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
@@ -22,6 +21,7 @@ import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -64,14 +64,14 @@ const Broadcast = () => {
         setTx(txid);
 
         setBroadcastResult(BROADCAST_RESULT.success);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         Notifications.majorTomToGroundControl([], [], [txid]);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
       Alert.alert(loc.errors.error, error.message);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
     }
   };

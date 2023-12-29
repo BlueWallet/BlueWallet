@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { Chain } from './models/bitcoinUnits';
@@ -32,6 +31,7 @@ import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
@@ -260,7 +260,7 @@ const App = () => {
   };
 
   const showClipboardAlert = ({ contentType }) => {
-    ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     BlueClipboard()
       .getClipboardContent()
       .then(clipboard => {

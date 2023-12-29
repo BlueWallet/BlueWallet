@@ -9,7 +9,6 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
@@ -17,6 +16,7 @@ import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -67,7 +67,7 @@ const LdkOpenChannel = (props: any) => {
     (async () => {
       if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
         // its 10 min actually, but lets check 5 min just for any case
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Channel opening expired. Please try again');
       }
 
@@ -93,7 +93,7 @@ const LdkOpenChannel = (props: any) => {
     }
     if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       return alert('Channel opening expired. Please try again');
     }
@@ -102,14 +102,14 @@ const LdkOpenChannel = (props: any) => {
     const res = await ldkWallet.fundingStateStepFinalize(tx.toHex()); // comment this out to debug
     // const res = true; // debug
     if (!res) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(ldkWallet.getID());
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
     fetchAndSaveWalletTransactions(fundingWalletID);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     // @ts-ignore: Address types later
     navigate('Success', { amount: undefined });
     setIsLoading(false);
@@ -120,14 +120,14 @@ const LdkOpenChannel = (props: any) => {
     try {
       const amountSatsNumber = new BigNumber(fundingAmount.amountSats).toNumber();
       if (!amountSatsNumber) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Amount is not valid');
       }
 
       const pubkey = remoteHostWithPubkey.split('@')[0];
       const host = remoteHostWithPubkey.split('@')[1];
       if (!pubkey || !host) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Remote node address is not valid');
       }
 
@@ -141,7 +141,7 @@ const LdkOpenChannel = (props: any) => {
         if (event) {
           reason += event.reason + ' ' + event.text;
         }
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Initiating channel open failed: ' + reason);
       }
 
@@ -162,7 +162,7 @@ const LdkOpenChannel = (props: any) => {
         },
       });
     } catch (error: any) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       alert(error.message);
     } finally {
       setIsLoading(false);

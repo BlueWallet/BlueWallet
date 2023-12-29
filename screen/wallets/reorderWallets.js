@@ -3,7 +3,6 @@ import { View, Image, Text, StyleSheet, I18nManager, Pressable, useColorScheme, 
 import { BluePrivateBalance } from '../../BlueComponents';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import LinearGradient from 'react-native-linear-gradient';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
@@ -12,6 +11,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const styles = StyleSheet.create({
   root: {
@@ -162,15 +162,15 @@ const ReorderWallets = () => {
   };
 
   const onChangeOrder = () => {
-    ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
   };
 
   const onDragBegin = () => {
-    ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
   };
 
   const onRelease = () => {
-    ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   };
 
   const onDragEnd = ({ data }) => {
