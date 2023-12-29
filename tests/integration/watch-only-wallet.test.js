@@ -98,4 +98,13 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getTransactions().length, 4);
     assert.ok((await w.getAddressAsync()).startsWith('bc1'));
   });
+
+  // skipped because its generally rare case
+  it.skip('can fetch txs for address funded by genesis txs', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('37jKPSmbEGwgfacCr2nayn1wTaqMAbA94Z');
+    await w.fetchBalance();
+    await w.fetchTransactions();
+    assert.ok(w.getTransactions().length >= 138);
+  });
 });

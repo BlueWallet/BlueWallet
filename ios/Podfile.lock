@@ -20,9 +20,9 @@ PODS:
     - hermes-engine/Pre-built (= 0.71.14)
   - hermes-engine/Pre-built (0.71.14)
   - libevent (2.1.12)
-  - lottie-ios (3.4.4)
-  - lottie-react-native (5.1.6):
-    - lottie-ios (~> 3.4.0)
+  - lottie-ios (4.3.4)
+  - lottie-react-native (6.4.1):
+    - lottie-ios (~> 4.3.3)
     - React-Core
   - PasscodeAuth (1.0.0):
     - React
@@ -296,7 +296,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.8.1):
+  - react-native-safe-area-context (4.8.2):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -393,13 +393,13 @@ PODS:
     - React-perflogger (= 0.71.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.4.0):
+  - RealmJS (12.5.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
   - RNCAsyncStorage (1.21.0):
     - React-Core
-  - RNCClipboard (1.13.1):
+  - RNCClipboard (1.13.2):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -457,7 +457,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
-  - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -533,6 +532,7 @@ SPEC REPOS:
     - CocoaAsyncSocket
     - fmt
     - libevent
+    - lottie-ios
 
 EXTERNAL SOURCES:
   boost:
@@ -551,8 +551,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
-  lottie-ios:
-    :path: "../node_modules/lottie-ios"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
   PasscodeAuth:
@@ -702,8 +700,8 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: d7cc127932c89c53374452d6f93473f1970d8e88
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: 8f97d3271e155c2d688875c29cd3c74908aef5f8
-  lottie-react-native: 8f9d4be452e23f6e5ca0fdc11669dc99ab52be81
+  lottie-ios: 3d98679b41fa6fd6aff2352b3953dbd3df8a397e
+  lottie-react-native: a2ae9c27c273b060b2affff2957bc0ff7fdca353
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: e9df143e880d0e879e7a498dc06923d728809c79
@@ -728,7 +726,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: cd1169d797a2ef722a00bfc5af10748d5b6c94f9
+  react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
   react-native-webview: 88293a0f23eca8465c0433c023ec632930e644d0
@@ -747,10 +745,10 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: ffe826b7b1cfbc32a35ed5b64d5886c0ff75f501
   ReactCommon: 7f3dd5e98a9ec627c6b03d26c062bf37ea9fc888
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: df182f726ad95adf5aba0fbe57b6146dd0ac65bf
+  RealmJS: 07d8eb900517a4faddb04d7a0062e67bf8daa066
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 618d03a5f52fbccb3d7010076bc54712844c18ef
-  RNCClipboard: 90e241893de33a2f5962fc34d76ada4576033e49
+  RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: db5c64a060e66e5db3102d041ebe3ef307a85120
