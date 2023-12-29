@@ -98,6 +98,7 @@ async function updateExchangeRate() {
     console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
     rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    rate = rate || {}; // init if its null
     rate.LAST_UPDATED_ERROR = true;
     exchangeRates.LAST_UPDATED_ERROR = true;
     await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
