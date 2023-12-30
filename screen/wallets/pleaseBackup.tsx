@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
@@ -10,6 +9,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -72,7 +72,7 @@ const PleaseBackup: React.FC = () => {
   };
 
   return (
-    <SafeBlueArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
+    <SafeArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
       {isLoading ? (
         <ActivityIndicator />
       ) : (
@@ -88,7 +88,7 @@ const PleaseBackup: React.FC = () => {
           </View>
         </ScrollView>
       )}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -3,12 +3,13 @@ import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../components/navigationStyle';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
+import { BlueLoading, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
 import Button from '../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import SafeArea from '../components/SafeArea';
 const prompt = require('../helpers/prompt');
 
 const PlausibleDeniability = () => {
@@ -48,11 +49,11 @@ const PlausibleDeniability = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueLoading />
-    </SafeBlueArea>
+    </SafeArea>
   ) : (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueCard>
         <ScrollView maxHeight={450}>
           <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -70,7 +71,7 @@ const PlausibleDeniability = () => {
           />
         </ScrollView>
       </BlueCard>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

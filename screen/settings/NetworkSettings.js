@@ -3,9 +3,9 @@ import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Notifications from '../../blue_modules/notifications';
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import ListItem from '../../components/ListItem';
+import SafeArea from '../../components/SafeArea';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
@@ -19,7 +19,7 @@ const NetworkSettings = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView>
         <ListItem title={loc.settings.network_electrum} onPress={navigateToElectrumSettings} testID="ElectrumSettings" chevron />
         <ListItem title={loc.settings.lightning_settings} onPress={navigateToLightningSettings} testID="LightningSettings" chevron />
@@ -32,7 +32,7 @@ const NetworkSettings = () => {
           />
         )}
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

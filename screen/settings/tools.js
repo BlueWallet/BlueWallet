@@ -3,9 +3,9 @@ import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea } from '../../BlueComponents';
 import loc from '../../loc';
 import ListItem from '../../components/ListItem';
+import SafeArea from '../../components/SafeArea';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
@@ -23,13 +23,13 @@ const NetworkSettings = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView>
         <ListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
         <ListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
         <ListItem title={loc.autofill_word.title} onPress={navigateToGenerateWord} testID="GenerateWord" chevron />
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

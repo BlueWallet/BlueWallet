@@ -15,13 +15,13 @@ import {
   BlueSpacing10,
   BlueSpacing20,
   BlueTextCentered,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -111,7 +111,7 @@ const Broadcast = () => {
   }
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -158,7 +158,7 @@ const Broadcast = () => {
           {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
         </View>
       </KeyboardAvoidingView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

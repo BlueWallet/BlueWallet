@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
@@ -15,6 +15,7 @@ import URL from 'url';
 import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -87,7 +88,7 @@ const LnurlAuth = () => {
   );
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       {authState === AuthState.USER_PROMPT && (
         <>
           <ScrollView>
@@ -125,7 +126,7 @@ const LnurlAuth = () => {
           <BlueSpacing20 />
         </BlueCard>
       )}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

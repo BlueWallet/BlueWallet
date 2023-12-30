@@ -459,7 +459,6 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
     setIsProvideMnemonicsModalVisible(false);

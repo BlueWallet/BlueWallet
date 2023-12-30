@@ -591,6 +591,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperSwitchAdvancedMode();
 
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await sleep(100); // wait swipe animation to finish
     // going to Import Wallet screen and importing mnemonic
     await element(by.id('CreateAWallet')).tap();
     await element(by.id('ScrollView')).swipe('up', 'fast', 0.9); // in case emu screen is small and it doesnt fit

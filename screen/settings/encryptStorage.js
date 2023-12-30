@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -10,6 +10,7 @@ import alert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 const prompt = require('../../helpers/prompt');
 
 const EncryptStorage = () => {
@@ -122,11 +123,11 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueLoading />
-    </SafeBlueArea>
+    </SafeArea>
   ) : (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
@@ -160,7 +161,7 @@ const EncryptStorage = () => {
           />
         )}
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
