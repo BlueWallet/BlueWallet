@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        minSdkVersion = 28
+        minSdkVersion = 24
         supportLibVersion = "28.0.0"
         buildToolsVersion = "34.0.0"
         compileSdkVersion = 33
@@ -81,7 +81,7 @@ subprojects {
                 buildToolsVersion "34.0.0"
                 compileSdkVersion 33
                  defaultConfig {
-                    minSdkVersion 28
+                    minSdkVersion 24
                 }
             }
         }
