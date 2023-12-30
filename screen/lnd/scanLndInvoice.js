@@ -13,7 +13,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
@@ -26,6 +26,7 @@ import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -299,7 +300,7 @@ const ScanLndInvoice = () => {
   }
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={[styles.root, stylesHook.root]}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
@@ -361,7 +362,7 @@ const ScanLndInvoice = () => {
         </ScrollView>
       </View>
       <BlueDismissKeyboardInputAccessory />
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

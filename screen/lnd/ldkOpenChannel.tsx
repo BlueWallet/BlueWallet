@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
@@ -17,6 +17,7 @@ import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -283,7 +284,7 @@ const LdkOpenChannel = (props: any) => {
     );
   };
 
-  return <SafeBlueArea styles={[styles.root, stylesHook.root]}>{render()}</SafeBlueArea>;
+  return <SafeArea style={[styles.root, stylesHook.root]}>{render()}</SafeArea>;
 };
 
 const styles = StyleSheet.create({

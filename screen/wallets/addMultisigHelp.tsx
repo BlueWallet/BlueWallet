@@ -1,9 +1,10 @@
 import React from 'react';
 import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea } from '../../BlueComponents';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import SafeArea from '../../components/SafeArea';
 
 const WalletsAddMultisigHelp: React.FC = () => {
   const { colors } = useTheme();
@@ -31,7 +32,7 @@ const WalletsAddMultisigHelp: React.FC = () => {
   });
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView>
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>
@@ -63,7 +64,7 @@ const WalletsAddMultisigHelp: React.FC = () => {
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_5}</Text>
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import Privacy from '../../blue_modules/Privacy';
@@ -11,6 +11,7 @@ import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
@@ -76,7 +77,7 @@ const ExportMultisigCoordinationSetup = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.getLabel()}</BlueText>
@@ -92,7 +93,7 @@ const ExportMultisigCoordinationSetup = () => {
         <BlueSpacing20 />
         <BlueText style={[styles.secret, stylesHook.secret]}>{wallet.getXpub()}</BlueText>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -25,7 +25,6 @@ import {
   BlueLoading,
   BlueSpacing20,
   BlueText,
-  SafeBlueArea,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
@@ -37,6 +36,7 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -422,7 +422,7 @@ export default class ElectrumSettings extends Component {
 
   render() {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <ScrollView keyboardShouldPersistTaps="always">
           <ListItem
             Component={Pressable}
@@ -438,7 +438,7 @@ export default class ElectrumSettings extends Component {
           </BlueCard>
           {!this.state.isOfflineMode && this.renderElectrumSettings()}
         </ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

@@ -1,13 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import SafeArea from '../../components/SafeArea';
 
 export default class RBFCancel extends CPFP {
   static contextType = BlueStorageContext;
@@ -88,7 +89,7 @@ export default class RBFCancel extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea>
+        <SafeArea>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -96,14 +97,14 @@ export default class RBFCancel extends CPFP {
           <BlueSpacing20 />
 
           <BlueText h4>{loc.transactions.cancel_no}</BlueText>
-        </SafeBlueArea>
+        </SafeArea>
       );
     }
 
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <ScrollView>{this.renderStage1(loc.transactions.cancel_explain)}</ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

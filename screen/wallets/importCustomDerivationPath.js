@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueFormLabel, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueFormLabel, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
@@ -12,6 +12,7 @@ import { validateBip32 } from '../../class/wallet-import';
 import debounce from '../../blue_modules/debounce';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const WRONG_PATH = 'WRONG_PATH';
 const WALLET_FOUND = 'WALLET_FOUND';
@@ -119,7 +120,7 @@ const ImportCustomDerivationPath = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_derivation_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
@@ -149,7 +150,7 @@ const ImportCustomDerivationPath = () => {
           />
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

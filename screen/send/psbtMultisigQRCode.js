@@ -3,7 +3,7 @@ import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 
 import { getSystemName } from 'react-native-device-info';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
@@ -12,6 +12,7 @@ import loc from '../../loc';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -92,7 +93,7 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
           <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
@@ -116,7 +117,7 @@ const PsbtMultisigQRCode = () => {
           )}
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

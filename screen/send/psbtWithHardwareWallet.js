@@ -6,7 +6,7 @@ import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native'
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
-import { SecondButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
+import { SecondButton, BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -16,6 +16,7 @@ import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -229,7 +230,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>
@@ -281,7 +282,7 @@ const PsbtWithHardwareWallet = () => {
           </BlueCard>
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
