@@ -26,7 +26,8 @@ platform :ios do
       match(
         type: "development", 
         app_identifier: app_identifier,
-        readonly: false # This will regenerate the provisioning profile if needed
+        readonly: false, # This will regenerate the provisioning profile if needed
+        force_for_new_devices: true # This forces match to add new devices to the profile
       )
     end
 
