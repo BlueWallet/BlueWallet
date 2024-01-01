@@ -98,7 +98,7 @@ platform :ios do
   desc "Install CocoaPods dependencies"
   lane :install_pods do
     UI.message("Installing CocoaPods dependencies...")
-    cocoapods
+    cocoapods(try_repo_update_on_error: true)
   end
 
   desc "Build the application"
