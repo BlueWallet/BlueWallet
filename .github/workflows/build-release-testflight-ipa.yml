@@ -114,7 +114,7 @@ jobs:
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
   
       - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
+        run: bundle install
         working-directory: ./ios
 
       - name: Build App
