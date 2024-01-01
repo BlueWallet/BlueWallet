@@ -340,7 +340,11 @@ const ReorderWalletsStackRoot = () => {
 
   return (
     <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerShadowVisible: false }}>
-      <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions(theme)} />
+      <ReorderWalletsStack.Screen
+        name="ReorderWalletsScreen"
+        component={ReorderWallets}
+        options={ReorderWallets.navigationOptions(theme)}
+      />
     </ReorderWalletsStack.Navigator>
   );
 };
