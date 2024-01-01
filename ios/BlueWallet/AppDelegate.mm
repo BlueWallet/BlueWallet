@@ -1,4 +1,3 @@
-#import <RNScreens/UIViewController+RNScreens.h>
 #import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
 #import <React/RCTLinkingManager.h>
