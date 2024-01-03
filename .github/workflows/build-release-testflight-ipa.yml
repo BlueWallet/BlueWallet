@@ -46,7 +46,7 @@ jobs:
         run: gem install fastlane -v 2.217.0
 
       - name: Install CocoaPods Dependencies
-        run: bundle exec pod install
+        run: bundle install
         working-directory: ./ios
 
       - name: Cache CocoaPods Pods
