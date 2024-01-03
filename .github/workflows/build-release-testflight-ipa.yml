@@ -42,11 +42,11 @@ jobs:
       - name: Install dependencies with Bundler
         run: bundle install
 
-      - name: Install Fastlane 2.217.0
+      - name: Install Fastlane
         run: gem install fastlane
 
       - name: Install CocoaPods Dependencies
-        run: bundle install
+        run: bundle exec pod install
         working-directory: ./ios
 
       - name: Cache CocoaPods Pods
