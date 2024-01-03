@@ -46,8 +46,14 @@ jobs:
         run: gem install fastlane -v 2.217.0
 
       - name: Install CocoaPods Dependencies
-        run: bundle install
+        run: bundle exec pod install
         working-directory: ./ios
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
@@ -139,6 +145,12 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
       - name: Cache Ruby Gems
         uses: actions/cache@v2
