@@ -43,7 +43,7 @@ jobs:
         run: bundle install
 
       - name: Install Fastlane 2.217.0
-        run: gem install fastlane -v 2.217.0
+        run: gem install fastlane
 
       - name: Install CocoaPods Dependencies
         run: bundle install
