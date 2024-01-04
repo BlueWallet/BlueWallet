@@ -45,6 +45,13 @@ jobs:
       - name: Install Fastlane
         run: gem install fastlane
 
+      - name: Clear Derived Data
+        run: bundle exec fastlane ios clear_derived_data_lane
+        working-directory: ./ios
+  
+      - name: Install node_modules
+        run: npm install
+
       - name: Install CocoaPods Dependencies
         run: bundle exec pod install
         working-directory: ./ios
@@ -54,14 +61,7 @@ jobs:
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-
-      - name: Clear Derived Data
-        run: bundle exec fastlane ios clear_derived_data_lane
-        working-directory: ./ios
-  
-      - name: Install node_modules
-        run: npm install
-
+          
       - name: Display release-notes.txt
         run: cat release-notes.txt
 
