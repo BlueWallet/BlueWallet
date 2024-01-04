@@ -47,6 +47,7 @@ jobs:
 
       - name: Install CocoaPods Dependencies
         run: bundle exec pod install
+        working-directory: ./ios
 
       - name: Cache CocoaPods Pods
         uses: actions/cache@v2
