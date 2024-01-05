@@ -18,7 +18,7 @@ export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [selectedWalletID, setSelectedWalletID] = useState('');
+  const [selectedWalletID, setSelectedWalletID] = useState();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);

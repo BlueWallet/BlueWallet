@@ -162,7 +162,6 @@ const TransactionsDetails = () => {
     navigate('WalletTransactions', {
       walletID,
       walletType: wallet.type,
-      key: `WalletTransactions-${walletID}`,
     });
   };
 
