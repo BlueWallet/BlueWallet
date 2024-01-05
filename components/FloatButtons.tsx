@@ -33,11 +33,10 @@ interface FContainerProps {
   inline?: boolean;
 }
 
-export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
+export const FContainer = forwardRef<View, FContainerProps>((props: { children: any; inline: any }, ref: any) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
-  const insets = useSafeAreaInsets();
-  const bottomInsets = { bottom: insets.bottom };
+  const bottomInsets = { bottom: 38 };
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
