@@ -38,7 +38,7 @@ const currency = require('./blue_modules/currency');
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { EventEmitter } = NativeModules;
 
-LogBox.ignoreLogs(['Require cycle:']);
+LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
