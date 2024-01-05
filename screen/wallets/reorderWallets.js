@@ -102,7 +102,6 @@ const ReorderWallets = () => {
     navigate('WalletTransactions', {
       walletID,
       walletType: wallet.type,
-      key: `WalletTransactions-${walletID}`,
     });
   };
 

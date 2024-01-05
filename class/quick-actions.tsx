@@ -77,7 +77,6 @@ function DeviceQuickActions(): JSX.Element | null {
         NavigationService.dispatch(
           CommonActions.navigate({
             name: 'WalletTransactions',
-            key: `WalletTransactions-${wallet.getID()}`,
             params: {
               walletID: wallet.getID(),
               walletType: wallet.type,
@@ -101,7 +100,6 @@ function DeviceQuickActions(): JSX.Element | null {
               NavigationService.dispatch(
                 CommonActions.navigate({
                   name: 'WalletTransactions',
-                  key: `WalletTransactions-${wallet.getID()}`,
                   params: {
                     walletID: wallet.getID(),
                     walletType: wallet.type,
@@ -130,7 +128,6 @@ function DeviceQuickActions(): JSX.Element | null {
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
-          key: `WalletTransactions-${wallet.getID()}`,
           params: {
             walletID: wallet.getID(),
             walletType: wallet.type,

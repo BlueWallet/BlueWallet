@@ -154,7 +154,6 @@ const WalletsList = () => {
       navigate('WalletTransactions', {
         walletID,
         walletType: item.type,
-        key: `WalletTransactions-${walletID}`,
       });
     } else {
       navigate('AddWalletRoot');

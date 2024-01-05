@@ -174,7 +174,6 @@ const App = () => {
             NavigationService.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
-                key: `WalletTransactions-${wallet.getID()}`,
                 params: {
                   walletID,
                   walletType: wallet.type,

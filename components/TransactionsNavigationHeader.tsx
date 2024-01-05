@@ -57,6 +57,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet]);
 
   useEffect(() => {
+    setWallet(initialWallet);
+  }, [initialWallet]);
+
+  useEffect(() => {
     verifyIfWalletAllowsOnchainAddress();
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 

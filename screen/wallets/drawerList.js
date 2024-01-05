@@ -33,10 +33,9 @@ const DrawerList = props => {
     if (item?.getID) {
       const walletID = item.getID();
       setSelectedWalletID(walletID);
-      props.navigation.navigate('WalletTransactions', {
-        walletID: item.getID(),
-        walletType: item.type,
-        key: `WalletTransactions-${walletID}`,
+      props.navigation.navigate({
+        name: 'WalletTransactions',
+        params: { walletID, walletType: item.type },
       });
     } else {
       props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
@@ -58,7 +57,7 @@ const DrawerList = props => {
   return (
     <DrawerContentScrollView
       {...props}
-      style={[styles.root, stylesHook.root]}
+      drawerContentContainerStyle={[styles.root, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       showsHorizontalScrollIndicator={false}
