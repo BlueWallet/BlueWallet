@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, LayoutAnimation } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import PropTypes from 'prop-types';
 import { useIsFocused } from '@react-navigation/native';
@@ -32,6 +32,7 @@ const DrawerList = props => {
   const handleClick = item => {
     if (item?.getID) {
       const walletID = item.getID();
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setSelectedWalletID(walletID);
       props.navigation.navigate({
         name: 'WalletTransactions',

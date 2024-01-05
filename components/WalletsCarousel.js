@@ -145,17 +145,11 @@ const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWalle
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
   const isLargeScreen = Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   const onPressedIn = () => {
-    const props = { duration: 50 };
-    props.useNativeDriver = true;
-    props.toValue = 0.9;
-    Animated.spring(scaleValue, props).start();
+    Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 0.9 }).start();
   };
 
   const onPressedOut = () => {
-    const props = { duration: 50 };
-    props.useNativeDriver = true;
-    props.toValue = 1.0;
-    Animated.spring(scaleValue, props).start();
+    Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 1.0 }).start();
   };
 
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
@@ -201,8 +195,9 @@ const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWalle
         onLongPress={handleLongPress}
         onPress={() => {
           onPressedOut();
-          onPress(item);
-          onPressedOut();
+          setTimeout(() => {
+            onPress(item); // Replace 'onPress' with your navigation function
+          }, 50);
         }}
       >
         <LinearGradient shadowColor={colors.shadowColor} colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
