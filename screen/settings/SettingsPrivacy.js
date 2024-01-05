@@ -109,7 +109,7 @@ const SettingsPrivacy = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
+    <ScrollView style={[styles.root, stylesWithThemeHook.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
         {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
       </Pressable>
