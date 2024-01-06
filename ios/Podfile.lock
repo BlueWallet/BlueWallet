@@ -21,7 +21,7 @@ PODS:
   - hermes-engine/Pre-built (0.71.14)
   - libevent (2.1.12)
   - lottie-ios (4.3.4)
-  - lottie-react-native (6.5.0):
+  - lottie-react-native (6.5.1):
     - lottie-ios (~> 4.3.3)
     - React-Core
   - PasscodeAuth (1.0.0):
@@ -303,7 +303,8 @@ PODS:
   - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-webview (13.6.3):
+  - react-native-webview (13.6.4):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-widget-center (0.0.9):
     - React
@@ -701,7 +702,7 @@ SPEC CHECKSUMS:
   hermes-engine: d7cc127932c89c53374452d6f93473f1970d8e88
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: 3d98679b41fa6fd6aff2352b3953dbd3df8a397e
-  lottie-react-native: 9a3b9fa5780b96b421dce9d7ad8f8532406a7a85
+  lottie-react-native: cdeae481649c11d586084b8662f03251c4dd8249
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: e9df143e880d0e879e7a498dc06923d728809c79
@@ -729,7 +730,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
-  react-native-webview: 88293a0f23eca8465c0433c023ec632930e644d0
+  react-native-webview: 107961c73db53d66549c867a3b64eaa20d34c41f
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-perflogger: 4987ad83731c23d11813c84263963b0d3028c966
   React-RCTActionSheet: 5ad952b2a9740d87a5bd77280c4bc23f6f89ea0c

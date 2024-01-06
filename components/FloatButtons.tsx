@@ -1,7 +1,6 @@
 import React, { useState, useRef, forwardRef, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from './themes';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -36,8 +35,7 @@ interface FContainerProps {
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
-  const insets = useSafeAreaInsets();
-  const bottomInsets = { bottom: insets.bottom };
+  const bottomInsets = { bottom: 38 };
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
