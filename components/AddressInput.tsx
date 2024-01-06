@@ -1,15 +1,37 @@
-import React, { useRef } from 'react';
-import PropTypes from 'prop-types';
-import { Text } from 'react-native-elements';
-import { findNodeHandle, Image, Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
+import React from 'react';
+import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import { requestCameraAuthorization } from '../helpers/scan-qr';
 import { useTheme } from './themes';
-const fs = require('../blue_modules/fs');
 
-const isDesktop = getSystemName() === 'Mac OS X';
+interface AddressInputProps {
+  isLoading?: boolean;
+  address?: string;
+  placeholder?: string;
+  onChangeText: (text: string) => void;
+  onBarScanned: (ret: { data?: any }) => void;
+  onBarScannerDismissWithoutData?: () => void;
+  scanButtonTapped?: () => void;
+  launchedBy?: string;
+  editable?: boolean;
+  inputAccessoryViewID?: string;
+  onBlur?: () => void;
+  keyboardType?:
+    | 'default'
+    | 'numeric'
+    | 'email-address'
+    | 'ascii-capable'
+    | 'numbers-and-punctuation'
+    | 'url'
+    | 'number-pad'
+    | 'phone-pad'
+    | 'name-phone-pad'
+    | 'decimal-pad'
+    | 'twitter'
+    | 'web-search'
+    | 'visible-password';
+}
 
 const AddressInput = ({
   isLoading = false,
@@ -24,9 +46,8 @@ const AddressInput = ({
   inputAccessoryViewID,
   onBlur = () => {},
   keyboardType = 'default',
-}) => {
+}: AddressInputProps) => {
   const { colors } = useTheme();
-  const scanButtonRef = useRef();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -72,20 +93,16 @@ const AddressInput = ({
           onPress={async () => {
             await scanButtonTapped();
             Keyboard.dismiss();
-            if (isDesktop) {
-              fs.showActionSheet({ anchor: findNodeHandle(scanButtonRef.current) }).then(onBarScanned);
-            } else {
-              requestCameraAuthorization().then(() => {
-                NavigationService.navigate('ScanQRCodeRoot', {
-                  screen: 'ScanQRCode',
-                  params: {
-                    launchedBy,
-                    onBarScanned,
-                    onBarScannerDismissWithoutData,
-                  },
-                });
+            requestCameraAuthorization().then(() => {
+              NavigationService.navigate('ScanQRCodeRoot', {
+                screen: 'ScanQRCode',
+                params: {
+                  launchedBy,
+                  onBarScanned,
+                  onBarScannerDismissWithoutData,
+                },
               });
-            }
+            });
           }}
           accessibilityRole="button"
           style={[styles.scan, stylesHook.scan]}
@@ -98,6 +115,7 @@ const AddressInput = ({
           </Text>
         </TouchableOpacity>
       ) : null}
+      {/* ... rest of the component ... */}
     </View>
   );
 };
@@ -134,20 +152,5 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
-
-AddressInput.propTypes = {
-  isLoading: PropTypes.bool,
-  onChangeText: PropTypes.func,
-  onBarScanned: PropTypes.func.isRequired,
-  launchedBy: PropTypes.string,
-  address: PropTypes.string,
-  placeholder: PropTypes.string,
-  editable: PropTypes.bool,
-  scanButtonTapped: PropTypes.func,
-  inputAccessoryViewID: PropTypes.string,
-  onBarScannerDismissWithoutData: PropTypes.func,
-  onBlur: PropTypes.func,
-  keyboardType: PropTypes.string,
-};
 
 export default AddressInput;
