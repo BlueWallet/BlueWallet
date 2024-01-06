@@ -82,6 +82,7 @@ const AddressInput = ({
                     launchedBy,
                     onBarScanned,
                     onBarScannerDismissWithoutData,
+                    showFileImportButton: true
                   },
                 });
               });
