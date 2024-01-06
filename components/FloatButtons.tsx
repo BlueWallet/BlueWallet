@@ -1,7 +1,6 @@
 import React, { useState, useRef, forwardRef, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useTheme } from './themes';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -64,7 +63,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props: { children: 
       {newWidth
         ? React.Children.toArray(props.children)
             .filter(Boolean)
-            .map((child, index, array) => {
+            .map((child: any, index: number, array: string | any[]) => {
               if (typeof child === 'string') {
                 return (
                   <View key={index} style={{ width: newWidth }}>
