@@ -32,7 +32,7 @@ interface FContainerProps {
   inline?: boolean;
 }
 
-export const FContainer = forwardRef<View, FContainerProps>((props: { children: any; inline: any }, ref: any) => {
+export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
   const bottomInsets = { bottom: 38 };
@@ -63,7 +63,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props: { children: 
       {newWidth
         ? React.Children.toArray(props.children)
             .filter(Boolean)
-            .map((child: any, index: number, array: string | any[]) => {
+            .map((child, index, array) => {
               if (typeof child === 'string') {
                 return (
                   <View key={index} style={{ width: newWidth }}>
