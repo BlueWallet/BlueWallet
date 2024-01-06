@@ -12,7 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText, BlueListItem, LightningButton, BitcoinButton, BorderWalletButton, VaultButton, BlueFormLabel, BlueButton, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
+import { BlueText, LightningButton, BitcoinButton, BorderWalletButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import {
   HDSegwitBech32Wallet,
