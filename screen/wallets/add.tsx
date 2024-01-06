@@ -40,7 +40,7 @@ const A = require('../../blue_modules/analytics');
 enum ButtonSelected {
   // @ts-ignore: Return later to update
   ONCHAIN = Chain.ONCHAIN,
-  BORDER: 'BORDER',
+  BORDER = 'BORDER',
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
