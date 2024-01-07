@@ -11,7 +11,7 @@ interface AddressInputProps {
   address?: string;
   placeholder?: string;
   onChangeText: (text: string) => void;
-  onBarScanned: (value: string | null) => void;
+  onBarScanned: (ret: { data?: any }) => void;
   scanButtonTapped?: () => void;
   launchedBy?: string;
   editable?: boolean;
