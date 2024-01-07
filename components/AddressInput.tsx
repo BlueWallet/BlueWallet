@@ -46,7 +46,7 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const {navigate} = useNavigation()
+  const { navigate } = useNavigation();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -92,7 +92,7 @@ const AddressInput = ({
             await scanButtonTapped();
             Keyboard.dismiss();
             // @ts-ignore: Fix later
-            scanQrHelper(navigate, launchedBy, false).then(onBarScanned);        
+            scanQrHelper(navigate, launchedBy).then(onBarScanned);
           }}
           accessibilityRole="button"
           style={[styles.scan, stylesHook.scan]}
