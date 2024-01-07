@@ -33,7 +33,7 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
-import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
