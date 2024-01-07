@@ -1,8 +1,7 @@
 import React from 'react';
 import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import loc from '../loc';
-import * as NavigationService from '../NavigationService';
-import { requestCameraAuthorization, scanQrHelper } from '../helpers/scan-qr';
+import { scanQrHelper } from '../helpers/scan-qr';
 import { useTheme } from './themes';
 import { useNavigation } from '@react-navigation/native';
 
