@@ -82,7 +82,7 @@ const AddressInput = ({
                     launchedBy,
                     onBarScanned,
                     onBarScannerDismissWithoutData,
-                    showFileImportButton: true
+                    showFileImportButton: true,
                   },
                 });
               });
