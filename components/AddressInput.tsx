@@ -2,16 +2,16 @@ import React from 'react';
 import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
-import { requestCameraAuthorization } from '../helpers/scan-qr';
+import { requestCameraAuthorization, scanQrHelper } from '../helpers/scan-qr';
 import { useTheme } from './themes';
+import { useNavigation } from '@react-navigation/native';
 
 interface AddressInputProps {
   isLoading?: boolean;
   address?: string;
   placeholder?: string;
   onChangeText: (text: string) => void;
-  onBarScanned: (ret: { data?: any }) => void;
-  onBarScannerDismissWithoutData?: () => void;
+  onBarScanned: (value: string | null) => void;
   scanButtonTapped?: () => void;
   launchedBy?: string;
   editable?: boolean;
@@ -39,7 +39,6 @@ const AddressInput = ({
   placeholder = loc.send.details_address,
   onChangeText,
   onBarScanned,
-  onBarScannerDismissWithoutData = () => {},
   scanButtonTapped = () => {},
   launchedBy,
   editable = true,
@@ -48,7 +47,7 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-
+  const {navigate} = useNavigation()
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -93,16 +92,8 @@ const AddressInput = ({
           onPress={async () => {
             await scanButtonTapped();
             Keyboard.dismiss();
-            requestCameraAuthorization().then(() => {
-              NavigationService.navigate('ScanQRCodeRoot', {
-                screen: 'ScanQRCode',
-                params: {
-                  launchedBy,
-                  onBarScanned,
-                  onBarScannerDismissWithoutData,
-                },
-              });
-            });
+            // @ts-ignore: Fix later
+            scanQrHelper(navigate, launchedBy, false).then(onBarScanned);        
           }}
           accessibilityRole="button"
           style={[styles.scan, stylesHook.scan]}
@@ -115,7 +106,6 @@ const AddressInput = ({
           </Text>
         </TouchableOpacity>
       ) : null}
-      {/* ... rest of the component ... */}
     </View>
   );
 };
