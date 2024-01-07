@@ -92,7 +92,7 @@ const AddressInput = ({
             await scanButtonTapped();
             Keyboard.dismiss();
             // @ts-ignore: Fix later
-            scanQrHelper(navigate, launchedBy, false).then(onBarScanned);
+            scanQrHelper(navigate, launchedBy).then(onBarScanned);
           }}
           accessibilityRole="button"
           style={[styles.scan, stylesHook.scan]}
