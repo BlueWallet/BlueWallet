@@ -410,6 +410,8 @@ ScanQRCode.initialParams = {
   urTotal: undefined,
   urHave: undefined,
   backdoorText: '',
+  onDismiss: undefined,
+  showFileImportButton: true,
   backdoorVisible: false,
   animatedQRCodeData: {},
 };
