@@ -8,7 +8,6 @@ import {
   BlueFormMultiInput,
   BlueSpacing20,
   BlueText,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
@@ -17,6 +16,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -146,7 +146,7 @@ const WalletsImport = () => {
   );
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -186,7 +186,7 @@ const WalletsImport = () => {
           />
         ),
       })}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

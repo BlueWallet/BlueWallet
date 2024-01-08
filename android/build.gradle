@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        minSdkVersion = 28
+        minSdkVersion = 24
         supportLibVersion = "28.0.0"
         buildToolsVersion = "34.0.0"
         compileSdkVersion = 33
@@ -14,7 +14,7 @@ buildscript {
 
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"
-        kotlin_version = '1.9.20'
+        kotlin_version = '1.9.22'
         kotlinVersion = '1.9.20'
     }
     repositories {
@@ -81,7 +81,7 @@ subprojects {
                 buildToolsVersion "34.0.0"
                 compileSdkVersion 33
                  defaultConfig {
-                    minSdkVersion 28
+                    minSdkVersion 24
                 }
             }
         }

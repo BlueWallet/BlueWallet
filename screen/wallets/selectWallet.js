@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useRoute, useNavigation, useNavigationState } from '@react-navigation/native';
 
-import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
@@ -136,7 +137,7 @@ const SelectWallet = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
           onWalletSelect(item, { navigation: { pop, navigate } });
         }}
         accessibilityRole="button"
@@ -190,19 +191,19 @@ const SelectWallet = () => {
     );
   } else if (data.length <= 0) {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
           <BlueText style={styles.center}>{noWalletExplanationText || loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
-      </SafeBlueArea>
+      </SafeArea>
     );
   } else {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 };

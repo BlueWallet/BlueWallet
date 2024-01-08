@@ -7,6 +7,33 @@ platform :ios do
     sh("git checkout -- .")
   end
 
+  desc "Register new devices from a file"
+  lane :register_devices_from_txt do
+    UI.message("Registering new devices from file...")
+
+    csv_path = "../../devices.txt" # Update this with the actual path to your file
+
+    # Registering devices using the devices_file parameter
+    register_devices(
+      devices_file: csv_path
+    )
+
+    UI.message("Devices registered successfully.")
+
+    app_identifiers = ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
+
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "development", 
+        app_identifier: app_identifier,
+        readonly: false, # This will regenerate the provisioning profile if needed
+        force_for_new_devices: true # This forces match to add new devices to the profile
+      )
+    end
+
+    UI.message("Development provisioning profiles updated.")
+  end  
+
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
     UI.message("Creating a temporary keychain...")

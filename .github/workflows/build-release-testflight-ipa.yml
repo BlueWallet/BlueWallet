@@ -42,11 +42,8 @@ jobs:
       - name: Install dependencies with Bundler
         run: bundle install
 
-      - name: Install Fastlane 2.217.0
-        run: gem install fastlane -v 2.217.0
-
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods
+      - name: Install Fastlane
+        run: gem install fastlane
 
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
@@ -55,6 +52,16 @@ jobs:
       - name: Install node_modules
         run: npm install
 
+      - name: Install CocoaPods Dependencies
+        run: bundle exec pod install
+        working-directory: ./ios
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          
       - name: Display release-notes.txt
         run: cat release-notes.txt
 
@@ -107,14 +114,9 @@ jobs:
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
-
       - name: Expected IPA file name
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
-  
-      - name: Install CocoaPods Dependencies
-        run: bundle exec fastlane ios install_pods
-        working-directory: ./ios
 
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
@@ -138,6 +140,12 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
+
+      - name: Cache CocoaPods Pods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
 
       - name: Cache Ruby Gems
         uses: actions/cache@v2

@@ -2,9 +2,8 @@ import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -17,6 +16,8 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -143,7 +144,7 @@ const TransactionsStatus = () => {
           }
         } else if (txFromElectrum.confirmations > 0) {
           // now, handling a case when tx became confirmed!
-          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           setEta('');
           setTX(prevState => {
             return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
@@ -350,13 +351,13 @@ const TransactionsStatus = () => {
 
   if (isLoading || !tx) {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <BlueLoading />
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <HandoffComponent
         title={loc.transactions.details_title}
         type={HandoffComponent.activityTypes.ViewInBlockExplorer}
@@ -435,7 +436,7 @@ const TransactionsStatus = () => {
           {renderRBFCancel()}
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -86,7 +86,7 @@ const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const { launchedBy, onBarScanned, onDismiss, showFileImportButton, onBarScannerDismissWithoutData = () => {} } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -126,7 +126,7 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -175,7 +175,7 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -238,7 +238,7 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
 
       if (launchedBy) {
-        navigation.navigate(launchedBy, {});
+        navigation.navigate({ name: launchedBy, params: {}, merge: true });
       }
       onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
@@ -248,7 +248,7 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate(launchedBy, {});
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned(ret.data);
       } catch (e) {
@@ -302,9 +302,8 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    onBarScannerDismissWithoutData();
     if (launchedBy) {
-      navigation.navigate(launchedBy, {});
+      navigation.navigate({ name: launchedBy, params: {}, merge: true });
     } else {
       navigation.goBack();
     }
@@ -411,6 +410,8 @@ ScanQRCode.initialParams = {
   urTotal: undefined,
   urHave: undefined,
   backdoorText: '',
+  onDismiss: undefined,
+  showFileImportButton: true,
   backdoorVisible: false,
   animatedQRCodeData: {},
 };

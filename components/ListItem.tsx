@@ -5,6 +5,8 @@ import { useTheme } from './themes';
 
 // Update the type for the props
 interface ListItemProps {
+  rightIcon?: any;
+  leftAvatar?: React.Component;
   containerStyle?: object;
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;
@@ -15,7 +17,7 @@ interface ListItemProps {
   hideChevron?: boolean;
   disabled?: boolean;
   switch?: object; // Define more specific type if needed
-  leftIcon?: object; // Define more specific type if needed
+  leftIcon?: any; // Define more specific type if needed
   title: string;
   subtitle?: string;
   subtitleNumberOfLines?: number;
@@ -72,6 +74,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
       accessible={props.switch === undefined}
     >
       {props.leftIcon && <Avatar icon={props.leftIcon} />}
+      {props.leftAvatar && props.leftAvatar}
       <RNElementsListItem.Content>
         <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={props.switch === undefined}>
           {props.title}
@@ -98,6 +101,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
       ) : (
         <>
           {props.chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
+          {props.rightIcon && <Avatar icon={props.rightIcon} />}
           {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <RNElementsListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>

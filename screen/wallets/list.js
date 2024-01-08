@@ -16,7 +16,6 @@ import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
@@ -28,6 +27,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -154,7 +154,6 @@ const WalletsList = () => {
       navigate('WalletTransactions', {
         walletID,
         walletType: item.type,
-        key: `WalletTransactions-${walletID}`,
       });
     } else {
       navigate('AddWalletRoot');
@@ -193,7 +192,7 @@ const WalletsList = () => {
     if (wallets.length > 1) {
       navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
 
@@ -291,7 +290,7 @@ const WalletsList = () => {
   const onBarScanned = value => {
     if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-      ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       navigate(...completionValue);
     });
   };

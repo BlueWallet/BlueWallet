@@ -457,8 +457,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
-    // refresh transactions
-    await element(by.id('refreshTransactions')).tap();
     await waitFor(element(by.id('NoTxBuyBitcoin')))
       .not.toExist()
       .withTimeout(300 * 1000);

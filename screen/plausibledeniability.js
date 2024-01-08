@@ -1,14 +1,15 @@
 import React, { useContext, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import navigationStyle from '../components/navigationStyle';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
+import { BlueLoading, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
 import Button from '../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import SafeArea from '../components/SafeArea';
 const prompt = require('../helpers/prompt');
 
 const PlausibleDeniability = () => {
@@ -23,7 +24,7 @@ const PlausibleDeniability = () => {
       const isProvidedPasswordInUse = p1 === cachedPassword || (await isPasswordInUse(p1));
       if (isProvidedPasswordInUse) {
         setIsLoading(false);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert(loc.plausibledeniability.password_should_not_match);
       }
       if (!p1) {
@@ -33,13 +34,13 @@ const PlausibleDeniability = () => {
       const p2 = await prompt(loc.plausibledeniability.retype_password);
       if (p1 !== p2) {
         setIsLoading(false);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert(loc.plausibledeniability.passwords_do_not_match);
       }
 
       await createFakeStorage(p1);
       await resetWallets();
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       alert(loc.plausibledeniability.success);
       popToTop();
     } catch {
@@ -48,11 +49,11 @@ const PlausibleDeniability = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueLoading />
-    </SafeBlueArea>
+    </SafeArea>
   ) : (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueCard>
         <ScrollView maxHeight={450}>
           <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -70,7 +71,7 @@ const PlausibleDeniability = () => {
           />
         </ScrollView>
       </BlueCard>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

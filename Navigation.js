@@ -322,8 +322,8 @@ const AztecoRedeemRoot = () => {
 
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, presentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
-    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} />
+  <ScanQRCodeStack.Navigator initialRouteName='ScanQRCode' name="ScanQRCodeRoot" screenOptions={{ headerShown: false, presentation: 'fullScreenModal' }}>
+    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} initialParams={ScanQRCode.initialParams} />
   </ScanQRCodeStack.Navigator>
 );
 
@@ -340,7 +340,11 @@ const ReorderWalletsStackRoot = () => {
 
   return (
     <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerShadowVisible: false }}>
-      <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions(theme)} />
+      <ReorderWalletsStack.Screen
+        name="ReorderWalletsScreen"
+        component={ReorderWallets}
+        options={ReorderWallets.navigationOptions(theme)}
+      />
     </ReorderWalletsStack.Navigator>
   );
 };
@@ -446,7 +450,7 @@ const InitRoot = () => (
     <InitStack.Screen
       name="ReorderWallets"
       component={ReorderWalletsStackRoot}
-      options={{ headerShown: false, gestureEnabled: false, presentation: isDesktop ? 'containedModal' : 'modal' }}
+      options={{ headerShown: false, gestureEnabled: false, presentation: 'modal' }}
     />
     <InitStack.Screen
       name={isHandset ? 'Navigation' : 'DrawerRoot'}
@@ -509,8 +513,8 @@ const PaymentCodeStackRoot = () => {
 };
 
 const RootStack = createNativeStackNavigator();
-const NavigationDefaultOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'modal' };
-const NavigationFormModalOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'formSheet' };
+const NavigationDefaultOptions = { headerShown: false, presentation: 'modal' };
+const NavigationFormModalOptions = { headerShown: false, presentation: 'formSheet' };
 const StatusBarLightOptions = { statusBarStyle: 'light' };
 const Navigation = () => {
   return (
@@ -558,7 +562,7 @@ const Navigation = () => {
         component={ScanQRCodeRoot}
         options={{
           headerShown: false,
-          presentation: isDesktop ? 'containedModal' : 'fullScreenModal',
+          presentation: 'fullScreenModal',
           statusBarHidden: true,
         }}
         initialParams={ScanQRCode.initialParams}

@@ -22,7 +22,6 @@ import {
   LightningLdkWallet,
   AbstractWallet,
 } from '../../class';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
@@ -33,6 +32,7 @@ import useAsyncPromise from '../../hooks/useAsyncPromise';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -250,7 +250,7 @@ const WalletsAdd: React.FC = () => {
         addWallet(w);
         await saveToDisk();
         A(A.ENUM.CREATED_WALLET);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
           // @ts-ignore: Return later to update
           navigate('PleaseBackup', {
@@ -286,7 +286,7 @@ const WalletsAdd: React.FC = () => {
     await saveToDisk();
 
     A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     // @ts-ignore: Return later to update
     navigate('PleaseBackupLdk', {
       walletID: wallet.getID(),
@@ -326,7 +326,7 @@ const WalletsAdd: React.FC = () => {
     await saveToDisk();
 
     A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     // @ts-ignore: Return later to update
     navigate('PleaseBackupLNDHub', {
       walletID: wallet.getID(),

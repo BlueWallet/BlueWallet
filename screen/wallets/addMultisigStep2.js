@@ -18,8 +18,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -35,9 +33,10 @@ import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -168,7 +167,7 @@ const WalletsAddMultisigStep2 = () => {
     addWallet(w);
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     navigation.getParent().goBack();
   };
 
@@ -463,15 +462,7 @@ const WalletsAddMultisigStep2 = () => {
     } else {
       setIsProvideMnemonicsModalVisible(false);
       InteractionManager.runAfterInteractions(() =>
-        requestCameraAuthorization().then(() =>
-          navigation.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              onBarScanned,
-              showFileImportButton: true,
-            },
-          }),
-        ),
+        scanQrHelper(navigation.navigate, onBarScanned)
       );
     }
   };

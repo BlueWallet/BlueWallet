@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { BlueCopyTextToClipboard, SafeBlueArea, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
@@ -18,7 +19,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
   });
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <BlueTextCentered>{loc.lndViewInvoice.preimage}:</BlueTextCentered>
         <BlueSpacing20 />
@@ -28,7 +29,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
         <BlueSpacing20 />
         <BlueCopyTextToClipboard text={preImageData} />
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

@@ -6,8 +6,9 @@ import LottieView from 'lottie-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { isHandset } from './blue_modules/environment';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
+const lottieJson = require('./img/bluewalletsplash.json');
 
 const styles = StyleSheet.create({
   root: {
@@ -15,12 +16,15 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   biometric: {
-    flex: 1,
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
     marginBottom: 58,
   },
   biometricRow: {
@@ -30,6 +34,10 @@ const styles = StyleSheet.create({
   icon: {
     width: 64,
     height: 64,
+  },
+  lottie: {
+    width: lottieJson.w,
+    height: lottieJson.h,
   },
 });
 
@@ -78,7 +86,8 @@ const UnlockWith = () => {
   const unlockWithKey = async () => {
     setIsAuthenticating(true);
     if (await startAndDecrypt()) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+
       successfullyAuthenticated();
     } else {
       setIsAuthenticating(false);
@@ -130,7 +139,7 @@ const UnlockWith = () => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <LottieView source={require('./img/bluewalletsplash.json')} autoPlay loop={false} onAnimationFinish={onAnimationFinish} />
+        <LottieView source={lottieJson} autoPlay loop={false} onAnimationFinish={onAnimationFinish} style={styles.lottie} />
         <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
       </View>
     </SafeAreaView>

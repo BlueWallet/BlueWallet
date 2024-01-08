@@ -25,18 +25,18 @@ import {
   BlueLoading,
   BlueSpacing20,
   BlueText,
-  SafeBlueArea,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -90,7 +90,7 @@ export default class ElectrumSettings extends Component {
     });
 
     if (this.state.server) {
-      ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
       Alert.alert(
         loc.formatString(loc.settings.set_electrum_server_as_default, { server: this.state.server }),
         '',
@@ -112,7 +112,7 @@ export default class ElectrumSettings extends Component {
   checkServer = async () => {
     this.setState({ isLoading: true }, async () => {
       const features = await BlueElectrum.serverFeatures();
-      ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
       alert(JSON.stringify(features, null, 2));
       this.setState({ isLoading: false });
     });
@@ -125,7 +125,7 @@ export default class ElectrumSettings extends Component {
   };
 
   clearHistoryAlert() {
-    ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
     Alert.alert(loc.settings.electrum_clear_alert_title, loc.settings.electrum_clear_alert_message, [
       { text: loc.settings.electrum_clear_alert_cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
       { text: loc.settings.electrum_clear_alert_ok, onPress: () => this.clearHistory() },
@@ -177,10 +177,10 @@ export default class ElectrumSettings extends Component {
             // Must be running on Android
             console.log(e);
           }
-          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           alert(loc.settings.electrum_saved);
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           alert(loc.settings.electrum_error_connect);
         } else {
           await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, host);
@@ -206,11 +206,11 @@ export default class ElectrumSettings extends Component {
             // Must be running on Android
             console.log(e);
           }
-          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           alert(loc.settings.electrum_saved);
         }
       } catch (error) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         alert(error);
       }
       this.setState({ isLoading: false });
@@ -422,7 +422,7 @@ export default class ElectrumSettings extends Component {
 
   render() {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <ScrollView keyboardShouldPersistTaps="always">
           <ListItem
             Component={Pressable}
@@ -438,7 +438,7 @@ export default class ElectrumSettings extends Component {
           </BlueCard>
           {!this.state.isOfflineMode && this.renderElectrumSettings()}
         </ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

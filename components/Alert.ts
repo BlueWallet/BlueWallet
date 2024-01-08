@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 import loc from '../loc';
-const alert = string => {
-  Alert.alert(loc.alert.default, string);
+const alert = (text: string) => {
+  Alert.alert(loc.alert.default, text);
 };
 export default alert;

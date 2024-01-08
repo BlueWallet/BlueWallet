@@ -26,6 +26,7 @@ import {
   BlueTextCentered,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import * as NavigationService from '../../NavigationService';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import BottomModal from '../../components/BottomModal';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -437,10 +438,10 @@ const ViewEditMultisigCosigners = () => {
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
-    setTimeout(() =>
-      requestCameraAuthorization().then(
-        () =>
-          navigate('ScanQRCodeRoot', {
+    setTimeout(
+      () =>
+        requestCameraAuthorization().then(() => {
+          NavigationService.navigate('ScanQRCodeRoot', {
             screen: 'ScanQRCode',
             params: {
               launchedBy: route.name,
@@ -452,9 +453,9 @@ const ViewEditMultisigCosigners = () => {
               },
               showFileImportButton: true,
             },
-          }),
-        650,
-      ),
+          });
+        }),
+      650,
     );
   };
 

@@ -34,7 +34,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don’t ask me again`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap();
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv'))).toBeVisible();

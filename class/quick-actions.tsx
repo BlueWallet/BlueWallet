@@ -77,7 +77,6 @@ function DeviceQuickActions(): JSX.Element | null {
         NavigationService.dispatch(
           CommonActions.navigate({
             name: 'WalletTransactions',
-            key: `WalletTransactions-${wallet.getID()}`,
             params: {
               walletID: wallet.getID(),
               walletType: wallet.type,
@@ -101,7 +100,6 @@ function DeviceQuickActions(): JSX.Element | null {
               NavigationService.dispatch(
                 CommonActions.navigate({
                   name: 'WalletTransactions',
-                  key: `WalletTransactions-${wallet.getID()}`,
                   params: {
                     walletID: wallet.getID(),
                     walletType: wallet.type,
@@ -116,7 +114,7 @@ function DeviceQuickActions(): JSX.Element | null {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, (value: any) => NavigationService.navigate(...value), {
+    DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
       wallets,
       addWallet,
       saveToDisk,
@@ -130,7 +128,6 @@ function DeviceQuickActions(): JSX.Element | null {
       NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
-          key: `WalletTransactions-${wallet.getID()}`,
           params: {
             walletID: wallet.getID(),
             walletType: wallet.type,
@@ -152,7 +149,7 @@ function DeviceQuickActions(): JSX.Element | null {
   const setQuickActions = async (): Promise<void> => {
     // @ts-ignore: Fix later
     if (await DeviceQuickActions.getEnabled()) {
-      QuickActions.isSupported((error, _supported) => {
+      QuickActions.isSupported((error: null, _supported: any) => {
         if (error === null) {
           const shortcutItems = [];
           for (const wallet of wallets.slice(0, 4)) {

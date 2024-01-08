@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import navigationStyle from '../../components/navigationStyle';
 import loc, { saveLanguage } from '../../loc';
-import { AvailableLanguages } from '../../loc/languages';
+import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
@@ -20,9 +22,13 @@ const Language: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>(loc.getLanguage());
   const { setOptions } = useNavigation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const stylesHook = StyleSheet.create({
     flex: {
       backgroundColor: colors.background,
+    },
+    content: {
+      paddingBottom: insets.bottom,
     },
   });
 
@@ -31,30 +37,27 @@ const Language: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language]);
 
-  const renderItem = ({ item }: { item: { label: string; value: string; isRTL: boolean } }) => {
-    return (
-      <ListItem
-        onPress={() => {
-          const currentLanguage = AvailableLanguages.find(l => l.value === selectedLanguage);
-          saveLanguage(item.value).then(() => {
-            setSelectedLanguage(item.value);
-            setLanguage();
-            if (currentLanguage && (currentLanguage.isRTL || item.isRTL)) {
-              alert(loc.settings.language_isRTL);
-            }
-          });
-        }}
-        title={item.label}
-        checkmark={selectedLanguage === item.value}
-      />
-    );
+  const onLanguageSelect = (item: TLanguage) => {
+    const currentLanguage = AvailableLanguages.find(l => l.value === selectedLanguage);
+    saveLanguage(item.value).then(() => {
+      setSelectedLanguage(item.value);
+      setLanguage();
+      if (currentLanguage?.isRTL !== item.isRTL) {
+        alert(loc.settings.language_isRTL);
+      }
+    });
+  };
+
+  const renderItem = ({ item }: { item: TLanguage }) => {
+    return <ListItem title={item.label} checkmark={selectedLanguage === item.value} onPress={() => onLanguageSelect(item)} />;
   };
 
   return (
     <FlatList
       style={[styles.flex, stylesHook.flex]}
+      contentContainerStyle={stylesHook.content}
       keyExtractor={(_item, index) => `${index}`}
-      data={AvailableLanguages as { label: string; value: string; isRTL: boolean }[]}
+      data={AvailableLanguages}
       renderItem={renderItem}
       initialNumToRender={25}
       contentInsetAdjustmentBehavior="automatic"
