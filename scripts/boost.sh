@@ -1,0 +1,1 @@
+sed -i '' 's|https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2|https://newcontinuum.dl.sourceforge.net/project/boost/boost/1.76.0/boost_1_76_0.tar.bz2|g' node_modules/react-native/third-party-podspecs/boost.podspec
