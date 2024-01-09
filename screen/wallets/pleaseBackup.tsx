@@ -97,7 +97,7 @@ PleaseBackup.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: false,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.pleasebackup.title }),
 );
