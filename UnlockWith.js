@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme, LayoutAnimation } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import LottieView from 'lottie-react-native';
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
   },
+
   lottie: {
     width: lottieJson.w,
     height: lottieJson.h,
@@ -70,24 +71,26 @@ const UnlockWith = () => {
   };
 
   const unlockWithBiometrics = async () => {
+    if (isAuthenticating) return;
     if (await isStorageEncrypted()) {
       unlockWithKey();
-    }
-    setIsAuthenticating(true);
+    } else {
+      setIsAuthenticating(true);
 
-    if (await Biometric.unlockWithBiometrics()) {
+      if (await Biometric.unlockWithBiometrics()) {
+        setIsAuthenticating(false);
+        await startAndDecrypt();
+        return successfullyAuthenticated();
+      }
       setIsAuthenticating(false);
-      await startAndDecrypt();
-      return successfullyAuthenticated();
     }
-    setIsAuthenticating(false);
   };
 
   const unlockWithKey = async () => {
+    if (isAuthenticating) return;
     setIsAuthenticating(true);
     if (await startAndDecrypt()) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-
       successfullyAuthenticated();
     } else {
       setIsAuthenticating(false);
@@ -125,7 +128,6 @@ const UnlockWith = () => {
   };
 
   const onAnimationFinish = async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       setIsStorageEncryptedEnabled(storageIsEncrypted);
