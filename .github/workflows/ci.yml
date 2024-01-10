@@ -60,6 +60,11 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
 
+    - name: Ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        create-symlink: true
+
     - name: Specify node version
       uses: actions/setup-node@v2-beta
       with:
