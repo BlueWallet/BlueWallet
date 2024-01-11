@@ -284,7 +284,7 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    scanQrHelper(navigate, routeName, false).then(onBarScanned);
+    scanQrHelper(navigate, routeName).then(onBarScanned);
   };
 
   const onBarScanned = value => {

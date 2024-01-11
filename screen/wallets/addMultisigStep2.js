@@ -461,9 +461,7 @@ const WalletsAddMultisigStep2 = () => {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      InteractionManager.runAfterInteractions(() =>
-        scanQrHelper(navigation.navigate, onBarScanned)
-      );
+      InteractionManager.runAfterInteractions(() => scanQrHelper(navigation.navigate, onBarScanned));
     }
   };
 
