@@ -84,6 +84,14 @@ const App = () => {
     );
   };
 
+  const addWalletMenuAction = () => {
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'AddWalletRoot',
+      }),
+    );
+  };
+
   const onUserActivityOpen = data => {
     switch (data.activityType) {
       case HandoffComponent.activityTypes.ReceiveOnchain:
@@ -127,6 +135,7 @@ const App = () => {
      */
     eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
     eventEmitter?.addListener('openSettings', openSettings);
+    eventEmitter?.addListener('addWalletMenuAction', addWalletMenuAction);
     eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 

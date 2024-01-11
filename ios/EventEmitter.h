@@ -14,6 +14,7 @@
 + (EventEmitter *)sharedInstance;
 - (void)sendNotification:(NSDictionary *)userInfo;
 - (void)openSettings;
+- (void)addWalletMenuAction;
 - (void)sendUserActivity:(NSDictionary *)userInfo;
 
 @end
