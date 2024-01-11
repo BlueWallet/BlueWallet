@@ -32,7 +32,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"onNotificationReceived",@"openSettings",@"onUserActivityOpen"];
+    return @[@"onNotificationReceived",@"openSettings",@"onUserActivityOpen",@"addWalletMenuAction"];
 }
 
 - (void)sendNotification:(NSDictionary *)userInfo
@@ -58,5 +58,8 @@ RCT_REMAP_METHOD(getMostRecentUserActivity, resolve: (RCTPromiseResolveBlock)res
   [sharedInstance sendEventWithName:@"openSettings" body:nil];
 }
 
+- (void)addWalletMenuAction {
+    [sharedInstance sendEventWithName:@"addWalletMenuAction" body:nil];
+}
 
 @end
