@@ -282,7 +282,12 @@ const ScanLndInvoiceRoot = () => {
 
   return (
     <ScanLndInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
+      <ScanLndInvoiceStack.Screen
+        name="ScanLndInvoice"
+        component={ScanLndInvoice}
+        options={ScanLndInvoice.navigationOptions(theme)}
+        initialParams={ScanLndInvoice.initialParams}
+      />
       <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
