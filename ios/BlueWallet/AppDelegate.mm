@@ -117,7 +117,7 @@
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (void)openSettings {
+- (void)openSettings:(UIKeyCommand *)keyCommand {
   [EventEmitter.sharedInstance openSettings];
 }
 
@@ -126,13 +126,33 @@
   [builder removeMenuForIdentifier:UIMenuServices];
   [builder removeMenuForIdentifier:UIMenuFormat];
   [builder removeMenuForIdentifier:UIMenuToolbar];
-  [builder removeMenuForIdentifier:UIMenuFile];
-
-  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
-  [settingsCommand setTitle:@"Settings..."];
-  UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:@"openSettings" options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
   
-  [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
+  // Add Wallet action with Command + A shortcut
+   UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
+   [addWalletCommand setTitle:@"Add Wallet"];
+   UIMenu *addWalletMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand]];
+  
+
+   // Modify the existing File menu
+   UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
+   if (fileMenu) {
+       // Replace the children of the File menu with the Add Wallet menu
+       UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[addWalletMenu]];
+       [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
+   }
+    // Existing settings menu
+    UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
+    [settingsCommand setTitle:@"Settings..."];
+    UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
+    [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
+}
+
+// Action for Add Wallet
+- (void)addWalletAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance addWalletMenuAction];
+
+    NSLog(@"Add Wallet action performed");
 }
 
 

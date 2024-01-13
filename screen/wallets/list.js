@@ -94,10 +94,6 @@ const WalletsList = () => {
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
       },
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () =>

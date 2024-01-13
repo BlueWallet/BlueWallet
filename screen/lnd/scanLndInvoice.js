@@ -375,6 +375,12 @@ ScanLndInvoice.navigationOptions = navigationStyle(
   opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );
 
+ScanLndInvoice.initialParams = {
+  uri: undefined,
+  walletID: undefined,
+  invoice: undefined,
+};
+
 const styles = StyleSheet.create({
   walletSelectRoot: {
     marginBottom: 16,
