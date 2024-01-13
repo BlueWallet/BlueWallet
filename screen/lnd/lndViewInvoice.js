@@ -60,11 +60,8 @@ const LNDViewInvoice = () => {
       isModal
         ? {
             headerStyle: {
-              borderBottomWidth: 0,
               backgroundColor: colors.customHeader,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
+           
             },
             gestureEnabled: false,
             headerBackVisible: false,
@@ -87,11 +84,6 @@ const LNDViewInvoice = () => {
             headerRight: () => {},
             headerStyle: {
               backgroundColor: colors.customHeader,
-
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
             },
           },
     );
