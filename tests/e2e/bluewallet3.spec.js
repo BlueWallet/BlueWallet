@@ -62,6 +62,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
 
     // tapping 5 times invisible button is a backdoor:
+    await sleep(5000); // wait for camera screen to initialize
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
@@ -76,6 +77,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
     // tapping 5 times invisible button is a backdoor:
+    await sleep(5000); // wait for camera screen to initialize
     for (let c = 0; c <= 5; c++) {
       await element(by.id('ScanQrBackdoorButton')).tap();
       await sleep(1000);
