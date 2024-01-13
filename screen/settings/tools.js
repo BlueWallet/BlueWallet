@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import ListItem from '../../components/ListItem';
-import SafeArea from '../../components/SafeArea';
 
 const NetworkSettings = () => {
   const { navigate } = useNavigation();
@@ -23,13 +22,11 @@ const NetworkSettings = () => {
   };
 
   return (
-    <SafeArea>
-      <ScrollView>
-        <ListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
-        <ListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
-        <ListItem title={loc.autofill_word.title} onPress={navigateToGenerateWord} testID="GenerateWord" chevron />
-      </ScrollView>
-    </SafeArea>
+    <ScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+      <ListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
+      <ListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
+      <ListItem title={loc.autofill_word.title} onPress={navigateToGenerateWord} testID="GenerateWord" chevron />
+    </ScrollView>
   );
 };
 

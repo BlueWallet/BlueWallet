@@ -61,6 +61,7 @@ const Language: React.FC = () => {
       renderItem={renderItem}
       initialNumToRender={25}
       contentInsetAdjustmentBehavior="automatic"
+      automaticallyAdjustContentInsets
     />
   );
 };

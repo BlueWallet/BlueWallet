@@ -10,7 +10,6 @@ import alert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
-import SafeArea from '../../components/SafeArea';
 const prompt = require('../../helpers/prompt');
 
 const EncryptStorage = () => {
@@ -22,7 +21,6 @@ const EncryptStorage = () => {
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
-      flex: 1,
       backgroundColor: colors.background,
     },
   });
@@ -123,45 +121,43 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <SafeArea>
+    <ScrollView>
       <BlueLoading />
-    </SafeArea>
+    </ScrollView>
   ) : (
-    <SafeArea>
-      <ScrollView contentContainerStyle={styles.root}>
-        {biometrics.isDeviceBiometricCapable && (
-          <>
-            <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
-            <ListItem
-              title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
-              Component={TouchableWithoutFeedback}
-              switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
-            />
-            <BlueCard>
-              <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
-            </BlueCard>
-            <BlueSpacing20 />
-          </>
-        )}
-        <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
-        <ListItem
-          testID="EncyptedAndPasswordProtected"
-          hideChevron
-          title={loc.settings.encrypt_enc_and_pass}
-          Component={TouchableWithoutFeedback}
-          switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
-        />
-        {storageIsEncryptedSwitchEnabled && (
+    <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      {biometrics.isDeviceBiometricCapable && (
+        <>
+          <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
           <ListItem
-            onPress={navigateToPlausibleDeniability}
-            title={loc.settings.plausible_deniability}
-            chevron
-            testID="PlausibleDeniabilityButton"
-            Component={TouchableOpacity}
+            title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
+            Component={TouchableWithoutFeedback}
+            switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
           />
-        )}
-      </ScrollView>
-    </SafeArea>
+          <BlueCard>
+            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
+          </BlueCard>
+          <BlueSpacing20 />
+        </>
+      )}
+      <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
+      <ListItem
+        testID="EncyptedAndPasswordProtected"
+        hideChevron
+        title={loc.settings.encrypt_enc_and_pass}
+        Component={TouchableWithoutFeedback}
+        switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
+      />
+      {storageIsEncryptedSwitchEnabled && (
+        <ListItem
+          onPress={navigateToPlausibleDeniability}
+          title={loc.settings.plausible_deniability}
+          chevron
+          testID="PlausibleDeniabilityButton"
+          Component={TouchableOpacity}
+        />
+      )}
+    </ScrollView>
   );
 };
 

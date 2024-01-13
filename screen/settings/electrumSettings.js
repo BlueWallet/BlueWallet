@@ -36,7 +36,6 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -422,23 +421,21 @@ export default class ElectrumSettings extends Component {
 
   render() {
     return (
-      <SafeArea>
-        <ScrollView keyboardShouldPersistTaps="always">
-          <ListItem
-            Component={Pressable}
-            title={loc.settings.electrum_offline_mode}
-            switch={{
-              onValueChange: this.onElectrumConnectionEnabledSwitchValueChangd,
-              value: this.state.isOfflineMode,
-              testID: 'ElectrumConnectionEnabledSwitch',
-            }}
-          />
-          <BlueCard>
-            <BlueText>{loc.settings.electrum_offline_description}</BlueText>
-          </BlueCard>
-          {!this.state.isOfflineMode && this.renderElectrumSettings()}
-        </ScrollView>
-      </SafeArea>
+      <ScrollView keyboardShouldPersistTaps="always" automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+        <ListItem
+          Component={Pressable}
+          title={loc.settings.electrum_offline_mode}
+          switch={{
+            onValueChange: this.onElectrumConnectionEnabledSwitchValueChangd,
+            value: this.state.isOfflineMode,
+            testID: 'ElectrumConnectionEnabledSwitch',
+          }}
+        />
+        <BlueCard>
+          <BlueText>{loc.settings.electrum_offline_description}</BlueText>
+        </BlueCard>
+        {!this.state.isOfflineMode && this.renderElectrumSettings()}
+      </ScrollView>
     );
   }
 }
