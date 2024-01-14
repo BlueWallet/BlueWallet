@@ -1,4 +1,4 @@
-# OSX
+s# OSX
 #
 .DS_Store
 
@@ -57,6 +57,7 @@ buck-out/
 */fastlane/Preview.html
 */fastlane/screenshots
 **/fastlane/test_output
+ios/fastlane
 
 # Bundle artifact
 *.jsbundle

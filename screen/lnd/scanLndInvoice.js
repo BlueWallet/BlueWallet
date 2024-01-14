@@ -11,10 +11,9 @@ import {
   I18nManager,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueButton, BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
@@ -25,6 +24,9 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const currency = require('../../blue_modules/currency');
 
 const ScanLndInvoice = () => {
@@ -80,7 +82,7 @@ const ScanLndInvoice = () => {
   useFocusEffect(
     useCallback(() => {
       if (!wallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         goBack();
         setTimeout(() => alert(loc.wallets.no_ln_wallet_error), 500);
       }
@@ -123,7 +125,7 @@ const ScanLndInvoice = () => {
         setExpiresIn(newExpiresIn);
         setDecoded(newDecoded);
       } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
         setTimeout(() => alert(Err.message), 10);
@@ -191,14 +193,14 @@ const ScanLndInvoice = () => {
     const newExpiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
     if (+new Date() > newExpiresIn) {
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(loc.lnd.errorInvoiceExpired);
     }
 
     const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
     if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(loc.lnd.sameWalletAsInvoiceError);
     }
 
@@ -207,7 +209,7 @@ const ScanLndInvoice = () => {
     } catch (Err) {
       console.log(Err.message);
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(Err.message);
     }
 
@@ -298,7 +300,7 @@ const ScanLndInvoice = () => {
   }
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={[styles.root, stylesHook.root]}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
@@ -350,7 +352,7 @@ const ScanLndInvoice = () => {
                   </View>
                 ) : (
                   <View>
-                    <BlueButton title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                    <Button title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
                   </View>
                 )}
               </BlueCard>
@@ -360,7 +362,7 @@ const ScanLndInvoice = () => {
         </ScrollView>
       </View>
       <BlueDismissKeyboardInputAccessory />
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -368,10 +370,16 @@ export default ScanLndInvoice;
 ScanLndInvoice.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
 );
+
+ScanLndInvoice.initialParams = {
+  uri: undefined,
+  walletID: undefined,
+  invoice: undefined,
+};
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

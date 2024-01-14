@@ -39,89 +39,120 @@ class WidgetAPI {
       urlString = "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
     case "Coinbase":
       urlString = "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/buy"
-      case "CoinGecko":
+    case "CoinGecko":
       urlString = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
+    case "BNR":
+      urlString = "https://www.bnr.ro/nbrfxrates.xml"
     default:
       urlString = "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
     }
 
     guard let url = URL(string:urlString) else { return }
 
-    URLSession.shared.dataTask(with: url) { (data, response, error) in
-      guard let dataResponse = data,
-            let json = (try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>),
-            error == nil
-      else {
-        print(error?.localizedDescription ?? "Response Error")
-        completion(nil, error)
-        return
-      }
+    if source == "BNR" {
+      URLSession.shared.dataTask(with: url) { (data, response, error) in
+         if let error = error {
+             print("Error fetching data: \(error.localizedDescription)")
+             completion(nil, error)
+             return
+         }
 
-      var latestRateDataStore: WidgetDataStore?
-      switch source {
-      case "Yadio":
-        guard let rateDict = json[endPointKey] as? [String: Any],
-              let rateDouble = rateDict["price"] as? Double,
-              let lastUpdated = json["timestamp"] as? Int
-        else { break }
-        let unix = Double(lastUpdated / 1_000)
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "CoinGecko":
-        guard let rateDict = json["bitcoin"] as? [String: Any],
-              let rateDouble = rateDict[endPointKey.lowercased()] as? Double
-        else { break }
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "YadioConvert":
-        guard let rateDict = json as? [String: Any],
-              let rateDouble = rateDict["rate"] as? Double,
-              let lastUpdated = json["timestamp"] as? Int
-        else { break }
-        let unix = Double(lastUpdated / 1_000)
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
-        latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "Exir":
-        guard let rateDouble = json["last"] as? Double else { break }
-        let rateString = String(rateDouble)
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "Bitstamp":
-        guard let rateString = json["last"] as? String, let rateDouble = Double(rateString) else { break }
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "wazirx":
-        guard let tickerDict = json["ticker"] as? [String: Any],
-              let rateString = tickerDict["buy"] as? String,
-              let rateDouble = Double(rateString)
-        else { break }
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      case "Coinbase":
-       guard let data = json["data"] as? Dictionary<String, Any>,
-              let rateString = data["amount"] as? String,
-              let rateDouble = Double(rateString)
-        else { break }
-        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      default:
-        guard let bpi = json["bpi"] as? Dictionary<String, Any>,
-              let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>,
-              let rateString = preferredCurrency["rate"] as? String,
-              let rateDouble = preferredCurrency["rate_float"] as? Double,
-              let time = json["time"] as? Dictionary<String, Any>,
-              let lastUpdatedString = time["updatedISO"] as? String
-        else { break }
-        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-      }
+         guard let data = data else {
+             print("No data received")
+             completion(nil, nil)
+             return
+         }
 
-      if (latestRateDataStore == nil) {
-        completion(nil, CurrencyError())
-        return
-      }
-
-      completion(latestRateDataStore, nil)
-    }.resume()
+         // Parse XML data
+         let parser = XMLParser(data: data)
+         let delegate = BNRXMLParserDelegate()
+         parser.delegate = delegate
+         if parser.parse(), let rate = delegate.usdRate {
+             let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+             let latestRateDataStore = WidgetDataStore(rate: String(rate), lastUpdate: lastUpdatedString, rateDouble: rate)
+             completion(latestRateDataStore, nil)
+         } else {
+           print("Error parsing XML")
+           completion(nil, CurrencyError())
+         }
+       }.resume()
+      } else {
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+        guard let dataResponse = data,
+              let json = (try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>),
+              error == nil
+        else {
+          print(error?.localizedDescription ?? "Response Error")
+          completion(nil, error)
+          return
+        }
+        
+        var latestRateDataStore: WidgetDataStore?
+        switch source {
+        case "Yadio":
+          guard let rateDict = json[endPointKey] as? [String: Any],
+                let rateDouble = rateDict["price"] as? Double,
+                let lastUpdated = json["timestamp"] as? Int
+          else { break }
+          let unix = Double(lastUpdated / 1_000)
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
+          latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "CoinGecko":
+          guard let rateDict = json["bitcoin"] as? [String: Any],
+                let rateDouble = rateDict[endPointKey.lowercased()] as? Double
+          else { break }
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+          latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "YadioConvert":
+          guard let rateDict = json as? [String: Any],
+                let rateDouble = rateDict["rate"] as? Double,
+                let lastUpdated = json["timestamp"] as? Int
+          else { break }
+          let unix = Double(lastUpdated / 1_000)
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
+          latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "Exir":
+          guard let rateDouble = json["last"] as? Double else { break }
+          let rateString = String(rateDouble)
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+          latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "Bitstamp":
+          guard let rateString = json["last"] as? String, let rateDouble = Double(rateString) else { break }
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+          latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "wazirx":
+          guard let tickerDict = json["ticker"] as? [String: Any],
+                let rateString = tickerDict["buy"] as? String,
+                let rateDouble = Double(rateString)
+          else { break }
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+          latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        case "Coinbase":
+          guard let data = json["data"] as? Dictionary<String, Any>,
+                let rateString = data["amount"] as? String,
+                let rateDouble = Double(rateString)
+          else { break }
+          let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+          latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        default:
+          guard let bpi = json["bpi"] as? Dictionary<String, Any>,
+                let preferredCurrency = bpi[endPointKey] as? Dictionary<String, Any>,
+                let rateString = preferredCurrency["rate"] as? String,
+                let rateDouble = preferredCurrency["rate_float"] as? Double,
+                let time = json["time"] as? Dictionary<String, Any>,
+                let lastUpdatedString = time["updatedISO"] as? String
+          else { break }
+          latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        }
+        
+        if (latestRateDataStore == nil) {
+          completion(nil, CurrencyError())
+          return
+        }
+        
+        completion(latestRateDataStore, nil)
+      }.resume()
+    }
   }
 
   static func getUserPreferredCurrency() -> String {
@@ -163,3 +194,5 @@ class WidgetAPI {
   }
 
 }
+
+

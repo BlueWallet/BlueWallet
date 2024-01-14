@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueButton, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import Button from '../../components/Button';
 
 const styles = StyleSheet.create({
   loading: {
@@ -159,7 +160,7 @@ export default class AztecoRedeem extends Component {
               {this.state.c1}-{this.state.c2}-{this.state.c3}-{this.state.c4}
             </BlueText>
             {this.renderWalletSelectionButton()}
-            <BlueButton onPress={this.redeem} title={loc.azteco.redeemButton} />
+            <Button onPress={this.redeem} title={loc.azteco.redeemButton} />
             <BlueSpacing />
           </View>
         </View>

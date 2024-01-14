@@ -20,5 +20,5 @@ if [ -f $FILENAME ]; then
 
     DLOAD_APK="https://lambda-download-android-build.herokuapp.com/download/$BUILD_BUILDID"
 
-    curl -X POST --data "{\"body\":\"♫ This was a triumph. I'm making a note here: HUGE SUCCESS ♫\n\n [android in browser] $APPURL\n\n[download apk]($DLOAD_APK) \"}"  -u "$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
+    curl -X POST --data "{\"body\":\"♫ This was a triumph. I'm making a note here: HUGE SUCCESS ♫\n\n [android in browser] $APPURL\n\n[download apk]($DLOAD_APK) \"}"   -H "Authorization: Bearer $GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
 fi

@@ -6,7 +6,6 @@
     "clipboard": "剪贴板",
     "enter_password": "输入密码",
     "never": "永不",
-    "disabled": "禁用",
     "of": "{total}其中之{number}",
     "ok": "好的",
     "storage_is_encrypted": "你的储存资料已经被加密， 请输入密码解密。",

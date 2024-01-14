@@ -1,15 +1,16 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { colors } from 'react-native-elements';
-
 import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, SafeBlueArea, BlueSpacing20, BlueCard, BlueListItem, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
+import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 const prompt = require('../../helpers/prompt');
 
 const EncryptStorage = () => {
@@ -18,6 +19,7 @@ const EncryptStorage = () => {
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, popToTop } = useNavigation();
+  const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
       flex: 1,
@@ -51,7 +53,7 @@ const EncryptStorage = () => {
     } catch (e) {
       if (password) {
         alert(loc._.bad_password);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       }
 
       setIsLoading(false);
@@ -121,16 +123,16 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <SafeBlueArea>
+    <SafeArea>
       <BlueLoading />
-    </SafeBlueArea>
+    </SafeArea>
   ) : (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
             <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
-            <BlueListItem
+            <ListItem
               title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
               Component={TouchableWithoutFeedback}
               switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
@@ -142,7 +144,7 @@ const EncryptStorage = () => {
           </>
         )}
         <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
-        <BlueListItem
+        <ListItem
           testID="EncyptedAndPasswordProtected"
           hideChevron
           title={loc.settings.encrypt_enc_and_pass}
@@ -150,7 +152,7 @@ const EncryptStorage = () => {
           switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
         />
         {storageIsEncryptedSwitchEnabled && (
-          <BlueListItem
+          <ListItem
             onPress={navigateToPlausibleDeniability}
             title={loc.settings.plausible_deniability}
             chevron
@@ -159,7 +161,7 @@ const EncryptStorage = () => {
           />
         )}
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

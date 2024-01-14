@@ -421,7 +421,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await device.launchApp({
       newInstance: true,
-      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7\\?amount=0.0001\\&label=Yo',
+      url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
     });
 
     // setting fee rate:
@@ -457,8 +457,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
 
-    // refresh transactions
-    await element(by.id('refreshTransactions')).tap();
     await waitFor(element(by.id('NoTxBuyBitcoin')))
       .not.toExist()
       .withTimeout(300 * 1000);

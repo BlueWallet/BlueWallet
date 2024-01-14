@@ -7,6 +7,7 @@ import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { presentCameraNotAuthorizedAlert } from '../class/camera';
 import { isDesktop } from '../blue_modules/environment';
 import alert from '../components/Alert';
+import { readFile } from './react-native-bw-file-access';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
@@ -160,6 +161,7 @@ const takePhotoWithImagePickerAndReadPhoto = () => {
 const showFilePickerAndReadFile = async function () {
   try {
     const res = await DocumentPicker.pickSingle({
+      copyTo: 'cachesDirectory',
       type:
         Platform.OS === 'ios'
           ? [
@@ -173,22 +175,21 @@ const showFilePickerAndReadFile = async function () {
           : [DocumentPicker.types.allFiles],
     });
 
-    const uri = Platform.OS === 'ios' ? decodeURI(res.uri) : res.uri;
-    // ^^ some weird difference on how spaces in filenames are treated on ios and android
+    const fileCopyUri = decodeURI(res.fileCopyUri);
 
     let file = false;
-    if (res.uri.toLowerCase().endsWith('.psbt')) {
+    if (res.fileCopyUri.toLowerCase().endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
-      file = await _readPsbtFileIntoBase64(uri);
-      return { data: file, uri: decodeURI(res.uri) };
+      file = await _readPsbtFileIntoBase64(fileCopyUri);
+      return { data: file, uri: decodeURI(res.fileCopyUri) };
     }
 
     if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
       return new Promise(resolve => {
-        const uri2 = res.uri.toString().replace('file://', '');
+        const uri2 = res.fileCopyUri.toString().replace('file://', '');
         LocalQRCode.decode(decodeURI(uri2), (error, result) => {
           if (!error) {
-            resolve({ data: result, uri: decodeURI(res.uri) });
+            resolve({ data: result, fileCopyUri });
           } else {
             resolve({ data: false, uri: false });
           }
@@ -196,8 +197,8 @@ const showFilePickerAndReadFile = async function () {
       });
     }
 
-    file = await RNFS.readFile(uri);
-    return { data: file, uri: decodeURI(res.uri) };
+    file = await RNFS.readFile(fileCopyUri);
+    return { data: file, fileCopyUri };
   } catch (err) {
     if (!DocumentPicker.isCancel(err)) {
       alert(err.message);
@@ -206,8 +207,18 @@ const showFilePickerAndReadFile = async function () {
   }
 };
 
+// todo expand with other platforms if necessary
+const readFileOutsideSandbox = filePath => {
+  if (Platform.OS === 'ios') {
+    return readFile(filePath);
+  } else {
+    return RNFS.readFile(filePath);
+  }
+};
+
 module.exports.writeFileAndExport = writeFileAndExport;
 module.exports.openSignedTransaction = openSignedTransaction;
 module.exports.showFilePickerAndReadFile = showFilePickerAndReadFile;
 module.exports.showImagePickerAndReadImage = showImagePickerAndReadImage;
 module.exports.takePhotoWithImagePickerAndReadPhoto = takePhotoWithImagePickerAndReadPhoto;
+module.exports.readFileOutsideSandbox = readFileOutsideSandbox;

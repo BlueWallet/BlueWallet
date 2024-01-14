@@ -6,7 +6,6 @@
     "clipboard": "Pano",
     "enter_password": "Şifre gir",
     "never": "Asla",
-    "disabled": "Devre dışı",
     "of": "{number} / {total}",
     "ok": "Tamam",
     "storage_is_encrypted": "Depolama alanınız şifrelidir, kilidi kaldırmak için şifrenizi girin.",

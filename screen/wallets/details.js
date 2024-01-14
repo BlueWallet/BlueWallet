@@ -17,10 +17,9 @@ import {
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton, BlueListItem } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import {
   HDSegwitBech32Wallet,
@@ -45,6 +44,8 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const prompt = require('../../helpers/prompt');
 
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -226,7 +227,7 @@ const WalletDetails = () => {
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
-      setSelectedWallet(walletID);
+      setSelectedWalletID(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -241,11 +242,11 @@ const WalletDetails = () => {
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
   };
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
@@ -258,7 +259,7 @@ const WalletDetails = () => {
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
       } else {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
         alert(loc.wallets.details_del_wb_err);
       }
@@ -417,12 +418,17 @@ const WalletDetails = () => {
   };
 
   const onExportHistoryPressed = async () => {
-    let csvFile = [
+    const csvFileArray = [
       loc.transactions.date,
       loc.transactions.txid,
       `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
       loc.send.create_memo,
-    ].join(','); // CSV header
+    ];
+    if (wallet.chain === Chain.OFFCHAIN) {
+      csvFileArray.push(loc.lnd.payment);
+    }
+
+    let csvFile = csvFileArray.join(','); // CSV header
     const transactions = wallet.getTransactions();
 
     for (const transaction of transactions) {
@@ -430,24 +436,32 @@ const WalletDetails = () => {
 
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
+      let status;
 
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash;
         memo = transaction.description;
-
+        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
           const bb = Buffer.from(hash);
           hash = bb.toString('hex');
         }
       }
-      csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
+
+      const data = [new Date(transaction.received).toString(), hash, value, memo];
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        data.push(status);
+      }
+
+      csvFile += '\n' + data.join(','); // CSV line
     }
 
     await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
   };
 
   const handleDeleteButtonTapped = () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     Alert.alert(
       loc.wallets.details_delete_wallet,
       loc.wallets.details_are_you_sure,
@@ -633,9 +647,9 @@ const WalletDetails = () => {
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+              <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
+            {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
@@ -691,6 +705,8 @@ const WalletDetails = () => {
                 <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
                   <Text textBreakStrategy="simple" style={styles.delete}>{`${loc.wallets.details_delete}${'  '}`}</Text>
                 </TouchableOpacity>
+                <BlueSpacing20 />
+                <BlueSpacing20 />
               </View>
             </BlueCard>
           </View>

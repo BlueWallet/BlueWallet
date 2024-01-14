@@ -10,6 +10,8 @@ import WidgetKit
 import SwiftUI
 
 struct MarketWidgetProvider: TimelineProvider {
+  static var lastSuccessfulEntry: MarketWidgetEntry?
+
   func placeholder(in context: Context) -> MarketWidgetEntry {
     return MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
   }
@@ -25,28 +27,34 @@ struct MarketWidgetProvider: TimelineProvider {
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-    var entries: [MarketWidgetEntry] = []
-    if context.isPreview {
-      let entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
-      entries.append(entry)
-      let timeline = Timeline(entries: entries, policy: .atEnd)
-      completion(timeline)
-    }else {
-      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
-      let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-      WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
-        let entry: MarketWidgetEntry
-        if let result = result {
-          entry = MarketWidgetEntry(date: Date(), marketData: result)
-          
-        } else {
-          entry = MarketWidgetEntry(date: Date(), marketData: marketDataEntry)
-        }
+      var entries: [MarketWidgetEntry] = []
+      if context.isPreview {
+        let entry = MarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10 000", rate: 10000))
         entries.append(entry)
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
-      })
-    }
+      } else {
+          let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
+          WidgetAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
+              let entry: MarketWidgetEntry
+
+              if let result = result {
+                  entry = MarketWidgetEntry(date: Date(), marketData: result)
+                  MarketWidgetProvider.lastSuccessfulEntry = entry
+              } else {
+                  // Use the last successful entry if available
+                  if let lastEntry = MarketWidgetProvider.lastSuccessfulEntry {
+                      entry = lastEntry
+                  } else {
+                      // Fallback to a default entry if no successful entry is available
+                      entry = MarketWidgetEntry(date: Date(), marketData: emptyMarketData)
+                  }
+              }
+              entries.append(entry)
+              let timeline = Timeline(entries: entries, policy: .atEnd)
+              completion(timeline)
+          }
+      }
   }
 }
 

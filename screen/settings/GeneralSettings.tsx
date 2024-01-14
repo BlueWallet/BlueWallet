@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, Platform, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, Platform, StyleSheet } from 'react-native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, BlueCard } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueSpacing20, BlueCard } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isURv1Enabled, clearUseURv1, setUseURv1 } from '../../blue_modules/ur';
 import { useTheme } from '../../components/themes';
+import ListItem, { PressableWrapper } from '../../components/ListItem';
 
 const styles = StyleSheet.create({
   root: {
@@ -58,18 +59,16 @@ const GeneralSettings: React.FC = () => {
       {wallets.length > 1 && (
         <>
           {/* @ts-ignore: Fix later */}
-          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
+          <ListItem onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />
         </>
       )}
-      {/* @ts-ignore: Fix later */}
-      <BlueListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
+      <ListItem title={loc.settings.privacy} onPress={navigateToPrivacy} testID="SettingsPrivacy" chevron />
       {Platform.OS === 'ios' ? (
         <>
-          <BlueListItem
-            // @ts-ignore: Fix later
+          <ListItem
             hideChevron
             title={loc.settings.general_continuity}
-            Component={Pressable}
+            Component={PressableWrapper}
             switch={{ onValueChange: setIsHandOffUseEnabledAsyncStorage, value: isHandOffUseEnabled }}
           />
           <BlueCard>
@@ -78,9 +77,8 @@ const GeneralSettings: React.FC = () => {
           <BlueSpacing20 />
         </>
       ) : null}
-      <BlueListItem
-        // @ts-ignore: Fix later
-        Component={Pressable}
+      <ListItem
+        Component={PressableWrapper}
         title={loc.settings.general_adv_mode}
         switch={{ onValueChange: onAdvancedModeSwitch, value: isAdvancedModeSwitchEnabled, testID: 'AdvancedMode' }}
       />
@@ -88,10 +86,8 @@ const GeneralSettings: React.FC = () => {
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
       </BlueCard>
       <BlueSpacing20 />
-      {/* @ts-ignore: Fix later */}
-      <BlueListItem
-        // @ts-ignore: Fix later
-        Component={Pressable}
+      <ListItem
+        Component={PressableWrapper}
         title="Legacy URv1 QR"
         switch={{ onValueChange: onLegacyURv1Switch, value: isURv1SwitchEnabled }}
       />

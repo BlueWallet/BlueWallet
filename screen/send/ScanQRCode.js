@@ -6,11 +6,12 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton, BlueSpacing40 } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
 import alert from '../../components/Alert';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -85,8 +86,7 @@ const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -126,7 +126,7 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -175,7 +175,7 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -238,7 +238,7 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
 
       if (launchedBy) {
-        navigation.navigate(launchedBy);
+        navigation.navigate({ name: launchedBy, params: {}, merge: true });
       }
       onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
@@ -248,7 +248,7 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned(ret.data);
       } catch (e) {
@@ -302,9 +302,8 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    onBarScannerDismissWithoutData();
     if (launchedBy) {
-      navigation.navigate(launchedBy);
+      navigation.navigate({ name: launchedBy, params: {}, merge: true });
     } else {
       navigation.goBack();
     }
@@ -319,7 +318,7 @@ const ScanQRCode = () => {
         <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
           <BlueText>{loc.send.permission_camera_message}</BlueText>
           <BlueSpacing40 />
-          <BlueButton title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+          <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       ) : isFocused ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
@@ -369,7 +368,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <BlueButton
+          <Button
             title="OK"
             testID="scanQrBackdoorOkButton"
             onPress={() => {
@@ -403,3 +402,16 @@ const ScanQRCode = () => {
 };
 
 export default ScanQRCode;
+ScanQRCode.initialParams = {
+  isLoading: false,
+  cameraStatusGranted: undefined,
+  backdoorPressed: undefined,
+  launchedBy: undefined,
+  urTotal: undefined,
+  urHave: undefined,
+  backdoorText: '',
+  onDismiss: undefined,
+  showFileImportButton: true,
+  backdoorVisible: false,
+  animatedQRCodeData: {},
+};

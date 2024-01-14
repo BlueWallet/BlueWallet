@@ -24,12 +24,15 @@ type NavigationOptions = {
     color: string;
   };
   headerLargeTitle?: boolean;
+  headerBackVisible?: boolean;
   gestureEnabled?: boolean;
   swipeEnabled?: boolean;
+  headerTransparent?: boolean;
   headerHideBackButton?: boolean;
   headerLeft?: (() => React.ReactElement) | null;
   headerRight?: (() => React.ReactElement) | null;
   headerBackTitleVisible?: false;
+  headerShadowVisible?: boolean;
   headerTintColor?: string;
   title?: string;
 };
@@ -42,6 +45,7 @@ const navigationStyle = (
   {
     closeButton = false,
     closeButtonFunc,
+    headerBackVisible = true,
     ...opts
   }: NavigationOptions & {
     closeButton?: boolean;
@@ -74,12 +78,7 @@ const navigationStyle = (
       }
 
       let options: NavigationOptions = {
-        headerStyle: {
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-          shadowOffset: { height: 0, width: 0 },
-        },
+        headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: '600',
           color: theme.colors.foregroundColor,

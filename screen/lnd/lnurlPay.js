@@ -1,19 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
-import {
-  BlueButton,
-  BlueCard,
-  BlueDismissKeyboardInputAccessory,
-  BlueLoading,
-  BlueSpacing20,
-  BlueText,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
@@ -23,6 +14,9 @@ import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const prompt = require('../../helpers/prompt');
 const currency = require('../../blue_modules/currency');
 
@@ -150,7 +144,7 @@ const LnurlPay = () => {
       setPayButtonDisabled(false);
 
       // success, probably
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       if (wallet.last_paid_invoice_result && wallet.last_paid_invoice_result.payment_preimage) {
         await LN.storeSuccess(decoded.payment_hash, wallet.last_paid_invoice_result.payment_preimage);
       }
@@ -168,7 +162,7 @@ const LnurlPay = () => {
       console.log(Err.message);
       setIsLoading(false);
       setPayButtonDisabled(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return alert(Err.message);
     }
   };
@@ -203,7 +197,7 @@ const LnurlPay = () => {
 
   const renderGotPayload = () => {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <ScrollView contentContainertyle={{ justifyContent: 'space-around' }}>
           <BlueCard>
             <AmountInput
@@ -231,12 +225,12 @@ const LnurlPay = () => {
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
-            {payButtonDisabled ? <BlueLoading /> : <BlueButton title={loc.lnd.payButton} onPress={pay} />}
+            {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
             <BlueSpacing20 />
           </BlueCard>
         </ScrollView>
         {renderWalletSelectionButton}
-      </SafeBlueArea>
+      </SafeArea>
     );
   };
 
@@ -302,5 +296,5 @@ const styles = StyleSheet.create({
 LnurlPay.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

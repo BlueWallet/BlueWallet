@@ -16,7 +16,6 @@ import {
 import { Icon, Badge } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
-  BlueButton,
   BlueButtonLink,
   BlueFormMultiInput,
   BlueLoading,
@@ -27,6 +26,7 @@ import {
   BlueTextCentered,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
+import * as NavigationService from '../../NavigationService';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import BottomModal from '../../components/BottomModal';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -44,6 +44,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -218,7 +219,7 @@ const ViewEditMultisigCosigners = () => {
             </>
           )}
           <BlueSpacing20 />
-          <BlueButton
+          <Button
             title={loc.multisig.share}
             onPress={() => {
               setIsMnemonicsModalVisible(false);
@@ -228,7 +229,7 @@ const ViewEditMultisigCosigners = () => {
             }}
           />
           <BlueSpacing20 />
-          <BlueButton title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
         </View>
       </BottomModal>
     );
@@ -437,10 +438,10 @@ const ViewEditMultisigCosigners = () => {
 
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
-    setTimeout(() =>
-      requestCameraAuthorization().then(
-        () =>
-          navigate('ScanQRCodeRoot', {
+    setTimeout(
+      () =>
+        requestCameraAuthorization().then(() => {
+          NavigationService.navigate('ScanQRCodeRoot', {
             screen: 'ScanQRCode',
             params: {
               launchedBy: route.name,
@@ -452,9 +453,9 @@ const ViewEditMultisigCosigners = () => {
               },
               showFileImportButton: true,
             },
-          }),
-        650,
-      ),
+          });
+        }),
+      650,
     );
   };
 
@@ -490,11 +491,7 @@ const ViewEditMultisigCosigners = () => {
             {isLoading ? (
               <ActivityIndicator />
             ) : (
-              <BlueButton
-                disabled={importText.trim().length === 0}
-                title={loc.wallets.import_do_import}
-                onPress={handleUseMnemonicPhrase}
-              />
+              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
             <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
           </View>
@@ -557,7 +554,7 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const footer = <BlueButton disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -657,7 +654,7 @@ const styles = StyleSheet.create({
 ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
     statusBarStyle: 'light',
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),

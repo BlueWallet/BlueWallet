@@ -1,4 +1,4 @@
-export const AvailableLanguages = Object.freeze([
+export const AvailableLanguages: Readonly<TLanguage[]> = Object.freeze([
   { label: 'English', value: 'en' },
   { label: 'Afrikaans (AFR)', value: 'zar_afr' },
   { label: 'العربية (AR)', value: 'ar', isRTL: true },
@@ -21,12 +21,14 @@ export const AvailableLanguages = Object.freeze([
   { label: 'עִברִית (HE)', value: 'he', isRTL: true },
   { label: 'Italiano (IT)', value: 'it' },
   { label: 'Indonesia (ID)', value: 'id_id' },
+  { label: 'Қазақ (KK)', value: 'kk@Cyrl' },
   { label: 'Magyar (HU)', value: 'hu_hu' },
   { label: '日本語 (JP)', value: 'jp_jp' },
   { label: '한국어 (KO)', value: 'ko_kr' },
   { label: 'ಕನ್ನಡ (KN)', value: 'kn' },
   { label: 'Bahasa Melayu (MS)', value: 'ms' },
   { label: 'Nederlands (NL)', value: 'nl_nl' },
+  { label: 'Nigerian Pidgin (NG)', value: 'pcm' },
   { label: 'नेपाली (NE)', value: 'ne' },
   { label: 'Norsk (NB)', value: 'nb_no' },
   { label: 'Polski (PL)', value: 'pl' },
@@ -46,3 +48,9 @@ export const AvailableLanguages = Object.freeze([
   { label: 'Türkçe (TR)', value: 'tr_tr' },
   { label: 'Xhosa (XHO)', value: 'zar_xho' },
 ]);
+
+export type TLanguage = {
+  label: string;
+  value: string;
+  isRTL?: boolean;
+};

@@ -86,7 +86,7 @@ export default class SyncedAsyncStorage {
           console.log('saved, seq num:', text);
           resolve(text);
         })
-        .catch(reason => reject(reason));
+        .catch((reason: Error) => reject(reason));
     });
   }
 

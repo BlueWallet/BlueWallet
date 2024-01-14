@@ -2,13 +2,15 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
-import { BlueButton, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -18,7 +20,7 @@ const PleaseBackupLNDHub = () => {
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const handleBackButton = useCallback(() => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     return true;
   }, [navigation]);
   const styles = StyleSheet.create({
@@ -44,14 +46,14 @@ const PleaseBackupLNDHub = () => {
     };
   }, [handleBackButton]);
 
-  const pop = () => navigation.dangerouslyGetParent().pop();
+  const pop = () => navigation.getParent().pop();
 
   const onLayout = e => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.5);
   };
   return (
-    <SafeBlueArea style={styles.root} onLayout={onLayout}>
+    <SafeArea style={styles.root} onLayout={onLayout}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>{loc.pleasebackup.text_lnd}</BlueTextCentered>
@@ -61,9 +63,9 @@ const PleaseBackupLNDHub = () => {
         <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
         <BlueCopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
-        <BlueButton onPress={pop} title={loc.pleasebackup.ok_lnd} />
+        <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -71,7 +73,7 @@ PleaseBackupLNDHub.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
 );

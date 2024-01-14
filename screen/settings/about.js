@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueIdSync, hasGmsSync } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-import { BlueButton, BlueCard, BlueListItem, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -12,6 +12,8 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import alert from '../../components/Alert';
 import { HDSegwitBech32Wallet } from '../../class';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const A = require('../../blue_modules/analytics');
 const branch = require('../../current-branch.json');
@@ -130,11 +132,11 @@ const About = () => {
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
-            <BlueButton onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
+            <Button onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           )}
         </View>
       </BlueCard>
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'twitter',
           type: 'font-awesome',
@@ -143,7 +145,7 @@ const About = () => {
         onPress={handleOnTwitterPress}
         title={loc.settings.about_sm_twitter}
       />
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'telegram',
           type: 'font-awesome',
@@ -152,7 +154,7 @@ const About = () => {
         onPress={handleOnTelegramPress}
         title={loc.settings.about_sm_telegram}
       />
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'discord',
           type: 'font-awesome-5',
@@ -179,7 +181,7 @@ const About = () => {
           </TouchableOpacity>
         </View>
       </BlueCard>
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'book',
           type: 'font-awesome',
@@ -189,7 +191,7 @@ const About = () => {
         onPress={handleOnReleaseNotesPress}
         title={loc.settings.about_release_notes}
       />
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'balance-scale',
           type: 'font-awesome',
@@ -199,7 +201,7 @@ const About = () => {
         onPress={handleOnLicensingPress}
         title={loc.settings.about_license}
       />
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'flask',
           type: 'font-awesome',
@@ -210,7 +212,7 @@ const About = () => {
         testID="RunSelfTestButton"
         title={loc.settings.about_selftest}
       />
-      <BlueListItem
+      <ListItem
         leftIcon={{
           name: 'flask',
           type: 'font-awesome',

@@ -1,13 +1,12 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit } from '../models/fiatUnit';
 import Notifications from '../blue_modules/notifications';
 import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
-import { isTorDaemonDisabled, setIsTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
 const currency = require('../blue_modules/currency');
@@ -19,7 +18,7 @@ export const WalletTransactionsStatus = { NONE: false, ALL: true };
 export const BlueStorageContext = createContext();
 export const BlueStorageProvider = ({ children }) => {
   const [wallets, setWallets] = useState([]);
-  const [selectedWallet, setSelectedWallet] = useState('');
+  const [selectedWalletID, setSelectedWalletID] = useState();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
@@ -28,13 +27,11 @@ export const BlueStorageProvider = ({ children }) => {
   const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
-  const [isTorDisabled, setIsTorDisabled] = useState(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-    isTorDaemonDisabled().then(setIsTorDisabled);
   }, []);
 
   useEffect(() => {
@@ -43,10 +40,6 @@ export const BlueStorageProvider = ({ children }) => {
       alert('Privacy blur has been disabled.');
     }
   }, [isPrivacyBlurEnabled]);
-
-  useEffect(() => {
-    setIsTorDaemonDisabled(isTorDisabled);
-  }, [isTorDisabled]);
 
   const setIsHandOffUseEnabledAsyncStorage = value => {
     setIsHandOffUseEnabled(value);
@@ -81,8 +74,9 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   const getPreferredCurrency = async () => {
-    const item = await getPreferredCurrencyAsyncStorage();
+    const item = JSON.parse(await getPreferredCurrencyAsyncStorage());
     _setPreferredFiatCurrency(item);
+    return item;
   };
 
   const setPreferredFiatCurrency = () => {
@@ -183,12 +177,12 @@ export const BlueStorageProvider = ({ children }) => {
 
   const addAndSaveWallet = async w => {
     if (wallets.some(i => i.getID() === w.getID())) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       Alert.alert('', 'This wallet has been previously imported.');
       return;
     }
     const emptyWalletLabel = new LegacyWallet().getLabel();
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
     w.setUserHasSavedExport(true);
     addWallet(w);
@@ -226,7 +220,6 @@ export const BlueStorageProvider = ({ children }) => {
   const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
   const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
   const addHodlHodlContract = BlueApp.addHodlHodlContract;
-  const getHodlHodlContracts = BlueApp.getHodlHodlContracts;
   const setDoNotTrack = BlueApp.setDoNotTrack;
   const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
   const getItem = BlueApp.getItem;
@@ -240,8 +233,8 @@ export const BlueStorageProvider = ({ children }) => {
         txMetadata,
         saveToDisk,
         getTransactions,
-        selectedWallet,
-        setSelectedWallet,
+        selectedWalletID,
+        setSelectedWalletID,
         addWallet,
         deleteWallet,
         currentSharedCosigner,
@@ -249,7 +242,6 @@ export const BlueStorageProvider = ({ children }) => {
         addAndSaveWallet,
         setItem,
         getItem,
-        getHodlHodlContracts,
         isAdvancedModeEnabled,
         fetchWalletBalances,
         fetchWalletTransactions,
@@ -284,8 +276,6 @@ export const BlueStorageProvider = ({ children }) => {
         isDoNotTrackEnabled,
         isElectrumDisabled,
         setIsElectrumDisabled,
-        isTorDisabled,
-        setIsTorDisabled,
         isPrivacyBlurEnabled,
         setIsPrivacyBlurEnabled,
       }}

@@ -6,17 +6,18 @@ import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueButton, BlueCard } from '../../BlueComponents';
+import { BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const Success = () => {
   const pop = () => {
-    dangerouslyGetParent().pop();
+    getParent().pop();
   };
   const { colors } = useTheme();
-  const { dangerouslyGetParent } = useNavigation();
+  const { getParent } = useNavigation();
   const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
   const stylesHook = StyleSheet.create({
     root: {
@@ -43,7 +44,7 @@ const Success = () => {
         onDonePressed={onDonePressed}
       />
       <View style={styles.buttonContainer}>
-        <BlueButton onPress={onDonePressed} title={loc.send.success_done} />
+        <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
     </SafeAreaView>
   );

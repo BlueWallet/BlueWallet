@@ -16,7 +16,6 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
-  BlueButton,
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
@@ -33,11 +32,12 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc, { formatBalance } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
@@ -94,7 +94,7 @@ const ReceiveDetails = () => {
 
   useEffect(() => {
     if (showConfirmedBalance) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     }
   }, [showConfirmedBalance]);
 
@@ -124,7 +124,7 @@ const ReceiveDetails = () => {
             setInitialConfirmed(balance.confirmed);
             setInitialUnconfirmed(balance.unconfirmed);
             setIntervalMs(25000);
-            ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
           }
 
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(address2use);
@@ -280,7 +280,7 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -419,7 +419,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton
+              <Button
                 testID="CustomAmountSaveButton"
                 style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
 ReceiveDetails.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );

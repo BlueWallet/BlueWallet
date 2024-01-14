@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
+import { BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
+import SafeArea from '../../components/SafeArea';
 
 const Licensing = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +14,7 @@ const Licensing = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView>
         <BlueCard>
           <BlueText>MIT License</BlueText>
@@ -41,7 +42,7 @@ const Licensing = () => {
           </BlueText>
         </BlueCard>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

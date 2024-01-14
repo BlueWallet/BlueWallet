@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
@@ -9,13 +9,15 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const currency = require('../../blue_modules/currency');
 
 type LdkOpenChannelProps = RouteProp<
@@ -66,7 +68,7 @@ const LdkOpenChannel = (props: any) => {
     (async () => {
       if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
         // its 10 min actually, but lets check 5 min just for any case
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Channel opening expired. Please try again');
       }
 
@@ -92,7 +94,7 @@ const LdkOpenChannel = (props: any) => {
     }
     if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
       // its 10 min actually, but lets check 5 min just for any case
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       return alert('Channel opening expired. Please try again');
     }
@@ -101,14 +103,15 @@ const LdkOpenChannel = (props: any) => {
     const res = await ldkWallet.fundingStateStepFinalize(tx.toHex()); // comment this out to debug
     // const res = true; // debug
     if (!res) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       return alert('Something wend wrong during opening channel tx broadcast');
     }
     fetchAndSaveWalletTransactions(ldkWallet.getID());
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
     fetchAndSaveWalletTransactions(fundingWalletID);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    // @ts-ignore: Address types later
     navigate('Success', { amount: undefined });
     setIsLoading(false);
   };
@@ -118,14 +121,14 @@ const LdkOpenChannel = (props: any) => {
     try {
       const amountSatsNumber = new BigNumber(fundingAmount.amountSats).toNumber();
       if (!amountSatsNumber) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Amount is not valid');
       }
 
       const pubkey = remoteHostWithPubkey.split('@')[0];
       const host = remoteHostWithPubkey.split('@')[1];
       if (!pubkey || !host) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Remote node address is not valid');
       }
 
@@ -139,11 +142,12 @@ const LdkOpenChannel = (props: any) => {
         if (event) {
           reason += event.reason + ' ' + event.text;
         }
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return alert('Initiating channel open failed: ' + reason);
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
+      // @ts-ignore: Address types later
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
@@ -159,7 +163,7 @@ const LdkOpenChannel = (props: any) => {
         },
       });
     } catch (error: any) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       alert(error.message);
     } finally {
       setIsLoading(false);
@@ -168,6 +172,7 @@ const LdkOpenChannel = (props: any) => {
 
   const onBarScanned = (ret: { data?: any }) => {
     if (!ret.data) ret = { data: ret };
+    // @ts-ignore: Address types later
     setParams({ remoteHostWithPubkey: ret.data });
   };
 
@@ -193,7 +198,7 @@ const LdkOpenChannel = (props: any) => {
           <BlueText>{loc.lnd.are_you_sure_open_channel}</BlueText>
           <BlueSpacing20 />
           <View style={styles.horizontalButtons}>
-            <BlueButton onPress={finalizeOpenChannel} title={loc._.continue} />
+            <Button onPress={finalizeOpenChannel} title={loc._.continue} />
           </View>
         </View>
       );
@@ -252,7 +257,10 @@ const LdkOpenChannel = (props: any) => {
           address={remoteHostWithPubkey}
           isLoading={isLoading}
           inputAccessoryViewID={(BlueDismissKeyboardInputAccessory as any).InputAccessoryViewID}
-          onChangeText={text => setParams({ remoteHostWithPubkey: text })}
+          onChangeText={text =>
+            // @ts-ignore: Address types later
+            setParams({ remoteHostWithPubkey: text })
+          }
           onBarScanned={onBarScanned}
           launchedBy={name}
         />
@@ -261,20 +269,22 @@ const LdkOpenChannel = (props: any) => {
         <ArrowPicker
           onChange={newKey => {
             const nodes = LightningLdkWallet.getPredefinedNodes();
-            if (nodes[newKey]) setParams({ remoteHostWithPubkey: nodes[newKey] });
+            if (nodes[newKey])
+              // @ts-ignore: Address types later
+              setParams({ remoteHostWithPubkey: nodes[newKey] });
           }}
           items={LightningLdkWallet.getPredefinedNodes()}
           isItemUnknown={!Object.values(LightningLdkWallet.getPredefinedNodes()).some(node => node === remoteHostWithPubkey)}
         />
         <BlueSpacing20 />
         <View style={styles.horizontalButtons}>
-          <BlueButton onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
+          <Button onPress={openChannel} disabled={remoteHostWithPubkey.length === 0} title={loc.lnd.open_channel} />
         </View>
       </View>
     );
   };
 
-  return <SafeBlueArea styles={[styles.root, stylesHook.root]}>{render()}</SafeBlueArea>;
+  return <SafeArea style={[styles.root, stylesHook.root]}>{render()}</SafeArea>;
 };
 
 const styles = StyleSheet.create({
@@ -299,7 +309,7 @@ const styles = StyleSheet.create({
 LdkOpenChannel.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().pop(),
+    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
   },
   (options, { theme, navigation, route }) => {
     return {

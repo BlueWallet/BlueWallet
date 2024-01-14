@@ -14,7 +14,6 @@ const cStyles = StyleSheet.create({
   },
   rootAbsolute: {
     position: 'absolute',
-    bottom: 30,
   },
   rootInline: {},
   rootPre: {
@@ -36,6 +35,7 @@ interface FContainerProps {
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
+  const bottomInsets = { bottom: 38 };
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
@@ -53,7 +53,12 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     <View
       ref={ref}
       onLayout={onLayout}
-      style={[cStyles.root, props.inline ? cStyles.rootInline : cStyles.rootAbsolute, newWidth ? cStyles.rootPost : cStyles.rootPre]}
+      style={[
+        cStyles.root,
+        props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
+        bottomInsets,
+        newWidth ? cStyles.rootPost : cStyles.rootPre,
+      ]}
     >
       {newWidth
         ? React.Children.toArray(props.children)

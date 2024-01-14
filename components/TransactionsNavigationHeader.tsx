@@ -10,6 +10,7 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
+import { FiatUnit } from '../models/fiatUnit';
 
 interface TransactionsNavigationHeaderProps {
   wallet: AbstractWallet;
@@ -40,7 +41,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
 
-  const context = useContext(BlueStorageContext);
+  const { preferredFiatCurrency, saveToDisk } = useContext(BlueStorageContext);
   const menuRef = useRef(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
@@ -48,12 +49,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
-        .catch((e: any) => {
+        .catch((e: Error) => {
           console.log('This Lndhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
     }
   }, [wallet]);
+
+  useEffect(() => {
+    setWallet(initialWallet);
+  }, [initialWallet]);
 
   useEffect(() => {
     verifyIfWalletAllowsOnchainAddress();
@@ -81,7 +86,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
     const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
     setWallet(updatedWallet);
-    context.saveToDisk();
+    saveToDisk();
   };
 
   const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
@@ -155,13 +160,18 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         })()}
         style={styles.chainIcon}
       />
+
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel}>
         {wallet.getLabel()}
       </Text>
       <ToolTipMenu
         onPress={changeWalletBalanceUnit}
         ref={menuRef}
-        title={loc.wallets.balance}
+        title={`${loc.wallets.balance} (${
+          wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
+            ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
+            : wallet.getPreferredBalanceUnit()
+        })`}
         onPressMenuItem={onPressMenuItem}
         actions={
           wallet.hideBalance

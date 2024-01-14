@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
-import { SafeBlueArea, BlueLoading } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 
-const WalletsAddMultisigHelp = () => {
-  const [isLoading, setIsLoading] = useState(true);
+const WalletsAddMultisigHelp: React.FC = () => {
   const { colors } = useTheme();
 
   const stylesHook = StyleSheet.create({
@@ -32,56 +31,44 @@ const WalletsAddMultisigHelp = () => {
     },
   });
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
-    <SafeBlueArea style={stylesHook.root}>
+  return (
+    <SafeArea style={stylesHook.root}>
       <ScrollView>
         <View style={[styles.intro, stylesHook.intro]}>
           <Text style={[styles.introTitle, stylesHook.introTitle]}>{loc.multisig.ms_help_title}</Text>
           <Text style={[styles.introText, stylesHook.introText]}>{loc.multisig.ms_help_text}</Text>
           <Image style={styles.introImage} source={require('../../img/mshelp/mshelp-intro.png')} />
         </View>
-        <View style={[styles.tip, stylesHook.tip]}>
-          <Text style={[styles.introTip, stylesHook.introTip]} />
-        </View>
-        <View style={[styles.tips, stylesHook.tips]}>
+        <View style={styles.tips}>
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title1}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_1}</Text>
         </View>
-        <View style={[styles.tips, stylesHook.tips]}>
+        <View style={styles.tips}>
           <Image style={styles.imageTip} source={require('../../img/mshelp/tip2.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title2}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_2}</Text>
         </View>
-        <View style={[styles.tips, stylesHook.tips]}>
+        <View style={styles.tips}>
           <Image style={styles.imageTip} source={require('../../img/mshelp/tip3.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title3}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_3}</Text>
         </View>
-        <View style={[styles.tips, stylesHook.tips]}>
+        <View style={styles.tips}>
           <Image style={styles.imageTip} source={require('../../img/mshelp/tip4.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title4}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_4}</Text>
         </View>
-        <View style={[styles.tips, stylesHook.tips]}>
+        <View style={styles.tips}>
           <Image style={styles.imageTip} source={require('../../img/mshelp/tip5.png')} />
           <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title5}</Text>
           <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_5}</Text>
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   intro: {
     paddingHorizontal: 32,
     borderBottomWidth: 1,
@@ -120,20 +107,16 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisigHelp.navigationOptions = navigationStyle({
+export const WalletAddMultisigHelpNavigationOptions: NativeStackNavigationOptions = {
   title: '',
   gestureEnabled: false,
-  swipeEnabled: false,
   headerStyle: {
     backgroundColor: '#0070FF',
-    borderBottomWidth: 0,
-    borderBottomColor: '#0070FF',
-    elevation: 0,
-    shadowOffset: { height: 0, width: 0 },
   },
   headerTintColor: '#FFFFFF',
   headerBackTitleVisible: false,
   statusBarStyle: 'light',
-});
+  headerShadowVisible: false,
+};
 
 export default WalletsAddMultisigHelp;

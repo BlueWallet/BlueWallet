@@ -2,9 +2,9 @@
 
 buildscript {
     ext {
-        minSdkVersion = 28
+        minSdkVersion = 24
         supportLibVersion = "28.0.0"
-        buildToolsVersion = "33.0.0"
+        buildToolsVersion = "34.0.0"
         compileSdkVersion = 33
         targetSdkVersion = 33
         googlePlayServicesVersion = "16.+"
@@ -14,9 +14,8 @@ buildscript {
 
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"
-        kotlin_version = '1.9.20'
-        kotlinVersion = '1.8.0'
-
+        kotlin_version = '1.9.22'
+        kotlinVersion = '1.9.20'
     }
     repositories {
         google()
@@ -39,18 +38,6 @@ allprojects {
         }
         jcenter() {
             content {
-                includeModule("com.facebook.yoga", "proguard-annotations")
-                includeModule("com.facebook.fbjni", "fbjni-java-only")
-                includeModule("com.facebook.fresco", "fresco")
-                includeModule("com.facebook.fresco", "stetho")
-                includeModule("com.facebook.fresco", "fbcore")
-                includeModule("com.facebook.fresco", "drawee")
-                includeModule("com.facebook.fresco", "imagepipeline")
-                includeModule("com.facebook.fresco", "imagepipeline-native")
-                includeModule("com.facebook.fresco", "memory-type-native")
-                includeModule("com.facebook.fresco", "memory-type-java")
-                includeModule("com.facebook.fresco", "nativeimagefilters")
-                includeModule("com.facebook.stetho", "stetho")
                 includeModule("com.wei.android.lib", "fingerprintidentify")
             }
         }
@@ -79,10 +66,10 @@ subprojects {
     afterEvaluate {project ->
         if (project.hasProperty("android")) {
             android {
-                buildToolsVersion '30.0.3'
-                compileSdkVersion 31
+                buildToolsVersion "34.0.0"
+                compileSdkVersion 33
                  defaultConfig {
-                    minSdkVersion 28
+                    minSdkVersion 24
                 }
             }
         }

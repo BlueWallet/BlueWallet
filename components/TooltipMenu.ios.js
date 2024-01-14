@@ -67,6 +67,32 @@ const ToolTipMenu = (props, ref) => {
         props.children
       )}
     </ContextMenuButton>
+  ) : props.onPress ? (
+    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
+      <ContextMenuView
+        ref={ref}
+        internalCleanupMode="viewController"
+        onPressMenuItem={({ nativeEvent }) => {
+          props.onPressMenuItem(nativeEvent.actionKey);
+        }}
+        useActionSheetFallback={false}
+        menuConfig={{
+          menuTitle,
+          menuItems,
+        }}
+        {...(previewQRCode
+          ? {
+              previewConfig: {
+                previewType: 'CUSTOM',
+                backgroundColor: 'white',
+              },
+              renderPreview: () => <QRCodeComponent value={previewValue} isMenuAvailable={false} />,
+            }
+          : {})}
+      >
+        {props.children}
+      </ContextMenuView>
+    </TouchableOpacity>
   ) : (
     <ContextMenuView
       ref={ref}
@@ -74,6 +100,7 @@ const ToolTipMenu = (props, ref) => {
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
+      useActionSheetFallback={false}
       menuConfig={{
         menuTitle,
         menuItems,
@@ -88,13 +115,7 @@ const ToolTipMenu = (props, ref) => {
           }
         : {})}
     >
-      {props.onPress ? (
-        <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
-          {props.children}
-        </TouchableOpacity>
-      ) : (
-        props.children
-      )}
+      {props.children}
     </ContextMenuView>
   );
 };

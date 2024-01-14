@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueButton, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
@@ -14,6 +14,8 @@ import selectWallet from '../../helpers/select-wallet';
 import URL from 'url';
 import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -86,7 +88,7 @@ const LnurlAuth = () => {
   );
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       {authState === AuthState.USER_PROMPT && (
         <>
           <ScrollView>
@@ -95,7 +97,7 @@ const LnurlAuth = () => {
               <BlueText style={styles.domainName}>{parsedLnurl.hostname}</BlueText>
               <BlueText style={styles.alignSelfCenter}>{loc.lnurl_auth[`${parsedLnurl.query.action || 'auth'}_question_part_2`]}</BlueText>
               <BlueSpacing40 />
-              <BlueButton title={loc.lnurl_auth.authenticate} onPress={authenticate} />
+              <Button title={loc.lnurl_auth.authenticate} onPress={authenticate} />
               <BlueSpacing40 />
             </BlueCard>
           </ScrollView>
@@ -124,7 +126,7 @@ const LnurlAuth = () => {
           <BlueSpacing20 />
         </BlueCard>
       )}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -174,5 +176,5 @@ const styles = StyleSheet.create({
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

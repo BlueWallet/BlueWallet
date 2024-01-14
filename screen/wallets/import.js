@@ -1,16 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-
 import {
-  BlueButton,
   BlueButtonLink,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueFormLabel,
   BlueFormMultiInput,
   BlueSpacing20,
   BlueText,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
@@ -18,6 +15,8 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -133,7 +132,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton
+          <Button
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
             testID="DoImport"
@@ -147,7 +146,7 @@ const WalletsImport = () => {
   );
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -187,7 +186,7 @@ const WalletsImport = () => {
           />
         ),
       })}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

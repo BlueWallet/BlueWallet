@@ -2,13 +2,14 @@ import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { SafeBlueArea, BlueButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -35,7 +36,7 @@ const PleaseBackup: React.FC = () => {
 
   const handleBackButton = useCallback(() => {
     // @ts-ignore: Ignore
-    navigation.dangerouslyGetParent()?.pop();
+    navigation.getParent()?.pop();
     return true;
   }, [navigation]);
 
@@ -71,7 +72,7 @@ const PleaseBackup: React.FC = () => {
   };
 
   return (
-    <SafeBlueArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
+    <SafeArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
       {isLoading ? (
         <ActivityIndicator />
       ) : (
@@ -83,11 +84,11 @@ const PleaseBackup: React.FC = () => {
             <View style={styles.secret}>{renderSecret()}</View>
           </View>
           <View style={styles.bottom}>
-            <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
+            <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
           </View>
         </ScrollView>
       )}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -96,7 +97,7 @@ PleaseBackup.navigationOptions = navigationStyle(
   {
     gestureEnabled: false,
     swipeEnabled: false,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
   opts => ({ ...opts, title: loc.pleasebackup.title }),
 );
