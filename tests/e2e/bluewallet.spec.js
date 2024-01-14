@@ -474,6 +474,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of urs) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -525,6 +526,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of ursSignedByPassport) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -545,6 +547,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of urSignedByPassportAndKeystone) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }

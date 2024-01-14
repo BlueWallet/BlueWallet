@@ -36,6 +36,7 @@ const Settings = () => {
 
 export default Settings;
 Settings.navigationOptions = navigationStyle({
+  headerTransparent: true,
   headerTitle: Platform.select({ ios: loc.settings.header, default: '' }),
   headerLargeTitle: true,
 });
