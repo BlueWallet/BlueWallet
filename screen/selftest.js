@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ScrollView, View, StyleSheet, Linking, Platform } from 'react-native';
+import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
@@ -19,6 +19,7 @@ import {
 import ecc from '../blue_modules/noble_ecc';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
+import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -42,6 +43,20 @@ export default class Selftest extends Component {
 
   onPressSaveToStorage = () => {
     fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success');
+  };
+
+  onPressImportDocument = async () => {
+    try {
+      fs.showFilePickerAndReadFile().then(file => {
+        if (file && file.data && file.data.length > 0) {
+          alert(file.data);
+        } else {
+          alert('Error reading file');
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   async componentDidMount() {
@@ -300,12 +315,10 @@ export default class Selftest extends Component {
                 );
               }
             })()}
-            {Platform.OS === 'android' && (
-              <>
-                <BlueSpacing20 />
-                <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
-              </>
-            )}
+            <BlueSpacing20 />
+            <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+            <BlueSpacing20 />
+            <Button title="Test Save to File Import" onPress={this.onPressImportDocument} />
           </ScrollView>
         </BlueCard>
       </SafeArea>

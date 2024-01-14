@@ -282,7 +282,12 @@ const ScanLndInvoiceRoot = () => {
 
   return (
     <ScanLndInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
+      <ScanLndInvoiceStack.Screen
+        name="ScanLndInvoice"
+        component={ScanLndInvoice}
+        options={ScanLndInvoice.navigationOptions(theme)}
+        initialParams={ScanLndInvoice.initialParams}
+      />
       <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
@@ -322,7 +327,11 @@ const AztecoRedeemRoot = () => {
 
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator initialRouteName='ScanQRCode' name="ScanQRCodeRoot" screenOptions={{ headerShown: false, presentation: 'fullScreenModal' }}>
+  <ScanQRCodeStack.Navigator
+    initialRouteName="ScanQRCode"
+    name="ScanQRCodeRoot"
+    screenOptions={{ headerShown: false, presentation: 'fullScreenModal' }}
+  >
     <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} initialParams={ScanQRCode.initialParams} />
   </ScanQRCodeStack.Navigator>
 );
