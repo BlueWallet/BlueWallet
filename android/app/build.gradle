@@ -92,6 +92,7 @@ android {
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
+    namespace 'io.bluewallet.bluewallet'
 }
 
 dependencies {
