@@ -108,12 +108,6 @@ export default class ElectrumSettings extends Component {
     }
   }
 
-  switchProps = {
-    onValueChange: this.onElectrumConnectionEnabledSwitchValueChanged,
-    value: this.state.isOfflineMode,
-    testID: 'ElectrumConnectionEnabledSwitch',
-  };
-
   checkServer = async () => {
     this.setState({ isLoading: true }, async () => {
       const features = await BlueElectrum.serverFeatures();
@@ -428,7 +422,15 @@ export default class ElectrumSettings extends Component {
   render() {
     return (
       <ScrollView keyboardShouldPersistTaps="always" automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-        <ListItem Component={Pressable} title={loc.settings.electrum_offline_mode} switch={this.switchProps} />
+        <ListItem
+          Component={Pressable}
+          title={loc.settings.electrum_offline_mode}
+          switch={{
+            onValueChange: this.onElectrumConnectionEnabledSwitchValueChanged,
+            value: this.state.isOfflineMode,
+            testID: 'ElectrumConnectionEnabledSwitch',
+          }}
+        />
         <BlueCard>
           <BlueText>{loc.settings.electrum_offline_description}</BlueText>
         </BlueCard>
