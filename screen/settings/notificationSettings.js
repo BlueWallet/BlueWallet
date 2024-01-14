@@ -96,7 +96,7 @@ const NotificationSettings = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <ScrollView style={stylesWithThemeHook.scroll}>
+    <ScrollView style={stylesWithThemeHook.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <ListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}

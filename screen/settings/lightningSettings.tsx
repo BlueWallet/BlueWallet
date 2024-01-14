@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
+import { View, TextInput, Linking, StyleSheet, Alert, I18nManager, ScrollView } from 'react-native';
 import { Button as ButtonRNElements } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +12,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import alert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
@@ -131,7 +130,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   };
 
   return (
-    <SafeArea>
+    <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <BlueCard>
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
@@ -172,7 +171,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueSpacing20 />
         {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
       </BlueCard>
-    </SafeArea>
+    </ScrollView>
   );
 };
 

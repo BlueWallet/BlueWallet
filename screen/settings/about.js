@@ -125,7 +125,7 @@ const About = () => {
   };
 
   return (
-    <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic">
+    <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <BlueCard>
         <View style={styles.center}>
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />

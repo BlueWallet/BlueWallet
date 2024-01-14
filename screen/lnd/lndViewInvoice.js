@@ -61,7 +61,6 @@ const LNDViewInvoice = () => {
         ? {
             headerStyle: {
               backgroundColor: colors.customHeader,
-           
             },
             gestureEnabled: false,
             headerBackVisible: false,
