@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { I18nManager, ActivityIndicator, TouchableOpacity, Switch, StyleSheet, Pressable, PressableProps } from 'react-native';
 import { ListItem as RNElementsListItem, Avatar } from 'react-native-elements'; // Replace with actual import paths
 import { useTheme } from './themes';
@@ -61,6 +61,10 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
     },
   });
 
+  const memoizedSwitchProps = useMemo(() => {
+    return props.switch ? { ...props.switch } : undefined;
+  }, [props.switch]);
+
   return (
     <RNElementsListItem
       containerStyle={props.containerStyle ?? stylesHook.containerStyle}
@@ -102,7 +106,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
         <>
           {props.chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
           {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
+          {props.switch && <Switch {...memoizedSwitchProps} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
           {props.checkmark && <RNElementsListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
         </>
       )}
