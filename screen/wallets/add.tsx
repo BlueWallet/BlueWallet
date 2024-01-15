@@ -12,7 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText, LightningButton, BitcoinButton, BorderWalletButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
+import { BlueText, LightningButton, BitcoinButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import {
   HDSegwitBech32Wallet,
@@ -40,7 +40,6 @@ const A = require('../../blue_modules/analytics');
 enum ButtonSelected {
   // @ts-ignore: Return later to update
   ONCHAIN = Chain.ONCHAIN,
-  BORDER = 'BORDER',
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
@@ -261,17 +260,6 @@ const WalletsAdd: React.FC = () => {
           goBack();
         }
       }
-    } else if (selectedWalletType === ButtonSelected.BORDER) {
-      setIsLoading(false);
-      let giveSeed;
-      if (entropy) {
-        const random = await randomBytes(entropy.length < 32 ? 32 - entropy.length : 0);
-        const buf = Buffer.concat([entropy, random], 32);
-        giveSeed = bip39.entropyToMnemonic(buf.toString('hex'));
-      } else {
-        giveSeed = bip39.entropyToMnemonic((await randomBytes(16)).toString('hex'));
-      }
-      navigate('WalletsAddBorder', { walletLabel: label.trim().length > 0 ? label : loc.wallets.details_title, seedPhrase: giveSeed });
     } else if (selectedWalletType === ButtonSelected.VAULT) {
       setIsLoading(false);
       // @ts-ignore: Return later to update
@@ -365,11 +353,6 @@ const WalletsAdd: React.FC = () => {
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
-  const handleOnBorderButtonPressed = () => {
-    Keyboard.dismiss();
-    setSelectedWalletType(ButtonSelected.BORDER);
-  };
-
   const handleOnLightningButtonPressed = () => {
     // @ts-ignore: Return later to update
     setBackdoorPressed((prevState: number) => {
@@ -407,11 +390,6 @@ const WalletsAdd: React.FC = () => {
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
-            style={styles.button}
-          />
-          <BorderWalletButton
-            active={selectedWalletType === ButtonSelected.BORDER}
-            onPress={handleOnBorderButtonPressed}
             style={styles.button}
           />
           <LightningButton

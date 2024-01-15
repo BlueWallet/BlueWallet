@@ -49,6 +49,7 @@ import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
 import GenerateWord from './screen/wallets/generateWord';
+import BorderWallets from './screen/wallets/borderWallets';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -150,6 +151,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions(theme)} />
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
       <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
+      <WalletsStack.Screen name="BorderWallets" component={BorderWallets} options={BorderWallets.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />

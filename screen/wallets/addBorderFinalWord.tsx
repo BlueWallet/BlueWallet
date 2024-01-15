@@ -6,7 +6,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import Biometric from '../../class/biometrics';
 
-import { BlueButton, BlueSpacing20, BlueText, BlueAutocomplete } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import Button from '../../components/Button';
+import Autocomplete from '../../components/Autocomplete';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
@@ -36,7 +38,7 @@ class ContinueFooter extends React.Component<ContinueFooterProps, ContinueFooter
 
   render() {
     return (
-      <BlueButton
+      <Button
         onPress={(this.props as ContinueFooterProps).onContinue}
         title={(this.props as ContinueFooterProps).importing ? loc.border.import : loc.border.create}
         disabled={(this.state as ContinueFooterState).disable}
@@ -137,7 +139,7 @@ const WalletsAddBorderFinalWord = () => {
           <Text style={[styles.textdescBold, stylesHook.textdesc]}>{' ' + seedPhrase.join(' ')}</Text>
         </Text>
         <BlueSpacing20 />
-        <BlueAutocomplete
+        <Autocomplete
           value=""
           style={[]}
           containerStyle={styles.flex}

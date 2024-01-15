@@ -5,13 +5,13 @@ import { useTheme } from '../../components/themes';
 
 import { getShuffledEntropyWords } from '../../class/borderwallet-entropy-grid';
 
-import { BlueButton, SafeBlueArea } from '../../BlueComponents';
+import { SafeBlueArea } from '../../BlueComponents';
+import Button from '../../components/Button';
 import Privacy from '../../blue_modules/Privacy';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import alert from '../../components/Alert';
 
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 
 const WalletsAddBorderSaveGrid = () => {
@@ -80,7 +80,7 @@ const WalletsAddBorderSaveGrid = () => {
     return component;
   };
 
-  // This avoids having to import any other libraries for PDF exports. You win some, you lose some.
+  // This avoids having to import any new PDF libraries.
   const handleShare = async () => {
     let html = `<style>header{width:100%;height:20px;counter-increment:page;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.pgn::before{content:counter(page)}footer{margin-top:6px;width:100%;height:20px;text-align:center;font-family:Arial,Sans-Serif;font-size:10pt}.s1{font-weight:800;color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.s2{color:#505050;font-family:Arial,sans-serif;font-style:normal;text-decoration:none;font-size:7pt;text-indent:0;line-height:8.5pt;text-align:center}.tdnormal{width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}.tdheader{background-color:#dbdbdb;width:33pt;border-top-style:solid;border-top-width:1pt;border-top-color:#c6c6c6;border-left-style:solid;border-left-width:1pt;border-left-color:#c6c6c6;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#c6c6c6;border-right-style:solid;border-right-width:1pt;border-right-color:#c6c6c6}tr{height:9pt}</style>`;
 
@@ -112,18 +112,11 @@ const WalletsAddBorderSaveGrid = () => {
     }
 
     try {
-      const options = {
-        html,
-        base64: true,
-      };
-
-      const file = await RNHTMLtoPDF.convert(options);
-
       const shareOptions = {
         title: loc.border.save_file,
         failOnCancel: false,
         saveToFiles: true,
-        urls: ['data:application/pdf;base64,' + file.base64],
+        urls: ['data:text/HTML;base64,' + Buffer.from(html).toString('base64')],
         filenames: ['BorderWalletEntropyGrid'],
       };
 
@@ -147,10 +140,10 @@ const WalletsAddBorderSaveGrid = () => {
           <View style={styles.secret}>{renderSecret()}</View>
         </View>
         <View style={styles.bottom}>
-          <BlueButton onPress={handleShare} title={loc.border.backup_pdf} />
+          <Button onPress={handleShare} title={loc.border.backup_pdf} />
         </View>
         <View style={styles.bottom}>
-          <BlueButton onPress={handleBackButton} title={loc.pleasebackup.ok} />
+          <Button onPress={handleBackButton} title={loc.pleasebackup.ok} />
         </View>
       </ScrollView>
     </SafeBlueArea>

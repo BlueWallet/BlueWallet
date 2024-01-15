@@ -20,12 +20,17 @@ const NetworkSettings = () => {
   const navigateToGenerateWord = () => {
     navigate('GenerateWord');
   };
+  
+  const navigateToBorderWallets = () => {
+    navigate('BorderWallets');
+  };
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <ListItem title={loc.is_it_my_address.title} onPress={navigateToIsItMyAddress} testID="IsItMyAddress" chevron />
       <ListItem title={loc.settings.network_broadcast} onPress={navigateToBroadcast} testID="Broadcast" chevron />
       <ListItem title={loc.autofill_word.title} onPress={navigateToGenerateWord} testID="GenerateWord" chevron />
+      <ListItem title={loc.border.border_wallet} onPress={navigateToBorderWallets} testID="BorderWallets" chevron />
     </ScrollView>
   );
 };

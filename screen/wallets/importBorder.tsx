@@ -4,7 +4,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 
 import loc from '../../loc';
-import { BlueButton, BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import Button from '../../components/Button';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 
@@ -91,7 +92,7 @@ const ImportBorder = () => {
       <BlueFormMultiInput value={importText} onChangeText={setImportText} />
       <BlueSpacing20 />
       <View style={styles.center}>
-        {loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importMnemonic} />}
+        {loading ? <ActivityIndicator /> : <Button title={loc.border.import} onPress={importMnemonic} />}
       </View>
       <BlueSpacing20 />
       <BlueFormLabel>{loc.border.or}</BlueFormLabel>
@@ -99,7 +100,7 @@ const ImportBorder = () => {
       <BlueFormLabel>{loc.border.from_pdf}</BlueFormLabel>
       <BlueFormMultiInput value={import2Text} onChangeText={setImport2Text} />
       <BlueSpacing20 />
-      <View style={styles.center}>{loading ? <ActivityIndicator /> : <BlueButton title={loc.border.import} onPress={importPDF} />}</View>
+      <View style={styles.center}>{loading ? <ActivityIndicator /> : <Button title={loc.border.import} onPress={importPDF} />}</View>
       <BlueSpacing20 />
     </SafeBlueArea>
   );

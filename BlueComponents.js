@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, forwardRef, useState } from 'react';
+import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Icon, Text, Header } from 'react-native-elements';
 import {
@@ -19,7 +19,6 @@ import {
   View,
   I18nManager,
   ImageBackground,
-  ScrollView,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
@@ -36,102 +35,6 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
-
-export const BlueAutocomplete = ({
-  value: origValue,
-  data,
-  containerStyle,
-  placeholder,
-  onChange: origOnChange,
-  style = {},
-  menuStyle = {},
-}) => {
-  const [value, setValue] = useState(origValue);
-  const [menuVisible, setMenuVisible] = useState(true);
-  const [filteredData, setFilteredData] = useState([...data.sort()]);
-
-  const filterData = text => {
-    return data.filter(val => (text != null && text.length > 0 ? val?.toLowerCase()?.indexOf(text?.toLowerCase()) > -1 : true)).sort();
-  };
-
-  return (
-    <View style={containerStyle}>
-      <TextInput
-        // onBlur={() => setMenuVisible(false)}
-        style={[style, { textAlign: 'center', fontSize: 35 }]}
-        onChangeText={text => {
-          origOnChange(text);
-          if (text != null) {
-            setFilteredData(filterData(text));
-          }
-          setMenuVisible(true);
-          setValue(text);
-        }}
-        value={value}
-        placeholder={placeholder}
-      />
-      {menuVisible && filteredData.length > 0 ? (
-        <ScrollView
-          style={{
-            flex: 1,
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          {filteredData.map((datum, i) => (
-            <TouchableOpacity
-              key={i}
-              onPress={() => {
-                setValue(datum);
-                setMenuVisible(false);
-                origOnChange(datum);
-              }}
-              style={{ width: '100%' }}
-            >
-              <BlueText>{datum}</BlueText>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      ) : null}
-    </View>
-  );
-};
-
-export const BlueButton = props => {
-  const { colors } = useTheme();
-
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
-  let fontColor = props.buttonTextColor || colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  return (
-    <TouchableOpacity
-      style={{
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        flexGrow: 1,
-      }}
-      accessibilityRole="button"
-      {...props}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor, fontWeight: '500' }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 export const SecondButton = forwardRef((props, ref) => {
   const { colors } = useTheme();
@@ -203,55 +106,6 @@ export const BitcoinButton = props => {
               }}
             >
               {loc.wallets.add_bitcoin_explain}
-            </Text>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-export const BorderWalletButton = props => {
-  const { colors } = useTheme();
-  return (
-    <TouchableOpacity accessibilityRole="button" testID={props.testID} onPress={props.onPress}>
-      <View
-        style={{
-          borderColor: (props.active && colors.foregroundColor) || colors.buttonDisabledBackgroundColor,
-          borderWidth: 1.5,
-          borderRadius: 8,
-          backgroundColor: colors.buttonDisabledBackgroundColor,
-          minWidth: props.style.width,
-          minHeight: props.style.height,
-          height: props.style.height,
-          flex: 1,
-          marginBottom: 8,
-        }}
-      >
-        <View style={{ marginHorizontal: 16, marginVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <View>
-            <Image style={{ width: 34, height: 34, marginRight: 8 }} source={require('./img/addWallet/border.png')} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                color: colors.foregroundColor,
-                fontWeight: 'bold',
-                fontSize: 18,
-                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-              }}
-            >
-              {loc.border.border_wallet}
-            </Text>
-            <Text
-              style={{
-                color: colors.alternativeTextColor,
-                fontSize: 13,
-                fontWeight: '500',
-                writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-              }}
-            >
-              {loc.border.border_wallet_explain}
             </Text>
           </View>
         </View>
