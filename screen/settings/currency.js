@@ -1,5 +1,5 @@
 import React, { useState, useContext, useLayoutEffect } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
@@ -11,7 +11,6 @@ import dayjs from 'dayjs';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
-import SafeArea from '../../components/SafeArea';
 dayjs.extend(require('dayjs/plugin/calendar'));
 const currency = require('../../blue_modules/currency');
 
@@ -56,9 +55,10 @@ const Currency = () => {
   }, [setOptions]);
 
   return (
-    <SafeArea>
+    <View style={styles.flex}>
       <FlatList
-        style={styles.flex}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
         keyExtractor={(_item, index) => `${index}`}
         data={data}
         initialNumToRender={50}
@@ -102,7 +102,7 @@ const Currency = () => {
           {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
         </BlueText>
       </BlueCard>
-    </SafeArea>
+    </View>
   );
 };
 

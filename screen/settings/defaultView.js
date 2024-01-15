@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
@@ -8,7 +8,6 @@ import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ListItem from '../../components/ListItem';
-import SafeArea from '../../components/SafeArea';
 
 const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
@@ -54,7 +53,7 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeArea>
+    <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <View>
         <ListItem
           title={loc.settings.default_wallets}
@@ -72,7 +71,7 @@ const DefaultView = () => {
           <ListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
-    </SafeArea>
+    </ScrollView>
   );
 };
 

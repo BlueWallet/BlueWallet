@@ -146,9 +146,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  blueArea: {
-    paddingTop: 19,
-  },
   mainCard: {
     padding: 0,
     display: 'flex',
