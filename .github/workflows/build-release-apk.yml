@@ -36,14 +36,18 @@ jobs:
 
       - name: Determine Marketing Version
         run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION android/app/build.gradle | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
-          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
-
+          PROJECT_VERSION=$(grep versionName android/app/build.gradle | awk -F '"|"' '{print $2}')
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+      
       - name: Generate Build Number based on timestamp
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-
+      
+      - name: Echo Expected APK Filename
+        run: |
+          echo "Expected APK filename: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).apk"
+      
       - name: Build
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
