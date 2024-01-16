@@ -10,7 +10,7 @@ import alert from '../components/Alert';
 import { readFile } from './react-native-bw-file-access';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-const writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
+const _writeFileAndExportToAndroidDestionation = async ({ filename, contents, destinationLocalizedString, destination }) => {
   const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
     title: loc.send.permission_storage_title,
     message: loc.send.permission_storage_message,
@@ -18,11 +18,24 @@ const writeFileAndExportToAndroidDestionation = async ({ filename, contents, des
     buttonNegative: loc._.cancel,
     buttonPositive: loc._.ok,
   });
+
+  // In Android 13 no WRITE_EXTERNAL_STORAGE permission is needed
+  // @see https://stackoverflow.com/questions/76311685/permissionandroid-request-always-returns-never-ask-again-without-any-prompt-r
   if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
     const filePath = destination + `/${filename}`;
     try {
       await RNFS.writeFile(filePath, contents);
-      alert(loc.formatString(loc._.file_saved, { filePath: filename, destination: destinationLocalizedString }));
+      console.log(`file saved to ${filePath}`);
+      await Share.open({
+        url: 'file://' + filePath,
+        saveToFiles: isDesktop,
+      })
+        .catch(error => {
+          console.log(error);
+        })
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
     } catch (e) {
       console.log(e);
       alert(e.message);
@@ -57,11 +70,11 @@ const writeFileAndExport = async function (filename, contents) {
         RNFS.unlink(filePath);
       });
   } else if (Platform.OS === 'android') {
-    await writeFileAndExportToAndroidDestionation({
+    await _writeFileAndExportToAndroidDestionation({
       filename,
       contents,
       destinationLocalizedString: loc._.downloads_folder,
-      destination: RNFS.DownloadDirectoryPath,
+      destination: RNFS.DocumentDirectoryPath,
     });
   }
 };
