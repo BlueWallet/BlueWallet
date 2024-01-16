@@ -117,7 +117,7 @@ const showImagePickerAndReadImage = () => {
       },
       response => {
         if (!response.didCancel) {
-          const asset = response?.assets?.[0] ?? {};
+          const asset = response.assets?.[0] ?? {};
           if (asset.uri) {
             const uri = asset.uri.toString().replace('file://', '');
             LocalQRCode.decode(uri, (error: any, result: string) => {
@@ -165,7 +165,7 @@ const showFilePickerAndReadFile = async function (): Promise<{ data: string | fa
       return { data: file, uri: decodeURI(res.fileCopyUri) };
     }
 
-    if (res?.type === DocumentPicker.types.images || res?.type?.startsWith('image/')) {
+    if (res.type === DocumentPicker.types.images || res.type?.startsWith('image/')) {
       return new Promise(resolve => {
         if (!res.fileCopyUri) {
           // to make ts happy, should not need this check here
