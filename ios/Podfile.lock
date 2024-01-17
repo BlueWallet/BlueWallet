@@ -417,7 +417,7 @@ PODS:
     - React
   - RNKeychain (8.1.2):
     - React-Core
-  - RNLocalize (3.0.5):
+  - RNLocalize (3.0.6):
     - React-Core
   - RNPermissions (4.0.4):
     - React-Core
@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   ReactCommon: 309d965cb51f058d07dea65bc04dcf462911f0a4
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: 5af7e3b3c1b6de6a1f9bd62bfbf4caca749fa708
-  rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
+  rn-ldk: 2c81bff57f20651e16edfd268980be929863984d
   RNCAsyncStorage: 618d03a5f52fbccb3d7010076bc54712844c18ef
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
@@ -757,7 +757,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: fe2be3be5598dc74329b211c58c9f2d231461769
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
-  RNLocalize: a725877f311db45acc6bff2382b3283e744a3945
+  RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
   RNPermissions: bc59bd0099c63ee70ecce43a4f455854234e3459
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
@@ -771,6 +771,6 @@ SPEC CHECKSUMS:
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   Yoga: 68c9c592c3e80ec37ff28db20eedb13d84aae5df
 
-PODFILE CHECKSUM: 93047fd8d8ff3885335cbd0ea5a811e51cbc3efc
+PODFILE CHECKSUM: 5b0d0c4af9071831eee00b06722ccb155b638ac5
 
 COCOAPODS: 1.14.3
