@@ -127,7 +127,7 @@
   [builder removeMenuForIdentifier:UIMenuFormat];
   [builder removeMenuForIdentifier:UIMenuToolbar];
   
-  // Add Wallet action with Command + A shortcut
+  // File -> Add Wallet (Command + A)
    UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
    [addWalletCommand setTitle:@"Add Wallet"];
    UIMenu *addWalletMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand]];
@@ -140,11 +140,13 @@
        UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[addWalletMenu]];
        [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
    }
-    // Existing settings menu
-    UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
-    [settingsCommand setTitle:@"Settings..."];
-    UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
-    [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
+  
+  // BlueWallet -> Settings (Command + ,)
+  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
+  [settingsCommand setTitle:@"Settings..."];
+  UIMenu *settings = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
+  
+  [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
 
 // Action for Add Wallet
