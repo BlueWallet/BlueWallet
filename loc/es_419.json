@@ -16,8 +16,6 @@
     "success": "Éxito",
     "wallet_key": "Clave de la billetera",
     "invalid_animated_qr_code_fragment": "Fragmento de código QR animado no válido. Inténtalo de nuevo.",
-    "file_saved": "El archivo {filePath} se ha guardado en tu {destination}.",
-    "downloads_folder": "Carpeta de descargas",
     "close": "Cerrar",
     "change_input_currency": "Cambiar moneda de entrada",
     "refresh": "Actualizar",
