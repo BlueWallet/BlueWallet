@@ -85,7 +85,7 @@
 		B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		E5D4794B26781FC0007838C1 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnits.json */; };
 		E5D4794C26781FC1007838C1 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 6DD410AD266CAF1F0087DE03 /* fiatUnits.json */; };
 /* End PBXBuildFile section */
@@ -358,7 +358,7 @@
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
 		B47B21E92B2128B8001F6690 /* BlueWalletUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlueWalletUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
-		B4A29A452B55C990002A67DF /* BlueWallet-NoLDK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BlueWallet-NoLDK.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4A29A452B55C990002A67DF /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "BlueWallet-NoLDK.plist"; path = "/Users/marcosrodriguez/Documents/GitHub/BlueWallet/ios/BlueWallet-NoLDK.plist"; sourceTree = "<absolute>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
@@ -387,7 +387,7 @@
 			files = (
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
 				773E382FE62E836172AAB98B /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -470,6 +470,7 @@
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
+				B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				32B5A3292334450100F8D608 /* Bridge.swift */,
 				32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */,
@@ -636,7 +637,6 @@
 				B40FE50A21FAD228005D5578 /* Recovered References */,
 				4B0CACE36C3348E1BCEA92C8 /* Resources */,
 				FAA856B639C61E61D2CF90A8 /* Pods */,
-				B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -652,7 +652,7 @@
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 				B47B21E92B2128B8001F6690 /* BlueWalletUITests.xctest */,
-				B4A29A452B55C990002A67DF /* BlueWallet-NoLDK.app */,
+				B4A29A452B55C990002A67DF /* BlueWallet.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -902,7 +902,7 @@
 			);
 			name = "BlueWallet-NoLDK";
 			productName = "Hello World";
-			productReference = B4A29A452B55C990002A67DF /* BlueWallet-NoLDK.app */;
+			productReference = B4A29A452B55C990002A67DF /* BlueWallet.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -981,7 +981,7 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */,
+				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -2219,7 +2219,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1703112610;
+				CURRENT_PROJECT_VERSION = 1703112611;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
@@ -2231,7 +2231,6 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "BlueWallet-NoLDK.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = BlueWallet;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2251,7 +2250,7 @@
 				);
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BlueWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -2273,14 +2272,13 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWalletRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1703112610;
+				CURRENT_PROJECT_VERSION = 1703112611;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "BlueWallet-NoLDK.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = BlueWallet;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2300,7 +2298,7 @@
 				);
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = BlueWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
@@ -2390,7 +2388,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */ = {
+		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
 			requirement = {
@@ -2403,7 +2401,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		6DFC806F24EA0B6C007B8700 /* EFQRCode */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */;
+			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */;
 			productName = EFQRCode;
 		};
 /* End XCSwiftPackageProductDependency section */
