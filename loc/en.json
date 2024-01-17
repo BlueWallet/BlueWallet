@@ -16,8 +16,6 @@
     "success": "Success",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment": "Invalid animated QR Code fragment. Please try again.",
-    "file_saved": "File {filePath} has been saved in your {destination}.",
-    "downloads_folder": "Downloads Folder",
     "close": "Close",
     "change_input_currency": "Change input currency",
     "refresh": "Refresh",

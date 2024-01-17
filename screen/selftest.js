@@ -42,7 +42,7 @@ export default class Selftest extends Component {
   }
 
   onPressSaveToStorage = () => {
-    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success');
+    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success on ' + new Date().toUTCString());
   };
 
   onPressImportDocument = async () => {
@@ -318,7 +318,7 @@ export default class Selftest extends Component {
             <BlueSpacing20 />
             <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
             <BlueSpacing20 />
-            <Button title="Test Save to File Import" onPress={this.onPressImportDocument} />
+            <Button title="Test File Import" onPress={this.onPressImportDocument} />
           </ScrollView>
         </BlueCard>
       </SafeArea>
