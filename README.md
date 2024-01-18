@@ -80,7 +80,6 @@ npx react-native run-ios
 * To run on macOS using Mac Catalyst:
 
 ```
-npm i
 npx pod-install
 ```
 
