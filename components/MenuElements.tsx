@@ -4,15 +4,21 @@ import * as NavigationService from '../NavigationService';
 import { CommonActions } from '@react-navigation/native';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
-const eventEmitter = Platform.OS === 'ios' || Platform.OS === 'macos' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
+/* 
+Component for iPadOS and macOS menu items with keyboard shortcuts. 
+EventEmitter on the native side should receive a payload and rebuild menus.
+*/
 
+const eventEmitter = Platform.OS === 'ios' || Platform.OS === 'macos' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const MenuElements = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
 
+  // BlueWallet -> Settings
   const openSettings = useCallback(() => {
     dispatchNavigate('Settings');
   }, []);
 
+  // File -> Add Wallet
   const addWalletMenuAction = useCallback(() => {
     dispatchNavigate('AddWalletRoot');
   }, []);
