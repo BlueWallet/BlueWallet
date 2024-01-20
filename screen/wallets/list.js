@@ -96,13 +96,14 @@ const WalletsList = () => {
   };
 
   useLayoutEffect(() => {
+    const headerSearchBarOptions =
+      Platform.OS === 'android'
+        ? null
+        : { placeholder: loc.wallets.search_wallets, onChangeText: event => setSearchTerm(event.nativeEvent.text) };
     setOptions({
       navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
-      headerSearchBarOptions: {
-        placeholder: loc.wallets.search_wallets,
-        onChangeText: event => setSearchTerm(event.nativeEvent.text),
-      },
+      headerSearchBarOptions,
       headerStyle: {
         backgroundColor: colors.customHeader,
       },
