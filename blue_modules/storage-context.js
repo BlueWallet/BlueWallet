@@ -110,10 +110,10 @@ export const BlueStorageProvider = ({ children }) => {
   const refreshAllWalletTransactions = async (lastSnappedTo, showUpdateStatusIndicator = true) => {
     let noErr = true;
     try {
+      await BlueElectrum.waitTillConnected();
       if (showUpdateStatusIndicator) {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
       }
-      await BlueElectrum.waitTillConnected();
       const paymentCodesStart = Date.now();
       await fetchSenderPaymentCodes(lastSnappedTo);
       const paymentCodesEnd = Date.now();
@@ -140,7 +140,6 @@ export const BlueStorageProvider = ({ children }) => {
     let noErr = true;
     try {
       // 5sec debounce:
-      setWalletTransactionUpdateStatus(walletID);
       if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
         console.log('re-fetch wallet happens too fast; NOP');
         return;
@@ -148,6 +147,7 @@ export const BlueStorageProvider = ({ children }) => {
       _lastTimeTriedToRefetchWallet[walletID] = +new Date();
 
       await BlueElectrum.waitTillConnected();
+      setWalletTransactionUpdateStatus(walletID);
       const balanceStart = +new Date();
       await fetchWalletBalances(index);
       const balanceEnd = +new Date();
