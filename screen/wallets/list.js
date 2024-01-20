@@ -95,6 +95,10 @@ const WalletsList = () => {
     }
   };
 
+  const navigateToSettings = useCallback(() => {
+    navigate('Settings');
+  }, [navigate]);
+
   useLayoutEffect(() => {
     const headerSearchBarOptions =
       Platform.OS === 'android'
@@ -135,10 +139,6 @@ const WalletsList = () => {
         ) : null,
     });
   }, [colors, navigateToSettings, setOptions, searchTerm]);
-
-  const navigateToSettings = useCallback(() => {
-    navigate('Settings');
-  }, [navigate]);
 
   /**
    * Forcefully fetches TXs and balance for ALL wallets.
