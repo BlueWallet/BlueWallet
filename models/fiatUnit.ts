@@ -80,21 +80,21 @@ const RateExtractors = {
       const response = await fetch('https://www.bnr.ro/nbrfxrates.xml');
       const xmlData = await response.text();
 
-      const targetCurrency = 'USD';
-
-      const pattern = new RegExp(`<Rate currency="${targetCurrency}">([\\d.]+)<\\/Rate>`);
-
+      // Fetching USD to RON rate
+      const pattern = /<Rate currency="USD">([\d.]+)<\/Rate>/;
       const matches = xmlData.match(pattern);
 
       if (matches && matches[1]) {
-        const ronExchangeRate = parseFloat(matches[1]);
+        const usdToRonRate = parseFloat(matches[1]);
+        if (!isNaN(usdToRonRate) && usdToRonRate > 0) {
+          // Fetch BTC to USD rate using CoinGecko extractor
+          const btcToUsdRate = await RateExtractors.CoinGecko('USD');
 
-        if (!isNaN(ronExchangeRate) && ronExchangeRate > 0) {
-          return ronExchangeRate;
+          // Convert BTC to RON using the USD to RON exchange rate
+          return btcToUsdRate * usdToRonRate;
         }
       }
-
-      throw new Error(`Could not find a valid exchange rate for ${targetCurrency}`);
+      throw new Error('Could not find a valid exchange rate for USD to RON');
     } catch (error: any) {
       throw new Error(`Could not fetch RON exchange rate: ${error.message}`);
     }
