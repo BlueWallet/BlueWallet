@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import LottieView from 'lottie-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
-const lottieJson = require('./img/bluewalletsplash.json');
 
 const styles = StyleSheet.create({
   root: {
@@ -19,14 +17,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  biometric: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    marginBottom: 58,
-  },
+
   biometricRow: {
     justifyContent: 'center',
     flexDirection: 'row',
@@ -35,10 +26,10 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
   },
-
-  lottie: {
-    width: lottieJson.w,
-    height: lottieJson.h,
+  logoImage: {
+    width: 200,
+    height: 150,
+    alignSelf: 'center',
   },
 });
 
@@ -49,20 +40,11 @@ const UnlockWith = () => {
   const [biometricType, setBiometricType] = useState(false);
   const [isStorageEncryptedEnabled, setIsStorageEncryptedEnabled] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [animationDidFinish, setAnimationDidFinish] = useState(false);
   const colorScheme = useColorScheme();
 
-  const initialRender = async () => {
-    let bt = false;
-    if (await Biometric.isBiometricUseCapableAndEnabled()) {
-      bt = await Biometric.biometricType();
-    }
-
-    setBiometricType(bt);
-  };
-
   useEffect(() => {
-    initialRender();
+    startUnlock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const successfullyAuthenticated = () => {
@@ -71,7 +53,6 @@ const UnlockWith = () => {
   };
 
   const unlockWithBiometrics = async () => {
-    if (isAuthenticating) return;
     if (await isStorageEncrypted()) {
       unlockWithKey();
     } else {
@@ -127,23 +108,28 @@ const UnlockWith = () => {
     }
   };
 
-  const onAnimationFinish = async () => {
+  const startUnlock = async () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       setIsStorageEncryptedEnabled(storageIsEncrypted);
+      let bt = false;
+      if (await Biometric.isBiometricUseCapableAndEnabled()) {
+        bt = await Biometric.biometricType();
+      }
+
+      setBiometricType(bt);
       if (!biometricType || storageIsEncrypted) {
         unlockWithKey();
       } else if (typeof biometricType === 'string') unlockWithBiometrics();
     }
-    setAnimationDidFinish(true);
   };
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
-        <LottieView source={lottieJson} autoPlay loop={false} onAnimationFinish={onAnimationFinish} style={styles.lottie} />
-        <View style={styles.biometric}>{animationDidFinish && <View style={styles.biometricRow}>{renderUnlockOptions()}</View>}</View>
+        <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
+      <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
     </SafeAreaView>
   );
 };
