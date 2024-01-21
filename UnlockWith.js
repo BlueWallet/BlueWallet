@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
     height: 64,
   },
   logoImage: {
-    width: 200,
-    height: 150,
+    width: 100,
+    height: 75,
     alignSelf: 'center',
   },
 });
