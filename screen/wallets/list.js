@@ -51,6 +51,13 @@ const WalletsList = () => {
   const walletsCount = useRef(wallets.length);
   const walletActionButtonsRef = useRef();
 
+  // Header Search Bar for Wallets
+  const [searchTerm, setSearchTerm] = useState('');
+  const filteredWallets = wallets.filter(wallet => wallet.getLabel().toLowerCase().includes(searchTerm.trim().toLowerCase()));
+  //
+
+  const carouselData = searchTerm.trim().length > 0 ? filteredWallets : wallets.concat(false);
+
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
       backgroundColor: colors.brandingColor,
@@ -88,10 +95,19 @@ const WalletsList = () => {
     }
   };
 
+  const navigateToSettings = useCallback(() => {
+    navigate('Settings');
+  }, [navigate]);
+
   useLayoutEffect(() => {
+    const headerSearchBarOptions =
+      Platform.OS === 'android'
+        ? null
+        : { placeholder: loc.wallets.search_wallets, onChangeText: event => setSearchTerm(event.nativeEvent.text) };
     setOptions({
       navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
+      headerSearchBarOptions,
       headerStyle: {
         backgroundColor: colors.customHeader,
       },
@@ -122,12 +138,7 @@ const WalletsList = () => {
           </TouchableOpacity>
         ) : null,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
-
-  const navigateToSettings = () => {
-    navigate('Settings');
-  };
+  }, [colors, navigateToSettings, setOptions, searchTerm]);
 
   /**
    * Forcefully fetches TXs and balance for ALL wallets.
@@ -192,6 +203,11 @@ const WalletsList = () => {
     }
   };
 
+  const onNewWalletPress = () => {
+    setSearchTerm('');
+    navigate('AddWalletRoot');
+  };
+
   const renderTransactionListsRow = data => {
     return (
       <View style={styles.transaction}>
@@ -203,8 +219,8 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
-        data={wallets.concat(false)}
-        extraData={[wallets]}
+        data={carouselData}
+        extraData={[carouselData]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
@@ -230,9 +246,7 @@ const WalletsList = () => {
   const renderSectionHeader = section => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
-        return isLargeScreen ? null : (
-          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />
-        );
+        return isLargeScreen ? null : <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} />;
       case WalletsListSections.TRANSACTIONS:
         return renderListHeaderComponent();
       default:

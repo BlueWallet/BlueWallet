@@ -462,7 +462,8 @@
     "warning_do_not_disclose": "Warning! Do not disclose.",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
-    "xpub_title": "Wallet XPUB"
+    "xpub_title": "Wallet XPUB",
+    "search_wallets": "Search Wallets"
   },
   "multisig": {
     "multisig_vault": "Vault",
