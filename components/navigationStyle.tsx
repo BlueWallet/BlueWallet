@@ -46,7 +46,7 @@ const navigationStyle = (
   {
     closeButton = false,
     closeButtonFunc,
-    headerBackVisible,
+    headerBackVisible = true,
     ...opts
   }: NavigationOptions & {
     closeButton?: boolean;
