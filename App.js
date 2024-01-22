@@ -32,6 +32,7 @@ import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
+import MenuElements from './components/MenuElements';
 const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
@@ -76,22 +77,6 @@ const App = () => {
     if (payload.foreground) await processPushNotifications();
   };
 
-  const openSettings = () => {
-    NavigationService.dispatch(
-      CommonActions.navigate({
-        name: 'Settings',
-      }),
-    );
-  };
-
-  const addWalletMenuAction = () => {
-    NavigationService.dispatch(
-      CommonActions.navigate({
-        name: 'AddWalletRoot',
-      }),
-    );
-  };
-
   const onUserActivityOpen = data => {
     switch (data.activityType) {
       case HandoffComponent.activityTypes.ReceiveOnchain:
@@ -134,8 +119,6 @@ const App = () => {
       On willPresent on AppDelegate.m
      */
     eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter?.addListener('openSettings', openSettings);
-    eventEmitter?.addListener('addWalletMenuAction', addWalletMenuAction);
     eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
   };
 
@@ -311,10 +294,11 @@ const App = () => {
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
           <InitRoot />
           <Notifications onProcessNotifications={processPushNotifications} />
+          <MenuElements />
+          <DeviceQuickActions />
         </NavigationContainer>
       </View>
       <WatchConnectivity />
-      <DeviceQuickActions />
       <Biometric />
       <WidgetCommunication />
       <Privacy />

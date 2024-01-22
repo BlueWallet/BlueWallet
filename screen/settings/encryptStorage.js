@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -19,9 +19,12 @@ const EncryptStorage = () => {
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, popToTop } = useNavigation();
   const { colors } = useTheme();
-  const styles = StyleSheet.create({
+  const styleHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
+    },
+    headerText: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -126,9 +129,12 @@ const EncryptStorage = () => {
     </ScrollView>
   ) : (
     <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      <View style={styles.paddingTop} />
       {biometrics.isDeviceBiometricCapable && (
         <>
-          <BlueHeaderDefaultSub leftText={loc.settings.biometrics} rightComponent={null} />
+          <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
+            {loc.settings.biometrics}
+          </Text>
           <ListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
             Component={TouchableWithoutFeedback}
@@ -140,7 +146,9 @@ const EncryptStorage = () => {
           <BlueSpacing20 />
         </>
       )}
-      <BlueHeaderDefaultSub leftText={loc.settings.encrypt_tstorage} rightComponent={null} />
+      <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
+        {loc.settings.encrypt_tstorage}
+      </Text>
       <ListItem
         testID="EncyptedAndPasswordProtected"
         hideChevron
@@ -160,6 +168,18 @@ const EncryptStorage = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  paddingTop: { paddingTop: 19 },
+  headerText: {
+    fontWeight: 'bold',
+    fontSize: 30,
+    marginLeft: 17,
+  },
+});
 
 export default EncryptStorage;
 EncryptStorage.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.settings.encrypt_title }));

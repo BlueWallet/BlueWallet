@@ -42,9 +42,12 @@
     "no_channels": "Δεν υπάρχουν κανάλια",
     "close_channel": "Κλείσιμο καναλιού",
     "new_channel": "Νέο κανάλι",
+    "errorInvoiceExpired": "Το τιμολόγιο έληξε",
     "expired": "Έληξε",
+    "node_alias": "Ψευδώνυμο κόμβου",
     "expiresIn": "Λήγει σε {time} λεπτά",
     "payButton": "Πληρωμή",
+    "payment": "Πληρωμή",
     "placeholder": "Τιμολόγιο ή διεύθυνση",
     "open_channel": "Άνοιγμα καναλιού",
     "are_you_sure_open_channel": "Είσαι βέβαιος ότι θέλεις να ανοίξεις αυτό το κανάλι;",
@@ -78,7 +81,12 @@
   },
   "pleasebackup": {
     "ask": "Έχετε αποθηκεύσει αντίγραφο ασφαλείας της φράσης του πορτοφολιού; Αυτό το αντίγραφο ασφαλείας απαιτείται για να έχετε πρόσβαση στα κεφάλαια σας στην περίπτωση απώλειας της συσκευής σας. Χωρίς το αντίγραφο ασφαλείας της φράσης, τα κεφάλαια σας θα χαθούν οριστικά.",
-    "text": "Παρακαλώ αφιερώστε λίγο χρόνο να γράψετε σε ένα κομμάτι χαρτί την φράση απομνημόνευσης.\nΕίναι το αντίγραφο ασφαλείας σας και μπορείτε να την χρησιμοποιήσετε για να ανακτήσετε το πορτοφόλι σας."
+    "ask_no": "Όχι, δεν έχω.",
+    "ask_yes": "Ναι, έχω.",
+    "ok": "Εντάξει, το έγραψα.",
+    "ok_lnd": "Εντάξει, το αποθήκευσα.",
+    "text": "Παρακαλώ αφιερώστε λίγο χρόνο να γράψετε σε ένα κομμάτι χαρτί την φράση απομνημόνευσης.\nΕίναι το αντίγραφο ασφαλείας σας και μπορείτε να την χρησιμοποιήσετε για να ανακτήσετε το πορτοφόλι σας.",
+    "title": "Το πορτοφόλι σας δημιουργήθηκε."
   },
   "receive": {
     "details_create": "Δημιουργία",
@@ -145,7 +153,9 @@
     "input_paste": "Επικόλληση",
     "input_total": "Σύνολο:",
     "permission_camera_message": "Χρειαζόμαστε την άδεια σου για την χρήση της κάμερας.",
+    "psbt_sign": "Υπογραφή μιας συναλλαγής",
     "open_settings": "Άνοιγμα ρυθμίσεων",
+    "permission_storage_later": "Να ερωτηθώ αργότερα.",
     "permission_storage_message": "Το BlueWallet θέλει άδεια πρόσβασης στον αποθηκευτικό σας χώρο για να σώσει αυτό το αρχείο.",
     "permission_storage_denied_message": "Το BlueWallet δεν μπορεί να αποθηκεύσει αυτό το αρχείο. Παρακαλώ ανοίξτε τις ρυθμίσεις της συσκευής σας και ενεργοποιήστε την πρόσβαση στον αποθηκευτικό χώρο.",
     "permission_storage_title": "Άδεια πρόσβαση στον αποθηκευτικό χώρο",
@@ -159,6 +169,7 @@
     "about_license": "Άδεια χρήσης MIT",
     "about_release_notes": "Σημειώσεις κυκλοφορίας.",
     "about_review": "Γράψτε μια κριτική",
+    "performance_score": "Σκορ επιδόσεων: {num}",
     "run_performance_test": "Δοκιμή επιδόσεων",
     "about_selftest": "Εκτέλεση διαγνωστικού ελέγχου",
     "about_sm_github": "GitHub",
@@ -170,6 +181,7 @@
     "biom_conf_identity": "Παρακαλώ επιβεβαιώστε την ταυτότητα σας.",
     "currency": "Νόμισμα",
     "currency_source": "Η τιμή προέρχεται από",
+    "default_title": "Στην έναρξη",
     "default_wallets": "Προβολή όλων των πορτοφολιών",
     "electrum_connected": "Σε σύνδεση",
     "electrum_connected_not": "Εκτός σύνδεσης",
@@ -208,6 +220,7 @@
     "privacy": "Ιδιωτικότητα",
     "privacy_read_clipboard": "Ανάγνωση προχείρου",
     "privacy_system_settings": "Ρυθμίσεις συστήματος",
+    "privacy_do_not_track": "Απενεργοποίηση ανάλυσης ",
     "retype_password": "Ξαναδώσε τον κωδικό",
     "selfTest": "Διαγνωστικός έλεγχος",
     "save": "Σώσε",
@@ -215,7 +228,11 @@
     "total_balance": "Συνολικό υπόλοιπο",
     "tools": "Εργαλεία"
   },
+  "notifications": {
+    "ask_me_later": "Να ερωτηθώ αργότερα."
+  },
   "transactions": {
+    "confirmations_lowercase": "{confirmations} επιβεβαιώσεις",
     "copy_link": "Αντιγραφή συνδέσμου",
     "expand_note": "Επέκταση σημείωσης",
     "cpfp_create": "Δημιουργία",
@@ -227,6 +244,7 @@
     "details_from": "Εισερχόμενες διευθύνσεις",
     "date": "Ημερομηνία",
     "details_received": "Ελήφθη",
+    "transaction_note_saved": "Η σημείωση συναλλαγής δημιουργήθηκε με επιτυχία",
     "details_show_in_block_explorer": "Προβολή στον block explorer",
     "details_title": "Συναλλαγή",
     "details_to": "Εξερχόμενες διευθύνσεις",
@@ -265,6 +283,8 @@
     "details_yes_delete": "Ναι, διαγραφή",
     "export_title": "Εξαγωγή πορτοφολιού",
     "import_do_import": "Εισήγαγε",
+    "import_passphrase": "Φράση κωδικός",
+    "import_passphrase_title": "Φράση κωδικός",
     "import_error": "Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.",
     "import_imported": "Εισήχθη",
     "import_scan_qr": "ή θέλεις θα σκανάρεις ένα QR code;",
@@ -272,6 +292,9 @@
     "import_search_accounts": "Αναζήτηση λογαριασμών",
     "import_title": "Εισαγωγή",
     "import_discovery_no_wallets": "Δεν βρέθηκε κανένα πορτοφόλι",
+    "import_derivation_found": "Βρέθηκε",
+    "import_derivation_found_not": "Δεν βρέθηκε",
+    "import_derivation_unknown": "Άγνωστο",
     "list_create_a_button": "Προσθήκη τώρα",
     "list_create_a_wallet": "Προσθέστε ένα πορτοφόλι",
     "list_empty_txs1": "Οι συναλλαγές θα εμφανιστούν εδώ,",
@@ -288,6 +311,7 @@
   "multisig": {
     "multisig_vault": "Θησαυροφυλάκιο",
     "provide_signature": "Παροχή υπογραφής",
+    "fee_btc": "{number} BTC",
     "confirm": "Επιβεβαίωση",
     "header": "Αποστολή",
     "share": "Δώσε",
@@ -296,20 +320,26 @@
     "scan_or_import_file": "Σάρωση ή εισαγωγή αρχείου",
     "lets_start": "Ας ξεκινήσουμε",
     "create": "Δημιούργησε",
+    "native_segwit_title": "Καλές πρακτικές",
+    "co_sign_transaction": "Υπογραφή μιας συναλλαγής",
+    "what_is_vault_wallet": "πορτοφόλι.",
     "wallet_type": "Τύπος πορτοφολιου",
     "create_new_key": "Δημιουργία νέου",
     "scan_or_open_file": "Σάρωση ή άνοιγμα αρχείου",
     "ms_help": "Βοήθεια"
   },
   "is_it_my_address": {
+    "title": "Είναι δική μου διεύθυνση;",
     "enter_address": "Εισαγωγή διεύθυνσης",
-    "check_address": "Έλεγχος διεύθυνσης"
+    "check_address": "Έλεγχος διεύθυνσης",
+    "view_qrcode": "Προβολή κωδικού QR"
   },
   "cc": {
     "change": "Αλλαγή"
   },
   "units": {
     "BTC": "BTC",
+    "MAX": "Μέγιστο",
     "sat_vbyte": "sat/vByte",
     "sats": "sats"
   },
@@ -329,6 +359,8 @@
   },
   "bip47": {
     "payment_code": "Κωδικός πληρωμής",
-    "payment_codes_list": "Λίστα κωδικών πληρωμής"
+    "payment_codes_list": "Λίστα κωδικών πληρωμής",
+    "who_can_pay_me": "Ποιος μπορεί να με πληρώσει:",
+    "not_found": "Ο κωδικός πληρωμής δεν βρέθηκε"
   }
 }

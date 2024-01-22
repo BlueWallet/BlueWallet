@@ -32,6 +32,7 @@ type NavigationOptions = {
   headerLeft?: (() => React.ReactElement) | null;
   headerRight?: (() => React.ReactElement) | null;
   headerBackTitleVisible?: false;
+  headerBackButtonMenuEnabled?: boolean;
   headerShadowVisible?: boolean;
   headerTintColor?: string;
   title?: string;
@@ -57,6 +58,7 @@ const navigationStyle = (
   return theme =>
     ({ navigation, route }) => {
       let headerRight;
+      let headerLeft;
       if (closeButton) {
         const handleClose = closeButtonFunc
           ? () => closeButtonFunc({ navigation, route })
@@ -76,6 +78,13 @@ const navigationStyle = (
           </TouchableOpacity>
         );
       }
+
+      // Workaround for https://github.com/BlueWallet/BlueWallet/issues/6030
+      if (!headerBackVisible) {
+        headerLeft = () => <></>;
+        opts.headerLeft = headerLeft;
+      }
+      //
 
       let options: NavigationOptions = {
         headerShadowVisible: false,

@@ -80,10 +80,10 @@ npx react-native run-ios
 * To run on macOS using Mac Catalyst:
 
 ```
-npm run maccatalystpatches
+npx pod-install
 ```
 
-Once the patches are applied, open Xcode and select "My Mac" as destination.
+Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/target BlueWallet-NoLDK. Click Run.
 
 ## TESTS
 

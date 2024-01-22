@@ -16,8 +16,6 @@
     "success": "Sukces",
     "wallet_key": "Klucz Portfela",
     "invalid_animated_qr_code_fragment": "Nieprawidłowy fragment animowanego kodu QR. Spróbuj ponownie.",
-    "file_saved": "Plik {filePath} został zapisany w lokalizacji {destination}",
-    "downloads_folder": "Folder Pobrane",
     "close": "Zamknij",
     "change_input_currency": "Zmień walutę",
     "refresh": "Odśwież",
@@ -106,7 +104,7 @@
     "title": "Wiarygodna zaprzeczalność"
   },
   "pleasebackup": {
-    "ask": "Czy zapisałeś już słowa klucze? Są one niezbędne, by dysponować środkami, w przypadku zgubienia tego urządzenia. Bez słów kluczy, twoje środki przepadną na zawsze,",
+    "ask": "Czy zapisałeś już słowa klucze? Są one niezbędne, by dysponować środkami, w przypadku zgubienia tego urządzenia. Bez słów kluczy, twoje środki przepadną na zawsze.",
     "ask_no": "Nie, nie mam.",
     "ask_yes": "Tak, mam.",
     "ok": "OK, zapisałem.",

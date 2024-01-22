@@ -40,50 +40,51 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-
-target 'BlueWallet' do
+# Define a common function to configure shared settings for targets
+def configure_target()
   config = use_native_modules!
 
-  # Flags change depending on the env values.
   flags = get_default_flags()
 
   use_react_native!(
+    # Specify the path directly if use_native_modules! does not provide it
     :path => config[:reactNativePath],
-    # Hermes is now enabled by default. Disable by setting this flag to false.
     :hermes_enabled => true,
     :fabric_enabled => flags[:fabric_enabled],
-    # Enables Flipper.
-    #
-    # Note that if you have use_frameworks! enabled, Flipper will not work and
-    # you should disable the next line.
-    #:flipper_configuration => flipper_config,
-    # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
+
   )
   pod 'react-native-bw-file-access', :path => '../blue_modules/react-native-bw-file-access'
+end
 
 
-  post_install do |installer|
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => true
-    )
+target 'BlueWallet' do
+  configure_target()
+   # Manually add rn-ldk pod for this target
+  pod 'rn-ldk', :path => '../node_modules/rn-ldk'
+end
 
-    pod 'Bugsnag'
-      plugin 'cocoapods-bugsnag'
-      installer.pods_project.targets.each do |target|
-          target.build_configurations.each do |config|
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
-            if ['React-Core-AccessibilityResources'].include? target.name 
-              config.build_settings['CODE_SIGN_STYLE'] = "Manual"
-              config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"
-              config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
-            end
-          end
-          __apply_Xcode_12_5_M1_post_install_workaround(installer)
+target 'BlueWallet-NoLDK' do
+  configure_target()
+end
+
+post_install do |installer|
+  react_native_post_install(
+    installer,
+    :mac_catalyst_enabled => true
+  )
+
+  pod 'Bugsnag'
+  plugin 'cocoapods-bugsnag'
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      if ['React-Core-AccessibilityResources'].include? target.name 
+        config.build_settings['CODE_SIGN_STYLE'] = "Manual"
+        config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"
+        config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
       end
+    end
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
-
-  
 end

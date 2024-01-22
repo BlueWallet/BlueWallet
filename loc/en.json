@@ -16,8 +16,6 @@
     "success": "Success",
     "wallet_key": "Wallet key",
     "invalid_animated_qr_code_fragment": "Invalid animated QR Code fragment. Please try again.",
-    "file_saved": "File {filePath} has been saved in your {destination}.",
-    "downloads_folder": "Downloads Folder",
     "close": "Close",
     "change_input_currency": "Change input currency",
     "refresh": "Refresh",
@@ -464,7 +462,8 @@
     "warning_do_not_disclose": "Warning! Do not disclose.",
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
-    "xpub_title": "Wallet XPUB"
+    "xpub_title": "Wallet XPUB",
+    "search_wallets": "Search Wallets"
   },
   "multisig": {
     "multisig_vault": "Vault",
