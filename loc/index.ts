@@ -30,6 +30,10 @@ const setDateTimeLocale = async () => {
       lang = 'bg';
       require('dayjs/locale/bg');
       break;
+    case 'bqi':
+      lang = 'fa';
+      require('dayjs/locale/fa');
+      break;
     case 'ca':
       require('dayjs/locale/ca');
       break;
@@ -203,6 +207,7 @@ const loc = new Localization({
   ar: require('./ar.json'),
   be: require('./be@tarask.json'),
   bg_bg: require('./bg_bg.json'),
+  bqi: require('./bqi.json'),
   ca: require('./ca.json'),
   cy: require('./cy.json'),
   cs_cz: require('./cs_cz.json'),

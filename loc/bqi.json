@@ -1,0 +1,183 @@
+{
+  "_": {
+    "bad_password": "رزم زبال نؽ. زه نۊ تفره کو.",
+    "cancel": "لقو",
+    "clipboard": "ویرگه",
+    "enter_password": "رزمته بزن",
+    "ok": "هری",
+    "yes": "هری",
+    "no": "نه",
+    "save": "زفت کردن",
+    "success": "سر ٱنجوم گرهڌ",
+    "wallet_key": "کیلیت کیف پیل",
+    "close": "بستن",
+    "refresh": "وانۊ کردن",
+    "more": "بیشتر",
+    "pick_image": "پسند شؽوات ز شؽوات مال",
+    "pick_file": "پسند فایل"
+  },
+  "alert": {
+    "default": "هوشتار"
+  },
+  "azteco": {
+    "redeem": "ازاف کردن وه کیف پیل",
+    "success": "سر ٱنجوم گرهڌ"
+  },
+  "entropy": {
+    "save": "زفت کردن"
+  },
+  "errors": {
+    "error": "ختا",
+    "network": "ختا شبکه"
+  },
+  "lnd": {
+    "channels": "تورگیل",
+    "no_channels": "بؽ تورگٱ",
+    "close_channel": "بستن تورگٱ",
+    "new_channel": "تورگٱ نۊ",
+    "force_close_channel": "بستن اجباری تورگٱ؟",
+    "open_channel": "گۊشیڌن تورگٱ",
+    "are_you_sure_open_channel": "زه گۊشیڌن ای تورگٱ اتمینۉ داری؟",
+    "refill": "پور کردن",
+    "title": "دؽوۉداری دارایی",
+    "can_send": "تره فشنه",
+    "can_receive": "تره گره",
+    "view_logs": "نیشتن تفاقا"
+  },
+  "lndViewInvoice": {
+    "additional_info": "دۉسمندیا بیشتر",
+    "for": "سی:",
+    "open_direct_channel": "تورگٱ موستقیمی وا ای گره واز کو:"
+  },
+  "plausibledeniability": {
+    "retype_password": "رزمنه زه نۊ هؽل کو",
+    "success": "سر ٱنجوم گرهڌ"
+  },
+  "pleasebackup": {
+    "ok": "خا، هو ناْ هؽل کردوم.",
+    "ok_lnd": "خا، هونه زفت کردوم."
+  },
+  "receive": {
+    "details_create": "ورکل",
+    "details_share": "یک رسۊوی",
+    "header": "گرؽڌن"
+  },
+  "send": {
+    "broadcastError": "ختا",
+    "broadcastPending": "مندیر سی زفت",
+    "broadcastSuccess": "سر ٱنجوم گرهڌ",
+    "confirm_sendNow": "هیم سکو بفشن",
+    "create_memo": "ویرداشت",
+    "create_to": "وه",
+    "create_tx_size": "هندا تراکونش",
+    "details_address": "آدرس",
+    "details_adv_full": "زه پوی موجۊڌی استفاڌه کو",
+    "details_adv_full_sure": "اخۊی زه پوی موجۊڌی کیف پیلت سی ای تراکونش استفاڌه کۊنی؟",
+    "details_create": "ورکل سۊرت هساو",
+    "details_note_placeholder": "ویرداشت به خوت",
+    "details_scan": "اسکن",
+    "details_scan_hint": "سی اسکن یا به من اوردن مقسد، دو کرت بزن ریس",
+    "details_unrecognized_file_format": "قالو فایل نشناخته",
+    "dynamic_init": "هونی رئس اونه",
+    "dynamic_stop": "واڌاشتن",
+    "fee_10m": "10 دؽقه",
+    "fee_1d": "1 رۊز",
+    "fee_3h": "3 ساعت",
+    "fee_custom": "سفارشی",
+    "fee_fast": "زل",
+    "input_clear": "روفتن",
+    "input_done": "ٱنجوم وابی",
+    "input_paste": "جا وندن",
+    "permission_camera_message": "سی به کار گرهڌن شؽوات گر، لنگ اجازه ایسانیم.",
+    "psbt_sign": "امزا کردن تراکونش",
+    "open_settings": "گۊشیڌن سامووا",
+    "permission_storage_later": "دینداتر زوم بپورس.",
+    "psbt_clipboard": "لف گیری منه ویرگه",
+    "psbt_tx_open": "گۊشیڌن تراکونش امزا وابیڌه",
+    "success_done": "ٱنجوم وابی"
+  },
+  "settings": {
+    "about": "زبار",
+    "about_awesome": "ورکل وابیڌه وا بؽڌرینا",
+    "about_license": "پروانه ام آی تی",
+    "about_release_notes": "ویرداشتا انتشار",
+    "about_review": "سی ایما یه واجۊری بنین",
+    "performance_score": "امتیاز کارکرد: {num}",
+    "run_performance_test": "واجۊری کارکرد",
+    "about_selftest": "ره وندن خوس آزمایی",
+    "about_selftest_electrum_disabled": "خوس آزمایی منه هالت آفلاین منه دسرس نؽ. هالت آفلاین نه قیر فعال کو و زه نۊ تفره کو.",
+    "about_sm_github": "گیت هاب",
+    "about_sm_discord": "سرور دیسکورد",
+    "about_sm_telegram": "تورگٱ تلگرام",
+    "about_sm_twitter": "ایما نه منه توییتر وه دین کنین",
+    "advanced_options": "گۊزینیل پؽش رئڌه",
+    "biometrics": "بیومتریک",
+    "biom_conf_identity": "هۊویته خوته تاییڌ کو.",
+    "currency": "واهڌ پیل",
+    "currency_source": "قیمت گرؽڌه وابیڌه زه",
+    "currency_fetch_error": "منجا گرؽڌن نرخ سی واهڌ پیل پسند بیڌه یه ختا پؽش اووڌ.",
+    "default_info": "دۉسمندیا پؽش فرز",
+    "default_title": "موقه ره وندن",
+    "electrum_connected": "منپیز",
+    "electrum_connected_not": "بؽ منپیز",
+    "electrum_offline_mode": "هالت آفلاین",
+    "use_ssl": "SSL نه به کار بگر",
+    "electrum_settings_server": "سرور الکترام",
+    "electrum_status": "وزیت",
+    "electrum_clear_alert_title": "ویرگار پاک بۊ؟",
+    "electrum_clear_alert_message": "اخۊی ویرگار سرورا الکترام نه پاک کۊنی؟",
+    "electrum_clear_alert_cancel": "لقو",
+    "electrum_clear_alert_ok": "هری",
+    "electrum_select": "پسند",
+    "electrum_reset": "ورگندن به پؽش فرز",
+    "electrum_history": "ویرگار سرور",
+    "electrum_clear": "روفتن",
+    "encrypt_title": "امنیت",
+    "encrypt_use": "{type} نه وه کار بگر",
+    "general": "پوی ولاتی",
+    "general_adv_mode": "هالت پؽش رئڌه",
+    "header": "سامووا",
+    "language": "زۉ",
+    "lightning_settings": "سامووا لایتنینگ",
+    "network": "شبکه",
+    "network_electrum": "سرور الکترام",
+    "notifications": "وارسۊویا",
+    "password": "رزم",
+    "privacy": "سی خومی",
+    "privacy_read_clipboard": "خوندن ویرگه",
+    "privacy_system_settings": "سامووا دسگا",
+    "rate": "نرخ",
+    "retype_password": "رزمنه زه نۊ هؽل کو",
+    "save": "زفت کردن",
+    "saved": "زفت وابی",
+    "widgets": "اوزارکا",
+    "tools": "اوزارا"
+  },
+  "notifications": {
+    "ask_me_later": "دینداتر زوم بپورس."
+  },
+  "transactions": {
+    "copy_link": "لف گیری لینک",
+    "cpfp_create": "ورکل",
+    "details_copy": "لف گیری",
+    "date": "ویرگار",
+    "details_received": "گرؽڌه وابیڌه",
+    "pending": "مندیر سی زفت"
+  },
+  "wallets": {
+    "add_bitcoin": "بیت کوین",
+    "add_create": "ورکل",
+    "details_address": "آدرس",
+    "details_save": "زفت کردن"
+  },
+  "multisig": {
+    "share": "یک رسۊوی",
+    "create": "ورکل",
+    "co_sign_transaction": "امزا کردن تراکونش",
+    "ms_help_title5": "هالت پؽش رئڌه"
+  },
+  "addresses": {
+    "sign_placeholder_address": "آدرس",
+    "type_receive": "گرؽڌن"
+  }
+}

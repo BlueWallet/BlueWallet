@@ -35,10 +35,8 @@
     "network": "เน็ตเวิร์คผิดพลาด"
   },
   "lnd": {
-    "errorInvoiceExpired": "ใบวางบิลหมดอายุแล้ว",
     "expired": "หมดอายุแล้ว",
     "payButton": "จ่าย",
-    "placeholder": "ใบวางบิล",
     "potentialFee": "ค่าธรรมเนียมโดยประมาณ: {fee}",
     "refill": "เติม",
     "refill_create": "กรุณาสร้างกระเป๋าสตางค์บิตคอยน์ เพื่อดำเนินการต่อ",
@@ -53,7 +51,6 @@
     "lightning_invoice": "ใบแจ้งหนี้ไลท์นิง",
     "open_direct_channel": "เปิดช่องโดยตรงไปที่โหนดนี้",
     "please_pay": "กรุณาจ่าย",
-    "preimage": "Preimage",
     "sats": "แซท",
     "wasnt_paid_and_expired": "ใบวางบิลนี้ไม่ได้จ่ายและหมดอายุแล้ว"
   },
@@ -71,8 +68,8 @@
   },
   "pleasebackup": {
     "ask": "ท่านได้บันทึก backup phrase แล้วใช่หรือไม่? ในกรณีที่ท่านสูญเสียอุปกรณ์นี้ ท่านสามารถกู้เงินของท่านได้ด้วย backup phrase อันนี้  หากท่านไม่ได้บันทึก backup phrase อันนี้ไว้ ท่านจะสูญเสียเงินของท่านไปอย่างถาวร",
-    "ask_no": "ยัง ฉันยังไม่ได้ทำ",
-    "ask_yes": "ใช่ ฉันได้ทำแล้ว"
+    "ok_lnd": "ฉันได้บันทึกไว้แล้ว",
+    "title": "ได้สร้างกระเป๋าสตางค์ของท่านแล้ว"
   },
   "receive": {
     "details_create": "สร้าง",
@@ -134,10 +131,8 @@
     "input_paste": "วาง",
     "input_total": "ยอดรวม:",
     "permission_camera_message": "ต้องการคำอนุญาตในการใช้กล้อง",
-    "permission_camera_title": "อนุญาตในการใช้กล้อง",
     "psbt_sign": "ลงชื่อในธุรกรรม",
     "open_settings": "เปิดการตั้งค่า",
-    "permission_storage_later": "ถามฉันภายหลัง",
     "psbt_clipboard": "คัดลอกไปที่คลิ๊ปบอร์ด",
     "psbt_tx_export": "ส่งไปที่ไฟล์",
     "psbt_tx_open": "เปิดธุรกรรมที่ลงนามไว้แล้ว",
@@ -164,7 +159,6 @@
     "default_wallets": "ดูกระเป๋าสตางค์ทุกอัน",
     "electrum_connected": "เชื่อมต่อแล้ว",
     "electrum_connected_not": "ไม่ได้เชื่อมต่อ",
-    "electrum_error_connect": "ไม่สามารถเชื่อมต่อไปยังเซิร์ฟเวอร์ Electrum ได้",
     "electrum_saved": "บันทึกสำเร็จ  ท่านอาจจำเป็นต้องรีสตาร์ท",
     "electrum_settings_server": "เซิร์ฟเวอร์ Electrum",
     "electrum_status": "สถานะ",
@@ -204,9 +198,6 @@
     "save": "บันทึก",
     "saved": "บันทึกแล้ว",
     "total_balance": "ยอดรวม"
-  },
-  "notifications": {
-    "ask_me_later": "ถามฉันภายหลัง"
   },
   "transactions": {
     "cancel_no": "ธุรกรรมนี้ไม่สามารทเปลี่ยนแทนได้",
@@ -248,7 +239,6 @@
     "details_advanced": "ขั้นสูง",
     "details_are_you_sure": "คุณแน่ใจหรือไม่?",
     "details_connected_to": "เชื่อมไปที่",
-    "details_del_wb_err": "จำนวนเงินไม่ตรงกับยอดเงินในกระเป๋าสตางค์",
     "details_delete": "ลบ",
     "details_delete_wallet": "ลบกระเป๋าสตางค์",
     "details_display": "แสดงในรายการกระเป๋าสตางค์",
