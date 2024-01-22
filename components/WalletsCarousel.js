@@ -137,7 +137,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWallet }) => {
+export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
   const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
@@ -180,7 +180,7 @@ const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWalle
   return (
     <Animated.View
       style={[
-        isLargeScreen ? iStyles.rootLargeDevice : { ...iStyles.root, width: itemWidth },
+        isLargeScreen ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
         { opacity, transform: [{ scale: scaleValue }] },
       ]}
       shadowOpacity={25 / 100}
@@ -235,7 +235,7 @@ const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWalle
 WalletCarouselItem.propTypes = {
   item: PropTypes.any,
   onPress: PropTypes.func.isRequired,
-  handleLongPress: PropTypes.func.isRequired,
+  handleLongPress: PropTypes.func,
   isSelectedWallet: PropTypes.bool,
 };
 
