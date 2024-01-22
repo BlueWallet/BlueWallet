@@ -11,8 +11,7 @@
     "yes": "ಹೌದು",
     "no": "ಇಲ್ಲ",
     "save": "ಉಳಿಸಿ",
-    "wallet_key": "ವ್ಯಾಲೆಟ್ ಕೀ",
-    "invalid_animated_qr_code_fragment": "ಅಮಾನ್ಯ ಅನಿಮೇಟೆಡ್ QR ಕೋಡ್. ದಯವಿಟ್ಟು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
+    "wallet_key": "ವ್ಯಾಲೆಟ್ ಕೀ"
   },
   "entropy": {
     "save": "ಉಳಿಸಿ"

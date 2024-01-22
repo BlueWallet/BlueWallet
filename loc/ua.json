@@ -15,8 +15,6 @@
     "seed": "Сід",
     "success": "Успіх",
     "wallet_key": "Ключ гаманця",
-    "file_saved": "Файл {filePath} було збережено у вашому {destination}.",
-    "downloads_folder": "Папка Завантажень",
     "close": "Закрити",
     "change_input_currency": "Змінити валюту введення",
     "refresh": "Оновити",

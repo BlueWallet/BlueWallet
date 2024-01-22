@@ -14,10 +14,7 @@
     "save": "Kaydet",
     "seed": "Seed",
     "success": "Başarılı",
-    "wallet_key": "Cüzdan anahtarı",
-    "invalid_animated_qr_code_fragment": "Geçersiz QRCode fragmanı. Lütfen tekrar deneyiniz.",
-    "file_saved": "Dosya {filepath} kaydedildi {destination}",
-    "downloads_folder": "İndirilenler Dosyası"
+    "wallet_key": "Cüzdan anahtarı"
   },
   "alert": {
     "default": "Uyarı"
@@ -49,15 +46,12 @@
     "claim_balance": "Talep balansı (balans)",
     "close_channel": "Kanalı kapa",
     "new_channel": "Yeni kanal",
-    "errorInvoiceExpired": "Fatura zaman aşımına uğradı",
     "force_close_channel": "Kanalı kapamaya zorla",
     "expired": "Süresi doldu",
     "node_alias": "Node mahlası",
     "expiresIn": "{time} dakika içerisinde sona erer",
     "payButton": "Öde",
-    "placeholder": "Fatura",
     "open_channel": "Kanal aç",
-    "funding_amount_placeholder": "Fonlama miktarı, örnek 0.001",
     "opening_channnel_for_from": "{fromWalletLabel} tarafından fonlanan kanal {forWalletLabel} için aılıyor",
     "are_you_sure_open_channel": "Bu kanalı açmak istediğinizden emin misiniz?",
     "refill": "Yükle",
@@ -76,7 +70,6 @@
     "open_direct_channel": "Bu noda direkt kanal aç: ",
     "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
     "please_pay": "Lütfen ödeyin",
-    "preimage": "Preimage",
     "sats": "sats.",
     "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı."
   },
@@ -92,10 +85,7 @@
     "title": "Makul Ret"
   },
   "pleasebackup": {
-    "ask_no": "Hayır, kaydetmedim.",
-    "ask_yes": "Evet, kaydettim.",
-    "ok": "Evet, deftere yazdım.",
-    "ok_lnd": "Evet, kaydettim.",
+    "ok_lnd": "Tamam, kaydettim.",
     "text_lnd": "Lütfen kurtarma kodunuzu kaydedin. Cüzdanınızı kayıp etmeniz durumunda onu geri oluşturabilmenizi sağlar.",
     "title": "Cüzdanınız oluşturuldu."
   },
@@ -163,7 +153,6 @@
     "permission_camera_message": "Kamerayı kullanmak için izin vermelisiniz.",
     "psbt_sign": "Bir işlemi imzalayın",
     "open_settings": "Ayarları aç",
-    "permission_storage_later": "Daha sonra hatırlat",
     "psbt_clipboard": "Panoya kopyala",
     "success_done": "Tamam"
   },
@@ -193,10 +182,6 @@
     "save": "Kaydet",
     "saved": "Kaydedildi",
     "total_balance": "Bakiye"
-  },
-  "notifications": {
-    "no_and_dont_ask": "Hayır, bir daha sorma",
-    "ask_me_later": "Daha sonra hatırlat"
   },
   "transactions": {
     "cpfp_create": "Oluştur",

@@ -14,9 +14,7 @@
     "save": "Berg",
     "seed": "Saad",
     "success": "Sukses",
-    "wallet_key": "Beursie sleutel",
-    "file_saved": "Leêr {filePath} was gestoor in jou {destination}.",
-    "downloads_folder": "Aflaai Lëer"
+    "wallet_key": "Beursie sleutel"
   },
   "alert": {
     "default": "Aandag"
