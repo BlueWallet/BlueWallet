@@ -20,6 +20,7 @@
     "expired": "Iphelewe lixesha",
     "refill": "Gcwalisa",
     "refill_lnd_balance": "Gcwalisa ingxowa yakho yemali",
+    "sameWalletAsInvoiceError": ": Awukwazi ukuhlawula i-invoyisi kunye ngengxowa oyisebenzisile ukudala leyo invoyisi.",
     "title": "lawula imali"
   },
   "plausibledeniability": {
