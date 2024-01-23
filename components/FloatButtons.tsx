@@ -142,7 +142,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
   }
 
   return (
-    <TouchableOpacity accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
+    <TouchableOpacity accessibilityLabel={text} accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
       <View style={bStyles.icon}>{icon}</View>
       <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}
