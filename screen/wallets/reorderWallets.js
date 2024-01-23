@@ -117,7 +117,6 @@ const ReorderWallets = () => {
     <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
       <DraggableFlatList
         ref={sortableList}
-        dragItemOverflow
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         data={walletData}
