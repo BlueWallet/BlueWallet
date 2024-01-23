@@ -10,11 +10,12 @@
     "@babel/core": "^7.20.0",
     "@babel/runtime": "^7.20.0",
     "@jest/reporters": "^27.5.1",
-    "@react-native-community/eslint-config": "^3.2.0",
+    "@react-native/eslint-config": "^0.72.2",
     "@tsconfig/react-native": "^3.0.2",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
     "@types/jest": "^29.4.0",
+    "@react-native/metro-config": "^0.72.11",
     "@types/react": "^18.2.16",
     "@types/react-native": "^0.72.0",
     "@types/react-test-renderer": "^18.0.0",
@@ -39,7 +40,7 @@
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": ">=10.16.0",
+    "node": ">=16",
     "npm": ">=6.9.0"
   },
   "scripts": {
@@ -52,7 +53,7 @@
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run patches",
-    "patches": "patch -p1   < scripts/rn-ldk.patch; patch -p1   < scripts/react-native-camera-kit.patch",
+    "patches": "patch -p1   < scripts/rn-ldk.patch; patch -p1   < scripts/react-native-camera-kit.patch;  patch -p1   < scripts/react-native-widget-center.patch",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b tests/integration/*",
     "windowspatches": "./scripts/windows-patches.sh",
@@ -141,7 +142,7 @@
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
-    "react-native": "0.71.15",
+    "react-native": "0.72.10",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit": "13.0.0",
     "react-native-crypto": "2.2.0",
