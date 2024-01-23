@@ -452,7 +452,6 @@
     "no_ln_wallet_error": "ライトニングインボイスの支払いを行う前に、ライトニングウォレットを追加する必要があります。",
     "looks_like_bip38": "パスワード保護された秘密鍵(BIP38)のようです。",
     "reorder_title": "ウォレットの並び替え",
-    "reorder_instructions": "ウォレットをタップ＆ホールドして、リスト内でドラッグします。",
     "please_continue_scanning": "スキャンを続けてください。",
     "select_no_bitcoin": "現在利用可能なビットコインウォレットがありません。",
     "select_no_bitcoin_exp": "ライトニングウォレットのリフィルにはビットコインウォレットが必要です。作成するか、インポートしてください。",
@@ -462,7 +461,8 @@
     "warning_do_not_disclose": "警告！　公開しないこと。",
     "add_ln_wallet_first": "先にライトニングウォレットを追加する必要があります。",
     "identity_pubkey": "識別用公開鍵",
-    "xpub_title": "ウォレット XPUB"
+    "xpub_title": "ウォレット XPUB",
+    "search_wallets": "ウォレットを検索"
   },
   "multisig": {
     "multisig_vault": "金庫",
