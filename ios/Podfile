@@ -1,15 +1,4 @@
-def node_require(script)
-  # Resolve script with node to allow for hoisting
-  require Pod::Executable.execute_command('node', ['-p',
-    "require.resolve(
-      '#{script}',
-      {paths: [process.argv[1]]},
-    )", __dir__]).strip
-end
 
-min_ios_version_supported = '13.4'
-node_require('react-native/scripts/react_native_pods.rb')
-node_require('react-native-permissions/scripts/setup.rb')
 
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
@@ -18,24 +7,32 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-workspace 'BlueWallet'
+# Set the minimum iOS version supported
+min_ios_version_supported = '13.4'
 platform :ios, min_ios_version_supported
-prepare_react_native_project!
-setup_permissions(['Camera', 'Notifications'])
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
-# flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
 
-flipper_config = FlipperConfiguration.disabled
+# Define a method to load a script using Node.js
+def node_require(script)
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve('#{script}', {paths: [process.argv[1]]})", __dir__]).strip
+end
+
+
+# Define workspace and platform settings
+workspace 'BlueWallet'
+
+# Load and configure react_native_pods.rb script
+node_require('react-native-permissions/scripts/setup.rb')
+
+# Setup permissions for the app
+setup_permissions(['Camera', 'Notifications'])
+
+# Flipper configuration
+flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
+
+# Dynamic linkage configuration based on environment variable
 linkage = ENV['USE_FRAMEWORKS']
-if linkage != nil
+if linkage
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
   use_frameworks! :linkage => linkage.to_sym
 end
@@ -43,48 +40,42 @@ end
 # Define a common function to configure shared settings for targets
 def configure_target()
   config = use_native_modules!
-
-  flags = get_default_flags()
-
   use_react_native!(
-    # Specify the path directly if use_native_modules! does not provide it
     :path => config[:reactNativePath],
-    :hermes_enabled => true,
-    :fabric_enabled => flags[:fabric_enabled],
     :app_path => "#{Pod::Config.instance.installation_root}/.."
-
   )
+
+  # Add specific pods for the target
   pod 'react-native-bw-file-access', :path => '../blue_modules/react-native-bw-file-access'
 end
 
-
+# Configure the main target
 target 'BlueWallet' do
   configure_target()
-   # Manually add rn-ldk pod for this target
-  pod 'rn-ldk', :path => '../node_modules/rn-ldk'
+  pod 'rn-ldk', :path => '../node_modules/rn-ldk' # Manually add rn-ldk pod
 end
 
+# Configure the target without LDK
 target 'BlueWallet-NoLDK' do
   configure_target()
 end
 
+# Post-installation scripts
 post_install do |installer|
-  react_native_post_install(
-    installer,
-    :mac_catalyst_enabled => true
-  )
+  react_native_post_install(installer, :mac_catalyst_enabled => true)
 
-  pod 'Bugsnag'
-  plugin 'cocoapods-bugsnag'
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      if ['React-Core-AccessibilityResources'].include? target.name 
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+      if ['React-Core-AccessibilityResources'].include? target.name
         config.build_settings['CODE_SIGN_STYLE'] = "Manual"
         config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"
         config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
       end
     end
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
+
+  # Add Bugsnag integration
+  pod 'Bugsnag'
+  plugin 'cocoapods-bugsnag'
 end
