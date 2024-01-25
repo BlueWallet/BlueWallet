@@ -58,7 +58,6 @@ class Wallet: NSObject, NSCoding {
     transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
     xpub = aDecoder.decodeObject(forKey: "xpub") as? String
     hideBalance = aDecoder.decodeObject(forKey: "hideBalance") as? Bool ?? false
-
   }
 
 }

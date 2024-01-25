@@ -83,13 +83,3 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   }
   
 }
-
-// WalletInformation extension for configuration
-extension WalletInformation {
-  func configure(with wallet: Wallet) {
-    walletBalanceLabel.setHidden(wallet.hideBalance)
-    name = wallet.label
-    balance = wallet.hideBalance ? "" : wallet.balance
-    type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
-  }
-}

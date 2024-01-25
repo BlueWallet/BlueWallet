@@ -23,7 +23,7 @@ class WatchDataSource: NSObject {
   var companionWalletsInitialized = false
   private let keychain = KeychainSwift()
   let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
-
+  
   
   override init() {
     super.init()
@@ -90,27 +90,31 @@ class WatchDataSource: NSObject {
       return
     }
     WCSession.default.sendMessage(["message": "hideBalance", "walletIndex": walletIdentifier, "hideBalance": hideBalance], replyHandler: { (reply: [String : Any]) in
-        responseHandler("")
+      responseHandler("")
     }) { (error) in
       print(error)
       responseHandler("")
       
     }
   }
-
+  
   
   func processData(data: [String: Any]) {
-    
-    if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-      groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
-      groupUserDefaults?.synchronize()
-        ExtensionDelegate.preferredFiatCurrencyChanged()
-    } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
-      companionWalletsInitialized = isWalletsInitialized
-      NotificationCenter.default.post(Notifications.dataUpdated)
-    } else {
-      WatchDataSource.shared.processWalletsData(walletsInfo: data)
-    }
+      
+      if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+        groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
+        groupUserDefaults?.synchronize()
+        
+        // Create an instance of ExtensionDelegate and call updatePreferredFiatCurrency()
+        let extensionDelegate = ExtensionDelegate()
+        extensionDelegate.updatePreferredFiatCurrency()
+        
+      } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
+        companionWalletsInitialized = isWalletsInitialized
+        NotificationCenter.default.post(Notifications.dataUpdated)
+      } else {
+        WatchDataSource.shared.processWalletsData(walletsInfo: data)
+      }
   }
   
 }
