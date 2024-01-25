@@ -20,7 +20,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   static func preferredFiatCurrencyChanged() {
     let fiatUnitUserDefaults: FiatUnit
     let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
-    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
       fiatUnitUserDefaults = preferredFiatUnit
     } else {
       fiatUnitUserDefaults = fiatUnit(currency: "USD")!
