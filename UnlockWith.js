@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -43,6 +43,7 @@ const UnlockWith = () => {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+    NativeModules.SplashScreen.dismissSplashScreen();
     startUnlock();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

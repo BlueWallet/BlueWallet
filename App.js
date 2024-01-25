@@ -288,6 +288,11 @@ const App = () => {
       });
   };
 
+  useEffect(() => {
+    // Call hide to setup the listener on the native side
+    NativeModules.SplashScreen.addObserver();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <View style={styles.root}>
