@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
   },
 });
 
+const { SplashScreen } = NativeModules;
+
 const UnlockWith = () => {
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
   const { dispatch } = useNavigation();
@@ -43,7 +45,7 @@ const UnlockWith = () => {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    NativeModules.SplashScreen.dismissSplashScreen();
+    SplashScreen?.dismissSplashScreen();
     startUnlock();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
