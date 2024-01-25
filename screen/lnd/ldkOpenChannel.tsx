@@ -18,7 +18,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-const currency = require('../../blue_modules/currency');
+import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 
 type LdkOpenChannelProps = RouteProp<
   {
@@ -223,11 +223,11 @@ const LdkOpenChannel = (props: any) => {
                 amountSats = parseInt(fundingAmount.amount, 10);
                 break;
               case BitcoinUnit.BTC:
-                amountSats = currency.btcToSatoshi(fundingAmount.amount);
+                amountSats = btcToSatoshi(fundingAmount.amount);
                 break;
               case BitcoinUnit.LOCAL_CURRENCY:
                 // also accounting for cached fiat->sat conversion to avoid rounding error
-                amountSats = currency.btcToSatoshi(currency.fiatToBTC(fundingAmount.amount));
+                amountSats = btcToSatoshi(fiatToBTC(fundingAmount.amount));
                 break;
             }
             setFundingAmount({ amount: fundingAmount.amount, amountSats });
@@ -237,10 +237,10 @@ const LdkOpenChannel = (props: any) => {
             let amountSats = fundingAmount.amountSats;
             switch (unit) {
               case BitcoinUnit.BTC:
-                amountSats = currency.btcToSatoshi(text);
+                amountSats = btcToSatoshi(text);
                 break;
               case BitcoinUnit.LOCAL_CURRENCY:
-                amountSats = currency.btcToSatoshi(currency.fiatToBTC(text));
+                amountSats = btcToSatoshi(fiatToBTC(Number(text)));
                 break;
               case BitcoinUnit.SATS:
                 amountSats = parseInt(text, 10);

@@ -44,7 +44,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-const currency = require('../../blue_modules/currency');
+import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
@@ -145,12 +145,12 @@ const SendDetails = () => {
             currentAddress.address = address;
             if (Number(amount) > 0) {
               currentAddress.amount = amount;
-              currentAddress.amountSats = currency.btcToSatoshi(amount);
+              currentAddress.amountSats = btcToSatoshi(amount);
             }
             addrs[scrollIndex.current] = currentAddress;
             return [...addrs];
           } else {
-            return [...addrs, { address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }];
+            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount), key: String(Math.random()) }];
           }
         });
 
@@ -285,8 +285,8 @@ const SendDetails = () => {
         if (value > 0) {
           targets.push({ address: transaction.address, value });
         } else if (transaction.amount) {
-          if (currency.btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+          if (btcToSatoshi(transaction.amount) > 0) {
+            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
           }
         }
       }
@@ -517,8 +517,8 @@ const SendDetails = () => {
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
-        if (currency.btcToSatoshi(transaction.amount) > 0) {
-          targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+        if (btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
         }
       }
     }
@@ -1329,11 +1329,11 @@ const SendDetails = () => {
                   addr.amountSats = parseInt(addr.amount, 10);
                   break;
                 case BitcoinUnit.BTC:
-                  addr.amountSats = currency.btcToSatoshi(addr.amount);
+                  addr.amountSats = btcToSatoshi(addr.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   // also accounting for cached fiat->sat conversion to avoid rounding error
-                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || currency.btcToSatoshi(currency.fiatToBTC(addr.amount));
+                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(addr.amount));
                   break;
               }
 
@@ -1350,10 +1350,10 @@ const SendDetails = () => {
               item.amount = text;
               switch (units[index] || amountUnit) {
                 case BitcoinUnit.BTC:
-                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  item.amountSats = btcToSatoshi(item.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
-                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  item.amountSats = btcToSatoshi(fiatToBTC(item.amount));
                   break;
                 case BitcoinUnit.SATS:
                 default:

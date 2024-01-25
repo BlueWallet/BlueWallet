@@ -7,9 +7,9 @@ import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
 import alert from '../components/Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
+import { PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
 const BlueApp = require('../BlueApp');
 const BlueElectrum = require('./BlueElectrum');
-const currency = require('../blue_modules/currency');
 const A = require('../blue_modules/analytics');
 
 const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
@@ -23,7 +23,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [walletsInitialized, setWalletsInitialized] = useState(false);
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   const [language, _setLanguage] = useState();
-  const getPreferredCurrencyAsyncStorage = useAsyncStorage(currency.PREFERRED_CURRENCY).getItem;
+  const getPreferredCurrencyAsyncStorage = useAsyncStorage(PREFERRED_CURRENCY_STORAGE_KEY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);

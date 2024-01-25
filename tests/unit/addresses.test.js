@@ -4,7 +4,7 @@ import { TABS } from '../../components/addresses/AddressTypeTabs';
 
 jest.mock('../../blue_modules/currency', () => {
   return {
-    init: jest.fn(),
+    initCurrencyDaemon: jest.fn(),
   };
 });
 

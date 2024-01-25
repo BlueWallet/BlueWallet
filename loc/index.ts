@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import { I18nManager } from 'react-native';
-const currency = require('../blue_modules/currency');
+import { satoshiToLocalCurrency } from '../blue_modules/currency';
 
 export const STORAGE_KEY = 'lang';
 
@@ -310,7 +310,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
   } else if (toUnit === BitcoinUnit.SATS) {
     return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(balance);
+    return satoshiToLocalCurrency(balance);
   }
 }
 
@@ -332,7 +332,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
     } else if (toUnit === BitcoinUnit.SATS) {
       return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(balance);
+      return satoshiToLocalCurrency(balance);
     }
   }
   return balance.toString();
@@ -349,7 +349,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return _leaveNumbersAndDots(newInputValue);
+  return _leaveNumbersAndDots(newInputValue.toString());
 }
 
 export function _leaveNumbersAndDots(newInputValue: string) {

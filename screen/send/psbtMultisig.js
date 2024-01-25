@@ -12,9 +12,9 @@ import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
-const currency = require('../../blue_modules/currency');
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
@@ -81,7 +81,7 @@ const PsbtMultisig = () => {
   }
   destination = shortenAddress(destination.join(', '));
   const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
-  const totalFiat = currency.satoshiToLocalCurrency(totalSat);
+  const totalFiat = satoshiToLocalCurrency(totalSat);
 
   const getFee = () => {
     return wallet.calculateFeeFromPsbt(psbt);
@@ -252,9 +252,9 @@ const PsbtMultisig = () => {
       <View style={styles.bottomWrapper}>
         <View style={styles.bottomFeesWrapper}>
           <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
-            {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
+            {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
           </BlueText>
-          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
+          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
         </View>
       </View>
       <View style={styles.marginConfirmButton}>
