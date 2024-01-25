@@ -50,32 +50,52 @@ class WidgetAPI {
     guard let url = URL(string:urlString) else { return }
 
     if source == "BNR" {
-      URLSession.shared.dataTask(with: url) { (data, response, error) in
-         if let error = error {
-             print("Error fetching data: \(error.localizedDescription)")
-             completion(nil, error)
-             return
-         }
+ URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if let error = error {
+                print("Error fetching data: \(error.localizedDescription)")
+                completion(nil, error)
+                return
+            }
 
-         guard let data = data else {
-             print("No data received")
-             completion(nil, nil)
-             return
-         }
+            guard let data = data else {
+                print("No data received")
+                completion(nil, nil)
+                return
+            }
 
-         // Parse XML data
-         let parser = XMLParser(data: data)
-         let delegate = BNRXMLParserDelegate()
-         parser.delegate = delegate
-         if parser.parse(), let rate = delegate.usdRate {
-             let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-             let latestRateDataStore = WidgetDataStore(rate: String(rate), lastUpdate: lastUpdatedString, rateDouble: rate)
-             completion(latestRateDataStore, nil)
-         } else {
-           print("Error parsing XML")
-           completion(nil, CurrencyError())
-         }
-       }.resume()
+            // Parse XML data for USD to RON rate
+            let parser = XMLParser(data: data)
+            let delegate = BNRXMLParserDelegate()
+            parser.delegate = delegate
+            if parser.parse(), let usdToRonRate = delegate.usdRate {
+                // Fetch BTC to USD rate using CoinGecko
+                let coinGeckoUrl = URL(string: "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd")!
+                URLSession.shared.dataTask(with: coinGeckoUrl) { (data, _, error) in
+                    guard let data = data, error == nil else {
+                        completion(nil, error ?? CurrencyError())
+                        return
+                    }
+
+                    do {
+                        if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                           let bitcoinDict = json["bitcoin"] as? [String: Double],
+                           let btcToUsdRate = bitcoinDict["usd"] {
+                            let btcToRonRate = btcToUsdRate * usdToRonRate
+                            let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+                            let latestRateDataStore = WidgetDataStore(rate: String(btcToRonRate), lastUpdate: lastUpdatedString, rateDouble: btcToRonRate)
+                            completion(latestRateDataStore, nil)
+                        } else {
+                            completion(nil, CurrencyError())
+                        }
+                    } catch {
+                        completion(nil, error)
+                    }
+                }.resume()
+            } else {
+                print("Error parsing XML")
+                completion(nil, CurrencyError())
+            }
+        }.resume()
       } else {
         URLSession.shared.dataTask(with: url) { (data, response, error) in
         guard let dataResponse = data,

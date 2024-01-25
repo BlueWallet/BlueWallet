@@ -1,0 +1,75 @@
+{
+  "_": {
+    "bad_password": "Password wey you enter no correct, run am again",
+    "cancel": "Cancel",
+    "never": "lai lai",
+    "success": "You correct",
+    "close": "Close am"
+  },
+  "azteco": {
+    "success": "You correct"
+  },
+  "lnd": {
+    "are_you_sure_open_channel": "You sure say you wan open this channel?",
+    "refill_create": "To proceed like this so, abeg create Bitcoin wallet wey you go refill am with",
+    "can_send": "You fit send",
+    "can_receive": "You fit receive",
+    "view_logs": "run shadow your logs"
+  },
+  "lndViewInvoice": {
+    "please_pay_between_and": "Abeg pay between {min} and {max}",
+    "please_pay": "Abeg pay",
+    "wasnt_paid_and_expired": "You nor quick pay this invoice and e don kalas"
+  },
+  "plausibledeniability": {
+    "password_should_not_match": "You dey use this password, run another password wey you never use.",
+    "passwords_do_not_match": "Abobi your password nor match",
+    "success": "You correct"
+  },
+  "receive": {
+    "maxSats": "Maximum amount na {max} sats",
+    "minSatsFull": "Minimal amount na {min} sats or {currency}"
+  },
+  "send": {
+    "broadcastPending": "Pend",
+    "broadcastSuccess": "You correct",
+    "confirm_header": "Confam",
+    "confirm_sendNow": "Push am",
+    "create_copy": "Copy make you broadcast am later",
+    "details_total_exceeds_balance": "The amount you dey try send pass wetin you get for balance",
+    "details_unrecognized_file_format": "We no sabi this file format",
+    "details_wallet_before_tx": "Before you create transaction, you go first add Bitcoin wallet.",
+    "dynamic_init": "E dey load",
+    "input_clear": "wipe am",
+    "psbt_this_is_psbt": "Na Partially Signed Bitcoin Transaction be this. Abeg run am finish with your hardware wallet wey dey offline.  ",
+    "reset_amount_confirm": "You go like reset the bar?"
+  },
+  "settings": {
+    "about_sm_github": "GitHub",
+    "about_sm_discord": "Discord Server",
+    "about_sm_telegram": "Telegram channel",
+    "about_sm_twitter": "Follow us for Twitter na",
+    "biom_10times": "Na like 10 times you don enter password, You go like reset your storage? This one go comot all your wallets and e go decrypt your storage.",
+    "biom_conf_identity": "Abeg confirm who you be.",
+    "biom_no_passcode": "Your device no get passcode. Like this so, abeg put passcode for the app settings.",
+    "currency_fetch_error": "Error dey as we dey find rate for the currency you select. ",
+    "default_info": "Normal info",
+    "default_title": "As you launch",
+    "default_wallets": "See all your wallets",
+    "electrum_clear_alert_title": "You wan clear history?",
+    "electrum_clear_alert_message": "You wan clear electrum servers history?",
+    "electrum_clear_alert_cancel": "Cancel",
+    "electrum_clear_alert_ok": "Ok",
+    "electrum_select": "Select",
+    "electrum_unable_to_connect": "We nor fit connect to [server]",
+    "electrum_history": "The server history",
+    "electrum_reset_to_default": "You sure say you wan reset your Electrum settings to as e take dey before?",
+    "electrum_clear": "wipe am"
+  },
+  "transactions": {
+    "pending": "Pend"
+  },
+  "multisig": {
+    "confirm": "Confam"
+  }
+}

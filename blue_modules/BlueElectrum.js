@@ -4,13 +4,11 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } fro
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
-import { isTorCapable, isTorDaemonDisabled } from './environment';
 import alert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
-const torrific = isTorCapable ? require('./torrific') : require('../scripts/maccatalystpatches/torrific.js');
 
 const Realm = require('realm');
 
@@ -123,13 +121,7 @@ async function connectMain() {
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(
-      usingPeer.host.endsWith('.onion') && !(await isTorDaemonDisabled()) ? torrific : global.net,
-      global.tls,
-      usingPeer.ssl || usingPeer.tcp,
-      usingPeer.host,
-      usingPeer.ssl ? 'tls' : 'tcp',
-    );
+    mainClient = new ElectrumClient(global.net, global.tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
 
     mainClient.onError = function (e) {
       console.log('electrum mainClient.onError():', e.message);
@@ -611,6 +603,7 @@ module.exports.multiGetHistoryByAddress = async function (addresses, batchsize) 
 };
 
 module.exports.multiGetTransactionByTxid = async function (txids, batchsize, verbose = true) {
+  txids = txids.filter(txid => !!txid); // failsafe: removing 'undefined' or other falsy stuff from txids array
   batchsize = batchsize || 45;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
@@ -941,21 +934,14 @@ module.exports.calculateBlockTime = function (height) {
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
 module.exports.testConnection = async function (host, tcpPort, sslPort) {
-  const isTorDisabled = await isTorDaemonDisabled();
-  const client = new ElectrumClient(
-    host.endsWith('.onion') && !isTorDisabled ? torrific : global.net,
-    global.tls,
-    sslPort || tcpPort,
-    host,
-    sslPort ? 'tls' : 'tcp',
-  );
+  const client = new ElectrumClient(global.net, global.tls, sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
 
   client.onError = () => {}; // mute
   let timeoutId = false;
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && !isTorDisabled ? 21000 : 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), 5000);
       }),
       client.connect(),
     ]);

@@ -13,9 +13,8 @@ import {
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Text } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueCurrentTheme } from '../../components/themes';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
@@ -24,6 +23,8 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import alert from '../../components/Alert';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
@@ -92,12 +93,12 @@ export default class CPFP extends Component {
         if (result) {
           this.onSuccessBroadcast();
         } else {
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           this.setState({ isLoading: false });
           alert(loc.errors.broadcast);
         }
       } catch (error) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         this.setState({ isLoading: false });
         alert(error.message);
       }
@@ -161,7 +162,7 @@ export default class CPFP extends Component {
   renderStage1(text) {
     return (
       <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
-        <SafeBlueArea style={styles.root}>
+        <SafeArea style={styles.root}>
           <BlueSpacing />
           <BlueCard style={styles.center}>
             <BlueText>{text}</BlueText>
@@ -174,7 +175,7 @@ export default class CPFP extends Component {
               title={loc.transactions.cpfp_create}
             />
           </BlueCard>
-        </SafeBlueArea>
+        </SafeArea>
       </KeyboardAvoidingView>
     );
   }
@@ -217,7 +218,7 @@ export default class CPFP extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={styles.root}>
+        <SafeArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -225,14 +226,14 @@ export default class CPFP extends Component {
           <BlueSpacing20 />
 
           <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
-        </SafeBlueArea>
+        </SafeArea>
       );
     }
 
     return (
-      <SafeBlueArea style={styles.explain}>
+      <SafeArea style={styles.explain}>
         <ScrollView>{this.renderStage1(loc.transactions.cpfp_exp)}</ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

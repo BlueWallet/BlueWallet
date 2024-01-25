@@ -1,0 +1,18 @@
+--- ../node_modules/react-native-widget-center/android/build.gradle	2023-11-10 11:25:36
++++ ../node_modules/react-native-widget-center/android/build.gradle	2023-11-10 11:25:42
+
+@@ -103,12 +103,12 @@
+     }
+ 
+     task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
+-        classifier = 'javadoc'
++        archiveClassifier.set('javadoc')
+         from androidJavadoc.destinationDir
+     }
+ 
+     task androidSourcesJar(type: Jar) {
+-        classifier = 'sources'
++        archiveClassifier.set('sources')
+         from android.sourceSets.main.java.srcDirs
+         include '**/*.java'
+     }

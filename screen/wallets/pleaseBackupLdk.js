@@ -2,13 +2,14 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const PleaseBackupLdk = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -50,7 +51,7 @@ const PleaseBackupLdk = () => {
 
   const pop = () => navigation.getParent().pop();
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View>
           <BlueTextCentered>Please save this wallet backup. It allows you to restore all your channels on other device.</BlueTextCentered>
@@ -73,7 +74,7 @@ const PleaseBackupLdk = () => {
         <BlueSpacing20 />
         <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

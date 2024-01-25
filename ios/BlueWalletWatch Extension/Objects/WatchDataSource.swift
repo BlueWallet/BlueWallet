@@ -102,7 +102,7 @@ class WatchDataSource: NSObject {
   func processData(data: [String: Any]) {
     
     if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-      groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredFiatCurrency")
+      groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
       groupUserDefaults?.synchronize()
         ExtensionDelegate.preferredFiatCurrencyChanged()
     } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {

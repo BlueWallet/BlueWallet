@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BlueListItem, BlueSpacing20 } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
@@ -13,12 +13,13 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const loadingAnimation = useRef();
-  const { walletLabel = loc.multisig.default_label } = useRoute().params;
+  const { walletLabel } = useRoute().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -152,21 +153,21 @@ const WalletsAddMultisig = () => {
 
             <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.wallet_type}</Text>
             <BlueSpacing20 />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2wsh}
               title={`${loc.multisig.native_segwit_title} (${MultisigHDWallet.FORMAT_P2WSH})`}
               checkmark={isP2wsh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2shP2wsh}
               title={`${loc.multisig.wrapped_segwit_title} (${MultisigHDWallet.FORMAT_P2SH_P2WSH})`}
               checkmark={isP2shP2wsh()}
               containerStyle={[styles.borderRadius6, styles.item, isP2shP2wsh() ? stylesHook.selectedItem : stylesHook.deSelectedItem]}
             />
-            <BlueListItem
+            <ListItem
               bottomDivider={false}
               onPress={setFormatP2sh}
               title={`${loc.multisig.legacy_title} (${MultisigHDWallet.FORMAT_P2SH})`}
@@ -198,7 +199,7 @@ const WalletsAddMultisig = () => {
     <SafeAreaView style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
-          <LottieView source={require('../../img/msvault.json')} autoPlay ref={loadingAnimation} loop={false} />
+          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay ref={loadingAnimation} loop={false} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
@@ -223,7 +224,7 @@ const WalletsAddMultisig = () => {
       </View>
       {isAdvancedModeEnabledRender && (
         <View>
-          <BlueListItem
+          <ListItem
             onPress={showAdvancedOptionsModal}
             title={loc.multisig.vault_advanced_customize}
             subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
@@ -295,6 +296,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: '#9AA0AA',
   },
+  lottie: {
+    width: 233,
+    height: 176,
+  },
   textHeader: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -306,8 +311,7 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     borderWidth: 0,
-    flexDirection: 'row',
-    height: 160,
+    alignItems: 'center',
   },
   rowCenter: {
     flexDirection: 'row',
@@ -331,7 +335,11 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
 };
 
 WalletsAddMultisig.navigationOptions = navigationStyle({
-  headerTitle: null,
+  title: '',
 });
+
+WalletsAddMultisig.initialParams = {
+  walletLabel: loc.multisig.default_label,
+};
 
 export default WalletsAddMultisig;

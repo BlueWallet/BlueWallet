@@ -13,7 +13,6 @@ import {
   View,
   I18nManager,
 } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
@@ -30,13 +29,12 @@ import alert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
-import { isTorCapable } from '../../blue_modules/environment';
 import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const currency = require('../../blue_modules/currency');
-const torrific = isTorCapable ? require('../../blue_modules/torrific') : require('../../scripts/maccatalystpatches/torrific.js');
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWalletID, isTorDisabled } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { name } = useRoute();
@@ -133,7 +131,7 @@ const LNDCreateInvoice = () => {
           });
         }
       } else {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         alert(loc.wallets.add_ln_wallet_first);
         goBack();
       }
@@ -181,7 +179,7 @@ const LNDCreateInvoice = () => {
                 ? loc.formatString(loc.receive.maxSats, { max })
                 : loc.formatString(loc.receive.maxSatsFull, { max, currency: formatBalance(max, unit) });
           }
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           alert(text);
           setIsLoading(false);
           return;
@@ -189,7 +187,7 @@ const LNDCreateInvoice = () => {
       }
 
       const invoiceRequest = await wallet.current.addInvoice(invoiceAmount, description);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
       /** @type LightningCustodianWallet */
@@ -202,20 +200,12 @@ const LNDCreateInvoice = () => {
         const { callback, k1 } = lnurlParams;
         const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
 
-        let reply;
-        if (!isTorDisabled && callbackUrl.includes('.onion')) {
-          const api = new torrific.Torsbee();
-          const torResponse = await api.get(callbackUrl);
-          reply = torResponse.body;
-          if (reply && typeof reply === 'string') reply = JSON.parse(reply);
-        } else {
-          const resp = await fetch(callbackUrl, { method: 'GET' });
-          if (resp.status >= 300) {
-            const text = await resp.text();
-            throw new Error(text);
-          }
-          reply = await resp.json();
+        const resp = await fetch(callbackUrl, { method: 'GET' });
+        if (resp.status >= 300) {
+          const text = await resp.text();
+          throw new Error(text);
         }
+        const reply = await resp.json();
 
         if (reply.status === 'ERROR') {
           throw new Error('Reply from server: ' + reply.reason);
@@ -233,7 +223,7 @@ const LNDCreateInvoice = () => {
         walletID: wallet.current.getID(),
       });
     } catch (Err) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       alert(Err.message);
     }
@@ -242,7 +232,7 @@ const LNDCreateInvoice = () => {
   const processLnurl = async data => {
     setIsLoading(true);
     if (!wallet.current) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       alert(loc.wallets.no_ln_wallet_error);
       return goBack();
     }
@@ -260,22 +250,14 @@ const LNDCreateInvoice = () => {
     }
 
     // calling the url
-    let reply;
     try {
-      if (!isTorDisabled && url.includes('.onion')) {
-        const api = new torrific.Torsbee();
-        const torResponse = await api.get(url);
-        reply = torResponse.body;
-        if (reply && typeof reply === 'string') reply = JSON.parse(reply);
-      } else {
-        const resp = await fetch(url, { method: 'GET' });
-        if (resp.status >= 300) {
-          throw new Error('Bad response from server');
-        }
-        reply = await resp.json();
-        if (reply.status === 'ERROR') {
-          throw new Error('Reply from server: ' + reply.reason);
-        }
+      const resp = await fetch(url, { method: 'GET' });
+      if (resp.status >= 300) {
+        throw new Error('Bad response from server');
+      }
+      const reply = await resp.json();
+      if (reply.status === 'ERROR') {
+        throw new Error('Reply from server: ' + reply.reason);
       }
 
       if (reply.tag === Lnurl.TAG_PAY_REQUEST) {
@@ -325,7 +307,7 @@ const LNDCreateInvoice = () => {
     } catch (Err) {
       Keyboard.dismiss();
       setIsLoading(false);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       alert(Err.message);
     }
   };

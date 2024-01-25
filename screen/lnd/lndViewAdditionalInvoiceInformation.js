@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCopyTextToClipboard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -9,6 +9,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const LNDViewAdditionalInvoiceInformation = () => {
   const { walletID } = useRoute().params;
@@ -45,14 +46,14 @@ const LNDViewAdditionalInvoiceInformation = () => {
 
   if (walletInfo === undefined) {
     return (
-      <SafeBlueArea style={[styles.loading, stylesHook.loading]}>
+      <SafeArea style={[styles.loading, stylesHook.loading]}>
         <BlueLoading />
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={styles.wrapper}>
         <View style={styles.qrcode}>
           <QRCodeComponent value={walletInfo.uris[0]} size={300} />
@@ -76,7 +77,7 @@ const LNDViewAdditionalInvoiceInformation = () => {
           />
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

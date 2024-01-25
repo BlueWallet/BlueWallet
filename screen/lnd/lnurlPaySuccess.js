@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -72,7 +73,7 @@ export default class LnurlPaySuccess extends Component {
     const { preamble, message, url, justPaid } = this.state;
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeArea style={styles.root}>
         <ScrollView style={styles.container}>
           {justPaid && <SuccessView />}
 
@@ -127,7 +128,7 @@ export default class LnurlPaySuccess extends Component {
             )}
           </BlueCard>
         </ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

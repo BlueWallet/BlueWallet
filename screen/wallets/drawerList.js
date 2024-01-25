@@ -1,15 +1,14 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, LayoutAnimation } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { useIsFocused } from '@react-navigation/native';
-
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const DrawerList = props => {
   const walletsCarousel = useRef();
@@ -33,11 +32,11 @@ const DrawerList = props => {
   const handleClick = item => {
     if (item?.getID) {
       const walletID = item.getID();
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setSelectedWalletID(walletID);
-      props.navigation.navigate('WalletTransactions', {
-        walletID: item.getID(),
-        walletType: item.type,
-        key: `WalletTransactions-${walletID}`,
+      props.navigation.navigate({
+        name: 'WalletTransactions',
+        params: { walletID, walletType: item.type },
       });
     } else {
       props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
@@ -48,7 +47,7 @@ const DrawerList = props => {
     if (wallets.length > 1) {
       props.navigation.navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
 
@@ -59,7 +58,7 @@ const DrawerList = props => {
   return (
     <DrawerContentScrollView
       {...props}
-      style={[styles.root, stylesHook.root]}
+      drawerContentContainerStyle={[styles.root, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       showsHorizontalScrollIndicator={false}

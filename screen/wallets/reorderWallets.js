@@ -1,73 +1,21 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
-import { View, Image, Text, StyleSheet, I18nManager, Pressable, useColorScheme, Platform } from 'react-native';
-import { BluePrivateBalance } from '../../BlueComponents';
+import { StyleSheet, useColorScheme, Platform } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import LinearGradient from 'react-native-linear-gradient';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
-import WalletGradient from '../../class/wallet-gradient';
-import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
+import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { WalletCarouselItem } from '../../components/WalletsCarousel';
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  itemRoot: {
-    backgroundColor: 'transparent',
-    padding: 10,
-  },
-  gradient: {
-    padding: 15,
-    borderRadius: 10,
-    minHeight: 164,
-    elevation: 5,
-  },
-  image: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-  },
-  transparentText: {
-    backgroundColor: 'transparent',
-  },
-  tip: {
-    marginHorizontal: 16,
-    borderRadius: 12,
+  padding16: {
     padding: 16,
-    marginVertical: 24,
-  },
-  label: {
-    backgroundColor: 'transparent',
-    fontSize: 19,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  balance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  latestTxLabel: {
-    backgroundColor: 'transparent',
-    fontSize: 13,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  latestTxValue: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
 });
 
@@ -77,6 +25,10 @@ const ReorderWallets = () => {
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const colorScheme = useColorScheme();
   const { navigate, setOptions } = useNavigation();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [walletData, setWalletData] = useState([]);
+
   const stylesHook = {
     root: {
       backgroundColor: colors.elevated,
@@ -85,7 +37,6 @@ const ReorderWallets = () => {
       backgroundColor: colors.ballOutgoingExpired,
     },
   };
-  const [walletData, setWalletData] = useState([]);
 
   useEffect(() => {
     setWalletData(wallets);
@@ -97,80 +48,60 @@ const ReorderWallets = () => {
     });
   }, [colorScheme, setOptions]);
 
+  useEffect(() => {
+    // Filter wallets based on search query
+    const filteredWallets = wallets.filter(wallet => wallet.getLabel().toLowerCase().includes(searchQuery.toLowerCase()));
+    setWalletData(filteredWallets);
+  }, [wallets, searchQuery]);
+
+  useEffect(() => {
+    // Set navigation options dynamically
+    setOptions({
+      headerSearchBarOptions: {
+        hideWhenScrolling: false,
+        onChangeText: event => setSearchQuery(event.nativeEvent.text),
+        onClear: () => setSearchQuery(''),
+        onFocus: () => setIsSearchFocused(true),
+        onBlur: () => setIsSearchFocused(false),
+        placeholder: loc.wallets.search_wallets,
+      },
+    });
+  }, [setSearchQuery, setIsSearchFocused, setOptions]);
+
   const navigateToWallet = wallet => {
     const walletID = wallet.getID();
     navigate('WalletTransactions', {
       walletID,
       walletType: wallet.type,
-      key: `WalletTransactions-${walletID}`,
     });
   };
 
   const renderItem = ({ item, drag, isActive }) => {
+    const itemOpacity = isActive ? 1 : 0.5; // Set opacity to 0.5 if not active
+
     return (
       <ScaleDecorator>
-        <Pressable
-          accessibilityRole="button"
-          disabled={isActive}
-          onLongPress={drag}
-          onPress={() => navigateToWallet(item)}
-          shadowOpacity={40 / 100}
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={5}
-          style={styles.itemRoot}
-        >
-          <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
-            <Image
-              source={(() => {
-                switch (item.type) {
-                  case LightningLdkWallet.type:
-                  case LightningCustodianWallet.type:
-                    return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
-                  case MultisigHDWallet.type:
-                    return I18nManager.isRTL ? require('../../img/vault-shape-rtl.png') : require('../../img/vault-shape.png');
-                  default:
-                    return I18nManager.isRTL ? require('../../img/btc-shape-rtl.png') : require('../../img/btc-shape.png');
-                }
-              })()}
-              style={styles.image}
-            />
-
-            <Text style={styles.transparentText} />
-            <Text numberOfLines={1} style={styles.label}>
-              {item.getLabel()}
-            </Text>
-            {item.hideBalance ? (
-              <BluePrivateBalance />
-            ) : (
-              <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
-                {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-              </Text>
-            )}
-            <Text style={styles.transparentText} />
-            <Text numberOfLines={1} style={styles.latestTxLabel}>
-              {loc.wallets.list_latest_transaction}
-            </Text>
-            <Text numberOfLines={1} style={styles.latestTxValue}>
-              {item.getTransactions().find(tx => tx.confirmations === 0)
-                ? loc.transactions.pending.toLowerCase()
-                : transactionTimeToReadable(item.getLatestTransactionTime())}
-            </Text>
-          </LinearGradient>
-        </Pressable>
+        <WalletCarouselItem
+          item={item}
+          handleLongPress={isDraggingDisabled ? null : drag}
+          isActive={isActive}
+          onPress={navigateToWallet}
+          customStyle={[styles.padding16, { opacity: itemOpacity }]} // Apply opacity style
+        />
       </ScaleDecorator>
     );
   };
 
   const onChangeOrder = () => {
-    ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
   };
 
   const onDragBegin = () => {
-    ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
   };
 
   const onRelease = () => {
-    ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   };
 
   const onDragEnd = ({ data }) => {
@@ -180,18 +111,14 @@ const ReorderWallets = () => {
 
   const _keyExtractor = (_item, index) => index.toString();
 
-  const ListHeaderComponent = (
-    <View style={[styles.tip, stylesHook.tip]}>
-      <Text style={{ color: colors.foregroundColor }}>{loc.wallets.reorder_instructions}</Text>
-    </View>
-  );
+  const isDraggingDisabled = searchQuery.length > 0 || isSearchFocused;
 
   return (
     <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
       <DraggableFlatList
-        ListHeaderComponent={ListHeaderComponent}
         ref={sortableList}
-        dragItemOverflow
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustContentInsets
         data={walletData}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}

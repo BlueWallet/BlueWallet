@@ -44,7 +44,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return pubkeyHex;
   }
 
-  constructor(props: any) {
+  constructor(props?: any) {
     super(props);
     this.preferredBalanceUnit = BitcoinUnit.SATS;
     this.chain = Chain.OFFCHAIN;

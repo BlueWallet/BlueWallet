@@ -62,7 +62,7 @@ function WatchConnectivity() {
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
-      const preferredFiatCurrencyParsed = JSON.parse(preferredFiatCurrency);
+      const preferredFiatCurrencyParsed = preferredFiatCurrency ?? FiatUnit.USD;
       try {
         if (lastPreferredCurrency.current !== preferredFiatCurrencyParsed.endPointKey) {
           transferCurrentComplicationUserInfo({

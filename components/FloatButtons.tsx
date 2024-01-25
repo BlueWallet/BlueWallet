@@ -1,7 +1,8 @@
 import React, { useState, useRef, forwardRef, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
-import { useTheme } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useTheme } from './themes';
 
 const BORDER_RADIUS = 30;
 const PADDINGS = 8;
@@ -34,10 +35,10 @@ interface FContainerProps {
 }
 
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
+  const insets = useSafeAreaInsets();
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
-  const insets = useSafeAreaInsets();
-  const bottomInsets = { bottom: insets.bottom };
+  const bottomInsets = { bottom: insets.bottom ? insets.bottom + 10 : 30 };
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
@@ -141,7 +142,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
   }
 
   return (
-    <TouchableOpacity accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
+    <TouchableOpacity accessibilityLabel={text} accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
       <View style={bStyles.icon}>{icon}</View>
       <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}

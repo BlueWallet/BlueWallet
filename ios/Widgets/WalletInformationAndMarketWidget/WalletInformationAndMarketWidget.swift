@@ -11,8 +11,10 @@ import SwiftUI
 
 struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
   typealias Entry = WalletInformationAndMarketWidgetEntry
+  static var lastSuccessfulEntry: WalletInformationAndMarketWidgetEntry?
+
   func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
-    return WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
+    return WalletInformationAndMarketWidgetEntry.placeholder
   }
   
   func getSnapshot(in context: Context, completion: @escaping (WalletInformationAndMarketWidgetEntry) -> ()) {
@@ -33,21 +35,28 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
     } else {
-      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency();
+      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
       let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
-      let marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-      WidgetAPI.fetchMarketData(currency: userPreferredCurrency, completion: { (result, error) in
+      
+      WidgetAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
         let entry: WalletInformationAndMarketWidgetEntry
+        
         if let result = result {
           entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: result, allWalletsBalance: allwalletsBalance)
-          
+          WalletInformationAndMarketWidgetProvider.lastSuccessfulEntry = entry
         } else {
-          entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketDataEntry, allWalletsBalance: allwalletsBalance)
+          // Use the last successful entry if available
+          if let lastEntry = WalletInformationAndMarketWidgetProvider.lastSuccessfulEntry {
+            entry = lastEntry
+          } else {
+            // Fallback to a default entry if no successful entry is available
+            entry = WalletInformationAndMarketWidgetEntry.placeholder
+          }
         }
         entries.append(entry)
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
-      })
+      }
     }
   }
 }
@@ -56,6 +65,7 @@ struct WalletInformationAndMarketWidgetEntry: TimelineEntry {
   let date: Date
   let marketData: MarketData
   var allWalletsBalance: WalletData = WalletData(balance: 0)
+  static var placeholder = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0), allWalletsBalance: WalletData(balance: 0, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
 }
 
 struct WalletInformationAndMarketWidgetEntryView : View {

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useContext, useRef, useEffect } from 'rea
 import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
@@ -12,6 +12,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
 import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -94,7 +95,7 @@ const WalletExport = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
+    <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
@@ -130,7 +131,7 @@ const WalletExport = () => {
           </React.Fragment>
         ))}
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

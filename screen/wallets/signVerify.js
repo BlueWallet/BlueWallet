@@ -12,15 +12,16 @@ import {
   View,
 } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
-import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -73,7 +74,7 @@ const SignVerify = () => {
       setSignature(newSignature);
       setIsShareVisible(true);
     } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       Alert.alert(loc.errors.error, e.message);
     }
 
@@ -90,10 +91,10 @@ const SignVerify = () => {
         res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
       );
       if (res) {
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       Alert.alert(loc.errors.error, e.message);
     }
     setLoading(false);
@@ -112,7 +113,7 @@ const SignVerify = () => {
     );
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHooks.root]}>
+    <SafeArea style={[styles.root, stylesHooks.root]}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
           {!isKeyboardVisible && (
@@ -227,7 +228,7 @@ const SignVerify = () => {
           })}
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

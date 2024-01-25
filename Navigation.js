@@ -14,7 +14,6 @@ import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
-import TorSettings from './screen/settings/torSettings';
 import Tools from './screen/settings/tools';
 import GeneralSettings from './screen/settings/GeneralSettings';
 import NetworkSettings from './screen/settings/NetworkSettings';
@@ -26,7 +25,7 @@ import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
-import WalletsAddMultisigHelp from './screen/wallets/addMultisigHelp';
+import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
@@ -130,7 +129,6 @@ const WalletsRoot = () => {
       />
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
-      <WalletsStack.Screen name="TorSettings" component={TorSettings} options={TorSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions(theme)} />
       <WalletsStack.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
       <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
@@ -194,6 +192,7 @@ const AddWalletRoot = () => {
         name="WalletsAddMultisig"
         component={WalletsAddMultisig}
         options={WalletsAddMultisig.navigationOptions(theme)}
+        initialParams={WalletsAddMultisig.initialParams}
       />
       <AddWalletStack.Screen
         name="WalletsAddMultisigStep2"
@@ -203,7 +202,7 @@ const AddWalletRoot = () => {
       <AddWalletStack.Screen
         name="WalletsAddMultisigHelp"
         component={WalletsAddMultisigHelp}
-        options={WalletsAddMultisigHelp.navigationOptions(theme)}
+        options={WalletAddMultisigHelpNavigationOptions}
       />
     </AddWalletStack.Navigator>
   );
@@ -283,7 +282,12 @@ const ScanLndInvoiceRoot = () => {
 
   return (
     <ScanLndInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions(theme)} />
+      <ScanLndInvoiceStack.Screen
+        name="ScanLndInvoice"
+        component={ScanLndInvoice}
+        options={ScanLndInvoice.navigationOptions(theme)}
+        initialParams={ScanLndInvoice.initialParams}
+      />
       <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
@@ -323,8 +327,12 @@ const AztecoRedeemRoot = () => {
 
 const ScanQRCodeStack = createNativeStackNavigator();
 const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator screenOptions={{ headerShown: false, presentation: isDesktop ? 'containedModal' : 'fullScreenModal' }}>
-    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} />
+  <ScanQRCodeStack.Navigator
+    initialRouteName="ScanQRCode"
+    name="ScanQRCodeRoot"
+    screenOptions={{ headerShown: false, presentation: 'fullScreenModal' }}
+  >
+    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} initialParams={ScanQRCode.initialParams} />
   </ScanQRCodeStack.Navigator>
 );
 
@@ -341,7 +349,11 @@ const ReorderWalletsStackRoot = () => {
 
   return (
     <ReorderWalletsStack.Navigator name="ReorderWalletsRoot" screenOptions={{ headerShadowVisible: false }}>
-      <ReorderWalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions(theme)} />
+      <ReorderWalletsStack.Screen
+        name="ReorderWalletsScreen"
+        component={ReorderWallets}
+        options={ReorderWallets.navigationOptions(theme)}
+      />
     </ReorderWalletsStack.Navigator>
   );
 };
@@ -447,7 +459,7 @@ const InitRoot = () => (
     <InitStack.Screen
       name="ReorderWallets"
       component={ReorderWalletsStackRoot}
-      options={{ headerShown: false, gestureEnabled: false, presentation: isDesktop ? 'containedModal' : 'modal' }}
+      options={{ headerShown: false, gestureEnabled: false, presentation: 'modal' }}
     />
     <InitStack.Screen
       name={isHandset ? 'Navigation' : 'DrawerRoot'}
@@ -510,8 +522,8 @@ const PaymentCodeStackRoot = () => {
 };
 
 const RootStack = createNativeStackNavigator();
-const NavigationDefaultOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'modal' };
-const NavigationFormModalOptions = { headerShown: false, presentation: isDesktop ? 'containedModal' : 'formSheet' };
+const NavigationDefaultOptions = { headerShown: false, presentation: 'modal' };
+const NavigationFormModalOptions = { headerShown: false, presentation: 'formSheet' };
 const StatusBarLightOptions = { statusBarStyle: 'light' };
 const Navigation = () => {
   return (
@@ -559,7 +571,7 @@ const Navigation = () => {
         component={ScanQRCodeRoot}
         options={{
           headerShown: false,
-          presentation: isDesktop ? 'containedModal' : 'fullScreenModal',
+          presentation: 'fullScreenModal',
           statusBarHidden: true,
         }}
         initialParams={ScanQRCode.initialParams}

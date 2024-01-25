@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>BlueWallet copy.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>113</integer>
+		</dict>
 		<key>BlueWallet for Apple Watch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -14,6 +19,11 @@
 			<key>orderHint</key>
 			<integer>71</integer>
 		</dict>
+		<key>BlueWallet-NoLDK.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>100</integer>
+		</dict>
 		<key>BlueWallet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -22,7 +32,7 @@
 		<key>BlueWalletUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>101</integer>
+			<integer>99</integer>
 		</dict>
 		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
 		<dict>

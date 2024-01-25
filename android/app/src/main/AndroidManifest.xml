@@ -1,14 +1,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  android:installLocation="auto">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
+    <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
+    <uses-permission android:name="android.permission.ACTION_CREATE_DOCUMENT" />
 
     <application
       android:name=".MainApplication"
@@ -18,7 +28,6 @@
       android:allowBackup="false"
       android:largeHeap="true"
       android:extractNativeLibs="true"
-      android:requestLegacyExternalStorage="true"
       android:usesCleartextTraffic="true"
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
@@ -55,11 +64,20 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+              <activity android:name=".SplashActivity"
+              android:exported="true"
+              >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
 
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
-        android:launchMode="singleInstance"
+        android:launchMode="singleTop"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
         android:windowSoftInputMode="adjustResize"
           android:exported="true">
@@ -79,26 +97,23 @@
           <data android:scheme="http" />
           <data android:scheme="https" />
         </intent-filter>
-        <intent-filter>
-  <action android:name="android.intent.action.VIEW" />
-  <action android:name="android.intent.action.EDIT" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <data
-    android:mimeType="application/octet-stream"
-    android:host="*"
-    android:pathPattern=".*\\.psbt"
-  />
-</intent-filter>
-        <intent-filter>
-  <action android:name="android.intent.action.VIEW" />
-  <action android:name="android.intent.action.EDIT" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <data
-    android:mimeType="text/plain"
-    android:host="*"
-    android:pathPattern=".*\\.psbt"
-  />
-</intent-filter>
+          <intent-filter tools:ignore="AppLinkUrlError">
+              <action android:name="android.intent.action.VIEW" />
+              <action android:name="android.intent.action.EDIT" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <data
+                  android:mimeType="application/octet-stream"
+                  android:pathPattern=".*\\.psbt" />
+          </intent-filter>
+          <intent-filter tools:ignore="AppLinkUrlError">
+              <action android:name="android.intent.action.VIEW" />
+              <action android:name="android.intent.action.EDIT" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <data
+                  android:mimeType="text/plain"
+                  android:pathPattern=".*\\.psbt" />
+          </intent-filter>
+
       </activity>
 
       <meta-data android:name="com.bugsnag.android.API_KEY" android:value="17ba9059f676f1cc4f45d98182388b01" />

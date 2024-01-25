@@ -49,12 +49,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
-        .catch((e: any) => {
+        .catch((e: Error) => {
           console.log('This Lndhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
     }
   }, [wallet]);
+
+  useEffect(() => {
+    setWallet(initialWallet);
+  }, [initialWallet]);
 
   useEffect(() => {
     verifyIfWalletAllowsOnchainAddress();
@@ -165,7 +169,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ref={menuRef}
         title={`${loc.wallets.balance} (${
           wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-            ? preferredFiatCurrency.endPointKey ?? FiatUnit.USD
+            ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
             : wallet.getPreferredBalanceUnit()
         })`}
         onPressMenuItem={onPressMenuItem}

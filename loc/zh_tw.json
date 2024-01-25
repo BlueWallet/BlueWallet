@@ -14,9 +14,7 @@
     "save": "儲存",
     "seed": "種子",
     "success": "成功",
-    "wallet_key": "錢包密鑰",
-    "invalid_animated_qr_code_fragment": "無效的動態二維碼，請重試。",
-    "downloads_folder": "下載資料夾"
+    "wallet_key": "錢包密鑰"
   },
   "azteco": {
     "codeIs": "您的優惠碼爲",
@@ -38,16 +36,13 @@
     "network": "網路錯誤"
   },
   "lnd": {
-    "errorInvoiceExpired": "賬單已過期",
     "expired": "已過期",
     "payButton": "支付",
-    "placeholder": "賬單",
-    "potentialFee": "潛在費用：{fee}",
     "refill": "增值",
     "refill_create": "爲了繼續進行，請建立一個要增值的比特幣錢包。",
     "refill_external": "用外部錢包增值",
     "refill_lnd_balance": "給閃電錢包增值",
-    "sameWalletAsInvoiceError": "你不能用建立賬單的錢包去支付該賬單。",
+    "sameWalletAsInvoiceError": "你不能用建立賬單的錢包去支付該賬單",
     "title": "管理資金",
     "can_send": "能傳送",
     "can_receive": "能接收"
@@ -58,7 +53,6 @@
     "lightning_invoice": "閃電賬單",
     "open_direct_channel": "使用此節點來開啟直接頻道：",
     "please_pay": "請付款",
-    "preimage": "原像",
     "sats": "聰",
     "wasnt_paid_and_expired": "此賬單尚未付款，已過期。"
   },
@@ -76,9 +70,10 @@
   },
   "pleasebackup": {
     "ask": "您是否保存了錢包的備份短語？ 如果您丟失了此設備，則需要此備份短語來訪問您的資金。沒有此備份短語，您的資金將永久丟失。",
-    "ask_no": "不，我還沒有",
-    "ask_yes": "是的，我完成了",
-    "text_lnd": "請儲存此錢包備份。這個備份可以在裝置遺失時用來恢複此錢包。"
+    "ok": "好，我把它写下来了。",
+    "ok_lnd": "好的，我已經儲存了",
+    "text_lnd": "請儲存此錢包備份。這個備份可以在裝置遺失時用來恢複此錢包。",
+    "title": "你的錢包已被建立。"
   },
   "receive": {
     "details_create": "建立",
@@ -119,7 +114,6 @@
     "details_error_decode": "錯誤：無法解密比特幣地址",
     "details_fee_field_is_not_valid": "費用無效",
     "details_next": "下一個",
-    "details_no_signed_tx": "所選檔案不包含可以匯入的交易。",
     "details_note_placeholder": "給自己的訊息",
     "details_scan": "掃描",
     "details_total_exceeds_balance": "發送金額超過可用結餘",
@@ -145,7 +139,6 @@
     "permission_camera_message": "我們需要您的授權許可才能使用您的相機。",
     "psbt_sign": "簽署一單交易",
     "open_settings": "開啟設定",
-    "permission_storage_later": "稍後問我",
     "permission_storage_message": "BlueWallet需要您的授權許可才能訪問您的儲存空間以儲存此檔案。",
     "permission_storage_title": "儲存訪問權限",
     "psbt_clipboard": "複製到剪貼簿",
@@ -185,7 +178,6 @@
     "default_wallets": "查看所有錢包",
     "electrum_connected": "已連接",
     "electrum_connected_not": "未連接",
-    "electrum_error_connect": "無法連接到提供的Electrum伺服器",
     "electrum_saved": "您的更變已成功儲存。要使更變生效，可能需要重新啟動BlueWallet。",
     "set_electrum_server_as_default": "將{server}設定為預設的Electrum伺服器？",
     "set_lndhub_as_default": "將{url}設定為預設的LNDHub伺服器？",
@@ -230,7 +222,6 @@
     "privacy_read_clipboard": "讀取剪貼板",
     "privacy_system_settings": "系統設定",
     "privacy_quickactions": "錢包捷徑",
-    "privacy_quickactions_explanation": "觸碰並按住主屏幕上的BlueWallet應用圖標，以快速查看您的錢包結餘。",
     "privacy_clipboard_explanation": "如果在剪貼簿中找到地址或賬單，請提供捷徑。",
     "push_notifications": "推送通知",
     "retype_password": "再次輸入密碼",
@@ -243,9 +234,7 @@
     "tools": "工具"
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "您想在收到款項時得到通知嗎？",
-    "no_and_dont_ask": "不，不要再問我",
-    "ask_me_later": "稍後問我"
+    "would_you_like_to_receive_notifications": "您想在收到款項時得到通知嗎？"
   },
   "transactions": {
     "cancel_no": "此交易不可替換。",
@@ -303,7 +292,6 @@
     "details_advanced": "進階的",
     "details_are_you_sure": "你確定嗎?",
     "details_connected_to": "連接到",
-    "details_del_wb_err": "提供的結餘與此錢包的結餘不匹配，請再試一遍。",
     "details_delete": "移除",
     "details_delete_wallet": "移除錢包",
     "details_derivation_path": "推導路徑",
@@ -330,11 +318,8 @@
     "import_success": "成功",
     "import_title": "匯入",
     "import_discovery_title": "探索",
-    "import_derivation_loading": "讀取中...",
-    "import_derivation_unknown": "未知",
     "list_create_a_button": "立即添加",
     "list_create_a_wallet": "建立一個錢包",
-    "list_create_a_wallet_text": "這是免費的，您可以建立\n喜歡多少就多少。",
     "list_empty_txs1": "你的交易將在這裡展示",
     "list_empty_txs1_lightning": "應使用閃電錢包進行日常交易。費用超便宜而且速度飛快。",
     "list_empty_txs2": "從你的錢包開始。",
@@ -398,19 +383,14 @@
     "quorum_header": "法定人數",
     "of": "的",
     "wallet_type": "錢包類型",
-    "invalid_mnemonics": "這個助記短語似乎無效。",
     "not_a_multisignature_xpub": "這不是來自多重簽署錢包的公鑰！",
-    "invalid_cosigner_format": "不正確的簽名人：這不是{format}格式的簽名人。",
     "create_new_key": "建立新的",
     "scan_or_open_file": "掃描或開啟檔案",
     "i_have_mnemonics": "我有這個密鑰的種子。",
     "type_your_mnemonics": "插入種子以匯入現有的保管庫密鑰。",
-    "this_is_cosigners_xpub": "這是共同簽名者的公鑰，可以導入另一個錢包。 分享是安全的。",
     "wallet_key_created": "您的保管庫密鑰已建立，花點時間安全地備份您的助記符種子。",
     "are_you_sure_seed_will_be_lost": "你確定嗎？ 如果沒有備份，助記符種子將丟失。",
     "forget_this_seed": "忘記此種子，而是使用公鑰。",
-    "view_edit_cosigners": "查看/編輯共同簽名者",
-    "this_cosigner_is_already_imported": "此共同簽名者已經被匯入。",
     "export_signed_psbt": "匯出已簽名的PSBT",
     "input_fp": "輸入指紋",
     "input_fp_explain": "跳過以使用默認值（00000000）",
@@ -433,13 +413,11 @@
     "owns": "{label}擁有{address}",
     "enter_address": "輸入地址",
     "check_address": "檢查地址",
-    "no_wallet_owns_address": "沒有可用的錢包擁有提供的地址。",
-    "view_qrcode": "檢視二維條碼"
+    "no_wallet_owns_address": "沒有可用的錢包擁有提供的地址。"
   },
   "cc": {
     "change": "更變。",
     "coins_selected": "所選的幣（{number}）",
-    "empty": "此錢包目前沒有幣。",
     "freeze": "凍結",
     "freezeLabel": "凍結",
     "freezeLabel_un": "解凍",

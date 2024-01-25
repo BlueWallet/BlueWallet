@@ -1,4 +1,3 @@
-#import <RNScreens/UIViewController+RNScreens.h>
 #import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
 #import <React/RCTLinkingManager.h>
@@ -50,17 +49,6 @@
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feature is enabled. Otherwise, it returns `false`.
-- (BOOL)concurrentRootEnabled
-{
-  return true;
-}
-
 
 - (void)observeValueForKeyPath:(NSString *) keyPath ofObject:(id) object change:(NSDictionary *) change context:(void *) context
 {
@@ -118,7 +106,7 @@
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (void)openSettings {
+- (void)openSettings:(UIKeyCommand *)keyCommand {
   [EventEmitter.sharedInstance openSettings];
 }
 
@@ -127,13 +115,35 @@
   [builder removeMenuForIdentifier:UIMenuServices];
   [builder removeMenuForIdentifier:UIMenuFormat];
   [builder removeMenuForIdentifier:UIMenuToolbar];
-  [builder removeMenuForIdentifier:UIMenuFile];
+  
+  // File -> Add Wallet (Command + A)
+   UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
+   [addWalletCommand setTitle:@"Add Wallet"];
+   UIMenu *addWalletMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand]];
+  
 
-  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
+   // Modify the existing File menu
+   UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
+   if (fileMenu) {
+       // Replace the children of the File menu with the Add Wallet menu
+       UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[addWalletMenu]];
+       [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
+   }
+  
+  // BlueWallet -> Settings (Command + ,)
+  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
   [settingsCommand setTitle:@"Settings..."];
-  UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:@"openSettings" options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
+  UIMenu *settings = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
   
   [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
+}
+
+// Action for Add Wallet
+- (void)addWalletAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance addWalletMenuAction];
+
+    NSLog(@"Add Wallet action performed");
 }
 
 

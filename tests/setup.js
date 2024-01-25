@@ -131,8 +131,15 @@ jest.mock('rn-ldk/lib/module', () => ({}));
 jest.mock('rn-ldk/src/index', () => ({}));
 
 const realmInstanceMock = {
+  create: function () {},
+  delete: function () {},
   close: function () {},
-  write: function () {},
+  write: function (transactionFn) {
+    if (typeof transactionFn === 'function') {
+      // to test if something is not right in Realm transactional database write
+      transactionFn();
+    }
+  },
   objectForPrimaryKey: function () {
     return {};
   },
@@ -147,6 +154,7 @@ const realmInstanceMock = {
 };
 jest.mock('realm', () => {
   return {
+    UpdateMode: { Modified: 1 },
     open: jest.fn(() => realmInstanceMock),
   };
 });

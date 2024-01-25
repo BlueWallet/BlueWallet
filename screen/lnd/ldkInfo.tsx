@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { SafeBlueArea, BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
+import { BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { Chain } from '../../models/bitcoinUnits';
@@ -14,6 +14,7 @@ import { AbstractWallet, LightningLdkWallet } from '../../class';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import StyledButton, { StyledButtonType } from '../../components/StyledButton';
+import SafeArea from '../../components/SafeArea';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -145,10 +146,6 @@ const LdkInfo = () => {
     setOptions({
       headerStyle: {
         backgroundColor: colors.customHeader,
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -263,8 +260,8 @@ const LdkInfo = () => {
             {status === LdkNodeInfoChannelStatus.PENDING
               ? loc.transactions.pending
               : channelData?.is_usable
-              ? loc.lnd.active
-              : loc.lnd.inactive}
+                ? loc.lnd.active
+                : loc.lnd.inactive}
           </Text>
 
           {status === LdkNodeInfoChannelStatus.INACTIVE && (
@@ -378,9 +375,8 @@ const LdkInfo = () => {
     return sectionForList;
   };
 
-  // @ts-ignore This kind of magic is not allowed in typescript, we should try and be more specific
   return (
-    <SafeBlueArea styles={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <SectionList
         ref={(ref: SectionList) => {
           sectionList.current = ref;
@@ -421,7 +417,7 @@ const LdkInfo = () => {
         <Button title={loc.lnd.new_channel} onPress={navigateToOpenPrivateChannel} disabled={isLoading} />
         <BlueSpacing20 />
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

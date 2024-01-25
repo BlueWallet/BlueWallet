@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { View, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import { SafeBlueArea, BlueCard, BlueListItem, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import OnAppLaunch from '../../class/on-app-launch';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import ListItem from '../../components/ListItem';
 
 const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
@@ -52,9 +53,9 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeBlueArea>
+    <ScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <View>
-        <BlueListItem
+        <ListItem
           title={loc.settings.default_wallets}
           Component={TouchableWithoutFeedback}
           switch={{
@@ -67,10 +68,10 @@ const DefaultView = () => {
           <BlueText>{loc.settings.default_desc}</BlueText>
         </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
+          <ListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
-    </SafeBlueArea>
+    </ScrollView>
   );
 };
 

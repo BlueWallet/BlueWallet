@@ -15,22 +15,19 @@ function scanQrHelper(
   navigateFunc: (scr: string, params?: any) => void,
   currentScreenName: string,
   showFileImportButton = true,
+  onDismiss?: () => void,
 ): Promise<string | null> {
   return requestCameraAuthorization().then(() => {
     return new Promise(resolve => {
       const params = {
         showFileImportButton: Boolean(showFileImportButton),
         onBarScanned: (data: any) => {},
-        onDismiss: () => {},
+        onDismiss,
       };
 
       params.onBarScanned = function (data: any) {
         setTimeout(() => resolve(data.data || data), 1);
         navigateFunc(currentScreenName);
-      };
-
-      params.onDismiss = function () {
-        setTimeout(() => resolve(null), 1);
       };
 
       navigateFunc('ScanQRCodeRoot', {
