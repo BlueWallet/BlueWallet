@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
-import { getPreferredCurrency, init, mostRecentFetchedRate, setPreferredCurrency } from '../../blue_modules/currency';
+import { getPreferredCurrency, initCurrencyDaemon, mostRecentFetchedRate, setPreferredCurrency } from '../../blue_modules/currency';
 dayjs.extend(require('dayjs/plugin/calendar'));
 
 const Currency = () => {
@@ -74,7 +74,7 @@ const Currency = () => {
                 try {
                   await getFiatRate(item.endPointKey);
                   await setPreferredCurrency(item);
-                  await init(true);
+                  await initCurrencyDaemon(true);
                   await fetchCurrency();
                   setSelectedCurrency(item);
                   setPreferredFiatCurrency();
