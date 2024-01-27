@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -33,6 +33,8 @@ const styles = StyleSheet.create({
   },
 });
 
+const { SplashScreen } = NativeModules;
+
 const UnlockWith = () => {
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
   const { dispatch } = useNavigation();
@@ -43,6 +45,7 @@ const UnlockWith = () => {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+    SplashScreen?.dismissSplashScreen();
     startUnlock();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
