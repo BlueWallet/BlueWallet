@@ -3,7 +3,7 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/13/19.
-//  Copyright © 2019 Facebook. All rights reserved.
+
 //
 
 import Foundation
@@ -58,7 +58,6 @@ class Wallet: NSObject, NSCoding {
     transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
     xpub = aDecoder.decodeObject(forKey: "xpub") as? String
     hideBalance = aDecoder.decodeObject(forKey: "hideBalance") as? Bool ?? false
-
   }
 
 }
