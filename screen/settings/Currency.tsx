@@ -10,15 +10,16 @@ import dayjs from 'dayjs';
 import alert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
-import { getPreferredCurrency, initCurrencyDaemon, mostRecentFetchedRate, setPreferredCurrency } from '../../blue_modules/currency';
+import {
+  CurrencyRate,
+  getPreferredCurrency,
+  initCurrencyDaemon,
+  mostRecentFetchedRate,
+  setPreferredCurrency,
+} from '../../blue_modules/currency';
 dayjs.extend(require('dayjs/plugin/calendar'));
 
 const ITEM_HEIGHT = 50;
-
-interface CurrencyRate {
-  LastUpdated: Date | null;
-  Rate: number | null;
-}
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
@@ -39,7 +40,7 @@ const Currency: React.FC = () => {
   });
 
   const fetchCurrency = async () => {
-    let preferredCurrency = FiatUnit.USD;
+    let preferredCurrency;
     try {
       preferredCurrency = await getPreferredCurrency();
       if (preferredCurrency === null) {
@@ -47,10 +48,12 @@ const Currency: React.FC = () => {
       }
       setSelectedCurrency(preferredCurrency);
     } catch (_error) {
-      setSelectedCurrency(preferredCurrency);
+      setSelectedCurrency(FiatUnit.USD);
     }
     const mostRecentFetchedRateValue = await mostRecentFetchedRate();
-    setCurrencyRate(mostRecentFetchedRateValue);
+    if (mostRecentFetchedRateValue) {
+      setCurrencyRate(mostRecentFetchedRateValue);
+    }
   };
 
   useLayoutEffect(() => {

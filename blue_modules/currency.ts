@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
-import { FiatUnit, getFiatRate } from '../models/fiatUnit';
+import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
 import WidgetCommunication from './WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
@@ -11,23 +11,22 @@ const LAST_UPDATED = 'LAST_UPDATED';
 const GROUP_IO_BLUEWALLET = 'group.io.bluewallet.bluewallet';
 const BTC_PREFIX = 'BTC_';
 
-type FiatCurrency = {
-  endPointKey: string;
-  locale: string;
-  symbol: string;
-};
+export interface CurrencyRate {
+  LastUpdated: Date | null;
+  Rate: number | string | null;
+}
 
 interface ExchangeRates {
   [key: string]: number | boolean | undefined;
   LAST_UPDATED_ERROR: boolean;
 }
 
-let preferredFiatCurrency: FiatCurrency = FiatUnit.USD;
+let preferredFiatCurrency: FiatUnitType = FiatUnit.USD;
 let exchangeRates: ExchangeRates = { LAST_UPDATED_ERROR: false };
 let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
-async function setPreferredCurrency(item: FiatCurrency): Promise<void> {
+async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
@@ -36,7 +35,7 @@ async function setPreferredCurrency(item: FiatCurrency): Promise<void> {
   WidgetCommunication.reloadAllTimelines();
 }
 
-async function getPreferredCurrency(): Promise<FiatCurrency> {
+async function getPreferredCurrency(): Promise<FiatUnitType> {
   const preferredCurrency = JSON.parse((await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY)) || '{}');
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredCurrency.endPointKey);
@@ -158,7 +157,7 @@ function BTCToLocalCurrency(bitcoin: BigNumber.Value): string {
   return satoshiToLocalCurrency(sat);
 }
 
-async function mostRecentFetchedRate(): Promise<{ LastUpdated: number | undefined; Rate: string }> {
+async function mostRecentFetchedRate(): Promise<CurrencyRate> {
   const currencyInformation = JSON.parse((await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY)) || '{}');
 
   const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
@@ -197,7 +196,7 @@ function getCurrencySymbol(): string {
   return preferredFiatCurrency.symbol;
 }
 
-function _setPreferredFiatCurrency(currency: FiatCurrency): void {
+function _setPreferredFiatCurrency(currency: FiatUnitType): void {
   preferredFiatCurrency = currency;
 }
 
