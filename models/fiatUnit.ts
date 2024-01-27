@@ -174,6 +174,13 @@ type FiatUnit = {
 };
 export const FiatUnit = untypedFiatUnit as FiatUnit;
 
+export type FiatUnitType = {
+  endPointKey: string;
+  symbol: string;
+  locale: string;
+  source: keyof typeof FiatUnitSource;
+};
+
 export async function getFiatRate(ticker: string): Promise<number> {
   return await RateExtractors[FiatUnit[ticker].source](ticker);
 }
