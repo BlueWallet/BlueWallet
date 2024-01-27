@@ -37,7 +37,7 @@ const A = require('./blue_modules/analytics');
 const currency = require('./blue_modules/currency');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
-const { EventEmitter } = NativeModules;
+const { EventEmitter, SplashScreen } = NativeModules;
 
 LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
@@ -287,6 +287,13 @@ const App = () => {
         }
       });
   };
+
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      // Call hide to setup the listener on the native side
+      SplashScreen.addObserver();
+    }
+  }, []);
 
   return (
     <SafeAreaProvider>

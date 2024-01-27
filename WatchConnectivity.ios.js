@@ -57,8 +57,10 @@ function WatchConnectivity() {
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
 
   useEffect(() => {
-    updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
-  }, [walletsInitialized]);
+    if (walletsInitialized && isReachable && isInstalled) {
+      updateApplicationContext({ isWalletsInitialized: walletsInitialized, randomID: Math.floor(Math.random() * 11) });
+    }
+  }, [isInstalled, isReachable, walletsInitialized]);
 
   useEffect(() => {
     if (isInstalled && isReachable && walletsInitialized && preferredFiatCurrency) {
