@@ -51,9 +51,7 @@ const Currency: React.FC = () => {
       setSelectedCurrency(FiatUnit.USD);
     }
     const mostRecentFetchedRateValue = await mostRecentFetchedRate();
-    if (mostRecentFetchedRateValue) {
-      setCurrencyRate(mostRecentFetchedRateValue);
-    }
+    setCurrencyRate(mostRecentFetchedRateValue);
   };
 
   useLayoutEffect(() => {
