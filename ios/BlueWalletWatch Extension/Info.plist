@@ -3,8 +3,8 @@
 <plist version="1.0">
 <dict>
 	<key>bugsnag</key>
-	    <key>apiKey</key>
-    <string>YOUR-API-KEY</string>
+	<key>apiKey</key>
+    <string>17ba9059f676f1cc4f45d98182388b01</string>
 	<dict/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
