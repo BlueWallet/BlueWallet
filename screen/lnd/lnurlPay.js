@@ -17,8 +17,8 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 const prompt = require('../../helpers/prompt');
-const currency = require('../../blue_modules/currency');
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
@@ -86,10 +86,10 @@ const LnurlPay = () => {
       }
       switch (unit) {
         case BitcoinUnit.BTC:
-          newAmount = currency.satoshiToBTC(newAmount);
+          newAmount = satoshiToBTC(newAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
-          newAmount = currency.satoshiToLocalCurrency(newAmount, false);
+          newAmount = satoshiToLocalCurrency(newAmount, false);
           _cacheFiatToSat[newAmount] = originalSatAmount;
           break;
       }
@@ -120,13 +120,13 @@ const LnurlPay = () => {
         amountSats = parseInt(amountSats, 10); // nop
         break;
       case BitcoinUnit.BTC:
-        amountSats = currency.btcToSatoshi(amountSats);
+        amountSats = btcToSatoshi(amountSats);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         if (_cacheFiatToSat[amount]) {
           amountSats = _cacheFiatToSat[amount];
         } else {
-          amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
+          amountSats = btcToSatoshi(fiatToBTC(amountSats));
         }
         break;
     }

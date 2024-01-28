@@ -33,8 +33,8 @@ import HandoffComponent from './components/handoff';
 import Privacy from './blue_modules/Privacy';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
+import { updateExchangeRate } from './blue_modules/currency';
 const A = require('./blue_modules/analytics');
-const currency = require('./blue_modules/currency');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { EventEmitter, SplashScreen } = NativeModules;
@@ -203,7 +203,7 @@ const App = () => {
     if (wallets.length === 0) return;
     if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
       setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-      currency.updateExchangeRate();
+      updateExchangeRate();
       const processed = await processPushNotifications();
       if (processed) return;
       const clipboard = await BlueClipboard().getClipboardContent();

@@ -25,6 +25,7 @@ import {
 } from './class/';
 import { randomBytes } from './class/rng';
 import alert from './components/Alert';
+import { initCurrencyDaemon } from './blue_modules/currency';
 
 const encryption = require('./blue_modules/encryption');
 const Realm = require('realm');
@@ -32,7 +33,6 @@ const createHash = require('create-hash');
 let usedBucketNum = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 const prompt = require('./helpers/prompt');
-const currency = require('./blue_modules/currency');
 const BlueElectrum = require('./blue_modules/BlueElectrum');
 BlueElectrum.connectMain();
 
@@ -939,6 +939,6 @@ const startAndDecrypt = async retry => {
 
 BlueApp.startAndDecrypt = startAndDecrypt;
 BlueApp.AppStorage = AppStorage;
-currency.init();
+initCurrencyDaemon();
 
 module.exports = BlueApp;

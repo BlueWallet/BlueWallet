@@ -38,7 +38,7 @@ import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-const currency = require('../../blue_modules/currency');
+import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -385,14 +385,14 @@ const ReceiveDetails = () => {
         // nop
         break;
       case BitcoinUnit.SATS:
-        amount = currency.satoshiToBTC(customAmount);
+        amount = satoshiToBTC(customAmount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+          amount = satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
         } else {
-          amount = currency.fiatToBTC(customAmount);
+          amount = fiatToBTC(customAmount);
         }
         break;
     }
@@ -447,9 +447,9 @@ const ReceiveDetails = () => {
         case BitcoinUnit.BTC:
           return customAmount + ' BTC';
         case BitcoinUnit.SATS:
-          return currency.satoshiToBTC(customAmount) + ' BTC';
+          return satoshiToBTC(customAmount) + ' BTC';
         case BitcoinUnit.LOCAL_CURRENCY:
-          return currency.fiatToBTC(customAmount) + ' BTC';
+          return fiatToBTC(customAmount) + ' BTC';
       }
       return customAmount + ' ' + customUnit;
     } else {

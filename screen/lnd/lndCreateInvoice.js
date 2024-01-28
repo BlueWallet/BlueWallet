@@ -31,7 +31,7 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-const currency = require('../../blue_modules/currency');
+import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
@@ -156,11 +156,11 @@ const LNDCreateInvoice = () => {
           invoiceAmount = parseInt(invoiceAmount, 10); // basically nop
           break;
         case BitcoinUnit.BTC:
-          invoiceAmount = currency.btcToSatoshi(invoiceAmount);
+          invoiceAmount = btcToSatoshi(invoiceAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           // trying to fetch cached sat equivalent for this fiat amount
-          invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || currency.btcToSatoshi(currency.fiatToBTC(invoiceAmount));
+          invoiceAmount = AmountInput.getCachedSatoshis(invoiceAmount) || btcToSatoshi(fiatToBTC(invoiceAmount));
           break;
       }
 
@@ -285,7 +285,7 @@ const LNDCreateInvoice = () => {
           // nop
           break;
         case BitcoinUnit.BTC:
-          newAmount = currency.satoshiToBTC(newAmount);
+          newAmount = satoshiToBTC(newAmount);
           break;
         case BitcoinUnit.LOCAL_CURRENCY:
           newAmount = formatBalancePlain(newAmount, BitcoinUnit.LOCAL_CURRENCY);

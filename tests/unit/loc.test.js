@@ -2,7 +2,7 @@ import assert from 'assert';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 import { _leaveNumbersAndDots, formatBalanceWithoutSuffix, formatBalancePlain, formatBalance } from '../../loc';
-const currency = require('../../blue_modules/currency');
+import { _setExchangeRate, _setPreferredFiatCurrency, _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 
 describe('Localization', () => {
   it('internal formatter', () => {
@@ -12,8 +12,8 @@ describe('Localization', () => {
   });
 
   it('formatBalancePlain() && formatBalancePlain()', () => {
-    currency._setExchangeRate('BTC_RUB', 660180.143);
-    currency._setPreferredFiatCurrency(FiatUnit.RUB);
+    _setExchangeRate('BTC_RUB', 660180.143);
+    _setPreferredFiatCurrency(FiatUnit.RUB);
     let newInputValue = formatBalanceWithoutSuffix(152, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.ok(newInputValue === 'RUB 1.00' || newInputValue === '1,00 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(152, BitcoinUnit.LOCAL_CURRENCY, false);
@@ -32,8 +32,8 @@ describe('Localization', () => {
     newInputValue = formatBalancePlain(76, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '0.50');
 
-    currency._setExchangeRate('BTC_USD', 10000);
-    currency._setPreferredFiatCurrency(FiatUnit.USD);
+    _setExchangeRate('BTC_USD', 10000);
+    _setPreferredFiatCurrency(FiatUnit.USD);
     newInputValue = formatBalanceWithoutSuffix(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '$1,679.38');
     newInputValue = formatBalancePlain(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
@@ -55,11 +55,11 @@ describe('Localization', () => {
   ])(
     'can formatBalanceWithoutSuffix',
     async (balance, toUnit, withFormatting, expectedResult, shouldResetRate) => {
-      currency._setExchangeRate('BTC_USD', 1);
-      currency._setPreferredFiatCurrency(FiatUnit.USD);
+      _setExchangeRate('BTC_USD', 1);
+      _setPreferredFiatCurrency(FiatUnit.USD);
       if (shouldResetRate) {
-        currency._setExchangeRate('BTC_USD', false);
-        currency._setSkipUpdateExchangeRate();
+        _setExchangeRate('BTC_USD', false);
+        _setSkipUpdateExchangeRate();
       }
       const actualResult = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
       assert.strictEqual(actualResult, expectedResult);
@@ -74,8 +74,8 @@ describe('Localization', () => {
   ])(
     'can formatBalance',
     async (balance, toUnit, withFormatting, expectedResult) => {
-      currency._setExchangeRate('BTC_USD', 1);
-      currency._setPreferredFiatCurrency(FiatUnit.USD);
+      _setExchangeRate('BTC_USD', 1);
+      _setPreferredFiatCurrency(FiatUnit.USD);
       const actualResult = formatBalance(balance, toUnit, withFormatting);
       assert.strictEqual(actualResult, expectedResult);
     },
