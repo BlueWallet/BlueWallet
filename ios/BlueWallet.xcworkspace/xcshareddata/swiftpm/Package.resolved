@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "bugsnag-cocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bugsnag/bugsnag-cocoa",
+      "state" : {
+        "revision" : "49f60b8dc2e94e7ede1114e2c39ba6ac0b576f42",
+        "version" : "6.28.0"
+      }
+    },
+    {
       "identity" : "efqrcode",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/EFPrefix/EFQRCode.git",

@@ -19,6 +19,7 @@ jobs:
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      BUGSNAG_API_KEY: ${{ secrets.BUGSNAG_API_KEY }}  # Add this line
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
@@ -118,6 +119,9 @@ jobs:
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
 
+      - name: Replace Bugsnag API Key in Info.plist
+        run: sed -i '' "s/YOUR-API-KEY/${{ env.BUGSNAG_API_KEY }}/g" ios/BlueWalletWatch\ Extension/Info.plist
+        
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
