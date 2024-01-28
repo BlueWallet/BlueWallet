@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import LottieView from 'lottie-react-native';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const Success = () => {
   const pop = () => {
@@ -35,7 +36,7 @@ const Success = () => {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <SuccessView
         amount={amount}
         amountUnit={amountUnit}
@@ -46,7 +47,7 @@ const Success = () => {
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
