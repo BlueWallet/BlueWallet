@@ -63,6 +63,8 @@
 		B40D4E642258425500428FCC /* WalletDetailsInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E5C2258425500428FCC /* WalletDetailsInterfaceController.swift */; };
 		B40D4E682258426B00428FCC /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40D4E672258426B00428FCC /* KeychainSwiftDistrib.swift */; };
 		B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
+		B41B76852B66B2FF002C48D5 /* Bugsnag in Frameworks */ = {isa = PBXBuildFile; productRef = B41B76842B66B2FF002C48D5 /* Bugsnag */; };
+		B41B76872B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */; };
 		B43D0378225847C500FBAA95 /* WalletGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0372225847C500FBAA95 /* WalletGradient.swift */; };
 		B43D0379225847C500FBAA95 /* WatchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0373225847C500FBAA95 /* WatchDataSource.swift */; };
 		B43D037A225847C500FBAA95 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0374225847C500FBAA95 /* Transaction.swift */; };
@@ -361,7 +363,7 @@
 		B47B21E92B2128B8001F6690 /* BlueWalletUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlueWalletUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITests.swift; sourceTree = "<group>"; };
 		B4A29A452B55C990002A67DF /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "BlueWallet-NoLDK.plist"; path = "BlueWallet-NoLDK.plist"; sourceTree = "<absolute>"; };
+		B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BlueWallet-NoLDK.plist"; sourceTree = "<absolute>"; };
 		B4AB21062B61D8CA0080440C /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		B4AB21082B61DC3F0080440C /* SplashScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SplashScreen.m; sourceTree = "<group>"; };
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
@@ -423,6 +425,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B41B76852B66B2FF002C48D5 /* Bugsnag in Frameworks */,
+				B41B76872B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin in Frameworks */,
 				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -866,6 +870,8 @@
 			name = "BlueWalletWatch Extension";
 			packageProductDependencies = (
 				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
+				B41B76842B66B2FF002C48D5 /* Bugsnag */,
+				B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */,
 			);
 			productName = "BlueWalletWatch Extension";
 			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
@@ -996,6 +1002,7 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
 				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */,
+				B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -2408,6 +2415,14 @@
 				version = 6.2.2;
 			};
 		};
+		B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bugsnag/bugsnag-cocoa";
+			requirement = {
+				kind = exactVersion;
+				version = 6.28.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2415,6 +2430,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode.git" */;
 			productName = EFQRCode;
+		};
+		B41B76842B66B2FF002C48D5 /* Bugsnag */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */;
+			productName = Bugsnag;
+		};
+		B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */;
+			productName = BugsnagNetworkRequestPlugin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
