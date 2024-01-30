@@ -42,7 +42,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import alert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 const fs = require('../../blue_modules/fs');
@@ -436,27 +436,11 @@ const ViewEditMultisigCosigners = () => {
     });
   };
 
-  const scanOrOpenFile = () => {
+  const scanOrOpenFile = async () => {
     setIsProvideMnemonicsModalVisible(false);
-    setTimeout(
-      () =>
-        requestCameraAuthorization().then(() => {
-          NavigationService.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              launchedBy: route.name,
-              onBarScanned: result => {
-                // Triggers FlatList re-render
-                setImportText(result);
-                //
-                _handleUseMnemonicPhrase(result);
-              },
-              showFileImportButton: true,
-            },
-          });
-        }),
-      650,
-    );
+    const scanned = await scanQrHelper(NavigationService.navigate, route.name, true);
+    setImportText(String(scanned));
+    setIsProvideMnemonicsModalVisible(true);
   };
 
   const hideProvideMnemonicsModal = () => {
