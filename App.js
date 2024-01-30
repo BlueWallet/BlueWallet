@@ -291,7 +291,7 @@ const App = () => {
   useEffect(() => {
     if (Platform.OS === 'ios') {
       // Call hide to setup the listener on the native side
-      SplashScreen.addObserver();
+      SplashScreen?.addObserver();
     }
   }, []);
 
