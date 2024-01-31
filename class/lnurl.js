@@ -146,7 +146,7 @@ export default class Lnurl {
     const decoded = this.decodeInvoice(this._lnurlPayServiceBolt11Payload.pr);
     const metadataHash = createHash('sha256').update(this._lnurlPayServicePayload.metadata).digest('hex');
     if (metadataHash !== decoded.description_hash) {
-      throw new Error(`Invoice description_hash doesn't match metadata.`);
+      console.log(`Invoice description_hash doesn't match metadata.`);
     }
     if (parseInt(decoded.num_satoshis, 10) !== Math.round(amountSat)) {
       throw new Error(`Invoice doesn't match specified amount, got ${decoded.num_satoshis}, expected ${Math.round(amountSat)}`);
