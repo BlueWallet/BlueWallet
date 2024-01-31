@@ -7,6 +7,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
+  ListRenderItemInfo,
   Platform,
   StyleSheet,
   Switch,
@@ -14,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { Icon, Badge } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -29,7 +30,7 @@ import navigationStyle from '../../components/navigationStyle';
 import * as NavigationService from '../../NavigationService';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import BottomModal from '../../components/BottomModal';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { AbstractWallet, HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import MultipleStepsListItem, {
@@ -45,23 +46,27 @@ import alert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import { NativeStackScreenProps } from 'react-native-screens/native-stack';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
-const ViewEditMultisigCosigners = () => {
+type StackParamsList = {
+  ViewEditMultisigCosigners: { walletId: string };
+};
+
+const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParamsList, 'ViewEditMultisigCosigners'>) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const { navigate, goBack } = useNavigation();
-  const route = useRoute();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
-  const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
+  const w = useRef(wallets.find((wallet: AbstractWallet) => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
-  const [wallet, setWallet] = useState();
+  const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
-  const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState(false);
+  const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number | false>(false);
   const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
   const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
@@ -72,7 +77,7 @@ const ViewEditMultisigCosigners = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
-  const data = useRef();
+  const data = useRef<any[]>();
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -127,13 +132,14 @@ const ViewEditMultisigCosigners = () => {
     }
 
     // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter(newWallet => {
+    let newWallets = wallets.filter((newWallet: MultisigHDWallet) => {
       return newWallet.getID() !== walletId;
     });
     if (!isElectrumDisabled) {
-      await wallet.fetchBalance();
+      await wallet?.fetchBalance();
     }
     newWallets.push(wallet);
+    // @ts-ignore  wtf
     navigate('WalletsList');
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
@@ -235,7 +241,11 @@ const ViewEditMultisigCosigners = () => {
     );
   };
 
-  const _renderKeyItem = el => {
+  const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
+    if (!wallet) {
+      // failsafe
+      return null;
+    }
     const isXpub = MultisigHDWallet.isXpubValid(wallet.getCosigner(el.index + 1));
     let leftText;
     if (isXpub) {
@@ -249,12 +259,15 @@ const ViewEditMultisigCosigners = () => {
       leftText = `${secret[0]}...${secret[secret.length - 1]}`;
     }
 
+    // @ts-ignore not sure which one is correct
+    const length = data?.length ?? data.current?.length ?? 0;
+
     return (
       <View>
         <MultipleStepsListItem
           checked
           leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-          dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
+          dashes={el.index === length - 1 ? MultipleStepsListItemDashType.bottom : MultipleStepsListItemDashType.topAndBottom}
         />
 
         {isXpub ? (
@@ -299,7 +312,7 @@ const ViewEditMultisigCosigners = () => {
                   setIsProvideMnemonicsModalVisible(true);
                 },
               }}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
             />
           </View>
         ) : (
@@ -337,7 +350,7 @@ const ViewEditMultisigCosigners = () => {
             )}
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
-              dashes={el.index === data.length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
+              dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               button={{
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
@@ -389,7 +402,7 @@ const ViewEditMultisigCosigners = () => {
     if (askPassphrase) {
       try {
         passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-      } catch (e) {
+      } catch (e: any) {
         if (e.message === 'Cancel Pressed') {
           setIsLoading(false);
           return;
@@ -400,13 +413,18 @@ const ViewEditMultisigCosigners = () => {
     return _handleUseMnemonicPhrase(importText, passphrase);
   };
 
-  const _handleUseMnemonicPhrase = (mnemonic, passphrase) => {
+  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase: string) => {
+    if (!wallet || !currentlyEditingCosignerNum) {
+      // failsafe
+      return;
+    }
+
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonic);
     if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
     try {
       wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
       return alert(e.message);
     }
@@ -419,12 +437,12 @@ const ViewEditMultisigCosigners = () => {
     setAskPassphrase(false);
   };
 
-  const xpubInsteadOfSeed = index => {
+  const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
       InteractionManager.runAfterInteractions(() => {
         try {
-          wallet.replaceCosignerSeedWithXpub(index);
-        } catch (e) {
+          wallet?.replaceCosignerSeedWithXpub(index);
+        } catch (e: any) {
           reject(e);
           return alert(e.message);
         }
@@ -455,9 +473,11 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const renderProvideMnemonicsModal = () => {
+    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+    const isPad: boolean = Platform.isPad;
     return (
       <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -485,15 +505,24 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const renderShareModal = () => {
+    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+    const isPad: boolean = Platform.isPad;
+
     return (
+      // @ts-ignore wtf doneButton
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              <SquareButton
+                // @ts-ignore wtf style
+                style={[styles.exportButton, stylesHook.exportButton]}
+                onPress={exportCosigner}
+                title={loc.multisig.share}
+              />
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -510,7 +539,7 @@ const ViewEditMultisigCosigners = () => {
 
   const howMany = (
     <Badge
-      value={wallet.getM()}
+      value={wallet?.getM() ?? 0}
       badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
       textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
     />
@@ -518,7 +547,7 @@ const ViewEditMultisigCosigners = () => {
 
   const andHere = (
     <Badge
-      value={wallet.howManySignaturesCanWeMake()}
+      value={wallet?.howManySignaturesCanWeMake() ?? 0}
       badgeStyle={[styles.tipLabel, stylesHook.tipLabel]}
       textStyle={[styles.tipLabelText, stylesHook.tipLabelText]}
     />
@@ -539,12 +568,14 @@ const ViewEditMultisigCosigners = () => {
   };
 
   const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+  const isPad: boolean = Platform.isPad;
 
   return (
     <View style={[styles.root, stylesHook.root]}>
       <KeyboardAvoidingView
-        enabled={!Platform.isPad}
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled={!isPad}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}
       >
@@ -639,7 +670,6 @@ ViewEditMultisigCosigners.navigationOptions = navigationStyle(
   {
     closeButton: true,
     headerBackVisible: false,
-    statusBarStyle: 'light',
   },
   opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
 );
