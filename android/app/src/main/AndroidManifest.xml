@@ -1,7 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+  package="io.bluewallet.bluewallet"
+      xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
-
+<uses-sdk
+    android:minSdkVersion="24"
+    android:targetSdkVersion="29"
+    android:maxSdkVersion="27"/>
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
