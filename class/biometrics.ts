@@ -1,5 +1,6 @@
 import FingerprintScanner from 'react-native-fingerprint-scanner';
 import { Platform, Alert } from 'react-native';
+// @ts-ignore react-native-passcode-auth wants d.ts
 import PasscodeAuth from 'react-native-passcode-auth';
 import * as NavigationService from '../NavigationService';
 import { StackActions, CommonActions } from '@react-navigation/native';
@@ -9,7 +10,26 @@ import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
 
-function Biometric() {
+// Define a function type with properties
+type DescribableFunction = {
+  (): void; // Call signature
+  STORAGEKEY: string; // Property
+  FaceID: string; // Property etc...
+  TouchID: string;
+  Biometrics: string;
+  isBiometricUseCapableAndEnabled: () => Promise<undefined | boolean>;
+  isDeviceBiometricCapable: () => Promise<boolean | undefined>;
+  setBiometricUseEnabled: (arg: boolean) => Promise<void>;
+  biometricType: () => Promise<boolean | 'Touch ID' | 'Face ID' | 'Biometrics'>;
+  isBiometricUseEnabled: () => Promise<boolean>;
+  unlockWithBiometrics: () => Promise<unknown>;
+  clearKeychain: () => Promise<void>;
+  requestDevicePasscode: () => Promise<void>;
+  showKeychainWipeAlert: () => void;
+};
+
+// @ts-ignore Bastard component/module. All properties are added in runtime, not at definition phase
+const Biometric: DescribableFunction = function () {
   const { getItem, setItem } = useContext(BlueStorageContext);
   Biometric.STORAGEKEY = 'Biometrics';
   Biometric.FaceID = 'Face ID';
@@ -85,7 +105,7 @@ function Biometric() {
   };
 
   Biometric.requestDevicePasscode = async () => {
-    let isDevicePasscodeSupported = false;
+    let isDevicePasscodeSupported: boolean | undefined = false;
     try {
       isDevicePasscodeSupported = await PasscodeAuth.isSupported();
       if (isDevicePasscodeSupported) {
@@ -142,6 +162,6 @@ function Biometric() {
     }
   };
   return null;
-}
+};
 
 export default Biometric;

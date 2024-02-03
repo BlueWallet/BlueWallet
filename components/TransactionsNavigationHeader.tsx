@@ -65,7 +65,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = () => {
-    Clipboard.setString(formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit()).toString());
+    const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
+    if (value) {
+      Clipboard.setString(value);
+    }
   };
 
   const updateWalletVisibility = (w: AbstractWallet, newHideBalance: boolean) => {
@@ -134,8 +137,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
     const balanceUnit = wallet.getPreferredBalanceUnit();
-    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true).toString();
-    return !hideBalance && balanceFormatted;
+    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true);
+    return !hideBalance && balanceFormatted?.toString();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
 
@@ -211,6 +214,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           ) : (
             <Text
               testID="WalletBalance"
+              // @ts-ignore: Ugh
               key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
               numberOfLines={1}
               adjustsFontSizeToFit

@@ -9,10 +9,11 @@ import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
  * @param currentScreenName {string}
  * @param showFileImportButton {boolean}
  *
+ * @param onDismiss {function} - if camera is closed via X button it gets triggered
  * @return {Promise<string>}
  */
 function scanQrHelper(
-  navigateFunc: (scr: string, params?: any) => void,
+  navigateFunc: (scr: string | any, params?: any) => void,
   currentScreenName: string,
   showFileImportButton = true,
   onDismiss?: () => void,
@@ -28,14 +29,15 @@ function scanQrHelper(
       params.onBarScanned = function (data: any) {
         setTimeout(() => resolve(data.data || data), 1);
         navigateFunc(currentScreenName);
+        navigateFunc({ name: currentScreenName, params: {}, merge: true });
       };
 
       navigateFunc('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params,
       });
-    })}
-  );
+    });
+  });
 }
 
 const isCameraAuthorizationStatusGranted = async () => {

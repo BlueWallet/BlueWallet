@@ -1,10 +1,6 @@
-//
-//  ReceiveInterfaceController.swift
 //  BlueWalletWatch Extension
 //
-//  Created by Marcos Rodriguez on 3/12/19.
-//  Copyright © 2019 Facebook. All rights reserved.
-//
+//  Created by Marcos Rodriguez on 3/11/19.
 
 import WatchKit
 import Foundation
@@ -15,91 +11,85 @@ class ViewQRCodefaceController: WKInterfaceController {
   static let identifier = "ViewQRCodefaceController"
   @IBOutlet weak var imageInterface: WKInterfaceImage!
   @IBOutlet weak var addressLabel: WKInterfaceLabel!
+  
   var address: String? {
     didSet {
-      if let address = address, !address.isEmpty{
-        userActivity.userInfo = [HandOffUserInfoKey.Xpub.rawValue: address]
-        userActivity.becomeCurrent()
-      }
+      updateQRCode()
+      updateUserActivity()
     }
   }
+
   private var interfaceMode = InterfaceMode.Address
   private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.Xpub.rawValue)
     
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    userActivity.title = HandOffTitle.Xpub.rawValue
-    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
-    userActivity.isEligibleForHandoff = true
+    configureUserActivity()
     guard let passedContext = context as? String  else {
       pop()
       return
     }
     address = passedContext
     addressLabel.setText(passedContext)
+    toggleViewButtonPressed()
+  }
 
-    DispatchQueue.main.async {
-      guard let cgImage = EFQRCode.generate(
-        for: passedContext) else {
-          return
-      }
-      let image = UIImage(cgImage: cgImage)
-      self.imageInterface.setImage(nil)
-      self.imageInterface.setImage(image)
-    }
-    if #available(watchOSApplicationExtension 6.0, *) {
-      if let image = UIImage(systemName: "textformat.subscript") {
-        addMenuItem(with: image, title: "Address", action:#selector(toggleViewButtonPressed))
-      } else {
-        addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
-      }
+  private func configureUserActivity() {
+    userActivity.title = HandOffTitle.Xpub.rawValue
+    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
+    userActivity.isEligibleForHandoff = true
+  }
+  
+  private func updateUserActivity() {
+    if let address = address, !address.isEmpty {
+      userActivity.userInfo = [HandOffUserInfoKey.Xpub.rawValue: address]
+      userActivity.becomeCurrent()
     } else {
-      addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+      userActivity.invalidate()
     }
   }
-  @IBAction @objc func toggleViewButtonPressed() {
-    clearAllMenuItems()
-    switch interfaceMode {
-    case .Address:
-      addressLabel.setHidden(false)
-      imageInterface.setHidden(true)
-      if #available(watchOSApplicationExtension 6.0, *) {
-        if let image = UIImage(systemName: "qrcode") {
-          addMenuItem(with: image, title: "QR Code", action:#selector(toggleViewButtonPressed))
-        } else {
-          addMenuItem(with: .shuffle, title: "QR Code", action: #selector(toggleViewButtonPressed))
-        }
-      } else {
-        addMenuItem(with: .shuffle, title: "QR Code", action: #selector(toggleViewButtonPressed))
-        
+
+  private func updateQRCode() {
+    guard let address = address, !address.isEmpty else {
+      imageInterface.setImage(nil)
+      return
+    }
+    DispatchQueue.global(qos: .userInteractive).async {
+      guard let cgImage = EFQRCode.generate(for: address) else {
+        return
       }
-    case .QRCode:
-      addressLabel.setHidden(true)
-      imageInterface.setHidden(false)
-      if #available(watchOSApplicationExtension 6.0, *) {
-        if let image = UIImage(systemName: "textformat.subscript") {
-          addMenuItem(with: image, title: "Address", action:#selector(toggleViewButtonPressed))
-        } else {
-          addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
-        }
-      } else {
-        addMenuItem(with: .shuffle, title: "Address", action: #selector(toggleViewButtonPressed))
+      DispatchQueue.main.async {
+        let image = UIImage(cgImage: cgImage)
+        self.imageInterface.setImage(image)
       }
     }
+  }
+
+  @IBAction @objc func toggleViewButtonPressed() {
+    clearAllMenuItems()
     interfaceMode = interfaceMode == .QRCode ? .Address : .QRCode
+
+    let menuItemTitle = interfaceMode == .QRCode ? "QR Code" : "Address"
+    let systemImageName = interfaceMode == .QRCode ? "textformat.subscript" : "qrcode"
+    let defaultMenuItemIcon = interfaceMode == .QRCode ? WKMenuItemIcon.shuffle : WKMenuItemIcon.shuffle
+
+    addressLabel.setHidden(interfaceMode != .Address)
+    imageInterface.setHidden(interfaceMode != .QRCode)
+
+    if #available(watchOSApplicationExtension 6.0, *), let image = UIImage(systemName: systemImageName) {
+      addMenuItem(with: image, title: menuItemTitle, action: #selector(toggleViewButtonPressed))
+    } else {
+      addMenuItem(with: defaultMenuItemIcon, title: menuItemTitle, action: #selector(toggleViewButtonPressed))
+    }
   }
   
   override func willActivate() {
     super.willActivate()
-    update(userActivity)
+    updateUserActivity()
   }
 
-  
   override func didDeactivate() {
     super.didDeactivate()
     userActivity.invalidate()
-    invalidateUserActivity()
   }
-  
-  
 }

@@ -1,10 +1,6 @@
-//
-//  WalletDetailsInterfaceController.swift
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/11/19.
-//  Copyright © 2019 Facebook. All rights reserved.
-//
 
 import WatchKit
 import Foundation
@@ -23,49 +19,69 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   @IBOutlet weak var noTransactionsLabel: WKInterfaceLabel!
   @IBOutlet weak var transactionsTable: WKInterfaceTable!
   
-  
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
     guard let identifier = context as? Int else {
       pop()
       return
     }
-    processInterface(identifier: identifier)
+    loadWalletDetails(identifier: identifier)
   }
   
-  func processInterface(identifier: Int)  {
-  let wallet = WatchDataSource.shared.wallets[identifier]
-  self.wallet = wallet
-  walletBalanceLabel.setHidden(wallet.hideBalance)
-  walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
-  walletNameLabel.setText(wallet.label)
-  walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
-    createInvoiceButton.setHidden(!(wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue))
-  receiveButton.setHidden(wallet.receiveAddress.isEmpty)
-      viewXPubButton.setHidden(!((wallet.type != WalletGradient.LightningCustodial.rawValue ||  wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty))
-  processWalletsTable()
+  private func loadWalletDetails(identifier: Int) {
+    let wallet = WatchDataSource.shared.wallets[identifier]
+    self.wallet = wallet
+    updateWalletUI(wallet: wallet)
+    updateTransactionsTable(forWallet: wallet)
   }
   
+  private func updateWalletUI(wallet: Wallet) {
+    walletBalanceLabel.setHidden(wallet.hideBalance)
+    walletBalanceLabel.setText(wallet.hideBalance ? "" : wallet.balance)
+    walletNameLabel.setText(wallet.label)
+    walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
+    
+    let isLightningWallet = wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue
+    createInvoiceButton.setHidden(!isLightningWallet)
+    receiveButton.setHidden(wallet.receiveAddress.isEmpty)
+    viewXPubButton.setHidden(!isXPubAvailable(wallet: wallet))
+  }
+  
+  private func isXPubAvailable(wallet: Wallet) -> Bool {
+    return (wallet.type != WalletGradient.LightningCustodial.rawValue && wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty
+  }
+  
+  private func updateTransactionsTable(forWallet wallet: Wallet) {
+    let transactions = wallet.transactions
+    transactionsTable.setNumberOfRows(transactions.count, withRowType: TransactionTableRow.identifier)
+    
+    for index in 0..<transactions.count {
+      guard let controller = transactionsTable.rowController(at: index) as? TransactionTableRow else { continue }
+      let transaction = transactions[index]
+      controller.configure(with: transaction)
+    }
+    transactionsTable.setHidden(transactions.isEmpty)
+    noTransactionsLabel.setHidden(!transactions.isEmpty)
+  }
   
   @IBAction func toggleBalanceVisibility(_ sender: Any) {
     guard let wallet = wallet else {
-       return
+      return
     }
-
+    
     if wallet.hideBalance {
       showBalanceMenuItemTapped()
-    } else{
+    } else {
       hideBalanceMenuItemTapped()
     }
   }
-  
   
   @objc func showBalanceMenuItemTapped() {
     guard let identifier = wallet?.identifier else { return }
     WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: false) { [weak self] _ in
       DispatchQueue.main.async {
         WatchDataSource.postDataUpdatedNotification()
-        self?.processInterface(identifier: identifier)
+        self?.loadWalletDetails(identifier: identifier)
       }
     }
   }
@@ -75,7 +91,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     WatchDataSource.toggleWalletHideBalance(walletIdentifier: identifier, hideBalance: true) { [weak self] _ in
       DispatchQueue.main.async {
         WatchDataSource.postDataUpdatedNotification()
-        self?.processInterface(identifier: identifier)
+        self?.loadWalletDetails(identifier: identifier)
       }
     }
   }
@@ -89,42 +105,30 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func willActivate() {
     super.willActivate()
-    transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
-    noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
+    guard let wallet = wallet else { return }
+    updateTransactionsTable(forWallet: wallet)
   }
   
   @IBAction func receiveMenuItemTapped() {
+    guard let wallet = wallet else { return }
     presentController(withName: ReceiveInterfaceController.identifier, context: (wallet, "receive"))
   }
   
-  
-  @objc private func processWalletsTable() {
-    transactionsTable.setNumberOfRows(wallet?.transactions.count ?? 0, withRowType: TransactionTableRow.identifier)
-    
-    for index in 0..<transactionsTable.numberOfRows {
-      guard let controller = transactionsTable.rowController(at: index) as? TransactionTableRow, let transaction = wallet?.transactions[index] else { continue }
-      
-      controller.amount = transaction.amount
-      controller.type = transaction.type
-      controller.memo = transaction.memo
-      controller.time = transaction.time
-    }
-    transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
-    noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
-  }
-  
   @IBAction func createInvoiceTapped() {
-    if (WatchDataSource.shared.companionWalletsInitialized) {
-      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+    if WatchDataSource.shared.companionWalletsInitialized {
+      guard let wallet = wallet else { return }
+      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, "createInvoice"))
     } else {
+      WKInterfaceDevice.current().play(.failure)
       presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
         self?.dismiss()
-        })])
-      }
+      })])
+    }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
-    return (wallet?.identifier, "receive")
+    guard let wallet = wallet else { return nil }
+    return (wallet.identifier, "receive")
   }
   
 }

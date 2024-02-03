@@ -12,6 +12,8 @@
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
+@property (nonatomic, strong) UIView *launchScreenView;
+
 @end
 
 @implementation AppDelegate
@@ -20,6 +22,7 @@
 {
   [Bugsnag start];
   [self copyDeviceUID];
+  
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"
                                               options:NSKeyValueObservingOptionNew
@@ -28,6 +31,8 @@
                                            forKeyPath:@"deviceUIDCopy"
                                               options:NSKeyValueObservingOptionNew
                                               context:NULL];
+  [self addSplashScreenView];
+
   self.moduleName = @"BlueWallet";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
@@ -39,6 +44,22 @@
   center.delegate = self;
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
+
+- (void)addSplashScreenView
+{
+  // Get the rootView
+  RCTRootView *rootView = (RCTRootView *)self.window.rootViewController.view;
+
+  // Capture the launch screen view
+  UIStoryboard *launchScreenStoryboard = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+  UIViewController *launchScreenVC = [launchScreenStoryboard instantiateInitialViewController];
+  UIView *launchScreenView = launchScreenVC.view;
+  launchScreenView.frame = self.window.bounds;
+  [self.window addSubview:launchScreenView];
+
+  // Keep a reference to the launch screen view to remove it later
+  rootView.loadingView = launchScreenView;
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

@@ -3,79 +3,72 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/6/19.
-//  Copyright © 2019 Facebook. All rights reserved.
 //
 
 import WatchKit
 import WatchConnectivity
 import Foundation
 
-class InterfaceController: WKInterfaceController {
-  
+class InterfaceController: WKInterfaceController, WCSessionDelegate {
+
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    if let contextUnwrapped = context as? [String: Any] {
-      WatchDataSource.shared.processData(data: contextUnwrapped)
-    }
-    if WCSession.isSupported() {
-      print("Activating watch session")
-      WCSession.default.delegate = self
-      WCSession.default.activate()
-    }
+    setupSession()
+    processContextData(context)
   }
   
   override func willActivate() {
-    // This method is called when watch view controller is about to be visible to user
     super.willActivate()
-    
-    if (WatchDataSource.shared.wallets.isEmpty) {
-      noWalletsAvailableLabel.setHidden(false)
-    } else {
-      processWalletsTable()
-    }
-      NotificationCenter.default.addObserver(self, selector: #selector(processWalletsTable), name: WatchDataSource.NotificationName.dataUpdated, object: nil)
+    updateUI()
+    NotificationCenter.default.addObserver(self, selector: #selector(updateUI), name: WatchDataSource.NotificationName.dataUpdated, object: nil)
   }
   
-  @objc private func processWalletsTable() {
-    walletsTable.setNumberOfRows(WatchDataSource.shared.wallets.count, withRowType: WalletInformation.identifier)
+  private func setupSession() {
+    guard WCSession.isSupported() else { return }
+    WCSession.default.delegate = self
+    WCSession.default.activate()
+  }
+  
+  private func processContextData(_ context: Any?) {
+    guard let contextUnwrapped = context as? [String: Any] else { return }
+    WatchDataSource.shared.processData(data: contextUnwrapped)
+  }
+  
+  @objc private func updateUI() {
+    let wallets = WatchDataSource.shared.wallets
+    let isEmpty = wallets.isEmpty
+    noWalletsAvailableLabel.setHidden(!isEmpty)
+    walletsTable.setHidden(isEmpty)
     
-    for index in 0..<walletsTable.numberOfRows {
-      guard let controller = walletsTable.rowController(at: index) as? WalletInformation else { continue }
-      let wallet = WatchDataSource.shared.wallets[index]
-      if wallet.identifier == nil {
-        WatchDataSource.shared.wallets[index].identifier = index
-      }
-      controller.walletBalanceLabel.setHidden(wallet.hideBalance)
-      controller.name = wallet.label
-      controller.balance = wallet.hideBalance ? "" : wallet.balance
-      controller.type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
+    if isEmpty { return }
+    
+    walletsTable.setNumberOfRows(wallets.count, withRowType: WalletInformation.identifier)
+    for index in 0..<wallets.count {
+      updateRow(at: index, with: wallets[index])
     }
-    noWalletsAvailableLabel.setHidden(!WatchDataSource.shared.wallets.isEmpty)
-    walletsTable.setHidden(WatchDataSource.shared.wallets.isEmpty)
+  }
+  
+  private func updateRow(at index: Int, with wallet: Wallet) {
+    guard let controller = walletsTable.rowController(at: index) as? WalletInformation else { return }
+    controller.configure(with: wallet)
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {
-    return rowIndex;
+    return rowIndex
   }
-  
-}
-
-extension InterfaceController: WCSessionDelegate {
   
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
     WatchDataSource.shared.processData(data: applicationContext)
   }
 
-  
   func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
     WatchDataSource.shared.processData(data: userInfo)
   }
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    WatchDataSource.shared.companionWalletsInitialized = activationState == .activated
     if activationState == .activated {
       WatchDataSource.shared.processWalletsData(walletsInfo: WCSession.default.applicationContext)
     }

@@ -27,7 +27,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-const currency = require('../../blue_modules/currency');
+import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
@@ -182,10 +182,10 @@ const ScanLndInvoice = () => {
         amountSats = parseInt(amountSats, 10); // nop
         break;
       case BitcoinUnit.BTC:
-        amountSats = currency.btcToSatoshi(amountSats);
+        amountSats = btcToSatoshi(amountSats);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
+        amountSats = btcToSatoshi(fiatToBTC(amountSats));
         break;
     }
     setIsLoading(true);

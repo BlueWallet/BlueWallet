@@ -9,7 +9,7 @@ import ReleaseNotes from './screen/settings/releasenotes';
 import Licensing from './screen/settings/licensing';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
-import Currency from './screen/settings/currency';
+import Currency from './screen/settings/Currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';

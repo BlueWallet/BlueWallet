@@ -10,7 +10,14 @@ import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZero
 import { BlueText } from '../BlueComponents';
 import dayjs from 'dayjs';
 import { useTheme } from './themes';
-const currency = require('../blue_modules/currency');
+import {
+  fiatToBTC,
+  getCurrencySymbol,
+  isRateOutdated,
+  mostRecentFetchedRate,
+  satoshiToBTC,
+  updateExchangeRate,
+} from '../blue_modules/currency';
 dayjs.extend(require('dayjs/plugin/localizedFormat'));
 
 class AmountInput extends Component {
@@ -57,13 +64,12 @@ class AmountInput extends Component {
   }
 
   componentDidMount() {
-    currency
-      .mostRecentFetchedRate()
-      .then(mostRecentFetchedRate => {
-        this.setState({ mostRecentFetchedRate });
+    mostRecentFetchedRate()
+      .then(mostRecentFetchedRateValue => {
+        this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
       })
       .finally(() => {
-        currency.isRateOutdated().then(isRateOutdated => this.setState({ isRateOutdated }));
+        isRateOutdated().then(isRateOutdatedValue => this.setState({ isRateOutdated: isRateOutdatedValue }));
       });
   }
 
@@ -86,7 +92,7 @@ class AmountInput extends Component {
         sats = amount;
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        sats = new BigNumber(currency.fiatToBTC(amount)).multipliedBy(100000000).toString();
+        sats = new BigNumber(fiatToBTC(amount)).multipliedBy(100000000).toString();
         break;
     }
     if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[amount + previousUnit]) {
@@ -191,14 +197,14 @@ class AmountInput extends Component {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     this.setState({ isRateBeingUpdated: true }, async () => {
       try {
-        await currency.updateExchangeRate();
-        currency.mostRecentFetchedRate().then(mostRecentFetchedRate => {
+        await updateExchangeRate();
+        mostRecentFetchedRate().then(mostRecentFetchedRateValue => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-          this.setState({ mostRecentFetchedRate });
+          this.setState({ mostRecentFetchedRate: mostRecentFetchedRateValue });
         });
       } finally {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        this.setState({ isRateBeingUpdated: false, isRateOutdated: await currency.isRateOutdated() });
+        this.setState({ isRateBeingUpdated: false, isRateOutdated: await isRateOutdated() });
       }
     });
   };
@@ -220,11 +226,11 @@ class AmountInput extends Component {
         secondaryDisplayCurrency = formatBalanceWithoutSuffix((isNaN(amount) ? 0 : amount).toString(), BitcoinUnit.LOCAL_CURRENCY, false);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
-        secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
+        secondaryDisplayCurrency = fiatToBTC(parseFloat(isNaN(amount) ? 0 : amount));
         if (AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesn't have rounding errors
           const sats = AmountInput.conversionCache[isNaN(amount) ? 0 : amount + BitcoinUnit.LOCAL_CURRENCY];
-          secondaryDisplayCurrency = currency.satoshiToBTC(sats);
+          secondaryDisplayCurrency = satoshiToBTC(sats);
         }
         break;
     }
@@ -251,7 +257,7 @@ class AmountInput extends Component {
             <View style={styles.flex}>
               <View style={styles.container}>
                 {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-                  <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{currency.getCurrencySymbol() + ' '}</Text>
+                  <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol() + ' '}</Text>
                 )}
                 {amount !== BitcoinUnit.MAX ? (
                   <TextInput
