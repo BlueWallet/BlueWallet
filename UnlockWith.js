@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
+import SafeArea from './components/SafeArea';
 
 const styles = StyleSheet.create({
   root: {
@@ -128,12 +128,12 @@ const UnlockWith = () => {
   };
 
   return (
-    <SafeAreaView style={styles.root}>
+    <SafeArea style={styles.root}>
       <View style={styles.container}>
         <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
       <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
