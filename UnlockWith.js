@@ -121,9 +121,9 @@ const UnlockWith = () => {
       }
 
       setBiometricType(bt);
-      if (!biometricType || storageIsEncrypted) {
+      if (!bt || storageIsEncrypted) {
         unlockWithKey();
-      } else if (typeof biometricType === 'string') unlockWithBiometrics();
+      } else if (typeof bt === 'string') unlockWithBiometrics();
     }
   };
 
