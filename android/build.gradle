@@ -73,6 +73,14 @@ subprojects {
                 }
             }
         }
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+                kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
+            } else {
+                kotlinOptions.jvmTarget = sourceCompatibility
+            }
+        }
+
     }
 }
 
