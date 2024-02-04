@@ -1,7 +1,7 @@
 import assert from 'assert';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import Settings from '../../screen/settings/settings';
+import Settings from '../../screen/settings/Settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeaderDefaultSub } from '../../BlueComponents';
 
