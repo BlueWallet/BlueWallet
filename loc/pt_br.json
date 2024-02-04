@@ -452,7 +452,6 @@
     "no_ln_wallet_error": "Antes de pagar uma fatura Lightning, você deve primeiro adicionar uma carteira Lightning.",
     "looks_like_bip38": "Parece que esta é uma chave privada protegida por senha (BIP38)",
     "reorder_title": "Reordenar Carteiras",
-    "reorder_instructions": "Aperte e segure uma carteira para arrastá-la pela lista.",
     "please_continue_scanning": "Por favor, continue a leitura.",
     "select_no_bitcoin": "Não há carteiras Bitcoin disponíveis no momento.",
     "select_no_bitcoin_exp": "É necessário ter uma carteira Bitcoin para recarregar as carteiras Lightning. Por favor, crie ou importe uma.",
@@ -462,7 +461,8 @@
     "warning_do_not_disclose": "Cuidado! Não divulgue.",
     "add_ln_wallet_first": "Primeiro você deve adicionar uma carteira Lightning.",
     "identity_pubkey": "Identificar chave pública",
-    "xpub_title": "XPUB da Carteira"
+    "xpub_title": "XPUB da Carteira",
+    "search_wallets": "Procurar Carteiras"
   },
   "multisig": {
     "multisig_vault": "Cofre",
@@ -571,6 +571,8 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "Copiar chave privada",
+    "sensitive_private_key": "Aviso: as chaves privadas são extremamente sensíveis. Continuar?",
     "sign_title": "Assinar/Verificar Mensagem",
     "sign_help": "Aqui você pode criar ou verificar uma assinatura realizada por um endereço Bitcoin",
     "sign_sign": "Assinar",
