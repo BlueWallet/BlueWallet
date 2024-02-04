@@ -17,7 +17,7 @@ const { SplashScreen } = NativeModules;
 
 const UnlockWith: React.FC = () => {
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const navigation = useNavigation<NavigationProp<RootStackParamList, 'UnlockWith'>>();
+  const { dispatch } = useNavigation<NavigationProp<RootStackParamList, 'UnlockWith'>>();
   const route = useRoute<RouteProp<RootStackParamList, 'UnlockWith'>>();
   const { unlockOnComponentMount } = route.params || {};
   const [biometricType, setBiometricType] = useState<string | undefined>(undefined);
@@ -33,7 +33,7 @@ const UnlockWith: React.FC = () => {
 
   const successfullyAuthenticated = () => {
     setWalletsInitialized(true);
-    navigation.dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
+    dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
   };
 
   const unlockWithBiometrics = async () => {
