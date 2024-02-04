@@ -1,45 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
+import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import { StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { NavigationProp, RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
+import { styles } from './UnlockWith.styles'; // Import styles
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  biometricRow: {
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  icon: {
-    width: 64,
-    height: 64,
-  },
-  logoImage: {
-    width: 100,
-    height: 75,
-    alignSelf: 'center',
-  },
-});
+type RootStackParamList = {
+  UnlockWith: { unlockOnComponentMount?: boolean }; // Define other screens and their parameters as needed
+};
 
 const { SplashScreen } = NativeModules;
 
-const UnlockWith = () => {
+const UnlockWith: React.FC = () => {
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const { dispatch } = useNavigation();
-  const { unlockOnComponentMount } = useRoute().params;
-  const [biometricType, setBiometricType] = useState(false);
+  const navigation = useNavigation<NavigationProp<RootStackParamList, 'UnlockWith'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'UnlockWith'>>();
+  const { unlockOnComponentMount } = route.params || {};
+  const [biometricType, setBiometricType] = useState<string | undefined>(undefined);
   const [isStorageEncryptedEnabled, setIsStorageEncryptedEnabled] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const colorScheme = useColorScheme();
@@ -52,7 +33,7 @@ const UnlockWith = () => {
 
   const successfullyAuthenticated = () => {
     setWalletsInitialized(true);
-    dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
+    navigation.dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
   };
 
   const unlockWithBiometrics = async () => {
@@ -115,15 +96,28 @@ const UnlockWith = () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       setIsStorageEncryptedEnabled(storageIsEncrypted);
-      let bt = false;
+      let type; // Use `type` directly to hold the biometric type info
       if (await Biometric.isBiometricUseCapableAndEnabled()) {
-        bt = await Biometric.biometricType();
+        type = await Biometric.biometricType(); // Directly assign the result to `type`
+        // Assuming biometricType() returns "Touch ID", "Face ID", "Biometrics", or true
+        if (type === true) {
+          // If true means biometrics are available but the type is unknown, you might set a descriptive string
+          setBiometricType('Biometrics');
+          type = 'Biometrics'; // Update `type` for subsequent checks
+        } else if (typeof type === 'string') {
+          setBiometricType(type);
+        } else {
+          // Handle the case where biometrics are not available or the type is not a string
+          setBiometricType(undefined);
+          type = undefined; // Ensure `type` reflects this state
+        }
       }
-
-      setBiometricType(bt);
-      if (!bt || storageIsEncrypted) {
+      // Use `type` for condition checks
+      if (!type || storageIsEncrypted) {
         unlockWithKey();
-      } else if (typeof bt === 'string') unlockWithBiometrics();
+      } else if (typeof type === 'string') {
+        unlockWithBiometrics();
+      }
     }
   };
 
