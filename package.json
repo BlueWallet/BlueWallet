@@ -129,7 +129,7 @@
     "detox": "20.17.0",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
-    "electrum-client": "https://github.com/BlueWallet/rn-electrum-client#76c0ea35e1a50c47f3a7f818d529ebd100161496",
+    "electrum-client": "github:BlueWallet/rn-electrum-client#567e23d",
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "frisbee": "3.1.0",
@@ -196,6 +196,8 @@
   },
   "react-native": {
     "crypto": "react-native-crypto",
+    "net": "react-native-tcp-socket",
+    "tls": "react-native-tcp-socket",
     "path": "path-browserify",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
