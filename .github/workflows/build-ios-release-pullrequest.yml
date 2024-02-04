@@ -126,7 +126,29 @@ jobs:
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
-
+      - name: Remove Previous Comments
+        env:
+          GH_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+        run: |
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          REPO_FULL_NAME=$(jq --raw-output .repository.full_name "$GITHUB_EVENT_PATH")
+          COMMENTS_URL="https://api.github.com/repos/$REPO_FULL_NAME/issues/$PR_NUMBER/comments"
+          AUTH_HEADER="Authorization: token $GH_TOKEN"
+          ACCEPT_HEADER="Accept: application/vnd.github.v3+json"
+          
+          # Fetch all comments on the PR
+          COMMENTS=$(curl -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" $COMMENTS_URL)
+          
+          # Extract comment IDs for comments containing the specific keyword/phrase
+          COMMENT_IDS=$(echo "$COMMENTS" | jq '.[] | select(.body | contains("TestFlight upload link")) | .id')
+          
+          # Loop over each ID and delete the corresponding comment
+          for ID in $COMMENT_IDS; do
+            DELETE_URL="https://api.github.com/repos/$REPO_FULL_NAME/issues/comments/$ID"
+            curl -X DELETE -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" $DELETE_URL
+          done
+        if: github.event_name == 'pull_request'
+  
 
   testflight-upload:
     if: ${{ github.event_name == 'workflow_dispatch' }}
