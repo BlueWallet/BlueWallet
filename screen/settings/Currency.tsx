@@ -73,7 +73,7 @@ const Currency: React.FC = () => {
     <ListItem
       disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
-      containerStyle={{ height: ITEM_HEIGHT }}
+      containerStyle={StyleSheet.flatten([styles.flex, { height: ITEM_HEIGHT }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
       onPress={async () => {
         setIsSavingNewPreferredCurrency(true);

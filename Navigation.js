@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 
-import Settings from './screen/settings/settings';
+import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Licensing from './screen/settings/licensing';
