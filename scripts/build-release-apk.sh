@@ -15,7 +15,7 @@ cd android
 sed -i'.original' "s/versionCode 1/versionCode $BUILD_NUMBER/g" app/build.gradle
 ./gradlew assembleRelease
 # Rename the APK file to include the version and build number with parentheses
-mv ./app/build/outputs/apk/release/app-release-unsigned.apk ./app/build/outputs/apk/release/BlueWallet-6.5.0($BUILD_NUMBER).apk
+mv ./app/build/outputs/apk/release/app-release-unsigned.apk "./app/build/outputs/apk/release/BlueWallet-6.5.0($BUILD_NUMBER).apk"
 echo wheres waldo?
 find $ANDROID_HOME | grep apksigner | grep -v jar
-$ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD ./app/build/outputs/apk/release/BlueWallet-6.5.0($BUILD_NUMBER).apk
+$ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "./app/build/outputs/apk/release/BlueWallet-6.5.0($BUILD_NUMBER).apk"
