@@ -1526,7 +1526,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1551,7 +1551,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1586,7 +1586,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
@@ -1606,7 +1606,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1643,7 +1643,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1688,7 +1688,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -1733,7 +1733,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1789,7 +1789,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -1959,7 +1959,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -1976,7 +1976,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
@@ -2009,7 +2009,7 @@
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -2026,7 +2026,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch.extension;
@@ -2058,7 +2058,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -2071,7 +2071,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
@@ -2106,7 +2106,7 @@
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -2119,7 +2119,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				MTL_FAST_MATH = YES;
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watch;
@@ -2149,7 +2149,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
@@ -2199,7 +2199,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
@@ -2238,7 +2238,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWallet.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
@@ -2262,7 +2262,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -2292,7 +2292,7 @@
 				CODE_SIGN_ENTITLEMENTS = BlueWallet/BlueWalletRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1703112699;
+				CURRENT_PROJECT_VERSION = 1703112800;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				ENABLE_BITCODE = NO;
@@ -2311,7 +2311,7 @@
 					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
 					"$(inherited)",
 				);
-				MARKETING_VERSION = 6.5.1;
+				MARKETING_VERSION = 6.5.2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
