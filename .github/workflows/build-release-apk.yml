@@ -40,6 +40,13 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
+      - name: Extract Version Name
+        id: version_name
+        run: |
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "::set-output name=version_name::$VERSION_NAME"
+
       - name: Generate Build Number based on timestamp
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
@@ -56,5 +63,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-6.5.0(${{ env.NEW_BUILD_NUMBER }}).apk
+          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
