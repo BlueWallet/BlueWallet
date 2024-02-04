@@ -6,7 +6,7 @@ import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-na
 import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
-import Licensing from './screen/settings/licensing';
+import Licensing from './screen/settings/Licensing';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import Currency from './screen/settings/Currency';
