@@ -40,14 +40,29 @@ jobs:
       - name: Install node_modules
         run: npm install --production
 
+      - name: Determine Marketing Version
+        run: |
+          PROJECT_VERSION=$(grep versionName android/app/build.gradle | awk -F '"|"' '{print $2}')
+          echo "PROJECT_VERSION=$PROJECT_VERSION" >> $GITHUB_ENV
+      
+      - name: Generate Build Number based on timestamp
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+      
+      - name: Echo Expected APK Filename
+        run: |
+          echo "Expected APK filename: BlueWallet.${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).apk"
+      
       - name: Build
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          PROJECT_VERSION: ${{ env.PROJECT_VERSION }}
+          NEW_BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
         run: ./scripts/build-release-apk.sh
-
       - uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: apk
-          path: ./android/app/build/outputs/apk/release/app-release.apk
+          name: BlueWallet-${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.PROJECT_VERSION }}(${{ env.NEW_BUILD_NUMBER }}).apk
