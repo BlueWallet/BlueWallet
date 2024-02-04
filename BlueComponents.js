@@ -12,7 +12,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -26,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlueCurrentTheme, useTheme } from './components/themes';
 import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
+import SafeArea from './components/SafeArea';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -395,7 +395,7 @@ export const BlueHeaderDefaultSub = props => {
   const { colors } = useTheme();
 
   return (
-    <SafeAreaView>
+    <SafeArea>
       <Header
         backgroundColor={colors.background}
         leftContainerStyle={{ minWidth: '100%' }}
@@ -417,7 +417,7 @@ export const BlueHeaderDefaultSub = props => {
         }
         {...props}
       />
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

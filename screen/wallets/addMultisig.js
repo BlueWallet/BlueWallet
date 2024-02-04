@@ -3,8 +3,6 @@ import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from '
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
@@ -14,6 +12,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import SafeArea from '../../components/SafeArea';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
@@ -196,7 +195,7 @@ const WalletsAddMultisig = () => {
   };
 
   return (
-    <SafeAreaView style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
           <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay ref={loadingAnimation} loop={false} />
@@ -236,7 +235,7 @@ const WalletsAddMultisig = () => {
         <Button buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
       </View>
       {renderModal()}
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

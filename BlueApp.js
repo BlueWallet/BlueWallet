@@ -26,6 +26,7 @@ import {
 import { randomBytes } from './class/rng';
 import alert from './components/Alert';
 import { initCurrencyDaemon } from './blue_modules/currency';
+import DefaultPreference from 'react-native-default-preference';
 
 const encryption = require('./blue_modules/encryption');
 const Realm = require('realm');
@@ -855,6 +856,8 @@ class AppStorage {
 
   setDoNotTrack = async value => {
     await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+    await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value);
   };
 
   /**

@@ -219,6 +219,7 @@ export class AbstractWallet {
   }
 
   setSecret(newSecret: string): this {
+    const origSecret = newSecret;
     this.secret = newSecret.trim().replace('bitcoin:', '').replace('BITCOIN:', '');
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
@@ -238,7 +239,7 @@ export class AbstractWallet {
 
       if (derivationPath.startsWith("m/84'/0'/") && this.secret.toLowerCase().startsWith('xpub')) {
         // need to convert xpub to zpub
-        this.secret = this._xpubToZpub(this.secret);
+        this.secret = this._xpubToZpub(this.secret.split('/')[0]);
       }
 
       if (derivationPath.startsWith("m/49'/0'/") && this.secret.toLowerCase().startsWith('xpub')) {
@@ -288,6 +289,7 @@ export class AbstractWallet {
           ? parsedSecret.AccountKeyPath
           : `m/${parsedSecret.AccountKeyPath}`;
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
+        return this;
       }
     } catch (_) {}
 
@@ -321,6 +323,31 @@ export class AbstractWallet {
         this.secret = xpub;
       }
     }
+
+    // is it new-wasabi.json exported from coldcard?
+    try {
+      const json = JSON.parse(origSecret);
+      if (json.MasterFingerprint && json.ExtPubKey) {
+        // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
+        this.secret = this._xpubToZpub(json.ExtPubKey);
+        const mfp = Buffer.from(json.MasterFingerprint, 'hex').reverse().toString('hex');
+        this.masterFingerprint = parseInt(mfp, 16);
+        return this;
+      }
+    } catch (_) {}
+
+    // is it sparrow-export ?
+    try {
+      const json = JSON.parse(origSecret);
+      if (json.chain && json.chain === 'BTC' && json.xfp && json.bip84) {
+        // technically we should allow choosing which format user wants, BIP44 / BIP49 / BIP84, but meh...
+        this.secret = json.bip84._pub;
+        const mfp = Buffer.from(json.xfp, 'hex').reverse().toString('hex');
+        this.masterFingerprint = parseInt(mfp, 16);
+        this._derivationPath = json.bip84.deriv;
+        return this;
+      }
+    } catch (_) {}
 
     return this;
   }
