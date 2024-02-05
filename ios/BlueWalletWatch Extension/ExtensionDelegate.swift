@@ -8,12 +8,18 @@
 
 import WatchKit
 import ClockKit
+import Bugsnag
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
+  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
   func applicationDidFinishLaunching() {
     scheduleNextReload()
     updatePreferredFiatCurrency()
+    if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
+      Bugsnag.start()
+    }
   }
   
   func updatePreferredFiatCurrency() {
@@ -22,7 +28,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   }
   
   private func fetchPreferredFiatUnit() -> FiatUnit? {
-    let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
     if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
       return preferredFiatUnit
     } else {

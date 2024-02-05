@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
@@ -9,8 +9,22 @@ import TooltipMenu from '../TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 import { useTheme } from '../themes';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { AbstractWallet } from '../../class';
+import Biometric from '../../class/biometrics';
+const confirm = require('../../helpers/confirm');
 
-const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) => {
+interface AddressItemProps {
+  // todo: fix `any` after addresses.js is converted to the church of holy typescript
+  item: any;
+  balanceUnit: BitcoinUnit;
+  walletID: string;
+  allowSignVerifyMessage: boolean;
+}
+
+const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
+  const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
 
   const hasTransactions = item.transactions > 0;
@@ -38,7 +52,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
 
   const menuRef = useRef();
   const navigateToReceive = () => {
+    // @ts-ignore wtf
     menuRef.current?.dismissMenu();
+    // @ts-ignore wtf
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -49,7 +65,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
   };
 
   const navigateToSignVerify = () => {
+    // @ts-ignore wtf
     menuRef.current?.dismissMenu();
+    // @ts-ignore wtf
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -69,13 +87,42 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
     Share.open({ message: item.address }).catch(error => console.log(error));
   };
 
-  const onToolTipPress = id => {
+  const handleCopyPrivkeyPress = () => {
+    const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+    if (!wallet) {
+      alert('Internal error: cant find wallet');
+      return;
+    }
+
+    try {
+      const wif = wallet._getWIFbyAddress(item.address);
+      if (!wif) {
+        alert('Internal error: cant get WIF from the wallet');
+        return;
+      }
+      Clipboard.setString(wif);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  const onToolTipPress = async (id: string) => {
     if (id === AddressItem.actionKeys.CopyToClipboard) {
       handleCopyPress();
     } else if (id === AddressItem.actionKeys.Share) {
       handleSharePress();
     } else if (id === AddressItem.actionKeys.SignVerify) {
       navigateToSignVerify();
+    } else if (id === AddressItem.actionKeys.ExportPrivateKey) {
+      if (await confirm(loc.addresses.sensitive_private_key)) {
+        if (await Biometric.isBiometricUseCapableAndEnabled()) {
+          if (!(await Biometric.unlockWithBiometrics())) {
+            return;
+          }
+        }
+
+        handleCopyPrivkeyPress();
+      }
     }
   };
 
@@ -98,6 +145,14 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
         id: AddressItem.actionKeys.SignVerify,
         text: loc.addresses.sign_title,
         icon: AddressItem.actionIcons.Signature,
+      });
+    }
+
+    if (allowSignVerifyMessage) {
+      actions.push({
+        id: AddressItem.actionKeys.ExportPrivateKey,
+        text: loc.addresses.copy_private_key,
+        icon: AddressItem.actionIcons.ExportPrivateKey,
       });
     }
 
@@ -125,7 +180,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }) =>
               <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>{balance}</Text>
             </View>
           </ListItem.Content>
-          <View style={styles.labels}>
+          <View>
             <AddressTypeBadge isInternal={item.isInternal} hasTransactions={hasTransactions} />
             <Text style={[stylesHook.list, styles.balance, stylesHook.balance]}>
               {loc.addresses.transactions}: {item.transactions}
@@ -143,6 +198,7 @@ AddressItem.actionKeys = {
   Share: 'share',
   CopyToClipboard: 'copyToClipboard',
   SignVerify: 'signVerify',
+  ExportPrivateKey: 'exportPrivateKey',
 };
 
 AddressItem.actionIcons = {
@@ -157,6 +213,10 @@ AddressItem.actionIcons = {
   Clipboard: {
     iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
+  },
+  ExportPrivateKey: {
+    iconType: 'SYSTEM',
+    iconValue: 'key',
   },
 };
 
