@@ -96,23 +96,19 @@ const UnlockWith: React.FC = () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       setIsStorageEncryptedEnabled(storageIsEncrypted);
-      let type; // Use `type` directly to hold the biometric type info
+      let type: string | boolean | undefined;
       if (await Biometric.isBiometricUseCapableAndEnabled()) {
-        type = await Biometric.biometricType(); // Directly assign the result to `type`
-        // Assuming biometricType() returns "Touch ID", "Face ID", "Biometrics", or true
+        type = await Biometric.biometricType();
         if (type === true) {
-          // If true means biometrics are available but the type is unknown, you might set a descriptive string
           setBiometricType('Biometrics');
-          type = 'Biometrics'; // Update `type` for subsequent checks
+          type = 'Biometrics';
         } else if (typeof type === 'string') {
           setBiometricType(type);
         } else {
-          // Handle the case where biometrics are not available or the type is not a string
           setBiometricType(undefined);
-          type = undefined; // Ensure `type` reflects this state
+          type = undefined;
         }
       }
-      // Use `type` for condition checks
       if (!type || storageIsEncrypted) {
         unlockWithKey();
       } else if (typeof type === 'string') {
