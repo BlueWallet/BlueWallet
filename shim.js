@@ -15,14 +15,6 @@ if (typeof process === 'undefined') {
 
 process.browser = false;
 
-// global.net = require('react-native-tcp');
-// global.tls = require('react-native-tcp/tls');
-//
-// since new TCP/TLS module for React Native has different api from what is expected from nodejs/net & nodejs/tls
-// (or from old module) we wrap this module in adapter:
-global.net = require('./blue_modules/net');
-global.tls = require('./blue_modules/tls');
-
 // global.location = global.location || { port: 80 }
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;
 process.env.NODE_ENV = isDev ? 'development' : 'production';
