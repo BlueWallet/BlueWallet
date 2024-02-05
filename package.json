@@ -129,7 +129,7 @@
     "detox": "20.17.0",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
-    "electrum-client": "github:BlueWallet/rn-electrum-client#567e23d",
+    "electrum-client": "github:BlueWallet/rn-electrum-client#1bfe3cc",
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "frisbee": "3.1.0",
