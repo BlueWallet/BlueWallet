@@ -571,6 +571,8 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "秘密鍵をコピー",
+    "sensitive_private_key": "警告：秘密鍵はとても重要です。続行しますか？",
     "sign_title": "メッセージの署名／検証",
     "sign_help": "ここではビットコインアドレスに基づく暗号署名の作成・検証ができます。",
     "sign_sign": "署名",
