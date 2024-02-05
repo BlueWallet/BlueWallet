@@ -96,22 +96,20 @@ const UnlockWith: React.FC = () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       setIsStorageEncryptedEnabled(storageIsEncrypted);
-      let type: string | boolean | undefined;
-      if (await Biometric.isBiometricUseCapableAndEnabled()) {
-        type = await Biometric.biometricType();
-        if (type === true) {
-          setBiometricType('Biometrics');
-          type = 'Biometrics';
-        } else if (typeof type === 'string') {
-          setBiometricType(type);
-        } else {
-          setBiometricType(undefined);
-          type = undefined;
-        }
+      let type = await Biometric.biometricType();
+
+      if (type === true) {
+        setBiometricType('Biometrics');
+        type = 'Biometrics';
+      } else if (typeof type === 'string') {
+        setBiometricType(type);
+      } else {
+        setBiometricType(undefined);
       }
+
       if (!type || storageIsEncrypted) {
         unlockWithKey();
-      } else if (typeof type === 'string') {
+      } else {
         unlockWithBiometrics();
       }
     }
