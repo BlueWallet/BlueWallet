@@ -78,36 +78,36 @@ const WalletXpub: React.FC = () => {
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
 
-  const handleShareButtonPressed = () => {
-    Share.open({ message: xpub }).catch(error => console.log(error));
-  };
+  const handleShareButtonPressed = useCallback(() => {
+    Share.open({ message: xpub }).catch(console.log);
+  }, [xpub]);
 
-  return isLoading ? (
-    <View style={[styles.container, stylesHook.root]}>
-      <ActivityIndicator />
-    </View>
-  ) : (
+  return (
     <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
-      <>
-        <View style={styles.container}>
-          {wallet && (
-            <>
-              <View>
-                <BlueText>{wallet.typeReadable}</BlueText>
-              </View>
-              <BlueSpacing20 />
-            </>
-          )}
-          <QRCodeComponent value={xpub} size={qrCodeSize} />
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <>
+          <View style={styles.container}>
+            {wallet && (
+              <>
+                <View>
+                  <BlueText>{wallet.typeReadable}</BlueText>
+                </View>
+                <BlueSpacing20 />
+              </>
+            )}
+            <QRCodeComponent value={xpub} size={qrCodeSize} />
 
-          <BlueSpacing20 />
-          <BlueCopyTextToClipboard text={xPubText} />
-        </View>
-        <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
-        <View style={styles.share}>
-          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-        </View>
-      </>
+            <BlueSpacing20 />
+            <BlueCopyTextToClipboard text={xPubText} />
+          </View>
+          <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+          <View style={styles.share}>
+            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          </View>
+        </>
+      )}
     </SafeArea>
   );
 };

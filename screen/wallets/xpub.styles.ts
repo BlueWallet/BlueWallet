@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from '../../components/themes';
+import { useMemo } from 'react';
 
 export const styles = StyleSheet.create({
   root: {
@@ -18,12 +19,24 @@ export const styles = StyleSheet.create({
 });
 
 export const useDynamicStyles = () => {
-  const { colors } = useTheme();
+  const theme = useTheme();
 
-  return StyleSheet.create({
-    root: {
-      backgroundColor: colors.elevated,
-    },
-    // More  properties
-  });
+  const stylesHook = useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          backgroundColor: theme.colors.elevated,
+          // Add more dynamic styles as needed
+        },
+        container: {
+          // Example of another dynamic style
+          borderColor: theme.colors.inputBorderColor,
+          borderWidth: 1,
+        },
+        // You can add more dynamically themed styles here
+      }),
+    [theme],
+  ); // Recompute styles only when theme changes
+
+  return stylesHook;
 };
