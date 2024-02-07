@@ -6,7 +6,7 @@ import navigationStyle from '../components/navigationStyle';
 import { BlueLoading, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
 import loc from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import SafeArea from '../components/SafeArea';
@@ -25,7 +25,7 @@ const PlausibleDeniability = () => {
       if (isProvidedPasswordInUse) {
         setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert(loc.plausibledeniability.password_should_not_match);
+        return presentAlert({ message: loc.plausibledeniability.password_should_not_match });
       }
       if (!p1) {
         setIsLoading(false);
@@ -35,13 +35,13 @@ const PlausibleDeniability = () => {
       if (p1 !== p2) {
         setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert(loc.plausibledeniability.passwords_do_not_match);
+        return presentAlert({ message: loc.plausibledeniability.passwords_do_not_match });
       }
 
       await createFakeStorage(p1);
       await resetWallets();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      alert(loc.plausibledeniability.success);
+      presentAlert({ message: loc.plausibledeniability.success });
       popToTop();
     } catch {
       setIsLoading(false);

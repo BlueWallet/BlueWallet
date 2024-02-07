@@ -45,6 +45,7 @@ import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import presentAlert from '../../components/Alert';
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
@@ -161,7 +162,7 @@ const SendDetails = () => {
         setPayjoinUrl(pjUrl);
       } catch (error) {
         console.log(error);
-        Alert.alert(loc.errors.error, loc.send.details_error_decode);
+        presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
     } else if (routeParams.address) {
       const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
@@ -191,7 +192,7 @@ const SendDetails = () => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
     if (suitable.length === 0) {
-      Alert.alert(loc.errors.error, loc.send.details_wallet_before_tx);
+      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
       navigation.goBack();
       return;
     }
@@ -395,7 +396,7 @@ const SendDetails = () => {
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
       setIsLoading(false);
-      return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
+      return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
     }
 
     const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
@@ -485,7 +486,7 @@ const SendDetails = () => {
       if (error) {
         scrollView.current.scrollToIndex({ index });
         setIsLoading(false);
-        Alert.alert(loc.errors.error, error);
+        presentAlert({ title: loc.errors.error, message: error.message });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return;
       }
@@ -495,7 +496,7 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err) {
       setIsLoading(false);
-      Alert.alert(loc.errors.error, Err.message);
+      presentAlert({ title: loc.errors.error, message: Err.message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
@@ -600,7 +601,7 @@ const SendDetails = () => {
    */
   const importQrTransaction = () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert(loc.errors.error, 'Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
     setOptionsVisible(false);
@@ -619,7 +620,7 @@ const SendDetails = () => {
     navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -649,7 +650,7 @@ const SendDetails = () => {
    */
   const importTransaction = async () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert(loc.errors.error, 'Importing transaction in non-watchonly wallet (this should never happen)');
+      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
     try {
@@ -692,10 +693,10 @@ const SendDetails = () => {
         return;
       }
 
-      Alert.alert(loc.errors.error, loc.send.details_unrecognized_file_format);
+      presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        Alert.alert(loc.errors.error, loc.send.details_no_signed_tx);
+        presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
   };
@@ -742,7 +743,7 @@ const SendDetails = () => {
         walletID: wallet.getID(),
       });
     } catch (error) {
-      Alert.alert(loc.send.problem_with_psbt, error.message);
+      presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
     }
     setIsLoading(false);
     setOptionsVisible(false);
@@ -756,7 +757,7 @@ const SendDetails = () => {
     navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -823,7 +824,7 @@ const SendDetails = () => {
       psbt = bitcoin.Psbt.fromBase64(scannedData);
       tx = wallet.cosignPsbt(psbt).tx;
     } catch (e) {
-      Alert.alert(loc.errors.error, e.message);
+      presentAlert({ title: loc.errors.error, message: e.message });
       return;
     } finally {
       setIsLoading(false);

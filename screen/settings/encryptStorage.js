@@ -6,7 +6,7 @@ import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueCompon
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
@@ -53,7 +53,7 @@ const EncryptStorage = () => {
       popToTop();
     } catch (e) {
       if (password) {
-        alert(loc._.bad_password);
+        presentAlert({ message: loc._.bad_password });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       }
 
@@ -83,7 +83,7 @@ const EncryptStorage = () => {
         saveToDisk();
       } else {
         setIsLoading(false);
-        alert(loc.settings.passwords_do_not_match);
+        presentAlert({ message: loc.settings.passwords_do_not_match });
       }
     } else {
       Alert.alert(

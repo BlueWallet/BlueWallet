@@ -4,7 +4,7 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } fro
 import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -246,7 +246,7 @@ async function presentNetworkErrorAlert(usingPeer) {
                     // Must be running on Android
                     console.log(e);
                   }
-                  alert(loc.settings.electrum_saved);
+                  presentAlert({ message: loc.settings.electrum_saved });
                   setTimeout(connectMain, 500);
                 },
               },

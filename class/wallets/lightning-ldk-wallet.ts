@@ -8,7 +8,7 @@ import * as bip39 from 'bip39';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import bolt11 from 'bolt11';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
@@ -273,7 +273,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     } catch (error: any) {
-      alert('LDK init error: ' + error.message);
+      presentAlert({ message: 'LDK init error: ' + error.message });
     }
   }
 
@@ -684,7 +684,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       try {
         await func.call(that);
       } catch (error: any) {
-        alert('_execInBackground error:' + error.message);
+        presentAlert({ message: '_execInBackground error:' + error.message });
       }
     })();
   }

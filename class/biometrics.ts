@@ -8,7 +8,7 @@ import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
 import { useContext } from 'react';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 
 // Define a function type with properties
 type DescribableFunction = {
@@ -129,7 +129,7 @@ const Biometric: DescribableFunction = function () {
       isDevicePasscodeSupported = undefined;
     }
     if (isDevicePasscodeSupported === false) {
-      alert(loc.settings.biom_no_passcode);
+      presentAlert({ message: loc.settings.biom_no_passcode });
     }
   };
 

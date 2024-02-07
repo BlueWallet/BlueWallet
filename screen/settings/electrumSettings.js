@@ -31,7 +31,7 @@ import {
 import { BlueCurrentTheme } from '../../components/themes';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
@@ -112,7 +112,7 @@ export default class ElectrumSettings extends Component {
     this.setState({ isLoading: true }, async () => {
       const features = await BlueElectrum.serverFeatures();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
-      alert(JSON.stringify(features, null, 2));
+      presentAlert({ message: JSON.stringify(features, null, 2) });
       this.setState({ isLoading: false });
     });
   };
@@ -177,10 +177,10 @@ export default class ElectrumSettings extends Component {
             console.log(e);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          alert(loc.settings.electrum_saved);
+          presentAlert({ message: loc.settings.electrum_saved });
         } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-          alert(loc.settings.electrum_error_connect);
+          presentAlert({ message: loc.settings.electrum_error_connect });
         } else {
           await AsyncStorage.setItem(BlueElectrum.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(BlueElectrum.ELECTRUM_TCP_PORT, port);
@@ -206,11 +206,11 @@ export default class ElectrumSettings extends Component {
             console.log(e);
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          alert(loc.settings.electrum_saved);
+          presentAlert({ message: loc.settings.electrum_saved });
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        alert(error);
+        presentAlert({ message: error });
       }
       this.setState({ isLoading: false });
     });

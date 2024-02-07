@@ -21,7 +21,7 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
@@ -95,12 +95,12 @@ export default class CPFP extends Component {
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           this.setState({ isLoading: false });
-          alert(loc.errors.broadcast);
+          presentAlert({ message: loc.errors.broadcast });
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         this.setState({ isLoading: false });
-        alert(error.message);
+        presentAlert({ message: error.message });
       }
     });
   };
@@ -154,7 +154,7 @@ export default class CPFP extends Component {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert(loc.errors.error + ': ' + _.message);
+        presentAlert({ message: loc.errors.error + ': ' + _.message });
       }
     }
   }

@@ -1,5 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 import { ECPairFactory } from 'ecpair';
 import ecc from '../blue_modules/noble_ecc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -75,7 +75,7 @@ export default class PayjoinTransaction {
       if (result === '') {
         // TODO: Improve the wording of this error message
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        alert('Something was wrong with the payjoin transaction, the original transaction sucessfully broadcast.');
+        presentAlert({ message: 'Something was wrong with the payjoin transaction, the original transaction sucessfully broadcast.' });
       }
     });
   }

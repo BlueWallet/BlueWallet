@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { ActivityIndicator, Alert, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
@@ -14,6 +14,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();
@@ -90,7 +91,7 @@ const ImportWalletDiscovery = () => {
       })
       .catch(e => {
         console.warn('import error', e);
-        Alert.alert('import error', e.message);
+        presentAlert({ title: 'Import error', message: e.message });
       })
       .finally(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);

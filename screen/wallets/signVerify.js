@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -22,6 +21,7 @@ import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -75,7 +75,7 @@ const SignVerify = () => {
       setIsShareVisible(true);
     } catch (e) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      Alert.alert(loc.errors.error, e.message);
+      presentAlert({ title: loc.errors.error, message: e.message });
     }
 
     setLoading(false);
@@ -86,16 +86,16 @@ const SignVerify = () => {
     await sleep(10); // wait for loading indicator to appear
     try {
       const res = wallet.verifyMessage(message, address, signature);
-      Alert.alert(
-        res ? loc._.success : loc.errors.error,
-        res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
-      );
+      presentAlert({
+        title: res ? loc._.success : loc.errors.error,
+        message: res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
+      });
       if (res) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (e) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      Alert.alert(loc.errors.error, e.message);
+      presentAlert({ title: loc.errors.error, message: e.message });
     }
     setLoading(false);
   };

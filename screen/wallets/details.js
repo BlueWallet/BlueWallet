@@ -39,7 +39,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
@@ -196,7 +196,7 @@ const WalletDetails = () => {
     }
     saveToDisk()
       .then(() => {
-        alert(loc.wallets.details_wallet_updated);
+        presentAlert({ message: loc.wallets.details_wallet_updated });
         goBack();
       })
       .catch(error => {
@@ -261,7 +261,7 @@ const WalletDetails = () => {
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
-        alert(loc.wallets.details_del_wb_err);
+        presentAlert({ message: loc.wallets.details_del_wb_err });
       }
     } catch (_) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -359,7 +359,7 @@ const WalletDetails = () => {
       })
         .catch(error => {
           console.log(error);
-          alert(error.message);
+          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
@@ -371,10 +371,10 @@ const WalletDetails = () => {
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, contents);
-          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+          presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath: fileName }) });
         } catch (e) {
           console.log(e);
-          alert(e.message);
+          presentAlert({ message: e.message });
         }
       } else {
         console.log('Storage Permission: Denied');
@@ -400,13 +400,13 @@ const WalletDetails = () => {
     if (wallet.type === HDSegwitBech32Wallet.type) {
       wallet._txs_by_external_index = {};
       wallet._txs_by_internal_index = {};
-      alert(msg);
+      presentAlert({ message: msg });
     }
 
     if (wallet._hdWalletInstance) {
       wallet._hdWalletInstance._txs_by_external_index = {};
       wallet._hdWalletInstance._txs_by_internal_index = {};
-      alert(msg);
+      presentAlert({ message: msg });
     }
   };
 

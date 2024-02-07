@@ -9,7 +9,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { HDSegwitBech32Wallet } from '../../class';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -84,7 +84,7 @@ const About = () => {
 
   const handleOnSelfTestPress = () => {
     if (isElectrumDisabled) {
-      alert(loc.settings.about_selftest_electrum_disabled);
+      presentAlert({ message: loc.settings.about_selftest_electrum_disabled });
     } else {
       navigate('Selftest');
     }

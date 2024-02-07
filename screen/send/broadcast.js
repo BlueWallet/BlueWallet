@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
@@ -22,6 +22,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 const scanqr = require('../../helpers/scan-qr');
 
@@ -70,7 +71,7 @@ const Broadcast = () => {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
-      Alert.alert(loc.errors.error, error.message);
+      presentAlert({ title: loc.errors.error, message: error.message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
     }
