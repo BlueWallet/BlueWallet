@@ -1,8 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { InteractionManager, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { InteractionManager, ActivityIndicator, View } from 'react-native';
+import { useFocusEffect, useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
 import Share from 'react-native-share';
-
+import { styles, useDynamicStyles } from './xpub.styles';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueSpacing20, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
 import Privacy from '../../blue_modules/Privacy';
@@ -11,39 +11,36 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import { AbstractWallet } from '../../class';
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  container: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  share: {
-    alignSelf: 'center',
-    width: '40%',
-  },
-});
+type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
+export type RootStackParamList = {
+  WalletXpub: {
+    walletID: string;
+    xpub: string;
+  };
+};
 
-const WalletXpub = () => {
+const WalletXpub: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
-  const { walletID, xpub } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
-  const [isLoading, setIsLoading] = useState(true);
-  const [xPubText, setXPubText] = useState();
-  const { goBack, setParams } = useNavigation();
-  const { colors } = useTheme();
-  const [qrCodeSize, setQRCodeSize] = useState(90);
-  const stylesHook = StyleSheet.create({ root: { backgroundColor: colors.elevated } });
+  const route = useRoute<WalletXpubRouteProp>();
+  const { walletID, xpub } = route.params;
+  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [xPubText, setXPubText] = useState<string | undefined>(undefined);
+  const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
+  const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
+  const [qrCodeSize, setQRCodeSize] = useState<number>(90);
+  const lastWalletIdRef = useRef<string | undefined>();
 
   useFocusEffect(
     useCallback(() => {
+      // Skip execution if walletID hasn't changed
+      if (lastWalletIdRef.current === walletID) {
+        return;
+      }
       Privacy.enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
@@ -51,28 +48,32 @@ const WalletXpub = () => {
 
           if (isBiometricsEnabled) {
             if (!(await Biometric.unlockWithBiometrics())) {
-              return goBack();
+              return navigation.goBack();
             }
           }
-          setParams({ xpub: wallet.getXpub() });
+          const walletXpub = wallet.getXpub();
+          if (xpub !== walletXpub) {
+            navigation.setParams({ xpub: walletXpub });
+          }
+
           setIsLoading(false);
         } else if (xpub) {
           setIsLoading(false);
         }
       });
+      lastWalletIdRef.current = walletID;
       return () => {
         task.cancel();
         Privacy.disableBlur();
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, walletID]),
+    }, [wallet, xpub, walletID, navigation]),
   );
 
   useEffect(() => {
     setXPubText(xpub);
   }, [xpub]);
 
-  const onLayout = e => {
+  const onLayout = (e: { nativeEvent: { layout: { width: any; height?: any } } }) => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
@@ -111,6 +112,7 @@ const WalletXpub = () => {
   );
 };
 
+// @ts-ignore: Deal with later
 WalletXpub.navigationOptions = navigationStyle(
   {
     closeButton: true,
