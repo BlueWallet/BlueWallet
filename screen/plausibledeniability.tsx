@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useReducer } from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -10,60 +10,85 @@ import alert from '../components/Alert';
 import Button from '../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import SafeArea from '../components/SafeArea';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 const prompt = require('../helpers/prompt');
 
-const PlausibleDeniability = () => {
+// Action Types
+const SET_LOADING = 'SET_LOADING';
+
+// Defining State and Action Types
+type State = {
+  isLoading: boolean;
+};
+
+type Action = { type: typeof SET_LOADING; payload: boolean };
+
+// Initial State
+const initialState: State = {
+  isLoading: false,
+};
+
+// Reducer Function
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case SET_LOADING:
+      return { ...state, isLoading: action.payload };
+    default:
+      return state;
+  }
+}
+
+// Component
+const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useContext(BlueStorageContext);
-  const [isLoading, setIsLoading] = useState(false);
-  const { popToTop } = useNavigation();
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const navigation = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
-    setIsLoading(true);
+    dispatch({ type: SET_LOADING, payload: true });
     try {
       const p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
       const isProvidedPasswordInUse = p1 === cachedPassword || (await isPasswordInUse(p1));
       if (isProvidedPasswordInUse) {
-        setIsLoading(false);
+        dispatch({ type: SET_LOADING, payload: false });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert(loc.plausibledeniability.password_should_not_match);
+        alert(loc.plausibledeniability.password_should_not_match);
+        return;
       }
       if (!p1) {
-        setIsLoading(false);
+        dispatch({ type: SET_LOADING, payload: false });
         return;
       }
       const p2 = await prompt(loc.plausibledeniability.retype_password);
       if (p1 !== p2) {
-        setIsLoading(false);
+        dispatch({ type: SET_LOADING, payload: false });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert(loc.plausibledeniability.passwords_do_not_match);
+        alert(loc.plausibledeniability.passwords_do_not_match);
+        return;
       }
 
       await createFakeStorage(p1);
       await resetWallets();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       alert(loc.plausibledeniability.success);
-      popToTop();
+      navigation.popToTop();
     } catch {
-      setIsLoading(false);
+      dispatch({ type: SET_LOADING, payload: false });
     }
   };
 
-  return isLoading ? (
+  return state.isLoading ? (
     <SafeArea>
       <BlueLoading />
     </SafeArea>
   ) : (
     <SafeArea>
       <BlueCard>
-        <ScrollView maxHeight={450}>
+        <ScrollView>
           <BlueText>{loc.plausibledeniability.help}</BlueText>
-
           <BlueText />
-
           <BlueText>{loc.plausibledeniability.help2}</BlueText>
-
           <BlueSpacing20 />
-
           <Button
             testID="CreateFakeStorageButton"
             title={loc.plausibledeniability.create_fake_storage}
@@ -77,6 +102,7 @@ const PlausibleDeniability = () => {
 
 export default PlausibleDeniability;
 
+// @ts-ignore: Fix later
 PlausibleDeniability.navigationOptions = navigationStyle({
   title: loc.plausibledeniability.title,
 });
