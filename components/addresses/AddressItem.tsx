@@ -13,6 +13,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const confirm = require('../../helpers/confirm');
 
 interface AddressItemProps {
@@ -100,6 +101,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         alert('Internal error: cant get WIF from the wallet');
         return;
       }
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
       Clipboard.setString(wif);
     } catch (error: any) {
       alert(error.message);
