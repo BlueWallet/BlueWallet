@@ -124,7 +124,7 @@ const EncryptStorage = () => {
   };
 
   return isLoading ? (
-    <ScrollView>
+    <ScrollView centerContent>
       <BlueLoading />
     </ScrollView>
   ) : (
