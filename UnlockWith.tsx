@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useReducer, useRef } from 'react';
-import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules } from 'react-native';
+import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { NavigationProp, RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -7,7 +7,6 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
-import { styles } from './UnlockWith.styles';
 type RootStackParamList = {
   UnlockWith: { unlockOnComponentMount?: boolean };
 };
@@ -164,7 +163,7 @@ const UnlockWith: React.FC = () => {
   };
 
   return (
-    <SafeArea style={styles.root}>
+    <SafeArea>
       <View style={styles.container}>
         <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
@@ -172,5 +171,35 @@ const UnlockWith: React.FC = () => {
     </SafeArea>
   );
 };
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  biometricRow: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    width: 64,
+    height: 64,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  icon: {
+    width: 64,
+    height: 64,
+  },
+  logoImage: {
+    width: 100,
+    height: 75,
+    alignSelf: 'center',
+  },
+});
+
 
 export default UnlockWith;
