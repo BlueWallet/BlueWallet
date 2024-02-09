@@ -163,7 +163,7 @@ const UnlockWith: React.FC = () => {
   };
 
   return (
-    <SafeArea>
+    <SafeArea style={styles.root}>
       <View style={styles.container}>
         <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
