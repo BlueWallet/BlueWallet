@@ -53,8 +53,8 @@ const EncryptStorage = () => {
       popToTop();
     } catch (e) {
       if (password) {
-        alert(loc._.bad_password);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        alert(loc._.bad_password);
       }
 
       setIsLoading(false);
@@ -83,6 +83,7 @@ const EncryptStorage = () => {
         saveToDisk();
       } else {
         setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         alert(loc.settings.passwords_do_not_match);
       }
     } else {
