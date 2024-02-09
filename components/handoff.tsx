@@ -5,6 +5,9 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 
 interface HandoffComponentProps {
   url?: string;
+  title?: string;
+  type: (typeof HandoffComponent.activityTypes)[keyof typeof HandoffComponent.activityTypes];
+  userInfo?: object;
 }
 
 interface HandoffComponentWithActivityTypes extends React.FC<HandoffComponentProps> {

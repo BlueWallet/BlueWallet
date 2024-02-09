@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ScrollView } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueText, BlueSpacing20, BlueLoading } from '../../BlueComponents';
+import { BlueCard, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import SafeArea from '../../components/SafeArea';
+import loc from '../../loc';
 
 const Licensing = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
+  return (
     <SafeArea>
       <ScrollView>
         <BlueCard>
@@ -46,8 +39,11 @@ const Licensing = () => {
   );
 };
 
-Licensing.navigationOptions = navigationStyle({
-  title: 'License',
+Licensing.navigationOptions = navigationStyle({}, options => {
+  return {
+    ...options,
+    headerTitle: loc.settings.license,
+  };
 });
 
 export default Licensing;

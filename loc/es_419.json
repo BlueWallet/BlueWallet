@@ -571,6 +571,8 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "Copiar clave privada",
+    "sensitive_private_key": "Advertencia: las claves privadas son extremadamente sensibles. ¿Continuar?",
     "sign_title": "Firmar/Verificar mensaje",
     "sign_help": "Aquí puedes crear o verificar una firma criptográfica basada en una dirección de Bitcoin.",
     "sign_sign": "Firmar",
