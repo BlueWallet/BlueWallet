@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { StyleSheet, Platform, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { BlueSpacing10 } from '../BlueComponents';
@@ -18,19 +17,32 @@ const styles = StyleSheet.create({
   },
 });
 
-const BottomModal = ({
-  onBackButtonPress = undefined,
-  onBackdropPress = undefined,
+interface BottomModalProps {
+  children?: React.ReactNode;
+  onBackButtonPress?: () => void;
+  onBackdropPress?: () => void;
+  onClose: () => void;
+  windowHeight?: number;
+  windowWidth?: number;
+  doneButton?: boolean;
+  avoidKeyboard?: boolean;
+  allowBackdropPress?: boolean;
+  isVisible: boolean;
+}
+
+const BottomModal: React.FC<BottomModalProps> = ({
+  onBackButtonPress,
+  onBackdropPress,
   onClose,
-  windowHeight = undefined,
-  windowWidth = undefined,
-  doneButton = undefined,
+  windowHeight,
+  windowWidth,
+  doneButton,
+  isVisible,
   avoidKeyboard = false,
   allowBackdropPress = true,
   ...props
 }) => {
-  const valueWindowHeight = useWindowDimensions().height;
-  const valueWindowWidth = useWindowDimensions().width;
+  const { height: valueWindowHeight, width: valueWindowWidth } = useWindowDimensions();
   const handleBackButtonPress = onBackButtonPress ?? onClose;
   const handleBackdropPress = allowBackdropPress ? onBackdropPress ?? onClose : undefined;
   const { colors } = useTheme();
@@ -39,6 +51,7 @@ const BottomModal = ({
       backgroundColor: colors.elevated,
     },
   });
+
   return (
     <Modal
       style={styles.root}
@@ -46,6 +59,7 @@ const BottomModal = ({
       deviceWidth={windowWidth ?? valueWindowWidth}
       onBackButtonPress={handleBackButtonPress}
       onBackdropPress={handleBackdropPress}
+      isVisible={isVisible}
       {...props}
       accessibilityViewIsModal
       avoidKeyboard={avoidKeyboard}
@@ -60,18 +74,6 @@ const BottomModal = ({
       )}
     </Modal>
   );
-};
-
-BottomModal.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element]),
-  onBackButtonPress: PropTypes.func,
-  onBackdropPress: PropTypes.func,
-  onClose: PropTypes.func,
-  doneButton: PropTypes.bool,
-  windowHeight: PropTypes.number,
-  windowWidth: PropTypes.number,
-  avoidKeyboard: PropTypes.bool,
-  allowBackdropPress: PropTypes.bool,
 };
 
 export default BottomModal;
