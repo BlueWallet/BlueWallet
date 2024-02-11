@@ -9,7 +9,6 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 import alert from '../components/Alert';
 import Button from '../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import SafeArea from '../components/SafeArea';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 const prompt = require('../helpers/prompt');
 
@@ -77,14 +76,12 @@ const PlausibleDeniability: React.FC = () => {
     }
   };
 
-  return state.isLoading ? (
-    <SafeArea>
-      <BlueLoading />
-    </SafeArea>
-  ) : (
-    <SafeArea>
-      <BlueCard>
-        <ScrollView>
+  return (
+    <ScrollView centerContent={state.isLoading} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      {state.isLoading ? (
+        <BlueLoading />
+      ) : (
+        <BlueCard>
           <BlueText>{loc.plausibledeniability.help}</BlueText>
           <BlueText />
           <BlueText>{loc.plausibledeniability.help2}</BlueText>
@@ -94,9 +91,9 @@ const PlausibleDeniability: React.FC = () => {
             title={loc.plausibledeniability.create_fake_storage}
             onPress={handleOnCreateFakeStorageButtonPressed}
           />
-        </ScrollView>
-      </BlueCard>
-    </SafeArea>
+        </BlueCard>
+      )}
+    </ScrollView>
   );
 };
 
