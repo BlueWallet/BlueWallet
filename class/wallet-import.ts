@@ -20,43 +20,57 @@ import {
   SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '.';
+import type { TWallet } from './wallets/types';
 import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
-export const validateBip32 = path => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
+
+type TReturn = {
+  cancelled: boolean;
+  stopped: boolean;
+  wallets: TWallet[];
+};
 
 /**
  * Function that starts wallet search and import process. It has async generator inside, so
  * that the process can be stoped at any time. It reporst all the progress through callbacks.
  *
- * @param askPassphrase {bool} If true import process will call onPassword callback for wallet with optional password.
- * @param searchAccounts {bool} If true import process will scan for all known derivation path from bip39_wallet_formats.json. If false it will use limited version.
+ * @param askPassphrase {boolean} If true import process will call onPassword callback for wallet with optional password.
+ * @param searchAccounts {boolean} If true import process will scan for all known derivation path from bip39_wallet_formats.json. If false it will use limited version.
  * @param onProgress {function} Callback to report scanning progress
  * @param onWallet {function} Callback to report wallet found
  * @param onPassword {function} Callback to ask for password if needed
  * @returns {{promise: Promise, stop: function}}
  */
-const startImport = (importTextOrig, askPassphrase = false, searchAccounts = false, onProgress, onWallet, onPassword) => {
+const startImport = (
+  importTextOrig: string,
+  askPassphrase: boolean = false,
+  searchAccounts: boolean = false,
+  onProgress: (name: string) => void,
+  onWallet: (wallet: TWallet) => void,
+  onPassword: (title: string, text: string) => Promise<string>,
+): { promise: Promise<TReturn>; stop: () => void } => {
   // state
-  let promiseResolve;
-  let promiseReject;
+  let promiseResolve: (arg: TReturn) => void;
+  let promiseReject: (reason?: any) => void;
   let running = true; // if you put it to false, internal generator stops
-  const wallets = [];
-  const promise = new Promise((resolve, reject) => {
+  const wallets: TWallet[] = [];
+  const promise = new Promise<TReturn>((resolve, reject) => {
     promiseResolve = resolve;
     promiseReject = reject;
   });
 
   // actions
-  const reportProgress = name => {
+  const reportProgress = (name: string) => {
     onProgress(name);
   };
-  const reportFinish = (cancelled, stopped) => {
+  const reportFinish = (cancelled: boolean = false, stopped: boolean = false) => {
     promiseResolve({ cancelled, stopped, wallets });
   };
-  const reportWallet = wallet => {
+  const reportWallet = (wallet: TWallet) => {
     if (wallets.some(w => w.getID() === wallet.getID())) return; // do not add duplicates
     wallets.push(wallet);
     onWallet(wallet);
@@ -134,7 +148,7 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     }
 
     // is it bip38 encrypted
-    if (text.startsWith('6P')) {
+    if (text.startsWith('6P') && password) {
       const decryptedKey = await bip38.decryptAsync(text, password);
 
       if (decryptedKey) {
@@ -184,7 +198,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     yield { progress: 'bip39' };
     const hd2 = new HDSegwitBech32Wallet();
     hd2.setSecret(text);
-    hd2.setPassphrase(password);
+    if (password) {
+      hd2.setPassphrase(password);
+    }
     if (hd2.validateMnemonic()) {
       let walletFound = false;
       // by default we don't try all the paths and options
@@ -214,7 +230,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
         for (const path of paths) {
           const wallet = new WalletClass();
           wallet.setSecret(text);
-          wallet.setPassphrase(password);
+          if (password) {
+            wallet.setPassphrase(password);
+          }
           wallet.setDerivationPath(path);
           yield { progress: `bip39 ${i.script_type} ${path}` };
           if (await wallet.wasEverUsed()) {
@@ -230,7 +248,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
       // to decide which one is it let's compare number of transactions
       const m0Legacy = new HDLegacyP2PKHWallet();
       m0Legacy.setSecret(text);
-      m0Legacy.setPassphrase(password);
+      if (password) {
+        m0Legacy.setPassphrase(password);
+      }
       m0Legacy.setDerivationPath("m/0'");
       yield { progress: "bip39 p2pkh m/0'" };
       // BRD doesn't support passphrase and only works with 12 words seeds
@@ -332,7 +352,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     yield { progress: 'electrum p2wpkh-p2sh' };
     const el1 = new HDSegwitElectrumSeedP2WPKHWallet();
     el1.setSecret(text);
-    el1.setPassphrase(password);
+    if (password) {
+      el1.setPassphrase(password);
+    }
     if (el1.validateMnemonic()) {
       yield { wallet: el1 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
@@ -341,7 +363,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     yield { progress: 'electrum p2pkh' };
     const el2 = new HDLegacyElectrumSeedP2PKHWallet();
     el2.setSecret(text);
-    el2.setPassphrase(password);
+    if (password) {
+      el2.setPassphrase(password);
+    }
     if (el2.validateMnemonic()) {
       yield { wallet: el2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
@@ -350,7 +374,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
     yield { progress: 'aezeed' };
     const aezeed2 = new HDAezeedWallet();
     aezeed2.setSecret(text);
-    aezeed2.setPassphrase(password);
+    if (password) {
+      aezeed2.setPassphrase(password);
+    }
     if (await aezeed2.validateMnemonicAsync()) {
       yield { wallet: aezeed2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
@@ -364,14 +390,18 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
 
       if (s1.validateMnemonic()) {
         yield { progress: 'SLIP39 p2wpkh-p2sh' };
-        s1.setPassphrase(password);
+        if (password) {
+          s1.setPassphrase(password);
+        }
         if (await s1.wasEverUsed()) {
           yield { wallet: s1 };
         }
 
         yield { progress: 'SLIP39 p2pkh' };
         const s2 = new SLIP39LegacyP2PKHWallet();
-        s2.setPassphrase(password);
+        if (password) {
+          s2.setPassphrase(password);
+        }
         s2.setSecret(text);
         if (await s2.wasEverUsed()) {
           yield { wallet: s2 };
@@ -380,7 +410,9 @@ const startImport = (importTextOrig, askPassphrase = false, searchAccounts = fal
         yield { progress: 'SLIP39 p2wpkh' };
         const s3 = new SLIP39SegwitBech32Wallet();
         s3.setSecret(text);
-        s3.setPassphrase(password);
+        if (password) {
+          s3.setPassphrase(password);
+        }
         yield { wallet: s3 };
       }
     }
