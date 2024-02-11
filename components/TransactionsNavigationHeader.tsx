@@ -77,11 +77,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const handleBalanceVisibility = async () => {
-    // @ts-ignore: Gotta update this class
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled && wallet.hideBalance) {
-      // @ts-ignore: Ugh
       if (!(await Biometric.unlockWithBiometrics())) {
         return navigation.goBack();
       }
