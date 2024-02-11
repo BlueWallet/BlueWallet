@@ -295,7 +295,7 @@ export default class Lnurl {
     return this.getMin();
   }
 
-  authenticate(secret) {
+  authenticate(secret): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this._lnurl) throw new Error('this._lnurl is not set');
 
