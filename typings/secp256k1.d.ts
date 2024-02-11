@@ -1,8 +1,5 @@
 declare module 'secp256k1' {
-  export function publicKeyCreate(
-    privateKey: Uint8Array,
-    compressed?: boolean,
-    output?: Uint8Array | ((len: number) => Uint8Array),
-  ): Uint8Array;
+  export function publicKeyCreate(privateKey: Buffer, compressed?: boolean, output?: Buffer | ((len: number) => Buffer)): Buffer;
   export function signatureExport(signature: Buffer): Buffer;
+  export function sign(message: Buffer, privateKey: Buffer): { signature: Buffer; recid: number };
 }
