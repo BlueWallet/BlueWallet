@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer, useRef } from 'react';
 import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
-import Biometric from './class/biometrics';
+import Biometric, { BiometricType } from './class/biometrics';
 import { NavigationProp, RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
@@ -10,13 +10,6 @@ import SafeArea from './components/SafeArea';
 type RootStackParamList = {
   UnlockWith: { unlockOnComponentMount?: boolean };
 };
-
-enum BiometricType {
-  FaceID = 'FaceID',
-  TouchID = 'TouchID',
-  Biometrics = 'Biometrics',
-  None = 'None',
-}
 
 type State = {
   biometricType: BiometricType | undefined;
@@ -143,7 +136,7 @@ const UnlockWith: React.FC = () => {
       const rawType = await Biometric.biometricType();
 
       let type;
-      if (rawType === true) {
+      if (rawType === 'Biometrics') {
         // Assuming 'true' indicates generic biometrics support
         type = BiometricType.Biometrics;
       } else if (rawType === 'Touch ID') {
@@ -200,6 +193,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 });
-
 
 export default UnlockWith;
