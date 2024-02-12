@@ -12,6 +12,13 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 
 const STORAGEKEY = 'Biometrics';
 
+export enum BiometricType {
+  FaceID = 'FaceID',
+  TouchID = 'TouchID',
+  Biometrics = 'Biometrics',
+  None = 'None',
+}
+
 // Define a function type with properties
 type DescribableFunction = {
   (): null; // Call signature
