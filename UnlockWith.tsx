@@ -137,7 +137,6 @@ const UnlockWith: React.FC = () => {
 
       let type;
       if (rawType === 'Biometrics') {
-        // Assuming 'true' indicates generic biometrics support
         type = BiometricType.Biometrics;
       } else if (rawType === 'Touch ID') {
         type = BiometricType.TouchID;
