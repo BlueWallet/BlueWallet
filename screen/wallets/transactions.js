@@ -45,7 +45,14 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = ({ navigation }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
+  const {
+    wallets,
+    saveToDisk,
+    setSelectedWalletID,
+    walletTransactionUpdateStatus,
+    isElectrumDisabled,
+    setReloadTransactionsMenuActionFunction,
+  } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -502,6 +509,22 @@ const WalletTransactions = ({ navigation }) => {
     index,
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      setReloadTransactionsMenuActionFunction(refreshTransactions);
+      return () => {
+        setReloadTransactionsMenuActionFunction(undefined);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  const refreshProps = isDesktop
+    ? {}
+    : {
+        ...(isElectrumDisabled ? {} : { refreshing: isLoading, refreshTransactions }),
+      };
+
   return (
     <View style={styles.flex}>
       <TransactionsNavigationHeader
@@ -567,7 +590,7 @@ const WalletTransactions = ({ navigation }) => {
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
             </ScrollView>
           }
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
+          {...refreshProps}
           data={dataSource}
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}

@@ -11,7 +11,7 @@ EventEmitter on the native side should receive a payload and rebuild menus.
 
 const eventEmitter = Platform.OS === 'ios' || Platform.OS === 'macos' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const MenuElements = () => {
-  const { walletsInitialized } = useContext(BlueStorageContext);
+  const { walletsInitialized, reloadTransactionsMenuActionFunction } = useContext(BlueStorageContext);
 
   // BlueWallet -> Settings
   const openSettings = useCallback(() => {
@@ -23,25 +23,50 @@ const MenuElements = () => {
     dispatchNavigate('AddWalletRoot');
   }, []);
 
-  const dispatchNavigate = (routeName: string) => {
-    NavigationService.dispatch(
-      CommonActions.navigate({
-        name: routeName,
-      }),
-    );
+  // File -> Add Wallet
+  const importWalletMenuAction = useCallback(() => {
+    dispatchNavigate('AddWalletRoot', 'ImportWallet');
+  }, []);
+
+  const dispatchNavigate = (routeName: string, screen?: string) => {
+    const action = screen
+      ? CommonActions.navigate({
+          name: routeName,
+          params: { screen },
+        })
+      : CommonActions.navigate({
+          name: routeName,
+        });
+
+    NavigationService.dispatch(action);
   };
+
+  const reloadTransactionsMenuElementsFunction = useCallback(() => {
+    reloadTransactionsMenuActionFunction();
+  }, [reloadTransactionsMenuActionFunction]);
 
   useEffect(() => {
     console.log('MenuElements: useEffect');
     if (walletsInitialized) {
       eventEmitter?.addListener('openSettings', openSettings);
       eventEmitter?.addListener('addWalletMenuAction', addWalletMenuAction);
+      eventEmitter?.addListener('importWalletMenuAction', importWalletMenuAction);
+      eventEmitter?.addListener('reloadTransactionsMenuAction', reloadTransactionsMenuElementsFunction);
     }
     return () => {
       eventEmitter?.removeAllListeners('openSettings');
       eventEmitter?.removeAllListeners('addWalletMenuAction');
+      eventEmitter?.removeAllListeners('importWalletMenuAction');
+      eventEmitter?.removeAllListeners('reloadTransactionsMenuAction');
     };
-  }, [addWalletMenuAction, openSettings, walletsInitialized]);
+  }, [
+    addWalletMenuAction,
+    importWalletMenuAction,
+    openSettings,
+    reloadTransactionsMenuActionFunction,
+    reloadTransactionsMenuElementsFunction,
+    walletsInitialized,
+  ]);
 
   return <></>;
 };
