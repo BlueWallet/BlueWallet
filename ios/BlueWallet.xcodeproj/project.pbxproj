@@ -900,6 +900,7 @@
 			buildConfigurationList = B4A29A422B55C990002A67DF /* Build configuration list for PBXNativeTarget "BlueWallet-NoLDK" */;
 			buildPhases = (
 				B4A29A2A2B55C990002A67DF /* [CP] Check Pods Manifest.lock */,
+				B4A29A472B55D17B002A67DF /* ShellScript */,
 				B4A29A2B2B55C990002A67DF /* Sources */,
 				B4A29A302B55C990002A67DF /* Frameworks */,
 				B4A29A342B55C990002A67DF /* Resources */,
@@ -910,7 +911,6 @@
 				B4A29A3F2B55C990002A67DF /* Upload Bugsnag dSYM */,
 				B4A29A402B55C990002A67DF /* [CP] Embed Pods Frameworks */,
 				B4A29A412B55C990002A67DF /* [CP] Copy Pods Resources */,
-				B4A29A472B55D17B002A67DF /* ShellScript */,
 			);
 			buildRules = (
 			);

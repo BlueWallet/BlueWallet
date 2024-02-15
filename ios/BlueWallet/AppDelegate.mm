@@ -180,14 +180,14 @@
     // Implement the functionality for adding a wallet
       [EventEmitter.sharedInstance importWalletMenuAction];
 
-    NSLog(@"Add Wallet action performed");
+    NSLog(@"Import Wallet action performed");
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
       [EventEmitter.sharedInstance reloadTransactionsMenuAction];
 
-    NSLog(@"Add Wallet action performed");
+    NSLog(@"Reload Transactions action performed");
 }
 
 
