@@ -43,7 +43,7 @@ const MenuElements = () => {
 
   const reloadTransactionsMenuElementsFunction = useCallback(() => {
     reloadTransactionsMenuActionFunction();
-  }, [reloadTransactionsMenuActionFunction]);
+  },[reloadTransactionsMenuActionFunction]);
 
   useEffect(() => {
     console.log('MenuElements: useEffect');
@@ -59,14 +59,8 @@ const MenuElements = () => {
       eventEmitter?.removeAllListeners('importWalletMenuAction');
       eventEmitter?.removeAllListeners('reloadTransactionsMenuAction');
     };
-  }, [
-    addWalletMenuAction,
-    importWalletMenuAction,
-    openSettings,
-    reloadTransactionsMenuActionFunction,
-    reloadTransactionsMenuElementsFunction,
-    walletsInitialized,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addWalletMenuAction, importWalletMenuAction, openSettings, reloadTransactionsMenuActionFunction, walletsInitialized]);
 
   return <></>;
 };

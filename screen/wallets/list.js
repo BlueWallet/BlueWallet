@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
   findNodeHandle,
   I18nManager,
+  InteractionManager,
 } from 'react-native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -74,7 +75,9 @@ const WalletsList = () => {
     useCallback(() => {
       verifyBalance();
       setSelectedWalletID(undefined);
-      setReloadTransactionsMenuActionFunction(onRefresh);
+      InteractionManager.runAfterInteractions(() => {
+        setReloadTransactionsMenuActionFunction(() => onRefresh);
+      });
       return () => {
         setReloadTransactionsMenuActionFunction(() => {});
       };

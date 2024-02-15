@@ -511,7 +511,9 @@ const WalletTransactions = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      setReloadTransactionsMenuActionFunction(refreshTransactions);
+      InteractionManager.runAfterInteractions(() => {
+        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
+      });
       return () => {
         setReloadTransactionsMenuActionFunction(undefined);
       };
