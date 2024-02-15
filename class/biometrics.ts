@@ -4,11 +4,10 @@ import { CommonActions, StackActions } from '@react-navigation/native';
 import FingerprintScanner, { Biometrics as TBiometrics } from 'react-native-fingerprint-scanner';
 import PasscodeAuth from 'react-native-passcode-auth';
 import RNSecureKeyStore from 'react-native-secure-key-store';
-
 import loc from '../loc';
-import alert from '../components/Alert';
 import * as NavigationService from '../NavigationService';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import presentAlert from '../components/Alert';
 
 const STORAGEKEY = 'Biometrics';
 
@@ -134,7 +133,7 @@ const Biometric = function () {
       isDevicePasscodeSupported = undefined;
     }
     if (isDevicePasscodeSupported === false) {
-      alert(loc.settings.biom_no_passcode);
+      presentAlert({ message: loc.settings.biom_no_passcode });
     }
   };
 

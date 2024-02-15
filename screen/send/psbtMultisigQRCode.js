@@ -9,7 +9,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
@@ -52,11 +52,11 @@ const PsbtMultisigQRCode = () => {
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
+      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
-      alert(loc.wallets.import_error);
+      presentAlert({ message: loc.wallets.import_error });
     } else {
       // psbt base64?
       navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });

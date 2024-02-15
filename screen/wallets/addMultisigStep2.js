@@ -31,7 +31,7 @@ import MultipleStepsListItem, {
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import confirm from '../../helpers/confirm';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -130,7 +130,7 @@ const WalletsAddMultisigStep2 = () => {
       await _onCreate(); // this can fail with "Duplicate fingerprint" error or other
     } catch (e) {
       setIsLoading(false);
-      alert(e.message);
+      presentAlert({ message: e.message });
       console.log('create MS wallet error', e);
     }
   };
@@ -261,7 +261,7 @@ const WalletsAddMultisigStep2 = () => {
       setIsLoading(false);
       setImportText('');
       setAskPassphrase(false);
-      alert(loc.multisig.not_a_multisignature_xpub);
+      presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
       return;
     }
     if (fp) {
@@ -326,7 +326,7 @@ const WalletsAddMultisigStep2 = () => {
     hd.setSecret(importText);
     if (!hd.validateMnemonic()) {
       setIsLoading(false);
-      return alert(loc.multisig.invalid_mnemonics);
+      return presentAlert({ message: loc.multisig.invalid_mnemonics });
     }
 
     let passphrase;
@@ -375,19 +375,19 @@ const WalletsAddMultisigStep2 = () => {
     } catch (_) {}
 
     if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
+      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     } else if (isValidMnemonicSeed(ret.data)) {
       setIsProvideMnemonicsModalVisible(true);
       setImportText(ret.data);
     } else {
       if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
-        return alert(loc.multisig.not_a_multisignature_xpub);
+        return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
       }
       if (MultisigHDWallet.isXpubValid(ret.data)) {
         return tryUsingXpub(ret.data);
       }
       let cosigner = new MultisigCosigner(ret.data);
-      if (!cosigner.isValid()) return alert(loc.multisig.invalid_cosigner);
+      if (!cosigner.isValid()) return presentAlert({ message: loc.multisig.invalid_cosigner });
       setIsProvideMnemonicsModalVisible(false);
       if (cosigner.howManyCosignersWeHave() > 1) {
         // lets look for the correct cosigner. thats probably gona be the one with specific corresponding path,
@@ -420,7 +420,7 @@ const WalletsAddMultisigStep2 = () => {
       }
 
       for (const existingCosigner of cosigners) {
-        if (existingCosigner[0] === cosigner.getXpub()) return alert(loc.multisig.this_cosigner_is_already_imported);
+        if (existingCosigner[0] === cosigner.getXpub()) return presentAlert({ message: loc.multisig.this_cosigner_is_already_imported });
       }
 
       // now, validating that cosigner is in correct format:
@@ -447,7 +447,7 @@ const WalletsAddMultisigStep2 = () => {
           throw new Error('This should never happen');
       }
 
-      if (!correctFormat) return alert(loc.formatString(loc.multisig.invalid_cosigner_format, { format }));
+      if (!correctFormat) return presentAlert({ message: loc.formatString(loc.multisig.invalid_cosigner_format, { format }) });
 
       const cosignersCopy = [...cosigners];
       cosignersCopy.push([cosigner.getXpub(), cosigner.getFp(), cosigner.getPath()]);

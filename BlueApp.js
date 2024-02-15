@@ -24,7 +24,7 @@ import {
   SLIP39SegwitBech32Wallet,
 } from './class/';
 import { randomBytes } from './class/rng';
-import alert from './components/Alert';
+import presentAlert from './components/Alert';
 import { initCurrencyDaemon } from './blue_modules/currency';
 import DefaultPreference from 'react-native-default-preference';
 
@@ -327,7 +327,7 @@ class AppStorage {
       try {
         realm = await this.getRealm();
       } catch (error) {
-        alert(error.message);
+        presentAlert({ message: error.message });
       }
       data = JSON.parse(data);
       if (!data.wallets) return false;
@@ -425,7 +425,7 @@ class AppStorage {
         try {
           if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
         } catch (error) {
-          alert(error.message);
+          presentAlert({ message: error.message });
         }
 
         // done
@@ -581,7 +581,7 @@ class AppStorage {
   async saveToDisk() {
     if (savingInProgress) {
       console.warn('saveToDisk is in progress');
-      if (++savingInProgress > 10) alert('Critical error. Last actions were not saved'); // should never happen
+      if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
       await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
       return this.saveToDisk();
     }
@@ -593,7 +593,7 @@ class AppStorage {
       try {
         realm = await this.getRealm();
       } catch (error) {
-        alert(error.message);
+        presentAlert({ message: error.message });
       }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
@@ -667,7 +667,7 @@ class AppStorage {
       realmkeyValue.close();
     } catch (error) {
       console.error('save to disk exception:', error.message);
-      alert('save to disk exception: ' + error.message);
+      presentAlert({ message: 'save to disk exception: ' + error.message });
       if (error.message.includes('Realm file decryption failed')) {
         console.warn('purging realm key-value database file');
         this.purgeRealmKeyValueFile();

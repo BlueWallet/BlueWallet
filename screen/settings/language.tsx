@@ -7,7 +7,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc, { saveLanguage } from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 
@@ -43,7 +43,7 @@ const Language: React.FC = () => {
       setSelectedLanguage(item.value);
       setLanguage();
       if (currentLanguage?.isRTL !== item.isRTL) {
-        alert(loc.settings.language_isRTL);
+        presentAlert({ message: loc.settings.language_isRTL });
       }
     });
   };

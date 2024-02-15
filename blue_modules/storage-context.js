@@ -1,11 +1,10 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit } from '../models/fiatUnit';
 import Notifications from '../blue_modules/notifications';
 import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 import { PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
 const BlueApp = require('../BlueApp');
@@ -38,7 +37,7 @@ export const BlueStorageProvider = ({ children }) => {
   useEffect(() => {
     console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
     if (!isPrivacyBlurEnabled) {
-      alert('Privacy blur has been disabled.');
+      presentAlert({ message: 'Privacy blur has been disabled.' });
     }
   }, [isPrivacyBlurEnabled]);
 
@@ -179,7 +178,7 @@ export const BlueStorageProvider = ({ children }) => {
   const addAndSaveWallet = async w => {
     if (wallets.some(i => i.getID() === w.getID())) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      Alert.alert('', 'This wallet has been previously imported.');
+      presentAlert({ message: 'This wallet has been previously imported.' });
       return;
     }
     const emptyWalletLabel = new LegacyWallet().getLabel();
@@ -189,7 +188,7 @@ export const BlueStorageProvider = ({ children }) => {
     addWallet(w);
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
-    Alert.alert('', w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success);
+    presentAlert({ message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success });
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
     // start balance fetching at the background
     await w.fetchBalance();

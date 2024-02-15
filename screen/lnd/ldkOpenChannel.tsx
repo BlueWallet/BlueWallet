@@ -13,7 +13,7 @@ import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -69,7 +69,7 @@ const LdkOpenChannel = (props: any) => {
       if (psbtOpenChannelStartedTs.current ? +new Date() - psbtOpenChannelStartedTs.current >= 5 * 60 * 1000 : false) {
         // its 10 min actually, but lets check 5 min just for any case
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert('Channel opening expired. Please try again');
+        return presentAlert({ message: 'Channel opening expired. Please try again' });
       }
 
       setVerified(true);
@@ -92,7 +92,7 @@ const LdkOpenChannel = (props: any) => {
       // its 10 min actually, but lets check 5 min just for any case
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      return alert('Channel opening expired. Please try again');
+      return presentAlert({ message: 'Channel opening expired. Please try again' });
     }
 
     const tx = psbt.extractTransaction();
@@ -101,7 +101,7 @@ const LdkOpenChannel = (props: any) => {
     if (!res) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      return alert('Something wend wrong during opening channel tx broadcast');
+      return presentAlert({ message: 'Something wend wrong during opening channel tx broadcast' });
     }
     fetchAndSaveWalletTransactions(ldkWallet.getID());
     await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
@@ -118,14 +118,14 @@ const LdkOpenChannel = (props: any) => {
       const amountSatsNumber = new BigNumber(fundingAmount.amountSats).toNumber();
       if (!amountSatsNumber) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert('Amount is not valid');
+        return presentAlert({ message: 'Amount is not valid' });
       }
 
       const pubkey = remoteHostWithPubkey.split('@')[0];
       const host = remoteHostWithPubkey.split('@')[1];
       if (!pubkey || !host) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert('Remote node address is not valid');
+        return presentAlert({ message: 'Remote node address is not valid' });
       }
 
       const fundingAddressTemp = await ldkWallet.openChannel(pubkey, host, fundingAmount.amountSats, isPrivateChannel);
@@ -139,7 +139,7 @@ const LdkOpenChannel = (props: any) => {
           reason += event.reason + ' ' + event.text;
         }
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return alert('Initiating channel open failed: ' + reason);
+        return presentAlert({ message: 'Initiating channel open failed: ' + reason });
       }
 
       psbtOpenChannelStartedTs.current = +new Date();
@@ -160,7 +160,7 @@ const LdkOpenChannel = (props: any) => {
       });
     } catch (error: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      alert(error.message);
+      presentAlert({ message: error.message });
     } finally {
       setIsLoading(false);
     }

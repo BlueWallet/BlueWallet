@@ -27,7 +27,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { LdkButton } from '../../components/LdkButton';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -240,7 +240,7 @@ const WalletsAdd: React.FC = () => {
             await w.generateFromEntropy(entropy);
           } catch (e: any) {
             console.log(e.toString());
-            alert(e.toString());
+            presentAlert({ message: e.toString() });
             goBack();
             return;
           }
@@ -273,7 +273,7 @@ const WalletsAdd: React.FC = () => {
   const createLightningLdkWallet = async () => {
     const foundLdk = wallets.find((w: AbstractWallet) => w.type === LightningLdkWallet.type);
     if (foundLdk) {
-      return alert('LDK wallet already exists');
+      return presentAlert({ message: 'LDK wallet already exists' });
     }
     setIsLoading(true);
     const wallet = new LightningLdkWallet();
@@ -314,9 +314,9 @@ const WalletsAdd: React.FC = () => {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
       if (Err.message) {
-        return alert(Err.message);
+        return presentAlert({ message: Err.message });
       } else {
-        return alert(loc.wallets.add_lndhub_error);
+        return presentAlert({ message: loc.wallets.add_lndhub_error });
       }
       // giving app, not adding anything
     }

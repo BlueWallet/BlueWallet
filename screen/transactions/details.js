@@ -8,7 +8,7 @@ import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 const dayjs = require('dayjs');
 
@@ -113,7 +113,7 @@ const TransactionsDetails = () => {
   const handleOnSaveButtonTapped = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
-    saveToDisk().then(_success => alert(loc.transactions.transaction_note_saved));
+    saveToDisk().then(_success => presentAlert({ message: loc.transactions.transaction_note_saved }));
   };
 
   const handleOnOpenTransactionOnBlockExporerTapped = () => {
@@ -124,17 +124,17 @@ const TransactionsDetails = () => {
           Linking.openURL(url).catch(e => {
             console.log('openURL failed in handleOnOpenTransactionOnBlockExporerTapped');
             console.log(e.message);
-            alert(e.message);
+            presentAlert({ message: e.message });
           });
         } else {
           console.log('canOpenURL supported is false in handleOnOpenTransactionOnBlockExporerTapped');
-          alert(loc.transactions.open_url_error);
+          presentAlert({ message: loc.transactions.open_url_error });
         }
       })
       .catch(e => {
         console.log('canOpenURL failed in handleOnOpenTransactionOnBlockExporerTapped');
         console.log(e.message);
-        alert(e.message);
+        presentAlert({ message: e.message });
       });
   };
 

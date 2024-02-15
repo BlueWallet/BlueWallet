@@ -31,7 +31,7 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import PropTypes from 'prop-types';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -239,7 +239,7 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
       noErr = false;
-      alert(err.message);
+      presentAlert({ message: err.message });
       setIsLoading(false);
       setTimeElapsed(prev => prev + 1);
     }
@@ -323,7 +323,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return alert(Err.message);
+          return presentAlert({ message: Err.message });
         }
       }
       navigate('SendDetailsRoot', {
@@ -483,7 +483,7 @@ const WalletTransactions = ({ navigation }) => {
     if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
-        alert(loc.lnd.refill_create);
+        presentAlert({ message: loc.lnd.refill_create });
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
