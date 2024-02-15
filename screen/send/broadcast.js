@@ -23,8 +23,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
-
-const scanqr = require('../../helpers/scan-qr');
+import { scanQrHelper } from '../../helpers/scan-qr';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -78,7 +77,7 @@ const Broadcast = () => {
   };
 
   const handleQRScan = async () => {
-    const scannedData = await scanqr(navigate, name);
+    const scannedData = await scanQrHelper(navigate, name);
     if (!scannedData) return;
 
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {

@@ -28,7 +28,6 @@ function scanQrHelper(
 
       params.onBarScanned = function (data: any) {
         setTimeout(() => resolve(data.data || data), 1);
-        navigateFunc(currentScreenName);
         navigateFunc({ name: currentScreenName, params: {}, merge: true });
       };
 

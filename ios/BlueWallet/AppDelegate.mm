@@ -127,10 +127,6 @@
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (void)openSettings:(UIKeyCommand *)keyCommand {
-  [EventEmitter.sharedInstance openSettings];
-}
-
 - (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
   [super buildMenuWithBuilder:builder];
   [builder removeMenuForIdentifier:UIMenuServices];
@@ -138,18 +134,27 @@
   [builder removeMenuForIdentifier:UIMenuToolbar];
   
   // File -> Add Wallet (Command + A)
-   UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
-   [addWalletCommand setTitle:@"Add Wallet"];
-   UIMenu *addWalletMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand]];
+  UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
+  [addWalletCommand setTitle:@"Add Wallet"];
   
-
-   // Modify the existing File menu
-   UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
-   if (fileMenu) {
-       // Replace the children of the File menu with the Add Wallet menu
-       UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[addWalletMenu]];
-       [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
-   }
+  // File -> Import Wallet
+  UIKeyCommand *importWalletCommand = [UIKeyCommand keyCommandWithInput:@"I" modifierFlags:UIKeyModifierCommand action:@selector(importWalletAction:)];
+  [importWalletCommand setTitle:@"Import Wallet"];
+  
+  // Group Add Wallet and Import Wallet in a displayInline menu
+  UIMenu *walletOperationsMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand, importWalletCommand]];
+  
+  // Modify the existing File menu to include Wallet Operations
+  UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
+  if (fileMenu) {
+      // Add "Reload Transactions"
+      UIKeyCommand *reloadTransactionsCommand = [UIKeyCommand keyCommandWithInput:@"R" modifierFlags:UIKeyModifierCommand action:@selector(reloadTransactionsAction:)];
+      [reloadTransactionsCommand setTitle:@"Reload Transactions"];
+      
+      // Combine wallet operations and Reload Transactions into the new File menu
+      UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[walletOperationsMenu, reloadTransactionsCommand]];
+      [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
+  }
   
   // BlueWallet -> Settings (Command + ,)
   UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
@@ -159,13 +164,32 @@
   [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
 
-// Action for Add Wallet
+
+- (void)openSettings:(UIKeyCommand *)keyCommand {
+  [EventEmitter.sharedInstance openSettings];
+}
+
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
       [EventEmitter.sharedInstance addWalletMenuAction];
 
     NSLog(@"Add Wallet action performed");
 }
+
+- (void)importWalletAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance importWalletMenuAction];
+
+    NSLog(@"Add Wallet action performed");
+}
+
+- (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance reloadTransactionsMenuAction];
+
+    NSLog(@"Add Wallet action performed");
+}
+
 
 
 -(void)showHelp:(id)sender {

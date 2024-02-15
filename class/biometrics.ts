@@ -1,37 +1,41 @@
-import FingerprintScanner from 'react-native-fingerprint-scanner';
-import { Platform, Alert } from 'react-native';
-// @ts-ignore react-native-passcode-auth wants d.ts
+import { useContext } from 'react';
+import { Alert, Platform } from 'react-native';
+import { CommonActions, StackActions } from '@react-navigation/native';
+import FingerprintScanner, { Biometrics as TBiometrics } from 'react-native-fingerprint-scanner';
 import PasscodeAuth from 'react-native-passcode-auth';
-import * as NavigationService from '../NavigationService';
-import { StackActions, CommonActions } from '@react-navigation/native';
 import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
-import { useContext } from 'react';
+import * as NavigationService from '../NavigationService';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import presentAlert from '../components/Alert';
 
+const STORAGEKEY = 'Biometrics';
+
+export enum BiometricType {
+  FaceID = 'FaceID',
+  TouchID = 'TouchID',
+  Biometrics = 'Biometrics',
+  None = 'None',
+}
+
 // Define a function type with properties
 type DescribableFunction = {
-  (): void; // Call signature
-  STORAGEKEY: string; // Property
-  FaceID: string; // Property etc...
-  TouchID: string;
-  Biometrics: string;
-  isBiometricUseCapableAndEnabled: () => Promise<undefined | boolean>;
-  isDeviceBiometricCapable: () => Promise<boolean | undefined>;
+  (): null; // Call signature
+  FaceID: 'Face ID';
+  TouchID: 'Touch ID';
+  Biometrics: 'Biometrics';
+  isBiometricUseCapableAndEnabled: () => Promise<boolean>;
+  isDeviceBiometricCapable: () => Promise<boolean>;
   setBiometricUseEnabled: (arg: boolean) => Promise<void>;
-  biometricType: () => Promise<boolean | 'Touch ID' | 'Face ID' | 'Biometrics'>;
+  biometricType: () => Promise<false | TBiometrics>;
   isBiometricUseEnabled: () => Promise<boolean>;
-  unlockWithBiometrics: () => Promise<unknown>;
-  clearKeychain: () => Promise<void>;
-  requestDevicePasscode: () => Promise<void>;
+  unlockWithBiometrics: () => Promise<boolean>;
   showKeychainWipeAlert: () => void;
 };
 
-// @ts-ignore Bastard component/module. All properties are added in runtime, not at definition phase
-const Biometric: DescribableFunction = function () {
+// Bastard component/module. All properties are added in runtime
+const Biometric = function () {
   const { getItem, setItem } = useContext(BlueStorageContext);
-  Biometric.STORAGEKEY = 'Biometrics';
   Biometric.FaceID = 'Face ID';
   Biometric.TouchID = 'Touch ID';
   Biometric.Biometrics = 'Biometrics';
@@ -46,8 +50,8 @@ const Biometric: DescribableFunction = function () {
       console.log('Biometrics isDeviceBiometricCapable failed');
       console.log(e);
       Biometric.setBiometricUseEnabled(false);
-      return false;
     }
+    return false;
   };
 
   Biometric.biometricType = async () => {
@@ -63,7 +67,7 @@ const Biometric: DescribableFunction = function () {
 
   Biometric.isBiometricUseEnabled = async () => {
     try {
-      const enabledBiometrics = await getItem(Biometric.STORAGEKEY);
+      const enabledBiometrics = await getItem(STORAGEKEY);
       return !!enabledBiometrics;
     } catch (_) {}
 
@@ -77,7 +81,7 @@ const Biometric: DescribableFunction = function () {
   };
 
   Biometric.setBiometricUseEnabled = async value => {
-    await setItem(Biometric.STORAGEKEY, value === true ? '1' : '');
+    await setItem(STORAGEKEY, value === true ? '1' : '');
   };
 
   Biometric.unlockWithBiometrics = async () => {
@@ -97,14 +101,14 @@ const Biometric: DescribableFunction = function () {
     return false;
   };
 
-  Biometric.clearKeychain = async () => {
+  const clearKeychain = async () => {
     await RNSecureKeyStore.remove('data');
     await RNSecureKeyStore.remove('data_encrypted');
-    await RNSecureKeyStore.remove(Biometric.STORAGEKEY);
+    await RNSecureKeyStore.remove(STORAGEKEY);
     NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   };
 
-  Biometric.requestDevicePasscode = async () => {
+  const requestDevicePasscode = async () => {
     let isDevicePasscodeSupported: boolean | undefined = false;
     try {
       isDevicePasscodeSupported = await PasscodeAuth.isSupported();
@@ -118,7 +122,7 @@ const Biometric: DescribableFunction = function () {
               { text: loc._.cancel, style: 'cancel' },
               {
                 text: loc._.ok,
-                onPress: () => Biometric.clearKeychain(),
+                onPress: () => clearKeychain(),
               },
             ],
             { cancelable: false },
@@ -153,7 +157,7 @@ const Biometric: DescribableFunction = function () {
           },
           {
             text: loc._.ok,
-            onPress: () => Biometric.requestDevicePasscode(),
+            onPress: () => requestDevicePasscode(),
             style: 'default',
           },
         ],
@@ -161,7 +165,8 @@ const Biometric: DescribableFunction = function () {
       );
     }
   };
+
   return null;
-};
+} as DescribableFunction;
 
 export default Biometric;

@@ -36,8 +36,15 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWalletID, isElectrumDisabled } =
-    useContext(BlueStorageContext);
+  const {
+    wallets,
+    getTransactions,
+    getBalance,
+    refreshAllWalletTransactions,
+    setSelectedWalletID,
+    isElectrumDisabled,
+    setReloadTransactionsMenuActionFunction,
+  } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
@@ -67,6 +74,10 @@ const WalletsList = () => {
     useCallback(() => {
       verifyBalance();
       setSelectedWalletID(undefined);
+      setReloadTransactionsMenuActionFunction(onRefresh);
+      return () => {
+        setReloadTransactionsMenuActionFunction(() => {});
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -352,6 +363,12 @@ const WalletsList = () => {
     refreshTransactions(true, false);
   };
 
+  const refreshProps = isDesktop
+    ? {}
+    : {
+        ...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh }),
+      };
+
   return (
     <View style={styles.root} onLayout={onLayout}>
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
@@ -359,8 +376,7 @@ const WalletsList = () => {
           removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
-          refreshing={isLoading}
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh })}
+          {...refreshProps}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}

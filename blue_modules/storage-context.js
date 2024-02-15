@@ -28,6 +28,7 @@ export const BlueStorageProvider = ({ children }) => {
   const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
+  const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState(() => {});
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
@@ -277,6 +278,8 @@ export const BlueStorageProvider = ({ children }) => {
         setIsElectrumDisabled,
         isPrivacyBlurEnabled,
         setIsPrivacyBlurEnabled,
+        reloadTransactionsMenuActionFunction,
+        setReloadTransactionsMenuActionFunction,
       }}
     >
       {children}

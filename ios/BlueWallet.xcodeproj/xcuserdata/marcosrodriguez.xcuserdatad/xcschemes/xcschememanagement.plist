@@ -24,6 +24,11 @@
 			<key>orderHint</key>
 			<integer>100</integer>
 		</dict>
+		<key>BlueWallet-NoLDK.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>134</integer>
+		</dict>
 		<key>BlueWallet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -32,7 +37,7 @@
 		<key>BlueWalletUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>99</integer>
+			<integer>97</integer>
 		</dict>
 		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
 		<dict>
