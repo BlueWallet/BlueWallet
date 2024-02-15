@@ -32,7 +32,7 @@ RCT_EXPORT_MODULE();
 }
 
 - (NSArray<NSString *> *)supportedEvents {
-    return @[@"onNotificationReceived",@"openSettings",@"onUserActivityOpen",@"addWalletMenuAction"];
+    return @[@"onNotificationReceived",@"openSettings",@"onUserActivityOpen",@"addWalletMenuAction", @"importWalletMenuAction", @"reloadTransactionsMenuAction"];
 }
 
 - (void)sendNotification:(NSDictionary *)userInfo
@@ -60,6 +60,14 @@ RCT_REMAP_METHOD(getMostRecentUserActivity, resolve: (RCTPromiseResolveBlock)res
 
 - (void)addWalletMenuAction {
     [sharedInstance sendEventWithName:@"addWalletMenuAction" body:nil];
+}
+
+- (void)importWalletMenuAction {
+    [sharedInstance sendEventWithName:@"importWalletMenuAction" body:nil];
+}
+
+- (void)reloadTransactionsMenuAction {
+    [sharedInstance sendEventWithName:@"reloadTransactionsMenuAction" body:nil];
 }
 
 @end
