@@ -521,11 +521,7 @@ const WalletTransactions = ({ navigation }) => {
     }, []),
   );
 
-  const refreshProps = isDesktop
-    ? {}
-    : {
-        ...(isElectrumDisabled ? {} : { refreshing: isLoading, refreshTransactions }),
-      };
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, refreshTransactions };
 
   return (
     <View style={styles.flex}>

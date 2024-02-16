@@ -366,11 +366,7 @@ const WalletsList = () => {
     refreshTransactions(true, false);
   };
 
-  const refreshProps = isDesktop
-    ? {}
-    : {
-        ...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh }),
-      };
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
   return (
     <View style={styles.root} onLayout={onLayout}>

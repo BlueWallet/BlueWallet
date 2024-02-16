@@ -43,7 +43,7 @@ const MenuElements = () => {
 
   const reloadTransactionsMenuElementsFunction = useCallback(() => {
     reloadTransactionsMenuActionFunction();
-  },[reloadTransactionsMenuActionFunction]);
+  }, [reloadTransactionsMenuActionFunction]);
 
   useEffect(() => {
     console.log('MenuElements: useEffect');
