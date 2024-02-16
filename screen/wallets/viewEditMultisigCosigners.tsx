@@ -42,7 +42,7 @@ import Biometric from '../../class/biometrics';
 import { SquareButton } from '../../components/SquareButton';
 import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -421,12 +421,12 @@ const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParams
 
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(mnemonic);
-    if (!hd.validateMnemonic()) return alert(loc.multisig.invalid_mnemonics);
+    if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
     try {
       wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
     } catch (e: any) {
       console.log(e);
-      return alert(e.message);
+      return presentAlert({ message: e.message });
     }
 
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -444,7 +444,7 @@ const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParams
           wallet?.replaceCosignerSeedWithXpub(index);
         } catch (e: any) {
           reject(e);
-          return alert(e.message);
+          return presentAlert({ message: e.message });
         }
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setWallet(wallet);

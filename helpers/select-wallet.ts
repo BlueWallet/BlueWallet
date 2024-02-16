@@ -13,7 +13,7 @@
 import { AbstractWallet } from '../class';
 
 module.exports = function (
-  navigateFunc: (scr: string, params?: any) => void,
+  navigateFunc: (scr: string | any, params?: any) => void,
   currentScreenName: string,
   chainType: string | null,
   availableWallets?: AbstractWallet[],
@@ -40,7 +40,7 @@ module.exports = function (
 
       setTimeout(() => resolve(selectedWallet), 1);
       console.warn('trying to navigate back to', currentScreenName);
-      navigateFunc(currentScreenName);
+      navigateFunc({ name: currentScreenName, params: {}, merge: true });
     };
 
     navigateFunc('SelectWallet', params);

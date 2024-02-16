@@ -22,7 +22,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -84,7 +84,7 @@ const ScanLndInvoice = () => {
       if (!wallet) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         goBack();
-        setTimeout(() => alert(loc.wallets.no_ln_wallet_error), 500);
+        setTimeout(() => presentAlert({ message: loc.wallets.no_ln_wallet_error }), 500);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [wallet]),
@@ -128,7 +128,7 @@ const ScanLndInvoice = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         Keyboard.dismiss();
         setParams({ uri: undefined });
-        setTimeout(() => alert(Err.message), 10);
+        setTimeout(() => presentAlert({ message: Err.message }), 10);
         setIsLoading(false);
         setAmount();
         setDestination();
@@ -194,14 +194,14 @@ const ScanLndInvoice = () => {
     if (+new Date() > newExpiresIn) {
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return alert(loc.lnd.errorInvoiceExpired);
+      return presentAlert({ message: loc.lnd.errorInvoiceExpired });
     }
 
     const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
     if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return alert(loc.lnd.sameWalletAsInvoiceError);
+      return presentAlert({ message: loc.lnd.sameWalletAsInvoiceError });
     }
 
     try {
@@ -210,7 +210,7 @@ const ScanLndInvoice = () => {
       console.log(Err.message);
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return alert(Err.message);
+      return presentAlert({ message: Err.message });
     }
 
     navigate('Success', {

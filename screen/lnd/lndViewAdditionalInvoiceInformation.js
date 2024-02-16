@@ -6,7 +6,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -36,7 +36,7 @@ const LNDViewAdditionalInvoiceInformation = () => {
         })
         .catch(error => {
           console.log(error);
-          alert(loc.errors.network);
+          presentAlert({ message: loc.errors.network });
           goBack();
         });
     }

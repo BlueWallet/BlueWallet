@@ -44,19 +44,23 @@ export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any
 
 const navigationStyle = (
   {
-    closeButton = false,
     closeButtonFunc,
     headerBackVisible = true,
     ...opts
   }: NavigationOptions & {
     closeButton?: boolean;
-
     closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
   },
   formatter: OptionsFormatter,
 ): NavigationOptionsGetter => {
   return theme =>
     ({ navigation, route }) => {
+      // Determine if the current screen is the first one in the stack using the updated method
+      const isFirstRouteInStack = navigation.getState().index === 0;
+
+      // Default closeButton to true if the current screen is the first one in the stack
+      const closeButton = opts.closeButton !== undefined ? opts.closeButton : isFirstRouteInStack;
+
       let headerRight;
       let headerLeft;
       if (closeButton) {
@@ -79,12 +83,11 @@ const navigationStyle = (
         );
       }
 
-      // Workaround for https://github.com/BlueWallet/BlueWallet/issues/6030
       if (!headerBackVisible) {
         headerLeft = () => <></>;
+        // @ts-ignore: Fix later
         opts.headerLeft = headerLeft;
       }
-      //
 
       let options: NavigationOptions = {
         headerShadowVisible: false,
@@ -92,6 +95,7 @@ const navigationStyle = (
           fontWeight: '600',
           color: theme.colors.foregroundColor,
         },
+        // @ts-ignore: Fix later
         headerRight,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
@@ -124,6 +128,7 @@ export const navigationStyleTx = (opts: NavigationOptions, formatter: OptionsFor
         // headerBackTitle: null,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
+        // @ts-ignore: Fix later
         headerLeft: () => (
           <TouchableOpacity
             accessibilityRole="button"

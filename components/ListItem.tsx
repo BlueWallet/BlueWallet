@@ -57,7 +57,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
       fontSize: 14,
     },
     containerStyle: {
-      backgroundColor: 'transparent',
+      backgroundColor: colors.background,
     },
   });
 

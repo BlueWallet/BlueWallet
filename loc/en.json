@@ -281,6 +281,7 @@
     "language": "Language",
     "last_updated": "Last Updated",
     "language_isRTL": "Restarting BlueWallet is required for the language orientation to take effect.",
+    "license": "License",
     "lightning_error_lndhub_uri": "Invalid LNDHub URI",
     "lightning_saved": "Your changes have been saved successfully.",
     "lightning_settings": "Lightning Settings",

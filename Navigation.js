@@ -3,15 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Platform, useWindowDimensions, Dimensions, I18nManager } from 'react-native';
 
-import Settings from './screen/settings/settings';
+import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
-import Licensing from './screen/settings/licensing';
+import Licensing from './screen/settings/Licensing';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import Currency from './screen/settings/Currency';
 import EncryptStorage from './screen/settings/encryptStorage';
-import PlausibleDeniability from './screen/plausibledeniability';
+import PlausibleDeniability from './screen/PlausibleDeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import Tools from './screen/settings/tools';

@@ -25,7 +25,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain } fr
 import Lnurl from '../../class/lnurl';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -132,7 +132,7 @@ const LNDCreateInvoice = () => {
         }
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        alert(loc.wallets.add_ln_wallet_first);
+        presentAlert({ message: loc.wallets.add_ln_wallet_first });
         goBack();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,7 +180,7 @@ const LNDCreateInvoice = () => {
                 : loc.formatString(loc.receive.maxSatsFull, { max, currency: formatBalance(max, unit) });
           }
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-          alert(text);
+          presentAlert({ message: text });
           setIsLoading(false);
           return;
         }
@@ -225,7 +225,7 @@ const LNDCreateInvoice = () => {
     } catch (Err) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      alert(Err.message);
+      presentAlert({ message: Err.message });
     }
   };
 
@@ -233,7 +233,7 @@ const LNDCreateInvoice = () => {
     setIsLoading(true);
     if (!wallet.current) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      alert(loc.wallets.no_ln_wallet_error);
+      presentAlert({ message: loc.wallets.no_ln_wallet_error });
       return goBack();
     }
 
@@ -308,7 +308,7 @@ const LNDCreateInvoice = () => {
       Keyboard.dismiss();
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      alert(Err.message);
+      presentAlert({ message: Err.message });
     }
   };
 

@@ -6,6 +6,7 @@ import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
 import WidgetCommunication from './WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
+const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
 const EXCHANGE_RATES_STORAGE_KEY = 'exchangeRates';
 const LAST_UPDATED = 'LAST_UPDATED';
 const GROUP_IO_BLUEWALLET = 'group.io.bluewallet.bluewallet';
@@ -27,10 +28,9 @@ let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
-  await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
-  await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
+  await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
   // @ts-ignore: Convert to TSX later
   WidgetCommunication.reloadAllTimelines();
 }
@@ -39,7 +39,7 @@ async function getPreferredCurrency(): Promise<FiatUnitType> {
   const preferredCurrency = JSON.parse((await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY)) || '{}');
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredCurrency.endPointKey);
-  await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
+  await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;
 }
 

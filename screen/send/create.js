@@ -14,7 +14,7 @@ import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import { satoshiToBTC } from '../../blue_modules/currency';
@@ -76,10 +76,10 @@ const SendCreate = () => {
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, tx);
-          alert(loc.formatString(loc.send.txSaved, { filePath }));
+          presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath }) });
         } catch (e) {
           console.log(e);
-          alert(e.message);
+          presentAlert({ message: e.message });
         }
       } else {
         console.log('Storage Permission: Denied');

@@ -8,7 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -158,7 +158,7 @@ const PsbtMultisig = () => {
       const newPsbt = psbt.combine(receivedPSBT);
       setPsbt(newPsbt);
     } catch (error) {
-      alert(error);
+      presentAlert({ message: error });
     }
   };
 
@@ -186,7 +186,7 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error) {
-      alert(error);
+      presentAlert({ message: error });
     }
   };
 

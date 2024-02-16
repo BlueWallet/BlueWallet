@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Alert, View, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
@@ -9,6 +9,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 const WalletsImportSpeed = () => {
   const navigation = useNavigation();
@@ -66,7 +67,7 @@ const WalletsImportSpeed = () => {
       navigation.getParent().pop();
       addAndSaveWallet(wallet);
     } catch (e) {
-      Alert.alert(e.message);
+      presentAlert({ message: e.message });
     } finally {
       setLoading(false);
     }

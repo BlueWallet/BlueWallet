@@ -7,7 +7,7 @@ import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../model
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import dayjs from 'dayjs';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import {
@@ -73,7 +73,7 @@ const Currency: React.FC = () => {
     <ListItem
       disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
-      containerStyle={{ height: ITEM_HEIGHT }}
+      containerStyle={StyleSheet.flatten([styles.flex, { height: ITEM_HEIGHT }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
       onPress={async () => {
         setIsSavingNewPreferredCurrency(true);
@@ -86,7 +86,9 @@ const Currency: React.FC = () => {
           setPreferredFiatCurrency();
         } catch (error: any) {
           console.log(error);
-          alert(error.message ? `${loc.settings.currency_fetch_error}: ${error.message}}` : loc.settings.currency_fetch_error);
+          presentAlert({
+            message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}}` : loc.settings.currency_fetch_error,
+          });
         } finally {
           setIsSavingNewPreferredCurrency(false);
         }

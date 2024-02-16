@@ -7,7 +7,7 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
 
 const styles = StyleSheet.create({
@@ -57,7 +57,7 @@ export default class RBFBumpFee extends CPFP {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert(loc.errors.error + ': ' + _.message);
+        presentAlert({ message: loc.errors.error + ': ' + _.message });
       }
     }
   }
