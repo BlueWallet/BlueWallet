@@ -12,7 +12,7 @@ type RootStackParamList = {
 };
 
 type State = {
-  biometricType: BiometricType | undefined;
+  biometricType: keyof typeof BiometricType | undefined;
   isStorageEncryptedEnabled: boolean;
   isAuthenticating: boolean;
 };
@@ -22,7 +22,7 @@ const SET_IS_STORAGE_ENCRYPTED_ENABLED = 'SET_IS_STORAGE_ENCRYPTED_ENABLED';
 const SET_IS_AUTHENTICATING = 'SET_IS_AUTHENTICATING';
 
 type Action =
-  | { type: typeof SET_BIOMETRIC_TYPE; payload: BiometricType | undefined }
+  | { type: typeof SET_BIOMETRIC_TYPE; payload: keyof typeof BiometricType | undefined }
   | { type: typeof SET_IS_STORAGE_ENCRYPTED_ENABLED; payload: boolean }
   | { type: typeof SET_IS_AUTHENTICATING; payload: boolean };
 
@@ -133,20 +133,12 @@ const UnlockWith: React.FC = () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
       dispatch({ type: SET_IS_STORAGE_ENCRYPTED_ENABLED, payload: storageIsEncrypted });
-      const rawType = await Biometric.biometricType();
 
-      let type;
-      if (rawType === 'Biometrics') {
-        type = BiometricType.Biometrics;
-      } else if (rawType === 'Touch ID') {
-        type = BiometricType.TouchID;
-      } else if (rawType === 'Face ID') {
-        type = BiometricType.FaceID;
-      }
+      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+      const rawType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
+      dispatch({ type: SET_BIOMETRIC_TYPE, payload: rawType });
 
-      dispatch({ type: SET_BIOMETRIC_TYPE, payload: type });
-
-      if (!type || storageIsEncrypted) {
+      if (!rawType || storageIsEncrypted) {
         unlockWithKey();
       } else {
         unlockWithBiometrics();
