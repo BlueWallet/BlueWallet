@@ -522,7 +522,7 @@ const WalletTransactions = ({ navigation }) => {
   );
 
   // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
-  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, refreshTransactions };
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   return (
     <View style={styles.flex}>
