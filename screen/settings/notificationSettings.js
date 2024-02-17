@@ -8,7 +8,7 @@ import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueTe
 import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
 import ListItem from '../../components/ListItem';
 
@@ -79,13 +79,13 @@ const NotificationSettings = () => {
         // validating only if its not empty. empty means use default
         if (await Notifications.isGroundControlUriValid(URI)) {
           await Notifications.saveUri(URI);
-          alert(loc.settings.saved);
+          presentAlert({ message: loc.settings.saved });
         } else {
-          alert(loc.settings.not_a_valid_uri);
+          presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
         await Notifications.saveUri('');
-        alert(loc.settings.saved);
+        presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
       console.warn(error);

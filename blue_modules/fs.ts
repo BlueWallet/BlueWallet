@@ -5,7 +5,7 @@ import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { isDesktop } from './environment';
-import alert from '../components/Alert';
+import presentAlert from '../components/Alert';
 import { readFile } from './react-native-bw-file-access';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -16,7 +16,7 @@ const _shareOpen = async (filePath: string) => {
     saveToFiles: isDesktop,
   })
     .catch(error => {
-      alert(error.message);
+      presentAlert({ message: error.message });
       console.log(error);
     })
     .finally(() => {
@@ -52,7 +52,7 @@ const writeFileAndExport = async function (filename: string, contents: string) {
         await _shareOpen(filePath);
       } catch (e: any) {
         console.log(e);
-        alert(e.message);
+        presentAlert({ message: e.message });
       }
     } else {
       console.log('Storage Permission: Denied');
@@ -68,7 +68,7 @@ const writeFileAndExport = async function (filename: string, contents: string) {
       ]);
     }
   } else {
-    alert('Not implemented for this platform');
+    presentAlert({ message: 'Not implemented for this platform' });
   }
 };
 
@@ -84,7 +84,7 @@ const openSignedTransaction = async function (): Promise<string | boolean> {
     return await _readPsbtFileIntoBase64(res.uri);
   } catch (err) {
     if (!DocumentPicker.isCancel(err)) {
-      alert(loc.send.details_no_signed_tx);
+      presentAlert({ message: loc.send.details_no_signed_tx });
     }
   }
 
@@ -152,7 +152,7 @@ const showFilePickerAndReadFile = async function (): Promise<{ data: string | fa
     });
 
     if (!res.fileCopyUri) {
-      alert('Picking and caching a file failed');
+      presentAlert({ message: 'Picking and caching a file failed' });
       return { data: false, uri: false };
     }
 
@@ -169,7 +169,7 @@ const showFilePickerAndReadFile = async function (): Promise<{ data: string | fa
       return new Promise(resolve => {
         if (!res.fileCopyUri) {
           // to make ts happy, should not need this check here
-          alert('Picking and caching a file failed');
+          presentAlert({ message: 'Picking and caching a file failed' });
           resolve({ data: false, uri: false });
           return;
         }
@@ -188,7 +188,7 @@ const showFilePickerAndReadFile = async function (): Promise<{ data: string | fa
     return { data: file, uri: fileCopyUri };
   } catch (err: any) {
     if (!DocumentPicker.isCancel(err)) {
-      alert(err.message);
+      presentAlert({ message: err.message });
     }
     return { data: false, uri: false };
   }
@@ -200,7 +200,7 @@ const readFileOutsideSandbox = (filePath: string) => {
   } else if (Platform.OS === 'android') {
     return RNFS.readFile(filePath);
   } else {
-    alert('Not implemented for this platform');
+    presentAlert({ message: 'Not implemented for this platform' });
   }
 };
 

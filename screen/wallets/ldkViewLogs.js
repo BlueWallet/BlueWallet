@@ -8,7 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { LightningLdkWallet } from '../../class';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 const fs = require('../../blue_modules/fs');
@@ -75,9 +75,9 @@ const LdkViewLogs = () => {
   const selfTest = async () => {
     try {
       await wallet.selftest();
-      alert('ok');
+      presentAlert({ message: 'ok' });
     } catch (error) {
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 

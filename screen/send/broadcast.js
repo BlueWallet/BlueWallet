@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
@@ -22,8 +22,8 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-
-const scanqr = require('../../helpers/scan-qr');
+import presentAlert from '../../components/Alert';
+import { scanQrHelper } from '../../helpers/scan-qr';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -70,14 +70,14 @@ const Broadcast = () => {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
-      Alert.alert(loc.errors.error, error.message);
+      presentAlert({ title: loc.errors.error, message: error.message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
     }
   };
 
   const handleQRScan = async () => {
-    const scannedData = await scanqr(navigate, name);
+    const scannedData = await scanQrHelper(navigate, name);
     if (!scannedData) return;
 
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {

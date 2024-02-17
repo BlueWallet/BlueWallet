@@ -31,7 +31,7 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import PropTypes from 'prop-types';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -45,7 +45,14 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = ({ navigation }) => {
-  const { wallets, saveToDisk, setSelectedWalletID, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
+  const {
+    wallets,
+    saveToDisk,
+    setSelectedWalletID,
+    walletTransactionUpdateStatus,
+    isElectrumDisabled,
+    setReloadTransactionsMenuActionFunction,
+  } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -232,7 +239,7 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
       noErr = false;
-      alert(err.message);
+      presentAlert({ message: err.message });
       setIsLoading(false);
       setTimeElapsed(prev => prev + 1);
     }
@@ -316,7 +323,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return alert(Err.message);
+          return presentAlert({ message: Err.message });
         }
       }
       navigate('SendDetailsRoot', {
@@ -476,7 +483,7 @@ const WalletTransactions = ({ navigation }) => {
     if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
-        alert(loc.lnd.refill_create);
+        presentAlert({ message: loc.lnd.refill_create });
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
@@ -501,6 +508,21 @@ const WalletTransactions = ({ navigation }) => {
     offset: 64 * index,
     index,
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      InteractionManager.runAfterInteractions(() => {
+        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
+      });
+      return () => {
+        setReloadTransactionsMenuActionFunction(undefined);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
 
   return (
     <View style={styles.flex}>
@@ -567,7 +589,7 @@ const WalletTransactions = ({ navigation }) => {
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
             </ScrollView>
           }
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
+          {...refreshProps}
           data={dataSource}
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}

@@ -13,6 +13,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
+import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const confirm = require('../../helpers/confirm');
 
@@ -91,20 +92,20 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   const handleCopyPrivkeyPress = () => {
     const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
     if (!wallet) {
-      alert('Internal error: cant find wallet');
+      presentAlert({ message: 'Internal error: cant find wallet' });
       return;
     }
 
     try {
       const wif = wallet._getWIFbyAddress(item.address);
       if (!wif) {
-        alert('Internal error: cant get WIF from the wallet');
+        presentAlert({ message: 'Internal error: cant get WIF from the wallet' });
         return;
       }
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
       Clipboard.setString(wif);
     } catch (error: any) {
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 

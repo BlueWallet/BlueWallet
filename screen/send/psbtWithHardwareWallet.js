@@ -12,7 +12,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -65,7 +65,7 @@ const PsbtWithHardwareWallet = () => {
   const onBarScanned = ret => {
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
+      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
@@ -83,7 +83,7 @@ const PsbtWithHardwareWallet = () => {
         // (passed by reference)
       }
     } catch (Err) {
-      alert(Err.message);
+      presentAlert({ message: Err.message });
     }
   };
 
@@ -97,7 +97,7 @@ const PsbtWithHardwareWallet = () => {
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
-      alert(loc.send.no_tx_signing_in_progress);
+      presentAlert({ message: loc.send.no_tx_signing_in_progress });
     }
 
     if (deepLinkPSBT) {
@@ -106,7 +106,7 @@ const PsbtWithHardwareWallet = () => {
         const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
-        alert(Err);
+        presentAlert({ message: Err });
       }
     } else if (routeParamsTXHex) {
       setTxHex(routeParamsTXHex);
@@ -142,12 +142,12 @@ const PsbtWithHardwareWallet = () => {
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
-        alert(loc.errors.broadcast);
+        presentAlert({ message: loc.errors.broadcast });
       }
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 
@@ -205,7 +205,7 @@ const PsbtWithHardwareWallet = () => {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert(loc.send.details_no_signed_tx);
+        presentAlert({ message: loc.send.details_no_signed_tx });
       }
     }
   };

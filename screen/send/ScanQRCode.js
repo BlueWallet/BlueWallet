@@ -7,7 +7,7 @@ import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modul
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -288,7 +288,7 @@ const ScanQRCode = () => {
                 if (!error) {
                   onBarCodeRead({ data: result });
                 } else {
-                  alert(loc.send.qr_error_no_qrcode);
+                  presentAlert({ message: loc.send.qr_error_no_qrcode });
                   setIsLoading(false);
                 }
               });

@@ -12,7 +12,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -62,7 +62,7 @@ const LnurlPay = () => {
       ln.callLnurlPayService()
         .then(setPayload)
         .catch(error => {
-          alert(error.message);
+          presentAlert({ message: error.message });
           pop();
         });
       setLN(ln);
@@ -81,7 +81,7 @@ const LnurlPay = () => {
       let originalSatAmount;
       let newAmount = (originalSatAmount = LN.getMin());
       if (!newAmount) {
-        alert('Internal error: incorrect LNURL amount');
+        presentAlert({ message: 'Internal error: incorrect LNURL amount' });
         return;
       }
       switch (unit) {
@@ -163,7 +163,7 @@ const LnurlPay = () => {
       setIsLoading(false);
       setPayButtonDisabled(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return alert(Err.message);
+      return presentAlert({ message: Err.message });
     }
   };
 

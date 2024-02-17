@@ -12,7 +12,7 @@ import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -155,7 +155,7 @@ const Confirm = () => {
     } catch (error) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 

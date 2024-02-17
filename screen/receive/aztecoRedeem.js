@@ -8,7 +8,7 @@ import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 
 const styles = StyleSheet.create({
@@ -64,7 +64,7 @@ export default class AztecoRedeem extends Component {
     const wallets = context.wallets;
 
     if (wallets.length === 0) {
-      alert(loc.azteco.errorBeforeRefeem);
+      presentAlert({ message: loc.azteco.errorBeforeRefeem });
       return props.navigation.goBack(null);
     } else {
       if (wallets.length > 0) {
@@ -97,12 +97,12 @@ export default class AztecoRedeem extends Component {
     const address = await this.state.toWallet.getAddressAsync();
     const result = await Azteco.redeem([this.state.c1, this.state.c2, this.state.c3, this.state.c4], address);
     if (!result) {
-      alert(loc.azteco.errorSomething);
+      presentAlert({ message: loc.azteco.errorSomething });
       this.setState({ isLoading: false });
     } else {
       this.props.navigation.pop();
       // remote because we want to refetch from server tx list and balance
-      alert(loc.azteco.success);
+      presentAlert({ message: loc.azteco.success });
     }
   };
 

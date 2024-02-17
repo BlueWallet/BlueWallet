@@ -11,7 +11,7 @@ import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
 import { Psbt } from 'bitcoinjs-lib';
 import { AbstractWallet, LightningLdkWallet } from '../../class';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import StyledButton, { StyledButtonType } from '../../components/StyledButton';
 import SafeArea from '../../components/SafeArea';
@@ -174,7 +174,7 @@ const LdkInfo = () => {
 
     console.warn('want to close to wallet ', toWallet.getLabel());
     const address = await toWallet.getAddressAsync();
-    if (!address) return alert('Error: could not get address for channel withdrawal');
+    if (!address) return presentAlert({ message: 'Error: could not get address for channel withdrawal' });
     await wallet.setRefundAddress(address);
 
     let forceClose = false;
@@ -184,7 +184,7 @@ const LdkInfo = () => {
     }
     const rez = await wallet.closeChannel(channel.channel_id, forceClose);
     if (rez) {
-      alert(loc._.success);
+      presentAlert({ message: loc._.success });
       return refetchData();
     }
   };
@@ -208,7 +208,7 @@ const LdkInfo = () => {
       try {
         const rez = await wallet.claimCoins(address);
         if (rez) {
-          alert(loc._.success);
+          presentAlert({ message: loc._.success });
           await refetchData();
         }
       } finally {
@@ -318,7 +318,7 @@ const LdkInfo = () => {
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
     const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
-      return alert(loc.lnd.refill_create);
+      return presentAlert({ message: loc.lnd.refill_create });
     }
     // @ts-ignore: Address types later
     navigate('LDKOpenChannelRoot', {
