@@ -28,6 +28,7 @@ let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
 async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
+  await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
