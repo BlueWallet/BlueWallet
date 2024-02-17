@@ -1,15 +1,13 @@
-#!/bin/zsh
+#!/bin/sh -e
 
-echo "===== Installling CocoaPods ====="
-export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
+echo "===== Preparing Environment ====="
+brew update
+brew install node@16
 brew install cocoapods
-echo "===== Installing Node.js ====="
-brew install node
 
-# Install dependencies
-echo "===== Running yarn install ====="
-npm install
-echo "===== Running pod install ====="
+echo "===== Installing Project Dependencies ====="
+npm install -y
+
+echo "===== Cleaning and Installing iOS Dependencies ====="
 cd ios
 pod install
-cd ..
