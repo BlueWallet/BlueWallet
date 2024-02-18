@@ -14,3 +14,9 @@ yarn install
 echo "===== Running pod install ====="
 cd ios
 pod install
+
+# Update CURRENT_PROJECT_VERSION to current timestamp
+echo "===== Updating CURRENT_PROJECT_VERSION to current timestamp in BlueWallet.xcodeproj ====="
+CURRENT_TIMESTAMP=$(date +%s) # Unix timestamp, number of seconds since 1970-01-01 00:00:00 UTC
+xcrun agvtool new-version -all $CURRENT_TIMESTAMP
+cd ..
