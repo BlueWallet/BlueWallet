@@ -28,7 +28,7 @@ const _shareOpen = async (filePath: string) => {
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
  * or perhabs messaging app). Provided filename should be just a file name, NOT a path
  */
-const writeFileAndExport = async function (filename: string, contents: string) {
+export const writeFileAndExport = async function (filename: string, contents: string) {
   if (Platform.OS === 'ios') {
     const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
     await RNFS.writeFile(filePath, contents);
@@ -75,7 +75,7 @@ const writeFileAndExport = async function (filename: string, contents: string) {
 /**
  * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (wont throw).
  */
-const openSignedTransaction = async function (): Promise<string | boolean> {
+export const openSignedTransaction = async function (): Promise<string | boolean> {
   try {
     const res = await DocumentPicker.pickSingle({
       type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
@@ -106,7 +106,7 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
   }
 };
 
-const showImagePickerAndReadImage = () => {
+export const showImagePickerAndReadImage = () => {
   return new Promise((resolve, reject) =>
     launchImageLibrary(
       {
@@ -134,7 +134,7 @@ const showImagePickerAndReadImage = () => {
   );
 };
 
-const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
+export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
   try {
     const res = await DocumentPicker.pickSingle({
       copyTo: 'cachesDirectory',
@@ -194,18 +194,13 @@ const showFilePickerAndReadFile = async function (): Promise<{ data: string | fa
   }
 };
 
-const readFileOutsideSandbox = (filePath: string) => {
+export const readFileOutsideSandbox = (filePath: string) => {
   if (Platform.OS === 'ios') {
     return readFile(filePath);
   } else if (Platform.OS === 'android') {
     return RNFS.readFile(filePath);
   } else {
     presentAlert({ message: 'Not implemented for this platform' });
+    throw new Error('Not implemented for this platform');
   }
 };
-
-module.exports.writeFileAndExport = writeFileAndExport;
-module.exports.openSignedTransaction = openSignedTransaction;
-module.exports.showFilePickerAndReadFile = showFilePickerAndReadFile;
-module.exports.showImagePickerAndReadImage = showImagePickerAndReadImage;
-module.exports.readFileOutsideSandbox = readFileOutsideSandbox;
