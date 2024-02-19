@@ -1,7 +1,9 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    CFPropertyList (3.0.6)
+    CFPropertyList (3.0.7)
+      base64
+      nkf
       rexml
     activesupport (6.1.7.6)
       concurrent-ruby (~> 1.0, >= 1.0.2)
@@ -17,11 +19,12 @@ GEM
     artifactory (3.0.15)
     atomos (0.1.3)
     aws-eventstream (1.3.0)
-    aws-partitions (1.887.0)
-    aws-sdk-core (3.191.0)
+    aws-partitions (1.894.0)
+    aws-sdk-core (3.191.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
+      base64
       jmespath (~> 1, >= 1.6.1)
     aws-sdk-kms (1.77.0)
       aws-sdk-core (~> 3, >= 3.191.0)
@@ -33,6 +36,7 @@ GEM
     aws-sigv4 (1.8.0)
       aws-eventstream (~> 1, >= 1.0.2)
     babosa (1.0.4)
+    base64 (0.2.0)
     claide (1.1.0)
     cocoapods (1.14.3)
       addressable (~> 2.8)
@@ -205,17 +209,19 @@ GEM
       concurrent-ruby (~> 1.0)
     jmespath (1.6.2)
     json (2.7.1)
-    jwt (2.7.1)
+    jwt (2.8.0)
+      base64
     mini_magick (4.12.0)
     mini_mime (1.1.5)
-    minitest (5.21.2)
+    minitest (5.22.2)
     molinillo (0.8.0)
     multi_json (1.15.0)
-    multipart-post (2.3.0)
+    multipart-post (2.4.0)
     nanaimo (0.3.0)
     nap (1.1.0)
     naturally (2.2.1)
     netrc (0.11.0)
+    nkf (0.2.0)
     optparse (0.4.0)
     os (1.1.4)
     plist (3.7.1)
@@ -269,7 +275,7 @@ GEM
       rouge (~> 2.0.7)
     xcpretty-travis-formatter (1.0.1)
       xcpretty (~> 0.2, >= 0.0.7)
-    zeitwerk (2.6.12)
+    zeitwerk (2.6.13)
 
 PLATFORMS
   ruby
