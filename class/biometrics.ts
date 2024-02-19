@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Alert, Platform } from 'react-native';
 import { CommonActions, StackActions } from '@react-navigation/native';
-import FingerprintScanner, { Biometrics as TBiometrics } from 'react-native-fingerprint-scanner';
+import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import PasscodeAuth from 'react-native-passcode-auth';
 import RNSecureKeyStore from 'react-native-secure-key-store';
 import loc from '../loc';
@@ -11,12 +11,7 @@ import presentAlert from '../components/Alert';
 
 const STORAGEKEY = 'Biometrics';
 
-export enum BiometricType {
-  FaceID = 'FaceID',
-  TouchID = 'TouchID',
-  Biometrics = 'Biometrics',
-  None = 'None',
-}
+const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
 
 // Define a function type with properties
 type DescribableFunction = {
@@ -27,7 +22,7 @@ type DescribableFunction = {
   isBiometricUseCapableAndEnabled: () => Promise<boolean>;
   isDeviceBiometricCapable: () => Promise<boolean>;
   setBiometricUseEnabled: (arg: boolean) => Promise<void>;
-  biometricType: () => Promise<false | TBiometrics>;
+  biometricType: () => Promise<keyof typeof RNBiometryTypes | undefined>;
   isBiometricUseEnabled: () => Promise<boolean>;
   unlockWithBiometrics: () => Promise<boolean>;
   showKeychainWipeAlert: () => void;
@@ -42,10 +37,8 @@ const Biometric = function () {
 
   Biometric.isDeviceBiometricCapable = async () => {
     try {
-      const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
-      if (isDeviceBiometricCapable) {
-        return true;
-      }
+      const { available } = await rnBiometrics.isSensorAvailable();
+      return available;
     } catch (e) {
       console.log('Biometrics isDeviceBiometricCapable failed');
       console.log(e);
@@ -56,13 +49,17 @@ const Biometric = function () {
 
   Biometric.biometricType = async () => {
     try {
-      const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
-      return isSensorAvailable;
+      const { available, biometryType } = await rnBiometrics.isSensorAvailable();
+      if (!available) {
+        return undefined;
+      }
+
+      return biometryType;
     } catch (e) {
       console.log('Biometrics biometricType failed');
       console.log(e);
+      return undefined; // Explicitly return false in case of an error
     }
-    return false;
   };
 
   Biometric.isBiometricUseEnabled = async () => {
@@ -88,14 +85,21 @@ const Biometric = function () {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       return new Promise(resolve => {
-        FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
-          .then(() => resolve(true))
-          .catch(error => {
-            console.log('Biometrics authentication failed');
+        rnBiometrics
+          .simplePrompt({ promptMessage: loc.settings.biom_conf_identity })
+          .then((result: { success: any }) => {
+            if (result.success) {
+              resolve(true);
+            } else {
+              console.log('Biometrics authentication failed');
+              resolve(false);
+            }
+          })
+          .catch((error: Error) => {
+            console.log('Biometrics authentication error');
             console.log(error);
             resolve(false);
-          })
-          .finally(() => FingerprintScanner.release());
+          });
       });
     }
     return false;
@@ -170,3 +174,4 @@ const Biometric = function () {
 } as DescribableFunction;
 
 export default Biometric;
+export { RNBiometryTypes as BiometricType };
