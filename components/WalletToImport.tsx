@@ -1,10 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
 import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useTheme } from './themes';
 
-const WalletToImport = ({ title, subtitle, active, onPress }) => {
+interface WalletToImportProp {
+  title: string;
+  subtitle: string;
+  active: boolean;
+  onPress: () => void;
+}
+
+const WalletToImport: React.FC<WalletToImportProp> = ({ title, subtitle, active, onPress }) => {
   const { colors } = useTheme();
 
   const stylesHooks = StyleSheet.create({
@@ -54,12 +60,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-
-WalletToImport.propTypes = {
-  title: PropTypes.string,
-  subtitle: PropTypes.string,
-  active: PropTypes.bool,
-  onPress: PropTypes.func,
-};
 
 export default WalletToImport;

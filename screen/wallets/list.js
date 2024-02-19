@@ -365,12 +365,8 @@ const WalletsList = () => {
   const onRefresh = () => {
     refreshTransactions(true, false);
   };
-
-  const refreshProps = isDesktop
-    ? {}
-    : {
-        ...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh }),
-      };
+  // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
   return (
     <View style={styles.root} onLayout={onLayout}>

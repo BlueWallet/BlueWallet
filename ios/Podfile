@@ -60,7 +60,10 @@ target 'BlueWallet-NoLDK' do
   configure_target()
 end
 
-# Post-installation scripts
+target 'BlueWalletUITests' do
+  configure_target()
+end
+
 post_install do |installer|
   react_native_post_install(installer, :mac_catalyst_enabled => true)
 

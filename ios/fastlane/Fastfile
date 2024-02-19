@@ -1,3 +1,7 @@
+def app_identifiers
+  ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
+end
+
 platform :ios do
 
   before_all do |lane, options|
@@ -19,8 +23,6 @@ platform :ios do
     )
 
     UI.message("Devices registered successfully.")
-
-    app_identifiers = ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
 
     app_identifiers.each do |app_identifier|
       match(
@@ -61,11 +63,13 @@ platform :ios do
       'MarketWidget' => 'io.bluewallet.bluewallet.MarketWidget'
     }
 
+    platform = options[:platform] || "ios" # Default to iOS if not specified
     target_to_app_identifier.each do |target, app_identifier|
       match(
         git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"],
         git_url: ENV["GIT_URL"],
         type: "appstore",
+        platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -75,6 +79,28 @@ platform :ios do
       )
     end
   end
+
+  desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
+lane :fetch_dev_profiles_catalyst do
+  match(
+    type: "development",
+    platform: "catalyst",
+    app_identifier: app_identifiers,
+    readonly: true
+  )
+end
+
+
+desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
+lane :fetch_appstore_profiles_catalyst do
+  match(
+    type: "appstore",
+    platform: "catalyst",
+    app_identifier: app_identifiers,
+    readonly: true
+  )
+end
+
 
   desc "Clear derived data"
   lane :clear_derived_data_lane do
@@ -186,5 +212,39 @@ platform :ios do
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
   end
+
+  desc "Build and distribute the Mac Catalyst app for BlueWallet-NoLDK (Universal)"
+lane :build_and_distribute_catalyst_universal do |options|
+  # Conditionally fetch the right provisioning profiles
+  if options[:type] == "development"
+    fetch_dev_profiles_catalyst
+  else
+    fetch_appstore_profiles_catalyst
+  end
+
+  # Build the Mac Catalyst app (Universal Build for Apple Silicon and Intel)
+  build_app(
+    scheme: "BlueWallet-NoLDK",
+    configuration: "Release",
+    catalyst_platform: "macos",
+    export_method: options[:type] || "app-store", # Default to app-store if not specified
+    xcargs: "ARCHS='arm64 x86_64' VALID_ARCHS='arm64 x86_64'",
+    export_options: {
+      provisioningProfiles: {
+        "io.bluewallet.bluewallet" => "Provisioning Profile Name for Catalyst",
+        # Include other identifiers as necessary
+      },
+      signingStyle: "manual",
+    }
+  )
+
+  # Optionally, upload the build to TestFlight or App Store Connect for app-store type
+  if options[:type] != "development"
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+end
+
+  
+
 
 end
