@@ -332,8 +332,6 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
-  - react-native-document-picker (9.1.0):
-    - React-Core
   - react-native-idle-timer (2.1.6):
     - React-Core
   - react-native-image-picker (7.1.0):
@@ -490,11 +488,11 @@ PODS:
     - React-Core
   - RNHandoff (0.0.3):
     - React
-  - RNKeychain (8.1.2):
+  - RNKeychain (8.1.3):
     - React-Core
   - RNLocalize (3.0.6):
     - React-Core
-  - RNPermissions (4.1.1):
+  - RNPermissions (4.1.2):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -555,7 +553,6 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
-  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
@@ -674,8 +671,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blue-crypto"
   react-native-bw-file-access:
     :path: "../blue_modules/react-native-bw-file-access"
-  react-native-document-picker:
-    :path: "../node_modules/react-native-document-picker"
   react-native-idle-timer:
     :path: "../node_modules/react-native-idle-timer"
   react-native-image-picker:
@@ -814,7 +809,6 @@ SPEC CHECKSUMS:
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
-  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
@@ -853,9 +847,9 @@ SPEC CHECKSUMS:
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 7909c50383a18f0cb10ce1db7262b9a6da504c03
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
+  RNKeychain: f1b48665a4646f61191eb048c4c05c58d9a7596f
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
-  RNPermissions: b7988ae79582536c5f9bcc684f69a99f96e958da
+  RNPermissions: 0e72b28a9df5e3f0ae9cc122378d4b878ccb4f2f
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
@@ -869,6 +863,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: d0003f849d2b5224c072cef6568b540d8bb15cd3
 
-PODFILE CHECKSUM: e0f5fbbba3256422a2f7625f2f64c00e10113748
+PODFILE CHECKSUM: e0fda52578c203cfa975067c3570c97082471d84
 
 COCOAPODS: 1.14.3
