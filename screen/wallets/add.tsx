@@ -12,7 +12,16 @@ import {
   useColorScheme,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText, LightningButton, BitcoinButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
+import {
+  BlueText,
+  LightningButton,
+  BitcoinButton,
+  VaultButton,
+  BlueFormLabel,
+  BlueButtonLink,
+  BlueSpacing20,
+  BlueSpacing40,
+} from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import {
   HDSegwitBech32Wallet,
@@ -470,8 +479,8 @@ const WalletsAdd: React.FC = () => {
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
-          <View style={styles.createButton}>
-            {!isLoading ? (
+          {!isLoading ? (
+            <>
               <Button
                 testID="Create"
                 title={loc.wallets.add_create}
@@ -480,17 +489,17 @@ const WalletsAdd: React.FC = () => {
                 }
                 onPress={createWallet}
               />
-            ) : (
-              <ActivityIndicator />
-            )}
-          </View>
-          {!isLoading && (
-            <BlueButtonLink
-              testID="ImportWallet"
-              style={styles.import}
-              title={loc.wallets.add_import_wallet}
-              onPress={navigateToImportWallet}
-            />
+
+              <BlueButtonLink
+                testID="ImportWallet"
+                style={styles.import}
+                title={loc.wallets.add_import_wallet}
+                onPress={navigateToImportWallet}
+              />
+              <BlueSpacing40 />
+            </>
+          ) : (
+            <ActivityIndicator />
           )}
         </View>
       </KeyboardAvoidingView>
@@ -508,9 +517,6 @@ WalletsAdd.navigationOptions = navigationStyle(
 );
 
 const styles = StyleSheet.create({
-  createButton: {
-    flex: 1,
-  },
   label: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -555,8 +561,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   import: {
-    marginBottom: 0,
-    marginTop: 24,
+    marginVertical: 24,
   },
   noPadding: {
     paddingHorizontal: 0,
