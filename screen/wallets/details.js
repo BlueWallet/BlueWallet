@@ -490,6 +490,15 @@ const WalletDetails = () => {
     );
   };
 
+  const testBorderWallet = () => {
+    navigate('AddWalletRoot', {
+      screen: 'ImportBorder',
+      params: {
+        walletID: wallet.getID(),
+      },
+    });
+  };
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -679,6 +688,13 @@ const WalletDetails = () => {
                       testID="ViewEditCosigners"
                       title={loc.multisig.view_edit_cosigners}
                     />
+                  </>
+                )}
+
+                {wallet.type === HDSegwitBech32Wallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton onPress={testBorderWallet} title={loc.border.test_memory} />
                   </>
                 )}
 

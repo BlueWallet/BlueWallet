@@ -23,6 +23,10 @@ import DefaultView from './screen/settings/defaultView';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
+import WalletsAddBorder from './screen/wallets/addBorder';
+import WalletsAddBorderSaveGrid from './screen/wallets/addBorderSaveGrid';
+import WalletsAddBorderStep2 from './screen/wallets/addBorderStep2';
+import WalletsAddBorderFinalWord from './screen/wallets/addBorderFinalWord';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
@@ -33,6 +37,7 @@ import ImportWallet from './screen/wallets/import';
 import ImportWalletDiscovery from './screen/wallets/importDiscovery';
 import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
 import ImportSpeed from './screen/wallets/importSpeed';
+import ImportBorder from './screen/wallets/importBorder';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
@@ -44,6 +49,7 @@ import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import ProvideEntropy from './screen/wallets/provideEntropy';
 import GenerateWord from './screen/wallets/generateWord';
+import BorderWallets from './screen/wallets/borderWallets';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -145,6 +151,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions(theme)} />
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
       <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
+      <WalletsStack.Screen name="BorderWallets" component={BorderWallets} options={BorderWallets.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
@@ -180,6 +187,7 @@ const AddWalletRoot = () => {
         options={ImportCustomDerivationPath.navigationOptions(theme)}
       />
       <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
+      <AddWalletStack.Screen name="ImportBorder" component={ImportBorder} options={ImportBorder.navigationOptions(theme)} />
       <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"
@@ -188,6 +196,22 @@ const AddWalletRoot = () => {
       />
       <AddWalletStack.Screen name="PleaseBackupLdk" component={PleaseBackupLdk} options={PleaseBackupLdk.navigationOptions(theme)} />
       <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions(theme)} />
+      <AddWalletStack.Screen name="WalletsAddBorder" component={WalletsAddBorder} options={WalletsAddBorder.navigationOptions(theme)} />
+      <AddWalletStack.Screen
+        name="WalletsAddBorderSaveGrid"
+        component={WalletsAddBorderSaveGrid}
+        options={WalletsAddBorderSaveGrid.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen
+        name="WalletsAddBorderStep2"
+        component={WalletsAddBorderStep2}
+        options={WalletsAddBorderStep2.navigationOptions(theme)}
+      />
+      <AddWalletStack.Screen
+        name="WalletsAddBorderFinalWord"
+        component={WalletsAddBorderFinalWord}
+        options={WalletsAddBorderFinalWord.navigationOptions(theme)}
+      />
       <AddWalletStack.Screen
         name="WalletsAddMultisig"
         component={WalletsAddMultisig}
