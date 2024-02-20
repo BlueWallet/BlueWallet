@@ -51,7 +51,6 @@ const WalletExport = () => {
     warning: { color: colors.failedColor },
   };
 
-  console.warn('WalletExport');
   useFocusEffect(
     useCallback(() => {
       enableBlur();
