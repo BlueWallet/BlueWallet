@@ -1,17 +1,16 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
@@ -24,6 +23,7 @@ const ExportMultisigCoordinationSetup = () => {
   const [isShareButtonTapped, setIsShareButtonTapped] = useState(false);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
+  const { enableBlur, disableBlur } = usePrivacy();
   const stylesHook = StyleSheet.create({
     loading: {
       backgroundColor: colors.elevated,
@@ -51,7 +51,7 @@ const ExportMultisigCoordinationSetup = () => {
 
   useFocusEffect(
     useCallback(() => {
-      Privacy.enableBlur();
+      enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -67,9 +67,9 @@ const ExportMultisigCoordinationSetup = () => {
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
+        disableBlur();
       };
-    }, [goBack, wallet]),
+    }, [disableBlur, enableBlur, goBack, wallet]),
   );
 
   return isLoading ? (

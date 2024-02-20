@@ -10,13 +10,13 @@ import {
   BlueText,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -31,6 +31,7 @@ const WalletsImport = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [searchAccounts, setSearchAccounts] = useState(false);
   const [askPassphrase, setAskPassphrase] = useState(false);
+  const { enableBlur, disableBlur } = usePrivacy();
 
   const styles = StyleSheet.create({
     root: {
@@ -58,15 +59,15 @@ const WalletsImport = () => {
   };
 
   useEffect(() => {
-    Privacy.enableBlur();
+    enableBlur();
     Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true));
     Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsToolbarVisibleForAndroid(false));
     return () => {
       Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
       Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide');
-      Privacy.disableBlur();
+      disableBlur();
     };
-  }, []);
+  }, [disableBlur, enableBlur]);
 
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);

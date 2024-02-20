@@ -8,7 +8,6 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import { BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -18,6 +17,7 @@ import presentAlert from '../../components/Alert';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import { satoshiToBTC } from '../../blue_modules/currency';
+import usePrivacy from '../../hooks/usePrivacy';
 const bitcoin = require('bitcoinjs-lib');
 
 const SendCreate = () => {
@@ -26,6 +26,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
+  const { enableBlur, disableBlur } = usePrivacy();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -46,13 +47,12 @@ const SendCreate = () => {
   });
 
   useEffect(() => {
-    Privacy.enableBlur();
-
     console.log('send/create - useEffect');
+    enableBlur();
     return () => {
-      Privacy.disableBlur();
+      disableBlur();
     };
-  }, []);
+  }, [disableBlur, enableBlur]);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;

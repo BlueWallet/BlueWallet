@@ -3,13 +3,13 @@ import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -18,6 +18,7 @@ const PleaseBackup: React.FC = () => {
   const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const { enableBlur, disableBlur } = usePrivacy();
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -41,11 +42,11 @@ const PleaseBackup: React.FC = () => {
   }, [navigation]);
 
   useEffect(() => {
-    Privacy.enableBlur();
+    enableBlur();
     setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      Privacy.disableBlur();
+      disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
