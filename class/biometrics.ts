@@ -83,6 +83,7 @@ const Biometric = function () {
 
   Biometric.unlockWithBiometrics = async () => {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
+    console.warn('Biometric.unlockWithBiometrics isDeviceBiometricCapable unlockWithBiometrics', isDeviceBiometricCapable);
     if (isDeviceBiometricCapable) {
       return new Promise(resolve => {
         rnBiometrics
@@ -97,7 +98,7 @@ const Biometric = function () {
           })
           .catch((error: Error) => {
             console.log('Biometrics authentication error');
-            console.log(error);
+            presentAlert({ message: error.message });
             resolve(false);
           });
       });
