@@ -4,7 +4,6 @@ import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/nativ
 
 import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
@@ -13,6 +12,7 @@ import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -23,6 +23,7 @@ const WalletExport = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const appState = useRef(AppState.currentState);
+  const { enableBlur, disableBlur } = usePrivacy();
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -52,7 +53,7 @@ const WalletExport = () => {
 
   useFocusEffect(
     useCallback(() => {
-      Privacy.enableBlur();
+      enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -71,8 +72,9 @@ const WalletExport = () => {
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
+        disableBlur();
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, saveToDisk, wallet]),
   );
 
