@@ -1,17 +1,14 @@
 name: Build Release Pull Request (iOS)
-
-concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-  
 on:
   pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
     branches:
       - master
   workflow_dispatch:
 
 jobs:
   build:
+    if: contains(github.event.pull_request.labels.*.name, 'testflight')
     runs-on: macos-latest
     timeout-minutes: 180
     outputs:
@@ -129,7 +126,7 @@ jobs:
 
 
   testflight-upload:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: contains(github.event.pull_request.labels.*.name, 'testflight')
     needs: build
     runs-on: macos-latest
     env:
