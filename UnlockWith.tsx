@@ -132,15 +132,14 @@ const UnlockWith: React.FC = () => {
   const startUnlock = async () => {
     if (unlockOnComponentMount) {
       const storageIsEncrypted = await isStorageEncrypted();
-      dispatch({ type: SET_IS_STORAGE_ENCRYPTED_ENABLED, payload: storageIsEncrypted });
-
       const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
       const rawType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
-      dispatch({ type: SET_BIOMETRIC_TYPE, payload: rawType });
 
       if (!rawType || storageIsEncrypted) {
+        dispatch({ type: SET_IS_STORAGE_ENCRYPTED_ENABLED, payload: storageIsEncrypted });
         unlockWithKey();
       } else {
+        dispatch({ type: SET_BIOMETRIC_TYPE, payload: rawType });
         unlockWithBiometrics();
       }
     }
