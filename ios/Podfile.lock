@@ -20,7 +20,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.10)
   - hermes-engine/Pre-built (0.72.10)
   - libevent (2.1.12)
-  - lottie-ios (4.4.0)
+  - lottie-ios (4.4.1)
   - lottie-react-native (6.6.0):
     - lottie-ios (~> 4.4.0)
     - React-Core
@@ -332,6 +332,8 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
+  - react-native-document-picker (9.1.0):
+    - React-Core
   - react-native-idle-timer (2.1.6):
     - React-Core
   - react-native-image-picker (7.1.0):
@@ -471,7 +473,7 @@ PODS:
     - React
   - rn-ldk (0.8.4):
     - React-Core
-  - RNCAsyncStorage (1.22.0):
+  - RNCAsyncStorage (1.22.1):
     - React-Core
   - RNCClipboard (1.13.2):
     - React-Core
@@ -502,7 +504,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
-  - RNReanimated (3.7.0):
+  - RNReanimated (3.7.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -553,6 +555,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
@@ -671,6 +674,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blue-crypto"
   react-native-bw-file-access:
     :path: "../blue_modules/react-native-bw-file-access"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-idle-timer:
     :path: "../node_modules/react-native-idle-timer"
   react-native-image-picker:
@@ -788,7 +793,7 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 90e4033deb00bee33330a9f15eff0f874bd82f6d
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  lottie-ios: ef1be1f90d54255f08e09d767950e43714661178
+  lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
   lottie-react-native: 00ac19344296ae018260aabd14d6b36dd816b0e2
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -809,6 +814,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
+  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
@@ -839,7 +845,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: a62dc7a1f94b888fe9e8712cd650167ad97dc636
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: c43e6d71e13bb4748503797784839e0fbbf89d56
+  RNCAsyncStorage: 7deab901e27d1f989a83e8be6ce91b673772c848
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
@@ -854,7 +860,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
-  RNReanimated: 9dfe7a19dd7c3e123b23db42e74bf051725f2ea3
+  RNReanimated: 43675f1f0e704abe8ebf953fd79b00e66302cda2
   RNScreens: 3c5b9f4a9dcde752466854b6109b79c0e205dad3
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
