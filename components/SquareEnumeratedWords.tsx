@@ -1,16 +1,21 @@
 import React from 'react';
-
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import PropTypes from 'prop-types';
 import { useTheme } from './themes';
 
-export const SquareEnumeratedWordsContentAlign = Object.freeze({ left: 'flex-start', center: 'center', right: 'flex-end' });
-const SquareEnumeratedWords = props => {
-  const {
-    entries = ['Empty entries prop. Please provide an array of strings'],
-    appendNumber = true,
-    contentAlign = SquareEnumeratedWordsContentAlign.center,
-  } = props;
+type ContentAlignType = 'flex-start' | 'center' | 'flex-end';
+export const SquareEnumeratedWordsContentAlign: Record<string, ContentAlignType> = Object.freeze({
+  left: 'flex-start',
+  center: 'center',
+  right: 'flex-end',
+});
+
+interface SquareEnumeratedWordsProps {
+  entries: string[];
+  appendNumber: boolean;
+  contentAlign: ContentAlignType;
+}
+
+const SquareEnumeratedWords: React.FC<SquareEnumeratedWordsProps> = ({ entries, appendNumber, contentAlign }) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     entryTextContainer: {
@@ -18,6 +23,9 @@ const SquareEnumeratedWords = props => {
     },
     entryText: {
       color: colors.labelText,
+    },
+    container: {
+      justifyContent: contentAlign,
     },
   });
 
@@ -51,7 +59,7 @@ const SquareEnumeratedWords = props => {
     return component;
   };
 
-  return <View style={[styles.container, { justifyContent: contentAlign }]}>{renderSecret()}</View>;
+  return <View style={[styles.container, stylesHook.container]}>{renderSecret()}</View>;
 };
 
 const styles = StyleSheet.create({
@@ -73,10 +81,5 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
 });
-SquareEnumeratedWords.propTypes = {
-  entries: PropTypes.arrayOf(PropTypes.string),
-  contentAlign: PropTypes.string,
-  appendNumber: PropTypes.bool,
-};
 
 export default SquareEnumeratedWords;
