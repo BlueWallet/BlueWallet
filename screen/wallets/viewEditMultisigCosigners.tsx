@@ -37,7 +37,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import { SquareButton } from '../../components/SquareButton';
 import { encodeUR } from '../../blue_modules/ur';
@@ -47,6 +46,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import { NativeStackScreenProps } from 'react-native-screens/native-stack';
+import usePrivacy from '../../hooks/usePrivacy';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -78,6 +78,8 @@ const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParams
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef<any[]>();
+  const { enableBlur, disableBlur } = usePrivacy();
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -151,7 +153,7 @@ const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParams
       if (hasLoaded.current) return;
       setIsLoading(true);
 
-      Privacy.enableBlur();
+      enableBlur();
 
       const task = InteractionManager.runAfterInteractions(async () => {
         const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -174,7 +176,7 @@ const ViewEditMultisigCosigners = ({ route }: NativeStackScreenProps<StackParams
         setIsLoading(false);
       });
       return () => {
-        Privacy.disableBlur();
+        disableBlur();
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
