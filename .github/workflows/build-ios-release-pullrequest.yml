@@ -173,15 +173,17 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
-      # This is your last step inside the 'testflight-upload' job
       - name: Post PR Comment
         uses: actions/github-script@v6
         if: success()  # Ensures the message is only posted if previous steps succeed
         env:
           BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
         with:
           script: |
-            const message = `The build ${process.env.BUILD_NUMBER} has been uploaded to TestFlight.`;
+            const buildNumber = process.env.BUILD_NUMBER;
+            const latestCommitMessage = process.env.LATEST_COMMIT_MESSAGE;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight. The most recent commit for this build was: '${latestCommitMessage}'`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
