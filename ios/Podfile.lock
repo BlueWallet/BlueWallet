@@ -341,6 +341,9 @@ PODS:
     - React-Core
   - react-native-ios-context-menu (1.15.3):
     - React-Core
+  - react-native-prevent-screenshot-ios-android (1.1.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-qrcode-local-image (1.0.4):
     - React
   - react-native-randombytes (3.6.1):
@@ -496,8 +499,6 @@ PODS:
     - React-Core
   - RNPermissions (4.1.2):
     - React-Core
-  - RNPrivacySnapshot (1.0.0):
-    - React
   - RNQuickAction (0.3.13):
     - React
   - RNRate (1.2.12):
@@ -559,6 +560,7 @@ DEPENDENCIES:
   - react-native-idle-timer (from `../node_modules/react-native-idle-timer`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
+  - react-native-prevent-screenshot-ios-android (from `../node_modules/react-native-prevent-screenshot-ios-android`)
   - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -597,7 +599,6 @@ DEPENDENCIES:
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
-  - RNPrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
@@ -682,6 +683,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-ios-context-menu:
     :path: "../node_modules/react-native-ios-context-menu"
+  react-native-prevent-screenshot-ios-android:
+    :path: "../node_modules/react-native-prevent-screenshot-ios-android"
   react-native-qrcode-local-image:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   react-native-randombytes:
@@ -758,8 +761,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
-  RNPrivacySnapshot:
-    :path: "../node_modules/react-native-privacy-snapshot"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
@@ -818,6 +819,7 @@ SPEC CHECKSUMS:
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
+  react-native-prevent-screenshot-ios-android: 8141287c970cb037d86783841fa2eb36d59ad9f9
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
@@ -856,7 +858,6 @@ SPEC CHECKSUMS:
   RNKeychain: f1b48665a4646f61191eb048c4c05c58d9a7596f
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
   RNPermissions: 0e72b28a9df5e3f0ae9cc122378d4b878ccb4f2f
-  RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
