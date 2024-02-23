@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect } from 'react';
+import React, { useContext, useRef, useState, useEffect, useCallback } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,7 +16,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getSystemName } from 'react-native-device-info';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -37,6 +37,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -66,11 +67,21 @@ const WalletsAddMultisigStep2 = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
+  const { enableBlur, disableBlur } = usePrivacy();
 
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      enableBlur();
+      return () => {
+        disableBlur();
+      };
+    }, [disableBlur, enableBlur]),
+  );
 
   useEffect(() => {
     console.log(currentSharedCosigner);
