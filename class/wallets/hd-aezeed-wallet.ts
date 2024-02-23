@@ -1,10 +1,10 @@
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import b58 from 'bs58check';
+import { CipherSeed } from 'aezeed';
 import BIP32Factory from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
+import b58 from 'bs58check';
 import ecc from '../../blue_modules/noble_ecc';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 
-const bitcoin = require('bitcoinjs-lib');
-const { CipherSeed } = require('aezeed');
 const bip32 = BIP32Factory(ecc);
 
 /**
@@ -23,7 +23,9 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
   static segwitType = 'p2wpkh';
   static derivationPath = "m/84'/0'/0'";
 
-  setSecret(newSecret) {
+  private _entropyHex?: string;
+
+  setSecret(newSecret: string): this {
     this.secret = newSecret.trim();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     return this;
@@ -55,7 +57,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  validateMnemonic() {
+  validateMnemonic(): boolean {
     throw new Error('Use validateMnemonicAsync()');
   }
 
@@ -75,7 +77,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     try {
       const cipherSeed1 = await CipherSeed.fromMnemonic(this.secret, passphrase);
       this._entropyHex = cipherSeed1.entropy.toString('hex'); // save cache
-    } catch (error) {
+    } catch (error: any) {
       return error.message === 'Invalid Password';
     }
     return false;
@@ -97,7 +99,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return node.derive(1);
   }
 
-  _getInternalAddressByIndex(index) {
+  _getInternalAddressByIndex(index: number): string {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
@@ -106,11 +108,14 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node1.derive(index).publicKey,
     }).address;
+    if (!address) {
+      throw new Error('Internal error: no address in _getInternalAddressByIndex');
+    }
 
     return (this.internal_addresses_cache[index] = address);
   }
 
-  _getExternalAddressByIndex(index) {
+  _getExternalAddressByIndex(index: number): string {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
@@ -119,11 +124,14 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     const address = bitcoin.payments.p2wpkh({
       pubkey: this._node0.derive(index).publicKey,
     }).address;
+    if (!address) {
+      throw new Error('Internal error: no address in _getExternalAddressByIndex');
+    }
 
     return (this.external_addresses_cache[index] = address);
   }
 
-  _getWIFByIndex(internal, index) {
+  _getWIFByIndex(internal: boolean, index: number): string | false {
     if (!this.secret) return false;
     const root = bip32.fromSeed(this._getEntropyCached());
     const path = `m/84'/0'/0'/${internal ? 1 : 0}/${index}`;
@@ -132,7 +140,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return child.toWIF();
   }
 
-  _getNodePubkeyByIndex(node, index) {
+  _getNodePubkeyByIndex(node: number, index: number) {
     index = index * 1; // cast to int
 
     if (node === 0 && !this._node0) {
@@ -143,13 +151,15 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
       this._node1 = this._getNode1();
     }
 
-    if (node === 0) {
+    if (node === 0 && this._node0) {
       return this._node0.derive(index).publicKey;
     }
 
-    if (node === 1) {
+    if (node === 1 && this._node1) {
       return this._node1.derive(index).publicKey;
     }
+
+    throw new Error('Internal error: this._node0 or this._node1 is undefined');
   }
 
   getIdentityPubkey() {
