@@ -15,6 +15,7 @@ import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import StyledButton, { StyledButtonType } from '../../components/StyledButton';
 import SafeArea from '../../components/SafeArea';
+import useWallet from '../../hooks/useWallet';
 const selectWallet = require('../../helpers/select-wallet');
 const confirm = require('../../helpers/confirm');
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
@@ -34,7 +35,7 @@ const LdkInfo = () => {
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
-  const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = useWallet<LightningLdkWallet>(walletID);
   const { colors } = useTheme();
   const { setOptions, navigate } = useNavigation();
   const name = useRoute().name;

@@ -1,7 +1,6 @@
-import React, { useCallback, useState, useContext, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useCallback, useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import navigationStyle from '../../components/navigationStyle';
 import { AddressItem } from '../../components/addresses/AddressItem';
@@ -9,6 +8,7 @@ import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTab
 import { WatchOnlyWallet } from '../../class';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 
 export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 
@@ -58,13 +58,11 @@ const WalletAddresses = () => {
 
   const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
 
-  const { wallets } = useContext(BlueStorageContext);
-
   const { walletID } = useRoute().params;
 
   const addressList = useRef();
 
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
 
   const balanceUnit = wallet.getPreferredBalanceUnit();
 

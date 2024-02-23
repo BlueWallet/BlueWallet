@@ -35,6 +35,7 @@ import presentAlert from '../../components/Alert';
 import PropTypes from 'prop-types';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
+import useWallet from '../../hooks/useWallet';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -56,7 +57,7 @@ const WalletTransactions = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
   const [isRefreshing, setIsRefreshing] = useState(false); // a simple flag to know that wallet was being updated once

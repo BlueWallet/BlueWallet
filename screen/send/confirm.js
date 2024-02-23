@@ -18,18 +18,19 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import useWallet from '../../hooks/useWallet';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 
 const Confirm = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
   const [isLoading, setIsLoading] = useState(false);
   const [isPayjoinEnabled, setIsPayjoinEnabled] = useState(false);
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const payjoinUrl = wallet.allowPayJoin() ? params.payjoinUrl : false;
   const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
   const { navigate, setOptions } = useNavigation();

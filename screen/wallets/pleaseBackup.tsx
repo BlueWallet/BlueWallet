@@ -1,21 +1,19 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 
 const PleaseBackup: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const { walletID } = useRoute().params as { walletID: string };
-  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const { enableBlur, disableBlur } = usePrivacy();

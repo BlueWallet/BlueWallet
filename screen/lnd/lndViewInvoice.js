@@ -15,11 +15,12 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import useWallet from '../../hooks/useWallet';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
-  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const { setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const wallet = useWallet(walletID);
   const { colors, closeImage } = useTheme();
   const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');

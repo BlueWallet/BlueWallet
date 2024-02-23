@@ -30,6 +30,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
+import useWallet from '../../hooks/useWallet';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -256,8 +257,8 @@ const CoinControl = () => {
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
   const { walletID, onUTXOChoose } = useRoute().params;
-  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const { saveToDisk, sleep } = useContext(BlueStorageContext);
+  const wallet = useWallet(walletID);
   // sort by height ascending, txid , vout ascending
   const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
   const [output, setOutput] = useState();

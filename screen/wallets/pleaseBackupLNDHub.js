@@ -1,21 +1,20 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
 import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 
 const PleaseBackupLNDHub = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);

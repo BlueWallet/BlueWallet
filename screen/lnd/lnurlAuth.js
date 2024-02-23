@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -8,7 +8,6 @@ import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import { Chain } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import selectWallet from '../../helpers/select-wallet';
 import URL from 'url';
@@ -16,6 +15,7 @@ import { SuccessView } from '../send/success';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import useWallet from '../../hooks/useWallet';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -25,10 +25,9 @@ const AuthState = {
 };
 
 const LnurlAuth = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const { name } = useRoute();
   const { walletID, lnurl } = useRoute().params;
-  const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
+  const wallet = useWallet(walletID);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
     () => (lnurl ? URL.parse(Lnurl.getUrlFromLnurl(lnurl), true) : {}), // eslint-disable-line n/no-deprecated-api

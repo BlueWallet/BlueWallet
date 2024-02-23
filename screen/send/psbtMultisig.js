@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -7,12 +7,12 @@ import { BlueCard, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import useWallet from '../../hooks/useWallet';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 
@@ -21,13 +21,12 @@ const shortenAddress = addr => {
 };
 
 const PsbtMultisig = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
   const { walletID, psbtBase64, memo, receivedPSBTBase64, launchedBy } = useRoute().params;
   /** @type MultisigHDWallet */
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const [psbt, setPsbt] = useState(bitcoin.Psbt.fromBase64(psbtBase64));
   const data = new Array(wallet.getM());
   const stylesHook = StyleSheet.create({

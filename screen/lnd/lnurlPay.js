@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -11,13 +11,13 @@ import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
 import Biometric from '../../class/biometrics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import useWallet from '../../hooks/useWallet';
 const prompt = require('../../helpers/prompt');
 
 /**
@@ -28,10 +28,9 @@ const prompt = require('../../helpers/prompt');
 const _cacheFiatToSat = {};
 
 const LnurlPay = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const { walletID, lnurl } = useRoute().params;
   /** @type {LightningCustodianWallet} */
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const [unit, setUnit] = useState(wallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(true);
   const [_LN, setLN] = useState();

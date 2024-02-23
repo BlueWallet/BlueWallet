@@ -1,24 +1,23 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 
 import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import { LightningLdkWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import useWallet from '../../hooks/useWallet';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();
-  const { wallets } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   /** @type {LightningLdkWallet} */
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const [isLoading, setIsLoading] = useState(false);
   const [logs, setLogs] = useState('');
   const [info, setInfo] = useState('');

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -7,16 +7,15 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
-  const { wallets } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletId);
+  const wallet = useWallet(walletId);
   const qrCodeContents = useRef();
   const dynamicQRCode = useRef();
   const [isLoading, setIsLoading] = useState(true);

@@ -22,10 +22,11 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
+import useWallet from '../../hooks/useWallet';
 
 const SignVerify = () => {
   const { colors } = useTheme();
-  const { wallets, sleep } = useContext(BlueStorageContext);
+  const { sleep } = useContext(BlueStorageContext);
   const { params } = useRoute();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [address, setAddress] = useState(params.address ?? '');
@@ -35,7 +36,7 @@ const SignVerify = () => {
   const [messageHasFocus, setMessageHasFocus] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
 
-  const wallet = wallets.find(w => w.getID() === params.walletID);
+  const wallet = useWallet(params.walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
   useEffect(() => {

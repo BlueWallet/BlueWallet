@@ -13,14 +13,15 @@ import HandoffComponent from '../../components/handoff';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 
 const WalletExport = () => {
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { saveToDisk } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const appState = useRef(AppState.currentState);
   const { enableBlur, disableBlur } = usePrivacy();

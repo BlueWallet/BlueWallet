@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
@@ -10,11 +10,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
 import { useTheme } from '../themes';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import useWallet from '../../hooks/useWallet';
 const confirm = require('../../helpers/confirm');
 
 interface AddressItemProps {
@@ -26,8 +25,8 @@ interface AddressItemProps {
 }
 
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
-  const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
+  const wallet = useWallet(walletID);
 
   const hasTransactions = item.transactions > 0;
 
@@ -90,12 +89,6 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const handleCopyPrivkeyPress = () => {
-    const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
-    if (!wallet) {
-      presentAlert({ message: 'Internal error: cant find wallet' });
-      return;
-    }
-
     try {
       const wif = wallet._getWIFbyAddress(item.address);
       if (!wif) {

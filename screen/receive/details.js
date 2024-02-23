@@ -39,11 +39,12 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import useWallet from '../../hooks/useWallet';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
-  const { wallets, saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const { saveToDisk, sleep, isElectrumDisabled, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const wallet = useWallet(walletID);
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState();
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);

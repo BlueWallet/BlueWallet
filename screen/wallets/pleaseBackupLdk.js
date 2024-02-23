@@ -1,21 +1,20 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import useWallet from '../../hooks/useWallet';
 
 const PleaseBackupLdk = () => {
-  const { wallets } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   /** @type {LightningLdkWallet} */
-  const wallet = wallets.find(w => w.getID() === walletID);
+  const wallet = useWallet(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const { height, width } = useWindowDimensions();
