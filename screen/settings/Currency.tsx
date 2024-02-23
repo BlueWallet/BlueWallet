@@ -1,5 +1,4 @@
-import { ParamListBase, useNavigation } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import React, { useContext, useLayoutEffect, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
@@ -21,11 +20,7 @@ dayjs.extend(require('dayjs/plugin/calendar'));
 
 const ITEM_HEIGHT = 50;
 
-const Currency: React.FC<NativeStackScreenProps<ParamListBase>> = ({ navigation }) => {
-  navigation.setOptions({
-    title: loc.settings.currency,
-  });
-
+const Currency = () => {
   const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);

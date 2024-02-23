@@ -112,13 +112,4 @@ const WalletXpub: React.FC = () => {
   );
 };
 
-// @ts-ignore: Deal with later
-// WalletXpub.navigationOptions = navigationStyle(
-//   {
-//     closeButton: true,
-//     headerBackVisible: false,
-//   },
-//   opts => ({ ...opts, headerTitle: loc.wallets.xpub_title }),
-// );
-
 export default WalletXpub;

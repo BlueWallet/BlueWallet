@@ -107,13 +107,13 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
       <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions(theme)} />
       <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Currency" component={Currency} />
+      <WalletsStack.Screen name="Currency" component={Currency} options={{ title: loc.settings.currency }} />
       <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
       <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
       <WalletsStack.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
       <WalletsStack.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
       <WalletsStack.Screen name="DefaultView" component={DefaultView} options={DefaultView.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Language" component={Language} />
+      <WalletsStack.Screen name="Language" component={Language} options={{ title: loc.settings.language }} />
       <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
       <WalletsStack.Screen name="GeneralSettings" component={GeneralSettings} options={{ title: loc.settings.general }} />
       <WalletsStack.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
@@ -170,7 +170,7 @@ const AddWalletRoot = () => {
       <AddWalletStack.Screen
         name="AddWallet"
         component={AddWallet}
-        options={{ headerBackButtonMenuEnabled: false, headerBackVisible: false, title: loc.wallets.add_title }}
+        options={{ headerBackButtonMenuEnabled: true, headerBackVisible: false, title: loc.wallets.add_title }}
       />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen
@@ -416,6 +416,8 @@ const WalletXpubStackRoot = () => {
         component={WalletXpub}
         options={{
           headerBackVisible: false,
+          headerBackButtonMenuEnabled: true,
+          headerTitle: loc.wallets.xpub_title,
         }}
       />
     </WalletXpubStack.Navigator>

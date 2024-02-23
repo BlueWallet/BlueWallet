@@ -1,9 +1,8 @@
-import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
@@ -18,11 +17,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Language: React.FC<NativeStackScreenProps<ParamListBase>> = ({ navigation }) => {
-  navigation.setOptions({
-    title: loc.settings.language,
-  });
-
+const Language = () => {
   const { setLanguage, language } = useContext(BlueStorageContext);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(loc.getLanguage());
   const { setOptions } = useNavigation();
