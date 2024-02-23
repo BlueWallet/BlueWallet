@@ -6,7 +6,6 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
@@ -92,15 +91,6 @@ const PleaseBackup: React.FC = () => {
     </SafeArea>
   );
 };
-
-// @ts-ignore: Ignore
-PleaseBackup.navigationOptions = navigationStyle(
-  {
-    gestureEnabled: false,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.pleasebackup.title }),
-);
 
 const styles = StyleSheet.create({
   loading: {

@@ -1,6 +1,6 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Dimensions, I18nManager, Platform, useWindowDimensions } from 'react-native';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
@@ -82,6 +82,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
+import DrawerList from './screen/wallets/drawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
@@ -114,7 +115,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="DefaultView" component={DefaultView} options={DefaultView.navigationOptions(theme)} />
       <WalletsStack.Screen name="Language" component={Language} />
       <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
-      <WalletsStack.Screen name="GeneralSettings" component={GeneralSettings} options={GeneralSettings.navigationOptions(theme)} />
+      <WalletsStack.Screen name="GeneralSettings" component={GeneralSettings} options={{ title: loc.settings.general }} />
       <WalletsStack.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
       <WalletsStack.Screen
         name="NotificationSettings"
@@ -124,7 +125,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={PlausibleDeniability.navigationOptions(theme)}
+        options={{ title: loc.plausibledeniability.title }}
       />
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
@@ -166,7 +167,11 @@ const AddWalletRoot = () => {
 
   return (
     <AddWalletStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions(theme)} />
+      <AddWalletStack.Screen
+        name="AddWallet"
+        component={AddWallet}
+        options={{ headerBackButtonMenuEnabled: false, headerBackVisible: false, title: loc.wallets.add_title }}
+      />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen
         name="ImportWalletDiscovery"
@@ -179,7 +184,11 @@ const AddWalletRoot = () => {
         options={ImportCustomDerivationPath.navigationOptions(theme)}
       />
       <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
-      <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions(theme)} />
+      <AddWalletStack.Screen
+        name="PleaseBackup"
+        component={PleaseBackup}
+        options={{ gestureEnabled: false, headerBackVisible: false, title: loc.pleasebackup.title }}
+      />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"
         component={PleaseBackupLNDHub}
@@ -363,7 +372,7 @@ const DrawerRoot = () => {
   const isLargeScreen = useMemo(() => {
     return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   }, [dimensions.width]);
-  const drawerStyle = useMemo(
+  const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
       drawerPosition: I18nManager.isRTL ? 'right' : 'left',
       drawerStyle: { width: isLargeScreen ? 320 : '0%' },
@@ -371,11 +380,14 @@ const DrawerRoot = () => {
     }),
     [isLargeScreen],
   );
-  const drawerContent = useCallback(props => <DrawerList {...props} />, []);
 
   return (
-    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={drawerContent}>
-      <Drawer.Screen name="Navigation" component={Navigation} options={{ headerShown: false, gestureEnabled: false }} />
+    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerList}>
+      <Drawer.Screen
+        name="Navigation"
+        component={Navigation}
+        options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
+      />
     </Drawer.Navigator>
   );
 };
