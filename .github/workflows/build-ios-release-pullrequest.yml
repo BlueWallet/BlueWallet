@@ -183,7 +183,7 @@ jobs:
           script: |
             const buildNumber = process.env.BUILD_NUMBER;
             const latestCommitMessage = process.env.LATEST_COMMIT_MESSAGE;
-            const message = `The build ${buildNumber} has been uploaded to TestFlight. The most recent commit for this build was: '${latestCommitMessage}'`;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight. The most recent commit for this build is:\n\n '${latestCommitMessage}'`;
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
             github.rest.issues.createComment({
