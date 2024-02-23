@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import navigationStyle from '../../components/navigationStyle';
-import loc, { saveLanguage } from '../../loc';
-import { AvailableLanguages, TLanguage } from '../../loc/languages';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import loc, { saveLanguage } from '../../loc';
+import { AvailableLanguages, TLanguage } from '../../loc/languages';
 
 const styles = StyleSheet.create({
   flex: {
@@ -17,7 +18,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const Language: React.FC = () => {
+const Language: React.FC<NativeStackScreenProps<ParamListBase>> = ({ navigation }) => {
+  navigation.setOptions({
+    title: loc.settings.language,
+  });
+
   const { setLanguage, language } = useContext(BlueStorageContext);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(loc.getLanguage());
   const { setOptions } = useNavigation();

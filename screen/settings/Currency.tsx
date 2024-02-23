@@ -1,15 +1,9 @@
-import React, { useState, useContext, useLayoutEffect } from 'react';
-import { FlatList, StyleSheet, View, NativeSyntheticEvent } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueText, BlueCard, BlueSpacing10 } from '../../BlueComponents';
-import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { ParamListBase, useNavigation } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import ListItem from '../../components/ListItem';
+import React, { useContext, useLayoutEffect, useState } from 'react';
+import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import {
   CurrencyRate,
   getPreferredCurrency,
@@ -17,11 +11,21 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import presentAlert from '../../components/Alert';
+import ListItem from '../../components/ListItem';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
+import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 dayjs.extend(require('dayjs/plugin/calendar'));
 
 const ITEM_HEIGHT = 50;
 
-const Currency: React.FC = () => {
+const Currency: React.FC<NativeStackScreenProps<ParamListBase>> = ({ navigation }) => {
+  navigation.setOptions({
+    title: loc.settings.currency,
+  });
+
   const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
@@ -125,8 +129,5 @@ const Currency: React.FC = () => {
     </View>
   );
 };
-
-/* @ts-ignore TODO: fix typescript error later */
-Currency.navigationOptions = navigationStyle({}, (opts: any) => ({ ...opts, title: loc.settings.currency }));
 
 export default Currency;

@@ -1,15 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
+import { PaymentCodeStackParamList } from '../../Navigation';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import loc from '../../loc';
 
-type PaymentCodeStackParamList = {
-  PaymentCode: { paymentCode: string };
-};
+type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCode'>;
 
-export default function PaymentCode({ route }: NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCode'>) {
+export default function PaymentCode({ route }: Props) {
   const { paymentCode } = route.params;
 
   return (
