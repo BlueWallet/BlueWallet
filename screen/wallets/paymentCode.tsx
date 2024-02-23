@@ -1,6 +1,6 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../Navigation';
 import QRCodeComponent from '../../components/QRCodeComponent';
