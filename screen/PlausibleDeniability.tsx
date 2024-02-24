@@ -1,15 +1,14 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useReducer } from 'react';
 import { ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 
-import navigationStyle from '../components/navigationStyle';
-import { BlueLoading, BlueCard, BlueText, BlueSpacing20 } from '../BlueComponents';
-import loc from '../loc';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import presentAlert from '../components/Alert';
 import Button from '../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import loc from '../loc';
 const prompt = require('../helpers/prompt');
 
 // Action Types
@@ -96,8 +95,3 @@ const PlausibleDeniability: React.FC = () => {
 };
 
 export default PlausibleDeniability;
-
-// @ts-ignore: Fix later
-PlausibleDeniability.navigationOptions = navigationStyle({
-  title: loc.plausibledeniability.title,
-});
