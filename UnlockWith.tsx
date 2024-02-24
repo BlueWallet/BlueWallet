@@ -1,43 +1,46 @@
-import React, { useContext, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric, { BiometricType } from './class/biometrics';
-import { NavigationProp, RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
-type RootStackParamList = {
-  UnlockWith: { unlockOnComponentMount?: boolean };
-};
+
+enum AuthType {
+  Encrypted,
+  Biometrics,
+  None,
+}
 
 type State = {
-  biometricType: keyof typeof BiometricType | undefined;
-  isStorageEncryptedEnabled: boolean;
+  auth: {
+    type: AuthType;
+    detail: keyof typeof BiometricType | undefined;
+  };
   isAuthenticating: boolean;
 };
 
-const SET_BIOMETRIC_TYPE = 'SET_BIOMETRIC_TYPE';
-const SET_IS_STORAGE_ENCRYPTED_ENABLED = 'SET_IS_STORAGE_ENCRYPTED_ENABLED';
+const SET_AUTH = 'SET_AUTH';
 const SET_IS_AUTHENTICATING = 'SET_IS_AUTHENTICATING';
 
 type Action =
-  | { type: typeof SET_BIOMETRIC_TYPE; payload: keyof typeof BiometricType | undefined }
-  | { type: typeof SET_IS_STORAGE_ENCRYPTED_ENABLED; payload: boolean }
+  | { type: typeof SET_AUTH; payload: { type: AuthType; detail: keyof typeof BiometricType | undefined } }
   | { type: typeof SET_IS_AUTHENTICATING; payload: boolean };
 
 const initialState: State = {
-  biometricType: undefined,
-  isStorageEncryptedEnabled: false,
+  auth: {
+    type: AuthType.None,
+    detail: undefined,
+  },
   isAuthenticating: false,
 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case SET_BIOMETRIC_TYPE:
-      return { ...state, biometricType: action.payload };
-    case SET_IS_STORAGE_ENCRYPTED_ENABLED:
-      return { ...state, isStorageEncryptedEnabled: action.payload };
+    case SET_AUTH:
+      return { ...state, auth: action.payload };
     case SET_IS_AUTHENTICATING:
       return { ...state, isAuthenticating: action.payload };
     default:
@@ -51,24 +54,16 @@ const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const navigation = useNavigation<NavigationProp<RootStackParamList, 'UnlockWith'>>();
-  const route = useRoute<RouteProp<RootStackParamList, 'UnlockWith'>>();
-  const { unlockOnComponentMount } = route.params;
+  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    SplashScreen?.dismissSplashScreen();
-    startUnlock();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const successfullyAuthenticated = () => {
+  const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
     navigation.dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
     isUnlockingWallets.current = false;
-  };
+  }, [setWalletsInitialized, navigation]);
 
-  const unlockWithBiometrics = async () => {
+  const unlockWithBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
@@ -80,9 +75,9 @@ const UnlockWith: React.FC = () => {
 
     dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
     isUnlockingWallets.current = false;
-  };
+  }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
 
-  const unlockWithKey = async () => {
+  const unlockWithKey = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
@@ -94,53 +89,64 @@ const UnlockWith: React.FC = () => {
       dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
       isUnlockingWallets.current = false;
     }
-  };
+  }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
+
+  useEffect(() => {
+    SplashScreen?.dismissSplashScreen();
+
+    const startUnlock = async () => {
+      const storageIsEncrypted = await isStorageEncrypted();
+      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+      const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
+
+      if (storageIsEncrypted) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
+        unlockWithKey();
+      } else if (isBiometricUseCapableAndEnabled) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
+        unlockWithBiometrics();
+      } else {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
+        unlockWithKey();
+      }
+    };
+
+    startUnlock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderUnlockOptions = () => {
+    const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
     if (state.isAuthenticating) {
       return <ActivityIndicator />;
     } else {
-      const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
-      if (
-        (state.biometricType === BiometricType.TouchID || state.biometricType === BiometricType.Biometrics) &&
-        !state.isStorageEncryptedEnabled
-      ) {
-        return (
-          <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
-            <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
-          </TouchableOpacity>
-        );
-      } else if (state.biometricType === BiometricType.FaceID && !state.isStorageEncryptedEnabled) {
-        return (
-          <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
-            <Image
-              source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
-        );
-      } else if (state.isStorageEncryptedEnabled) {
-        return (
-          <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithKey}>
-            <Icon name="lock" size={64} type="font-awesome5" color={color} />
-          </TouchableOpacity>
-        );
-      }
-    }
-  };
-
-  const startUnlock = async () => {
-    if (unlockOnComponentMount) {
-      const storageIsEncrypted = await isStorageEncrypted();
-      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-      const rawType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
-
-      if (!rawType || storageIsEncrypted) {
-        dispatch({ type: SET_IS_STORAGE_ENCRYPTED_ENABLED, payload: storageIsEncrypted });
-        unlockWithKey();
-      } else {
-        dispatch({ type: SET_BIOMETRIC_TYPE, payload: rawType });
-        unlockWithBiometrics();
+      switch (state.auth.type) {
+        case AuthType.Biometrics:
+          if (state.auth.detail === 'TouchID' || state.auth.detail === 'Biometrics') {
+            return (
+              <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
+                <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
+              </TouchableOpacity>
+            );
+          } else if (state.auth.detail === 'FaceID') {
+            return (
+              <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
+                <Image
+                  source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
+                  style={styles.icon}
+                />
+              </TouchableOpacity>
+            );
+          }
+          return null;
+        case AuthType.Encrypted:
+          return (
+            <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithKey}>
+              <Icon name="lock" size={64} type="font-awesome5" color={color} />
+            </TouchableOpacity>
+          );
+        default:
+          return null;
       }
     }
   };
