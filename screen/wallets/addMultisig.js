@@ -123,13 +123,13 @@ const WalletsAddMultisig = () => {
                   <Icon
                     name="chevron-up"
                     size={22}
-                    type="octicon"
+                    type="font-awesome-5"
                     color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
                   />
                 </TouchableOpacity>
                 <Text style={[styles.textM, stylesHook.textHeader]}>{m}</Text>
                 <TouchableOpacity accessibilityRole="button" onPress={decreaseM} disabled={m === 2} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+                  <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
 
@@ -139,11 +139,11 @@ const WalletsAddMultisig = () => {
 
               <View style={styles.column}>
                 <TouchableOpacity accessibilityRole="button" disabled={n === 7} onPress={increaseN} style={styles.chevron}>
-                  <Icon name="chevron-up" size={22} type="octicon" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+                  <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
                 <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
                 <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron}>
-                  <Icon name="chevron-down" size={22} type="octicon" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+                  <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
             </View>
