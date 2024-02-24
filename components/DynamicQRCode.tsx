@@ -1,4 +1,3 @@
-/* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component } from 'react';
 import { Text } from 'react-native-elements';
 import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -10,9 +9,24 @@ import loc from '../loc';
 
 const { height, width } = Dimensions.get('window');
 
-export class DynamicQRCode extends Component {
-  constructor() {
-    super();
+interface DynamicQRCodeProps {
+  value: string;
+  capacity?: number;
+  hideControls?: boolean;
+}
+
+interface DynamicQRCodeState {
+  index: number;
+  total: number;
+  qrCodeHeight: number;
+  intervalHandler: ReturnType<typeof setInterval> | number | null;
+  displayQRCode: boolean;
+  hideControls?: boolean;
+}
+
+export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeState> {
+  constructor(props: DynamicQRCodeProps) {
+    super(props);
     const qrCodeHeight = height > width ? width - 40 : width / 3;
     const qrCodeMaxHeight = 370;
     this.state = {
@@ -24,7 +38,7 @@ export class DynamicQRCode extends Component {
     };
   }
 
-  fragments = [];
+  fragments: string[] = [];
 
   componentDidMount() {
     const { value, capacity = 200, hideControls = true } = this.props;
@@ -67,7 +81,7 @@ export class DynamicQRCode extends Component {
   };
 
   stopAutoMove = () => {
-    clearInterval(this.state.intervalHandler);
+    clearInterval(this.state.intervalHandler as number);
     this.setState(() => ({
       intervalHandler: null,
     }));
@@ -138,21 +152,21 @@ export class DynamicQRCode extends Component {
             <View style={animatedQRCodeStyle.controller}>
               <TouchableOpacity
                 accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
+                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonPrev]}
                 onPress={this.moveToPreviousFragment}
               >
                 <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_prev}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, { width: '50%' }]}
+                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonStopStart]}
                 onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
               >
                 <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? loc.send.dynamic_stop : loc.send.dynamic_start}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 accessibilityRole="button"
-                style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
+                style={[animatedQRCodeStyle.button, animatedQRCodeStyle.buttonNext]}
                 onPress={this.moveToNextFragment}
               >
                 <Text style={animatedQRCodeStyle.text}>{loc.send.dynamic_next}</Text>
@@ -188,6 +202,17 @@ const animatedQRCodeStyle = StyleSheet.create({
     alignItems: 'center',
     height: 45,
     justifyContent: 'center',
+  },
+  buttonPrev: {
+    width: '25%',
+    alignItems: 'flex-start',
+  },
+  buttonStopStart: {
+    width: '50%',
+  },
+  buttonNext: {
+    width: '25%',
+    alignItems: 'flex-end',
   },
   text: {
     fontSize: 14,
