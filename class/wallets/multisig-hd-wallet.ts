@@ -767,7 +767,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       const witnessScript = p2wsh.redeem.output;
 
       psbt.addInput({
-        hash: input.txid,
+        // @ts-ignore: fix me txid || txId issue
+        hash: input.txid || input.txId,
         index: input.vout,
         sequence,
         bip32Derivation,
