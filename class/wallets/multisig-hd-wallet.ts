@@ -436,7 +436,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     ret += 'Policy: ' + this.getM() + ' of ' + this.getN() + '\n';
 
     let hasCustomPaths = 0;
-    const customPaths: { [key: string]: number } = {};
+    const customPaths: Record<string, number> = {};
     for (let index = 0; index < this.getN(); index++) {
       if (this._cosignersCustomPaths[index]) hasCustomPaths++;
       if (this._cosignersCustomPaths[index]) customPaths[this._cosignersCustomPaths[index]] = 1;
