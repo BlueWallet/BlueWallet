@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     if: contains(github.event.pull_request.labels.*.name, 'testflight')
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
