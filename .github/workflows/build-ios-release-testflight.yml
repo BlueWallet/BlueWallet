@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -28,7 +28,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: 15.2
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -127,7 +127,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-latest
+    runs-on: macos-14
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
