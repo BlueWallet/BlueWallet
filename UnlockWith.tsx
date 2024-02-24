@@ -1,16 +1,12 @@
-import React, { useContext, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric, { BiometricType } from './class/biometrics';
-import { NavigationProp, RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
-
-type RootStackParamList = {
-  UnlockWith: { unlockOnComponentMount?: boolean };
-};
 
 enum AuthType {
   Encrypted,
@@ -58,24 +54,16 @@ const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const navigation = useNavigation<NavigationProp<RootStackParamList, 'UnlockWith'>>();
-  const route = useRoute<RouteProp<RootStackParamList, 'UnlockWith'>>();
-  const { unlockOnComponentMount } = route.params;
+  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    SplashScreen?.dismissSplashScreen();
-    startUnlock();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const successfullyAuthenticated = () => {
+  const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
     navigation.dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
     isUnlockingWallets.current = false;
-  };
+  }, [setWalletsInitialized, navigation]);
 
-  const unlockWithBiometrics = async () => {
+  const unlockWithBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
@@ -87,9 +75,9 @@ const UnlockWith: React.FC = () => {
 
     dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
     isUnlockingWallets.current = false;
-  };
+  }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
 
-  const unlockWithKey = async () => {
+  const unlockWithKey = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
@@ -101,7 +89,31 @@ const UnlockWith: React.FC = () => {
       dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
       isUnlockingWallets.current = false;
     }
-  };
+  }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
+
+  useEffect(() => {
+    SplashScreen?.dismissSplashScreen();
+
+    const startUnlock = async () => {
+      const storageIsEncrypted = await isStorageEncrypted();
+      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+      const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
+
+      if (storageIsEncrypted) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
+        unlockWithKey();
+      } else if (isBiometricUseCapableAndEnabled) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
+        unlockWithBiometrics();
+      } else {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
+        unlockWithKey();
+      }
+    };
+
+    startUnlock();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderUnlockOptions = () => {
     const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
@@ -135,25 +147,6 @@ const UnlockWith: React.FC = () => {
           );
         default:
           return null;
-      }
-    }
-  };
-
-  const startUnlock = async () => {
-    if (unlockOnComponentMount) {
-      const storageIsEncrypted = await isStorageEncrypted();
-      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-      const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
-
-      if (storageIsEncrypted) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
-        unlockWithKey();
-      } else if (isBiometricUseCapableAndEnabled) {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
-        unlockWithBiometrics();
-      } else {
-        dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
-        unlockWithKey();
       }
     }
   };
