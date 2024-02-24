@@ -1,15 +1,14 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, I18nManager } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractWallet } from '../../class';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -92,16 +91,6 @@ const PleaseBackup: React.FC = () => {
     </SafeArea>
   );
 };
-
-// @ts-ignore: Ignore
-PleaseBackup.navigationOptions = navigationStyle(
-  {
-    gestureEnabled: false,
-    swipeEnabled: false,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.pleasebackup.title }),
-);
 
 const styles = StyleSheet.create({
   loading: {
