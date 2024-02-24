@@ -1,7 +1,8 @@
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
-import { Image, Keyboard, TouchableOpacity, StyleSheet } from 'react-native';
-import { Theme } from './themes';
+import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 import loc from '../loc';
+import { Theme } from './themes';
 
 const styles = StyleSheet.create({
   button: {
@@ -12,42 +13,19 @@ const styles = StyleSheet.create({
   },
 });
 
-type NavigationOptions = {
-  headerStyle?: {
-    borderBottomWidth: number;
-    elevation: number;
-    shadowOpacity?: number;
-    shadowOffset: { height?: number; width?: number };
-  };
-  headerTitleStyle?: {
-    fontWeight: string;
-    color: string;
-  };
-  headerLargeTitle?: boolean;
-  headerBackVisible?: boolean;
-  gestureEnabled?: boolean;
-  swipeEnabled?: boolean;
-  headerTransparent?: boolean;
-  headerHideBackButton?: boolean;
-  headerLeft?: (() => React.ReactElement) | null;
-  headerRight?: (() => React.ReactElement) | null;
-  headerBackTitleVisible?: false;
-  headerBackButtonMenuEnabled?: boolean;
-  headerShadowVisible?: boolean;
-  headerTintColor?: string;
-  title?: string;
-};
+type OptionsFormatter = (
+  options: NativeStackNavigationOptions,
+  deps: { theme: Theme; navigation: any; route: any },
+) => NativeStackNavigationOptions;
 
-type OptionsFormatter = (options: NavigationOptions, deps: { theme: Theme; navigation: any; route: any }) => NavigationOptions;
-
-export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NavigationOptions;
+export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
 
 const navigationStyle = (
   {
     closeButtonFunc,
     headerBackVisible = true,
     ...opts
-  }: NavigationOptions & {
+  }: NativeStackNavigationOptions & {
     closeButton?: boolean;
     closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
   },
@@ -89,7 +67,7 @@ const navigationStyle = (
         opts.headerLeft = headerLeft;
       }
 
-      let options: NavigationOptions = {
+      let options: NativeStackNavigationOptions = {
         headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: '600',
@@ -112,14 +90,12 @@ const navigationStyle = (
 
 export default navigationStyle;
 
-export const navigationStyleTx = (opts: NavigationOptions, formatter: OptionsFormatter): NavigationOptionsGetter => {
+export const navigationStyleTx = (opts: NativeStackNavigationOptions, formatter: OptionsFormatter): NavigationOptionsGetter => {
   return theme =>
     ({ navigation, route }) => {
-      let options: NavigationOptions = {
+      let options: NativeStackNavigationOptions = {
         headerStyle: {
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowOffset: { height: 0, width: 0 },
+          backgroundColor: theme.colors.customHeader,
         },
         headerTitleStyle: {
           fontWeight: '600',
