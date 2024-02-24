@@ -14,3 +14,6 @@ yarn install
 echo "===== Running pod install ====="
 cd ios
 pod install
+# LDK is not currently available for Catalyst, so we need to patch the wallet
+cd ..
+cp scripts/maccatalystpatches/lightning-ldk-wallet.ts class/wallets/lightning-ldk-wallet.ts
