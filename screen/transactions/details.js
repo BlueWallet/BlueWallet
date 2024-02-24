@@ -262,7 +262,7 @@ const TransactionsDetails = () => {
         {tx.hash && (
           <>
             <View style={styles.rowHeader}>
-              <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
+              <BlueText style={[styles.txid, stylesHooks.txid]}>{loc.transactions.txid}</BlueText>
               <BlueCopyToClipboardButton stringToCopy={tx.hash} />
             </View>
             <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   marginBottom18: {
     marginBottom: 18,
   },
-  txId: {
+  txid: {
     fontSize: 16,
     fontWeight: '500',
   },
