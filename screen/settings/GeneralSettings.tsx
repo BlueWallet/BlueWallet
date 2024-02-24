@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, Platform, StyleSheet } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 
-import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, BlueText, BlueSpacing20, BlueCard } from '../../BlueComponents';
 import { useNavigation } from '@react-navigation/native';
-import loc from '../../loc';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isURv1Enabled, clearUseURv1, setUseURv1 } from '../../blue_modules/ur';
-import { useTheme } from '../../components/themes';
+import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {
@@ -95,8 +94,5 @@ const GeneralSettings: React.FC = () => {
     </ScrollView>
   );
 };
-
-// @ts-ignore: Fix later
-GeneralSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.general }));
 
 export default GeneralSettings;
