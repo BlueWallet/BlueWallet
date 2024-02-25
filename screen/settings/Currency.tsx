@@ -18,8 +18,6 @@ import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 dayjs.extend(require('dayjs/plugin/calendar'));
 
-const ITEM_HEIGHT = 50;
-
 const Currency = () => {
   const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
@@ -62,17 +60,11 @@ const Currency = () => {
     fetchCurrency();
   }, [setOptions]);
 
-  const getItemLayout = (_data: any, index: number) => ({
-    length: ITEM_HEIGHT,
-    offset: ITEM_HEIGHT * index,
-    index,
-  });
-
   const renderItem = ({ item }: { item: FiatUnitType }) => (
     <ListItem
       disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
-      containerStyle={StyleSheet.flatten([styles.flex, { height: ITEM_HEIGHT }])}
+      containerStyle={StyleSheet.flatten([styles.flex, { minHeight: 60 }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
       onPress={async () => {
         setIsSavingNewPreferredCurrency(true);
@@ -104,7 +96,6 @@ const Currency = () => {
         data={data}
         initialNumToRender={30}
         extraData={data}
-        getItemLayout={getItemLayout}
         renderItem={renderItem}
       />
       <BlueCard>
