@@ -3,7 +3,6 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import reverse from 'buffer-reverse';
 import createHash from 'create-hash';
 import { ECPairFactory } from 'ecpair';
 import * as mn from 'electrum-mnemonic';
@@ -1111,7 +1110,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       // means we failed to get amounts that go in previously, so lets use utxo amounts cache we've build
       // from non-segwit inputs
       for (const inp of psbt.txInputs) {
-        const cacheKey = reverse(inp.hash).toString('hex') + ':' + inp.index;
+        const cacheKey = Buffer.from(inp.hash).reverse().toString('hex') + ':' + inp.index;
         if (cacheUtxoAmounts[cacheKey]) goesIn += cacheUtxoAmounts[cacheKey];
       }
     }
