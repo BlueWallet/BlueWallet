@@ -10,7 +10,7 @@ export default class Azteco {
    *
    * @returns {Promise<boolean>} Successfully redeemed or not. This method does not throw exceptions
    */
-  static async redeem(voucher, address) {
+  static async redeem(voucher: string, address: string): Promise<boolean> {
     const api = new Frisbee({
       baseURI: 'https://azte.co/',
     });
@@ -24,14 +24,19 @@ export default class Azteco {
     }
   }
 
-  static isRedeemUrl(u) {
+  static isRedeemUrl(u: string): boolean {
     return u.startsWith('https://azte.co');
   }
 
-  static getParamsFromUrl(u) {
+  static getParamsFromUrl(u: string) {
     const urlObject = URL.parse(u, true); // eslint-disable-line n/no-deprecated-api
 
     if (urlObject.query.code) {
+      // check if code is a string
+      if (typeof urlObject.query.code !== 'string') {
+        throw new Error('Invalid URL');
+      }
+
       // newer format of the url
       return {
         uri: u,

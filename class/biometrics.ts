@@ -1,9 +1,8 @@
 import { useContext } from 'react';
 import { Alert, Platform } from 'react-native';
-import { CommonActions, StackActions } from '@react-navigation/native';
-import FingerprintScanner, { Biometrics as TBiometrics } from 'react-native-fingerprint-scanner';
+import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import PasscodeAuth from 'react-native-passcode-auth';
-import RNSecureKeyStore from 'react-native-secure-key-store';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import { BlueStorageContext } from '../blue_modules/storage-context';
@@ -11,12 +10,7 @@ import presentAlert from '../components/Alert';
 
 const STORAGEKEY = 'Biometrics';
 
-export enum BiometricType {
-  FaceID = 'FaceID',
-  TouchID = 'TouchID',
-  Biometrics = 'Biometrics',
-  None = 'None',
-}
+const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
 
 // Define a function type with properties
 type DescribableFunction = {
@@ -27,7 +21,7 @@ type DescribableFunction = {
   isBiometricUseCapableAndEnabled: () => Promise<boolean>;
   isDeviceBiometricCapable: () => Promise<boolean>;
   setBiometricUseEnabled: (arg: boolean) => Promise<void>;
-  biometricType: () => Promise<false | TBiometrics>;
+  biometricType: () => Promise<keyof typeof RNBiometryTypes | undefined>;
   isBiometricUseEnabled: () => Promise<boolean>;
   unlockWithBiometrics: () => Promise<boolean>;
   showKeychainWipeAlert: () => void;
@@ -42,10 +36,8 @@ const Biometric = function () {
 
   Biometric.isDeviceBiometricCapable = async () => {
     try {
-      const isDeviceBiometricCapable = await FingerprintScanner.isSensorAvailable();
-      if (isDeviceBiometricCapable) {
-        return true;
-      }
+      const { available } = await rnBiometrics.isSensorAvailable();
+      return available;
     } catch (e) {
       console.log('Biometrics isDeviceBiometricCapable failed');
       console.log(e);
@@ -56,13 +48,17 @@ const Biometric = function () {
 
   Biometric.biometricType = async () => {
     try {
-      const isSensorAvailable = await FingerprintScanner.isSensorAvailable();
-      return isSensorAvailable;
+      const { available, biometryType } = await rnBiometrics.isSensorAvailable();
+      if (!available) {
+        return undefined;
+      }
+
+      return biometryType;
     } catch (e) {
       console.log('Biometrics biometricType failed');
       console.log(e);
+      return undefined; // Explicitly return false in case of an error
     }
-    return false;
   };
 
   Biometric.isBiometricUseEnabled = async () => {
@@ -88,24 +84,45 @@ const Biometric = function () {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       return new Promise(resolve => {
-        FingerprintScanner.authenticate({ description: loc.settings.biom_conf_identity, fallbackEnabled: true })
-          .then(() => resolve(true))
-          .catch(error => {
-            console.log('Biometrics authentication failed');
-            console.log(error);
-            resolve(false);
+        rnBiometrics
+          .simplePrompt({ promptMessage: loc.settings.biom_conf_identity })
+          .then((result: { success: any }) => {
+            if (result.success) {
+              resolve(true);
+            } else {
+              console.log('Biometrics authentication failed');
+              resolve(false);
+            }
           })
-          .finally(() => FingerprintScanner.release());
+          .catch((error: Error) => {
+            console.log('Biometrics authentication error');
+            presentAlert({ message: error.message });
+            resolve(false);
+          });
       });
     }
     return false;
   };
 
   const clearKeychain = async () => {
-    await RNSecureKeyStore.remove('data');
-    await RNSecureKeyStore.remove('data_encrypted');
-    await RNSecureKeyStore.remove(STORAGEKEY);
-    NavigationService.dispatch(StackActions.replace('WalletsRoot'));
+    try {
+      console.log('Wiping keychain');
+      console.log('Wiping key: data');
+      await RNSecureKeyStore.set('data', JSON.stringify({ data: { wallets: [] } }), {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+      console.log('Wiped key: data');
+      console.log('Wiping key: data_encrypted');
+      await RNSecureKeyStore.set('data_encrypted', '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+      console.log('Wiped key: data_encrypted');
+      console.log('Wiping key: STORAGEKEY');
+      await RNSecureKeyStore.set(STORAGEKEY, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+      console.log('Wiped key: STORAGEKEY');
+      NavigationService.reset();
+    } catch (error: any) {
+      console.warn(error);
+      presentAlert({ message: error.message });
+    }
   };
 
   const requestDevicePasscode = async () => {
@@ -122,7 +139,8 @@ const Biometric = function () {
               { text: loc._.cancel, style: 'cancel' },
               {
                 text: loc._.ok,
-                onPress: () => clearKeychain(),
+                style: 'destructive',
+                onPress: async () => await clearKeychain(),
               },
             ],
             { cancelable: false },
@@ -146,12 +164,7 @@ const Biometric = function () {
           {
             text: loc._.cancel,
             onPress: () => {
-              NavigationService.dispatch(
-                CommonActions.setParams({
-                  index: 0,
-                  routes: [{ name: 'UnlockWithScreenRoot' }, { params: { unlockOnComponentMount: false } }],
-                }),
-              );
+              console.log('Cancel Pressed');
             },
             style: 'cancel',
           },
@@ -170,3 +183,4 @@ const Biometric = function () {
 } as DescribableFunction;
 
 export default Biometric;
+export { RNBiometryTypes as BiometricType };

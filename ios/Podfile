@@ -68,6 +68,10 @@ target 'BlueWallet-NoLDK' do
   configure_target()
 end
 
+target 'BlueWalletUITests' do
+  configure_target()
+end
+
 post_install do |installer|
   react_native_post_install(
     installer,

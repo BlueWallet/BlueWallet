@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Avatar } from 'react-native-elements';
 
@@ -34,7 +33,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const CoinsSelected = ({ number, onContainerPress, onClose }) => (
+interface CoinsSelectedProps {
+  number: number;
+  onContainerPress: () => void;
+  onClose: () => void;
+}
+
+const CoinsSelected: React.FC<CoinsSelectedProps> = ({ number, onContainerPress, onClose }) => (
   <TouchableOpacity accessibilityRole="button" style={styles.root} onPress={onContainerPress}>
     <View style={styles.labelContainer}>
       <Text style={styles.labelText}>{loc.formatString(loc.cc.coins_selected, { number })}</Text>
@@ -44,11 +49,5 @@ const CoinsSelected = ({ number, onContainerPress, onClose }) => (
     </TouchableOpacity>
   </TouchableOpacity>
 );
-
-CoinsSelected.propTypes = {
-  number: PropTypes.number.isRequired,
-  onContainerPress: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
 
 export default CoinsSelected;

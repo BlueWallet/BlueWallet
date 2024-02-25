@@ -4,13 +4,13 @@ import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
 import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -19,6 +19,8 @@ const PleaseBackupLNDHub = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
+  const { enableBlur, disableBlur } = usePrivacy();
+
   const handleBackButton = useCallback(() => {
     navigation.getParent().pop();
     return true;
@@ -38,13 +40,13 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    Privacy.enableBlur();
+    enableBlur();
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
-      Privacy.disableBlur();
+      disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
     };
-  }, [handleBackButton]);
+  }, [disableBlur, enableBlur, handleBackButton]);
 
   const pop = () => navigation.getParent().pop();
 

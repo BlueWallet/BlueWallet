@@ -1,38 +1,46 @@
-import React, { useEffect, useContext, useReducer } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useReducer } from 'react';
 import {
-  Text,
-  ScrollView,
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  View,
-  TextInput,
+  ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
   useColorScheme,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText, LightningButton, BitcoinButton, VaultButton, BlueFormLabel, BlueButtonLink, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import {
+  BitcoinButton,
+  BlueButtonLink,
+  BlueFormLabel,
+  BlueSpacing20,
+  BlueSpacing40,
+  BlueText,
+  LightningButton,
+  VaultButton,
+} from '../../BlueComponents';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import {
+  AbstractWallet,
   HDSegwitBech32Wallet,
-  SegwitP2SHWallet,
   HDSegwitP2SHWallet,
   LightningCustodianWallet,
   LightningLdkWallet,
-  AbstractWallet,
+  SegwitP2SHWallet,
 } from '../../class';
-import { useNavigation } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { LdkButton } from '../../components/LdkButton';
 import presentAlert from '../../components/Alert';
-import useAsyncPromise from '../../hooks/useAsyncPromise';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
+import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useTheme } from '../../components/themes';
+import useAsyncPromise from '../../hooks/useAsyncPromise';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;
 const A = require('../../blue_modules/analytics');
@@ -470,8 +478,8 @@ const WalletsAdd: React.FC = () => {
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />
-          <View style={styles.createButton}>
-            {!isLoading ? (
+          {!isLoading ? (
+            <>
               <Button
                 testID="Create"
                 title={loc.wallets.add_create}
@@ -480,17 +488,17 @@ const WalletsAdd: React.FC = () => {
                 }
                 onPress={createWallet}
               />
-            ) : (
-              <ActivityIndicator />
-            )}
-          </View>
-          {!isLoading && (
-            <BlueButtonLink
-              testID="ImportWallet"
-              style={styles.import}
-              title={loc.wallets.add_import_wallet}
-              onPress={navigateToImportWallet}
-            />
+
+              <BlueButtonLink
+                testID="ImportWallet"
+                style={styles.import}
+                title={loc.wallets.add_import_wallet}
+                onPress={navigateToImportWallet}
+              />
+              <BlueSpacing40 />
+            </>
+          ) : (
+            <ActivityIndicator />
           )}
         </View>
       </KeyboardAvoidingView>
@@ -498,19 +506,7 @@ const WalletsAdd: React.FC = () => {
   );
 };
 
-/* @ts-ignore: Return later to update */
-WalletsAdd.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.wallets.add_title }),
-);
-
 const styles = StyleSheet.create({
-  createButton: {
-    flex: 1,
-  },
   label: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -555,8 +551,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   import: {
-    marginBottom: 0,
-    marginTop: 24,
+    marginVertical: 24,
   },
   noPadding: {
     paddingHorizontal: 0,

@@ -30,7 +30,6 @@ import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
 import HandoffComponent from './components/handoff';
-import Privacy from './blue_modules/Privacy';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
@@ -308,7 +307,6 @@ const App = () => {
       <WatchConnectivity />
       <Biometric />
       <WidgetCommunication />
-      <Privacy />
     </SafeAreaProvider>
   );
 };

@@ -1,21 +1,20 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack';
+import { BlueCopyTextToClipboard } from '../../BlueComponents';
+import { PaymentCodeStackParamList } from '../../Navigation';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import loc from '../../loc';
-
-type PaymentCodesListStackParamList = {
-  PaymentCodesList: { walletID: string };
-};
 
 interface DataSection {
   title: string;
   data: string[];
 }
 
-export default function PaymentCodesList({ route }: NativeStackScreenProps<PaymentCodesListStackParamList, 'PaymentCodesList'>) {
+type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCodesList'>;
+
+export default function PaymentCodesList({ route }: Props) {
   const { walletID } = route.params;
   const { wallets } = useContext(BlueStorageContext);
   const [data, setData] = useState<DataSection[]>([]);

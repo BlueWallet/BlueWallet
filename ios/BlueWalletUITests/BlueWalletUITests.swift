@@ -10,16 +10,32 @@ import XCTest
 
 class BlueWalletUITests: XCTestCase {
 
+    var app: XCUIApplication!
+
     override func setUp() {
         super.setUp()
         continueAfterFailure = false
-        XCUIApplication().launch()
+
+        // Initialize the XCUIApplication instance
+        app = XCUIApplication()
+        
+        // Add a launch argument to differentiate between Mac Catalyst and iOS
+        #if targetEnvironment(macCatalyst)
+        app.launchArguments.append("--macCatalyst")
+        #else
+        app.launchArguments.append("--iOS")
+        #endif
+
+        app.launch()
     }
 
     func testAppLaunchesSuccessfully() {
-        let app = XCUIApplication()
-        
-        // Check that the app is in the foreground
-        XCTAssertEqual(app.state, .runningForeground)
+        XCTAssertEqual(app.state, .runningForeground, "App should be running in the foreground")
+
+        #if targetEnvironment(macCatalyst)
+        XCTAssertTrue(app.windows.count > 0, "There should be at least one window in Mac Catalyst")
+        #else
+        XCTAssertTrue(app.buttons.count > 0, "There should be at least one button on iOS")
+        #endif
     }
 }

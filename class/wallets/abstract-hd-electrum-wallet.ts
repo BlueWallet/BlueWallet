@@ -1,25 +1,23 @@
 /* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
-import * as bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
-import b58 from 'bs58check';
-import BIP32Factory, { BIP32Interface } from 'bip32';
-
-import { ECPairInterface } from 'ecpair/src/ecpair';
-import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
-import ecc from '../../blue_modules/noble_ecc';
-
 import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
+import BigNumber from 'bignumber.js';
+import BIP32Factory, { BIP32Interface } from 'bip32';
+import * as bip39 from 'bip39';
+import * as bitcoin from 'bitcoinjs-lib';
+import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
+import b58 from 'bs58check';
+import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
+import { ECPairInterface } from 'ecpair/src/ecpair';
 
+import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
+import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
-import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 
 const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
 const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
@@ -858,7 +856,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._lastBalanceFetch = +new Date();
   }
 
-  async fetchUtxo() {
+  async fetchUtxo(): Promise<void> {
     // fetching utxo of addresses that only have some balance
     let addressess = [];
 
@@ -1243,6 +1241,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       throw new Error('Internal error: pubkey or path are invalid');
     }
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    if (!p2wpkh.output) {
+      throw new Error('Internal error: could not create p2wpkh output during _addPsbtInput');
+    }
 
     psbt.addInput({
       // @ts-ignore
@@ -1293,15 +1294,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * Creates Segwit Bech32 Bitcoin address
    */
   _nodeToBech32SegwitAddress(hdNode: BIP32Interface): string {
-    return bitcoin.payments.p2wpkh({
+    const { address } = bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
-    }).address;
+    });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToBech32SegwitAddress');
+    }
+
+    return address;
   }
 
   _nodeToLegacyAddress(hdNode: BIP32Interface): string {
-    return bitcoin.payments.p2pkh({
+    const { address } = bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
-    }).address;
+    });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToLegacyAddress');
+    }
+
+    return address;
   }
 
   /**
@@ -1311,6 +1324,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
     });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToP2shSegwitAddress');
+    }
+
     return address;
   }
 

@@ -73,10 +73,6 @@ export class LegacyWallet extends AbstractWallet {
     } while (true);
   }
 
-  /**
-   *
-   * @returns {string}
-   */
   getAddress(): string | false {
     if (this._address) return this._address;
     let address;
@@ -430,11 +426,12 @@ export class LegacyWallet extends AbstractWallet {
     const values: Record<number, number> = {};
     let keyPair: Signer | null = null;
 
+    if (!skipSigning) {
+      // skiping signing related stuff
+      keyPair = ECPair.fromWIF(this.secret); // secret is WIF
+    }
+
     inputs.forEach(input => {
-      if (!skipSigning) {
-        // skiping signing related stuff
-        keyPair = ECPair.fromWIF(this.secret); // secret is WIF
-      }
       values[c] = input.value;
       c++;
 
