@@ -40,7 +40,7 @@ export class AbstractWallet {
   balance: number;
   unconfirmed_balance: number;
   _address: string | false;
-  utxo: Utxo[];
+  _utxo: Utxo[];
   _lastTxFetch: number;
   _lastBalanceFetch: number;
   preferredBalanceUnit: BitcoinUnit;
@@ -63,7 +63,7 @@ export class AbstractWallet {
     this.balance = 0;
     this.unconfirmed_balance = 0;
     this._address = false; // cache
-    this.utxo = [];
+    this._utxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;

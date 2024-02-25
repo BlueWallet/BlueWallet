@@ -99,7 +99,7 @@ describe('LegacyWallet', function () {
     const w = new LegacyWallet();
     w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
     await w.fetchUtxo();
-    assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
+    assert.ok(w._utxo.length > 0, 'unexpected empty UTXO');
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
     assert.ok(w.getUtxo()[0].value);
