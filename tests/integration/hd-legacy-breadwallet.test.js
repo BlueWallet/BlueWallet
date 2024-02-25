@@ -19,7 +19,7 @@ beforeAll(async () => {
   await BlueElectrum.connectMain();
 });
 
-it('Legacy HD Breadwallet can fetch balance and create transaction', async () => {
+it('Legacy HD Breadwallet can fetch utxo, balance, and create transaction', async () => {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;
@@ -38,6 +38,15 @@ it('Legacy HD Breadwallet can fetch balance and create transaction', async () =>
 
   // try to create a tx
   await wallet.fetchUtxo();
+
+  for (const utxo of wallet.getUtxo()) {
+    assert.ok(utxo.txhex);
+    assert.ok(typeof utxo.vout !== 'undefined');
+    assert.ok(utxo.txid);
+    assert.ok(utxo.confirmations);
+    assert.ok(utxo.value);
+  }
+
   const { tx } = wallet.createTransaction(
     wallet.getUtxo(),
     [{ address: 'bc1q47efz9aav8g4mnnz9r6ql4pf48phy3g509p7gx' }],
