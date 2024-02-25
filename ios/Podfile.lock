@@ -332,7 +332,7 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
-  - react-native-document-picker (9.1.0):
+  - react-native-document-picker (9.1.1):
     - React-Core
   - react-native-idle-timer (2.1.6):
     - React-Core
@@ -494,7 +494,7 @@ PODS:
     - React-Core
   - RNLocalize (3.0.6):
     - React-Core
-  - RNPermissions (4.1.2):
+  - RNPermissions (4.1.4):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -814,7 +814,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
-  react-native-document-picker: b4f4a23b73f864ce17965b284c0757648993805b
+  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
   react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
@@ -855,7 +855,7 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: f1b48665a4646f61191eb048c4c05c58d9a7596f
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
-  RNPermissions: 0e72b28a9df5e3f0ae9cc122378d4b878ccb4f2f
+  RNPermissions: 31223c0cf32b7623e6ec4cd13a7e4552fd43c71c
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
