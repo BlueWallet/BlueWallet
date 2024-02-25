@@ -912,17 +912,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       this._utxo = this._utxo.concat(arr);
     }
 
-    // backward compatibility TODO: remove when we make sure `.utxo` is not used
-    this.utxo = this._utxo;
     // this belongs in `.getUtxo()`
-    for (const u of this.utxo) {
+    for (const u of this._utxo) {
       u.txid = u.txId;
       u.amount = u.value;
       u.wif = this._getWifForAddress(u.address);
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
-    this.utxo = this.utxo.sort((a, b) => Number(a.amount) - Number(b.amount));
+    this._utxo = this._utxo.sort((a, b) => Number(a.amount) - Number(b.amount));
     // more consistent, so txhex in unit tests wont change
   }
 

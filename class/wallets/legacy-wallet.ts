@@ -127,26 +127,26 @@ export class LegacyWallet extends AbstractWallet {
       const address = this.getAddress();
       if (!address) throw new Error('LegacyWallet: Invalid address');
       const utxos = await BlueElectrum.multiGetUtxoByAddress([address]);
-      this.utxo = [];
+      this._utxo = [];
       for (const arr of Object.values(utxos)) {
-        this.utxo = this.utxo.concat(arr);
+        this._utxo = this._utxo.concat(arr);
       }
 
       // now we need to fetch txhash for each input as required by PSBT
       if (LegacyWallet.type !== this.type) return; // but only for LEGACY single-address wallets
       const txhexes = await BlueElectrum.multiGetTransactionByTxid(
-        this.utxo.map(u => u.txId),
+        this._utxo.map(u => u.txId),
         50,
         false,
       );
 
       const newUtxos = [];
-      for (const u of this.utxo) {
+      for (const u of this._utxo) {
         if (txhexes[u.txId]) u.txhex = txhexes[u.txId];
         newUtxos.push(u);
       }
 
-      this.utxo = newUtxos;
+      this._utxo = newUtxos;
     } catch (error) {
       console.warn(error);
     }
@@ -169,7 +169,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   getUtxo(respectFrozen = false): Utxo[] {
     let ret: Utxo[] = [];
-    for (const u of this.utxo) {
+    for (const u of this._utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
