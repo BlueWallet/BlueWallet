@@ -105,6 +105,7 @@ describe('LegacyWallet', function () {
     assert.ok(w.getUtxo()[0].vout === 1, JSON.stringify(w.getUtxo()[0]));
     assert.ok(w.getUtxo()[0].txid);
     assert.ok(w.getUtxo()[0].confirmations);
+    assert.ok(w.getUtxo()[0].txhex);
   });
 });
 
