@@ -1457,7 +1457,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param mnemonic {string}  Mnemonic phrase (12 or 24 words)
    * @returns {string} Hex fingerprint
    */
-  static mnemonicToFingerprint(mnemonic: string, passphrase: string) {
+  static mnemonicToFingerprint(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
