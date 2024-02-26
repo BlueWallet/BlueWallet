@@ -281,6 +281,7 @@
     "language": "Język",
     "last_updated": "Ostatnia aktualizacja",
     "language_isRTL": "Aby ustawienia dotyczące kierunku pisma wybranego języka zaczęły obowiązywać, BlueWallet musi być zrestartowany.",
+    "license": "Licencja",
     "lightning_error_lndhub_uri": "Nieprawidłowy adres LNDHub",
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
@@ -452,7 +453,6 @@
     "no_ln_wallet_error": "Musisz najpierw dodać portfel Lightning, zanim zapłacisz fakturę.",
     "looks_like_bip38": "To wygląda na klucz prywatny chroniony hasłem (BIP38).",
     "reorder_title": "Zmień kolejność portfeli",
-    "reorder_instructions": "Stuknij i przytrzmaj portfel aby go przeciągnąć na liście.",
     "please_continue_scanning": "Proszę skanuj dalej.",
     "select_no_bitcoin": "Nie ma dostępnych portfeli Bitcoin.",
     "select_no_bitcoin_exp": "Portfel Bitcoin jest wymagany by uzupełnić portfel Lightning. Proszę utwórz lub zaimportuj.",
@@ -462,7 +462,8 @@
     "warning_do_not_disclose": "Uwaga! Nie ujawniać.",
     "add_ln_wallet_first": "Najpierw musisz dodać portfel Lightning.",
     "identity_pubkey": "Klucz publiczny tożsamości",
-    "xpub_title": "XPUB portfela"
+    "xpub_title": "XPUB portfela",
+    "search_wallets": "Szukaj portfeli"
   },
   "multisig": {
     "multisig_vault": "Skarbiec",
@@ -571,6 +572,8 @@
     "sats": "satoshi"
   },
   "addresses": {
+    "copy_private_key": "Skopiuj klucz prywatny",
+    "sensitive_private_key": "Uwaga: klucz prywatne są skrajnie poufne. Kontynuować?",
     "sign_title": "Podpisz/Weryfikuj wiadomość",
     "sign_help": "Tutaj możesz stworzyć lub zweryfikować podpis kryptograficzny oparty o adres Bitcoin.",
     "sign_sign": "Podpisz",
