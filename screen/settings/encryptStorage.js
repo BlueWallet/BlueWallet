@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
@@ -124,57 +124,80 @@ const EncryptStorage = () => {
     navigate('PlausibleDeniability');
   };
 
-  return isLoading ? (
-    <ScrollView centerContent>
-      <BlueLoading />
-    </ScrollView>
-  ) : (
-    <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <View style={styles.paddingTop} />
-      {biometrics.isDeviceBiometricCapable && (
+  const renderPasscodeExplanation = () => {
+    let isCapable = true;
+    if (Platform.OS === 'android') {
+      if (Platform.Version < 30) {
+        isCapable = false;
+      }
+    }
+    if (isCapable) {
+      return isCapable ? (
         <>
+          <BlueText />
+          <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
+        </>
+      ) : null;
+    }
+  };
+
+  return (
+    <ScrollView
+      contentContainerStyle={styleHooks.root}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      centerContent={isLoading}
+    >
+      {isLoading ? (
+        <BlueLoading />
+      ) : (
+        <>
+          <View style={styles.paddingTop} />
+          {biometrics.isDeviceBiometricCapable && (
+            <>
+              <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
+                {loc.settings.biometrics}
+              </Text>
+              <ListItem
+                title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
+                Component={TouchableWithoutFeedback}
+                switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
+              />
+              <BlueCard>
+                <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
+                {renderPasscodeExplanation()}
+              </BlueCard>
+              <BlueSpacing20 />
+            </>
+          )}
           <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
-            {loc.settings.biometrics}
+            {loc.settings.encrypt_tstorage}
           </Text>
           <ListItem
-            title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
+            testID="EncryptedAndPasswordProtected"
+            hideChevron
+            title={loc.settings.encrypt_enc_and_pass}
             Component={TouchableWithoutFeedback}
-            switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
+            switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
           />
-          <BlueCard>
-            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
-          </BlueCard>
-          <BlueSpacing20 />
+          {storageIsEncryptedSwitchEnabled && (
+            <ListItem
+              onPress={navigateToPlausibleDeniability}
+              title={loc.settings.plausible_deniability}
+              chevron
+              testID="PlausibleDeniabilityButton"
+              Component={TouchableOpacity}
+            />
+          )}
         </>
       )}
-      <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
-        {loc.settings.encrypt_tstorage}
-      </Text>
-      <ListItem
-        testID="EncyptedAndPasswordProtected"
-        hideChevron
-        title={loc.settings.encrypt_enc_and_pass}
-        Component={TouchableWithoutFeedback}
-        switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
-      />
-      {storageIsEncryptedSwitchEnabled && (
-        <ListItem
-          onPress={navigateToPlausibleDeniability}
-          title={loc.settings.plausible_deniability}
-          chevron
-          testID="PlausibleDeniabilityButton"
-          Component={TouchableOpacity}
-        />
-      )}
+      {isLoading && <BlueLoading />}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  paddingTop: { paddingTop: 19 },
+  paddingTop: { paddingTop: 36 },
   headerText: {
     fontWeight: 'bold',
     fontSize: 30,
