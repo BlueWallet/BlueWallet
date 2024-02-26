@@ -132,14 +132,12 @@ const EncryptStorage = () => {
         isCapable = false;
       }
     }
-    if (isCapable) {
-      return isCapable ? (
-        <>
-          <BlueText />
-          <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
-        </>
-      ) : null;
-    }
+    return isCapable ? (
+      <>
+        <BlueText />
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
+      </>
+    ) : null;
   };
 
   return (
