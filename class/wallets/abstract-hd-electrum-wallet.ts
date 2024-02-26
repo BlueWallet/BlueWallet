@@ -19,7 +19,6 @@ import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } fro
 
 const ECPair = ECPairFactory(ecc);
 const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
-const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
 const bip47 = BIP47Factory(ecc);
 
@@ -1165,7 +1164,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -1191,7 +1190,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
