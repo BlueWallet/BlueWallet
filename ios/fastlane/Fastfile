@@ -53,7 +53,7 @@ platform :ios do
   end
 
   desc "Synchronize certificates and provisioning profiles"
-  lane :setup_provisioning_profiles do
+  lane :setup_provisioning_profiles do |options|
     UI.message("Setting up provisioning profiles...")
     target_to_app_identifier = {
       'BlueWallet' => 'io.bluewallet.bluewallet',

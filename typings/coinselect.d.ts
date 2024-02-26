@@ -32,7 +32,7 @@ declare module 'coinselect' {
   };
 
   export type CoinSelectOutput = {
-    address?: string;
+    address?: string; // if output has no address - this is a change output
     value: number;
   };
 

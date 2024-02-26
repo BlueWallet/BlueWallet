@@ -1,12 +1,24 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
-import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useTheme } from './themes';
 
-export const LNNodeBar = props => {
-  const { canReceive = 0, canSend = 0, nodeAlias = '', disabled = false, itemPriceUnit = BitcoinUnit.SATS } = props;
+interface LNNodeBarProps {
+  canReceive: number;
+  canSend: number;
+  nodeAlias?: string;
+  disabled?: boolean;
+  itemPriceUnit?: BitcoinUnit;
+}
+
+export const LNNodeBar: React.FC<LNNodeBarProps> = ({
+  canReceive = 0,
+  canSend = 0,
+  nodeAlias = '',
+  disabled = false,
+  itemPriceUnit = BitcoinUnit.SATS,
+}) => {
   const { colors } = useTheme();
   const opacity = { opacity: disabled ? 0.5 : 1.0 };
   const canSendBarFlex = {
@@ -42,13 +54,6 @@ export const LNNodeBar = props => {
 
 export default LNNodeBar;
 
-LNNodeBar.propTypes = {
-  canReceive: PropTypes.number.isRequired,
-  canSend: PropTypes.number.isRequired,
-  nodeAlias: PropTypes.string,
-  disabled: PropTypes.bool,
-  itemPriceUnit: PropTypes.string,
-};
 const styles = StyleSheet.create({
   root: {
     flex: 1,

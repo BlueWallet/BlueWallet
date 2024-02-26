@@ -1,19 +1,18 @@
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { InteractionManager, ActivityIndicator, View } from 'react-native';
-import { useFocusEffect, useRoute, useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-import { styles, useDynamicStyles } from './xpub.styles';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueSpacing20, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
-import Privacy from '../../blue_modules/Privacy';
-import Biometric from '../../class/biometrics';
-import loc from '../../loc';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import HandoffComponent from '../../components/handoff';
-import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 import { AbstractWallet } from '../../class';
+import Biometric from '../../class/biometrics';
+import Button from '../../components/Button';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import SafeArea from '../../components/SafeArea';
+import HandoffComponent from '../../components/handoff';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
+import { styles, useDynamicStyles } from './xpub.styles';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -34,6 +33,7 @@ const WalletXpub: React.FC = () => {
   const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const lastWalletIdRef = useRef<string | undefined>();
+  const { enableBlur, disableBlur } = usePrivacy();
 
   useFocusEffect(
     useCallback(() => {
@@ -41,7 +41,7 @@ const WalletXpub: React.FC = () => {
       if (lastWalletIdRef.current === walletID) {
         return;
       }
-      Privacy.enableBlur();
+      enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -64,9 +64,9 @@ const WalletXpub: React.FC = () => {
       lastWalletIdRef.current = walletID;
       return () => {
         task.cancel();
-        Privacy.disableBlur();
+        disableBlur();
       };
-    }, [wallet, xpub, walletID, navigation]),
+    }, [walletID, enableBlur, wallet, xpub, navigation, disableBlur]),
   );
 
   useEffect(() => {
@@ -111,14 +111,5 @@ const WalletXpub: React.FC = () => {
     </SafeArea>
   );
 };
-
-// @ts-ignore: Deal with later
-WalletXpub.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, headerTitle: loc.wallets.xpub_title }),
-);
 
 export default WalletXpub;

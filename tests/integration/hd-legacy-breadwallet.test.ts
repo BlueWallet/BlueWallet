@@ -3,9 +3,10 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { HDLegacyBreadwalletWallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
 jest.setTimeout(300 * 1000);
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -19,7 +20,7 @@ beforeAll(async () => {
   await BlueElectrum.connectMain();
 });
 
-it('Legacy HD Breadwallet can fetch balance and create transaction', async () => {
+it('Legacy HD Breadwallet can fetch utxo, balance, and create transaction', async () => {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;
@@ -38,13 +39,26 @@ it('Legacy HD Breadwallet can fetch balance and create transaction', async () =>
 
   // try to create a tx
   await wallet.fetchUtxo();
+
+  for (const utxo of wallet.getUtxo()) {
+    assert.ok(utxo.txhex);
+    assert.ok(typeof utxo.vout !== 'undefined');
+    assert.ok(utxo.txid);
+    assert.ok(utxo.confirmations);
+    assert.ok(utxo.value);
+  }
+
   const { tx } = wallet.createTransaction(
     wallet.getUtxo(),
     [{ address: 'bc1q47efz9aav8g4mnnz9r6ql4pf48phy3g509p7gx' }],
     1,
     'bc1qk9hvkxqsqmps6ex3qawr79rvtg8es4ecjfu5v0',
+    AbstractHDElectrumWallet.defaultRBFSequence,
+    false,
+    0,
   );
 
+  assert.ok(tx);
   const transaction = bitcoin.Transaction.fromHex(tx.toHex());
   assert.ok(transaction.ins.length === 4);
   assert.strictEqual(transaction.outs.length, 1);

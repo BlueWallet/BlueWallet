@@ -59,12 +59,12 @@ it('HD (BIP49) can create TX', async () => {
 
   await hd.fetchBalance();
   await hd.fetchUtxo();
-  assert.ok(typeof hd.utxo[0].confirmations === 'number');
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout !== undefined);
-  assert.ok(hd.utxo[0].amount);
-  assert.ok(hd.utxo[0].address);
-  assert.ok(hd.utxo[0].wif);
+  assert.ok(typeof hd._utxo[0].confirmations === 'number');
+  assert.ok(hd._utxo[0].txid);
+  assert.ok(hd._utxo[0].vout !== undefined);
+  assert.ok(hd._utxo[0].amount);
+  assert.ok(hd._utxo[0].address);
+  assert.ok(hd._utxo[0].wif);
 
   let txNew = hd.createTransaction(
     hd.getUtxo(),
@@ -178,10 +178,10 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   assert.strictEqual(hd.getBalance(), 51432);
 
   await hd.fetchUtxo();
-  assert.ok(hd.utxo.length > 0);
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout === 0);
-  assert.ok(hd.utxo[0].amount);
+  assert.ok(hd._utxo.length > 0);
+  assert.ok(hd._utxo[0].txid);
+  assert.ok(hd._utxo[0].vout === 0);
+  assert.ok(hd._utxo[0].amount);
 
   await hd.fetchTransactions();
   assert.strictEqual(hd.getTransactions().length, 107);

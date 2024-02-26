@@ -271,6 +271,10 @@ export default class Selftest extends Component {
       }
 
       //
+
+      assertStrictEqual(Buffer.from('00ff0f', 'hex').reverse().toString('hex'), '0fff00');
+
+      //
     } catch (Err) {
       errorMessage += Err;
       isOk = false;

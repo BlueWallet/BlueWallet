@@ -1,8 +1,11 @@
-import { LegacyWallet } from './legacy-wallet';
+import * as bitcoin from 'bitcoinjs-lib';
+import { CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 import ecc from '../../blue_modules/noble_ecc';
+import { LegacyWallet } from './legacy-wallet';
+import { CreateTransactionResult, CreateTransactionUtxo } from './types';
+
 const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
 
 /**
  * Creates Segwit P2SH Bitcoin address
@@ -10,13 +13,11 @@ const bitcoin = require('bitcoinjs-lib');
  * @param network
  * @returns {String}
  */
-function pubkeyToP2shSegwitAddress(pubkey, network) {
-  network = network || bitcoin.networks.bitcoin;
+function pubkeyToP2shSegwitAddress(pubkey: Buffer): string | false {
   const { address } = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-    network,
+    redeem: bitcoin.payments.p2wpkh({ pubkey }),
   });
-  return address;
+  return address ?? false;
 }
 
 export class SegwitP2SHWallet extends LegacyWallet {
@@ -24,7 +25,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
   static typeReadable = 'SegWit (P2SH)';
   static segwitType = 'p2sh(p2wpkh)';
 
-  static witnessToAddress(witness) {
+  static witnessToAddress(witness: string): string | false {
     try {
       const pubKey = Buffer.from(witness, 'hex');
       return pubkeyToP2shSegwitAddress(pubKey);
@@ -39,19 +40,21 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @param scriptPubKey
    * @returns {boolean|string} Either p2sh address or false
    */
-  static scriptPubKeyToAddress(scriptPubKey) {
+  static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
       const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-      return bitcoin.payments.p2sh({
-        output: scriptPubKey2,
-        network: bitcoin.networks.bitcoin,
-      }).address;
+      return (
+        bitcoin.payments.p2sh({
+          output: scriptPubKey2,
+          network: bitcoin.networks.bitcoin,
+        }).address ?? false
+      );
     } catch (_) {
       return false;
     }
   }
 
-  getAddress() {
+  getAddress(): string | false {
     if (this._address) return this._address;
     let address;
     try {
@@ -81,7 +84,15 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+  createTransaction(
+    utxos: CreateTransactionUtxo[],
+    targets: CoinSelectTarget[],
+    feeRate: number,
+    changeAddress: string,
+    sequence: number,
+    skipSigning = false,
+    masterFingerprint: number,
+  ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
     // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
     for (const u of utxos) {
@@ -91,20 +102,19 @@ export class SegwitP2SHWallet extends LegacyWallet {
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
-    const values = {};
-    let keyPair;
+    const values: Record<number, number> = {};
+    const keyPair = ECPair.fromWIF(this.secret);
 
     inputs.forEach(input => {
-      if (!skipSigning) {
-        // skiping signing related stuff
-        keyPair = ECPair.fromWIF(this.secret); // secret is WIF
-      }
       values[c] = input.value;
       c++;
 
       const pubkey = keyPair.publicKey;
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
       const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
+      if (!p2sh.output) {
+        throw new Error('Internal error: no p2sh.output during createTransaction()');
+      }
 
       psbt.addInput({
         hash: input.txid,
