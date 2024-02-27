@@ -648,7 +648,7 @@ const WalletsAddMultisigStep2 = () => {
       <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub} {Platform.OS === "ios" ? loc.multisig.this_is_cosigners_xpub_airdrop : ""}</Text>
             <BlueSpacing20 />
             <QRCodeComponent value={cosignerXpubURv2} size={260} />
             <BlueSpacing20 />
