@@ -285,6 +285,10 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                     const xpub = wallet.getCosigner(keyIndex);
                     const fp = wallet.getFingerprint(keyIndex);
                     const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                    if (!path) {
+                      presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                      return;
+                    }
                     setVaultKeyData({
                       keyIndex,
                       seed: '',
@@ -340,6 +344,10 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                     setIsMnemonicsModalVisible(true);
                     const fp = wallet.getFingerprint(keyIndex);
                     const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
+                    if (!path) {
+                      presentAlert({ message: 'Cannot find derivation path for this cosigner' });
+                      return;
+                    }
                     const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                     setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);

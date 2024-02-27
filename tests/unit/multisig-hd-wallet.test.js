@@ -1794,7 +1794,7 @@ describe('multisig-wallet (native segwit)', () => {
     );
     assert.strictEqual(w.getFingerprint(2), '2C0908B6');
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
-    assert.ok(!w.getPassphrase(2));
+    assert.ok(!w.getCosignerPassphrase(2));
 
     w.replaceCosignerXpubWithSeed(
       2,
@@ -1804,14 +1804,14 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosigner(2), 'salon smoke bubble dolphin powder govern rival sport better arrest certain manual');
     assert.strictEqual(w.getFingerprint(2), '2C0908B6');
     assert.strictEqual(w.getCustomDerivationPathForCosigner(2), path);
-    assert.strictEqual(w.getPassphrase(2), '9WDdFSZX4d6mPxkr');
+    assert.strictEqual(w.getCosignerPassphrase(2), '9WDdFSZX4d6mPxkr');
 
     // test that after deleting cosinger with passphrase, it has been cleaned out properly
     w.deleteCosigner('2C0908B6');
     assert.ok(!w.getCosigner(2));
     assert.ok(!w.getFingerprint(2));
     assert.ok(!w.getCustomDerivationPathForCosigner(2));
-    assert.ok(!w.getPassphrase(2));
+    assert.ok(!w.getCosignerPassphrase(2));
     assert.strictEqual(w.getN(), 1);
     assert.strictEqual(w.getM(), 2);
 
@@ -1820,7 +1820,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosigner(1), process.env.MNEMONICS_COBO);
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
-    assert.strictEqual(w.getPassphrase(1), undefined);
+    assert.strictEqual(w.getCosignerPassphrase(1), undefined);
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
@@ -1967,9 +1967,9 @@ describe('multisig-wallet (native segwit)', () => {
     w.setDerivationPath(path);
     w.setM(2);
 
-    assert.strictEqual(w.getPassphrase(1), '9WDdFSZX4d6mPxkr');
-    assert.strictEqual(w.getPassphrase(2), 'E5jMAzsf464Hgwns');
-    assert.strictEqual(w.getPassphrase(3), 'RyBFfLr7weK3nDUG');
+    assert.strictEqual(w.getCosignerPassphrase(1), '9WDdFSZX4d6mPxkr');
+    assert.strictEqual(w.getCosignerPassphrase(2), 'E5jMAzsf464Hgwns');
+    assert.strictEqual(w.getCosignerPassphrase(3), 'RyBFfLr7weK3nDUG');
     assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q8rks34ypj5edxx82f7z7yzy4qy6dynfhcftjs9axzr2ml37p4pfs7j4uvm');
     assert.strictEqual(w._getInternalAddressByIndex(0), 'bc1qjpjgumzs2afrr3mk85anwdnzd9qg5hc5p6f62un4umpyf4ccde5q4cywgy');
 
@@ -1978,9 +1978,9 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
     assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
-    assert.strictEqual(w.getPassphrase(1), w2.getPassphrase(1));
-    assert.strictEqual(w.getPassphrase(2), w2.getPassphrase(2));
-    assert.strictEqual(w.getPassphrase(3), w2.getPassphrase(3));
+    assert.strictEqual(w.getCosignerPassphrase(1), w2.getCosignerPassphrase(1));
+    assert.strictEqual(w.getCosignerPassphrase(2), w2.getCosignerPassphrase(2));
+    assert.strictEqual(w.getCosignerPassphrase(3), w2.getCosignerPassphrase(3));
   });
 
   it('can import descriptor from Sparrow', () => {
@@ -1988,7 +1988,6 @@ describe('multisig-wallet (native segwit)', () => {
       'UR:CRYPTO-OUTPUT/TAADMETAADMSOEADAOAOLSTAADDLOLAOWKAXHDCLAOCEBDFLNNTKJTIOJSFSURBNFXRPEEHKDLGYRTEMRPYTGYZOCASWENCYMKPAVWJKHYAAHDCXJEFTGSZOIMFEYNDYHYZEJTBAMSJEHLDSRDDIYLSRFYTSZTKNRNYLRNDPAMTLDPZCAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYUOHFJPKOAXAAAYCYCSYASAVDTAADDLOLAOWKAXHDCLAXMSZTWZDIGERYDKFSFWTYDPFNDKLNAYSWTTMUHYZTOXHSETPEWSFXPEAYWLJSDEMTAAHDCXSPLTSTDPNTLESANSUTTLPRPFHNVSPFCNMHESOYGASTLRPYVAATNNDKFYHLQZPKLEAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYWZFEPLETAXAAAYCYCPCKRENBTAADDLOLAOWKAXHDCLAOLSFWYKYLKTFHJLPYEMGLCEDPFNSNRDDSRFASEOZTGWIALFLUIYDNFXHGVESFEMMEAAHDCXHTZETLJNKPHHAYLSCXWPNDSWPSTPGTEOJKKGHDAELSKPNNBKBSYAWZJTFWNNBDKTAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYSKTPJPMSAXAAAYCYCEBKWLAMTDWZGRZE\n';
     const decoder = new BlueURDecoder();
     decoder.receivePart(payload);
-    console.log(decoder.isComplete());
 
     const data = decoder.toString();
 

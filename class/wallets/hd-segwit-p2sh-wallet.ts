@@ -1,9 +1,12 @@
+import BIP32Factory, { BIP32Interface } from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
+import { Psbt } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import BIP32Factory from 'bip32';
+import { CoinSelectReturnInput } from 'coinselect';
 import ecc from '../../blue_modules/noble_ecc';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+
 const bip32 = BIP32Factory(ecc);
-const bitcoin = require('bitcoinjs-lib');
 
 /**
  * HD Wallet (BIP39).
@@ -40,7 +43,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  _hdNodeToAddress(hdNode) {
+  _hdNodeToAddress(hdNode: BIP32Interface): string {
     return this._nodeToP2shSegwitAddress(hdNode);
   }
 
@@ -59,6 +62,9 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     const root = bip32.fromSeed(seed);
 
     const path = this.getDerivationPath();
+    if (!path) {
+      throw new Error('Internal error: no path');
+    }
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -71,11 +77,20 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer: Buffer) {
+    if (!input.address) {
+      throw new Error('Internal error: no address on Utxo during _addPsbtInput()');
+    }
     const pubkey = this._getPubkeyByAddress(input.address);
     const path = this._getDerivationPathByAddress(input.address);
+    if (!pubkey || !path) {
+      throw new Error('Internal error: pubkey or path are invalid');
+    }
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
     const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
+    if (!p2sh.output) {
+      throw new Error('Internal error: no p2sh.output during _addPsbtInput()');
+    }
 
     psbt.addInput({
       hash: input.txid,
@@ -90,7 +105,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
       ],
       witnessUtxo: {
         script: p2sh.output,
-        value: input.amount || input.value,
+        value: input.value,
       },
       redeemScript: p2wpkh.output,
     });
