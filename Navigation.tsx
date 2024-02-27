@@ -130,7 +130,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={{ title: loc.plausibledeniability.title }}
+        options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
       />
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
