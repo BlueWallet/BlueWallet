@@ -99,12 +99,14 @@ struct PriceWidgetProvider: TimelineProvider {
         }
         .configurationDisplayName("Price")
         .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
+        .contentMarginsDisabledIfAvailable()
       } else {
         return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
           PriceWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Price")
         .description("View the current price of Bitcoin.").supportedFamilies([.systemSmall])
+        .contentMarginsDisabledIfAvailable()
       }
     }
   }

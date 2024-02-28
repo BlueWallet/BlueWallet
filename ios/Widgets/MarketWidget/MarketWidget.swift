@@ -87,12 +87,14 @@ struct MarketWidget: Widget {
       }
       .configurationDisplayName("Market")
       .description("View the current market information.").supportedFamilies([.systemSmall])
+      .contentMarginsDisabledIfAvailable()
     } else {
       return StaticConfiguration(kind: kind, provider: MarketWidgetProvider()) { entry in
         MarketWidgetEntryView(entry: entry)
       }
       .configurationDisplayName("Market")
       .description("View the current market information.").supportedFamilies([.systemSmall])
+      .contentMarginsDisabledIfAvailable()
     }
   }
 }
