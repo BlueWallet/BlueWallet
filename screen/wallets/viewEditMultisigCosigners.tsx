@@ -522,7 +522,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub} {Platform.OS === "ios" ? loc.multisig.this_is_cosigners_xpub_airdrop : ""}</Text>
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
