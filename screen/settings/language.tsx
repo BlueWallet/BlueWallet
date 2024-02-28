@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import loc, { saveLanguage } from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
@@ -65,7 +64,5 @@ const Language = () => {
     />
   );
 };
-// @ts-ignore: Fix later
-Language.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.language }));
 
 export default Language;

@@ -514,6 +514,7 @@
     "i_have_mnemonics": "I have a seed for this key.",
     "type_your_mnemonics": "Insert a seed to import your existing Vault key.",
     "this_is_cosigners_xpub": "This is the co-signer’s XPUB—ready to be imported into another wallet. It is safe to share it.",
+    "this_is_cosigners_xpub_airdrop": "If you share via AirDrop the receivers have to be in the coordination screen.",
     "wallet_key_created": "Your Vault key was created. Take a moment to safely backup your mnemonic seed.",
     "are_you_sure_seed_will_be_lost": "Are you sure? Your mnemonic seed will be lost if you don’t have a backup.",
     "forget_this_seed": "Forget this seed and use the XPUB instead.",

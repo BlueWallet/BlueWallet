@@ -19,3 +19,18 @@ struct Widgets: WidgetBundle {
         WalletInformationAndMarketWidget()
     }
 }
+
+extension WidgetConfiguration
+{
+    func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration
+    {
+        if #available(iOSApplicationExtension 17.0, *)
+        {
+            return self.contentMarginsDisabled()
+        }
+        else
+        {
+            return self
+        }
+    }
+}

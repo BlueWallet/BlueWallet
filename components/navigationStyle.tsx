@@ -29,7 +29,7 @@ const navigationStyle = (
     closeButton?: boolean;
     closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
   },
-  formatter: OptionsFormatter,
+  formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {
   return theme =>
     ({ navigation, route }) => {
@@ -63,7 +63,6 @@ const navigationStyle = (
 
       if (!headerBackVisible) {
         headerLeft = () => <></>;
-        // @ts-ignore: Fix later
         opts.headerLeft = headerLeft;
       }
 
@@ -73,7 +72,6 @@ const navigationStyle = (
           fontWeight: '600',
           color: theme.colors.foregroundColor,
         },
-        // @ts-ignore: Fix later
         headerRight,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
@@ -94,9 +92,6 @@ export const navigationStyleTx = (opts: NativeStackNavigationOptions, formatter:
   return theme =>
     ({ navigation, route }) => {
       let options: NativeStackNavigationOptions = {
-        headerStyle: {
-          backgroundColor: theme.colors.customHeader,
-        },
         headerTitleStyle: {
           fontWeight: '600',
           color: theme.colors.foregroundColor,
@@ -104,7 +99,6 @@ export const navigationStyleTx = (opts: NativeStackNavigationOptions, formatter:
         // headerBackTitle: null,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
-        // @ts-ignore: Fix later
         headerLeft: () => (
           <TouchableOpacity
             accessibilityRole="button"
