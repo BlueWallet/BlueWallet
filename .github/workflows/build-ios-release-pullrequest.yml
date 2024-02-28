@@ -1,17 +1,14 @@
 name: Build Release Pull Request (iOS)
-
-concurrency: 
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-  
 on:
   pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
     branches:
       - master
   workflow_dispatch:
 
 jobs:
   build:
+    if: contains(github.event.pull_request.labels.*.name, 'testflight')
     runs-on: macos-14
     timeout-minutes: 180
     outputs:
@@ -129,7 +126,7 @@ jobs:
 
 
   testflight-upload:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: contains(github.event.pull_request.labels.*.name, 'testflight')
     needs: build
     runs-on: macos-14
     env:
@@ -176,3 +173,21 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
         working-directory: ./ios
+      - name: Post PR Comment
+        uses: actions/github-script@v6
+        if: success()  # Ensures the message is only posted if previous steps succeed
+        env:
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const latestCommitMessage = process.env.LATEST_COMMIT_MESSAGE;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight. The most recent commit for this build is:\n\n '${latestCommitMessage}'`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
