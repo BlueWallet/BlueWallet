@@ -271,6 +271,7 @@
     "encrypt_tstorage": "Storage",
     "encrypt_use": "Use {type}",
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet. {type} will not be used to unlock encrypted storage.",
+    "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
     "general_adv_mode": "Advanced Mode",
     "general_adv_mode_e": "When enabled, you will see advanced options such as different wallet types, the ability to specify the LNDHub instance you wish to connect to, and custom entropy during wallet creation.",
