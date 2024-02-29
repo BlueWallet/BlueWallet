@@ -526,12 +526,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton
-                // @ts-ignore wtf style
-                style={[styles.exportButton, stylesHook.exportButton]}
-                onPress={exportCosigner}
-                title={loc.multisig.share}
-              />
+              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
             </View>
           </View>
         </KeyboardAvoidingView>
