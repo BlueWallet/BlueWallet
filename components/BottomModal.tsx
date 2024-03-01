@@ -68,7 +68,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
       {props.children}
       {doneButton && (
         <View style={[styles.hasDoneButton, stylesHook.hasDoneButton]}>
-          <Button title={loc.send.input_done} onPress={onClose} />
+          <Button title={loc.send.input_done} onPress={onClose} testID="ModalDoneButton" />
           <BlueSpacing10 />
         </View>
       )}

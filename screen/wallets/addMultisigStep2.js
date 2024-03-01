@@ -531,6 +531,7 @@ const WalletsAddMultisigStep2 = () => {
             />
             <MultipleStepsListItem
               button={{
+                testID: 'VaultCosignerImport' + String(el.index + 1),
                 onPress: iHaveMnemonics,
                 buttonType: MultipleStepsListItemButtohType.full,
                 text: loc.wallets.import_do_import,
@@ -627,9 +628,20 @@ const WalletsAddMultisigStep2 = () => {
             {isLoading ? (
               <ActivityIndicator />
             ) : (
-              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={useMnemonicPhrase} />
+              <Button
+                testID="DoImportKeyButton"
+                disabled={importText.trim().length === 0}
+                title={loc.wallets.import_do_import}
+                onPress={useMnemonicPhrase}
+              />
             )}
-            <BlueButtonLink ref={openScannerButton} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <BlueButtonLink
+              testID="ScanOrOpenFile"
+              ref={openScannerButton}
+              disabled={isLoading}
+              onPress={scanOrOpenFile}
+              title={loc.wallets.import_scan_qr}
+            />
           </View>
         </KeyboardAvoidingView>
       </BottomModal>
@@ -651,7 +663,9 @@ const WalletsAddMultisigStep2 = () => {
       <BottomModal isVisible={isRenderCosignersXpubModalVisible} onClose={hideCosignersXpubModal}>
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.this_is_cosigners_xpub} {Platform.OS === "ios" ? loc.multisig.this_is_cosigners_xpub_airdrop : ""}</Text>
+            <Text style={[styles.headerText, stylesHook.textDestination]}>
+              {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+            </Text>
             <BlueSpacing20 />
             <QRCodeComponent value={cosignerXpubURv2} size={260} />
             <BlueSpacing20 />
@@ -681,7 +695,11 @@ const WalletsAddMultisigStep2 = () => {
 
   const footer = (
     <View style={styles.buttonBottom}>
-      {isLoading ? <ActivityIndicator /> : <Button title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />}
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <Button testID="CreateButton" title={loc.multisig.create} onPress={onCreate} disabled={cosigners.length !== n} />
+      )}
     </View>
   );
 
