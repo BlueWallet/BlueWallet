@@ -106,6 +106,7 @@ const MultipleStepsListItem = props => {
             {props.button.buttonType === undefined ||
               (props.button.buttonType === MultipleStepsListItemButtohType.full && (
                 <TouchableOpacity
+                  testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
@@ -120,6 +121,7 @@ const MultipleStepsListItem = props => {
                   {props.button.leftText}
                 </Text>
                 <TouchableOpacity
+                  testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}

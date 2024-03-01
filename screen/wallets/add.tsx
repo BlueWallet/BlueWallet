@@ -414,7 +414,12 @@ const WalletsAdd: React.FC = () => {
               text="LDK"
             />
           ) : null}
-          <VaultButton active={selectedWalletType === ButtonSelected.VAULT} onPress={handleOnVaultButtonPressed} style={styles.button} />
+          <VaultButton
+            testID="ActivateVaultButton"
+            active={selectedWalletType === ButtonSelected.VAULT}
+            onPress={handleOnVaultButtonPressed}
+            style={styles.button}
+          />
         </View>
 
         <View style={styles.advanced}>

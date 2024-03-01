@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backdoorButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    width: 60,
+    height: 60,
+    backgroundColor: 'rgba(0,0,0,0.01)',
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
