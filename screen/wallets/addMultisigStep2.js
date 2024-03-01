@@ -52,6 +52,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const navigation = useNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
+  const { name } = useRoute();
 
   const [cosigners, setCosigners] = useState([]); // array of cosigners user provided. if format [cosigner, fp, path]
   const [isLoading, setIsLoading] = useState(false);
@@ -371,7 +372,6 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const onBarScanned = ret => {
-    if (!isDesktop) navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
 
     try {
@@ -472,7 +472,10 @@ const WalletsAddMultisigStep2 = () => {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
-      InteractionManager.runAfterInteractions(() => scanQrHelper(navigation.navigate, onBarScanned));
+      InteractionManager.runAfterInteractions(async () => {
+        const scanned = await scanQrHelper(navigation.navigate, name, true);
+        onBarScanned({ data: scanned });
+      });
     }
   };
 
