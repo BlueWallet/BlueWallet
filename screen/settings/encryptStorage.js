@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext, useLayoutEffect } from 'react';
 import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
@@ -37,7 +37,7 @@ const EncryptStorage = () => {
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     initialState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
