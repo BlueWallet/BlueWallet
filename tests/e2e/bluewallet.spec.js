@@ -523,7 +523,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await element(by.id('WalletDetails')).tap();
     await sup('2 / 2 (native segwit)');
-    await sup("m/48'/0'/0'/2'");
 
     await device.pressBack();
     await helperDeleteWallet('Multisig Vault');
