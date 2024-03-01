@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
@@ -28,15 +28,15 @@ const EncryptStorage = () => {
     },
   });
 
-  const initialState = useCallback(async () => {
+  const initialState = async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
+
   useEffect(() => {
     initialState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
