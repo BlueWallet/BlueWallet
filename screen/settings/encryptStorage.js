@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -14,11 +14,11 @@ const prompt = require('../../helpers/prompt');
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useContext(BlueStorageContext);
+  const [isLoading, setIsLoading] = useState(true);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, popToTop } = useNavigation();
   const { colors } = useTheme();
-  const [isLoading, setIsLoading] = useState({ encryptStorage: false, biometrics: false });
   const styleHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -28,15 +28,16 @@ const EncryptStorage = () => {
     },
   });
 
-  const initialState = async () => {
+  const initialState = useCallback(async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
-  };
-
+    setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     initialState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -62,26 +63,26 @@ const EncryptStorage = () => {
   };
 
   const onEncryptStorageSwitch = async value => {
-    setIsLoading(prev => ({ ...prev, encryptStorage: true }));
+    setIsLoading(true);
     if (value === true) {
       let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-        setIsLoading(prev => ({ ...prev, encryptStorage: false }));
+        setIsLoading(false);
         p1 = undefined;
       });
       if (!p1) {
-        setIsLoading(prev => ({ ...prev, encryptStorage: false }));
+        setIsLoading(false);
         return;
       }
       const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-        setIsLoading(prev => ({ ...prev, encryptStorage: false }));
+        setIsLoading(false);
       });
       if (p1 === p2) {
         await encryptStorage(p1);
+        setIsLoading(false);
         setStorageIsEncryptedSwitchEnabled(await isStorageEncrypted());
         saveToDisk();
-        setIsLoading(prev => ({ ...prev, encryptStorage: false }));
       } else {
-        setIsLoading(prev => ({ ...prev, encryptStorage: false }));
+        setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ message: loc.settings.passwords_do_not_match });
       }
@@ -93,7 +94,7 @@ const EncryptStorage = () => {
           {
             text: loc._.cancel,
             style: 'cancel',
-            onPress: () => setIsLoading(prev => ({ ...prev, encryptStorage: false })),
+            onPress: () => setIsLoading(false),
           },
           {
             text: loc._.ok,
@@ -107,7 +108,6 @@ const EncryptStorage = () => {
   };
 
   const onUseBiometricSwitch = async value => {
-    setIsLoading(prev => ({ ...prev, biometrics: true }));
     const isBiometricsEnabled = {
       isDeviceBiometricCapable: biometrics.isDeviceBiometricCapable,
       isBiometricsEnabled: biometrics.isBiometricsEnabled,
@@ -118,7 +118,6 @@ const EncryptStorage = () => {
       await Biometric.setBiometricUseEnabled(value);
       setBiometrics(isBiometricsEnabled);
     }
-    setIsLoading(prev => ({ ...prev, biometrics: false }));
   };
 
   const navigateToPlausibleDeniability = () => {
@@ -127,26 +126,28 @@ const EncryptStorage = () => {
 
   const renderPasscodeExplanation = () => {
     let isCapable = true;
+
     if (Platform.OS === 'android') {
       if (Platform.Version < 30) {
         isCapable = false;
       }
     }
+
     return isCapable ? (
       <>
         <BlueText />
+
         <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
       </>
     ) : null;
   };
 
-  return (
-    <ScrollView
-      contentContainerStyle={styleHooks.root}
-      automaticallyAdjustContentInsets
-      contentInsetAdjustmentBehavior="automatic"
-      centerContent={isLoading}
-    >
+  return isLoading ? (
+    <ScrollView centerContent>
+      <BlueLoading />
+    </ScrollView>
+  ) : (
+    <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <View style={styles.paddingTop} />
       {biometrics.isDeviceBiometricCapable && (
         <>
@@ -156,13 +157,7 @@ const EncryptStorage = () => {
           <ListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
             Component={TouchableWithoutFeedback}
-            isLoading={isLoading.biometrics}
-            containerStyle={[styles.rowItemContainerStyle, styleHooks.root]}
-            switch={{
-              value: biometrics.isBiometricsEnabled,
-              onValueChange: onUseBiometricSwitch,
-              disabled: isLoading.encryptStorage || isLoading.biometrics,
-            }}
+            switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
           />
           <BlueCard>
             <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
@@ -175,17 +170,11 @@ const EncryptStorage = () => {
         {loc.settings.encrypt_tstorage}
       </Text>
       <ListItem
-        testID="EncryptedAndPasswordProtected"
+        testID="EncyptedAndPasswordProtected"
         hideChevron
-        isLoading={isLoading.encryptStorage}
         title={loc.settings.encrypt_enc_and_pass}
         Component={TouchableWithoutFeedback}
-        containerStyle={[styles.rowItemContainerStyle, styleHooks.root]}
-        switch={{
-          onValueChange: onEncryptStorageSwitch,
-          value: storageIsEncryptedSwitchEnabled,
-          disabled: isLoading.encryptStorage || isLoading.biometrics,
-        }}
+        switch={{ onValueChange: onEncryptStorageSwitch, value: storageIsEncryptedSwitchEnabled }}
       />
       {storageIsEncryptedSwitchEnabled && (
         <ListItem
@@ -201,14 +190,14 @@ const EncryptStorage = () => {
 };
 
 const styles = StyleSheet.create({
-  paddingTop: { paddingTop: 36 },
+  root: {
+    flex: 1,
+  },
+  paddingTop: { paddingTop: 19 },
   headerText: {
     fontWeight: 'bold',
     fontSize: 30,
     marginLeft: 17,
-  },
-  rowItemContainerStyle: {
-    minHeight: 60,
   },
 });
 
