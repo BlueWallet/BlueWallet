@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    if: contains(github.event.pull_request.labels.*.name, 'testflight')
+    if: contains(github.event.pull_request.labels.*.name, 'browserstack')
     runs-on: macos-14
     timeout-minutes: 180
     outputs:
@@ -124,69 +124,51 @@ jobs:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
-
-  testflight-upload:
-    if: contains(github.event.pull_request.labels.*.name, 'testflight')
-    needs: build
-    runs-on: macos-14
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+  upload-to-browserstack:
+    if: contains(github.event.pull_request.labels.*.name, 'browserstack')
+    needs: build 
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
-
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
 
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
           name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
-          path: ./ios/build
+          path: ./build
 
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-
-      - name: Upload to TestFlight
-        env: 
-          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
-          GIT_URL: ${{ secrets.GIT_URL }}
-          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios upload_to_testflight_lane
-        working-directory: ./ios
-      - name: Post PR Comment
-        uses: actions/github-script@v6
-        if: success()  # Ensures the message is only posted if previous steps succeed
+      - name: Upload IPA to BrowserStack
         env:
-          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+        run: |
+          curl -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
+              -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+              -F "file=@./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa" \
+              -o browserstack_response.json
+
+      - name: Extract BrowserStack App URL
+        id: extract_url
+        run: |
+          APP_URL=$(jq -r '.app_url' browserstack_response.json)
+          echo "APP_URL=$APP_URL"
+          echo "::set-output name=app_url::$APP_URL"
+
+
+      - name: Post comment with BrowserStack link
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
         with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
+            const prNumber = context.issue.number;
+            const browserStackLink = '${{ steps.extract_url.outputs.app_url }}'; // Use the output from the previous step.
+            const message = `🚀 App is now available for testing on BrowserStack: [Test Here](${browserStackLink})`;
             github.rest.issues.createComment({
-              ...repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               issue_number: prNumber,
-              body: message,
+              body: message
             });
+      
