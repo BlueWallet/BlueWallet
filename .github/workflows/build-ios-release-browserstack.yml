@@ -142,6 +142,8 @@ jobs:
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
         run: |
           curl -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
               -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
