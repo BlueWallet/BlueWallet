@@ -13,9 +13,7 @@
     "save": "Запази",
     "seed": "Сиид",
     "success": "Успех",
-    "wallet_key": "Парола на портфейла",
-    "file_saved": "Файлът {filePath} беше запазен в {destination}.",
-    "downloads_folder": "Папка с изтегляния"
+    "wallet_key": "Парола на портфейла"
   },
   "azteco": {
     "codeIs": "Цода на вашият ваучър е",

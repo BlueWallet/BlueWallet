@@ -414,7 +414,6 @@
     "no_ln_wallet_error": "Za plačilo Lightning računa, morate najprej dodati Lightning denarnico.",
     "looks_like_bip38": "Zasebni ključ je verjetno zaščiten z geslom (BIP38)",
     "reorder_title": "Preureditev Denarnic",
-    "reorder_instructions": "Tapnite in pridržite denarnico, da jo povlečete po seznamu.",
     "please_continue_scanning": "Nadaljujte s skeniranjem",
     "select_no_bitcoin": "Trenutno ni na voljo nobena Bitcoin denarnica.",
     "select_no_bitcoin_exp": "Za napolnitev Lightning denarnic je potrebna Bitcoin denarnica. Ustvarite ali uvozite denarnico.",

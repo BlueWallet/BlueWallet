@@ -427,7 +427,6 @@
     "no_ln_wallet_error": "Prima di pagare una fattura Lightning, devi aggiungere un portafoglio Lightning.",
     "looks_like_bip38": "Questa sembra essere una chiave privata protetta da password (BIP38).",
     "reorder_title": "Riordina Portafogli",
-    "reorder_instructions": "Tocca e tieni premuto su un portafoglio per trascinarlo da una parte all'altra della lista.",
     "please_continue_scanning": "Per favore continua ad effettuare la scansione.",
     "select_no_bitcoin": "Non è disponibile alcun portafoglio Bitcoin.",
     "select_no_bitcoin_exp": "È necessario un portafoglio Bitcoin per ricaricare i portafogli Lightning. Per favore creane o importane uno.",

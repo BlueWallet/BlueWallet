@@ -326,7 +326,8 @@
     "wallet_type": "Τύπος πορτοφολιου",
     "create_new_key": "Δημιουργία νέου",
     "scan_or_open_file": "Σάρωση ή άνοιγμα αρχείου",
-    "ms_help": "Βοήθεια"
+    "ms_help": "Βοήθεια",
+    "ms_help_title5": "Enable advanced mode"
   },
   "is_it_my_address": {
     "title": "Είναι δική μου διεύθυνση;",
