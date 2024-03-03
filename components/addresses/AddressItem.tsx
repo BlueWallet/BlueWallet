@@ -15,6 +15,7 @@ import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import QRCodeComponent from '../QRCodeComponent';
 const confirm = require('../../helpers/confirm');
 
 interface AddressItemProps {
@@ -162,6 +163,10 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     return actions;
   };
 
+  const renderPreview = () => {
+    return <QRCodeComponent value={item.address} isMenuAvailable={false} />;
+  };
+
   const render = () => {
     return (
       <TooltipMenu
@@ -169,8 +174,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         ref={menuRef}
         actions={getAvailableActions()}
         onPressMenuItem={onToolTipPress}
-        previewQRCode
-        previewValue={item.address}
+        renderPreview={renderPreview}
         onPress={navigateToReceive}
       >
         <ListItem key={item.key} containerStyle={stylesHook.container}>
