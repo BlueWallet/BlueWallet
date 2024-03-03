@@ -33,6 +33,3 @@ Starting from 1 Satoshi. Defined by you, the user
 
 • Watch-only wallets
 Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
-
-• Lightning Network
-Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
