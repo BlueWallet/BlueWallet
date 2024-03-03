@@ -132,11 +132,18 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v3
 
+      - name: List files in the build directory
+        run: ls -l ./build
+
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
           name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
           path: ./build
+
+      - name: Set permissions for the IPA file
+        run: chmod 644 ./build/BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+      
 
       - name: Upload IPA to BrowserStack
         env:
