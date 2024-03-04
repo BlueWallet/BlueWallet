@@ -142,7 +142,7 @@ jobs:
         run: ls -l ./build
 
       - name: Set permissions for the IPA file
-        run: chmod 644 ./build/BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+        run: chmod 644 "./build/BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa"
       
       - name: Upload IPA to BrowserStack
         env:
