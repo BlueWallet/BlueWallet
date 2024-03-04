@@ -21,8 +21,8 @@ PODS:
   - hermes-engine/Pre-built (0.72.11)
   - libevent (2.1.12)
   - lottie-ios (4.4.1)
-  - lottie-react-native (6.6.0):
-    - lottie-ios (~> 4.4.0)
+  - lottie-react-native (6.7.0):
+    - lottie-ios (~> 4.4.1)
     - React-Core
   - PasscodeAuth (1.0.0):
     - React
@@ -794,7 +794,7 @@ SPEC CHECKSUMS:
   hermes-engine: c22b4cc0bb1d1603b9e4faf83732be227baa55bc
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
-  lottie-react-native: 00ac19344296ae018260aabd14d6b36dd816b0e2
+  lottie-react-native: e3205322282d72e23efb3bff3287d0bd16fb1b01
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 4a524af1769a10608bf423aa8c0804b10f84aec8
