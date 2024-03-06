@@ -117,12 +117,11 @@ const WalletsAdd: React.FC = () => {
   const selectedIndex = state.selectedIndex;
   const label = state.label;
   const selectedWalletType = state.selectedWalletType;
-  const backdoorPressed = state.backdoorPressed;
   const entropy = state.entropy;
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isAdvancedModeEnabled } = useContext(BlueStorageContext);
   const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled);
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {

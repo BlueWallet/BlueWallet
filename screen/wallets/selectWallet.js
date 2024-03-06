@@ -7,7 +7,7 @@ import { BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponent
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import {  MultisigHDWallet, LightningCustodianWallet } from '../../class';
+import { MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';

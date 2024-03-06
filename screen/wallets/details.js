@@ -143,7 +143,6 @@ const WalletDetails = () => {
       return null;
     }
   }, [wallet]);
-  const [lightningWalletInfo, setLightningWalletInfo] = useState({});
 
   useEffect(() => {
     if (isAdvancedModeEnabledRender && wallet.allowMasterFingerprint()) {
@@ -175,7 +174,6 @@ const WalletDetails = () => {
       color: colors.buttonTextColor,
     },
   });
- 
 
   const save = () => {
     setIsLoading(true);
@@ -672,7 +670,7 @@ const WalletDetails = () => {
                     <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
                   </>
                 )}
-                
+
                 <BlueSpacing20 />
                 <BlueSpacing20 />
                 <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
