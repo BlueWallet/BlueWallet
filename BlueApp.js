@@ -27,6 +27,7 @@ import { randomBytes } from './class/rng';
 import presentAlert from './components/Alert';
 import { initCurrencyDaemon } from './blue_modules/currency';
 import DefaultPreference from 'react-native-default-preference';
+import RNFS from 'react-native-fs';
 
 const encryption = require('./blue_modules/encryption');
 const Realm = require('realm');
@@ -231,10 +232,12 @@ class AppStorage {
    * @returns {Promise<Realm>}
    */
   async getRealm() {
+    const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
+    const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
+    const path = `${tempFolderPath}/${fileName}`; // Use temporary folder path
 
     const schema = [
       {
@@ -261,6 +264,7 @@ class AppStorage {
    * @returns {Promise<Realm>}
    */
   async openRealmKeyValue() {
+    const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
     const service = 'realm_encryption_key';
     let password;
     const credentials = await Keychain.getGenericPassword({ service });
@@ -274,7 +278,7 @@ class AppStorage {
 
     const buf = Buffer.from(password, 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = 'keyvalue.realm';
+    const path = `${tempFolderPath}/keyvalue.realm`; // Use temporary folder path
 
     const schema = [
       {
@@ -314,6 +318,7 @@ class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password) {
+    await this.deleteRealmFilesFromDefaultDirectory();
     let data = await this.getItemWithFallbackToRealm('data');
     if (password) {
       data = this.decryptData(data, password);
@@ -875,6 +880,30 @@ class AppStorage {
     return Realm.deleteFile({
       path,
     });
+  }
+
+  async deleteRealmFilesFromDefaultDirectory() {
+    const documentsPath = RNFS.DocumentDirectoryPath; // Path to documents folder
+    try {
+      const files = await RNFS.readDir(documentsPath); // Read all files in documents directory
+      const realmFiles = files.filter(
+        file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
+      ); // Filter out Realm-related files
+
+      for (const file of realmFiles) {
+        const filePath = `${documentsPath}/${file.name}`;
+        const fileExists = await RNFS.exists(filePath); // Check if the file exists
+        if (fileExists) {
+          await RNFS.unlink(filePath); // Delete the file if it exists
+          console.log(`Deleted Realm file: ${filePath}`);
+        } else {
+          console.log(`File does not exist: ${filePath}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting Realm files:', error);
+      throw new Error(`Error deleting Realm files: ${error.message}`);
+    }
   }
 }
 
