@@ -43,7 +43,6 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
-  LDK = 'LDK',
 }
 
 interface State {
@@ -334,11 +333,6 @@ const WalletsAdd: React.FC = () => {
     });
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
-  };
-
-  const handleOnLdkButtonPressed = async () => {
-    Keyboard.dismiss();
-    setSelectedWalletType(ButtonSelected.LDK);
   };
 
   return (

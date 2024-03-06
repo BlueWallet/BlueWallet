@@ -25,7 +25,6 @@ export default class WalletGradient {
   static defaultGradients: string[] = ['#B770F6', '#9013FE'];
   static lightningCustodianWallet: string[] = ['#F1AA07', '#FD7E37']; // Corrected property with missing colors
   static aezeedWallet: string[] = ['#8584FF', '#5351FB'];
-  static ldkWallet: string[] = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
     const { colors } = useTheme();

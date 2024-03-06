@@ -62,10 +62,6 @@ target 'BlueWallet' do
   configure_target()
 end
 
-target 'BlueWallet-NoLDK' do
-  configure_target()
-end
-
 target 'BlueWalletUITests' do
   configure_target()
 end
