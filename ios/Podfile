@@ -60,8 +60,6 @@ end
 
 target 'BlueWallet' do
   configure_target()
-   # Manually add rn-ldk pod for this target
-  pod 'rn-ldk', :path => '../node_modules/rn-ldk'
 end
 
 target 'BlueWallet-NoLDK' do

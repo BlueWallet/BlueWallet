@@ -7,7 +7,7 @@ import { BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponent
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
-import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
+import {  MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -147,7 +147,6 @@ const SelectWallet = () => {
             <Image
               source={(() => {
                 switch (item.type) {
-                  case LightningLdkWallet.type:
                   case LightningCustodianWallet.type:
                     return I18nManager.isRTL ? require('../../img/lnd-shape-rtl.png') : require('../../img/lnd-shape.png');
                   case MultisigHDWallet.type:

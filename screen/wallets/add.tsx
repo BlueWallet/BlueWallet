@@ -25,17 +25,9 @@ import {
 } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import {
-  AbstractWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  LightningLdkWallet,
-  SegwitP2SHWallet,
-} from '../../class';
+import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
@@ -272,33 +264,7 @@ const WalletsAdd: React.FC = () => {
       setIsLoading(false);
       // @ts-ignore: Return later to update
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
-    } else if (selectedWalletType === ButtonSelected.LDK) {
-      setIsLoading(false);
-      createLightningLdkWallet();
     }
-  };
-
-  const createLightningLdkWallet = async () => {
-    const foundLdk = wallets.find((w: AbstractWallet) => w.type === LightningLdkWallet.type);
-    if (foundLdk) {
-      return presentAlert({ message: 'LDK wallet already exists' });
-    }
-    setIsLoading(true);
-    const wallet = new LightningLdkWallet();
-    wallet.setLabel(label || loc.wallets.details_title);
-
-    await wallet.generate();
-    await wallet.init();
-    setIsLoading(false);
-    addWallet(wallet);
-    await saveToDisk();
-
-    A(A.ENUM.CREATED_WALLET);
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    // @ts-ignore: Return later to update
-    navigate('PleaseBackupLdk', {
-      walletID: wallet.getID(),
-    });
   };
 
   const createLightningWallet = async () => {
@@ -405,15 +371,6 @@ const WalletsAdd: React.FC = () => {
             onPress={handleOnLightningButtonPressed}
             style={styles.button}
           />
-          {backdoorPressed > 10 ? (
-            <LdkButton
-              active={selectedWalletType === ButtonSelected.LDK}
-              onPress={handleOnLdkButtonPressed}
-              style={styles.button}
-              subtext={LightningLdkWallet.getPackageVersion()}
-              text="LDK"
-            />
-          ) : null}
           <VaultButton
             testID="ActivateVaultButton"
             active={selectedWalletType === ButtonSelected.VAULT}
