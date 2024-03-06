@@ -5,6 +5,7 @@ import DefaultPreference from 'react-native-default-preference';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
 import presentAlert from '../components/Alert';
+import RNFS from 'react-native-fs'; // Make sure this is at the top of your file with other imports
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const BigNumber = require('bignumber.js');
@@ -24,10 +25,11 @@ let _realm;
 async function _getRealm() {
   if (_realm) return _realm;
 
+  const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
   const password = bitcoin.crypto.sha256(Buffer.from('fyegjitkyf[eqjnc.lf')).toString('hex');
   const buf = Buffer.from(password + password, 'hex');
   const encryptionKey = Int8Array.from(buf);
-  const path = 'electrumcache.realm';
+  const path = `${tempFolderPath}/electrumcache.realm`; // Use temporary folder path
 
   const schema = [
     {
@@ -39,11 +41,13 @@ async function _getRealm() {
       },
     },
   ];
+
   _realm = await Realm.open({
     schema,
     path,
     encryptionKey,
   });
+
   return _realm;
 }
 

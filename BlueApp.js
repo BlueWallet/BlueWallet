@@ -886,11 +886,11 @@ class AppStorage {
     const documentsPath = RNFS.DocumentDirectoryPath; // Path to documents folder
     try {
       const files = await RNFS.readDir(documentsPath); // Read all files in documents directory
-      const realmFiles = files.filter(
+      const appRealmFiles = files.filter(
         file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
-      ); // Filter out Realm-related files
+      );
 
-      for (const file of realmFiles) {
+      for (const file of appRealmFiles) {
         const filePath = `${documentsPath}/${file.name}`;
         const fileExists = await RNFS.exists(filePath); // Check if the file exists
         if (fileExists) {
