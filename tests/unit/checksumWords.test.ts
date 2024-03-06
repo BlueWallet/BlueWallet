@@ -1,11 +1,11 @@
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { validateMnemonic } from '../../blue_modules/bip39';
-const assert = require('assert');
+import assert from 'assert';
 
 describe('generateChecksumWords', () => {
   it('generates 128 valid words for an 11 word input', () => {
     const input = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
-    const result = generateChecksumWords(input);
+    const result = generateChecksumWords(input) as string[];
     assert.ok(result);
     assert.strictEqual(result.length, 128);
 
@@ -18,7 +18,7 @@ describe('generateChecksumWords', () => {
     const input =
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ' +
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon';
-    const result = generateChecksumWords(input);
+    const result = generateChecksumWords(input) as string[];
     assert.ok(result);
     assert.strictEqual(result.length, 8);
 
