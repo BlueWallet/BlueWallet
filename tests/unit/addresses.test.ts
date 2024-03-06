@@ -70,8 +70,8 @@ describe('Addresses', () => {
 
   it('Returns AddressItem object', () => {
     const fakeWallet = {
-      _getExternalAddressByIndex: index => `external_address_${index}`,
-      _getInternalAddressByIndex: index => `internal_address_${index}`,
+      _getExternalAddressByIndex: (index: number) => `external_address_${index}`,
+      _getInternalAddressByIndex: (index: number) => `internal_address_${index}`,
       _balances_by_external_index: [{ c: 0, u: 0 }],
       _balances_by_internal_index: [{ c: 0, u: 0 }],
       _txs_by_external_index: { 0: [{}] },
