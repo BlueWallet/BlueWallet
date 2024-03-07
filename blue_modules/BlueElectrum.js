@@ -25,7 +25,7 @@ let _realm;
 async function _getRealm() {
   if (_realm) return _realm;
 
-  const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
+  const tempFolderPath = RNFS.CachesDirectoryPath; // Path to temporary folder
   const password = bitcoin.crypto.sha256(Buffer.from('fyegjitkyf[eqjnc.lf')).toString('hex');
   const buf = Buffer.from(password + password, 'hex');
   const encryptionKey = Int8Array.from(buf);
