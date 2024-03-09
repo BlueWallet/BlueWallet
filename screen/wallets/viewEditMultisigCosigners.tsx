@@ -48,6 +48,7 @@ import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { isDesktop } from '../../blue_modules/environment';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -357,45 +358,43 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                 dashes={MultipleStepsListItemDashType.topAndBottom}
               />
             )}
+
+            {/* destructiveButtonIndex and cancelButtonIndex are different numbers on Mac Catalyst and mobile */}
             <MultipleStepsListItem
+              useActionSheet
+              actionSheetOptions={{
+                options: isDesktop ? [loc.multisig.confirm, loc._.cancel] : ['', loc.multisig.confirm, loc._.cancel],
+                title: loc.multisig.forget_this_seed,
+                message: loc.multisig.forget_this_seed_message,
+                cancelButtonIndex: isDesktop ? 1 : 0,
+                destructiveButtonIndex: isDesktop ? 0 : 1,
+              }}
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               button={{
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
                 buttonType: MultipleStepsListItemButtohType.full,
-                onPress: () => {
-                  Alert.alert(
-                    loc._.seed,
-                    loc.multisig.are_you_sure_seed_will_be_lost,
-                    [
-                      {
-                        text: loc._.ok,
-                        onPress: () => {
-                          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                          setVaultKeyData({
-                            ...vaultKeyData,
-                            isLoading: true,
-                            keyIndex: el.index + 1,
-                          });
-                          setTimeout(
-                            () =>
-                              xpubInsteadOfSeed(el.index + 1).finally(() => {
-                                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                                setVaultKeyData({
-                                  ...vaultKeyData,
-                                  isLoading: false,
-                                  keyIndex: el.index + 1,
-                                });
-                              }),
-                            100,
-                          );
-                        },
-                        style: 'destructive',
-                      },
-                      { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                    ],
-                    { cancelable: false },
+
+                onPress: buttonIndex => {
+                  if ((isDesktop && buttonIndex === 1) || (!isDesktop && buttonIndex === 2)) return;
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setVaultKeyData({
+                    ...vaultKeyData,
+                    isLoading: true,
+                    keyIndex: el.index + 1,
+                  });
+                  setTimeout(
+                    () =>
+                      xpubInsteadOfSeed(el.index + 1).finally(() => {
+                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                        setVaultKeyData({
+                          ...vaultKeyData,
+                          isLoading: false,
+                          keyIndex: el.index + 1,
+                        });
+                      }),
+                    100,
                   );
                 },
               }}
