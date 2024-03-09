@@ -6,8 +6,7 @@ export default class ActionSheet {
   static showActionSheetWithOptions(options: ActionSheetOptions, completion: CompletionCallback): void {
     InteractionManager.runAfterInteractions(() => {
       const alertOptions = options.options.map((option, index) => {
-        // Determine the style based on the button index
-        let style: 'default' | 'cancel' | 'destructive' = 'default'; // Default style
+        let style: 'default' | 'cancel' | 'destructive' = 'default';
         if (index === options.destructiveButtonIndex) {
           style = 'destructive';
         } else if (index === options.cancelButtonIndex) {
