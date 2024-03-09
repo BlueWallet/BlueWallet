@@ -3,7 +3,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -364,8 +363,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
               useActionSheet
               actionSheetOptions={{
                 options: isDesktop ? [loc.multisig.confirm, loc._.cancel] : ['', loc.multisig.confirm, loc._.cancel],
-                title: loc.multisig.forget_this_seed,
-                message: loc.multisig.forget_this_seed_message,
+                title: loc._.seed,
+                message: loc.multisig.are_you_sure_seed_will_be_lost,
                 cancelButtonIndex: isDesktop ? 1 : 0,
                 destructiveButtonIndex: isDesktop ? 0 : 1,
               }}
