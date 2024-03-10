@@ -4,6 +4,8 @@
     "cancel": "Cancelar",
     "continue": "Continúa",
     "clipboard": "Portapapeles",
+    "discard_changes": "¿Descartar cambios?",
+    "discard_changes_explain": "Tienes cambios sin guardar. ¿Estás seguro de que quieres descartarlos y salir de la pantalla?",
     "enter_password": "Ingresar contraseña",
     "never": "Nunca",
     "of": "{number} de {total}",
