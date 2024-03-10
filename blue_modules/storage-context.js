@@ -35,6 +35,12 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (walletsInitialized) {
+      BlueElectrum.connectMain();
+    }
+  }, [walletsInitialized]);
+
+  useEffect(() => {
     console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
     if (!isPrivacyBlurEnabled) {
       presentAlert({ message: 'Privacy blur has been disabled.' });
