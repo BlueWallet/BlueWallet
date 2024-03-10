@@ -413,15 +413,14 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
               />
             )}
 
-            {/* destructiveButtonIndex and cancelButtonIndex are different numbers on Mac Catalyst and mobile */}
             <MultipleStepsListItem
               useActionSheet
               actionSheetOptions={{
-                options: isDesktop ? [loc.multisig.confirm, loc._.cancel] : ['', loc.multisig.confirm, loc._.cancel],
+                options: [loc._.cancel, loc.multisig.confirm],
                 title: loc._.seed,
                 message: loc.multisig.are_you_sure_seed_will_be_lost,
-                cancelButtonIndex: isDesktop ? 1 : 0,
-                destructiveButtonIndex: isDesktop ? 0 : 1,
+                cancelButtonIndex: 0,
+                confirmButtonIndex: 1,
               }}
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
@@ -430,8 +429,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                 disabled: vaultKeyData.isLoading,
                 buttonType: MultipleStepsListItemButtohType.full,
 
-                onPress: buttonIndex => {
-                  if ((isDesktop && buttonIndex === 1) || (!isDesktop && buttonIndex === 2)) return;
+                onPress: (buttonIndex: number) => {
+                  if (buttonIndex === 0) return;
                   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setVaultKeyData({
                     ...vaultKeyData,
