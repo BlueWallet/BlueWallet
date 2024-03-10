@@ -6,7 +6,7 @@ import {
   satoshiToLocalCurrency,
 } from '../../blue_modules/currency';
 import { FiatUnit } from '../../models/fiatUnit';
-const assert = require('assert');
+import assert from 'assert';
 
 describe('currency', () => {
   it('formats everything correctly', async () => {

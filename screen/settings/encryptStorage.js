@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
@@ -124,6 +124,24 @@ const EncryptStorage = () => {
     navigate('PlausibleDeniability');
   };
 
+  const renderPasscodeExplanation = () => {
+    let isCapable = true;
+
+    if (Platform.OS === 'android') {
+      if (Platform.Version < 30) {
+        isCapable = false;
+      }
+    }
+
+    return isCapable ? (
+      <>
+        <BlueText />
+
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
+      </>
+    ) : null;
+  };
+
   return isLoading ? (
     <ScrollView centerContent>
       <BlueLoading />
@@ -143,6 +161,7 @@ const EncryptStorage = () => {
           />
           <BlueCard>
             <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
+            {renderPasscodeExplanation()}
           </BlueCard>
           <BlueSpacing20 />
         </>

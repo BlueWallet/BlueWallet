@@ -18,6 +18,7 @@ export const AvailableLanguages: Readonly<TLanguage[]> = Object.freeze([
   { label: 'Ελληνικά (EL)', value: 'el' },
   { label: 'فارسی (FA)', value: 'fa', isRTL: true },
   { label: 'لۊری بختیاری (BQI)', value: 'bqi', isRTL: true },
+  { label: 'لٛۏری شومالی (LRC)', value: 'lrc', isRTL: true },
   { label: 'Français (FR)', value: 'fr_fr' },
   { label: 'עִברִית (HE)', value: 'he', isRTL: true },
   { label: 'Italiano (IT)', value: 'it' },

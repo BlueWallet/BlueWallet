@@ -142,7 +142,13 @@ const WalletsAddMultisig = () => {
                   <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
                 <Text style={[styles.textM, stylesHook.textHeader]}>{n}</Text>
-                <TouchableOpacity accessibilityRole="button" onPress={decreaseN} disabled={n === m} style={styles.chevron}>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  onPress={decreaseN}
+                  disabled={n === m}
+                  style={styles.chevron}
+                  testID="DecreaseN"
+                >
                   <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
                 </TouchableOpacity>
               </View>
@@ -224,6 +230,7 @@ const WalletsAddMultisig = () => {
       {isAdvancedModeEnabledRender && (
         <View>
           <ListItem
+            testID="VaultAdvancedCustomize"
             onPress={showAdvancedOptionsModal}
             title={loc.multisig.vault_advanced_customize}
             subtitle={`${getCurrentlySelectedFormat('format')}, ${getCurrentlySelectedFormat('quorum')}`}
@@ -232,7 +239,12 @@ const WalletsAddMultisig = () => {
         </View>
       )}
       <View style={styles.buttonContainer}>
-        <Button buttonTextColor={colors.buttonAlternativeTextColor} title={loc.multisig.lets_start} onPress={onLetsStartPress} />
+        <Button
+          testID="LetsStart"
+          buttonTextColor={colors.buttonAlternativeTextColor}
+          title={loc.multisig.lets_start}
+          onPress={onLetsStartPress}
+        />
       </View>
       {renderModal()}
     </SafeArea>

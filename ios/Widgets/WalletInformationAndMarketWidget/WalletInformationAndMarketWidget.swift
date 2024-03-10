@@ -119,6 +119,7 @@ struct WalletInformationAndMarketWidget: Widget {
     }
     .configurationDisplayName("Wallet and Market")
     .description("View your total wallet balance and network prices.").supportedFamilies([.systemMedium, .systemLarge])
+    .contentMarginsDisabledIfAvailable()
   }
 }
 

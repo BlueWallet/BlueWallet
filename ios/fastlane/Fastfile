@@ -244,7 +244,69 @@ lane :build_and_distribute_catalyst_universal do |options|
   end
 end
 
-  
+desc "Update 'What's New' section in App Store Connect for all localizations"
+  lane :update_release_notes do
+    # Path to the release notes file
+    # Make sure to edit it to remove any mention of non-Apple products
+    release_notes_path = "../../release-notes.txt"
+    
+    # Ensure the release notes file exists
+    unless File.exist?(release_notes_path)
+      UI.error("Release notes file does not exist at path: #{release_notes_path}")
+      next # Skip the rest of the lane if file not found
+    end
 
+   
+    # Read release notes from file
+    release_notes_text = File.read(release_notes_path)
+
+    # Log the content of release notes
+    UI.message("Release Notes Content:\n#{release_notes_text}")
+
+    # Define version number
+    app_version = get_version_number # Make sure this gets the correct version number
+    UI.message("Version being updated: #{app_version}")
+
+
+    # Hash mapping language codes to release notes text
+    localized_release_notes = {
+      'en-US' => release_notes_text, # English (U.S.) - Primary
+      'ar-SA' => release_notes_text, # Arabic
+      'zh-Hans' => release_notes_text, # Chinese (Simplified)
+      'da' => release_notes_text, # Danish
+      'nl-NL' => release_notes_text, # Dutch
+      'fi' => release_notes_text, # Finnish
+      'fr-FR' => release_notes_text, # French
+      'de-DE' => release_notes_text, # German
+      'he' => release_notes_text, # Hebrew
+      'hu' => release_notes_text, # Hungarian
+      'it' => release_notes_text, # Italian
+      'pt-BR' => release_notes_text, # Portuguese (Brazil)
+      'pt-PT' => release_notes_text, # Portuguese (Portugal)
+      'ro' => release_notes_text, # Romanian
+      'ru' => release_notes_text, # Russian
+      'es-MX' => release_notes_text, # Spanish (Mexico)
+      'es-ES' => release_notes_text, # Spanish (Spain)
+      'sv' => release_notes_text, # Swedish
+    }
+
+        # Log which version and what content is being set
+        localized_release_notes.each do |locale, notes|
+          UI.message("Setting release notes for #{locale}:\n#{notes}\n")
+        end
+
+    # Update release notes in App Store Connect for all localizations
+    deliver(
+      app_identifier: app_identifiers.first, # Use the first app identifier
+      app_version: app_version, # Use the fetched app version
+      skip_metadata: true, # We are updating metadata
+      skip_screenshots: true,
+      skip_binary_upload: true,
+      force: true, # Skip HTML report verification
+      release_notes: localized_release_notes,
+      submit_for_review: false, # Change this to true if you want to automatically submit the version for review
+      automatic_release: false # Change to true if you want the version to be released automatically once approved
+    )
+  end
 
 end

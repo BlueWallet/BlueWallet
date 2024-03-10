@@ -410,7 +410,6 @@
     "no_ln_wallet_error": "Før du betaler en Lightning-faktura, må du først legge til en Lightning-lommebok.",
     "looks_like_bip38": "Dette ser ut som en passordbeskyttet privat nøkkel (BIP38).",
     "reorder_title": "Omorganisere Lommebøker",
-    "reorder_instructions": "Trykk og hold en lommebok for å dra den rundt på listen.",
     "please_continue_scanning": "Vennligst fortsett å skanne.",
     "select_no_bitcoin": "Det er for øyeblikket ingen tilgjengelige Bitcoin-lommebøker.",
     "select_no_bitcoin_exp": "En Bitcoin-lommebok kreves for å fylle Lightning-lommebøker. Opprett eller importer en.",

@@ -407,7 +407,6 @@
     "no_ln_wallet_error": "라이트닝 청구서를 지불하기 전 먼저 라이트닝 지갑을 추가해야 합니다.",
     "looks_like_bip38": "이것은 패스워드 보호된 비밀키(BIP38)로 보입니다.",
     "reorder_title": "지갑 재정렬",
-    "reorder_instructions": "리스트를 넘겨 끌어가려면 지갑에 계속 누르기를 하세요",
     "please_continue_scanning": "계속 스캔하세요.",
     "select_no_bitcoin": "현재 사용 가능한 비트코인 월렛이 없습니다.",
     "select_no_bitcoin_exp": "라이트닝 지갑을 재충전하시려면 비트코인 지갑이 필요합니다. 새로 만들기 또는 들여오기를 하시기바랍니다.",

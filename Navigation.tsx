@@ -1,6 +1,6 @@
 import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Dimensions, I18nManager, Platform, useWindowDimensions } from 'react-native';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
@@ -68,6 +68,7 @@ import Success from './screen/send/success';
 
 import UnlockWith from './UnlockWith';
 import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
+import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
 import LappBrowser from './screen/lnd/browser';
@@ -86,6 +87,7 @@ import DrawerList from './screen/wallets/drawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
+import { BlueStorageContext } from './blue_modules/storage-context';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -107,15 +109,19 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
       <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions(theme)} />
       <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Currency" component={Currency} options={{ title: loc.settings.currency }} />
+      <WalletsStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
       <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
       <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
       <WalletsStack.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
       <WalletsStack.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
       <WalletsStack.Screen name="DefaultView" component={DefaultView} options={DefaultView.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Language" component={Language} options={{ title: loc.settings.language }} />
+      <WalletsStack.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
       <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
-      <WalletsStack.Screen name="GeneralSettings" component={GeneralSettings} options={{ title: loc.settings.general }} />
+      <WalletsStack.Screen
+        name="GeneralSettings"
+        component={GeneralSettings}
+        options={navigationStyle({ title: loc.settings.general })(theme)}
+      />
       <WalletsStack.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
       <WalletsStack.Screen
         name="NotificationSettings"
@@ -125,7 +131,7 @@ const WalletsRoot = () => {
       <WalletsStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={{ title: loc.plausibledeniability.title }}
+        options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
       />
       <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
       <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
@@ -170,7 +176,11 @@ const AddWalletRoot = () => {
       <AddWalletStack.Screen
         name="AddWallet"
         component={AddWallet}
-        options={{ headerBackButtonMenuEnabled: true, headerBackVisible: false, title: loc.wallets.add_title }}
+        options={navigationStyle({
+          closeButton: true,
+          headerBackVisible: false,
+          title: loc.wallets.add_title,
+        })(theme)}
       />
       <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
       <AddWalletStack.Screen
@@ -187,7 +197,11 @@ const AddWalletRoot = () => {
       <AddWalletStack.Screen
         name="PleaseBackup"
         component={PleaseBackup}
-        options={{ gestureEnabled: false, headerBackVisible: false, title: loc.pleasebackup.title }}
+        options={navigationStyle({
+          gestureEnabled: false,
+          headerBackVisible: false,
+          title: loc.pleasebackup.title,
+        })(theme)}
       />
       <AddWalletStack.Screen
         name="PleaseBackupLNDHub"
@@ -405,6 +419,8 @@ const ReceiveDetailsStackRoot = () => {
 
 const WalletXpubStack = createNativeStackNavigator();
 const WalletXpubStackRoot = () => {
+  const theme = useTheme();
+
   return (
     <WalletXpubStack.Navigator
       id="WalletXpubRoot"
@@ -414,11 +430,11 @@ const WalletXpubStackRoot = () => {
       <WalletXpubStack.Screen
         name="WalletXpub"
         component={WalletXpub}
-        options={{
+        options={navigationStyle({
+          closeButton: true,
           headerBackVisible: false,
-          headerBackButtonMenuEnabled: true,
           headerTitle: loc.wallets.xpub_title,
-        }}
+        })(theme)}
       />
     </WalletXpubStack.Navigator>
   );
@@ -466,25 +482,22 @@ const LappBrowserStackRoot = () => {
 };
 
 const InitStack = createNativeStackNavigator();
-const InitRoot = () => (
-  <InitStack.Navigator initialRouteName="UnlockWithScreenRoot">
-    <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
-    <InitStack.Screen
-      name="ReorderWallets"
-      component={ReorderWalletsStackRoot}
-      options={{
-        headerShown: false,
-        gestureEnabled: false,
-        presentation: 'modal',
-      }}
-    />
-    <InitStack.Screen
-      name={isHandset ? 'Navigation' : 'DrawerRoot'}
-      component={isHandset ? Navigation : DrawerRoot}
-      options={{ headerShown: false, animationTypeForReplace: 'push' }}
-    />
-  </InitStack.Navigator>
-);
+const InitRoot = () => {
+  const { walletsInitialized } = useContext(BlueStorageContext);
+  return (
+    <InitStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ animationTypeForReplace: 'push' }}>
+      {!walletsInitialized ? (
+        <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
+      ) : (
+        <InitStack.Screen
+          name={isHandset ? 'Navigation' : 'DrawerRoot'}
+          component={isHandset ? Navigation : DrawerRoot}
+          options={{ headerShown: false }}
+        />
+      )}
+    </InitStack.Navigator>
+  );
+};
 
 export type ViewEditMultisigCosignersStackParamsList = {
   ViewEditMultisigCosigners: { walletId: string };
@@ -608,6 +621,15 @@ const Navigation = () => {
       />
 
       <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+      <InitStack.Screen
+        name="ReorderWallets"
+        component={ReorderWalletsStackRoot}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+          presentation: 'modal',
+        }}
+      />
     </RootStack.Navigator>
   );
 };

@@ -1,6 +1,6 @@
 PODS:
   - boost (1.83.0)
-  - BugsnagReactNative (7.22.5):
+  - BugsnagReactNative (7.22.6):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -21,9 +21,9 @@ PODS:
   - hermes-engine/Pre-built (0.73.5)
   - libevent (2.1.12)
   - lottie-ios (4.4.1)
-  - lottie-react-native (6.6.0):
+  - lottie-react-native (6.7.0):
     - glog
-    - lottie-ios (~> 4.4.0)
+    - lottie-ios (~> 4.4.1)
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - PasscodeAuth (1.0.0):
@@ -1101,11 +1101,11 @@ PODS:
     - React-perflogger (= 0.73.5)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.6.0):
+  - RealmJS (12.6.2):
     - React
   - rn-ldk (0.8.4):
     - React-Core
-  - RNCAsyncStorage (1.22.2):
+  - RNCAsyncStorage (1.22.3):
     - React-Core
   - RNCClipboard (1.13.2):
     - React-Core
@@ -1113,7 +1113,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (10.13.0):
+  - RNDeviceInfo (10.13.1):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -1123,7 +1123,7 @@ PODS:
     - React-Core
   - RNHandoff (0.0.3):
     - React
-  - RNKeychain (8.1.3):
+  - RNKeychain (8.2.0):
     - React-Core
   - RNLocalize (3.0.6):
     - React-Core
@@ -1137,7 +1137,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
-  - RNReanimated (3.7.1):
+  - RNReanimated (3.8.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1448,7 +1448,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  BugsnagReactNative: 2f3550f37f30b9701e3517bf17743b676b5a2fb1
+  BugsnagReactNative: 366a7e11c0bcf34842e54f40b15dd937cb267aa7
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
@@ -1459,7 +1459,7 @@ SPEC CHECKSUMS:
   hermes-engine: 1d1835b2cc54c381909d94d1b3c8e0a2f1a94a0e
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
-  lottie-react-native: b24edb4537f3cb3259c0ec512ed899d14e6e96d3
+  lottie-react-native: 13cd0c4782c3e6bb26bfa4cc2d08bfb84f6d1ab6
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: 2544c0f1081a5fa12e108bb8cb40e5f4581ccd87
@@ -1517,24 +1517,24 @@ SPEC CHECKSUMS:
   React-utils: 987a4526a2fc0acdfaf87888adfe0bf9d0452066
   ReactCommon: 2947b0bffd82ea0e58ca7928881152d4c6dae9af
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: a62dc7a1f94b888fe9e8712cd650167ad97dc636
+  RealmJS: 385df5ee940d96f1de26b1dab153e325633d3052
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: 014a78b2cc8cc107c9e92ee428dc0c1ac3223416
+  RNCAsyncStorage: 10591b9e0a91eaffee14e69b3721009759235125
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: 5e4695f906aeb624855cee8d568a46037e4a50f7
+  RNDeviceInfo: 4f9c7cfd6b9db1b05eb919620a001cf35b536423
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 67fb54b3e6ca338a8044e85cd6f340265aa41091
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNKeychain: f1b48665a4646f61191eb048c4c05c58d9a7596f
+  RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
   RNPermissions: 31223c0cf32b7623e6ec4cd13a7e4552fd43c71c
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
-  RNReanimated: 15a855719335a6b655a214531e86d806edfd49da
+  RNReanimated: 00ee495a70897aa9d541e76debec14253133b812
   RNScreens: 17e2f657f1b09a71ec3c821368a04acbb7ebcb46
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
