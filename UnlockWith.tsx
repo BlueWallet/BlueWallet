@@ -2,9 +2,7 @@ import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'r
 import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric, { BiometricType } from './class/biometrics';
-import { StackActions, useNavigation } from '@react-navigation/native';
 import { BlueStorageContext } from './blue_modules/storage-context';
-import { isHandset } from './blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
 
@@ -54,14 +52,13 @@ const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
   const colorScheme = useColorScheme();
 
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
-    navigation.dispatch(StackActions.replace(isHandset ? 'Navigation' : 'DrawerRoot'));
     isUnlockingWallets.current = false;
-  }, [setWalletsInitialized, navigation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const unlockWithBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;

@@ -4,6 +4,8 @@
     "cancel": "Cancel",
     "continue": "Continue",
     "clipboard": "Clipboard",
+    "discard_changes": "Discard changes?",
+    "discard_changes_explain": "You have unsaved changes. Are you sure you want to discard them and leave the screen?",
     "enter_password": "Enter password",
     "never": "Never",
     "of": "{number} of {total}",

@@ -15,6 +15,7 @@ import {
   Switch,
   Text,
   View,
+  findNodeHandle,
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
 import {
@@ -48,6 +49,8 @@ import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { isDesktop } from '../../blue_modules/environment';
+import ActionSheet from '../ActionSheet';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -57,7 +60,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const { navigate, goBack } = useNavigation();
+  const { navigate, goBack, dispatch, addListener } = useNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
   const w = useRef(wallets.find((wallet: AbstractWallet) => wallet.getID() === walletId));
@@ -77,6 +80,11 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef<any[]>();
+  /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
+    user tries to leave the screen with unsaved changes.
+    Why the container view ? It was the easiest to get the ref for. No other reason.
+  */
+  const discardChangesRef = useRef<View>(null);
   const { enableBlur, disableBlur } = usePrivacy();
 
   const stylesHook = StyleSheet.create({
@@ -109,6 +117,53 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       color: colors.buttonTextColor,
     },
   });
+  useFocusEffect(
+    useCallback(() => {
+      const unsubscribe = addListener('beforeRemove', e => {
+        // Check if there are unsaved changes
+        if (isSaveButtonDisabled) {
+          // If there are no unsaved changes, let the user leave the screen
+          return;
+        }
+
+        // Prevent the default action (going back)
+        e.preventDefault();
+
+        // Show an alert asking the user to discard changes or cancel
+        if (isDesktop) {
+          if (!discardChangesRef.current) return dispatch(e.data.action);
+          const anchor = findNodeHandle(discardChangesRef.current);
+          if (!anchor) return dispatch(e.data.action);
+          ActionSheet.showActionSheetWithOptions(
+            {
+              options: [loc._.cancel, loc._.ok],
+              cancelButtonIndex: 0,
+              title: loc._.discard_changes,
+              message: loc._.discard_changes_explain,
+              anchor,
+            },
+            buttonIndex => {
+              if (buttonIndex === 1) {
+                dispatch(e.data.action);
+              }
+            },
+          );
+        } else {
+          Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
+            { text: loc._.cancel, style: 'cancel', onPress: () => {} },
+            {
+              text: loc._.ok,
+              style: 'default',
+              // If the user confirms, then we dispatch the action we blocked earlier
+              onPress: () => dispatch(e.data.action),
+            },
+          ]);
+        }
+      });
+
+      return unsubscribe;
+    }, [isSaveButtonDisabled, addListener, dispatch]),
+  );
 
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
@@ -357,45 +412,42 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                 dashes={MultipleStepsListItemDashType.topAndBottom}
               />
             )}
+
             <MultipleStepsListItem
+              useActionSheet
+              actionSheetOptions={{
+                options: [loc._.cancel, loc.multisig.confirm],
+                title: loc._.seed,
+                message: loc.multisig.are_you_sure_seed_will_be_lost,
+                cancelButtonIndex: 0,
+                confirmButtonIndex: 1,
+              }}
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
               button={{
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
                 buttonType: MultipleStepsListItemButtohType.full,
-                onPress: () => {
-                  Alert.alert(
-                    loc._.seed,
-                    loc.multisig.are_you_sure_seed_will_be_lost,
-                    [
-                      {
-                        text: loc._.ok,
-                        onPress: () => {
-                          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                          setVaultKeyData({
-                            ...vaultKeyData,
-                            isLoading: true,
-                            keyIndex: el.index + 1,
-                          });
-                          setTimeout(
-                            () =>
-                              xpubInsteadOfSeed(el.index + 1).finally(() => {
-                                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                                setVaultKeyData({
-                                  ...vaultKeyData,
-                                  isLoading: false,
-                                  keyIndex: el.index + 1,
-                                });
-                              }),
-                            100,
-                          );
-                        },
-                        style: 'destructive',
-                      },
-                      { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-                    ],
-                    { cancelable: false },
+
+                onPress: (buttonIndex: number) => {
+                  if (buttonIndex === 0) return;
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setVaultKeyData({
+                    ...vaultKeyData,
+                    isLoading: true,
+                    keyIndex: el.index + 1,
+                  });
+                  setTimeout(
+                    () =>
+                      xpubInsteadOfSeed(el.index + 1).finally(() => {
+                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                        setVaultKeyData({
+                          ...vaultKeyData,
+                          isLoading: false,
+                          keyIndex: el.index + 1,
+                        });
+                      }),
+                    100,
                   );
                 },
               }}
@@ -578,7 +630,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const isPad: boolean = Platform.isPad;
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
       <KeyboardAvoidingView
         enabled={!isPad}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

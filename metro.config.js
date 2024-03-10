@@ -4,24 +4,22 @@
  *
  * @format
  */
-const path = require('path');
-const exclusionList = require('metro-config/src/defaults/exclusionList');
 
-module.exports = {
-  resolver: {
-    blockList: exclusionList([
-      // This stops "react-native run-windows" from causing the metro server to crash if its already running
-      new RegExp(`${path.resolve(__dirname, 'windows').replace(/[/\\]/g, '/')}.*`),
-      // This prevents "react-native run-windows" from hitting: EBUSY: resource busy or locked, open msbuild.ProjectImports.zip
-      /.*\.ProjectImports\.zip/,
-    ]),
-  },
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: true,
-      },
-    }),
-  },
+const { getDefaultConfig } = require('@react-native/metro-config');
+
+// Get the default Metro configuration.
+const defaultConfig = getDefaultConfig(__dirname);
+
+// If you have transformer settings to modify, you can do that here:
+defaultConfig.transformer = {
+  ...defaultConfig.transformer,
+  getTransformOptions: async () => ({
+    transform: {
+      experimentalImportSupport: false,
+      inlineRequires: true,
+    },
+  }),
 };
+
+// Export the updated configuration.
+module.exports = defaultConfig;

@@ -14,10 +14,7 @@
     "save": "Захаваць",
     "seed": "Семя",
     "success": "Посьпех",
-    "wallet_key": "Ключ ад кашалька",
-    "invalid_animated_qr_code_fragment": "Несапраўдны фрагмент аніміраванага QR-коду. Калі ласка, паспрабуйце яшчэ раз.",
-    "file_saved": "Файл {filePath} быў захаваны ў вашым месцы {destination}.",
-    "downloads_folder": "Папка Запамповак"
+    "wallet_key": "Ключ ад кашалька"
   },
   "alert": {
     "default": "Папярэджанне"
@@ -46,7 +43,6 @@
     "no_channels": "Няма каналаў",
     "close_channel": "Зачыніць канал",
     "new_channel": "Новы канал",
-    "errorInvoiceExpired": "Тэрмін дзеяння рахункі скончыўся",
     "expired": "Скончыўся",
     "open_channel": "Адкрыць Канал"
   },

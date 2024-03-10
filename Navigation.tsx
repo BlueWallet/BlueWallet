@@ -1,6 +1,6 @@
 import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Dimensions, I18nManager, Platform, useWindowDimensions } from 'react-native';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
@@ -83,6 +83,7 @@ import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import DrawerList from './screen/wallets/drawerList';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
+import { BlueStorageContext } from './blue_modules/storage-context';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -456,25 +457,22 @@ const LappBrowserStackRoot = () => {
 };
 
 const InitStack = createNativeStackNavigator();
-const InitRoot = () => (
-  <InitStack.Navigator initialRouteName="UnlockWithScreenRoot">
-    <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
-    <InitStack.Screen
-      name="ReorderWallets"
-      component={ReorderWalletsStackRoot}
-      options={{
-        headerShown: false,
-        gestureEnabled: false,
-        presentation: 'modal',
-      }}
-    />
-    <InitStack.Screen
-      name={isHandset ? 'Navigation' : 'DrawerRoot'}
-      component={isHandset ? Navigation : DrawerRoot}
-      options={{ headerShown: false, animationTypeForReplace: 'push' }}
-    />
-  </InitStack.Navigator>
-);
+const InitRoot = () => {
+  const { walletsInitialized } = useContext(BlueStorageContext);
+  return (
+    <InitStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ animationTypeForReplace: 'push' }}>
+      {!walletsInitialized ? (
+        <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
+      ) : (
+        <InitStack.Screen
+          name={isHandset ? 'Navigation' : 'DrawerRoot'}
+          component={isHandset ? Navigation : DrawerRoot}
+          options={{ headerShown: false }}
+        />
+      )}
+    </InitStack.Navigator>
+  );
+};
 
 export type ViewEditMultisigCosignersStackParamsList = {
   ViewEditMultisigCosigners: { walletId: string };
@@ -597,6 +595,15 @@ const Navigation = () => {
       />
 
       <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+      <InitStack.Screen
+        name="ReorderWallets"
+        component={ReorderWalletsStackRoot}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+          presentation: 'modal',
+        }}
+      />
     </RootStack.Navigator>
   );
 };
