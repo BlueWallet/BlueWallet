@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.22.5):
+  - BugsnagReactNative (7.22.6):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -469,7 +469,7 @@ PODS:
     - React-perflogger (= 0.72.11)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.6.0):
+  - RealmJS (12.6.2):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -504,7 +504,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
-  - RNReanimated (3.7.2):
+  - RNReanimated (3.8.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -783,7 +783,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BugsnagReactNative: 2f3550f37f30b9701e3517bf17743b676b5a2fb1
+  BugsnagReactNative: 366a7e11c0bcf34842e54f40b15dd937cb267aa7
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -843,7 +843,7 @@ SPEC CHECKSUMS:
   React-utils: cc09672a1517d768cfc545f245c78a1cae87fd49
   ReactCommon: cadee954951b13f7550766c0074dd38af2da3575
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: a62dc7a1f94b888fe9e8712cd650167ad97dc636
+  RealmJS: 385df5ee940d96f1de26b1dab153e325633d3052
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 10591b9e0a91eaffee14e69b3721009759235125
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
@@ -860,7 +860,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
-  RNReanimated: ab1295f59541cb26000d394b4b4aea72cb7ca448
+  RNReanimated: 5afba582037b0dae040a5f927dec7fdd18e430c3
   RNScreens: 3c5b9f4a9dcde752466854b6109b79c0e205dad3
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396

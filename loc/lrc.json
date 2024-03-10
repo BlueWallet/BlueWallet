@@ -1,0 +1,167 @@
+{
+  "_": {
+    "cancel": "لقو",
+    "continue": "ادامه",
+    "enter_password": "رزمن بزݩ",
+    "of": "{number} د {total}",
+    "ok": "خو",
+    "yes": "ٱ",
+    "no": "نه",
+    "success": "مۏوفق بی",
+    "wallet_key": "کلٛیل کیف پیلٛ",
+    "refresh": "وانۊ کردن",
+    "more": "بؽشتر",
+    "enter_amount": "مقدارن بزݩ"
+  },
+  "azteco": {
+    "codeIs": "کود تخفیف شما",
+    "redeem": "ازاف کردن وه کیف پیلٛ",
+    "success": "مۏوفق بی"
+  },
+  "entropy": {
+    "title": "آنتروپی"
+  },
+  "errors": {
+    "error": "ختا",
+    "network": "ختا شبکه"
+  },
+  "lnd": {
+    "active": "فعال",
+    "inactive": "قیر فعال",
+    "channels": "تورگیا",
+    "no_channels": "بؽ تورگه",
+    "claim_balance": "تسویه مۉجۊدی {balance}",
+    "close_channel": "بستن تورگه",
+    "new_channel": "تورگه نۊ",
+    "errorInvoiceExpired": "سۊرت هساو مونقزی بیه.",
+    "force_close_channel": "بستن اجباری تورگه؟",
+    "expired": "مونقزی بیه",
+    "node_alias": "نوم موستعار گره",
+    "payButton": "پرداخت",
+    "payment": "پرداخت",
+    "placeholder": "سۊرت هساو یا آدرس",
+    "open_channel": "واز کردن تورگه",
+    "potentialFee": "کارمزد ائتمالی: {fee}",
+    "refill": "پور کردن",
+    "refill_external": "پور کردن وا کیف پیلٛ خارجی",
+    "refill_lnd_balance": "پور کردن مۉجۊدی کیف پیلٛ لایتنینگ",
+    "can_send": "مؽتونه کلٛ بکه",
+    "can_receive": "مؽتونه بگره"
+  },
+  "lndViewInvoice": {
+    "additional_info": "دونسمنیا بؽشتر",
+    "for": "سی:",
+    "lightning_invoice": "سۊرت هساو لایتنینگ",
+    "open_direct_channel": "تورگه موستقیمی وا اؽ گره واز بکو:",
+    "sats": "ساتۊشی پرداخت بکو.",
+    "wasnt_paid_and_expired": "اؽ سۊرت هساو پرداخت نبیه ۉ مونقزی بیه."
+  },
+  "plausibledeniability": {
+    "password_should_not_match": "رزم ها وه کار مؽره. یه رزم هنی نه وه کار بیر.",
+    "passwords_do_not_match": "رزمیات چی یک نؽسن، دۏورته امتهانشو بکو.",
+    "retype_password": "رزمن دۏورته هؽل بکو",
+    "success": "مۏوفق بی"
+  },
+  "pleasebackup": {
+    "ask_no": "نه، مه نارم.",
+    "ask_yes": "ٱ، مه دارم."
+  },
+  "receive": {
+    "details_setAmount": "گرؽتن وا مقدار",
+    "details_share": "یک رسونی",
+    "header": "گرتن"
+  },
+  "send": {
+    "broadcastError": "ختا",
+    "broadcastSuccess": "مۏوفق بی",
+    "confirm_header": "تایید",
+    "confirm_sendNow": "هه ایسه کلٛ بکو",
+    "create_amount": "مقدار",
+    "create_copy": "لٛف گری ۉ دماتر مونتشر بکو",
+    "create_fee": "کارمزد",
+    "create_memo": "ویرداشت",
+    "create_satoshi_per_vbyte": "ساتۊشی سی هر بایت مجازی",
+    "create_to": "وه",
+    "details_address": "آدرس",
+    "details_note_placeholder": "ویرداشت وه خوت",
+    "details_scan": "اسکن",
+    "details_unrecognized_file_format": "قالو فایل نشناخته",
+    "dynamic_init": "ها ره موفته",
+    "fee_10m": "10 دیقه",
+    "fee_1d": "1 رۊز",
+    "fee_3h": "3 ساعت",
+    "fee_fast": "زلٛ",
+    "fee_medium": "مؽنجا",
+    "header": "کلٛ کردن",
+    "psbt_sign": "امزا کردن تراکونش",
+    "permission_storage_later": "دماتر دم بپورس."
+  },
+  "settings": {
+    "about_selftest": "ره ونن خوش آزمایی",
+    "about_selftest_electrum_disabled": "خوش آزمایی د هالت آفلاین د دسرس نؽ. هالت آفلاینن قیر فعال بکو ۉ دۏورته تفره بکو.",
+    "about_sm_github": "گیت هاب",
+    "about_sm_discord": "سرور دیسکورد",
+    "about_sm_telegram": "تورگه تلگرام",
+    "advanced_options": "گژکیا پؽش رته",
+    "biometrics": "بیومتریک",
+    "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",
+    "currency": "واهد پیلٛ",
+    "currency_source": "قیمت گرته بیه د",
+    "default_info": "دونسمنیا پؽش فرز",
+    "default_title": "موقه ره ونن",
+    "electrum_offline_mode": "هالت آفلاین",
+    "use_ssl": "SSL نه وه کار بییر",
+    "set_electrum_server_as_default": "{server} سی سرور پؽش فرز الکترام ساموݩ بۊئه؟",
+    "set_lndhub_as_default": "{server} سی سرور پؽش فرز LNDHub ساموݩ بۊئه؟",
+    "electrum_settings_server": "سرور الکترام",
+    "electrum_status": "وزیت",
+    "electrum_clear_alert_title": "ویرگار پاک بۊئه؟",
+    "electrum_clear_alert_message": "مؽهای ویرگار سرور الکترامن پاک بکی؟",
+    "electrum_clear_alert_cancel": "لقو",
+    "electrum_clear_alert_ok": "خو",
+    "electrum_history": "ویرگار سرور",
+    "encrypt_title": "امنیت",
+    "encrypt_use": "{type} نه وه کار بییر",
+    "general_adv_mode": "هالت پؽش رته",
+    "header": "سامونیا",
+    "language": "زوݩ",
+    "lightning_settings": "سامونیا لایتنینگ",
+    "network": "شبکه",
+    "network_electrum": "سرور الکترام",
+    "notifications": "وارسونیا",
+    "password": "رزم",
+    "privacy": "سی خومی",
+    "privacy_read_clipboard": "ونن ویرگه",
+    "privacy_system_settings": "سامونیا دسگا",
+    "rate": "نرخ",
+    "retype_password": "رزمن دۏورته هؽل بکو",
+    "widgets": "اوزارکیا",
+    "tools": "اوزاریا"
+  },
+  "notifications": {
+    "ask_me_later": "دماتر دم بپورس."
+  },
+  "transactions": {
+    "copy_link": "لٛف گری لینگ",
+    "details_copy": "لٛف گری",
+    "date": "ویرگار",
+    "details_received": "گرته بیه"
+  },
+  "wallets": {
+    "add_bitcoin": "بیت کوین",
+    "details_address": "آدرس",
+    "details_advanced": "پؽش رته"
+  },
+  "multisig": {
+    "confirm": "تایید",
+    "header": "کلٛ کردن",
+    "share": "یک رسونی",
+    "co_sign_transaction": "امزا کردن تراکونش",
+    "of": "د",
+    "ms_help_title5": "هالت پؽش رته"
+  },
+  "addresses": {
+    "sign_placeholder_address": "آدرس",
+    "type_receive": "گرتن"
+  }
+}

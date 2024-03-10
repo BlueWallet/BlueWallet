@@ -5,8 +5,8 @@ import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGms
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../loc';
 import { requestNotifications } from 'react-native-permissions';
+import PushNotification from 'react-native-push-notification';
 
-const PushNotification = require('react-native-push-notification');
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
@@ -245,7 +245,9 @@ function Notifications(props) {
         },
       }),
     );
-    Notifications.abandonPermissions();
+    console.log('Abandoning notifications Permissions...');
+    PushNotification.abandonPermissions();
+    console.log('Abandoned notifications Permissions...');
     return postCall;
   };
 
@@ -324,6 +326,9 @@ function Notifications(props) {
           },
         }),
       );
+      console.log('Abandoning notifications Permissions...');
+      PushNotification.abandonPermissions();
+      console.log('Abandoned notifications Permissions...');
     } catch (_) {}
   };
 
