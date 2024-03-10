@@ -4,7 +4,6 @@ export const startIfNotStarted = jest.fn(async (key, value, callback) => {
   return 666;
 });
 
-
 export const get = jest.fn();
 export const post = jest.fn();
 export const deleteMock = jest.fn();

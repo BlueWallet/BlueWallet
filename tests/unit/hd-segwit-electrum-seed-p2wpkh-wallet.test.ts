@@ -1,5 +1,5 @@
 import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
-const assert = require('assert');
+import assert from 'assert';
 
 describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
   it('wont accept BIP39 seed', () => {

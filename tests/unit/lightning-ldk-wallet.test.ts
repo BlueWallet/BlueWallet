@@ -1,8 +1,8 @@
 import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
-const assert = require('assert');
+import assert from 'assert';
 
 describe('', () => {
-  function isHex(h) {
+  function isHex(h: string) {
     const re = /[0-9A-Fa-f]{6}/g;
     return re.test(h);
   }
