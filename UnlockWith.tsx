@@ -5,11 +5,14 @@ import Biometric, { BiometricType } from './class/biometrics';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import SafeArea from './components/SafeArea';
+import { BlueTextCentered } from './BlueComponents';
+import loc from './loc';
 
 enum AuthType {
   Encrypted,
   Biometrics,
   None,
+  BiometricsUnavailable,
 }
 
 type State = {
@@ -95,6 +98,7 @@ const UnlockWith: React.FC = () => {
       const storageIsEncrypted = await isStorageEncrypted();
       const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
       const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
+      const biometricsUseEnabled = await Biometric.isBiometricUseEnabled();
 
       if (storageIsEncrypted) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
@@ -102,6 +106,8 @@ const UnlockWith: React.FC = () => {
       } else if (isBiometricUseCapableAndEnabled) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
         unlockWithBiometrics();
+      } else if (biometricsUseEnabled && biometricType === undefined) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
       } else {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
         unlockWithKey();
@@ -142,6 +148,8 @@ const UnlockWith: React.FC = () => {
               <Icon name="lock" size={64} type="font-awesome5" color={color} />
             </TouchableOpacity>
           );
+        case AuthType.BiometricsUnavailable:
+          return <BlueTextCentered>{loc.settings.biometrics_no_longer_available}</BlueTextCentered>;
         default:
           return null;
       }
@@ -171,10 +179,11 @@ const styles = StyleSheet.create({
   biometricRow: {
     justifyContent: 'center',
     flexDirection: 'row',
-    width: 64,
-    height: 64,
+    minWidth: 64,
+    minHeight: 64,
     alignSelf: 'center',
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   icon: {
     width: 64,
