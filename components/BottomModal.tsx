@@ -28,6 +28,7 @@ interface BottomModalProps {
   avoidKeyboard?: boolean;
   allowBackdropPress?: boolean;
   isVisible: boolean;
+  coverScreen?: boolean;
 }
 
 const BottomModal: React.FC<BottomModalProps> = ({
@@ -40,6 +41,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
   isVisible,
   avoidKeyboard = false,
   allowBackdropPress = true,
+  coverScreen = true,
   ...props
 }) => {
   const { height: valueWindowHeight, width: valueWindowWidth } = useWindowDimensions();
@@ -60,6 +62,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
       onBackButtonPress={handleBackButtonPress}
       onBackdropPress={handleBackdropPress}
       isVisible={isVisible}
+      coverScreen={coverScreen}
       {...props}
       accessibilityViewIsModal
       avoidKeyboard={avoidKeyboard}
