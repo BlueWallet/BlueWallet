@@ -1,12 +1,12 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
 import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
-import Biometric, { BiometricType } from './class/biometrics';
-import { BlueStorageContext } from './blue_modules/storage-context';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
-import SafeArea from './components/SafeArea';
-import { BlueTextCentered } from './BlueComponents';
-import loc from './loc';
+import Biometric, { BiometricType } from '../class/biometrics';
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import SafeArea from '../components/SafeArea';
+import { BlueTextCentered } from '../BlueComponents';
+import loc from '../loc';
 
 enum AuthType {
   Encrypted,
@@ -135,7 +135,7 @@ const UnlockWith: React.FC = () => {
             return (
               <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
                 <Image
-                  source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
+                  source={colorScheme === 'dark' ? require('../img/faceid-default.png') : require('../img/faceid-dark.png')}
                   style={styles.icon}
                 />
               </TouchableOpacity>
@@ -159,7 +159,7 @@ const UnlockWith: React.FC = () => {
   return (
     <SafeArea style={styles.root}>
       <View style={styles.container}>
-        <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
+        <Image source={require('../img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
       <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
     </SafeArea>
