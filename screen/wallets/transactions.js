@@ -55,6 +55,7 @@ const WalletTransactions = ({ navigation }) => {
   } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
+  const { name } = useRoute();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [itemPriceUnit, setItemPriceUnit] = useState(wallet.getPreferredBalanceUnit());
   const [dataSource, setDataSource] = useState(wallet.getTransactions(15));
@@ -423,7 +424,7 @@ const WalletTransactions = ({ navigation }) => {
         cancelButtonIndex,
         anchor: findNodeHandle(walletActionButtonsRef.current),
       },
-      buttonIndex => {
+      async buttonIndex => {
         switch (buttonIndex) {
           case 0:
             break;
@@ -431,7 +432,7 @@ const WalletTransactions = ({ navigation }) => {
             choosePhoto();
             break;
           case 2:
-            scanQrHelper(navigate, onBarCodeRead);
+            scanQrHelper(navigate, name, true).then(data => onBarCodeRead({ data }));
             break;
           case 3:
             if (!isClipboardEmpty) {

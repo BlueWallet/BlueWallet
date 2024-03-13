@@ -264,12 +264,10 @@ const App = () => {
           buttonIndex => {
             switch (buttonIndex) {
               case 0: // Cancel
-                // Handle cancel
                 break;
-              case 1: // Continue
+              case 1:
                 handleOpenURL({ url: clipboard });
                 break;
-              // Handle other buttons if there are more than two
             }
           },
         );
