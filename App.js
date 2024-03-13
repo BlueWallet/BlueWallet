@@ -260,7 +260,6 @@ const App = () => {
             message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
             options: [loc._.cancel, loc._.continue],
             cancelButtonIndex: 0,
-            destructiveButtonIndex: undefined, // Add this if you have a destructive button, otherwise omit or set as undefined
           },
           buttonIndex => {
             switch (buttonIndex) {

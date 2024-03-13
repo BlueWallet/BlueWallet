@@ -425,21 +425,19 @@ const WalletTransactions = ({ navigation }) => {
       },
       buttonIndex => {
         switch (buttonIndex) {
-          case 0: // Cancel button
-            // Handle cancel, if necessary
+          case 0:
             break;
-          case 1: // Choose photo
+          case 1:
             choosePhoto();
             break;
-          case 2: // Scan QR code
+          case 2:
             scanQrHelper(navigate, onBarCodeRead);
             break;
-          case 3: // Copy from clipboard, this case exists only if clipboard is not empty
+          case 3:
             if (!isClipboardEmpty) {
               copyFromClipboard();
             }
             break;
-          // Add more cases if there are additional buttons
         }
       },
     );
