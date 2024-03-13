@@ -75,7 +75,7 @@ export default class PayjoinTransaction {
       if (result === '') {
         // TODO: Improve the wording of this error message
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: 'Something was wrong with the payjoin transaction, the original transaction sucessfully broadcast.' });
+        presentAlert({ message: 'Something was wrong with the payjoin transaction, the original transaction successfully broadcast.' });
       }
     });
   }

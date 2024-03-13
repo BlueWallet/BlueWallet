@@ -161,7 +161,7 @@ const ReceiveDetails = () => {
           const balanceToShow = balance.confirmed - initialConfirmed;
 
           if (balanceToShow > 0) {
-            // address has actually more coins then initially, so we definately gained something
+            // address has actually more coins than initially, so we definitely gained something
             setShowConfirmedBalance(true);
             setShowPendingBalance(false);
             setShowAddress(false);
