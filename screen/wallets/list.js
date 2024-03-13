@@ -339,7 +339,7 @@ const WalletsList = () => {
               });
             break;
           case 2:
-            scanQrHelper(navigate, routeName, true).then(data => onBarScanned({ data }));
+            scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
             break;
           case 3:
             if (!isClipboardEmpty) {
