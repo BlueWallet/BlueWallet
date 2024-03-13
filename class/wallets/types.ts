@@ -38,8 +38,8 @@ export type Utxo = {
  */
 export type CreateTransactionUtxo = {
   txId: string;
-  txid: string; // TODO: same as txId, do we really need it?
-  txhex: string;
+  txid?: string; // TODO: same as txId, do we really need it?
+  txhex?: string;
   vout: number;
   value: number;
   script?: {
