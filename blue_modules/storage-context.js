@@ -211,15 +211,11 @@ export const BlueStorageProvider = ({ children }) => {
   const startAndDecrypt = BlueApp.startAndDecrypt;
   const encryptStorage = BlueApp.encryptStorage;
   const sleep = BlueApp.sleep;
-  const setHodlHodlApiKey = BlueApp.setHodlHodlApiKey;
-  const getHodlHodlApiKey = BlueApp.getHodlHodlApiKey;
   const createFakeStorage = BlueApp.createFakeStorage;
   const decryptStorage = BlueApp.decryptStorage;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
   const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
-  const getHodlHodlSignatureKey = BlueApp.getHodlHodlSignatureKey;
-  const addHodlHodlContract = BlueApp.addHodlHodlContract;
   const setDoNotTrack = BlueApp.setDoNotTrack;
   const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
   const getItem = BlueApp.getItem;
@@ -247,20 +243,16 @@ export const BlueStorageProvider = ({ children }) => {
         fetchWalletTransactions,
         fetchAndSaveWalletTransactions,
         isStorageEncrypted,
-        getHodlHodlSignatureKey,
         encryptStorage,
         startAndDecrypt,
         cachedPassword,
-        addHodlHodlContract,
         getBalance,
         walletsInitialized,
         setWalletsInitialized,
         refreshAllWalletTransactions,
         sleep,
-        setHodlHodlApiKey,
         createFakeStorage,
         resetWallets,
-        getHodlHodlApiKey,
         decryptStorage,
         isPasswordInUse,
         setIsAdvancedModeEnabled,
