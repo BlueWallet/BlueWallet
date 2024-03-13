@@ -592,7 +592,7 @@ const Navigation = () => {
       <RootStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
       />
       <RootStack.Screen
         name="WalletXpubRoot"
