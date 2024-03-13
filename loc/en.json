@@ -230,6 +230,7 @@
     "about_sm_twitter": "Follow us on Twitter",
     "advanced_options": "Advanced Options",
     "biometrics": "Biometrics",
+    "biometrics_no_longer_available": "Your device settings have changed and no longer match the selected security settings in the app. Please re-enable biometrics or passcode, then restart the app to apply these changes.",
     "biom_10times": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.",
     "biom_conf_identity": "Please confirm your identity.",
     "biom_no_passcode": "Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.",
