@@ -360,7 +360,10 @@ const ScanQRCodeRoot = () => (
 
 const UnlockWithScreenStack = createNativeStackNavigator();
 const UnlockWithScreenRoot = () => (
-  <UnlockWithScreenStack.Navigator id="UnlockWithScreenRoot" screenOptions={{ headerShown: false, statusBarStyle: 'auto' }}>
+  <UnlockWithScreenStack.Navigator
+    id="UnlockWithScreenRoot"
+    screenOptions={{ headerShown: false, statusBarStyle: 'auto', autoHideHomeIndicator: true }}
+  >
     <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
   </UnlockWithScreenStack.Navigator>
 );

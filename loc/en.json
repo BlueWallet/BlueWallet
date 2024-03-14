@@ -25,7 +25,8 @@
     "pick_image": "Choose image from library",
     "pick_file": "Choose a file",
     "enter_amount": "Enter amount",
-    "qr_custom_input_button": "Tap 10 times to enter custom input"
+    "qr_custom_input_button": "Tap 10 times to enter custom input",
+    "unlock": "Unlock"
   },
   "alert": {
     "default": "Alert"
