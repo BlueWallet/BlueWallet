@@ -20,7 +20,17 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+
+  // Set the appType based on the current platform
+#if TARGET_OS_MACCATALYST
+  BugsnagConfiguration *config = [BugsnagConfiguration loadConfig];
+  config.appType = @"macOS";
+  // Start Bugsnag with the configuration
+  [Bugsnag startWithConfiguration:config];
+#else
   [Bugsnag start];
+#endif
+
   [self copyDeviceUID];
   
   [[NSUserDefaults standardUserDefaults] addObserver:self
