@@ -4,7 +4,6 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../Navigation';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import loc from '../../loc';
 
 interface DataSection {
@@ -22,12 +21,13 @@ export default function PaymentCodesList({ route }: Props) {
   useEffect(() => {
     if (!walletID) return;
 
-    const foundWallet: AbstractHDElectrumWallet = wallets.find((w: AbstractHDElectrumWallet) => w.getID() === walletID);
+    const foundWallet = wallets.find(w => w.getID() === walletID);
     if (!foundWallet) return;
 
     const newData: DataSection[] = [
       {
         title: loc.bip47.who_can_pay_me,
+        // @ts-ignore remove later
         data: foundWallet.getBIP47SenderPaymentCodes(),
       },
     ];

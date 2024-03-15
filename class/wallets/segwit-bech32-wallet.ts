@@ -8,9 +8,13 @@ import { CoinSelectTarget } from 'coinselect';
 const ECPair = ECPairFactory(ecc);
 
 export class SegwitBech32Wallet extends LegacyWallet {
-  static type = 'segwitBech32';
-  static typeReadable = 'P2 WPKH';
-  static segwitType = 'p2wpkh';
+  static readonly type = 'segwitBech32';
+  static readonly typeReadable = 'P2 WPKH';
+  // @ts-ignore: override
+  public readonly type = SegwitBech32Wallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = SegwitBech32Wallet.typeReadable;
+  public readonly segwitType = 'p2wpkh';
 
   getAddress(): string | false {
     if (this._address) return this._address;

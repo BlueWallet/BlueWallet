@@ -16,6 +16,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await yo('WalletsList');
 
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+  await sleep(200); // Wait until bounce animation finishes.
   // going to Import Wallet screen and importing mnemonic
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('ImportWallet')).tap();
@@ -114,6 +115,7 @@ export const expectToBeVisible = async id => {
 
 export async function helperCreateWallet(walletName) {
   await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+  await sleep(200); // Wait until bounce animation finishes.
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('WalletNameInput')).replaceText(walletName || 'cr34t3d');
   await yo('ActivateBitcoinButton');

@@ -19,9 +19,13 @@ type SeedOpts = {
  * @see https://electrum.readthedocs.io/en/latest/seedphrase.html
  */
 export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
-  static type = 'HDlegacyElectrumSeedP2PKH';
-  static typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
-  static derivationPath = 'm';
+  static readonly type = 'HDlegacyElectrumSeedP2PKH';
+  static readonly typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
+  // @ts-ignore: override
+  public readonly type = HDLegacyElectrumSeedP2PKHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDLegacyElectrumSeedP2PKHWallet.typeReadable;
+  static readonly derivationPath = 'm';
 
   validateMnemonic() {
     return mn.validateMnemonic(this.secret, PREFIX);
