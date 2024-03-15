@@ -55,8 +55,12 @@ const electrumStandart = (passphrase?: string): SeedOpts => ({
 const ELECTRUM_SEED_PREFIX = 'electrumseed:';
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
-  static type = 'HDmultisig';
-  static typeReadable = 'Multisig Vault';
+  static readonly type = 'HDmultisig';
+  static readonly typeReadable = 'Multisig Vault';
+  // @ts-ignore: override
+  public readonly type = MultisigHDWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = MultisigHDWallet.typeReadable;
 
   static FORMAT_P2WSH = 'p2wsh';
   static FORMAT_P2SH_P2WSH = 'p2sh-p2wsh';

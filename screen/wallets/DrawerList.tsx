@@ -8,7 +8,7 @@ import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { AbstractWallet } from '../../class';
+import { TWallet } from '../../class/wallets/types';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -18,7 +18,7 @@ enum WalletActionType {
 }
 
 interface WalletState {
-  wallets: AbstractWallet[];
+  wallets: TWallet[];
   selectedWalletID: string | null;
   isFocused: boolean;
 }
@@ -46,7 +46,7 @@ interface SetFocusAction {
 
 interface SetWalletsAction {
   type: WalletActionType.SetWallets;
-  wallets: AbstractWallet[];
+  wallets: TWallet[];
 }
 
 interface SelectWalletAction {
@@ -89,7 +89,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   };
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const walletsCarousel = useRef<FlatList<AbstractWallet>>(null);
+  const walletsCarousel = useRef<FlatList<TWallet>>(null);
   const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -108,7 +108,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   }, [wallets, isFocused]);
 
   const handleClick = useCallback(
-    (item: AbstractWallet) => {
+    (item: TWallet) => {
       if (item?.getID) {
         const walletID = item.getID();
         const walletType = item.type;

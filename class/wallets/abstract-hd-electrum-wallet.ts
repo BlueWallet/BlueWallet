@@ -31,10 +31,14 @@ type BalanceByIndex = {
  * Electrum - means that it utilizes Electrum protocol for blockchain data
  */
 export class AbstractHDElectrumWallet extends AbstractHDWallet {
-  static type = 'abstract';
-  static typeReadable = 'abstract';
+  static readonly type = 'abstract';
+  static readonly typeReadable = 'abstract';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
   static finalRBFSequence = 4294967295; // 0xFFFFFFFF
+  // @ts-ignore: override
+  public readonly type = AbstractHDElectrumWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = AbstractHDElectrumWallet.typeReadable;
 
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;

@@ -6,10 +6,14 @@ import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
  * @see https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
  */
 export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
-  static type = 'HDsegwitBech32';
-  static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
-  static segwitType = 'p2wpkh';
-  static derivationPath = "m/84'/0'/0'";
+  static readonly type = 'HDsegwitBech32';
+  static readonly typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
+  // @ts-ignore: override
+  public readonly type = HDSegwitBech32Wallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDSegwitBech32Wallet.typeReadable;
+  public readonly segwitType = 'p2wpkh';
+  static readonly derivationPath = "m/84'/0'/0'";
 
   allowSend() {
     return true;

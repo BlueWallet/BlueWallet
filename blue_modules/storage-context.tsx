@@ -1,34 +1,96 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import { FiatUnit } from '../models/fiatUnit';
+
+import BlueApp, { TTXMetadata, startAndDecrypt } from '../BlueApp';
 import Notifications from '../blue_modules/notifications';
-import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
+import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
+import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
+import { FiatUnit, TFiatUnit } from '../models/fiatUnit';
 import { PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
-const BlueApp = require('../BlueApp');
+import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
+
 const BlueElectrum = require('./BlueElectrum');
 const A = require('../blue_modules/analytics');
 
-const _lastTimeTriedToRefetchWallet = {}; // hashmap of timestamps we _started_ refetching some wallet
+// hashmap of timestamps we _started_ refetching some wallet
+const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
-export const WalletTransactionsStatus = { NONE: false, ALL: true };
-export const BlueStorageContext = createContext();
-export const BlueStorageProvider = ({ children }) => {
-  const [wallets, setWallets] = useState([]);
-  const [selectedWalletID, setSelectedWalletID] = useState();
-  const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState(WalletTransactionsStatus.NONE);
-  const [walletsInitialized, setWalletsInitialized] = useState(false);
-  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
-  const [language, _setLanguage] = useState();
+interface BlueStorageContextType {
+  wallets: TWallet[];
+  setWalletsWithNewOrder: (wallets: TWallet[]) => void;
+  txMetadata: TTXMetadata;
+  saveToDisk: (force?: boolean) => Promise<void>;
+  selectedWalletID: string | undefined;
+  setSelectedWalletID: (walletID: string | undefined) => void;
+  addWallet: (wallet: TWallet) => void;
+  deleteWallet: (wallet: TWallet) => void;
+  currentSharedCosigner: string;
+  setSharedCosigner: (cosigner: string) => void;
+  addAndSaveWallet: (wallet: TWallet) => Promise<void>;
+  fetchAndSaveWalletTransactions: (walletID: string) => Promise<void>;
+  walletsInitialized: boolean;
+  setWalletsInitialized: (initialized: boolean) => void;
+  refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
+  resetWallets: () => void;
+  setPreferredFiatCurrency: () => void;
+  preferredFiatCurrency: TFiatUnit;
+  setLanguage: () => void;
+  language: string | undefined;
+  isHandOffUseEnabled: boolean;
+  setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
+  walletTransactionUpdateStatus: WalletTransactionsStatus | string;
+  setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
+  isElectrumDisabled: boolean;
+  setIsElectrumDisabled: (value: boolean) => void;
+  isPrivacyBlurEnabled: boolean;
+  setIsPrivacyBlurEnabled: (value: boolean) => void;
+  reloadTransactionsMenuActionFunction: () => void;
+  setReloadTransactionsMenuActionFunction: (func: () => void) => void;
+
+  getTransactions: typeof BlueApp.getTransactions;
+  isAdvancedModeEnabled: typeof BlueApp.isAdvancedModeEnabled;
+  fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
+  fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
+  getBalance: typeof BlueApp.getBalance;
+  isStorageEncrypted: typeof BlueApp.storageIsEncrypted;
+  startAndDecrypt: typeof startAndDecrypt;
+  encryptStorage: typeof BlueApp.encryptStorage;
+  sleep: typeof BlueApp.sleep;
+  createFakeStorage: typeof BlueApp.createFakeStorage;
+  decryptStorage: typeof BlueApp.decryptStorage;
+  isPasswordInUse: typeof BlueApp.isPasswordInUse;
+  cachedPassword: typeof BlueApp.cachedPassword;
+  setIsAdvancedModeEnabled: typeof BlueApp.setIsAdvancedModeEnabled;
+  setDoNotTrack: typeof BlueApp.setDoNotTrack;
+  isDoNotTrackEnabled: typeof BlueApp.isDoNotTrackEnabled;
+  getItem: typeof BlueApp.getItem;
+  setItem: typeof BlueApp.setItem;
+}
+
+export enum WalletTransactionsStatus {
+  NONE = 'NONE',
+  ALL = 'ALL',
+}
+// @ts-ignore defaut value does not match the type
+export const BlueStorageContext = createContext<BlueStorageContextType>(undefined);
+export const BlueStorageProvider = ({ children }: { children: React.ReactNode }) => {
+  const [wallets, setWallets] = useState<TWallet[]>([]);
+  const [selectedWalletID, setSelectedWalletID] = useState<undefined | string>();
+  const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
+    WalletTransactionsStatus.NONE,
+  );
+  const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState<TFiatUnit>(FiatUnit.USD);
+  const [language, _setLanguage] = useState<string | undefined>();
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState<boolean>(false);
+  const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
+  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
+  const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
   const getPreferredCurrencyAsyncStorage = useAsyncStorage(PREFERRED_CURRENCY_STORAGE_KEY).getItem;
   const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
-  const [isElectrumDisabled, setIsElectrumDisabled] = useState(true);
-  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState(true);
-  const [currentSharedCosigner, setCurrentSharedCosigner] = useState('');
-  const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState(() => {});
+  const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
@@ -47,12 +109,12 @@ export const BlueStorageProvider = ({ children }) => {
     }
   }, [isPrivacyBlurEnabled]);
 
-  const setIsHandOffUseEnabledAsyncStorage = value => {
+  const setIsHandOffUseEnabledAsyncStorage = (value: boolean) => {
     setIsHandOffUseEnabled(value);
     return BlueApp.setIsHandoffEnabled(value);
   };
 
-  const saveToDisk = async (force = false) => {
+  const saveToDisk = async (force: boolean = false) => {
     if (BlueApp.getWallets().length === 0 && !force) {
       console.log('not saving empty wallets array');
       return;
@@ -80,6 +142,7 @@ export const BlueStorageProvider = ({ children }) => {
   }, []);
 
   const getPreferredCurrency = async () => {
+    // @ts-ignore TODO: fix this
     const item = JSON.parse(await getPreferredCurrencyAsyncStorage()) ?? FiatUnit.USD;
     _setPreferredFiatCurrency(item);
     return item;
@@ -91,6 +154,9 @@ export const BlueStorageProvider = ({ children }) => {
 
   const getLanguage = async () => {
     const item = await getLanguageAsyncStorage();
+    if (item === null) {
+      return;
+    }
     _setLanguage(item);
   };
 
@@ -108,12 +174,12 @@ export const BlueStorageProvider = ({ children }) => {
     setWallets(BlueApp.getWallets());
   };
 
-  const setWalletsWithNewOrder = wlts => {
+  const setWalletsWithNewOrder = (wlts: TWallet[]) => {
     BlueApp.wallets = wlts;
     saveToDisk();
   };
 
-  const refreshAllWalletTransactions = async (lastSnappedTo, showUpdateStatusIndicator = true) => {
+  const refreshAllWalletTransactions = async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
     let noErr = true;
     try {
       await BlueElectrum.waitTillConnected();
@@ -121,7 +187,7 @@ export const BlueStorageProvider = ({ children }) => {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
       }
       const paymentCodesStart = Date.now();
-      await fetchSenderPaymentCodes(lastSnappedTo);
+      await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
       const paymentCodesEnd = Date.now();
       console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
       const balanceStart = +new Date();
@@ -141,7 +207,7 @@ export const BlueStorageProvider = ({ children }) => {
     if (noErr) await saveToDisk(); // caching
   };
 
-  const fetchAndSaveWalletTransactions = async walletID => {
+  const fetchAndSaveWalletTransactions = async (walletID: string) => {
     const index = wallets.findIndex(wallet => wallet.getID() === walletID);
     let noErr = true;
     try {
@@ -171,17 +237,17 @@ export const BlueStorageProvider = ({ children }) => {
     if (noErr) await saveToDisk(); // caching
   };
 
-  const addWallet = wallet => {
+  const addWallet = (wallet: TWallet) => {
     BlueApp.wallets.push(wallet);
     setWallets([...BlueApp.getWallets()]);
   };
 
-  const deleteWallet = wallet => {
+  const deleteWallet = (wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
   };
 
-  const addAndSaveWallet = async w => {
+  const addAndSaveWallet = async (w: TWallet) => {
     if (wallets.some(i => i.getID() === w.getID())) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: 'This wallet has been previously imported.' });
@@ -195,26 +261,20 @@ export const BlueStorageProvider = ({ children }) => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     presentAlert({ message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success });
+    // @ts-ignore need to type notifications first
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
     // start balance fetching at the background
     await w.fetchBalance();
     setWallets([...BlueApp.getWallets()]);
   };
 
-  const setSharedCosigner = cosigner => {
-    setCurrentSharedCosigner(cosigner);
-  };
-
-  let txMetadata = BlueApp.tx_metadata || {};
+  let txMetadata = BlueApp.tx_metadata;
   const getTransactions = BlueApp.getTransactions;
   const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
-
-  const fetchSenderPaymentCodes = BlueApp.fetchSenderPaymentCodes;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
   const getBalance = BlueApp.getBalance;
   const isStorageEncrypted = BlueApp.storageIsEncrypted;
-  const startAndDecrypt = BlueApp.startAndDecrypt;
   const encryptStorage = BlueApp.encryptStorage;
   const sleep = BlueApp.sleep;
   const createFakeStorage = BlueApp.createFakeStorage;
@@ -227,60 +287,56 @@ export const BlueStorageProvider = ({ children }) => {
   const getItem = BlueApp.getItem;
   const setItem = BlueApp.setItem;
 
-  return (
-    <BlueStorageContext.Provider
-      value={{
-        wallets,
-        setWalletsWithNewOrder,
-        txMetadata,
-        saveToDisk,
-        getTransactions,
-        selectedWalletID,
-        setSelectedWalletID,
-        addWallet,
-        deleteWallet,
-        currentSharedCosigner,
-        setSharedCosigner,
-        addAndSaveWallet,
-        setItem,
-        getItem,
-        isAdvancedModeEnabled,
-        fetchWalletBalances,
-        fetchWalletTransactions,
-        fetchAndSaveWalletTransactions,
-        isStorageEncrypted,
-        encryptStorage,
-        startAndDecrypt,
-        cachedPassword,
-        getBalance,
-        walletsInitialized,
-        setWalletsInitialized,
-        refreshAllWalletTransactions,
-        sleep,
-        createFakeStorage,
-        resetWallets,
-        decryptStorage,
-        isPasswordInUse,
-        setIsAdvancedModeEnabled,
-        setPreferredFiatCurrency,
-        preferredFiatCurrency,
-        setLanguage,
-        language,
-        isHandOffUseEnabled,
-        setIsHandOffUseEnabledAsyncStorage,
-        walletTransactionUpdateStatus,
-        setWalletTransactionUpdateStatus,
-        setDoNotTrack,
-        isDoNotTrackEnabled,
-        isElectrumDisabled,
-        setIsElectrumDisabled,
-        isPrivacyBlurEnabled,
-        setIsPrivacyBlurEnabled,
-        reloadTransactionsMenuActionFunction,
-        setReloadTransactionsMenuActionFunction,
-      }}
-    >
-      {children}
-    </BlueStorageContext.Provider>
-  );
+  const value: BlueStorageContextType = {
+    wallets,
+    setWalletsWithNewOrder,
+    txMetadata,
+    saveToDisk,
+    getTransactions,
+    selectedWalletID,
+    setSelectedWalletID,
+    addWallet,
+    deleteWallet,
+    currentSharedCosigner,
+    setSharedCosigner: setCurrentSharedCosigner,
+    addAndSaveWallet,
+    setItem,
+    getItem,
+    isAdvancedModeEnabled,
+    fetchWalletBalances,
+    fetchWalletTransactions,
+    fetchAndSaveWalletTransactions,
+    isStorageEncrypted,
+    encryptStorage,
+    startAndDecrypt,
+    cachedPassword,
+    getBalance,
+    walletsInitialized,
+    setWalletsInitialized,
+    refreshAllWalletTransactions,
+    sleep,
+    createFakeStorage,
+    resetWallets,
+    decryptStorage,
+    isPasswordInUse,
+    setIsAdvancedModeEnabled,
+    setPreferredFiatCurrency,
+    preferredFiatCurrency,
+    setLanguage,
+    language,
+    isHandOffUseEnabled,
+    setIsHandOffUseEnabledAsyncStorage,
+    walletTransactionUpdateStatus,
+    setWalletTransactionUpdateStatus,
+    setDoNotTrack,
+    isDoNotTrackEnabled,
+    isElectrumDisabled,
+    setIsElectrumDisabled,
+    isPrivacyBlurEnabled,
+    setIsPrivacyBlurEnabled,
+    reloadTransactionsMenuActionFunction,
+    setReloadTransactionsMenuActionFunction,
+  };
+
+  return <BlueStorageContext.Provider value={value}>{children}</BlueStorageContext.Provider>;
 };

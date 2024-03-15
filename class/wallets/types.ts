@@ -114,3 +114,5 @@ export type TWallet =
   | SegwitBech32Wallet
   | SegwitP2SHWallet
   | WatchOnlyWallet;
+
+export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet;
