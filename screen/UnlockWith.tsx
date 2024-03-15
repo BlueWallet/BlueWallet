@@ -106,6 +106,7 @@ const UnlockWith: React.FC = () => {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
         unlockWithBiometrics();
       } else if (biometricsUseEnabled && biometricType === undefined) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
       } else {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
   biometricRow: {
     justifyContent: 'center',
     flexDirection: 'row',
-    minWidth: 128,
+    width: 300,
     height: 60,
     alignSelf: 'center',
     marginBottom: 20,
