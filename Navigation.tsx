@@ -65,7 +65,7 @@ import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
-import UnlockWith from './UnlockWith';
+import UnlockWith from './screen/UnlockWith';
 import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
@@ -335,7 +335,10 @@ const ScanQRCodeRoot = () => (
 
 const UnlockWithScreenStack = createNativeStackNavigator();
 const UnlockWithScreenRoot = () => (
-  <UnlockWithScreenStack.Navigator id="UnlockWithScreenRoot" screenOptions={{ headerShown: false, statusBarStyle: 'auto' }}>
+  <UnlockWithScreenStack.Navigator
+    id="UnlockWithScreenRoot"
+    screenOptions={{ headerShown: false, statusBarStyle: 'auto', autoHideHomeIndicator: true }}
+  >
     <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
   </UnlockWithScreenStack.Navigator>
 );
@@ -567,7 +570,7 @@ const Navigation = () => {
       <RootStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
       />
       <RootStack.Screen
         name="WalletXpubRoot"

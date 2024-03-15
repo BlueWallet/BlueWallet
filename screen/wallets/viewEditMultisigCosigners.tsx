@@ -244,7 +244,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal}>
+      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal} coverScreen={false}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -537,7 +537,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
     const isPad: boolean = Platform.isPad;
     return (
-      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
+      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
@@ -571,7 +571,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
     return (
       // @ts-ignore wtf doneButton
-      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton>
+      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>

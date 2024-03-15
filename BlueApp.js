@@ -33,8 +33,6 @@ const createHash = require('create-hash');
 let usedBucketNum = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 const prompt = require('./helpers/prompt');
-const BlueElectrum = require('./blue_modules/BlueElectrum');
-BlueElectrum.connectMain();
 
 class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';

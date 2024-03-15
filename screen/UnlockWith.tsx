@@ -1,15 +1,18 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
-import { View, Image, TouchableOpacity, ActivityIndicator, useColorScheme, NativeModules, StyleSheet } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Biometric, { BiometricType } from './class/biometrics';
-import { BlueStorageContext } from './blue_modules/storage-context';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
-import SafeArea from './components/SafeArea';
+import { View, Image, ActivityIndicator, NativeModules, StyleSheet } from 'react-native';
+import Biometric, { BiometricType } from '../class/biometrics';
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import SafeArea from '../components/SafeArea';
+import { BlueTextCentered } from '../BlueComponents';
+import loc from '../loc';
+import Button from '../components/Button';
 
 enum AuthType {
   Encrypted,
   Biometrics,
   None,
+  BiometricsUnavailable,
 }
 
 type State = {
@@ -52,7 +55,6 @@ const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
-  const colorScheme = useColorScheme();
 
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
@@ -95,6 +97,7 @@ const UnlockWith: React.FC = () => {
       const storageIsEncrypted = await isStorageEncrypted();
       const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
       const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
+      const biometricsUseEnabled = await Biometric.isBiometricUseEnabled();
 
       if (storageIsEncrypted) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
@@ -102,6 +105,8 @@ const UnlockWith: React.FC = () => {
       } else if (isBiometricUseCapableAndEnabled) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
         unlockWithBiometrics();
+      } else if (biometricsUseEnabled && biometricType === undefined) {
+        dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
       } else {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.None, detail: undefined } });
         unlockWithKey();
@@ -112,36 +117,24 @@ const UnlockWith: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onUnlockPressed = () => {
+    if (state.auth.type === AuthType.Biometrics) {
+      unlockWithBiometrics();
+    } else {
+      unlockWithKey();
+    }
+  };
+
   const renderUnlockOptions = () => {
-    const color = colorScheme === 'dark' ? '#FFFFFF' : '#000000';
     if (state.isAuthenticating) {
       return <ActivityIndicator />;
     } else {
       switch (state.auth.type) {
         case AuthType.Biometrics:
-          if (state.auth.detail === 'TouchID' || state.auth.detail === 'Biometrics') {
-            return (
-              <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
-                <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
-              </TouchableOpacity>
-            );
-          } else if (state.auth.detail === 'FaceID') {
-            return (
-              <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithBiometrics}>
-                <Image
-                  source={colorScheme === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
-                  style={styles.icon}
-                />
-              </TouchableOpacity>
-            );
-          }
-          return null;
         case AuthType.Encrypted:
-          return (
-            <TouchableOpacity accessibilityRole="button" disabled={state.isAuthenticating} onPress={unlockWithKey}>
-              <Icon name="lock" size={64} type="font-awesome5" color={color} />
-            </TouchableOpacity>
-          );
+          return <Button onPress={onUnlockPressed} title={loc._.unlock} />;
+        case AuthType.BiometricsUnavailable:
+          return <BlueTextCentered>{loc.settings.biometrics_no_longer_available}</BlueTextCentered>;
         default:
           return null;
       }
@@ -151,7 +144,7 @@ const UnlockWith: React.FC = () => {
   return (
     <SafeArea style={styles.root}>
       <View style={styles.container}>
-        <Image source={require('./img/icon.png')} style={styles.logoImage} resizeMode="contain" />
+        <Image source={require('../img/icon.png')} style={styles.logoImage} resizeMode="contain" />
       </View>
       <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
     </SafeArea>
@@ -171,14 +164,11 @@ const styles = StyleSheet.create({
   biometricRow: {
     justifyContent: 'center',
     flexDirection: 'row',
-    width: 64,
-    height: 64,
+    minWidth: 128,
+    height: 60,
     alignSelf: 'center',
     marginBottom: 20,
-  },
-  icon: {
-    width: 64,
-    height: 64,
+    paddingHorizontal: 20,
   },
   logoImage: {
     width: 100,
