@@ -175,10 +175,6 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  allowHodlHodlTrading() {
-    return true;
-  }
-
   allowRBF() {
     return true;
   }

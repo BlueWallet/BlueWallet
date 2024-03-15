@@ -31,10 +31,6 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return true;
   }
 
-  allowHodlHodlTrading() {
-    return true;
-  }
-
   allowMasterFingerprint() {
     return true;
   }
