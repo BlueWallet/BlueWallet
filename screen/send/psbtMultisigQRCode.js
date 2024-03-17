@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
@@ -13,10 +12,9 @@ import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import { isDesktop } from '../../blue_modules/environment';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
-
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
