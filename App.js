@@ -1,17 +1,6 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useContext, useEffect, useRef } from 'react';
-import {
-  AppState,
-  NativeModules,
-  NativeEventEmitter,
-  Linking,
-  Platform,
-  StyleSheet,
-  UIManager,
-  useColorScheme,
-  View,
-  LogBox,
-} from 'react-native';
+import { NativeModules, NativeEventEmitter, Linking, Platform, StyleSheet, UIManager, useColorScheme, View, LogBox } from 'react-native';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
@@ -33,6 +22,7 @@ import HandoffComponent from './components/handoff';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
+import useAppState from './hooks/useAppState';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
@@ -61,7 +51,6 @@ const App = () => {
     refreshAllWalletTransactions,
     setSharedCosigner,
   } = useContext(BlueStorageContext);
-  const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
   const colorScheme = useColorScheme();
 
@@ -106,13 +95,60 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
+  const appStateChangeHandler = async nextAppState => {
+    console.log('App has changed! New state: ', nextAppState);
+    if (wallets.length === 0) return;
+    if (nextAppState === 'active') {
+      setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
+      updateExchangeRate();
+      const processed = await processPushNotifications();
+      if (processed) return;
+      const clipboard = await BlueClipboard().getClipboardContent();
+      const isAddressFromStoredWallet = checkAddressFromStoredWallet(clipboard, wallets);
+      const { isBitcoinAddress, isLightningInvoice, isLNURL, isBothBitcoinAndLightning } = checkClipboardContent(clipboard);
+
+      if (
+        !isAddressFromStoredWallet &&
+        clipboardContent.current !== clipboard &&
+        (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
+      ) {
+        const contentType = determineContentType({ isBitcoinAddress, isLightningInvoice, isLNURL, isBothBitcoinAndLightning });
+        showClipboardAlert({ contentType });
+      }
+      clipboardContent.current = clipboard; // store clipboard content to avoid multiple action sheets
+    }
+  };
+
+  useAppState({ onChange: appStateChangeHandler });
+
+  const checkAddressFromStoredWallet = (clipboard, wallets) =>
+    wallets.some(wallet => {
+      if (wallet.chain === Chain.ONCHAIN) {
+        return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+      } else {
+        return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+      }
+    });
+
+  const checkClipboardContent = clipboard => ({
+    isBitcoinAddress: DeeplinkSchemaMatch.isBitcoinAddress(clipboard),
+    isLightningInvoice: DeeplinkSchemaMatch.isLightningInvoice(clipboard),
+    isLNURL: DeeplinkSchemaMatch.isLnUrl(clipboard),
+    isBothBitcoinAndLightning: DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard),
+  });
+
+  const determineContentType = ({ isBitcoinAddress, isLightningInvoice, isLNURL, isBothBitcoinAndLightning }) => {
+    if (isBitcoinAddress) return ClipboardContentType.BITCOIN;
+    if (isLightningInvoice || isLNURL) return ClipboardContentType.LIGHTNING;
+    if (isBothBitcoinAndLightning) return ClipboardContentType.BITCOIN;
+    return null;
+  };
+
   const addListeners = () => {
     Linking.addEventListener('url', handleOpenURL);
-    AppState.addEventListener('change', handleAppStateChange);
     EventEmitter?.getMostRecentUserActivity()
       .then(onUserActivityOpen)
       .catch(() => console.log('No userActivity object sent'));
-    handleAppStateChange(undefined);
     /*
       When a notification on iOS is shown while the app is on foreground;
       On willPresent on AppDelegate.m
@@ -196,48 +232,6 @@ const App = () => {
 
     // if we are here - we did not act upon any push
     return false;
-  };
-
-  const handleAppStateChange = async nextAppState => {
-    if (wallets.length === 0) return;
-    if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
-      setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
-      updateExchangeRate();
-      const processed = await processPushNotifications();
-      if (processed) return;
-      const clipboard = await BlueClipboard().getClipboardContent();
-      const isAddressFromStoredWallet = wallets.some(wallet => {
-        if (wallet.chain === Chain.ONCHAIN) {
-          // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
-          return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
-        } else {
-          return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
-        }
-      });
-      const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
-      const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
-      const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
-      const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
-      if (
-        !isAddressFromStoredWallet &&
-        clipboardContent.current !== clipboard &&
-        (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
-      ) {
-        let contentType;
-        if (isBitcoinAddress) {
-          contentType = ClipboardContentType.BITCOIN;
-        } else if (isLightningInvoice || isLNURL) {
-          contentType = ClipboardContentType.LIGHTNING;
-        } else if (isBothBitcoinAndLightning) {
-          contentType = ClipboardContentType.BITCOIN;
-        }
-        showClipboardAlert({ contentType });
-      }
-      clipboardContent.current = clipboard;
-    }
-    if (nextAppState) {
-      appState.current = nextAppState;
-    }
   };
 
   const handleOpenURL = event => {
