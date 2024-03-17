@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     width: 300,
-    height: 60,
+    minHeight: 60,
     alignSelf: 'center',
     marginBottom: 20,
     paddingHorizontal: 20,
