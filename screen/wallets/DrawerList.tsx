@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useReducer } from 'react';
-import { StyleSheet, LayoutAnimation, FlatList, ViewStyle } from 'react-native';
+import { StyleSheet, LayoutAnimation, FlatList, ViewStyle, InteractionManager } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useIsFocused, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
@@ -89,9 +89,11 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
         const walletID = item.getID();
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         dispatch({ type: WalletActionType.SelectWallet, walletID });
-        navigation.navigate({
-          name: 'WalletTransactions',
-          params: { walletID, walletType: item.type },
+        InteractionManager.runAfterInteractions(() => {
+          navigation.navigate({
+            name: 'WalletTransactions',
+            params: { walletID, walletType: item.type },
+          });
         });
       } else {
         navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
