@@ -104,7 +104,7 @@ const App = () => {
       const processed = await processPushNotifications();
       if (processed) return;
       const clipboard = await BlueClipboard().getClipboardContent();
-      const isAddressFromStoredWallet = checkAddressFromStoredWallet(clipboard, wallets);
+      const isAddressFromStoredWallet = checkAddressFromStoredWallet(clipboard);
       const { isBitcoinAddress, isLightningInvoice, isLNURL, isBothBitcoinAndLightning } = checkClipboardContent(clipboard);
 
       if (
@@ -121,7 +121,7 @@ const App = () => {
 
   useAppState({ onChange: appStateChangeHandler });
 
-  const checkAddressFromStoredWallet = (clipboard, wallets) =>
+  const checkAddressFromStoredWallet = clipboard =>
     wallets.some(wallet => {
       if (wallet.chain === Chain.ONCHAIN) {
         return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
