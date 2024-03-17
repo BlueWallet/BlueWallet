@@ -1,26 +1,36 @@
-import React, { useContext, useEffect, useRef } from 'react';
-import { StyleSheet, LayoutAnimation } from 'react-native';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { StyleSheet, LayoutAnimation, FlatList } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import PropTypes from 'prop-types';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { AbstractWallet } from '../../class';
 
-const DrawerList = props => {
-  const walletsCarousel = useRef();
+interface DrawerListProps {
+  navigation: NavigationProp<ParamListBase>;
+  // include other props as necessary
+}
+
+const DrawerList: React.FC<DrawerListProps> = memo(props => {
+  const walletsCarousel = useRef<FlatList>();
   const { wallets, selectedWalletID, setSelectedWalletID } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const walletsCount = useRef(wallets.length);
   const isFocused = useIsFocused();
-  const stylesHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.elevated,
-    },
-  });
+
+  const stylesHook = useMemo(
+    () =>
+      StyleSheet.create({
+        root: {
+          backgroundColor: colors.elevated,
+        },
+      }),
+    [colors.elevated],
+  );
 
   useEffect(() => {
     if (walletsCount.current < wallets.length) {
@@ -29,36 +39,39 @@ const DrawerList = props => {
     walletsCount.current = wallets.length;
   }, [wallets]);
 
-  const handleClick = item => {
-    if (item?.getID) {
-      const walletID = item.getID();
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setSelectedWalletID(walletID);
-      props.navigation.navigate({
-        name: 'WalletTransactions',
-        params: { walletID, walletType: item.type },
-      });
-    } else {
-      props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
-    }
-  };
+  const handleClick = useCallback(
+    (item: AbstractWallet) => {
+      if (item?.getID) {
+        const walletID = item.getID();
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setSelectedWalletID(walletID);
+        props.navigation.navigate({
+          name: 'WalletTransactions',
+          params: { walletID, walletType: item.type },
+        });
+      } else {
+        props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
+      }
+    },
+    [props.navigation, setSelectedWalletID],
+  );
 
-  const handleLongPress = () => {
+  const handleLongPress = useCallback(() => {
     if (wallets.length > 1) {
       props.navigation.navigate('ReorderWallets');
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
-  };
+  }, [wallets.length, props.navigation]);
 
-  const onNewWalletPress = () => {
+  const onNewWalletPress = useCallback(() => {
     return props.navigation.navigate('AddWalletRoot');
-  };
+  }, [props.navigation]);
 
   return (
     <DrawerContentScrollView
       {...props}
-      drawerContentContainerStyle={[styles.root, stylesHook.root]}
+      contentContainerStyle={[styles.root, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       showsHorizontalScrollIndicator={false}
@@ -66,6 +79,7 @@ const DrawerList = props => {
     >
       <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
+        // @ts-ignore: Refactor WalletsCarousel to TSX later
         data={wallets.concat(false)}
         extraData={[wallets]}
         onPress={handleClick}
@@ -77,7 +91,7 @@ const DrawerList = props => {
       />
     </DrawerContentScrollView>
   );
-};
+});
 
 export default DrawerList;
 
@@ -86,14 +100,3 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
-
-DrawerList.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    addListener: PropTypes.func,
-  }),
-  route: PropTypes.shape({
-    name: PropTypes.string,
-    params: PropTypes.object,
-  }),
-};
