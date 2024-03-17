@@ -10,16 +10,37 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { AbstractWallet } from '../../class';
 
-// Define action types and state using enums and interfaces
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
   SelectWallet = 'SELECT_WALLET',
   SetFocus = 'SET_FOCUS',
+  Navigate = 'NAVIGATE',
 }
 
 interface WalletState {
   wallets: AbstractWallet[];
   selectedWalletID: string | null;
+  isFocused: boolean;
+}
+
+interface SelectWalletAction {
+  type: WalletActionType.SelectWallet;
+  walletID: string;
+  walletType: string;
+}
+
+interface SelectWalletAction {
+  type: WalletActionType.SelectWallet;
+  walletID: string;
+}
+interface NavigateAction {
+  type: WalletActionType.Navigate;
+  screen: string;
+  params: { [key: string]: any };
+}
+
+interface SetFocusAction {
+  type: WalletActionType.SetFocus;
   isFocused: boolean;
 }
 
@@ -33,12 +54,7 @@ interface SelectWalletAction {
   walletID: string;
 }
 
-interface SetFocusAction {
-  type: WalletActionType.SetFocus;
-  isFocused: boolean;
-}
-
-type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction;
+type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction | NavigateAction;
 
 interface DrawerListProps {
   navigation: NavigationProp<ParamListBase>;
@@ -46,12 +62,20 @@ interface DrawerListProps {
 
 const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
-    case WalletActionType.SetWallets:
-      return { ...state, wallets: action.wallets };
-    case WalletActionType.SelectWallet:
+    case WalletActionType.SetWallets: {
+      const isSelectedWalletInNewSet = action.wallets.some(wallet => wallet.getID() === state.selectedWalletID);
+      return {
+        ...state,
+        wallets: action.wallets,
+        selectedWalletID: isSelectedWalletInNewSet ? state.selectedWalletID : null,
+      };
+    }
+    case WalletActionType.SelectWallet: {
       return { ...state, selectedWalletID: action.walletID };
-    case WalletActionType.SetFocus:
+    }
+    case WalletActionType.SetFocus: {
       return { ...state, isFocused: action.isFocused };
+    }
     default:
       return state;
   }
@@ -87,12 +111,13 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
     (item: AbstractWallet) => {
       if (item?.getID) {
         const walletID = item.getID();
+        const walletType = item.type;
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        dispatch({ type: WalletActionType.SelectWallet, walletID });
+        dispatch({ type: WalletActionType.SelectWallet, walletID, walletType });
         InteractionManager.runAfterInteractions(() => {
           navigation.navigate({
             name: 'WalletTransactions',
-            params: { walletID, walletType: item.type },
+            params: { walletID, walletType },
           });
         });
       } else {
@@ -111,12 +136,11 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   }, [state.wallets.length, navigation]);
 
   const onNewWalletPress = useCallback(() => {
-    return navigation.navigate('AddWalletRoot');
+    navigation.navigate('AddWalletRoot');
   }, [navigation]);
 
   return (
     <DrawerContentScrollView
-      {...{ navigation }}
       contentContainerStyle={[styles.root, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets={true}
@@ -125,7 +149,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
     >
       <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
-        // @ts-ignore: dealt with in WalletsCarousel later
+        // @ts-ignore: refactor later
         data={state.wallets.concat(false as any)}
         extraData={[state.wallets]}
         onPress={handleClick}
