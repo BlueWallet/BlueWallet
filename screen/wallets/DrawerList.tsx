@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { StyleSheet, LayoutAnimation, FlatList } from 'react-native';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useReducer } from 'react';
+import { StyleSheet, LayoutAnimation, FlatList, ViewStyle } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useIsFocused, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
@@ -10,84 +10,128 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { AbstractWallet } from '../../class';
 
-interface DrawerListProps {
-  navigation: NavigationProp<ParamListBase>;
-  // include other props as necessary
+// Define action types and state using enums and interfaces
+enum WalletActionType {
+  SetWallets = 'SET_WALLETS',
+  SelectWallet = 'SELECT_WALLET',
+  SetFocus = 'SET_FOCUS',
 }
 
-const DrawerList: React.FC<DrawerListProps> = memo(props => {
-  const walletsCarousel = useRef<FlatList>();
-  const { wallets, selectedWalletID, setSelectedWalletID } = useContext(BlueStorageContext);
+interface WalletState {
+  wallets: AbstractWallet[];
+  selectedWalletID: string | null;
+  isFocused: boolean;
+}
+
+interface SetWalletsAction {
+  type: WalletActionType.SetWallets;
+  wallets: AbstractWallet[];
+}
+
+interface SelectWalletAction {
+  type: WalletActionType.SelectWallet;
+  walletID: string;
+}
+
+interface SetFocusAction {
+  type: WalletActionType.SetFocus;
+  isFocused: boolean;
+}
+
+type WalletAction = SetWalletsAction | SelectWalletAction | SetFocusAction;
+
+interface DrawerListProps {
+  navigation: NavigationProp<ParamListBase>;
+}
+
+const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
+  switch (action.type) {
+    case WalletActionType.SetWallets:
+      return { ...state, wallets: action.wallets };
+    case WalletActionType.SelectWallet:
+      return { ...state, selectedWalletID: action.walletID };
+    case WalletActionType.SetFocus:
+      return { ...state, isFocused: action.isFocused };
+    default:
+      return state;
+  }
+};
+
+const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
+  const initialState: WalletState = {
+    wallets: [],
+    selectedWalletID: null,
+    isFocused: false,
+  };
+
+  const [state, dispatch] = useReducer(walletReducer, initialState);
+  const walletsCarousel = useRef<FlatList<AbstractWallet>>(null);
+  const { wallets } = useContext(BlueStorageContext);
   const { colors } = useTheme();
-  const walletsCount = useRef(wallets.length);
   const isFocused = useIsFocused();
 
   const stylesHook = useMemo(
     () =>
       StyleSheet.create({
-        root: {
-          backgroundColor: colors.elevated,
-        },
+        root: { backgroundColor: colors.elevated } as ViewStyle,
       }),
     [colors.elevated],
   );
 
   useEffect(() => {
-    if (walletsCount.current < wallets.length) {
-      walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
-    }
-    walletsCount.current = wallets.length;
-  }, [wallets]);
+    dispatch({ type: WalletActionType.SetWallets, wallets });
+    dispatch({ type: WalletActionType.SetFocus, isFocused });
+  }, [wallets, isFocused]);
 
   const handleClick = useCallback(
     (item: AbstractWallet) => {
       if (item?.getID) {
         const walletID = item.getID();
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setSelectedWalletID(walletID);
-        props.navigation.navigate({
+        dispatch({ type: WalletActionType.SelectWallet, walletID });
+        navigation.navigate({
           name: 'WalletTransactions',
           params: { walletID, walletType: item.type },
         });
       } else {
-        props.navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
+        navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
       }
     },
-    [props.navigation, setSelectedWalletID],
+    [navigation],
   );
 
   const handleLongPress = useCallback(() => {
-    if (wallets.length > 1) {
-      props.navigation.navigate('ReorderWallets');
+    if (state.wallets.length > 1) {
+      navigation.navigate('ReorderWallets');
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
-  }, [wallets.length, props.navigation]);
+  }, [state.wallets.length, navigation]);
 
   const onNewWalletPress = useCallback(() => {
-    return props.navigation.navigate('AddWalletRoot');
-  }, [props.navigation]);
+    return navigation.navigate('AddWalletRoot');
+  }, [navigation]);
 
   return (
     <DrawerContentScrollView
-      {...props}
+      {...{ navigation }}
       contentContainerStyle={[styles.root, stylesHook.root]}
       contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
+      automaticallyAdjustContentInsets={true}
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
       <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
-        // @ts-ignore: Refactor WalletsCarousel to TSX later
-        data={wallets.concat(false)}
-        extraData={[wallets]}
+        // @ts-ignore: dealt with in WalletsCarousel later
+        data={state.wallets.concat(false as any)}
+        extraData={[state.wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
         testID="WalletsList"
-        selectedWallet={selectedWalletID}
-        scrollEnabled={isFocused}
+        selectedWallet={state.selectedWalletID}
+        scrollEnabled={state.isFocused}
       />
     </DrawerContentScrollView>
   );
