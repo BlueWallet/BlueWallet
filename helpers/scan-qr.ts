@@ -39,7 +39,7 @@ function scanQrHelper(
   });
 }
 
-const isCameraAuthorizationStatusGranted = async () => {
+const isCameraAuthorizationStatusGranted = async (): Promise<boolean> => {
   const status = await check(Platform.OS === 'android' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
   return status === RESULTS.GRANTED;
 };
