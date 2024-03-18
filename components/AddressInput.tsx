@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import loc from '../loc';
-import { isCameraAuthorizationStatusGranted, scanQrHelper } from '../helpers/scan-qr';
+import { isCameraAuthorizationStatusDenied, scanQrHelper } from '../helpers/scan-qr';
 import { useTheme } from './themes';
 import { useNavigation } from '@react-navigation/native';
 import ToolTipMenu from './TooltipMenu';
 import Clipboard from '@react-native-clipboard/clipboard';
-import presentAlert from './Alert';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { openPrivacyDesktopSettings } from '../class/camera';
 const fs = require('../blue_modules/fs');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -54,7 +51,7 @@ const AddressInput = ({
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
-  const [isCameraAuthStatusGranted, setIsCameraAuthStatusGranted] = useState(true);
+  const [isCameraAuthStatusDenied, setIsCameraAuthStatusDenied] = useState(false);
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -74,80 +71,49 @@ const AddressInput = ({
     Keyboard.dismiss();
   };
 
-  useEffect(() => {
-    isCameraAuthorizationStatusGranted().then(setIsCameraAuthStatusGranted);
-  }, []);
 
-  const onScanButtonPressed = async (id: any) => {
-    if (isCameraAuthStatusGranted) {
-      await scanButtonTapped();
-      Keyboard.dismiss();
-      // @ts-ignore: Fix later
-      scanQrHelper(navigate, launchedBy).then(onBarScanned);
-    } else {
-      switch (id) {
-        case AddressInput.actionKeys.OpenImagePicker:
-          launchImageLibrary(
-            {
-              mediaType: 'photo',
-              maxHeight: 800,
-              maxWidth: 600,
-              selectionLimit: 1,
-            },
-            response => {
-              if (!response.didCancel && response.assets && response.assets?.length > 0) {
-                const asset = response.assets[0];
-                if (asset.uri) {
-                  const uri = asset.uri.toString().replace('file://', '');
-                  LocalQRCode.decode(uri, (error: any, result: any) => {
-                    if (!error) {
-                      onChangeText(result);
-                    } else {
-                      presentAlert({ message: loc.send.qr_error_no_qrcode });
-                    }
-                  });
-                }
+  const onScanButtonPressed = (id?: any) => {
+    isCameraAuthorizationStatusDenied().then(async value => {
+      if (!value) {
+        await scanButtonTapped();
+        Keyboard.dismiss();
+        // @ts-ignore: Fix later
+        scanQrHelper(navigate, launchedBy)
+          .then(data => onBarScanned({ data }))
+          .catch(error => {
+            console.log(error.message);
+            setIsCameraAuthStatusDenied(true);
+          });
+      } else {
+        switch (id) {
+          case AddressInput.actionKeys.OpenImagePicker:
+            fs.showImagePickerAndReadImage().then((data: string) => {
+              if (data) onChangeText(data);
+            });
+  
+            break;
+          case AddressInput.actionKeys.ImportFile:
+            fs.showFilePickerAndReadFile((data: any) => {
+              if (data) onChangeText(data);
+            });
+            break;
+          case AddressInput.actionKeys.CopyFromClipboard:
+            Clipboard.getString().then(clipboardValue => {
+              console.warn(clipboardValue);
+              if (clipboardValue) {
+                onChangeText(clipboardValue);
               }
-            },
-          );
-
-          break;
-        case AddressInput.actionKeys.ImportFile:
-          fs.showFilePickerAndReadFile((data: any) => {
-            if (data) onChangeText(data);
-          });
-          break;
-        case AddressInput.actionKeys.CopyFromClipboard:
-          Clipboard.getString().then(clipboardValue => {
-            console.warn(clipboardValue);
-            if (clipboardValue) {
-              onChangeText(clipboardValue);
-            }
-          });
-          break;
-        case AddressInput.actionKeys.OpenSystemSettings:
-          openPrivacyDesktopSettings();
-          break;
+            });
+            break;
+          case AddressInput.actionKeys.OpenSystemSettings:
+            openPrivacyDesktopSettings();
+            break;
+        }
       }
-    }
-  };
+    });
 
-  const scanButton = (
-    <TouchableOpacity
-      testID="BlueAddressInputScanQrButton"
-      disabled={isLoading}
-      onPress={onScanButtonPressed}
-      accessibilityRole="button"
-      style={[styles.scan, stylesHook.scan]}
-      accessibilityLabel={loc.send.details_scan}
-      accessibilityHint={loc.send.details_scan_hint}
-    >
-      <Image source={require('../img/scan-white.png')} accessible={false} />
-      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-        {loc.send.details_scan}
-      </Text>
-    </TouchableOpacity>
-  );
+  
+  };
 
   const toolTipActions = [
     {
@@ -173,6 +139,41 @@ const AddressInput = ({
     ],
   ];
 
+  const scanButton = isCameraAuthStatusDenied ? (
+    <ToolTipMenu
+      testID="BlueAddressInputScanQrButton"
+      disabled={isLoading}
+      accessibilityRole="button"
+      buttonStyle={[styles.scan, stylesHook.scan]}
+      accessibilityLabel={loc.send.details_scan}
+      accessibilityHint={loc.send.details_scan_hint}
+      isButton
+      isMenuPrimaryAction
+      onPressMenuItem={onScanButtonPressed}
+      actions={toolTipActions}
+    >
+      <Image source={require('../img/scan-white.png')} />
+      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+        {loc.send.details_scan}
+      </Text>
+    </ToolTipMenu>
+  ) : (
+    <TouchableOpacity
+      testID="BlueAddressInputScanQrButton"
+      disabled={isLoading}
+      onPress={onScanButtonPressed}
+      accessibilityRole="button"
+      style={[styles.scan, stylesHook.scan]}
+      accessibilityLabel={loc.send.details_scan}
+      accessibilityHint={loc.send.details_scan_hint}
+    >
+      <Image source={require('../img/scan-white.png')} accessible={false} />
+      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+        {loc.send.details_scan}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
@@ -191,15 +192,7 @@ const AddressInput = ({
         autoCorrect={false}
         keyboardType={keyboardType}
       />
-      {editable ? (
-        isCameraAuthStatusGranted ? (
-          scanButton
-        ) : (
-          <ToolTipMenu isButton isMenuPrimaryAction onPressMenuItem={onScanButtonPressed} actions={toolTipActions}>
-            {scanButton}
-          </ToolTipMenu>
-        )
-      ) : null}
+      {editable ? scanButton : null}
     </View>
   );
 };
