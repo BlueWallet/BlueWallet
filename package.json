@@ -100,7 +100,7 @@
     "@bugsnag/react-native": "7.22.6",
     "@bugsnag/source-maps": "2.3.2",
     "@keystonehq/bc-ur-registry": "0.6.4",
-    "@ngraveio/bc-ur": "1.1.6",
+    "@ngraveio/bc-ur": "1.1.12",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.22.3",
     "@react-native-clipboard/clipboard": "1.13.2",
