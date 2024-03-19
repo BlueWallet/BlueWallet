@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { getSystemName } from 'react-native-device-info';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -38,11 +37,11 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
+import { isDesktop } from '../../blue_modules/environment';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
-const isDesktop = getSystemName() === 'Mac OS X';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {

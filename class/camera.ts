@@ -1,8 +1,6 @@
 import { Linking, Alert } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
 import loc from '../loc';
-
-const isDesktop: boolean = getSystemName() === 'Mac OS X';
+import { isDesktop } from '../blue_modules/environment';
 
 export const openPrivacyDesktopSettings = () => {
   if (isDesktop) {

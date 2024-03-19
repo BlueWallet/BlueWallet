@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.22.5):
+  - BugsnagReactNative (7.22.6):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -21,8 +21,8 @@ PODS:
   - hermes-engine/Pre-built (0.72.11)
   - libevent (2.1.12)
   - lottie-ios (4.4.1)
-  - lottie-react-native (6.6.0):
-    - lottie-ios (~> 4.4.0)
+  - lottie-react-native (6.7.0):
+    - lottie-ios (~> 4.4.1)
     - React-Core
   - PasscodeAuth (1.0.0):
     - React
@@ -336,7 +336,7 @@ PODS:
     - React-Core
   - react-native-idle-timer (2.1.6):
     - React-Core
-  - react-native-image-picker (7.1.0):
+  - react-native-image-picker (7.1.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-ios-context-menu (1.15.3):
@@ -469,7 +469,7 @@ PODS:
     - React-perflogger (= 0.72.11)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.6.0):
+  - RealmJS (12.6.2):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -504,7 +504,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
-  - RNReanimated (3.7.2):
+  - RNReanimated (3.8.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -525,7 +525,6 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - Bugsnag
   - "BugsnagReactNative (from `../node_modules/@bugsnag/react-native`)"
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -783,7 +782,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BugsnagReactNative: 2f3550f37f30b9701e3517bf17743b676b5a2fb1
+  BugsnagReactNative: 366a7e11c0bcf34842e54f40b15dd937cb267aa7
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -794,7 +793,7 @@ SPEC CHECKSUMS:
   hermes-engine: c22b4cc0bb1d1603b9e4faf83732be227baa55bc
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
-  lottie-react-native: 00ac19344296ae018260aabd14d6b36dd816b0e2
+  lottie-react-native: e3205322282d72e23efb3bff3287d0bd16fb1b01
   PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 4a524af1769a10608bf423aa8c0804b10f84aec8
@@ -816,7 +815,7 @@ SPEC CHECKSUMS:
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
   react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
-  react-native-image-picker: 5e076db26cd81660cfb6db5bcf517cfa12054d45
+  react-native-image-picker: 76bf9cf742bebbaac4ee4c0385be374c034a556c
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
@@ -843,7 +842,7 @@ SPEC CHECKSUMS:
   React-utils: cc09672a1517d768cfc545f245c78a1cae87fd49
   ReactCommon: cadee954951b13f7550766c0074dd38af2da3575
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: a62dc7a1f94b888fe9e8712cd650167ad97dc636
+  RealmJS: 385df5ee940d96f1de26b1dab153e325633d3052
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 10591b9e0a91eaffee14e69b3721009759235125
   RNCClipboard: 60fed4b71560d7bfe40e9d35dea9762b024da86d
@@ -860,7 +859,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
-  RNReanimated: ab1295f59541cb26000d394b4b4aea72cb7ca448
+  RNReanimated: 5afba582037b0dae040a5f927dec7fdd18e430c3
   RNScreens: 3c5b9f4a9dcde752466854b6109b79c0e205dad3
   RNShare: 859ff710211285676b0bcedd156c12437ea1d564
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
@@ -869,6 +868,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 76b2d5677fc9694bae53c80d0cccfc55719064a3
 
-PODFILE CHECKSUM: e0fda52578c203cfa975067c3570c97082471d84
+PODFILE CHECKSUM: d43800c8d806b1d14ba325886c4b71fff2938408
 
 COCOAPODS: 1.14.3

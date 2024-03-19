@@ -38,35 +38,35 @@ describe('P2SH Segwit HD (BIP49)', () => {
   it('can convert witness to address', () => {
     let address = SegwitP2SHWallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
     assert.strictEqual(address, '34ZVGb3gT8xMLT6fpqC6dNVqJtJmvdjbD7');
-    address = SegwitP2SHWallet.witnessToAddress();
+    address = SegwitP2SHWallet.witnessToAddress('');
     assert.strictEqual(address, false);
     address = SegwitP2SHWallet.witnessToAddress('trololo');
     assert.strictEqual(address, false);
 
     address = SegwitP2SHWallet.scriptPubKeyToAddress('a914e286d58e53f9247a4710e51232cce0686f16873c87');
     assert.strictEqual(address, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
-    address = SegwitP2SHWallet.scriptPubKeyToAddress();
+    address = SegwitP2SHWallet.scriptPubKeyToAddress('');
     assert.strictEqual(address, false);
     address = SegwitP2SHWallet.scriptPubKeyToAddress('trololo');
     assert.strictEqual(address, false);
 
     address = SegwitBech32Wallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
     assert.strictEqual(address, 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
-    address = SegwitBech32Wallet.witnessToAddress();
+    address = SegwitBech32Wallet.witnessToAddress('');
     assert.strictEqual(address, false);
     address = SegwitBech32Wallet.witnessToAddress('trololo');
     assert.strictEqual(address, false);
 
     address = SegwitBech32Wallet.scriptPubKeyToAddress('00144d757460da5fcaf84cc22f3847faaa1078e84f6a');
     assert.strictEqual(address, 'bc1qf46hgcx6tl90snxz9uuy0742zpuwsnm27ysdh7');
-    address = SegwitBech32Wallet.scriptPubKeyToAddress();
+    address = SegwitBech32Wallet.scriptPubKeyToAddress('');
     assert.strictEqual(address, false);
     address = SegwitBech32Wallet.scriptPubKeyToAddress('trololo');
     assert.strictEqual(address, false);
 
     address = LegacyWallet.scriptPubKeyToAddress('76a914d0b77eb1502c81c4093da9aa6eccfdf560cdd6b288ac');
     assert.strictEqual(address, '1L2bNMGRQQLT2AVUek4K9L7sn3SSMioMgE');
-    address = LegacyWallet.scriptPubKeyToAddress();
+    address = LegacyWallet.scriptPubKeyToAddress('');
     assert.strictEqual(address, false);
     address = LegacyWallet.scriptPubKeyToAddress('trololo');
     assert.strictEqual(address, false);
@@ -86,7 +86,7 @@ describe('P2SH Segwit HD (BIP49)', () => {
 
   it('can generate Segwit HD (BIP49)', async () => {
     const hd = new HDSegwitP2SHWallet();
-    const hashmap = {};
+    const hashmap: Record<string, number> = {};
     for (let c = 0; c < 1000; c++) {
       await hd.generate();
       const secret = hd.getSecret();
@@ -156,11 +156,11 @@ describe('P2SH Segwit HD (BIP49)', () => {
     const secret = hd.getSecret();
     assert.strictEqual(secret.startsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'), true);
 
-    let secretWithoutChecksum = secret.split(' ');
+    const secretWithoutChecksum = secret.split(' ');
     secretWithoutChecksum.pop();
-    secretWithoutChecksum = secretWithoutChecksum.join(' ');
+    const secretWithoutChecksumString = secretWithoutChecksum.join(' ');
     assert.strictEqual(
-      secretWithoutChecksum.endsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
+      secretWithoutChecksumString.endsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
       false,
     );
 
