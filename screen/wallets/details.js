@@ -17,7 +17,7 @@ import {
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Biometric from '../../class/biometrics';
@@ -45,6 +45,8 @@ import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Button from '../../components/Button';
+import { SecondButton } from '../../components/SecondButton';
 
 const prompt = require('../../helpers/prompt');
 
@@ -629,7 +631,7 @@ const WalletDetails = () => {
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
-                <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />

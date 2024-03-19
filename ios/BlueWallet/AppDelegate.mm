@@ -144,8 +144,10 @@
   [builder removeMenuForIdentifier:UIMenuToolbar];
   
   // File -> Add Wallet (Command + A)
-  UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" modifierFlags:UIKeyModifierCommand action:@selector(addWalletAction:)];
-  [addWalletCommand setTitle:@"Add Wallet"];
+ UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" 
+                                                      modifierFlags:UIKeyModifierCommand | UIKeyModifierShift 
+                                                            action:@selector(addWalletAction:)];
+[addWalletCommand setTitle:@"Add Wallet"];
   
   // File -> Import Wallet
   UIKeyCommand *importWalletCommand = [UIKeyCommand keyCommandWithInput:@"I" modifierFlags:UIKeyModifierCommand action:@selector(importWalletAction:)];

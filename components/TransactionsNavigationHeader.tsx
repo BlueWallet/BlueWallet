@@ -165,6 +165,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         {wallet.getLabel()}
       </Text>
       <ToolTipMenu
+        enableAndroidRipple={false}
         onPress={changeWalletBalanceUnit}
         ref={menuRef}
         title={`${loc.wallets.balance} (${
