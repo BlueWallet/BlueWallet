@@ -4,6 +4,8 @@
     "cancel": "Cancelar",
     "continue": "Continúa",
     "clipboard": "Portapapeles",
+    "discard_changes": "¿Descartar cambios?",
+    "discard_changes_explain": "Tienes cambios sin guardar. ¿Estás seguro de que quieres descartarlos y salir de la pantalla?",
     "enter_password": "Ingresar contraseña",
     "never": "Nunca",
     "of": "{number} de {total}",
@@ -23,7 +25,8 @@
     "pick_image": "Elegir imagen de la biblioteca",
     "pick_file": "Escoge un archivo",
     "enter_amount": "Ingresa la cantidad",
-    "qr_custom_input_button": "Pulsa 10 veces para ingresar una entrada personalizada"
+    "qr_custom_input_button": "Pulsa 10 veces para ingresar una entrada personalizada",
+    "unlock": "Desbloquear"
   },
   "alert": {
     "default": "Alerta"
@@ -228,6 +231,7 @@
     "about_sm_twitter": "Siguenos en Twitter",
     "advanced_options": "Opciones Avanzadas",
     "biometrics": "Biometría",
+    "biometrics_no_longer_available": "La configuración de tu dispositivo cambió y ya no coincide con la configuración de seguridad seleccionada en la aplicación. Vuelve a habilitar los datos biométricos o el código de acceso, luego reinicia la aplicación para aplicar estos cambios.",
     "biom_10times": "Has intentado ingresar tu contraseña 10 veces. ¿Te gustaría restablecer tu almacenamiento? Esto eliminará todas las billeteras y descifrará tu almacenamiento.",
     "biom_conf_identity": "Por favor confirma tu identidad.",
     "biom_no_passcode": "Tu dispositivo no tiene un código de acceso. Para continuar, configura un código de acceso en la aplicación Configuración.",

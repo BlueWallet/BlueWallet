@@ -423,7 +423,6 @@
     "no_ln_wallet_error": "Trước khi thanh toán hoá đơn Lightning, đầu tiên bạn phải thêm một ví Lightning.",
     "looks_like_bip38": "Cái này trông giống một khoá cá nhân được bảo vệ bằng mật khẩu (BIP38).",
     "reorder_title": "Sắp xếp lại các vị",
-    "reorder_instructions": "Chạm và giữ một ví để kéo nó trong danh sách.",
     "please_continue_scanning": "Vui lòng quét tiếp.",
     "select_no_bitcoin": "Hiện tại không có ví Bitcoin có sẵn.",
     "select_no_bitcoin_exp": "Bạn phải sử dụng ví Bitcoin đễ nạp tiền vào ví Lightning. Hãy tạo hoặc nhập một ví Bitcoin.",

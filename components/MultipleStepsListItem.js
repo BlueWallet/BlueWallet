@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, findNodeHandle } from 'react-native';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { useTheme } from './themes';
+import ActionSheetOptions from '../screen/ActionSheet.common';
+import ActionSheet from '../screen/ActionSheet';
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
 
@@ -15,6 +17,8 @@ const MultipleStepsListItem = props => {
     circledText = '',
     leftText = '',
     checked = false,
+    useActionSheet = false,
+    actionSheetOptions = null, // Default to null or appropriate default
   } = props;
   const stylesHook = StyleSheet.create({
     provideKeyButton: {
@@ -36,6 +40,29 @@ const MultipleStepsListItem = props => {
       color: colors.alternativeTextColor,
     },
   });
+  const selfRef = useRef(null); // Create a ref for the component itself
+
+  const handleOnPressForActionSheet = () => {
+    if (useActionSheet && actionSheetOptions) {
+      // Clone options to modify them
+      let modifiedOptions = { ...actionSheetOptions };
+
+      // Use 'selfRef' if the component uses its own ref, or 'ref' if it's using forwarded ref
+      const anchor = findNodeHandle(selfRef.current);
+
+      if (anchor) {
+        // Attach the anchor only if it exists
+        modifiedOptions = { ...modifiedOptions, anchor };
+      }
+
+      ActionSheet.showActionSheetWithOptions(modifiedOptions, buttonIndex => {
+        // Call the original onPress function, if provided, and not cancelled
+        if (buttonIndex !== -1 && props.button.onPress) {
+          props.button.onPress(buttonIndex);
+        }
+      });
+    }
+  };
 
   const renderDashes = () => {
     switch (dashes) {
@@ -106,11 +133,12 @@ const MultipleStepsListItem = props => {
             {props.button.buttonType === undefined ||
               (props.button.buttonType === MultipleStepsListItemButtohType.full && (
                 <TouchableOpacity
+                  ref={useActionSheet ? selfRef : null}
                   testID={props.button.testID}
                   accessibilityRole="button"
                   disabled={props.button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
-                  onPress={props.button.onPress}
+                  onPress={useActionSheet ? handleOnPressForActionSheet : props.button.onPress}
                 >
                   <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
                 </TouchableOpacity>
@@ -157,6 +185,8 @@ MultipleStepsListItem.propTypes = {
   checked: PropTypes.bool,
   leftText: PropTypes.string,
   showActivityIndicator: PropTypes.bool,
+  useActionSheet: PropTypes.bool,
+  actionSheetOptions: PropTypes.shape(ActionSheetOptions),
   dashes: PropTypes.number,
   button: PropTypes.shape({
     text: PropTypes.string,
