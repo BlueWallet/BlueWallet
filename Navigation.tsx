@@ -83,7 +83,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
-import DrawerList from './screen/wallets/drawerList';
+import DrawerList from './screen/wallets/DrawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
@@ -383,12 +383,17 @@ const ReorderWalletsStackRoot = () => {
   );
 };
 
+const DrawerListContent = (props: any) => {
+  return <DrawerList {...props} />;
+};
+
 const Drawer = createDrawerNavigator();
 const DrawerRoot = () => {
   const dimensions = useWindowDimensions();
   const isLargeScreen = useMemo(() => {
     return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   }, [dimensions.width]);
+
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
       drawerPosition: I18nManager.isRTL ? 'right' : 'left',
@@ -399,7 +404,7 @@ const DrawerRoot = () => {
   );
 
   return (
-    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerList}>
+    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
       <Drawer.Screen
         name="Navigation"
         component={Navigation}
