@@ -20,14 +20,13 @@ import { Chain } from '../../models/bitcoinUnits';
 import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
-import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import presentAlert from '../../components/Alert';
@@ -65,7 +64,6 @@ const WalletTransactions = ({ navigation }) => {
   const [pageSize, setPageSize] = useState(20);
   const { setParams, setOptions, navigate } = useNavigation();
   const { colors } = useTheme();
-  const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
@@ -163,7 +161,6 @@ const WalletTransactions = ({ navigation }) => {
     if (wallet.getLastTxFetch() === 0) {
       refreshTransactions();
     }
-    refreshLnNodeInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -183,12 +180,6 @@ const WalletTransactions = ({ navigation }) => {
     return false;
   };
 
-  const refreshLnNodeInfo = () => {
-    if (wallet.type === LightningLdkWallet.type) {
-      setLnNodeInfo({ canReceive: wallet.getReceivableBalance(), canSend: wallet.getBalance() });
-    }
-  };
-
   /**
    * Forcefully fetches TXs and balance for wallet
    */
@@ -199,7 +190,6 @@ const WalletTransactions = ({ navigation }) => {
     let noErr = true;
     let smthChanged = false;
     try {
-      refreshLnNodeInfo();
       // await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
@@ -275,11 +265,7 @@ const WalletTransactions = ({ navigation }) => {
     return (
       <View style={styles.flex}>
         <View style={styles.listHeader}>{wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}</View>
-        {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
-          <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
-            <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
-          </View>
-        )}
+
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
         </View>
@@ -512,8 +498,6 @@ const WalletTransactions = ({ navigation }) => {
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
-          } else if (wallet.type === LightningLdkWallet.type) {
-            navigate('LdkInfo', { walletID: wallet.getID() });
           } else if (wallet.type === LightningCustodianWallet.type) {
             if (wallet.getUserHasSavedExport()) {
               onManageFundsPressed({ id });
@@ -656,12 +640,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 16,
     paddingBottom: 40,
-  },
-  marginHorizontal18: {
-    marginHorizontal: 18,
-  },
-  marginBottom18: {
-    marginBottom: 18,
   },
   walletDetails: {
     justifyContent: 'center',

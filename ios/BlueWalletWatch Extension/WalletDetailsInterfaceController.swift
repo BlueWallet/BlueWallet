@@ -41,14 +41,14 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     walletNameLabel.setText(wallet.label)
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     
-    let isLightningWallet = wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue
+    let isLightningWallet = wallet.type == WalletGradient.LightningCustodial.rawValue
     createInvoiceButton.setHidden(!isLightningWallet)
     receiveButton.setHidden(wallet.receiveAddress.isEmpty)
     viewXPubButton.setHidden(!isXPubAvailable(wallet: wallet))
   }
   
   private func isXPubAvailable(wallet: Wallet) -> Bool {
-    return (wallet.type != WalletGradient.LightningCustodial.rawValue && wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty
+    return (wallet.type != WalletGradient.LightningCustodial.rawValue) && !(wallet.xpub ?? "").isEmpty
   }
   
   private func updateTransactionsTable(forWallet wallet: Wallet) {
