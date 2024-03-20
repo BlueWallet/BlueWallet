@@ -180,7 +180,7 @@ export class AppStorage {
 
   decryptStorage = async (password: string): Promise<boolean> => {
     if (password === this.cachedPassword) {
-      this.cachedPassword = undefined; // maybe reset to false ?
+      this.cachedPassword = undefined;
       await this.saveToDisk();
       this.wallets = [];
       this.tx_metadata = {};
