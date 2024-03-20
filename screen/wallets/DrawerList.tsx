@@ -141,7 +141,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 
   return (
     <DrawerContentScrollView
-      contentContainerStyle={[styles.root, stylesHook.root]}
+      contentContainerStyle={stylesHook.root}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets={true}
       showsHorizontalScrollIndicator={false}
@@ -164,9 +164,3 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 });
 
 export default DrawerList;
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
