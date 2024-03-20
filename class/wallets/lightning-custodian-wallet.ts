@@ -393,8 +393,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
-        // @ts-ignore: fixme wtf?
-        tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1, 10);
+        tx.value = (tx.amt * 1 + tx.fee * 1) * -1;
       }
 
       if (tx.type === 'paid_invoice') {
