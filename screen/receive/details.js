@@ -296,7 +296,7 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([address], [], []);
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
@@ -324,7 +324,7 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
