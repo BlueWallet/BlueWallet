@@ -12,7 +12,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
    * @param scriptPubKey
    * @returns {boolean|string} Either bech32 address or false
    */
-  static scriptPubKeyToAddress(scriptPubKey) {
+  static scriptPubKeyToAddress(scriptPubKey: string) {
     try {
       const publicKey = Buffer.from(scriptPubKey, 'hex');
       return bitcoin.address.fromOutputScript(publicKey, bitcoin.networks.bitcoin);
