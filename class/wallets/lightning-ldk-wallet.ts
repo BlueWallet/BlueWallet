@@ -370,8 +370,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     const newInvoices: any[] = [];
     let found = false;
 
-    // okay, so the idea is that `this._listInvoices` is a persistant storage of invoices, while
-    // `RnLdk.receivedPayments` is only a temp storage of emited events
+    // okay, so the idea is that `this._listInvoices` is a persistent storage of invoices, while
+    // `RnLdk.receivedPayments` is only a temp storage of emitted events
 
     // we iterate through all stored invoices
     for (const invoice of this._listInvoices) {
@@ -563,7 +563,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     console.log('fetching balance...');
     await wallet.fetchUtxo();
     console.log(wallet.getBalance(), wallet.getUtxo());
-    console.log('creating transation...');
+    console.log('creating transaction...');
     // @ts-ignore wtf wallet.getUtxo() and first arg of createTransaction are not compatible
     const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 2, address, 0, false, 0);
     if (!tx) throw new Error('claimCoins: could not create transaction');

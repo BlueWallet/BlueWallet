@@ -356,7 +356,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     console.log('fetching balance...');
     await wallet.fetchUtxo();
     console.log(wallet.getBalance(), wallet.getUtxo());
-    console.log('creating transation...');
+    console.log('creating transaction...');
     const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 2, address, 0, false, 0);
     if (!tx) throw new Error('claimCoins: could not create transaction');
     console.log('broadcasting...');
