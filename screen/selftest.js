@@ -325,8 +325,9 @@ export default class Selftest extends Component {
               fileName="bluewallet-selftest.txt"
               fileContent={'Success on ' + new Date().toUTCString()}
               onPress={this.onPressSaveToStorage}
-            />
-            <Button title="Test Save to Storage" />
+            >
+              <Button title="Test Save to Storage" />
+            </SaveFileButton>
             <BlueSpacing20 />
             <Button title="Test File Import" onPress={this.onPressImportDocument} />
           </ScrollView>
