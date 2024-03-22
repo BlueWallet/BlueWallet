@@ -121,7 +121,7 @@
     "open_direct_channel": "Otwórz kanał bezpośredni z tym nodem:",
     "please_pay": "Stwórz wezwanie",
     "preimage": "Wyświetl kod wezwania",
-    "sats": "schwartz",
+    "sats": "swartz",
     "wasnt_paid_and_expired": "Ta faktura nie została opłacona i przeterminowała sie"
   },
   "plausibledeniability": {
@@ -182,7 +182,7 @@
     "details_adv_full_sure": "Czy jesteś pewien/-a, że chcesz użyć wszystkich środków z Twojego portfela w tej transakcji? ",
     "details_adv_import": "Importuj transakcję",
     "details_amount_field_is_not_valid": "Kwota w polu jest niepoprawna",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Podana ilość jest za mała. Proszę podaj ilość większą niż 500 schwartz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Podana ilość jest za mała. Proszę podaj ilość większą niż 500 swartz.",
     "details_create": "Stwórz fakturę",
     "details_error_decode": "Nie można zdekodować adresu Doi",
     "details_fee_field_is_not_valid": "Błędnie wypełnione pole z opłatą",
@@ -205,8 +205,8 @@
     "fee_custom": "Niestandardowe",
     "fee_fast": "Szybkie",
     "fee_medium": "Średnie",
-    "fee_replace_min": "Wysokość łącznej opłaty (schwartz za byte) powinna być wyższa niż {min} schwartz/byte",
-    "fee_satbyte": "w schwartz/byte",
+    "fee_replace_min": "Wysokość łącznej opłaty (swartz za byte) powinna być wyższa niż {min} swartz/byte",
+    "fee_satbyte": "w swartz/byte",
     "fee_slow": "Wolne",
     "header": "Wyślij",
     "input_clear": "Wyczyść",
@@ -237,7 +237,7 @@
     "about": "O programie",
     "about_awesome": "Zbudowano przy użyciu niesamowitych:",
     "about_backup": "Zawsze rób kopie zapasowe swoich kluczy!",
-    "about_free": "DoiWallet jest projektem open source. Stworzonym przez i dla użytkowników Bitcoina.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "Licencja MIT",
     "about_release_notes": "Informacje o wydaniu",
     "about_review": "Wystaw nam opinię",
@@ -402,7 +402,7 @@
     "details_connected_to": "Podłączono do",
     "details_del_wb": "Saldo portfela",
     "details_del_wb_err": "Podane saldo nie zgadza się z saldem portfela. Spróbuj ponownie.",
-    "details_del_wb_q": "Ten portfel ma dodatnie saldo. Zanim pójdziesz dalej, wiedz, że nie będziesz w stanie odzyskać środków bez hasła ziarna. Aby uniknąć przypadkowego usunięcia portfela, wpisz jego saldo wynoszące {balance} schwartz.",
+    "details_del_wb_q": "Ten portfel ma dodatnie saldo. Zanim pójdziesz dalej, wiedz, że nie będziesz w stanie odzyskać środków bez hasła ziarna. Aby uniknąć przypadkowego usunięcia portfela, wpisz jego saldo wynoszące {balance} swartz.",
     "details_delete": "Skasuj",
     "details_delete_wallet": "Skasuj portfel",
     "details_derivation_path": "ścieżka derywacji",
@@ -570,8 +570,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Max",
-    "sat_byte": "schwartz/bajt",
-    "sats": "schwartz"
+    "sat_byte": "swartz/bajt",
+    "sats": "swartz"
   },
   "addresses": {
     "sign_title": "Podpisz/Zweryfikuj wiadomość",

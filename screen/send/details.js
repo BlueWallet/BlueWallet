@@ -28,7 +28,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { DoichainUnit, Chain } from '../../models/doichainUnits';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DocumentPicker from 'react-native-document-picker';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -78,7 +78,7 @@ const SendDetails = () => {
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
-  // if there are no funds for even Slow option, use 1 schwartz/byte fee
+  // if there are no funds for even Slow option, use 1 swartz/byte fee
   const feeRate = useMemo(() => {
     if (customFee) return customFee;
     if (feePrecalc.slowFee === null) return '1'; // wait for precalculated fees
@@ -132,7 +132,7 @@ const SendDetails = () => {
         const { address, amount, memo: initialMemo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
         setAddresses([{ address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }]);
         setMemo(initialMemo || '');
-        setAmountUnit(BitcoinUnit.BTC);
+        setAmountUnit(DoichainUnit.DOI);
         setPayjoinUrl(payjoinUrl);
       } catch (error) {
         console.log(error);
@@ -141,7 +141,7 @@ const SendDetails = () => {
     } else if (routeParams.address) {
       setAddresses([{ address: routeParams.address, key: String(Math.random()) }]);
       setMemo(routeParams.memo || '');
-      setAmountUnit(BitcoinUnit.BTC);
+      setAmountUnit(DoichainUnit.DOI);
     } else {
       setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
     }
@@ -220,7 +220,7 @@ const SendDetails = () => {
     for (const opt of options) {
       let targets = [];
       for (const transaction of addresses) {
-        if (transaction.amount === BitcoinUnit.MAX) {
+        if (transaction.amount === DoichainUnit.MAX) {
           // single output with MAX
           targets = [{ address: transaction.address }];
           break;
@@ -370,11 +370,11 @@ const SendDetails = () => {
         return [...addresses];
       });
       setUnits(units => {
-        units[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
+        units[scrollIndex.current] = DoichainUnit.DOI; // also resetting current unit to BTC
         return [...units];
       });
       setMemo(options.label || options.message);
-      setAmountUnit(BitcoinUnit.BTC);
+      setAmountUnit(DoichainUnit.DOI);
       setPayjoinUrl(options.pj || '');
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
       setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
@@ -450,7 +450,7 @@ const SendDetails = () => {
 
     const targets = [];
     for (const transaction of addresses) {
-      if (transaction.amount === BitcoinUnit.MAX) {
+      if (transaction.amount === DoichainUnit.MAX) {
         // output with MAX
         targets.push({ address: transaction.address });
         continue;
@@ -821,12 +821,12 @@ const SendDetails = () => {
           onPress: () => {
             Keyboard.dismiss();
             setAddresses(addresses => {
-              addresses[scrollIndex.current].amount = BitcoinUnit.MAX;
-              addresses[scrollIndex.current].amountSats = BitcoinUnit.MAX;
+              addresses[scrollIndex.current].amount = DoichainUnit.MAX;
+              addresses[scrollIndex.current].amountSats = DoichainUnit.MAX;
               return [...addresses];
             });
             setUnits(units => {
-              units[scrollIndex.current] = BitcoinUnit.BTC;
+              units[scrollIndex.current] = DoichainUnit.DOI;
               return [...units];
             });
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -995,7 +995,7 @@ const SendDetails = () => {
   };
 
   const renderOptionsModal = () => {
-    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+    const isSendMaxUsed = addresses.some(element => element.amount === DoichainUnit.MAX);
 
     return (
       <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
@@ -1142,14 +1142,15 @@ const SendDetails = () => {
               const item = addresses[index];
 
               switch (unit) {
-                case BitcoinUnit.SATS:
+                case DoichainUnit.SWARTZ:
                   item.amountSats = parseInt(item.amount);
                   break;
-                case BitcoinUnit.BTC:
+                case DoichainUnit.DOI:
                   item.amountSats = currency.btcToSatoshi(item.amount);
                   break;
-                case BitcoinUnit.LOCAL_CURRENCY:
+                case DoichainUnit.LOCAL_CURRENCY:
                   // also accounting for cached fiat->schwartz conversion to avoid rounding error
+
                   item.amountSats = AmountInput.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
                   break;
               }
@@ -1166,13 +1167,13 @@ const SendDetails = () => {
             setAddresses(addresses => {
               item.amount = text;
               switch (units[index] || amountUnit) {
-                case BitcoinUnit.BTC:
+                case DoichainUnit.DOI:
                   item.amountSats = currency.btcToSatoshi(item.amount);
                   break;
-                case BitcoinUnit.LOCAL_CURRENCY:
+                case DoichainUnit.LOCAL_CURRENCY:
                   item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
                   break;
-                case BitcoinUnit.SATS:
+                case DoichainUnit.SWARTZ:
                 default:
                   item.amountSats = parseInt(text);
                   break;
@@ -1221,7 +1222,7 @@ const SendDetails = () => {
 
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet.getBalance();
-  const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+  const allBalance = formatBalanceWithoutSuffix(balance, DoichainUnit.DOI, true);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>

@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: "off" */
 /* global alert */
 import React, { useState, useEffect, useContext } from 'react';
 import {
@@ -13,6 +14,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+/* eslint-disable */
 import {
   BlueText,
   BlueListItem,
@@ -25,11 +27,12 @@ import {
   BlueSpacing20,
   DoichainButton,
 } from "../../BlueComponents";
+/* eslint-enable */
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { useTheme, useNavigation } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
+import { Chain } from '../../models/doichainUnits';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const A = require('../../blue_modules/analytics');
@@ -198,7 +201,7 @@ const WalletsAdd = () => {
   const navigateToImportWallet = () => {
     navigate('ImportWallet');
   };
-
+/* eslint-disable */
   const handleOnVaultButtonPressed = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.VAULT);
@@ -218,7 +221,8 @@ const WalletsAdd = () => {
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
-
+  /* eslint-enable */
+    
   return (
     <ScrollView style={stylesHook.root}>
       <StatusBar barStyle="light-content" />

@@ -4,6 +4,7 @@ import { AppRegistry } from 'react-native';
 import App from './App';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 import { enableScreens } from 'react-native-screens';
+import "react-native-gesture-handler";
 const A = require('./blue_modules/analytics');
 enableScreens(false);
 if (!Error.captureStackTrace) {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { DoichainUnit, Chain } from '../../models/doichainUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
 
@@ -43,7 +43,7 @@ export class AbstractWallet {
   utxo: string[];
   _lastTxFetch: number;
   _lastBalanceFetch: number;
-  preferredBalanceUnit: BitcoinUnit;
+  preferredBalanceUnit: DoichainUnit;
   chain: Chain;
   hideBalance: boolean;
   userHasSavedExport: boolean;
@@ -67,7 +67,7 @@ export class AbstractWallet {
     this.utxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
-    this.preferredBalanceUnit = BitcoinUnit.BTC;
+    this.preferredBalanceUnit = DoichainUnit.DOI;
     this.chain = Chain.ONCHAIN;
     this.hideBalance = false;
     this.userHasSavedExport = false;
@@ -135,13 +135,13 @@ export class AbstractWallet {
     return this.balance + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
 
-  getPreferredBalanceUnit(): BitcoinUnit {
-    for (const value of Object.values(BitcoinUnit)) {
+  getPreferredBalanceUnit(): DoichainUnit {
+    for (const value of Object.values(DoichainUnit)) {
       if (value === this.preferredBalanceUnit) {
         return this.preferredBalanceUnit;
       }
     }
-    return BitcoinUnit.BTC;
+    return DoichainUnit.DOI;
   }
 
   allowReceive(): boolean {
@@ -219,7 +219,7 @@ export class AbstractWallet {
       let [hexFingerprint, ...derivationPathArray] = m[1].split('/');
       const derivationPath = `m/${derivationPathArray.join('/').replace(/h/g, "'")}`;
       if (hexFingerprint.length === 8) {
-        hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+        hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString();
         this.masterFingerprint = parseInt(hexFingerprint, 16);
         this._derivationPath = derivationPath;
       }
@@ -260,7 +260,7 @@ export class AbstractWallet {
       // It is a Cobo Vault Hardware Wallet
       if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint && parsedSecret.AccountKeyPath) {
         this.secret = parsedSecret.ExtPubKey;
-        const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString('hex');
+        const mfp = Buffer.from(parsedSecret.MasterFingerprint, 'hex').reverse().toString();
         this.masterFingerprint = parseInt(mfp, 16);
         this._derivationPath = `m/${parsedSecret.AccountKeyPath}`;
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
@@ -379,7 +379,7 @@ export class AbstractWallet {
    */
   static _ypubToXpub(ypub: string): string {
     let data = b58.decode(ypub);
-    if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
+    if (data.readUInt32BE(0) !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 

@@ -19,7 +19,7 @@ import {
 import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
 
 import loc, { formatBalance } from '../../loc';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DoichainUnit } from '../../models/doichainUnits';
 import { SafeBlueArea, BlueSpacing10, BlueSpacing20, BlueButton, BlueListItem } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
@@ -60,7 +60,7 @@ const ChangeBadge = () => {
 
 const OutputList = ({
   item: { address, txid, value, vout, confirmations = 0 },
-  balanceUnit = BitcoinUnit.BTC,
+  balanceUnit = DoichainUnit.DOI,
   oMemo,
   frozen,
   change,
@@ -131,7 +131,7 @@ OutputList.propTypes = {
   onDeSelect: PropTypes.func,
 };
 
-const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
+const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, balanceUnit = DoichainUnit.DOI, oMemo }) => {
   const { colors } = useTheme();
   const { txMetadata } = useContext(BlueStorageContext);
   const memo = oMemo || txMetadata[txid]?.memo || '';

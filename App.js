@@ -20,7 +20,7 @@ import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Chain } from './models/bitcoinUnits';
+import { Chain } from './models/doichainUnits';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';

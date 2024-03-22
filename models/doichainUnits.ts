@@ -1,10 +1,10 @@
-export const BitcoinUnit = {
-  BTC: 'BTC',
-  SATS: 'sats',
+export const DoichainUnit = {
+  DOI: 'DOI',
+  SWARTZ: 'swartz',
   LOCAL_CURRENCY: 'local_currency',
   MAX: 'MAX',
 } as const;
-export type BitcoinUnit = typeof BitcoinUnit[keyof typeof BitcoinUnit];
+export type DoichainUnit = typeof DoichainUnit[keyof typeof DoichainUnit];
 
 export const Chain = {
   ONCHAIN: 'ONCHAIN',

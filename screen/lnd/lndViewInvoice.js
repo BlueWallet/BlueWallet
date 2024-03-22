@@ -28,7 +28,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DoichainUnit } from '../../models/doichainUnits';
 import { SuccessView } from '../send/success';
 import ToolTipMenu from '../../components/TooltipMenu';
 
@@ -234,7 +234,7 @@ const LNDViewInvoice = () => {
           <View style={styles.root}>
             <SuccessView
               amount={amount}
-              amountUnit={BitcoinUnit.SATS}
+              amountUnit={DoichainUnit.SWARTZ}
               invoiceDescription={description}
               shouldAnimate={invoiceStatusChanged}
             />

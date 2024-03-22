@@ -23,7 +23,7 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Icon } from 'react-native-elements';
 import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
+import { Chain } from '../../models/doichainUnits';
 import { BlueTransactionListItem, BlueWalletNavigationHeader, BlueAlertWalletExportReminder, BlueListItem } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
@@ -33,7 +33,7 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import BottomModal from '../../components/BottomModal';
-import BuyBitcoin from './buyBitcoin';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isMacCatalina } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -64,7 +64,7 @@ const WalletTransactions = () => {
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
-    advancedTransactionOptionsModalContent: {
+    advancedTransactionOptionsModalContent: { 
       backgroundColor: colors.elevated,
     },
     listHeaderText: {
@@ -253,7 +253,8 @@ const WalletTransactions = () => {
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
 
            */}
-          {wallet.getTransactions().length > 0 && wallet.type !== LightningCustodianWallet.type && renderSellFiat()}
+          
+          {wallet.getTransactions().length > 0 && wallet.type !== LightningCustodianWallet.type }
           {wallet.type === LightningCustodianWallet.type && renderMarketplaceButton()}
           {wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && renderLappBrowserButton()}
         </View>
@@ -313,15 +314,7 @@ const WalletTransactions = () => {
               title={loc.lnd.refill_external}
             />
 
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={() => {
-                setIsManageFundsModalVisible(false);
-                setTimeout(() => navigateToBuyBitcoin(), 500);
-              }}
-              title={loc.lnd.refill_card}
-            />
+           
 
             <BlueListItem
               title={loc.lnd.exchange}
@@ -336,10 +329,6 @@ const WalletTransactions = () => {
         </KeyboardAvoidingView>
       </BottomModal>
     );
-  };
-
-  const navigateToBuyBitcoin = () => {
-    BuyBitcoin.navigate(wallet);
   };
 
   const renderMarketplaceButton = () => {
@@ -398,18 +387,6 @@ const WalletTransactions = () => {
     );
   };
 
-  const renderSellFiat = () => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={navigateToBuyBitcoin}
-        style={[styles.marketplaceButton2, stylesHook.marketplaceButton2]}
-      >
-        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_tap_here_to_buy}</Text>
-      </TouchableOpacity>
-    );
-  };
-
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
@@ -460,7 +437,7 @@ const WalletTransactions = () => {
       if (wallet.chain === Chain.ONCHAIN) {
         navigate('SendDetailsRoot', { screen: 'SendDetails', params });
       } else {
-        navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
+        navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params }); 
       }
     }
     setIsLoading(false);
@@ -666,15 +643,7 @@ const WalletTransactions = () => {
               <Text numberOfLines={0} style={styles.emptyTxs}>
                 {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
               </Text>
-              {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-
-              {!isLightning() && (
-                <TouchableOpacity onPress={navigateToBuyBitcoin} style={styles.buyBitcoin} accessibilityRole="button">
-                  <Text testID="NoTxBuyBitcoin" style={styles.buyBitcoinText}>
-                    {loc.wallets.list_tap_here_to_buy}
-                  </Text>
-                </TouchableOpacity>
-              )}
+              
             </ScrollView>
           }
           onRefresh={refreshTransactions}

@@ -28,7 +28,7 @@ import {
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, MultisigHDWallet } from './class';
-import { BitcoinUnit } from './models/bitcoinUnits';
+import { DoichainUnit } from './models/doichainUnits';
 import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import { BlurView } from '@react-native-community/blur';
@@ -388,18 +388,18 @@ export class BlueWalletNavigationHeader extends Component {
   changeWalletBalanceUnit = () => {
     let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
     const wallet = this.state.wallet;
-    if (walletPreviousPreferredUnit === BitcoinUnit.BTC) {
-      wallet.preferredBalanceUnit = BitcoinUnit.SATS;
-      walletPreviousPreferredUnit = BitcoinUnit.BTC;
-    } else if (walletPreviousPreferredUnit === BitcoinUnit.SATS) {
-      wallet.preferredBalanceUnit = BitcoinUnit.LOCAL_CURRENCY;
-      walletPreviousPreferredUnit = BitcoinUnit.SATS;
-    } else if (walletPreviousPreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
-      walletPreviousPreferredUnit = BitcoinUnit.BTC;
+    if (walletPreviousPreferredUnit === DoichainUnit.DOI) {
+      wallet.preferredBalanceUnit = DoichainUnit.SWARTZ;
+      walletPreviousPreferredUnit = DoichainUnit.DOI;
+    } else if (walletPreviousPreferredUnit === DoichainUnit.SWARTZ) {
+      wallet.preferredBalanceUnit = DoichainUnit.LOCAL_CURRENCY;
+      walletPreviousPreferredUnit = DoichainUnit.SWARTZ;
+    } else if (walletPreviousPreferredUnit === DoichainUnit.LOCAL_CURRENCY) {
+      wallet.preferredBalanceUnit = DoichainUnit.DOI;
+      walletPreviousPreferredUnit = DoichainUnit.DOI;
     } else {
-      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
-      walletPreviousPreferredUnit = BitcoinUnit.BTC;
+      wallet.preferredBalanceUnit = DoichainUnit.DOI;
+      walletPreviousPreferredUnit = DoichainUnit.DOI;
     }
 
     this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
@@ -1309,7 +1309,7 @@ export const BlueReceiveButtonIcon = props => {
   );
 };
 
-export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
+export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = DoichainUnit.DOI, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();

@@ -9,7 +9,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DoichainUnit } from '../../models/doichainUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -72,37 +72,37 @@ export default class Confirm extends Component {
           const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const paymentScript = this.getPaymentScript();
           let payjoinClient;
-          if (isTorCapable && this.state.payjoinUrl.includes('.onion')) {
-            console.warn('trying TOR....');
-            const payjoinUrl = this.state.payjoinUrl;
+        //  if (isTorCapable && this.state.payjoinUrl.includes('.onion')) {
+        //    console.warn('trying TOR....');
+        //    const payjoinUrl = this.state.payjoinUrl;
             // working through TOR - crafting custom requester that will handle TOR http request
-            const customPayjoinRequester = {
-              requestPayjoin: async function (psbt) {
-                console.warn('requesting payjoin with psbt:', psbt.toBase64());
-                const api = new torrific.Torsbee();
-                const torResponse = await api.post(payjoinUrl, {
-                  headers: {
-                    'Content-Type': 'text/plain',
-                  },
-                  body: psbt.toBase64(),
-                });
-                console.warn('got torResponse.body');
-                if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
-                return Psbt.fromBase64(torResponse.body);
-              },
-            };
-            payjoinClient = new PayjoinClient({
-              paymentScript,
-              wallet,
-              payjoinRequester: customPayjoinRequester,
-            });
-          } else {
+        //    const customPayjoinRequester = {
+        //      requestPayjoin: async function (psbt) {
+        //       console.warn('requesting payjoin with psbt:', psbt.toBase64());
+        //        const api = new torrific.Torsbee();
+        //        const torResponse = await api.post(payjoinUrl, {
+        //          headers: {
+        //            'Content-Type': 'text/plain',
+         //         },
+        //          body: psbt.toBase64(),
+        //        });
+         //       console.warn('got torResponse.body');
+         //       if (!torResponse.body) throw new Error('TOR failure, got ' + JSON.stringify(torResponse));
+         //       return Psbt.fromBase64(torResponse.body);
+        //      },
+         //   };
+         //   payjoinClient = new PayjoinClient({
+         //     paymentScript,
+         //     wallet,
+         //     payjoinRequester: customPayjoinRequester,
+         //   });
+          //} else {
             payjoinClient = new PayjoinClient({
               paymentScript,
               wallet,
               payjoinUrl: this.state.payjoinUrl,
             });
-          }
+          //}
           await payjoinClient.run();
           const payjoinPsbt = wallet.getPayjoinPsbt();
           if (payjoinPsbt) {
@@ -120,7 +120,7 @@ export default class Confirm extends Component {
           amount += recipient.value;
         }
 
-        amount = formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+        amount = formatBalanceWithoutSuffix(amount, DoichainUnit.DOI, false);
 
         this.props.navigation.navigate('Success', {
           fee: Number(this.state.fee),
@@ -166,7 +166,7 @@ export default class Confirm extends Component {
           <Text testID="TransactionValue" style={styles.valueValue}>
             {currency.satoshiToBTC(item.value)}
           </Text>
-          <Text style={styles.valueUnit}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
+          <Text style={styles.valueUnit}>{' ' + loc.units[DoichainUnit.DOI]}</Text>
         </View>
         <Text style={styles.transactionAmountFiat}>{currency.satoshiToLocalCurrency(item.value)}</Text>
         <BlueCard>
@@ -218,7 +218,7 @@ export default class Confirm extends Component {
         <View style={styles.cardBottom}>
           <BlueCard>
             <Text style={styles.cardText} testID="TransactionFee">
-              {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+              {loc.send.create_fee}: {formatBalance(this.state.feeSatoshi, DoichainUnit.DOI)} (
               {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
             </Text>
             {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm_sendNow} />}

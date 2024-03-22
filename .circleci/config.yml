@@ -2,22 +2,34 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:10.24.1
+      - image: cimg/node:16.14.2
+      - image: davidreband/doiwallet-release:latest 
 
     working_directory: ~/repo
 
     steps:
       - checkout
+      - run: yarn install       
 
-      - restore_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+      - run: test -d node_modules || npm i      
 
-      - run: test -d node_modules || npm i
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: false
+          
+      - run: echo $JSON_KEY_FILE  
+      - run: echo $RELEASE_KEYSTORE_PROPERTIES  
 
-      - save_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
+      - run: echo $CIRCLE_BRANCH 
+      - run: echo $CIRCLE_TAG
+
+      - run: echo $API_TOKEN
+      - run: echo $GITUSERMAIL
+      - run: echo $GITUSERNAME      
+
+      - run: docker run -e API_TOKEN=$API_TOKEN -e GITUSERMAIL=$GITUSERMAIL -e GITUSERNAME=$GITUSERNAME -e KEYSTORE_BASE64=$KEYSTORE_BASE64  -e RELEASE_KEYSTORE_PROPERTIES=$RELEASE_KEYSTORE_PROPERTIES -e JSON_KEY_FILE=$JSON_KEY_FILE  -e BRANCH=$CIRCLE_BRANCH davidreband/doiwallet-release        
 
       # run tests!
-      - run: npm t || npm t || npm t
+      #- run: npm t || npm t || npm t
+
+

@@ -73,3 +73,5 @@ artifacts/
 android/app/release/app-release.aab
 android/app/upload-keystore.jks
 yarn.lock
+android/keystores/release.keystore.properties
+android/keystores/pc-api-7544041306212151668-842-081c5b393ff8.json

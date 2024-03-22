@@ -175,7 +175,7 @@
     "details_adv_full_sure": "Weet u zeker dat u het volledige saldo van uw wallet wilt gebruiken voor deze transactie?",
     "details_adv_import": "Importeer transactie",
     "details_amount_field_is_not_valid": "Bedrag is niet geldig",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Het ingevoerde bedrag is te klein. Voer een bedrag in groter dan 500 schwartz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Het ingevoerde bedrag is te klein. Voer een bedrag in groter dan 500 swartz.",
     "details_create": "Maak factuur aan",
     "details_error_decode": "Niet in staat het Doi adres te decoderen",
     "details_fee_field_is_not_valid": "Tarief is niet geldig",
@@ -197,8 +197,8 @@
     "fee_custom": "Custom",
     "fee_fast": "Snel",
     "fee_medium": "Medium",
-    "fee_replace_min": "De totale fee rate (schwartz per byte) die u wilt betalen moet hoger zijn dan {min} schwartz/byte",
-    "fee_satbyte": "In schwartz/byte",
+    "fee_replace_min": "De totale fee rate (swartz per byte) die u wilt betalen moet hoger zijn dan {min} swartz/byte",
+    "fee_satbyte": "In swartz/byte",
     "fee_slow": "Langzaam",
     "header": "Verstuur",
     "input_clear": "Leegmaken",
@@ -229,7 +229,7 @@
     "about": "Over",
     "about_awesome": "Gebouwt met de geweldige",
     "about_backup": "Maak altijd een backup van uw sleutels!",
-    "about_free": "DoiWallet is een gratis en open-source project. Gemaakt door Doi gebruikers.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "MIT Licentie",
     "about_release_notes": "Release-opmerkingen",
     "about_review": "Laat een review achter",
@@ -550,8 +550,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwartz/byte",
-    "sats": "schwartz"
+    "sat_byte": "swartz/byte",
+    "sats": "swartz"
   },
   "addresses": {
     "sign_title": "Onderteken/Verifieer bericht",

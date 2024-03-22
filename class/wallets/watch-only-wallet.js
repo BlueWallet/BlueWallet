@@ -2,10 +2,11 @@ import { LegacyWallet } from './legacy-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { DOICHAIN } from '../../blue_modules/network.js';
 
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
-import { DOICHAIN } from '../../blue_modules/network.js';
+
 
 export class WatchOnlyWallet extends LegacyWallet {
   static type = 'watchOnly';

@@ -19,7 +19,7 @@ import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import { BlueCurrentTheme } from '../../components/themes';
 import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { DoichainUnit, Chain } from '../../models/doichainUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import Biometric from '../../class/biometrics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -79,13 +79,13 @@ export default class LnurlPay extends Component {
 
     let amountSats = this.state.amount;
     switch (this.state.unit) {
-      case BitcoinUnit.SATS:
+      case DoichainUnit.SWARTZ:
         amountSats = parseInt(amountSats); // nop
         break;
-      case BitcoinUnit.BTC:
+      case DoichainUnit.DOI:
         amountSats = currency.btcToSatoshi(amountSats);
         break;
-      case BitcoinUnit.LOCAL_CURRENCY:
+      case DoichainUnit.LOCAL_CURRENCY:
         amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
         break;
     }
@@ -148,9 +148,9 @@ export default class LnurlPay extends Component {
           >
             <Text style={styles.walletWrapLabel}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletWrapBalance}>
-              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+              {formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), DoichainUnit.SWARTZ, false)}
             </Text>
-            <Text style={styles.walletWrapSats}>{BitcoinUnit.SATS}</Text>
+            <Text style={styles.walletWrapSats}>{DoichainUnit.SWARTZ}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -176,7 +176,7 @@ export default class LnurlPay extends Component {
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
             <BlueText style={styles.alignSelfCenter}>
-              please pay between {this.state.payload.min} and {this.state.payload.max} schwartz
+              please pay between {this.state.payload.min} and {this.state.payload.max} swartz
             </BlueText>
             <BlueSpacing20 />
             {this.state.payload.image && <Image style={styles.img} source={{ uri: this.state.payload.image }} />}

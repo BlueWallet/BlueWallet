@@ -91,7 +91,8 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = true
+def enableSeparateBuildPerCPUArchitecture = false
+
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
@@ -120,6 +121,15 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false)
 
+/**
+ * Load release keystore
+ */
+ 
+def keystorePropertiesFile = rootProject.file("keystores/release.keystore.properties");
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -138,8 +148,11 @@ android {
         applicationId "org.doichain.doiwallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "6.2.4"
+
+        versionCode 74
+        versionName "6.2.13"
+
+
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
         testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
@@ -157,11 +170,22 @@ android {
         }
     }
 
+     signingConfigs {
+       
+        release {            
+                storeFile file(keystoreProperties['UPLOAD_STORE_FILE'])
+                storePassword keystoreProperties['UPLOAD_STORE_PASSWORD']
+                keyAlias keystoreProperties['UPLOAD_KEY_ALIAS']
+                keyPassword keystoreProperties['UPLOAD_KEY_PASSWORD']
+        }
+    }
+
     buildTypes {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             minifyEnabled enableProguardInReleaseBuilds
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
@@ -173,19 +197,26 @@ android {
             // https://developer.android.com/studio/build/configure-apk-splits.html
             // Example: versionCode 1 will generate 1001 for armeabi-v7a, 1002 for x86, etc.
             def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(OutputFile.ABI)
+            def abi = output.getFilter(OutputFile.ABI)            
+
             if (abi != null) {  // null for the universal-debug, universal-release variants
-                output.versionCodeOverride = versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+             //  output.versionCodeOverride =   versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            
+             output.versionCodeOverride =  getTimestamp()  + defaultConfig.versionCode 
             }
 
         }
     }
 }
 
+def getTimestamp() {    
+    return  Math.round(new Date().getTime()/1000 ) 
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     //noinspection GradleDynamicVersion
-    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
+   // implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"

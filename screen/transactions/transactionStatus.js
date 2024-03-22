@@ -17,7 +17,7 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Transaction } from '../../class';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DoichainUnit } from '../../models/doichainUnits';
 import HandoffComponent from '../../components/handoff';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -289,7 +289,7 @@ const TransactionsStatus = () => {
           <View style={styles.center}>
             <Text style={[styles.value, stylesHook.value]}>
               {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
-              {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              {wallet.current.preferredBalanceUnit !== DoichainUnit.LOCAL_CURRENCY && (
                 <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
               )}
             </Text>
@@ -330,7 +330,7 @@ const TransactionsStatus = () => {
             <View style={styles.fee}>
               <BlueText style={styles.feeText}>
                 {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.current.preferredBalanceUnit, true)}{' '}
-                {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current.preferredBalanceUnit}
+                {wallet.current.preferredBalanceUnit !== DoichainUnit.LOCAL_CURRENCY && wallet.current.preferredBalanceUnit}
               </BlueText>
             </View>
           )}

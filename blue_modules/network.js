@@ -1,3 +1,4 @@
+/* eslint-disable */
 const DOICHAIN_MAINNET = {
   name: "mainnet",
   messagePrefix: "\x19Doichain Signed Message:\n",
@@ -6,7 +7,7 @@ const DOICHAIN_MAINNET = {
     public: 0x0488b21e,
     private: 0x0499ade4,
   },
-  pubKeyHash: 52, //D=30 d=90 (52=M) https://en.bitcoin.it/wiki/List_of_address_prefixes
+  pubKeyHash: 52, // D=30 d=90 (52=M) https://en.bitcoin.it/wiki/List_of_address_prefixes
   scriptHash: 13,
   wif: 180,
 };
@@ -19,7 +20,7 @@ const DOICHAIN_TESTNET = {
     public: 0x043587cf,
     private: 0x04358394,
   },
-  pubKeyHash: 111, //D=30 d=90 (52=N) (111=m/n) https://en.bitcoin.it/wiki/List_of_address_prefixes
+  pubKeyHash: 111, // D=30 d=90 (52=N) (111=m/n) https://en.bitcoin.it/wiki/List_of_address_prefixes
   scriptHash: 196,
   wif: 239,
 };
@@ -36,4 +37,5 @@ const DOICHAIN_REGTEST = {
   wif: 239,
 };
 
-export const DOICHAIN = DOICHAIN_TESTNET;
+
+export const DOICHAIN =  DOICHAIN_MAINNET;

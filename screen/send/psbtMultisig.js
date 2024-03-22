@@ -7,7 +7,7 @@ import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueButton, BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DoichainUnit } from '../../models/doichainUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
@@ -235,7 +235,7 @@ const PsbtMultisig = () => {
       <View style={styles.containerText}>
         <BlueText style={[styles.textBtc, stylesHook.textBtc]}>{totalBtc}</BlueText>
         <View style={styles.textBtcUnit}>
-          <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {BitcoinUnit.BTC}</BlueText>
+          <BlueText style={[styles.textBtcUnitValue, stylesHook.textBtcUnitValue]}> {DoichainUnit.DOI}</BlueText>
         </View>
       </View>
       <View style={styles.containerText}>

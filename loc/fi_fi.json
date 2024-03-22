@@ -200,8 +200,8 @@
     "fee_custom": "Mukautettu",
     "fee_fast": "Nopea",
     "fee_medium": "Keskitaso",
-    "fee_replace_min": "Maksettavan kokonaiskulun (satoshia tavua kohti) tulisi olla korkeampi kuin {min} schwartz/tavu",
-    "fee_satbyte": "schwartz/tavu",
+    "fee_replace_min": "Maksettavan kokonaiskulun (satoshia tavua kohti) tulisi olla korkeampi kuin {min} swartz/tavu",
+    "fee_satbyte": "swartz/tavu",
     "fee_slow": "Hidas",
     "header": "Lähetä",
     "input_clear": "Tyhjää",
@@ -232,7 +232,7 @@
     "about": "Tietoa",
     "about_awesome": "Loistavasti rakennettu",
     "about_backup": "Varmuuskopioi aina avaimesi!",
-    "about_free": "DoiWallet on ilmainen ja avoimen lähdekoodin projekti. Doi käyttäjien tekemä.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "MIT-lisenssi",
     "about_release_notes": "Julkaisutiedot",
     "about_review": "Jätä meille arvostelu",
@@ -556,9 +556,9 @@
     "tip": "Antaa sinun nähdä, merkitä, jäädyttää tai valita kolikoita parempaan lompakon hallintaan. Voit valita useita kolikoita napauttamalla värillisiä ympyröitä. "
   },
   "units": {
-    "BTC": "DOI",
+    "DOI": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwartz/bitti",
+    "sat_byte": "swartz/bitti",
     "sats": "sattia"
   },
   "addresses": {

@@ -121,7 +121,7 @@
     "open_direct_channel": "Ouvrir un canal direct avec ce noeud :",
     "please_pay": "Veuillez payer",
     "preimage": "Préimage",
-    "sats": "schwartz",
+    "sats": "swartz",
     "wasnt_paid_and_expired": "Cette requête n'a pas été réglée et a expiré"
   },
   "plausibledeniability": {
@@ -182,7 +182,7 @@
     "details_adv_full_sure": "Etes-vous sûr de vouloir utiliser la totalité de votre solde pour cette transaction ?",
     "details_adv_import": "Importer une transaction",
     "details_amount_field_is_not_valid": "Champ montant invalide",
-    "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 schwartz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "Le montant spécifié est trop petit. Veuillez entrer un montant supérieur à 500 swartz.",
     "details_create": "Créer la requête",
     "details_error_decode": "Impossible de décoder l'adresse doi",
     "details_fee_field_is_not_valid": "Champ frais invalide",
@@ -205,8 +205,8 @@
     "fee_custom": "Personnalisé ",
     "fee_fast": "Rapide",
     "fee_medium": "Moyen",
-    "fee_replace_min": "Le taux des frais (schwartz par octet) que vous voulez payer devrais etre plus que {min} schwartz/octet",
-    "fee_satbyte": "En schwartz/octet",
+    "fee_replace_min": "Le taux des frais (swartz par octet) que vous voulez payer devrais etre plus que {min} swartz/octet",
+    "fee_satbyte": "En swartz/octet",
     "fee_slow": "Lent",
     "header": "Envoyer",
     "input_clear": "Tout effacer",
@@ -237,7 +237,7 @@
     "about": "À propos",
     "about_awesome": "Créé avec les incroyables",
     "about_backup": "Sauvegardez toujours vos clés !",
-    "about_free": "DoiWallet est un projet gratuit et ouvert. Réalisé par des utilisateurs de Doi.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "License MIT",
     "about_release_notes": "Notes de version",
     "about_review": "Laissez-nous votre avis",
@@ -568,10 +568,10 @@
     "tip": "Permet de voir, étiqueter, bloquer ou sélectionner des UTXOs pour une meilleure gestion du portefeuille. Vous pouvez sélectionner plusieurs UTXOs en appuyant sur les cercles colorés."
   },
   "units": {
-    "BTC": "DOI",
+    "DOI": "DOI",
     "MAX": "MAX",
-    "sat_byte": "schwartz/byte",
-    "sats": "schwartz"
+    "sat_byte": "swartz/byte",
+    "sats": "swartz"
   },
   "addresses": {
     "sign_title": "Signe/vérifie le message",

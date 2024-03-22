@@ -1,0 +1,112 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Submit a new Beta Build to Crashlytics Beta"
+  lane :beta do
+    #gradle(task: "clean assembleRelease")
+    gradle(
+      task: "bundle" ,
+      build_type: "Release"
+    )
+  
+    upload_to_play_store(
+        track: 'internal',
+        release_status: 'draft',
+        skip_upload_apk: false
+    )  
+
+    release_names = google_play_track_release_names(
+      package_name: "org.doichain.doiwallet",
+      track: "internal",
+      json_key: "./keystores/pc-api-7544041306212151668-842-081c5b393ff8.json"
+    )[0]
+
+    build_number = google_play_track_version_codes(
+      package_name: "org.doichain.doiwallet",
+      track: "internal",
+      json_key: "./keystores/pc-api-7544041306212151668-842-081c5b393ff8.json"
+    )[0]  
+
+
+    if !ENV['GITUSERMAIL'].nil? && !ENV['GITUSERMAIL'].empty? && !ENV['GITUSERNAME'].nil? && !ENV['GITUSERNAME'].empty?
+              sh "git config --global user.email #{ENV['GITUSERMAIL']}; git config --global user.name #{ENV['GITUSERNAME']}"
+    end
+
+    sh "git add .. ; git commit -m 'Version bump : versionCode = #{build_number} [ci skip] | versionName = #{release_names}'; git remote set-url origin https://#{ENV["API_TOKEN"]}@github.com/davidreband/DoiWallet.git"
+    push_to_git_remote(
+      remote: 'origin',
+      remote_branch: ENV['BRANCH'],
+      local_branch: ENV['BRANCH']     
+    )    
+
+    add_git_tag(
+      grouping: "fastlane-builds",
+      includes_lane: true,
+      prefix: "dc",      
+      build_number: release_names
+    )
+
+    push_git_tags(tag: last_git_tag)
+
+    # sh "your_script.sh"
+    # You can also use other beta testing services here
+  end
+
+  desc "Increment version code"
+  lane :increment_vc do
+
+  previous_build_number = google_play_track_version_codes(
+    package_name: "org.doichain.doiwallet",
+    track: "internal",
+    json_key: "./keystores/pc-api-7544041306212151668-842-081c5b393ff8.json"
+  )[0]
+
+  previous_version_name = google_play_track_release_names(
+    package_name: "org.doichain.doiwallet",
+    track: "internal",
+    json_key: "./keystores/pc-api-7544041306212151668-842-081c5b393ff8.json"
+  )[0]
+
+  current_build_number = previous_build_number + 1
+
+  current_version_name = previous_version_name.split('.') 
+
+  increment_version_code(
+        gradle_file_path: "./app/build.gradle",
+        version_code: current_build_number
+
+  )
+
+  increment_version_name(
+        gradle_file_path: "./app/build.gradle",
+        version_name: "#{current_version_name[0]}.#{current_version_name[1]}.#{current_version_name[2].next.to_s}"
+  )
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    gradle(task: "clean assembleRelease")
+    upload_to_play_store  
+
+  end
+end

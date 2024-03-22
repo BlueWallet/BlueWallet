@@ -1,4 +1,4 @@
-# BlueWallet - A Bitcoin & Lightning Wallet
+# DoiWallet - A Doichain Wallet
 
 [![GitHub tag](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/BlueWallet/BlueWallet/master/package.json&query=$.version&label=Version)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
@@ -133,3 +133,11 @@ Builds automated and tested with BrowserStack
 
 Found critical bugs/vulnerabilities? Please email them bluewallet@bluewallet.io
 Thanks!
+
+## How to make a release
+
+[Apple](https://github.com/Doichain/DoiWallet/blob/master/RELEASE.md)
+
+
+
+[Android](https://github.com/Doichain/DoiWallet/blob/master/RELEASE.md)

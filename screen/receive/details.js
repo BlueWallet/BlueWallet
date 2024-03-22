@@ -28,7 +28,7 @@ import {
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import Privacy from '../../blue_modules/Privacy';
-import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
+import { Chain, DoichainUnit } from '../../models/doichainUnits';
 import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -45,7 +45,7 @@ const ReceiveDetails = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState();
-  const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
+  const [customUnit, setCustomUnit] = useState(DoichainUnit.DOI);
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
@@ -301,16 +301,16 @@ const ReceiveDetails = () => {
     setIsCustomModalVisible(false);
     let amount = customAmount;
     switch (customUnit) {
-      case BitcoinUnit.BTC:
+      case DoichainUnit.DOI:
         // nop
         break;
-      case BitcoinUnit.SATS:
+      case DoichainUnit.SWARTZ:
         amount = currency.satoshiToBTC(customAmount);
         break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+      case DoichainUnit.LOCAL_CURRENCY:
+        if (AmountInput.conversionCache[amount + DoichainUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + DoichainUnit.LOCAL_CURRENCY]);
         } else {
           amount = currency.fiatToBTC(customAmount);
         }
@@ -363,11 +363,11 @@ const ReceiveDetails = () => {
    */
   const getDisplayAmount = () => {
     switch (customUnit) {
-      case BitcoinUnit.BTC:
+      case DoichainUnit.DOI:
         return customAmount + ' BTC';
-      case BitcoinUnit.SATS:
+      case DoichainUnit.SWARTZ:
         return currency.satoshiToBTC(customAmount) + ' BTC';
-      case BitcoinUnit.LOCAL_CURRENCY:
+      case DoichainUnit.LOCAL_CURRENCY:
         return currency.fiatToBTC(customAmount) + ' BTC';
     }
     return customAmount + ' ' + customUnit;

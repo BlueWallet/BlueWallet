@@ -237,7 +237,7 @@
     "about": "نبذة",
     "about_awesome": "تم تصميمها باستخدام الأدوات الرائعة التالية",
     "about_backup": "احتفظ دائمًا بنسخة احتياطية من مفاتيحك!",
-    "about_free": "محفظة BlueWallet هي مشروع مجاني ومفتوح المصدر، أنشأه مستخدمو Doi.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet",
     "about_license": "ترخيص MIT",
     "about_release_notes": "ملاحظات الإصدار",
     "about_review": "اترك لنا مراجعتك",
@@ -567,7 +567,7 @@
     "tip": "تتيح لك هذه الميزة رؤية العملات أو تسميتها أو تجميدها أو تحديدها لتحسين إدارة المحفظة. يمكنك تحديد عدة عملات من خلال النقر على الدوائر الملونة."
   },
   "units": {
-    "BTC": "DOI",
+    "DOI": "DOI",
     "MAX": "الحد الاقصى",
     "sat_byte": "ساتوشي/بايت",
     "sats": "ساتوشي"

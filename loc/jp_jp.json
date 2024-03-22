@@ -117,7 +117,7 @@
     "open_direct_channel": "このノードの直接チャネルを作成:",
     "please_pay": "支払う額",
     "preimage": "プリイメージ",
-    "sats": "schwartz",
+    "sats": "swartz",
     "wasnt_paid_and_expired": "この請求書は支払いが行われなかったため無効になりました"
   },
   "plausibledeniability": {
@@ -200,8 +200,8 @@
     "fee_custom": "カスタム",
     "fee_fast": "高速",
     "fee_medium": "中速",
-    "fee_replace_min": "支払いたい手数料レート(1バイトあたりのsatoshi)は、{min} schwartz/byteよりも高い必要があります。",
-    "fee_satbyte": "schwartz/バイト",
+    "fee_replace_min": "支払いたい手数料レート(1バイトあたりのsatoshi)は、{min} swartz/byteよりも高い必要があります。",
+    "fee_satbyte": "swartz/バイト",
     "fee_slow": "低速",
     "header": "送金",
     "input_clear": "クリア",
@@ -232,7 +232,7 @@
     "about": "DoiWallet について",
     "about_awesome": "Built with the awesome",
     "about_backup": "常に秘密鍵はバックアップしましょう！",
-    "about_free": "DoiWalletはフリーでオープンソースのプロジェクトです。ビットコインユーザーによって作られています。",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet。",
     "about_license": "MIT ライセンス",
     "about_release_notes": "リリースノート",
     "about_review": "レビューを書く",
@@ -486,8 +486,8 @@
   },
   "units": {
     "BTC": "DOI",
-    "sat_byte": "schwartz/byte",
-    "sats": "schwartz"
+    "sat_byte": "swartz/byte",
+    "sats": "swartz"
   },
   "addresses": {
     "addresses_title": "アドレス",

@@ -2,7 +2,7 @@ import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
-import { Chain } from '../models/bitcoinUnits';
+import { Chain } from '../models/doichainUnits';
 import Lnurl from './lnurl';
 import Azteco from './azteco';
 import { DOICHAIN } from '../blue_modules/network.js';

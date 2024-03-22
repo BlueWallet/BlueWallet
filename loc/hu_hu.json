@@ -121,7 +121,7 @@
     "open_direct_channel": "Közvetlen csatorna nyitása erre a csomópontra:",
     "please_pay": "Kérlek fizess",
     "preimage": "Pre-image (hashlock feloldáshoz)",
-    "sats": "schwartz",
+    "sats": "swartz",
     "wasnt_paid_and_expired": "Ezt a számlát nem fizették ki és lejárt"
   },
   "plausibledeniability": {
@@ -205,8 +205,8 @@
     "fee_custom": "beállított",
     "fee_fast": "Gyors",
     "fee_medium": "Közepes",
-    "fee_replace_min": "A teljes tranzakciós díj (schwartz / byte) amit fizetsz, magasabb lesz, mint a minimum díj azaz {min} schwartz/byte.",
-    "fee_satbyte": "schwartz/byte",
+    "fee_replace_min": "A teljes tranzakciós díj (swartz / byte) amit fizetsz, magasabb lesz, mint a minimum díj azaz {min} swartz/byte.",
+    "fee_satbyte": "swartz/byte",
     "fee_slow": "Lassú",
     "header": "Küldés",
     "input_clear": "Törlés",
@@ -237,7 +237,7 @@
     "about": "Egyéb",
     "about_awesome": "Nagyszerűséggel fejlesztve",
     "about_backup": "Mindig készíts biztonsági másolatot a jelszó sorozatodról. ",
-    "about_free": "A DoiWallet alkalmazás ingyenes és nyílt forráskódú. Doi használók fejleszteték. ",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet. ",
     "about_license": "MIT Licensz",
     "about_release_notes": "Verzió megjegyzések",
     "about_review": "Írj értékelést",
@@ -402,7 +402,7 @@
     "details_connected_to": "Kapcsolódva: ",
     "details_del_wb": "Tárca Egyenlege",
     "details_del_wb_err": "A megadott egyenleg összege nem egyezik a tárca egyenlegével. Próbáld újra. ",
-    "details_del_wb_q": "Ennek a tárcának pozitív az egyenlege. Mielőtt tovább mennél, ne felejtsd, hogy a tárca jelszó sorozata nélkül nem lehetséges a tárca helyreállítása. A tárca véletlen törlésének elkerülése érdekében, add meg a tárca {balance} egyenlegét schwartz-ban.",
+    "details_del_wb_q": "Ennek a tárcának pozitív az egyenlege. Mielőtt tovább mennél, ne felejtsd, hogy a tárca jelszó sorozata nélkül nem lehetséges a tárca helyreállítása. A tárca véletlen törlésének elkerülése érdekében, add meg a tárca {balance} egyenlegét swartz-ban.",
     "details_delete": "Törlés",
     "details_delete_wallet": "Tárca törlése",
     "details_derivation_path": "derivációs út",
@@ -568,10 +568,10 @@
     "tip": "Ez a funkció lehetővé teszi az érmék megtekintését, címkézését, befagyasztását vagy kiválasztását a pénztárca jobb kezelése érdekében. Több érmét is kiválaszthat a színes körök megérintésével."
   },
   "units": {
-    "BTC": "DOI",
+    "DOI": "DOI",
     "MAX": "Maximum",
-    "sat_byte": "schwartz/byte",
-    "sats": "schwartz"
+    "sat_byte": "swartz/byte",
+    "sats": "swartz"
   },
   "addresses": {
     "sign_title": "Aláíró/Hitelesíŧő üzenet",

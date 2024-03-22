@@ -6,7 +6,7 @@ import {
   useInstalled,
   transferCurrentComplicationUserInfo,
 } from 'react-native-watch-connectivity';
-import { Chain } from './models/bitcoinUnits';
+import { Chain } from './models/doichainUnits';
 import loc, { formatBalance, transactionTimeToReadable } from './loc';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';

@@ -1,7 +1,7 @@
 /* global alert */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert, I18nManager } from 'react-native';
-import { Button } from 'react-native-elements';
+import { View, TextInput, StyleSheet, Alert, I18nManager } from 'react-native';
+// import { Button } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -10,7 +10,7 @@ import { BlueButton, BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueT
 import { AppStorage } from '../../class';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
-import { BlueCurrentTheme, useTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { isTorCapable } from '../../blue_modules/environment';
 
@@ -56,7 +56,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
-  const { colors } = useTheme();
+  // const { colors } = useTheme();
   const route = useRoute();
   const navigation = useNavigation();
 
@@ -129,7 +129,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
       </BlueCard>
 
-      <Button
+      {/* <Button
         icon={{
           name: 'github',
           type: 'font-awesome',
@@ -141,7 +141,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         // TODO: looks like there's no `color` prop on `Button`, does this make any sense?
         // color={colors.buttonTextColor}
         buttonStyle={styles.buttonStyle}
-      />
+      /> */}
 
       <BlueCard>
         <View style={styles.uri}>

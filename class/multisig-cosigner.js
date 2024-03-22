@@ -1,4 +1,5 @@
 import b58 from 'bs58check';
+import { DOICHAIN } from '../blue_modules/network';
 const HDNode = require('bip32');
 
 export class MultisigCosigner {

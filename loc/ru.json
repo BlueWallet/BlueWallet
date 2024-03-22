@@ -121,7 +121,7 @@
     "open_direct_channel": "Открыть канал с этой нодой:",
     "please_pay": "Пожалуйста оплатите",
     "preimage": "Предпросмотр",
-    "sats": "schwartz",
+    "sats": "swartz",
     "wasnt_paid_and_expired": "Этот инвойс не оплачен и просрочен"
   },
   "plausibledeniability": {
@@ -237,7 +237,7 @@
     "about": "О программе",
     "about_awesome": "Основано на офигенных",
     "about_backup": "Всегда делайте резервные копии ваших ключей!",
-    "about_free": "DoiWallet - это бесплатный проект с открытым исходным кодом. Создано Биткойн пользователями.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "Лицензия MIT",
     "about_release_notes": "История изменений",
     "about_review": "Оставьте отзыв о нас",
@@ -568,8 +568,8 @@
     "use_coins": "Использовать монеты",
     "tip": "Позволяет просматривать, помечать, замораживать или использовать Монеты для гибкого управления кошельком."
   },
-  "units": {
-    "BTC": "DOI",
+  "units": {    
+    "DOI": "DOI",
     "MAX": "МАКС",
     "sat_byte": "сатоши/байт",
     "sats": "сатоши"

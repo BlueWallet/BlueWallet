@@ -116,7 +116,7 @@
     "open_direct_channel": "Apri un canale diretto con questo nodo:",
     "please_pay": "Per favore paga",
     "preimage": "Preimage",
-    "sats": "schwartz.",
+    "sats": "swartz.",
     "wasnt_paid_and_expired": "Questa fattura non è stata pagata ed è scaduta."
   },
   "plausibledeniability": {
@@ -175,7 +175,7 @@
     "details_adv_full_sure": "Desideri veramente usare tutti i fondi in questo portafoglio per questa transazione?",
     "details_adv_import": "Importa Transazione",
     "details_amount_field_is_not_valid": "Importo non valido",
-    "details_amount_field_is_less_than_minimum_amount_sat": "L'importo specificato è troppo piccolo. Specifica un importo superiore a 500 schwartz.",
+    "details_amount_field_is_less_than_minimum_amount_sat": "L'importo specificato è troppo piccolo. Specifica un importo superiore a 500 swartz.",
     "details_create": "Crea",
     "details_error_decode": "Impossibile decodificare l'indirizzo Doi",
     "details_fee_field_is_not_valid": "Commissione non valida",
@@ -197,8 +197,8 @@
     "fee_custom": "Personalizzato",
     "fee_fast": "Rapido",
     "fee_medium": "Medio",
-    "fee_replace_min": "La commissione di transazione (schwartz per byte) che desideri pagare dovrebbe essere superiore a {min} schwartz/byte.",
-    "fee_satbyte": "in schwartz/byte",
+    "fee_replace_min": "La commissione di transazione (swartz per byte) che desideri pagare dovrebbe essere superiore a {min} swartz/byte.",
+    "fee_satbyte": "in swartz/byte",
     "fee_slow": "Lento",
     "header": "Invia",
     "input_clear": "Cancella",
@@ -227,7 +227,7 @@
     "about": "Informazioni",
     "about_awesome": "Costruito con il fantastico",
     "about_backup": "Non dimenticare di fare il backup delle tue chiavi!",
-    "about_free": "DoiWallet è un progetto libero e open-source. Creato dagli utenti Doi.",
+    "about_free": "DoiWallet is a free and open source project based on BlueWallet.",
     "about_license": "Licenza MIT",
     "about_release_notes": "Note di rilascio",
     "about_review": "Lasciaci una recensione",
@@ -447,8 +447,8 @@
   "units": {
     "BTC": "DOI",
     "MAX": "Max",
-    "sat_byte": "schwartz/byte",
-    "sats": "schwartz"
+    "sat_byte": "swartz/byte",
+    "sats": "swartz"
   },
   "addresses": {
     "sign_title": "Firma/Verifica messaggio",

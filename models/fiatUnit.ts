@@ -11,16 +11,19 @@ export const FiatUnitSource = {
 const RateExtractors = {
   CoinDesk: async (ticker: string): Promise<number> => {
     const api = new Frisbee({ baseURI: 'https://api.coinpaprika.com' });
-    const res = await api.get(`/v1/coins/doi-doicoin/ohlcv/historical?start=2021-03-18&quote=usd`);
+    const res = await api.get(`/v1/coins/doi-doicoin/ohlcv/latest`);
     console.log('\n Result of COINPAPRIKA Api is: ', res)    
+
+    //doi-doicoin/ohlcv/latest"
+    //`/v1/coins/doi-doicoin/ohlcv/historical?start=2021-03-18&quote=usd`
     
-    let json;
+   /**  let json;
     try {
       json = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
     } catch (e) {
-      //throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
-    }
-    let rate = res.body.map(p => p.close); // eslint-disable-line// eslint-disable-line
+      // throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+    } */
+    let rate = res.body.map((p: FiatUnit) => p.close);
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
     rate = Number(rate);
