@@ -11,7 +11,7 @@ import Licensing from './screen/settings/Licensing';
 import NetworkSettings from './screen/settings/NetworkSettings';
 import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
-import DefaultView from './screen/settings/defaultView';
+import DefaultView from './screen/settings/DefaultView';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import EncryptStorage from './screen/settings/encryptStorage';
 import Language from './screen/settings/language';
