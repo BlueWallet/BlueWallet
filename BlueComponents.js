@@ -18,6 +18,7 @@ import {
   View,
   I18nManager,
   ImageBackground,
+  findNodeHandle,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
@@ -26,6 +27,8 @@ import { BlueCurrentTheme, useTheme } from './components/themes';
 import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 import SafeArea from './components/SafeArea';
+import { isDesktop } from './blue_modules/environment';
+import ActionSheet from './screen/ActionSheet';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -193,16 +196,37 @@ export const BlueButtonLink = forwardRef((props, ref) => {
   );
 });
 
-export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
-  Alert.alert(
-    loc.wallets.details_title,
-    loc.pleasebackup.ask,
-    [
-      { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
-      { text: loc.pleasebackup.ask_no, onPress: onFailure },
-    ],
-    { cancelable: false },
-  );
+export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure, anchor }) => {
+  if (isDesktop) {
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.wallets.details_title, // Changed from loc.send.header to loc.wallets.details_title
+        message: loc.pleasebackup.ask,
+        options: [loc.pleasebackup.ask_yes, loc.pleasebackup.ask_no],
+        anchor: findNodeHandle(anchor), // Kept the same for context
+      },
+      buttonIndex => {
+        switch (buttonIndex) {
+          case 0:
+            onSuccess(); // Assuming the first button (yes) triggers onSuccess
+            break;
+          case 1:
+            onFailure(); // Assuming the second button (no) triggers onFailure
+            break;
+        }
+      },
+    );
+  } else {
+    Alert.alert(
+      loc.wallets.details_title,
+      loc.pleasebackup.ask,
+      [
+        { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
+        { text: loc.pleasebackup.ask_no, onPress: onFailure },
+      ],
+      { cancelable: false },
+    );
+  }
 };
 
 export const BluePrivateBalance = () => {
