@@ -11,6 +11,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import SaveFileButton from '../../components/SaveFileButton';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
@@ -88,7 +89,14 @@ const ExportMultisigCoordinationSetup = () => {
         {isShareButtonTapped ? (
           <ActivityIndicator />
         ) : (
-          <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportTxtFile} title={loc.multisig.share} />
+          <SaveFileButton
+            style={[styles.exportButton, stylesHook.exportButton]}
+            fileName={wallet.getLabel() + '.txt'}
+            fileContent={wallet.getXpub()}
+            onPress={exportTxtFile}
+          >
+            <SquareButton title={loc.multisig.share} />
+          </SaveFileButton>
         )}
         <BlueSpacing20 />
         <BlueText style={[styles.secret, stylesHook.secret]}>{wallet.getXpub()}</BlueText>

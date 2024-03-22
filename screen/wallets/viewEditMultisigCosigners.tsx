@@ -51,6 +51,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
+import SaveFileButton from '../../components/SaveFileButton';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -570,7 +571,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     const isPad: boolean = Platform.isPad;
 
     return (
-      // @ts-ignore wtf doneButton
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
@@ -580,7 +580,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              <SaveFileButton fileContent={exportString} fileName={exportFilename} onPress={exportCosigner}>
+                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} title={loc.multisig.share} />
+              </SaveFileButton>
             </View>
           </View>
         </KeyboardAvoidingView>

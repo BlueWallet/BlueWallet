@@ -14,6 +14,7 @@
     "yes": "Yes",
     "no": "No",
     "save": "Save",
+    "save_to_downloads": "Save to Downloads",
     "seed": "Seed",
     "success": "Success",
     "wallet_key": "Wallet key",
@@ -210,6 +211,7 @@
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
+    "file_saved_at_path": "The file has been saved in your Downloads folder ({filePath}).",
     "problem_with_psbt": "Problem with PSBT"
   },
   "settings": {

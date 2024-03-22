@@ -18,6 +18,7 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { SecondButton } from '../../components/SecondButton';
+import SaveFileButton from '../../components/SaveFileButton';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -264,15 +265,21 @@ const PsbtWithHardwareWallet = () => {
               title={loc.send.psbt_tx_open}
             />
             <BlueSpacing20 />
-            <SecondButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: colors.buttonTextColor,
-              }}
+            <SaveFileButton
+              fileName={`${Date.now()}.psbt`}
+              fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
+              style={styles.exportButton}
               onPress={exportPSBT}
-              title={loc.send.psbt_tx_export}
-            />
+            >
+              <SecondButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: colors.buttonTextColor,
+                }}
+                title={loc.send.psbt_tx_export}
+              />
+            </SaveFileButton>
             <BlueSpacing20 />
             <View style={styles.copyToClipboard}>
               <BlueCopyToClipboardButton

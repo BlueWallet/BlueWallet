@@ -48,6 +48,7 @@ import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Button from '../../components/Button';
 import { SecondButton } from '../../components/SecondButton';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const prompt = require('../../helpers/prompt');
 
@@ -419,7 +420,7 @@ const WalletDetails = () => {
     }
   };
 
-  const onExportHistoryPressed = async () => {
+  const exportHistoryContent = () => {
     const csvFileArray = [
       loc.transactions.date,
       loc.transactions.txid,
@@ -458,8 +459,11 @@ const WalletDetails = () => {
 
       csvFile += '\n' + data.join(','); // CSV line
     }
+    return csvFile;
+  };
 
-    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
+  const onExportHistoryPressed = async () => {
+    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, exportHistoryContent);
   };
 
   const handleDeleteButtonTapped = () => {
@@ -659,7 +663,13 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                    <SaveFileButton
+                      fileName={`${wallet.getLabel().replace(' ', '-')}-history.csv`}
+                      fileContent={exportHistoryContent}
+                      onPress={onExportHistoryPressed}
+                    >
+                      <SecondButton title={loc.wallets.details_export_history} />
+                    </SaveFileButton>
                   </>
                 )}
                 {wallet.type === MultisigHDWallet.type && (
