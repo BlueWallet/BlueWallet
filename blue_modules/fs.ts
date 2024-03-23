@@ -16,7 +16,6 @@ const _shareOpen = async (filePath: string) => {
     saveToFiles: isDesktop,
   })
     .catch(error => {
-      presentAlert({ message: error.message });
       console.log(error);
     })
     .finally(() => {

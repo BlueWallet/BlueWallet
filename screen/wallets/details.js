@@ -362,7 +362,6 @@ const WalletDetails = () => {
       })
         .catch(error => {
           console.log(error);
-          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
