@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import loc from '../loc';
-import { scanQrHelper } from '../helpers/scan-qr';
+import { isCameraAuthorizationStatusDenied, scanQrHelper } from '../helpers/scan-qr';
 import { useTheme } from './themes';
 import { useNavigation } from '@react-navigation/native';
+import ToolTipMenu from './TooltipMenu';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { openPrivacyDesktopSettings } from '../class/camera';
+const fs = require('../blue_modules/fs');
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -47,6 +51,7 @@ const AddressInput = ({
 }: AddressInputProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation();
+  const [isCameraAuthStatusDenied, setIsCameraAuthStatusDenied] = useState(false);
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -66,6 +71,109 @@ const AddressInput = ({
     Keyboard.dismiss();
   };
 
+
+  const onScanButtonPressed = (id?: any) => {
+    isCameraAuthorizationStatusDenied().then(async value => {
+      if (!value) {
+        await scanButtonTapped();
+        Keyboard.dismiss();
+        // @ts-ignore: Fix later
+        scanQrHelper(navigate, launchedBy)
+          .then(data => onBarScanned({ data }))
+          .catch(error => {
+            console.log(error.message);
+            setIsCameraAuthStatusDenied(true);
+          });
+      } else {
+        switch (id) {
+          case AddressInput.actionKeys.OpenImagePicker:
+            fs.showImagePickerAndReadImage().then((data: string) => {
+              if (data) onChangeText(data);
+            });
+  
+            break;
+          case AddressInput.actionKeys.ImportFile:
+            fs.showFilePickerAndReadFile((data: any) => {
+              if (data) onChangeText(data);
+            });
+            break;
+          case AddressInput.actionKeys.CopyFromClipboard:
+            Clipboard.getString().then(clipboardValue => {
+              console.warn(clipboardValue);
+              if (clipboardValue) {
+                onChangeText(clipboardValue);
+              }
+            });
+            break;
+          case AddressInput.actionKeys.OpenSystemSettings:
+            openPrivacyDesktopSettings();
+            break;
+        }
+      }
+    });
+
+  
+  };
+
+  const toolTipActions = [
+    {
+      id: AddressInput.actionKeys.OpenImagePicker,
+      icon: AddressInput.actionIcons.OpenImagePicker,
+      text: loc.wallets.list_long_choose,
+    },
+    {
+      id: AddressInput.actionKeys.ImportFile,
+      icon: AddressInput.actionIcons.ImportFile,
+      text: loc.send.import_file,
+    },
+    {
+      id: AddressInput.actionKeys.CopyFromClipboard,
+      icon: AddressInput.actionIcons.CopyFromClipoard,
+      text: loc.wallets.list_long_clipboard,
+    },
+    [
+      {
+        id: AddressInput.actionKeys.OpenSystemSettings,
+        text: loc.settings.privacy_system_settings,
+      },
+    ],
+  ];
+
+  const scanButton = isCameraAuthStatusDenied ? (
+    <ToolTipMenu
+      testID="BlueAddressInputScanQrButton"
+      disabled={isLoading}
+      accessibilityRole="button"
+      buttonStyle={[styles.scan, stylesHook.scan]}
+      accessibilityLabel={loc.send.details_scan}
+      accessibilityHint={loc.send.details_scan_hint}
+      isButton
+      isMenuPrimaryAction
+      onPressMenuItem={onScanButtonPressed}
+      actions={toolTipActions}
+    >
+      <Image source={require('../img/scan-white.png')} />
+      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+        {loc.send.details_scan}
+      </Text>
+    </ToolTipMenu>
+  ) : (
+    <TouchableOpacity
+      testID="BlueAddressInputScanQrButton"
+      disabled={isLoading}
+      onPress={onScanButtonPressed}
+      accessibilityRole="button"
+      style={[styles.scan, stylesHook.scan]}
+      accessibilityLabel={loc.send.details_scan}
+      accessibilityHint={loc.send.details_scan_hint}
+    >
+      <Image source={require('../img/scan-white.png')} accessible={false} />
+      <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+        {loc.send.details_scan}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
@@ -84,29 +192,23 @@ const AddressInput = ({
         autoCorrect={false}
         keyboardType={keyboardType}
       />
-      {editable ? (
-        <TouchableOpacity
-          testID="BlueAddressInputScanQrButton"
-          disabled={isLoading}
-          onPress={async () => {
-            await scanButtonTapped();
-            Keyboard.dismiss();
-            // @ts-ignore: Fix later
-            scanQrHelper(navigate, launchedBy).then(onBarScanned);
-          }}
-          accessibilityRole="button"
-          style={[styles.scan, stylesHook.scan]}
-          accessibilityLabel={loc.send.details_scan}
-          accessibilityHint={loc.send.details_scan_hint}
-        >
-          <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </TouchableOpacity>
-      ) : null}
+      {editable ? scanButton : null}
     </View>
   );
+};
+
+AddressInput.actionKeys = {
+  OpenImagePicker: 'OpenImagePicker',
+  ImportFile: 'ImportFile',
+  CopyFromClipboard: 'CopyFromClipboard',
+  OpenSystemSettings: 'OpenSystemSettings',
+};
+
+AddressInput.actionIcons = {
+  OpenImagePicker: { iconType: 'SYSTEM', iconValue: 'photo.on.rectangle.angled' },
+  ImportFile: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
+  CopyFromClipoard: { iconType: 'SYSTEM', iconValue: 'doc.on.clipboard' },
+  RemoveRecipient: 'OpenSystemSettings',
 };
 
 const styles = StyleSheet.create({
