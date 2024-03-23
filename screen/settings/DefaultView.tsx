@@ -7,10 +7,10 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { TWallet } from '../../class/wallets/types';
 
 type RootStackParamList = {
-  SelectWallet: { onWalletSelect: (wallet: { getID: () => string; getLabel: () => string }) => void };
-  // Add other screens here as needed
+  SelectWallet: { onWalletSelect: (wallet: TWallet) => void };
 };
 
 type DefaultViewNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SelectWallet'>;
@@ -55,7 +55,7 @@ const DefaultView: React.FC = () => {
     navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged });
   };
 
-  const onWalletSelectValueChanged = async (wallet: { getID: () => string; getLabel: () => string; }) => {
+  const onWalletSelectValueChanged = async (wallet: TWallet) => {
     await setViewAllWalletsEnabled(false);
     await setSelectedDefaultWallet(wallet.getID());
     setDefaultWalletLabel(wallet.getLabel());
