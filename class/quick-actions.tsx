@@ -96,17 +96,15 @@ function DeviceQuickActions(): JSX.Element | null {
           const selectedDefaultWalletID = (await getSelectedDefaultWallet()) as string;
           const selectedDefaultWallet = wallets.find((w: TWallet) => w.getID() === selectedDefaultWalletID);
           if (selectedDefaultWallet) {
-            if (selectedDefaultWallet) {
-              NavigationService.dispatch(
-                CommonActions.navigate({
-                  name: 'WalletTransactions',
-                  params: {
-                    walletID: selectedDefaultWalletID,
-                    walletType: selectedDefaultWallet.type,
-                  },
-                }),
-              );
-            }
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                params: {
+                  walletID: selectedDefaultWalletID,
+                  walletType: selectedDefaultWallet.type,
+                },
+              }),
+            );
           }
         }
       }
