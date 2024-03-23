@@ -21,9 +21,13 @@ function pubkeyToP2shSegwitAddress(pubkey: Buffer): string | false {
 }
 
 export class SegwitP2SHWallet extends LegacyWallet {
-  static type = 'segwitP2SH';
-  static typeReadable = 'SegWit (P2SH)';
-  static segwitType = 'p2sh(p2wpkh)';
+  static readonly type = 'segwitP2SH';
+  static readonly typeReadable = 'SegWit (P2SH)';
+  // @ts-ignore: override
+  public readonly type = SegwitP2SHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = SegwitP2SHWallet.typeReadable;
+  public readonly segwitType = 'p2sh(p2wpkh)';
 
   static witnessToAddress(witness: string): string | false {
     try {

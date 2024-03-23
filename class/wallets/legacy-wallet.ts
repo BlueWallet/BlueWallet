@@ -19,8 +19,12 @@ bitcoin.initEccLib(ecc);
  *  (legacy P2PKH compressed)
  */
 export class LegacyWallet extends AbstractWallet {
-  static type = 'legacy';
-  static typeReadable = 'Legacy (P2PKH)';
+  static readonly type = 'legacy';
+  static readonly typeReadable = 'Legacy (P2PKH)';
+  // @ts-ignore: override
+  public readonly type = LegacyWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = LegacyWallet.typeReadable;
 
   _txs_by_external_index: Transaction[] = [];
   _txs_by_internal_index: Transaction[] = [];

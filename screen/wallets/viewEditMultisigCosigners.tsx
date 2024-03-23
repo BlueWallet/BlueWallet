@@ -18,6 +18,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
+
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -32,7 +33,7 @@ import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
 import * as NavigationService from '../../NavigationService';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
-import { AbstractWallet, HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -64,7 +65,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const { navigate, goBack, dispatch, addListener } = useNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
-  const w = useRef(wallets.find((wallet: AbstractWallet) => wallet.getID() === walletId));
+  const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
@@ -177,6 +178,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   };
 
   const onSave = async () => {
+    if (!wallet) {
+      throw new Error('Wallet is undefined');
+    }
     setIsLoading(true);
 
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -189,9 +193,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     }
 
     // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter((newWallet: MultisigHDWallet) => {
+    let newWallets = wallets.filter(newWallet => {
       return newWallet.getID() !== walletId;
-    });
+    }) as MultisigHDWallet[];
     if (!isElectrumDisabled) {
       await wallet?.fetchBalance();
     }

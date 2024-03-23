@@ -13,6 +13,7 @@ import {
   View,
   useColorScheme,
 } from 'react-native';
+
 import {
   BitcoinButton,
   BlueButtonLink,
@@ -25,14 +26,7 @@ import {
 } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import {
-  AbstractWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  LightningLdkWallet,
-  SegwitP2SHWallet,
-} from '../../class';
+import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { LdkButton } from '../../components/LdkButton';
@@ -41,8 +35,7 @@ import { useTheme } from '../../components/themes';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
-const BlueApp = require('../../BlueApp');
-const AppStorage = BlueApp.AppStorage;
+import { AppStorage } from '../../BlueApp';
 const A = require('../../blue_modules/analytics');
 
 enum ButtonSelected {
@@ -279,7 +272,7 @@ const WalletsAdd: React.FC = () => {
   };
 
   const createLightningLdkWallet = async () => {
-    const foundLdk = wallets.find((w: AbstractWallet) => w.type === LightningLdkWallet.type);
+    const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);
     if (foundLdk) {
       return presentAlert({ message: 'LDK wallet already exists' });
     }

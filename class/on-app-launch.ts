@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AbstractWallet } from './wallets/abstract-wallet';
-const BlueApp = require('../BlueApp');
+import { TWallet } from './wallets/types';
+import BlueApp from '../BlueApp';
 
 export default class OnAppLaunch {
   static STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
@@ -26,18 +26,18 @@ export default class OnAppLaunch {
     }
   }
 
-  static async getSelectedDefaultWallet(): Promise<AbstractWallet | boolean> {
-    let selectedWallet: AbstractWallet | false = false;
+  static async getSelectedDefaultWallet(): Promise<TWallet | undefined> {
+    let selectedWallet: TWallet | undefined;
     try {
       const selectedWalletID = JSON.parse((await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY)) || 'null');
       if (selectedWalletID) {
-        selectedWallet = BlueApp.getWallets().find((wallet: AbstractWallet) => wallet.getID() === selectedWalletID);
+        selectedWallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedWalletID);
         if (!selectedWallet) {
           await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, '');
         }
       }
     } catch (_e) {
-      return false;
+      return;
     }
     return selectedWallet;
   }
