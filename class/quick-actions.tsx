@@ -93,16 +93,16 @@ function DeviceQuickActions(): JSX.Element | null {
         }
       } else {
         if (!(await isViewAllWalletsEnabled())) {
-          const selectedDefaultWallet: TWallet = (await getSelectedDefaultWallet()) as TWallet;
+          const selectedDefaultWalletID = (await getSelectedDefaultWallet()) as string;
+          const selectedDefaultWallet = wallets.find((w: TWallet) => w.getID() === selectedDefaultWalletID);
           if (selectedDefaultWallet) {
-            const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
-            if (wallet) {
+            if (selectedDefaultWallet) {
               NavigationService.dispatch(
                 CommonActions.navigate({
                   name: 'WalletTransactions',
                   params: {
-                    walletID: wallet.getID(),
-                    walletType: wallet.type,
+                    walletID: selectedDefaultWalletID,
+                    walletType: selectedDefaultWallet.type,
                   },
                 }),
               );

@@ -10,7 +10,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TWallet } from '../../class/wallets/types';
 
 type RootStackParamList = {
-  SelectWallet: { onWalletSelect: (wallet: TWallet) => void };
+  SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };
 };
 
 type DefaultViewNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SelectWallet'>;
@@ -26,10 +26,11 @@ const DefaultView: React.FC = () => {
     (async () => {
       const newViewAllWalletsEnabled: boolean = await isViewAllWalletsEnabled();
       let newDefaultWalletLabel: string = '';
-      const wallet = await getSelectedDefaultWallet();
+      const walletID = await getSelectedDefaultWallet();
 
-      if (wallet) {
-        newDefaultWalletLabel = wallet.getLabel();
+      if (walletID) {
+        const w = wallets.find(wallet => wallet.getID() === walletID);
+        if (w) newDefaultWalletLabel = w.getLabel();
       }
       setDefaultWalletLabel(newDefaultWalletLabel);
       setIsViewAllWalletsSwitchEnabled(newViewAllWalletsEnabled);
@@ -43,7 +44,8 @@ const DefaultView: React.FC = () => {
       setIsViewAllWalletsSwitchEnabled(true);
       setDefaultWalletLabel('');
     } else {
-      const selectedWallet = await getSelectedDefaultWallet();
+      const selectedWalletID = await getSelectedDefaultWallet();
+      const selectedWallet = wallets.find(wallet => wallet.getID() === selectedWalletID);
       if (selectedWallet) {
         setDefaultWalletLabel(selectedWallet.getLabel());
         setIsViewAllWalletsSwitchEnabled(false);
@@ -52,7 +54,7 @@ const DefaultView: React.FC = () => {
   };
 
   const selectWallet = () => {
-    navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged });
+    navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false });
   };
 
   const onWalletSelectValueChanged = async (wallet: TWallet) => {

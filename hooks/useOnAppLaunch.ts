@@ -7,7 +7,7 @@ const useOnAppLaunch = () => {
   const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
   const { wallets } = useContext(BlueStorageContext);
 
-  const getSelectedDefaultWallet = useCallback(async (): Promise<TWallet | undefined> => {
+  const getSelectedDefaultWallet = useCallback(async (): Promise<string | undefined> => {
     let selectedWallet: TWallet | undefined;
     try {
       const selectedWalletID = JSON.parse((await AsyncStorage.getItem(STORAGE_KEY)) || 'null');
@@ -23,7 +23,7 @@ const useOnAppLaunch = () => {
     } catch (_e) {
       return undefined;
     }
-    return selectedWallet;
+    return selectedWallet.getID();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [STORAGE_KEY]);
 
