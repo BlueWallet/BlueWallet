@@ -54,10 +54,8 @@ describe('Legacy HD (BIP44)', () => {
         height: 554830,
         value: 10000,
         address: '186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por',
-        txId: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
         vout: 0,
         txid: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
-        amount: 10000,
         wif: 'Kz6kLhdyDfSbKuVH25XVqBRztjmFe8X22Xe1hnFzEv79gJNMkTAH',
         confirmations: 1,
         txhex:
@@ -67,10 +65,8 @@ describe('Legacy HD (BIP44)', () => {
         height: 554830,
         value: 20000,
         address: '1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj',
-        txId: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
         vout: 1,
         txid: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
-        amount: 20000,
         wif: 'L4ojevRtK81A8Kof3qyLS2M7HvsVDbUDENNhJqU4vf79w9yGnQLb',
         confirmations: 1,
         txhex:
@@ -80,10 +76,8 @@ describe('Legacy HD (BIP44)', () => {
         height: 554830,
         value: 30000,
         address: '186FBQmCV5W1xY7ywaWtTZPAQNciVN8Por',
-        txId: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
         vout: 2,
         txid: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
-        amount: 30000,
         wif: 'Kz6kLhdyDfSbKuVH25XVqBRztjmFe8X22Xe1hnFzEv79gJNMkTAH',
         confirmations: 1,
         txhex:
@@ -93,10 +87,8 @@ describe('Legacy HD (BIP44)', () => {
         height: 554830,
         value: 40000,
         address: '1J9zoJz5LsAJ361SQHYnLTWg46Tc2AXUCj',
-        txId: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
         vout: 3,
         txid: '4f65c8cb159585c00d4deba9c5b36a2bcdfb1399a561114dcf6f2d0c1174bc5f',
-        amount: 40000,
         wif: 'L4ojevRtK81A8Kof3qyLS2M7HvsVDbUDENNhJqU4vf79w9yGnQLb',
         confirmations: 1,
         txhex:
