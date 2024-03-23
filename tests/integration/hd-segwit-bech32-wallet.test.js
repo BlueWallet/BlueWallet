@@ -79,7 +79,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchUtxo();
     const utxo = hd.getUtxo();
     assert.strictEqual(utxo.length, 4);
-    assert.ok(utxo[0].txId);
+    assert.ok(utxo[0].txid);
     assert.ok(utxo[0].vout === 0 || utxo[0].vout === 1);
     assert.ok(utxo[0].value);
     assert.ok(utxo[0].address);

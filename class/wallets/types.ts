@@ -20,15 +20,13 @@ export type Utxo = {
   // Returned by BlueElectrum
   height: number;
   address: string;
-  txId: string;
+  txid: string;
   vout: number;
   value: number;
 
   // Others
   txhex?: string;
-  txid?: string; // TODO: same as txId, do we really need it?
   confirmations?: number;
-  amount?: number; // TODO: same as value, do we really need it?
   wif?: string | false;
 };
 
@@ -37,8 +35,7 @@ export type Utxo = {
  * and should be unified as soon as bullshit with txid/txId is sorted
  */
 export type CreateTransactionUtxo = {
-  txId: string;
-  txid: string; // TODO: same as txId, do we really need it?
+  txid: string;
   txhex: string;
   vout: number;
   value: number;

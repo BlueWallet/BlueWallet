@@ -917,13 +917,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // this belongs in `.getUtxo()`
     for (const u of this._utxo) {
-      u.txid = u.txId;
-      u.amount = u.value;
       u.wif = this._getWifForAddress(u.address);
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
-    this._utxo = this._utxo.sort((a, b) => Number(a.amount) - Number(b.amount));
+    this._utxo = this._utxo.sort((a, b) => Number(a.value) - Number(b.value));
     // more consistent, so txhex in unit tests wont change
   }
 
@@ -932,10 +930,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *     [ { height: 0,
    *    value: 666,
    *    address: 'string',
-   *    txId: 'string',
    *    vout: 1,
    *    txid: 'string',
-   *    amount: 666,
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
@@ -984,11 +980,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
-            txId: tx.txid,
             vout: output.n,
             address: String(address),
             value,
-            amount: value,
             confirmations: tx.confirmations,
             wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
@@ -1104,7 +1098,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String}>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address
@@ -1247,8 +1241,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     psbt.addInput({
-      // @ts-ignore
-      hash: input.txid || input.txId,
+      hash: input.txid,
       index: input.vout,
       sequence,
       bip32Derivation: [
