@@ -1,28 +1,31 @@
 import { useCallback, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AbstractWallet } from '../class';
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import { TWallet } from '../class/wallets/types';
 
 const useOnAppLaunch = () => {
   const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
   const { wallets } = useContext(BlueStorageContext);
 
-  const getSelectedDefaultWallet = useCallback(async (): Promise<AbstractWallet | false> => {
-    let selectedWallet: AbstractWallet | false = false;
+  const getSelectedDefaultWallet = useCallback(async (): Promise<TWallet | undefined> => {
+    let selectedWallet: TWallet | undefined;
     try {
       const selectedWalletID = JSON.parse((await AsyncStorage.getItem(STORAGE_KEY)) || 'null');
-      if (selectedWalletID) {
-        selectedWallet = wallets.find((wallet: AbstractWallet) => wallet.getID() === selectedWalletID);
+      if (selectedWalletID !== null) {
+        selectedWallet = wallets.find((wallet: TWallet) => wallet.getID() === selectedWalletID);
         if (!selectedWallet) {
           await AsyncStorage.removeItem(STORAGE_KEY);
+          return undefined;
         }
+      } else {
+        return undefined;
       }
     } catch (_e) {
-      return false;
+      return undefined;
     }
     return selectedWallet;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [STORAGE_KEY]); // No external dependencies
+  }, [STORAGE_KEY]);
 
   const setSelectedDefaultWallet = useCallback(
     async (value: string): Promise<void> => {
@@ -54,7 +57,7 @@ const useOnAppLaunch = () => {
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [STORAGE_KEY, getSelectedDefaultWallet, setSelectedDefaultWallet],
-  ); // Include dependencies here
+  );
 
   return {
     isViewAllWalletsEnabled,
