@@ -33,7 +33,7 @@ describe('Watch only wallet', () => {
       w.setSecret(secret);
       assert.ok(w.valid());
       assert.strictEqual(w.isHd(), true);
-      assert.strictEqual(w.getMasterFingerprint(), false);
+      assert.strictEqual(w.getMasterFingerprint(), 0);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
       assert.ok(w.isXpubValid(), w.secret);
       assert.ok(!w.useWithHardwareWalletEnabled());

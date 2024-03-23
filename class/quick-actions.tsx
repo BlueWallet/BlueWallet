@@ -1,13 +1,13 @@
 import React, { useContext, useEffect } from 'react';
-import QuickActions from 'react-native-quick-actions';
-import { DeviceEventEmitter, Linking, Platform } from 'react-native';
-import { formatBalance } from '../loc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueStorageContext } from '../blue_modules/storage-context';
-import DeeplinkSchemaMatch from './deeplink-schema-match';
-import * as NavigationService from '../NavigationService';
 import { CommonActions } from '@react-navigation/native';
-import { AbstractWallet } from './wallets/abstract-wallet';
+import { DeviceEventEmitter, Linking, Platform } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
+import * as NavigationService from '../NavigationService';
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import { formatBalance } from '../loc';
+import DeeplinkSchemaMatch from './deeplink-schema-match';
+import { TWallet } from './wallets/types';
 import useOnAppLaunch from '../hooks/useOnAppLaunch';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
@@ -93,9 +93,9 @@ function DeviceQuickActions(): JSX.Element | null {
         }
       } else {
         if (!(await isViewAllWalletsEnabled())) {
-          const selectedDefaultWallet: AbstractWallet = (await getSelectedDefaultWallet()) as AbstractWallet;
+          const selectedDefaultWallet: TWallet = (await getSelectedDefaultWallet()) as TWallet;
           if (selectedDefaultWallet) {
-            const wallet = wallets.find((w: AbstractWallet) => w.getID() === selectedDefaultWallet.getID());
+            const wallet = wallets.find(w => w.getID() === selectedDefaultWallet.getID());
             if (wallet) {
               NavigationService.dispatch(
                 CommonActions.navigate({

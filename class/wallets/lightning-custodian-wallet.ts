@@ -4,23 +4,32 @@ import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 
 export class LightningCustodianWallet extends LegacyWallet {
-  static type = 'lightningCustodianWallet';
-  static typeReadable = 'Lightning';
+  static readonly type = 'lightningCustodianWallet';
+  static readonly typeReadable = 'Lightning';
+  // @ts-ignore: override
+  public readonly type = LightningCustodianWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = LightningCustodianWallet.typeReadable;
 
-  constructor(props) {
-    super(props);
-    this.setBaseURI(); // no args to init with default value
+  baseURI?: string;
+  refresh_token: string = '';
+  access_token: string = '';
+  _refresh_token_created_ts: number = 0;
+  _access_token_created_ts: number = 0;
+  refill_addressess: string[] = [];
+  pending_transactions_raw: any[] = [];
+  transactions_raw: any[] = [];
+  user_invoices_raw: any[] = [];
+  info_raw = false;
+  preferredBalanceUnit = BitcoinUnit.SATS;
+  chain = Chain.OFFCHAIN;
+  private _api?: Frisbee;
+  last_paid_invoice_result?: any;
+  decoded_invoice_raw?: any;
+
+  constructor() {
+    super();
     this.init();
-    this.refresh_token = '';
-    this.access_token = '';
-    this._refresh_token_created_ts = 0;
-    this._access_token_created_ts = 0;
-    this.refill_addressess = [];
-    this.pending_transactions_raw = [];
-    this.user_invoices_raw = [];
-    this.info_raw = false;
-    this.preferredBalanceUnit = BitcoinUnit.SATS;
-    this.chain = Chain.OFFCHAIN;
   }
 
   /**
@@ -28,7 +37,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @param URI
    */
-  setBaseURI(URI) {
+  setBaseURI(URI: string | undefined) {
     this.baseURI = URI;
   }
 
@@ -40,11 +49,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     return true;
   }
 
-  getAddress() {
+  getAddress(): string | false {
     if (this.refill_addressess.length > 0) {
       return this.refill_addressess[0];
     } else {
-      return undefined;
+      return false;
     }
   }
 
@@ -60,8 +69,9 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
   }
 
-  static fromJson(param) {
+  static fromJson(param: any) {
     const obj = super.fromJson(param);
+    // @ts-ignore: local init
     obj.init();
     return obj;
   }
@@ -84,11 +94,13 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (+new Date() - this._refresh_token_created_ts) / 1000 >= 3600 * 24 * 7; // 7d
   }
 
-  generate() {
+  generate(): Promise<void> {
     // nop
+    return Promise.resolve();
   }
 
-  async createAccount(isTest) {
+  async createAccount(isTest: boolean = false) {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.post('/create', {
       body: { partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -109,7 +121,8 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.secret = 'lndhub://' + json.login + ':' + json.password;
   }
 
-  async payInvoice(invoice, freeAmount = 0) {
+  async payInvoice(invoice: string, freeAmount: number = 0) {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.post('/payinvoice', {
       body: { invoice, amount: freeAmount },
       headers: {
@@ -146,9 +159,10 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @return {Promise.<Array>}
    */
-  async getUserInvoices(limit = false) {
+  async getUserInvoices(limit: number | false = false) {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     let limitString = '';
-    if (limit) limitString = '?limit=' + parseInt(limit, 10);
+    if (limit) limitString = '?limit=' + parseInt(limit as unknown as string, 10);
     const response = await this._api.get('/getuserinvoices' + limitString, {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -184,7 +198,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       }
     }
 
-    this.user_invoices_raw = json.sort(function (a, b) {
+    this.user_invoices_raw = json.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return a.timestamp - b.timestamp;
     });
 
@@ -201,15 +215,16 @@ export class LightningCustodianWallet extends LegacyWallet {
     await this.getUserInvoices();
   }
 
-  isInvoiceGeneratedByWallet(paymentRequest) {
+  isInvoiceGeneratedByWallet(paymentRequest: string) {
     return this.user_invoices_raw.some(invoice => invoice.payment_request === paymentRequest);
   }
 
-  weOwnAddress(address) {
+  weOwnAddress(address: string) {
     return this.refill_addressess.some(refillAddress => address === refillAddress);
   }
 
-  async addInvoice(amt, memo) {
+  async addInvoice(amt: number, memo: string) {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.post('/addinvoice', {
       body: { amt: amt + '', memo },
       headers: {
@@ -241,6 +256,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {Promise.<void>}
    */
   async authorize() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     let login, password;
     if (this.secret.indexOf('blitzhub://') !== -1) {
       login = this.secret.replace('blitzhub://', '').split(':')[0];
@@ -296,6 +312,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async refreshAcessToken() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.post('/auth?type=refresh_token', {
       body: { refresh_token: this.refresh_token },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -321,6 +338,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async fetchBtcAddress() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.get('/getbtc', {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -360,12 +378,9 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getTransactions() {
-    let txs = [];
-    this.pending_transactions_raw = this.pending_transactions_raw || [];
-    this.user_invoices_raw = this.user_invoices_raw || [];
-    this.transactions_raw = this.transactions_raw || [];
+    let txs: any = [];
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
-    // transforming to how wallets/list screen expects it
+
     for (const tx of txs) {
       tx.walletID = this.getID();
       if (tx.amount) {
@@ -378,7 +393,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
-        tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1, 10);
+        tx.value = (tx.amt * 1 + tx.fee * 1) * -1;
       }
 
       if (tx.type === 'paid_invoice') {
@@ -399,12 +414,13 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       tx.received = new Date(tx.timestamp * 1000).toString();
     }
-    return txs.sort(function (a, b) {
+    return txs.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return b.timestamp - a.timestamp;
     });
   }
 
   async fetchPendingTransactions() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.get('/getpending', {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -426,6 +442,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async fetchTransactions() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     // TODO: iterate over all available pages
     const limit = 10;
     let queryRes = '';
@@ -462,7 +479,8 @@ export class LightningCustodianWallet extends LegacyWallet {
     return this.balance;
   }
 
-  async fetchBalance(noRetry) {
+  async fetchBalance(noRetry?: boolean): Promise<void> {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     await this.checkLogin();
 
     const response = await this._api.get('/balance', {
@@ -490,7 +508,6 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.balance_raw = json;
     this.balance = json.BTC.AvailableBalance;
     this._lastBalanceFetch = +new Date();
   }
@@ -511,14 +528,14 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param invoice BOLT invoice string
    * @return {payment_hash: string}
    */
-  decodeInvoice(invoice) {
+  decodeInvoice(invoice: string) {
     const { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
-    const decoded = {
+    const decoded: any = {
       destination: payeeNodeKey,
       num_satoshis: satoshis ? satoshis.toString() : '0',
       num_millisatoshis: millisatoshis ? millisatoshis.toString() : '0',
-      timestamp: timestamp.toString(),
+      timestamp: timestamp?.toString() ?? '0',
       fallback_addr: '',
       route_hints: [],
     };
@@ -554,6 +571,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   async fetchInfo() {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     const response = await this._api.get('/getinfo', {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -574,10 +592,9 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (!json.identity_pubkey) {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
-    this.info_raw = json;
   }
 
-  static async isValidNodeAddress(address) {
+  static async isValidNodeAddress(address: string) {
     const apiCall = new Frisbee({
       baseURI: address,
     });
@@ -622,7 +639,8 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param invoice BOLT invoice string
    * @return {Promise.<Object>}
    */
-  async decodeInvoiceRemote(invoice) {
+  async decodeInvoiceRemote(invoice: string) {
+    if (!this._api) throw new Error('Internal error: _api is not initialized');
     await this.checkLogin();
 
     const response = await this._api.get('/decodeinvoice?invoice=' + invoice, {
@@ -649,7 +667,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     return (this.decoded_invoice_raw = json);
   }
 
-  weOwnTransaction(txid) {
+  weOwnTransaction(txid: string) {
     for (const tx of this.getTransactions()) {
       if (tx && tx.payment_hash && tx.payment_hash === txid) return true;
     }
@@ -657,7 +675,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     return false;
   }
 
-  authenticate(lnurl) {
+  authenticate(lnurl: any) {
     return lnurl.authenticate(this.secret);
   }
 }

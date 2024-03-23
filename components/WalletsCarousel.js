@@ -20,7 +20,7 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { BluePrivateBalance } from '../BlueComponents';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
 import { isTablet, isDesktop } from '../blue_modules/environment';
 import { useTheme } from './themes';
 
@@ -180,7 +180,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
   }
 
   const latestTransactionText =
-    walletTransactionUpdateStatus === true || walletTransactionUpdateStatus === item.getID()
+    walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
       ? loc.transactions.updating
       : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
         ? loc.wallets.pull_to_refresh
