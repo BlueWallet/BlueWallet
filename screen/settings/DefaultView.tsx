@@ -87,8 +87,4 @@ const DefaultView: React.FC = () => {
   );
 };
 
-
-// @ts-ignore: Property 'navigationOptions' does not exist on type 'DefaultView'
-DefaultView.navigationOptions = navigationStyle({}, (opts: any) => ({ ...opts, title: loc.settings.default_title }));
-
 export default DefaultView;
