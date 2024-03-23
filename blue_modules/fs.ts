@@ -27,9 +27,9 @@ const _shareOpen = async (filePath: string) => {
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
  * or perhabs messaging app). Provided filename should be just a file name, NOT a path
  */
-export const writeFileAndExport = async function (filename: string, contents: string, showShareDialog: boolean = true) {
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   if (Platform.OS === 'ios') {
-    const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
+    const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
     await RNFS.writeFile(filePath, contents);
     await _shareOpen(filePath);
   } else if (Platform.OS === 'android') {
@@ -44,14 +44,14 @@ export const writeFileAndExport = async function (filename: string, contents: st
     // In Android 13 no WRITE_EXTERNAL_STORAGE permission is needed
     // @see https://stackoverflow.com/questions/76311685/permissionandroid-request-always-returns-never-ask-again-without-any-prompt-r
     if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 30) {
-      const filePath = RNFS.DownloadDirectoryPath + `/${filename}`;
+      const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
       try {
         await RNFS.writeFile(filePath, contents);
         console.log(`file saved to ${filePath}`);
         if (showShareDialog) {
           await _shareOpen(filePath);
         } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName }) });
         }
       } catch (e: any) {
         console.log(e);
