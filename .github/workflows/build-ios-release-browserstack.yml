@@ -132,19 +132,18 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v3
 
-      - name: List files in the build directory
-        run: ls -l ./build
-
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
           name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
           path: ./build
 
-      - name: Set permissions for the IPA file
-        run: chmod 644 ./build/BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
-      
+      - name: List files in the build directory
+        run: ls -l ./build
 
+      - name: Set permissions for the IPA file
+        run: chmod 644 "./BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa"
+      
       - name: Upload IPA to BrowserStack
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
@@ -154,7 +153,7 @@ jobs:
         run: |
           curl -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
               -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
-              -F "file=@./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa" \
+              -F "file=@./build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa" \
               -o browserstack_response.json
 
       - name: Extract BrowserStack App URL
@@ -166,18 +165,27 @@ jobs:
 
 
       - name: Post comment with BrowserStack link
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const prNumber = context.issue.number;
-            const browserStackLink = '${{ steps.extract_url.outputs.app_url }}'; // Use the output from the previous step.
-            const message = `🚀 App is now available for testing on BrowserStack: [Test Here](${browserStackLink})`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: message
-            });
-      
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const prNumber = context.issue.number;
+          const browserStackLink = '${{ steps.extract_url.outputs.app_url }}'; // Use the output from the previous step.
+          // Note: Direct 'copy to clipboard' functionality is not supported in Markdown, hence providing a textual representation.
+          const message = `
+          🚀 **App is now available for testing on BrowserStack** 🚀
+
+          To test the app:
+          1. Copy this BrowserStack URL: \`${browserStackLink}\`
+          2. Go to the [BrowserStack Live App Testing page](https://www.browserstack.com/users/sign_in).
+          3. After signing in, navigate to the 'App Live' section.
+          4. Paste the copied URL into the 'App URL' field and start your session.
+
+          Please ensure you are logged into your BrowserStack account before proceeding.`;
+                github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: message
+                });
