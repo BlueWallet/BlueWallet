@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: 0.7,
     minHeight: 45,
-    height: 45,
-    maxHeight: 45,
+    height: 48,
+    maxHeight: 48,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   text: {
     marginHorizontal: 8,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
 

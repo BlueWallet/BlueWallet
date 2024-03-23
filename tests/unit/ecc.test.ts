@@ -1,8 +1,8 @@
 import ecc from '../../blue_modules/noble_ecc';
 import { ECPairFactory } from 'ecpair';
-const assert = require('assert');
+import assert from 'assert';
 
-const h = hex => Buffer.from(hex, 'hex');
+const h = (hex: string) => Buffer.from(hex, 'hex');
 
 describe('ecc', () => {
   it('ECPair accepts noble', () => {

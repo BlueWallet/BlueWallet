@@ -4,7 +4,6 @@ import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
 import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import Button from '../../components/Button';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -26,7 +25,7 @@ const WalletXpub: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
-  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
@@ -53,7 +52,7 @@ const WalletXpub: React.FC = () => {
           }
           const walletXpub = wallet.getXpub();
           if (xpub !== walletXpub) {
-            navigation.setParams({ xpub: walletXpub });
+            navigation.setParams({ xpub: walletXpub || undefined });
           }
 
           setIsLoading(false);

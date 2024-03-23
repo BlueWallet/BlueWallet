@@ -60,7 +60,7 @@ function encodeURv1(arg1, arg2) {
 /**
  *
  * @param str {string} For PSBT, or coordination setup (translates to `bytes`) it expects hex string. For ms cosigner it expects plain json string
- * @param len {number} lenght of each fragment
+ * @param len {number} length of each fragment
  * @return {string[]} txt fragments ready to be displayed in dynamic QR
  */
 function encodeURv2(str, len) {

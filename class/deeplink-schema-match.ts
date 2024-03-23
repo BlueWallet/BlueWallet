@@ -183,7 +183,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (Lnurl.isLightningAddress(event.url)) {
-      // this might be not just an email but a lightning addres
+      // this might be not just an email but a lightning address
       // @see https://lightningaddress.com
       completionHandler([
         'ScanLndInvoiceRoot',

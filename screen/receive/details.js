@@ -61,6 +61,7 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
+  const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -161,7 +162,7 @@ const ReceiveDetails = () => {
           const balanceToShow = balance.confirmed - initialConfirmed;
 
           if (balanceToShow > 0) {
-            // address has actually more coins then initially, so we definately gained something
+            // address has actually more coins than initially, so we definitely gained something
             setShowConfirmedBalance(true);
             setShowPendingBalance(false);
             setShowAddress(false);
@@ -270,7 +271,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
         <View style={styles.share}>
           <BlueCard>
@@ -295,7 +296,7 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([address], [], []);
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
@@ -323,7 +324,7 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,7 +345,6 @@ const ReceiveDetails = () => {
             BlueAlertWalletExportReminder({
               onSuccess: obtainWalletAddress,
               onFailure: () => {
-                goBack();
                 navigate('WalletExportRoot', {
                   screen: 'WalletExport',
                   params: {
@@ -352,6 +352,7 @@ const ReceiveDetails = () => {
                   },
                 });
               },
+              anchor: receiveAddressButton.current,
             });
           } else {
             obtainWalletAddress();

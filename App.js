@@ -254,36 +254,23 @@ const App = () => {
     BlueClipboard()
       .getClipboardContent()
       .then(clipboard => {
-        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-          ActionSheet.showActionSheetWithOptions(
-            {
-              options: [loc._.cancel, loc._.continue],
-              title: loc._.clipboard,
-              message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-              cancelButtonIndex: 0,
-            },
-            buttonIndex => {
-              if (buttonIndex === 1) {
-                handleOpenURL({ url: clipboard });
-              }
-            },
-          );
-        } else {
-          ActionSheet.showActionSheetWithOptions({
-            buttons: [
-              { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-              {
-                text: loc._.continue,
-                style: 'default',
-                onPress: () => {
-                  handleOpenURL({ url: clipboard });
-                },
-              },
-            ],
+        ActionSheet.showActionSheetWithOptions(
+          {
             title: loc._.clipboard,
             message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-          });
-        }
+            options: [loc._.cancel, loc._.continue],
+            cancelButtonIndex: 0,
+          },
+          buttonIndex => {
+            switch (buttonIndex) {
+              case 0: // Cancel
+                break;
+              case 1:
+                handleOpenURL({ url: clipboard });
+                break;
+            }
+          },
+        );
       });
   };
 

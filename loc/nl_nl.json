@@ -8,13 +8,21 @@
     "never": "Nooit",
     "of": "{number} van {total}",
     "ok": "Oké",
-    "storage_is_encrypted": "Uw opslag is versleuteld. Wachtwoord is vereist om het te ontcijferen",
+    "storage_is_encrypted": "Uw opslag is versleuteld. Wachtwoord is vereist om te ontcijferen.",
     "yes": "Ja",
     "no": "Nee",
     "save": "Opslaan",
     "seed": "Seed",
     "success": "Succes",
-    "wallet_key": "Wallet sleutel"
+    "wallet_key": "Wallet sleutel",
+    "close": "Sluit",
+    "change_input_currency": "Verandere invoer valuta",
+    "refresh": "Vernieuw",
+    "more": "Meer",
+    "pick_image": "Kies afbeelding uit bilbiotheek.",
+    "pick_file": "Kies een bestand.",
+    "enter_amount": "Voer bedrag in",
+    "qr_custom_input_button": "Tik 10 keer om aangepaste invoer in te geven"
   },
   "alert": {
     "default": "Melding"
@@ -46,6 +54,7 @@
     "claim_balance": "Saldo claimen {balance}",
     "close_channel": "Sluit kanaal",
     "new_channel": "Nieuw kanaal",
+    "errorInvoiceExpired": "Factuur verlopen.",
     "force_close_channel": "Het sluiten van een kanaal forceren?",
     "expired": "Verlopen",
     "node_alias": "Node alias",

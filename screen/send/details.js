@@ -486,7 +486,7 @@ const SendDetails = () => {
       if (error) {
         scrollView.current.scrollToIndex({ index });
         setIsLoading(false);
-        presentAlert({ title: loc.errors.error, message: error.message });
+        presentAlert({ title: loc.errors.error, message: error });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return;
       }

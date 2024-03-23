@@ -14,10 +14,14 @@ const bip32 = BIP32Factory(ecc);
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
 export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
-  static type = 'HDsegwitP2SH';
-  static typeReadable = 'HD SegWit (BIP49 P2SH)';
-  static segwitType = 'p2sh(p2wpkh)';
-  static derivationPath = "m/49'/0'/0'";
+  static readonly type = 'HDsegwitP2SH';
+  static readonly typeReadable = 'HD SegWit (BIP49 P2SH)';
+  // @ts-ignore: override
+  public readonly type = HDSegwitP2SHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDSegwitP2SHWallet.typeReadable;
+  public readonly segwitType = 'p2sh(p2wpkh)';
+  static readonly derivationPath = "m/49'/0'/0'";
 
   allowSend() {
     return true;
@@ -28,10 +32,6 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   allowSignVerifyMessage() {
-    return true;
-  }
-
-  allowHodlHodlTrading() {
     return true;
   }
 

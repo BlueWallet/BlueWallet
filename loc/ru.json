@@ -87,7 +87,6 @@
     "open_direct_channel": "Открыть канал с этой нодой:",
     "please_pay_between_and": "Оплатите от {min} до {max}",
     "please_pay": "Пожалуйста, оплатите",
-    "preimage": "",
     "sats": "sats",
     "wasnt_paid_and_expired": "Этот инвойс не был оплачен и просрочен"
   },
@@ -477,8 +476,6 @@
     "header": "Отправить",
     "share": "Поделиться",
     "view": "Посмотреть",
-    "shared_key_detected": "",
-    "shared_key_detected_question": "",
     "manage_keys": "Управление ключами",
     "how_many_signatures_can_bluewallet_make": "количество подписей, которое может сделать BlueWallet",
     "signatures_required_to_spend": "Необходимо {number} подписей ",
@@ -548,8 +545,7 @@
   "autofill_word": {
     "title": "Сгенерировать финальное мнемоническое слово",
     "enter": "Введите вашу неполную мнемоническую фразу",
-    "generate_word": "Сгенерируйте финальное слово",
-    "error": ""
+    "generate_word": "Сгенерируйте финальное слово"
   },
   "cc": {
     "change": "Сдача",
@@ -572,7 +568,6 @@
   },
   "addresses": {
     "copy_private_key": "Копировать приватный ключ",
-    "sensitive_private_key": "",
     "sign_title": "Подписать/Проверить сообщение",
     "sign_help": "Здесь вы можете создать или проверить криптографическую подпись на основе адреса Bitcoin.",
     "sign_sign": "Подписать",

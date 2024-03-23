@@ -15,8 +15,6 @@
     "seed": "Llavor",
     "success": "Èxit",
     "wallet_key": "Clau del moneder",
-    "file_saved": "Fitxer {filePath} s'ha guardat al teu {destination}.",
-    "downloads_folder": "Carpeta de descàrregues",
     "close": "Tancar",
     "change_input_currency": "Canviar moneda d'entrada",
     "refresh": "Refresca",

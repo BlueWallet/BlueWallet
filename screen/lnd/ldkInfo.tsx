@@ -34,7 +34,7 @@ const LdkInfo = () => {
   const { wallets } = useContext(BlueStorageContext);
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
-  const wallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningLdkWallet;
   const { colors } = useTheme();
   const { setOptions, navigate } = useNavigation();
   const name = useRoute().name;
@@ -159,15 +159,9 @@ const LdkInfo = () => {
     if (!(await confirm())) return;
     setSelectedChannelIndex(undefined);
 
-    const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
+    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
 
-    const toWallet: AbstractWallet = await selectWallet(
-      navigate,
-      name,
-      null,
-      wallets2use,
-      'Onchain wallet is required to withdraw funds to',
-    );
+    const toWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
     // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
     // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!toWallet) return;
@@ -190,14 +184,8 @@ const LdkInfo = () => {
   };
 
   const claimBalance = async () => {
-    const wallets2use = wallets.filter((w: AbstractWallet) => w.chain === Chain.ONCHAIN);
-    const selectedWallet: AbstractWallet = await selectWallet(
-      navigate,
-      name,
-      null,
-      wallets2use,
-      'Onchain wallet is required to withdraw funds to',
-    );
+    const wallets2use = wallets.filter(w => w.chain === Chain.ONCHAIN);
+    const selectedWallet = await selectWallet(navigate, name, null, wallets2use, 'Onchain wallet is required to withdraw funds to');
     // using wallets2use instead of simple Chain.ONCHAIN argument because by default this argument only selects wallets
     // that can send, which is not possible if user wants to withdraw to watch-only wallet
     if (!selectedWallet) return;
@@ -316,7 +304,7 @@ const LdkInfo = () => {
   };
 
   const navigateToOpenChannel = async ({ isPrivateChannel }: { isPrivateChannel: boolean }) => {
-    const availableWallets = [...wallets.filter((item: AbstractWallet) => item.isSegwit() && item.allowSend())];
+    const availableWallets = [...wallets.filter(item => item.isSegwit() && item.allowSend())];
     if (availableWallets.length === 0) {
       return presentAlert({ message: loc.lnd.refill_create });
     }

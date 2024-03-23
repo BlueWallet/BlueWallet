@@ -429,7 +429,6 @@
     "no_ln_wallet_error": "Innan du betalar en Lightning-faktura måste du först lägga till en Lightning-plånbok.",
     "looks_like_bip38": "Detta ser ut som en lösenordsskyddad privat nyckel (BIP38).",
     "reorder_title": "Sortera plånböcker",
-    "reorder_instructions": "Tryck och håll kvar en plånbok för att dra den över listan.",
     "please_continue_scanning": "Fortsätt att skanna.",
     "select_no_bitcoin": "Det finns för närvarande inga tillgängliga Bitcoin-plånböcker.",
     "select_no_bitcoin_exp": "En Bitcoin-plånbok krävs för att fylla på Lightning-plånböcker. Vänligen skapa eller importera en.",

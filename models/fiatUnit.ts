@@ -164,15 +164,18 @@ const RateExtractors = {
   },
 } as const;
 
-type FiatUnit = {
-  [key: string]: {
-    endPointKey: string;
-    symbol: string;
-    locale: string;
-    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp';
-  };
+export type TFiatUnit = {
+  endPointKey: string;
+  symbol: string;
+  locale: string;
+  source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp';
 };
-export const FiatUnit = untypedFiatUnit as FiatUnit;
+
+export type TFiatUnits = {
+  [key: string]: TFiatUnit;
+};
+
+export const FiatUnit = untypedFiatUnit as TFiatUnits;
 
 export type FiatUnitType = {
   endPointKey: string;

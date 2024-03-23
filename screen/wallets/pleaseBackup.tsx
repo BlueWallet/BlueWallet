@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -14,7 +13,7 @@ const PleaseBackup: React.FC = () => {
   const { wallets } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(true);
   const { walletID } = useRoute().params as { walletID: string };
-  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const { enableBlur, disableBlur } = usePrivacy();

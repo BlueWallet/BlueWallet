@@ -29,6 +29,7 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import presentAlert from '../../components/Alert';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -311,51 +312,43 @@ const WalletsList = () => {
 
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions(
-        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            fs.showImagePickerAndReadImage().then(onBarScanned);
-          } else if (buttonIndex === 2) {
-            scanQrHelper(navigate, routeName, false).then(onBarScanned);
-          } else if (buttonIndex === 3) {
-            copyFromClipboard();
-          }
-        },
-      );
-    } else if (Platform.OS === 'android') {
-      const buttons = [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc.wallets.list_long_choose,
-          onPress: () => fs.showImagePickerAndReadImage().then(onBarScanned),
-        },
-        {
-          text: loc.wallets.list_long_scan,
-          onPress: () => scanQrHelper(navigate, routeName, false).then(onBarScanned),
-        },
-      ];
-      if (!isClipboardEmpty) {
-        buttons.push({
-          text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipboard,
-        });
-      }
-      ActionSheet.showActionSheetWithOptions({
-        title: '',
-        message: '',
-        buttons,
-      });
+
+    const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+    if (!isClipboardEmpty) {
+      options.push(loc.wallets.list_long_clipboard);
     }
+
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.send.header,
+        options,
+        cancelButtonIndex: 0,
+        anchor: findNodeHandle(walletActionButtonsRef.current),
+      },
+      buttonIndex => {
+        switch (buttonIndex) {
+          case 0:
+            break;
+          case 1:
+            fs.showImagePickerAndReadImage()
+              .then(onBarScanned)
+              .catch(error => {
+                console.log(error);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                presentAlert({ title: loc.errors.error, message: error.message });
+              });
+            break;
+          case 2:
+            scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
+            break;
+          case 3:
+            if (!isClipboardEmpty) {
+              copyFromClipboard();
+            }
+            break;
+        }
+      },
+    );
   };
 
   const onLayout = _e => {
