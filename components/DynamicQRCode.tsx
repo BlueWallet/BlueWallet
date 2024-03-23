@@ -41,7 +41,7 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
   fragments: string[] = [];
 
   componentDidMount() {
-    const { value, capacity = 200, hideControls = true } = this.props;
+    const { value, capacity = 175, hideControls = true } = this.props;
     try {
       this.fragments = encodeUR(value, capacity);
       this.setState(
