@@ -8,10 +8,10 @@ import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
 import { FiatUnit, TFiatUnit } from '../models/fiatUnit';
+import * as BlueElectrum from './BlueElectrum';
 import { PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 
-const BlueElectrum = require('./BlueElectrum');
 const A = require('../blue_modules/analytics');
 
 // hashmap of timestamps we _started_ refetching some wallet
