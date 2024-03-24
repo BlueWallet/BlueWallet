@@ -8,6 +8,7 @@ import Realm from 'realm';
 
 import BlueElectrum from './blue_modules/BlueElectrum';
 import { initCurrencyDaemon } from './blue_modules/currency';
+import * as encryption from './blue_modules/encryption';
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,
@@ -31,10 +32,8 @@ import Biometric from './class/biometrics';
 import { randomBytes } from './class/rng';
 import { TWallet, Transaction } from './class/wallets/types';
 import presentAlert from './components/Alert';
+import prompt from './helpers/prompt';
 import loc from './loc';
-
-const prompt = require('./helpers/prompt');
-const encryption = require('./blue_modules/encryption');
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk

@@ -10,7 +10,7 @@ import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
-const prompt = require('../../helpers/prompt');
+import prompt from '../../helpers/prompt';
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useContext(BlueStorageContext);

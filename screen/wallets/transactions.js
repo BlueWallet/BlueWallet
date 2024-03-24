@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
@@ -31,12 +33,11 @@ import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import presentAlert from '../../components/Alert';
-import PropTypes from 'prop-types';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import * as fs from '../../blue_modules/fs';
 
-const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const buttonFontSize =

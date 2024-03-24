@@ -38,10 +38,10 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
 import { isDesktop } from '../../blue_modules/environment';
+import prompt from '../../helpers/prompt';
+import * as fs from '../../blue_modules/fs';
+import A from '../../blue_modules/analytics';
 
-const prompt = require('../../helpers/prompt');
-const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {

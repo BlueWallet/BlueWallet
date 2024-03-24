@@ -36,7 +36,7 @@ import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { AppStorage } from '../../BlueApp';
-const A = require('../../blue_modules/analytics');
+import A from '../../blue_modules/analytics';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
