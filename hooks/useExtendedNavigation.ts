@@ -5,6 +5,14 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 import { useContext } from 'react';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
 
+// List of screens that require biometrics
+
+const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
+
+// List of screens that require wallet export to be saved
+
+const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
+
 export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
   const originalNavigation = useNavigation<NavigationProp<ParamListBase>>();
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -20,15 +28,11 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
       throw new Error('Invalid navigation options');
     }
 
-    const requiresBiometrics = [
-      'WalletExportRoot',
-      'WalletXpubRoot',
-      'ViewEditMultisigCosignersRoot',
-      'ExportMultisigCoordinationSetupRoot',
-    ].includes(screenName);
-    const requiresWalletExportIsSaved = ['ReceiveDetailsRoot'].includes(screenName);
+    const isRequiresBiometrics = requiresBiometrics.includes(screenName);
+    const isRequiresWalletExportIsSaved = requiresWalletExportIsSaved.includes(screenName);
 
     const proceedWithNavigation = () => {
+      console.log('Proceeding with navigation to', screenName);
       if (navigationRef.current?.isReady()) {
         typeof screenOrOptions === 'string'
           ? originalNavigation.navigate(screenOrOptions, params)
@@ -37,7 +41,7 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
     };
 
     (async () => {
-      if (requiresBiometrics) {
+      if (isRequiresBiometrics) {
         const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
         if (isBiometricsEnabled) {
           const isAuthenticated = await Biometric.unlockWithBiometrics();
@@ -50,9 +54,14 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
           }
         }
       }
-      if (requiresWalletExportIsSaved) {
+      if (isRequiresWalletExportIsSaved) {
         console.log('Checking if wallet export is saved');
-        const walletID = params?.params ? params.params.walletID : undefined;
+        let walletID: string | undefined;
+        if (params && params.walletID) {
+          walletID = params.walletID;
+        } else if (params && params.params && params.params.walletID) {
+          walletID = params.params.walletID;
+        }
         if (!walletID) {
           proceedWithNavigation();
           return;
