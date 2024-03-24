@@ -14,6 +14,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import ActionSheet from '../ActionSheet';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
@@ -62,7 +63,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
+      ActionSheet.showActionSheetWithOptions({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       requestCameraAuthorization().then(() =>
         navigate('ScanQRCodeRoot', {

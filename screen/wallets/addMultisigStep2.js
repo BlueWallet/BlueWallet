@@ -41,6 +41,7 @@ import { isDesktop } from '../../blue_modules/environment';
 import prompt from '../../helpers/prompt';
 import * as fs from '../../blue_modules/fs';
 import A from '../../blue_modules/analytics';
+import ActionSheet from '../ActionSheet';
 
 const staticCache = {};
 
@@ -468,7 +469,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = () => {
     if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
+      ActionSheet.showActionSheetWithOptions({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
     } else {
       setIsProvideMnemonicsModalVisible(false);
       InteractionManager.runAfterInteractions(async () => {
