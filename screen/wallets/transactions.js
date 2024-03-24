@@ -8,6 +8,7 @@ import {
   FlatList,
   I18nManager,
   InteractionManager,
+  LayoutAnimation,
   PixelRatio,
   ScrollView,
   StyleSheet,
@@ -15,16 +16,17 @@ import {
   TouchableOpacity,
   View,
   findNodeHandle,
-  LayoutAnimation,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import Biometric from '../../class/biometrics';
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -39,9 +41,6 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
-import Biometric from '../../class/biometrics';
-
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22

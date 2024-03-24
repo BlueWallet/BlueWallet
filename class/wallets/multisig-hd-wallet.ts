@@ -3,17 +3,17 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
+import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import createHash from 'create-hash';
 import { ECPairFactory } from 'ecpair';
 import * as mn from 'electrum-mnemonic';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
 
 type SeedOpts = {
@@ -1072,7 +1072,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // now we need to fetch txhash for each input as required by PSBT
     const txhexes = await BlueElectrum.multiGetTransactionByTxid(
       this.getUtxo(true).map(x => x.txid),
-      50,
       false,
     );
 
