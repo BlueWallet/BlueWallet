@@ -317,11 +317,7 @@ export default class Selftest extends Component {
               }
             })()}
             <BlueSpacing20 />
-            <SaveFileButton
-              fileName="bluewallet-selftest.txt"
-              fileContent={'Success on ' + new Date().toUTCString()}
-              afterOnPress={this.onPressSaveToStorage}
-            >
+            <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
               <Button title="Test Save to Storage" />
             </SaveFileButton>
             <BlueSpacing20 />
