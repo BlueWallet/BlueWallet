@@ -10,10 +10,10 @@ import { readFile } from './react-native-bw-file-access';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-const _shareOpen = async (filePath: string) => {
+const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   return await Share.open({
     url: 'file://' + filePath,
-    saveToFiles: isDesktop,
+    saveToFiles: isDesktop || !showShareDialog,
     // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
     useInternalStorage: Platform.OS === 'android',
     failOnCancel: false,
@@ -31,11 +31,11 @@ const _shareOpen = async (filePath: string) => {
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
  * or perhabs messaging app). Provided filename should be just a file name, NOT a path
  */
-export const writeFileAndExport = async function (filename: string, contents: string) {
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   if (Platform.OS === 'ios') {
-    const filePath = RNFS.TemporaryDirectoryPath + `/${filename}`;
+    const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
     await RNFS.writeFile(filePath, contents);
-    await _shareOpen(filePath);
+    await _shareOpen(filePath, showShareDialog);
   } else if (Platform.OS === 'android') {
     const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
       title: loc.send.permission_storage_title,
@@ -47,15 +47,18 @@ export const writeFileAndExport = async function (filename: string, contents: st
 
     // In Android 13 no WRITE_EXTERNAL_STORAGE permission is needed
     // @see https://stackoverflow.com/questions/76311685/permissionandroid-request-always-returns-never-ask-again-without-any-prompt-r
-    if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
-      const filePath = RNFS.DocumentDirectoryPath + `/${filename}`;
+    if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 30) {
+      const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
       try {
         await RNFS.writeFile(filePath, contents);
         console.log(`file saved to ${filePath}`);
-        await _shareOpen(filePath);
+        if (showShareDialog) {
+          await _shareOpen(filePath);
+        } else {
+          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName }) });
+        }
       } catch (e: any) {
         console.log(e);
-        presentAlert({ message: e.message });
       }
     } else {
       console.log('Storage Permission: Denied');

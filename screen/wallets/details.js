@@ -41,13 +41,13 @@ import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Button from '../../components/Button';
 import { SecondButton } from '../../components/SecondButton';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const prompt = require('../../helpers/prompt');
 
@@ -362,7 +362,6 @@ const WalletDetails = () => {
       })
         .catch(error => {
           console.log(error);
-          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
@@ -420,7 +419,7 @@ const WalletDetails = () => {
     }
   };
 
-  const onExportHistoryPressed = async () => {
+  const exportHistoryContent = () => {
     const csvFileArray = [
       loc.transactions.date,
       loc.transactions.txid,
@@ -459,8 +458,7 @@ const WalletDetails = () => {
 
       csvFile += '\n' + data.join(','); // CSV line
     }
-
-    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
+    return csvFile;
   };
 
   const handleDeleteButtonTapped = () => {
@@ -660,7 +658,9 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                    <SaveFileButton fileName={`${wallet.getLabel().replace(' ', '-')}-history.csv`} fileContent={exportHistoryContent}>
+                      <SecondButton title={loc.wallets.details_export_history} />
+                    </SaveFileButton>
                   </>
                 )}
                 {wallet.type === MultisigHDWallet.type && (

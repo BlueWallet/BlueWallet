@@ -40,19 +40,19 @@ export const Button: React.FC<ButtonProps> = props => {
     color: fontColor,
   };
 
-  return (
-    <TouchableOpacity
-      testID={props.testID}
-      style={[buttonStyle, props.style]}
-      accessibilityRole="button"
-      onPress={props.onPress}
-      disabled={props.disabled}
-    >
-      <View style={styles.content}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={textStyle}>{props.title}</Text>}
-      </View>
+  const buttonView = (
+    <View style={[buttonStyle, props.style, styles.content]}>
+      {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+      {props.title && <Text style={textStyle}>{props.title}</Text>}
+    </View>
+  );
+
+  return props.onPress ? (
+    <TouchableOpacity testID={props.testID} accessibilityRole="button" onPress={props.onPress} disabled={props.disabled}>
+      {buttonView}
     </TouchableOpacity>
+  ) : (
+    buttonView
   );
 };
 

@@ -38,6 +38,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
 import { isDesktop } from '../../blue_modules/environment';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
@@ -647,9 +648,12 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const exportCosigner = () => {
+  const exportCosignerBeforeOnPress = () => {
     setIsLoading(true);
-    fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
+  };
+
+  const exportCosignerAfterOnPress = () => {
+    setIsLoading(false);
   };
 
   const hideCosignersXpubModal = () => {
@@ -672,7 +676,15 @@ const WalletsAddMultisigStep2 = () => {
               {isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+                <SaveFileButton
+                  style={[styles.exportButton, stylesHook.exportButton]}
+                  fileName={cosignerXpubFilename}
+                  fileContent={cosignerXpub}
+                  beforeOnPress={exportCosignerBeforeOnPress}
+                  afterOnPress={exportCosignerAfterOnPress}
+                >
+                  <SquareButton title={loc.multisig.share} />
+                </SaveFileButton>
               )}
             </View>
           </View>

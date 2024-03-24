@@ -13,6 +13,7 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import { isDesktop } from '../../blue_modules/environment';
+import SaveFileButton from '../../components/SaveFileButton';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 
@@ -77,17 +78,14 @@ const PsbtMultisigQRCode = () => {
     }
   };
 
-  const exportPSBT = () => {
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(
-      () =>
-        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
-          setIsLoading(false);
-          dynamicQRCode.current?.startAutoMove();
-        }),
-      10,
-    );
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    setIsLoading(false);
+    dynamicQRCode.current?.startAutoMove();
   };
 
   return (
@@ -111,7 +109,15 @@ const PsbtMultisigQRCode = () => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <SaveFileButton
+              fileName={fileName}
+              fileContent={psbt.toBase64()}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
+              style={[styles.exportButton, stylesHook.exportButton]}
+            >
+              <SquareButton title={loc.multisig.share} />
+            </SaveFileButton>
           )}
         </View>
       </ScrollView>
