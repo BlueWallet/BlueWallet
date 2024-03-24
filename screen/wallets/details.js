@@ -358,6 +358,7 @@ const WalletDetails = () => {
       Share.open({
         url: 'file://' + filePath,
         saveToFiles: isDesktop,
+        failOnCancel: false,
       })
         .catch(error => {
           console.log(error);
