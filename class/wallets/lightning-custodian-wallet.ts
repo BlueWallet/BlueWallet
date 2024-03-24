@@ -106,11 +106,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + (json.message ? json.message : json.error) + ' (code ' + json.code + ')');
     }
 
@@ -143,11 +143,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -171,11 +171,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       },
     });
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -234,11 +234,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       },
     });
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -271,11 +271,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -319,11 +319,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -348,11 +348,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -430,11 +430,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -459,11 +459,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -492,11 +492,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       if (json.code * 1 === 1 && !noRetry) {
         await this.authorize();
         return this.fetchBalance(true);
@@ -581,11 +581,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
@@ -605,11 +605,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       },
     });
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.code && json.code !== 1) {
+    if (json.code && json.code !== 1) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
     return true;
@@ -652,11 +652,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
 
     const json = response.body;
-    if (typeof json === 'undefined') {
+    if (!json) {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
     }
 
-    if (json && json.error) {
+    if (json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 

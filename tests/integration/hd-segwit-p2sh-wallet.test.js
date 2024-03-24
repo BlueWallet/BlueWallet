@@ -62,7 +62,7 @@ it('HD (BIP49) can create TX', async () => {
   assert.ok(typeof hd._utxo[0].confirmations === 'number');
   assert.ok(hd._utxo[0].txid);
   assert.ok(hd._utxo[0].vout !== undefined);
-  assert.ok(hd._utxo[0].amount);
+  assert.ok(hd._utxo[0].value);
   assert.ok(hd._utxo[0].address);
   assert.ok(hd._utxo[0].wif);
 
@@ -181,7 +181,7 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   assert.ok(hd._utxo.length > 0);
   assert.ok(hd._utxo[0].txid);
   assert.ok(hd._utxo[0].vout === 0);
-  assert.ok(hd._utxo[0].amount);
+  assert.ok(hd._utxo[0].value);
 
   await hd.fetchTransactions();
   assert.strictEqual(hd.getTransactions().length, 107);
