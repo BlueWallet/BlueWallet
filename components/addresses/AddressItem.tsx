@@ -1,20 +1,21 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation } from '@react-navigation/native';
+import PropTypes from 'prop-types';
 import React, { useContext, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { ListItem } from 'react-native-elements';
-import PropTypes from 'prop-types';
-import { AddressTypeBadge } from './AddressTypeBadge';
-import loc, { formatBalance } from '../../loc';
-import TooltipMenu from '../TooltipMenu';
-import Clipboard from '@react-native-clipboard/clipboard';
 import Share from 'react-native-share';
-import { useTheme } from '../themes';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Biometric from '../../class/biometrics';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import QRCodeComponent from '../QRCodeComponent';
+import { useTheme } from '../themes';
+import TooltipMenu from '../TooltipMenu';
+import { AddressTypeBadge } from './AddressTypeBadge';
 const confirm = require('../../helpers/confirm');
 
 interface AddressItemProps {

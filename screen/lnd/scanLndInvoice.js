@@ -1,33 +1,33 @@
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
-  Text,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  View,
-  TouchableOpacity,
+  I18nManager,
   Keyboard,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
-  I18nManager,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import AddressInput from '../../components/AddressInput';
-import AmountInput from '../../components/AmountInput';
-import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import Biometric from '../../class/biometrics';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import Biometric from '../../class/biometrics';
+import Lnurl from '../../class/lnurl';
+import AddressInput from '../../components/AddressInput';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);

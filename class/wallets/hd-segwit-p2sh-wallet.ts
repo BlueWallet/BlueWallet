@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectReturnInput } from 'coinselect';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 

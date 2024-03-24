@@ -1,11 +1,12 @@
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
-import RNFS from 'react-native-fs';
-import Share from 'react-native-share';
-import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { isDesktop } from './environment';
+import Share from 'react-native-share';
+
 import presentAlert from '../components/Alert';
+import loc from '../loc';
+import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');

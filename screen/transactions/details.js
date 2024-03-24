@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../components/handoff';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import ToolTipMenu from '../../components/TooltipMenu';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import HandoffComponent from '../../components/handoff';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
+import loc from '../../loc';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {

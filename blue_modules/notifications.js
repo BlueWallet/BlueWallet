@@ -1,13 +1,14 @@
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform, findNodeHandle } from 'react-native';
-import Frisbee from 'frisbee';
-import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import loc from '../loc';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import Frisbee from 'frisbee';
+import { Alert, findNodeHandle, Platform } from 'react-native';
+import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import { requestNotifications } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
-import { isDesktop } from './environment';
+
+import loc from '../loc';
 import ActionSheet from '../screen/ActionSheet';
+import { isDesktop } from './environment';
 
 const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';

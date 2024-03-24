@@ -1,9 +1,13 @@
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  findNodeHandle,
   FlatList,
+  I18nManager,
   InteractionManager,
   PixelRatio,
   ScrollView,
@@ -11,30 +15,27 @@ import {
   Text,
   TouchableOpacity,
   View,
-  I18nManager,
-  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
-import { BlueAlertWalletExportReminder } from '../../BlueComponents';
-import WalletGradient from '../../class/wallet-gradient';
-import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
-import { isDesktop } from '../../blue_modules/environment';
+
 import BlueClipboard from '../../blue_modules/clipboard';
-import LNNodeBar from '../../components/LNNodeBar';
-import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import presentAlert from '../../components/Alert';
-import PropTypes from 'prop-types';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import { isDesktop } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
+import { BlueAlertWalletExportReminder } from '../../BlueComponents';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import WalletGradient from '../../class/wallet-gradient';
+import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
+import LNNodeBar from '../../components/LNNodeBar';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
+import ActionSheet from '../ActionSheet';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');

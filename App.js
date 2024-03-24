@@ -1,38 +1,40 @@
 import 'react-native-gesture-handler'; // should be on top
+
+import { CommonActions, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useEffect, useRef } from 'react';
 import {
   AppState,
-  NativeModules,
-  NativeEventEmitter,
   Linking,
+  LogBox,
+  NativeEventEmitter,
+  NativeModules,
   Platform,
   StyleSheet,
   UIManager,
   useColorScheme,
   View,
-  LogBox,
 } from 'react-native';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import BlueClipboard from './blue_modules/clipboard';
+import { updateExchangeRate } from './blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
+import Notifications from './blue_modules/notifications';
+import { BlueStorageContext } from './blue_modules/storage-context';
+import WidgetCommunication from './blue_modules/WidgetCommunication';
+import Biometric from './class/biometrics';
+import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+import DeviceQuickActions from './class/quick-actions';
+import HandoffComponent from './components/handoff';
+import MenuElements from './components/MenuElements';
+import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
+import loc from './loc';
+import { Chain } from './models/bitcoinUnits';
+import InitRoot from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import { Chain } from './models/bitcoinUnits';
-import DeeplinkSchemaMatch from './class/deeplink-schema-match';
-import loc from './loc';
-import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
-import InitRoot from './Navigation';
-import BlueClipboard from './blue_modules/clipboard';
-import { BlueStorageContext } from './blue_modules/storage-context';
-import WatchConnectivity from './WatchConnectivity';
-import DeviceQuickActions from './class/quick-actions';
-import Notifications from './blue_modules/notifications';
-import Biometric from './class/biometrics';
-import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
-import HandoffComponent from './components/handoff';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
-import MenuElements from './components/MenuElements';
-import { updateExchangeRate } from './blue_modules/currency';
+import WatchConnectivity from './WatchConnectivity';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;

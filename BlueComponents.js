@@ -1,13 +1,17 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, forwardRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
-import { Icon, Text, Header } from 'react-native-elements';
+import React, { Component, forwardRef } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Animated,
   Dimensions,
+  findNodeHandle,
+  I18nManager,
   Image,
+  ImageBackground,
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
@@ -16,18 +20,15 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  I18nManager,
-  ImageBackground,
-  findNodeHandle,
 } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueCurrentTheme, useTheme } from './components/themes';
-import PlusIcon from './components/icons/PlusIcon';
-import loc, { formatStringAddTwoWhiteSpaces } from './loc';
-import SafeArea from './components/SafeArea';
+import { Header, Icon, Text } from 'react-native-elements';
+
 import { isDesktop } from './blue_modules/environment';
+import PlusIcon from './components/icons/PlusIcon';
+import SafeArea from './components/SafeArea';
+import { BlueCurrentTheme, useTheme } from './components/themes';
+import loc, { formatStringAddTwoWhiteSpaces } from './loc';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import ActionSheet from './screen/ActionSheet';
 
 const { height, width } = Dimensions.get('window');

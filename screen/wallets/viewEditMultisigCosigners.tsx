@@ -4,6 +4,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import {
   ActivityIndicator,
   Alert,
+  findNodeHandle,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -15,10 +16,12 @@ import {
   Switch,
   Text,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
 
+import { isDesktop } from '../../blue_modules/environment';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -29,10 +32,6 @@ import {
   BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
-import * as NavigationService from '../../NavigationService';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
@@ -42,15 +41,16 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
+import navigationStyle from '../../components/navigationStyle';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import { isDesktop } from '../../blue_modules/environment';
+import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
+import * as NavigationService from '../../NavigationService';
 import ActionSheet from '../ActionSheet';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');

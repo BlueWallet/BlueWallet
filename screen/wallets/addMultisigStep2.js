@@ -1,6 +1,8 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  findNodeHandle,
   FlatList,
   I18nManager,
   InteractionManager,
@@ -13,31 +15,30 @@ import {
   Text,
   TouchableOpacity,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+
+import { isDesktop } from '../../blue_modules/environment';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
+import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
+import Button from '../../components/Button';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
+import navigationStyle from '../../components/navigationStyle';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import presentAlert from '../../components/Alert';
+import { SquareButton } from '../../components/SquareButton';
+import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
-import { isDesktop } from '../../blue_modules/environment';
+import loc from '../../loc';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');

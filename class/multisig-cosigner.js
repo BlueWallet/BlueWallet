@@ -1,7 +1,8 @@
-import b58 from 'bs58check';
-import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import BIP32Factory from 'bip32';
+import b58 from 'bs58check';
+
 import ecc from '../blue_modules/noble_ecc';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 const bip32 = BIP32Factory(ecc);
 
 export class MultisigCosigner {

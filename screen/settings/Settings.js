@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
-import { ScrollView, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import React, { useContext } from 'react';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 
-import navigationStyle from '../../components/navigationStyle';
-import { BlueHeaderDefaultSub } from '../../BlueComponents';
-import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueHeaderDefaultSub } from '../../BlueComponents';
 import ListItem from '../../components/ListItem';
+import navigationStyle from '../../components/navigationStyle';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

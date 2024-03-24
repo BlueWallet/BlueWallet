@@ -1,5 +1,6 @@
-import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import assert from 'assert';
+
+import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 
 describe('', () => {
   function isHex(h: string) {

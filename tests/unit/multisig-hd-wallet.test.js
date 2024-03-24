@@ -1,6 +1,7 @@
 import assert from 'assert';
-import { MultisigHDWallet } from '../../class/';
+
 import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
+import { MultisigHDWallet } from '../../class/';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 const bitcoin = require('bitcoinjs-lib');
 const Base43 = require('../../blue_modules/base43');

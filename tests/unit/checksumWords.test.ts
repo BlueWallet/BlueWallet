@@ -1,6 +1,7 @@
-import { generateChecksumWords } from '../../blue_modules/checksumWords';
-import { validateMnemonic } from '../../blue_modules/bip39';
 import assert from 'assert';
+
+import { validateMnemonic } from '../../blue_modules/bip39';
+import { generateChecksumWords } from '../../blue_modules/checksumWords';
 
 describe('generateChecksumWords', () => {
   it('generates 128 valid words for an 11 word input', () => {

@@ -1,4 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback, useContext, useMemo, useLayoutEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -16,36 +20,32 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNFS from 'react-native-fs';
-import BigNumber from 'bignumber.js';
-import * as bitcoin from 'bitcoinjs-lib';
-
-import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
-import { navigationStyleTx } from '../../components/navigationStyle';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DocumentPicker from 'react-native-document-picker';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
-import CoinsSelected from '../../components/CoinsSelected';
-import BottomModal from '../../components/BottomModal';
-import AddressInput from '../../components/AddressInput';
-import AmountInput from '../../components/AmountInput';
-import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { Icon } from 'react-native-elements';
+import RNFS from 'react-native-fs';
+
+import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import AddressInput from '../../components/AddressInput';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import BottomModal from '../../components/BottomModal';
+import Button from '../../components/Button';
+import CoinsSelected from '../../components/CoinsSelected';
+import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
+import ListItem from '../../components/ListItem';
+import { navigationStyleTx } from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
-import presentAlert from '../../components/Alert';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;

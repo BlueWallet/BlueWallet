@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text } from 'react-native-elements';
 import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from 'react-native-elements';
+
 import { useTheme } from './themes';
 
 interface WalletToImportProp {

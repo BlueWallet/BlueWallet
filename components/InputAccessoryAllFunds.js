@@ -1,10 +1,11 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import { InputAccessoryView, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { InputAccessoryView, StyleSheet, Keyboard, Platform, View } from 'react-native';
+
+import { BlueButtonLink } from '../BlueComponents';
 import loc from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { BlueButtonLink } from '../BlueComponents';
 import { useTheme } from './themes';
 
 const InputAccessoryAllFunds = ({ balance, canUseAll, onUseAllPressed }) => {

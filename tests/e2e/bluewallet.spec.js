@@ -1,13 +1,13 @@
 import {
-  helperDeleteWallet,
-  sleep,
+  expectToBeVisible,
+  extractTextFromElementById,
   hashIt,
+  helperCreateWallet,
+  helperDeleteWallet,
+  helperSwitchAdvancedMode,
+  sleep,
   sup,
   yo,
-  extractTextFromElementById,
-  expectToBeVisible,
-  helperCreateWallet,
-  helperSwitchAdvancedMode,
 } from './helperz';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');

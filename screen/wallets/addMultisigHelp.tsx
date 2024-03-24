@@ -1,10 +1,10 @@
-import React from 'react';
-import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import React from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import loc from '../../loc';
-import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const WalletsAddMultisigHelp: React.FC = () => {
   const { colors } = useTheme();

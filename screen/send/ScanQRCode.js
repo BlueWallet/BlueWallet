@@ -1,17 +1,18 @@
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, Platform, StyleSheet, TextInput, Alert } from 'react-native';
+import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
-import loc from '../../loc';
-import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
+
+import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
+import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
-import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');

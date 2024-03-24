@@ -1,8 +1,8 @@
-import React, { createContext, useEffect, useState } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import React, { createContext, useEffect, useState } from 'react';
 
-import BlueApp, { TTXMetadata, startAndDecrypt } from '../BlueApp';
 import Notifications from '../blue_modules/notifications';
+import BlueApp, { startAndDecrypt, TTXMetadata } from '../BlueApp';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
 import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';

@@ -1,6 +1,7 @@
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+
 import loc from '../loc';
 import { Theme } from './themes';
 

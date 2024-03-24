@@ -1,15 +1,16 @@
-import React, { useContext, useState } from 'react';
-import { View, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-import loc from '../../loc';
-import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import React, { useContext, useState } from 'react';
+import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
+import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const WalletsImportSpeed = () => {
   const navigation = useNavigation();

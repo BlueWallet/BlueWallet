@@ -1,18 +1,18 @@
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
 
+import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueText } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
 import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
-import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 
