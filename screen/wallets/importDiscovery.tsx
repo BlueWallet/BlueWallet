@@ -1,33 +1,42 @@
-import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import WalletToImport from '../../components/WalletToImport';
-import loc from '../../loc';
-import { HDSegwitBech32Wallet } from '../../class';
-import startImport from '../../class/wallet-import';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import prompt from '../../helpers/prompt';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
-import presentAlert from '../../components/Alert';
 
-const ImportWalletDiscovery = () => {
-  const navigation = useNavigation();
-  const { colors } = useTheme();
-  const route = useRoute();
+import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
+import { AddWalletStackStackParamsList } from '../../Navigation';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { HDSegwitBech32Wallet } from '../../class';
+import startImport, { TImport } from '../../class/wallet-import';
+import { TWallet } from '../../class/wallets/types';
+import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import WalletToImport from '../../components/WalletToImport';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import prompt from '../../helpers/prompt';
+import loc from '../../loc';
+
+type TWalletToImport = {
+  wallet: TWallet;
+  subtitle: string;
+  id: string;
+};
+
+type Props = NativeStackScreenProps<AddWalletStackStackParamsList, 'ImportWalletDiscovery'>;
+
+const ImportWalletDiscovery = ({ route, navigation }: Props) => {
   const { importText, askPassphrase, searchAccounts } = route.params;
-  const task = useRef();
+  const { colors } = useTheme();
+  const task = useRef<TImport>();
   const { addAndSaveWallet } = useContext(BlueStorageContext);
   const [loading, setLoading] = useState(true);
-  const [wallets, setWallets] = useState([]);
+  const [wallets, setWallets] = useState<TWalletToImport[]>([]);
   const [password, setPassword] = useState();
   const [selected, setSelected] = useState(0);
-  const [progress, setProgress] = useState();
+  const [progress, setProgress] = useState<string>('');
   const importing = useRef(false);
   const bip39 = useMemo(() => {
     const hd = new HDSegwitBech32Wallet();
@@ -44,32 +53,33 @@ const ImportWalletDiscovery = () => {
     },
   });
 
-  const saveWallet = wallet => {
+  const saveWallet = (wallet: TWallet) => {
     if (importing.current) return;
     importing.current = true;
     addAndSaveWallet(wallet);
-    navigation.getParent().pop();
+    // @ts-ignore: this is actyally works fine
+    navigation.getParent()?.pop();
   };
 
   useEffect(() => {
-    const onProgress = data => setProgress(data);
+    const onProgress = (data: string) => setProgress(data);
 
-    const onWallet = wallet => {
+    const onWallet = (wallet: TWallet) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       const id = wallet.getID();
-      let subtitle;
+      let subtitle: string = '';
       try {
-        subtitle = wallet.getDerivationPath?.();
+        subtitle = ('getDerivationPath' in wallet && wallet.getDerivationPath()) || '';
       } catch (e) {}
       setWallets(w => [...w, { wallet, subtitle, id }]);
     };
 
-    const onPassword = async (title, subtitle) => {
+    const onPassword = async (title: string, subtitle: string) => {
       try {
         const pass = await prompt(title, subtitle);
         setPassword(pass);
         return pass;
-      } catch (e) {
+      } catch (e: any) {
         if (e.message === 'Cancel Pressed') {
           navigation.goBack();
         }
@@ -99,16 +109,16 @@ const ImportWalletDiscovery = () => {
         IdleTimerManager.setIdleTimerDisabled(false);
       });
 
-    return () => task.current.stop();
+    return () => task.current?.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCustomDerivation = () => {
-    task.current.stop();
+    task.current?.stop();
     navigation.navigate('ImportCustomDerivationPath', { importText, password });
   };
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item, index }: { item: TWalletToImport; index: number }) => (
     <WalletToImport
       key={item.id}
       title={item.wallet.typeReadable}
@@ -121,7 +131,7 @@ const ImportWalletDiscovery = () => {
     />
   );
 
-  const keyExtractor = w => w.id;
+  const keyExtractor = (w: TWalletToImport) => w.id;
 
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>

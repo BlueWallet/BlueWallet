@@ -172,7 +172,22 @@ const WalletsRoot = () => {
   );
 };
 
-const AddWalletStack = createNativeStackNavigator();
+export type AddWalletStackStackParamsList = {
+  AddWallet: undefined;
+  ImportWallet: { label?: string; triggerImport?: boolean };
+  ImportWalletDiscovery: { importText: string; askPassphrase: boolean; searchAccounts: boolean };
+  ImportCustomDerivationPath: { importText: string; password?: string };
+  ImportSpeed: undefined;
+  PleaseBackup: undefined;
+  PleaseBackupLNDHub: undefined;
+  PleaseBackupLdk: undefined;
+  ProvideEntropy: undefined;
+  WalletsAddMultisig: undefined;
+  WalletsAddMultisigStep2: undefined;
+  WalletsAddMultisigHelp: undefined;
+};
+
+const AddWalletStack = createNativeStackNavigator<AddWalletStackStackParamsList>();
 const AddWalletRoot = () => {
   const theme = useTheme();
 
