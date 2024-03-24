@@ -53,7 +53,6 @@ import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
 import SaveFileButton from '../../components/SaveFileButton';
-const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
@@ -172,9 +171,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const exportCosigner = () => {
+  const saveFileButtonAfterOnPress = () => {
     setIsShareModalVisible(false);
-    setTimeout(() => fs.writeFileAndExport(exportFilename, exportString), 1000);
   };
 
   const onSave = async () => {
@@ -584,7 +582,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SaveFileButton fileContent={exportString} fileName={exportFilename} onPress={exportCosigner}>
+              <SaveFileButton fileContent={exportString} fileName={exportFilename} afterOnPress={saveFileButtonAfterOnPress}>
                 <SquareButton style={[styles.exportButton, stylesHook.exportButton]} title={loc.multisig.share} />
               </SaveFileButton>
             </View>

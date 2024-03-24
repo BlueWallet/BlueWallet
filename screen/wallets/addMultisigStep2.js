@@ -648,9 +648,12 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const exportCosigner = () => {
+  const exportCosignerBeforeOnPress = () => {
     setIsLoading(true);
-    fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
+  };
+
+  const exportCosignerAfterOnPress = () => {
+    setIsLoading(false);
   };
 
   const hideCosignersXpubModal = () => {
@@ -677,7 +680,8 @@ const WalletsAddMultisigStep2 = () => {
                   style={[styles.exportButton, stylesHook.exportButton]}
                   fileName={cosignerXpubFilename}
                   fileContent={cosignerXpub}
-                  onPress={exportCosigner}
+                  beforeOnPress={exportCosignerBeforeOnPress}
+                  afterOnPress={exportCosignerAfterOnPress}
                 >
                   <SquareButton title={loc.multisig.share} />
                 </SaveFileButton>

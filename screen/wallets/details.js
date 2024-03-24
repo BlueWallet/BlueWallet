@@ -41,7 +41,6 @@ import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
@@ -462,10 +461,6 @@ const WalletDetails = () => {
     return csvFile;
   };
 
-  const onExportHistoryPressed = async () => {
-    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, exportHistoryContent);
-  };
-
   const handleDeleteButtonTapped = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     Alert.alert(
@@ -663,11 +658,7 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SaveFileButton
-                      fileName={`${wallet.getLabel().replace(' ', '-')}-history.csv`}
-                      fileContent={exportHistoryContent}
-                      onPress={onExportHistoryPressed}
-                    >
+                    <SaveFileButton fileName={`${wallet.getLabel().replace(' ', '-')}-history.csv`} fileContent={exportHistoryContent}>
                       <SecondButton title={loc.wallets.details_export_history} />
                     </SaveFileButton>
                   </>

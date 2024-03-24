@@ -12,7 +12,6 @@ import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
 import SaveFileButton from '../../components/SaveFileButton';
-const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;
@@ -39,15 +38,14 @@ const ExportMultisigCoordinationSetup = () => {
     },
   });
 
-  const exportTxtFile = async () => {
+  const exportTxtFileBeforeOnPress = async () => {
     setIsShareButtonTapped(true);
     dynamicQRCode.current?.stopAutoMove();
-    setTimeout(() => {
-      fs.writeFileAndExport(wallet.getLabel() + '.txt', wallet.getXpub()).finally(() => {
-        setIsShareButtonTapped(false);
-        dynamicQRCode.current?.startAutoMove();
-      });
-    }, 10);
+  };
+
+  const exportTxtFileAfterOnPress = () => {
+    setIsShareButtonTapped(false);
+    dynamicQRCode.current?.startAutoMove();
   };
 
   useFocusEffect(
@@ -93,7 +91,8 @@ const ExportMultisigCoordinationSetup = () => {
             style={[styles.exportButton, stylesHook.exportButton]}
             fileName={wallet.getLabel() + '.txt'}
             fileContent={wallet.getXpub()}
-            onPress={exportTxtFile}
+            beforeOnPress={exportTxtFileBeforeOnPress}
+            afterOnPress={exportTxtFileAfterOnPress}
           >
             <SquareButton title={loc.multisig.share} />
           </SaveFileButton>

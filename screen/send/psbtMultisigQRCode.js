@@ -78,17 +78,14 @@ const PsbtMultisigQRCode = () => {
     }
   };
 
-  const exportPSBT = () => {
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(
-      () =>
-        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
-          setIsLoading(false);
-          dynamicQRCode.current?.startAutoMove();
-        }),
-      10,
-    );
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    setIsLoading(false);
+    dynamicQRCode.current?.startAutoMove();
   };
 
   return (
@@ -115,7 +112,8 @@ const PsbtMultisigQRCode = () => {
             <SaveFileButton
               fileName={fileName}
               fileContent={psbt.toBase64()}
-              onPress={exportPSBT}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
               style={[styles.exportButton, stylesHook.exportButton]}
             >
               <SquareButton title={loc.multisig.share} />

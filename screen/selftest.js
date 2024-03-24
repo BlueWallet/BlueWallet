@@ -42,10 +42,6 @@ export default class Selftest extends Component {
     };
   }
 
-  onPressSaveToStorage = () => {
-    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success on ' + new Date().toUTCString());
-  };
-
   onPressImportDocument = async () => {
     try {
       fs.showFilePickerAndReadFile().then(file => {
@@ -324,7 +320,7 @@ export default class Selftest extends Component {
             <SaveFileButton
               fileName="bluewallet-selftest.txt"
               fileContent={'Success on ' + new Date().toUTCString()}
-              onPress={this.onPressSaveToStorage}
+              afterOnPress={this.onPressSaveToStorage}
             >
               <Button title="Test Save to Storage" />
             </SaveFileButton>

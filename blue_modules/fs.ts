@@ -10,10 +10,10 @@ import { readFile } from './react-native-bw-file-access';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-const _shareOpen = async (filePath: string) => {
+const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   return await Share.open({
     url: 'file://' + filePath,
-    saveToFiles: isDesktop,
+    saveToFiles: isDesktop || !showShareDialog,
     // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
     useInternalStorage: Platform.OS === 'android',
     failOnCancel: false,
@@ -35,7 +35,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
   if (Platform.OS === 'ios') {
     const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
     await RNFS.writeFile(filePath, contents);
-    await _shareOpen(filePath);
+    await _shareOpen(filePath, showShareDialog);
   } else if (Platform.OS === 'android') {
     const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
       title: loc.send.permission_storage_title,

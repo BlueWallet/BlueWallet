@@ -21,7 +21,6 @@ import { SecondButton } from '../../components/SecondButton';
 import SaveFileButton from '../../components/SaveFileButton';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
@@ -186,12 +185,12 @@ const PsbtWithHardwareWallet = () => {
     );
   };
 
-  const exportPSBT = () => {
-    const fileName = `${Date.now()}.psbt`;
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
-    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
-      dynamicQRCode.current?.startAutoMove();
-    });
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    dynamicQRCode.current?.startAutoMove();
   };
 
   const openSignedTransaction = async () => {
@@ -269,7 +268,8 @@ const PsbtWithHardwareWallet = () => {
               fileName={`${Date.now()}.psbt`}
               fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
               style={styles.exportButton}
-              onPress={exportPSBT}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
             >
               <SecondButton
                 icon={{
