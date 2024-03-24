@@ -68,17 +68,18 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
         }
         const wallet = wallets.find(w => w.getID() === walletID);
         if (wallet && !wallet.getUserHasSavedExport()) {
-          await presentWalletExportReminder()
-            .then(() => {
-              wallet.setUserHasSavedExport(true);
-              saveToDisk().finally(() => proceedWithNavigation());
-            })
-            .catch(() => {
-              originalNavigation.navigate('WalletExportRoot', {
-                screen: 'WalletExport',
-                params: { walletID },
-              });
+          try {
+            await presentWalletExportReminder();
+            wallet.setUserHasSavedExport(true);
+            await saveToDisk(); // Assuming saveToDisk() returns a Promise.
+            proceedWithNavigation();
+          } catch {
+            originalNavigation.navigate('WalletExportRoot', {
+              screen: 'WalletExport',
+              params: { walletID },
             });
+          }
+
           return; // Prevent proceeding with the original navigation if the reminder is shown
         }
       }
