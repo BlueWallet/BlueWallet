@@ -33,6 +33,7 @@ import HandoffComponent from './components/handoff';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
+import { NavigationProvider } from './components/NavigationProvider';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
@@ -99,27 +100,41 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    if (walletsInitialized) {
-      addListeners();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized]);
-
   const addListeners = () => {
-    Linking.addEventListener('url', handleOpenURL);
-    AppState.addEventListener('change', handleAppStateChange);
+    const urlSubscription = Linking.addEventListener('url', handleOpenURL);
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // Note: `getMostRecentUserActivity` doesn't create a persistent listener, so no need to unsubscribe
     EventEmitter?.getMostRecentUserActivity()
       .then(onUserActivityOpen)
       .catch(() => console.log('No userActivity object sent'));
-    handleAppStateChange(undefined);
-    /*
-      When a notification on iOS is shown while the app is on foreground;
-      On willPresent on AppDelegate.m
-     */
-    eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
+
+    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
+    const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
+
+    // Store subscriptions in a ref or state to remove them later
+    return {
+      urlSubscription,
+      appStateSubscription,
+      notificationSubscription,
+      activitySubscription,
+    };
   };
+
+  useEffect(() => {
+    if (walletsInitialized) {
+      const subscriptions = addListeners();
+
+      // Cleanup function
+      return () => {
+        subscriptions.urlSubscription?.remove();
+        subscriptions.appStateSubscription?.remove();
+        subscriptions.notificationSubscription?.remove();
+        subscriptions.activitySubscription?.remove();
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]); // Re-run when walletsInitialized changes
 
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
@@ -285,10 +300,12 @@ const App = () => {
     <SafeAreaProvider>
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-          <InitRoot />
-          <Notifications onProcessNotifications={processPushNotifications} />
-          <MenuElements />
-          <DeviceQuickActions />
+          <NavigationProvider>
+            <InitRoot />
+            <Notifications onProcessNotifications={processPushNotifications} />
+            <MenuElements />
+            <DeviceQuickActions />
+          </NavigationProvider>
         </NavigationContainer>
       </View>
       <WatchConnectivity />
