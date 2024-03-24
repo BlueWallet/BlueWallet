@@ -17,7 +17,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
-import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
@@ -36,6 +35,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -519,20 +519,20 @@ const WalletTransactions = ({ navigation }) => {
             if (wallet.getUserHasSavedExport()) {
               onManageFundsPressed({ id });
             } else {
-              BlueAlertWalletExportReminder({
-                onSuccess: async () => {
+              presentWalletExportReminder()
+                .then(async () => {
                   wallet.setUserHasSavedExport(true);
                   await saveToDisk();
                   onManageFundsPressed({ id });
-                },
-                onFailure: () =>
+                })
+                .catch(() => {
                   navigate('WalletExportRoot', {
                     screen: 'WalletExport',
                     params: {
                       walletID: wallet.getID(),
                     },
-                  }),
-              });
+                  });
+                });
             }
           }
         }}

@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
@@ -19,7 +19,6 @@ import {
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
-  BlueAlertWalletExportReminder,
   BlueCard,
   BlueSpacing40,
 } from '../../BlueComponents';
@@ -39,6 +38,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -53,7 +53,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const { navigate, goBack, setParams } = useNavigation();
+  const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
@@ -341,22 +341,7 @@ const ReceiveDetails = () => {
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          if (!wallet.getUserHasSavedExport()) {
-            BlueAlertWalletExportReminder({
-              onSuccess: obtainWalletAddress,
-              onFailure: () => {
-                navigate('WalletExportRoot', {
-                  screen: 'WalletExport',
-                  params: {
-                    walletID: wallet.getID(),
-                  },
-                });
-              },
-              anchor: receiveAddressButton.current,
-            });
-          } else {
-            obtainWalletAddress();
-          }
+          obtainWalletAddress();
         } else if (!wallet && address) {
           setAddressBIP21Encoded(address);
         }
