@@ -16,7 +16,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueAlertWalletExportReminder, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
@@ -32,6 +32,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
@@ -117,9 +118,11 @@ const LNDCreateInvoice = () => {
         if (wallet.current.getUserHasSavedExport()) {
           renderReceiveDetails();
         } else {
-          BlueAlertWalletExportReminder({
-            onSuccess: () => renderReceiveDetails(),
-            onFailure: () => {
+          presentWalletExportReminder()
+            .then(() => {
+              renderReceiveDetails();
+            })
+            .catch(() => {
               getParent().pop();
               NavigationService.navigate('WalletExportRoot', {
                 screen: 'WalletExport',
@@ -127,8 +130,7 @@ const LNDCreateInvoice = () => {
                   walletID,
                 },
               });
-            },
-          });
+            });
         }
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
