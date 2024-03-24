@@ -14,9 +14,13 @@ const _shareOpen = async (filePath: string) => {
   return await Share.open({
     url: 'file://' + filePath,
     saveToFiles: isDesktop,
+    // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
+    useInternalStorage: Platform.OS === 'android',
+    failOnCancel: false,
   })
     .catch(error => {
       console.log(error);
+      presentAlert({ message: error.message });
     })
     .finally(() => {
       RNFS.unlink(filePath);

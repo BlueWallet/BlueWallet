@@ -214,7 +214,7 @@ describe('BlueElectrum', () => {
 
     assert.strictEqual(Object.keys(utxos).length, 4);
     assert.strictEqual(
-      utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].txId,
+      utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].txid,
       'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
     );
     assert.strictEqual(utxos.bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh[0].vout, 1);
