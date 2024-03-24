@@ -11,8 +11,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
-
-const A = require('../../blue_modules/analytics');
+import A from '../../blue_modules/analytics';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();

@@ -30,9 +30,9 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
+import A from '../../blue_modules/analytics';
+import * as fs from '../../blue_modules/fs';
 
-const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
 const WalletsList = () => {

@@ -1,20 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
+import { ActivityIndicator, ScrollView, StyleSheet, View, findNodeHandle } from 'react-native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { SquareButton } from '../../components/SquareButton';
-
-import loc from '../../loc';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import SafeArea from '../../components/SafeArea';
 import { isDesktop } from '../../blue_modules/environment';
-const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
+import * as fs from '../../blue_modules/fs';
+import presentAlert from '../../components/Alert';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import SafeArea from '../../components/SafeArea';
+import { SquareButton } from '../../components/SquareButton';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
+import ActionSheet from '../ActionSheet';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
@@ -63,7 +63,7 @@ const PsbtMultisigQRCode = () => {
 
   const openScanner = () => {
     if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
+      ActionSheet.showActionSheetWithOptions({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
       requestCameraAuthorization().then(() =>
         navigate('ScanQRCodeRoot', {

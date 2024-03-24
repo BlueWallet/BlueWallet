@@ -8,34 +8,34 @@
  * @param availableWallets {array} Wallets to be present in selector. If set, overrides `chainType`
  * @param noWalletExplanationText {string} Text that is displayed when there are no wallets to select from
  *
- * @returns {Promise<AbstractWallet>}
+ * @returns {Promise<TWallet>}
  */
-import { AbstractWallet } from '../class';
+import { TWallet } from '../class/wallets/types';
 
-module.exports = function (
+export default function (
   navigateFunc: (scr: string | any, params?: any) => void,
   currentScreenName: string,
   chainType: string | null,
-  availableWallets?: AbstractWallet[],
+  availableWallets?: TWallet[],
   noWalletExplanationText = '',
-): Promise<AbstractWallet> {
+): Promise<TWallet> {
   return new Promise((resolve, reject) => {
     if (!currentScreenName) return reject(new Error('currentScreenName is not provided'));
 
     const params: {
       chainType: string | null;
-      availableWallets?: AbstractWallet[];
+      availableWallets?: TWallet[];
       noWalletExplanationText?: string;
-      onWalletSelect: (selectedWallet: AbstractWallet) => void;
+      onWalletSelect: (selectedWallet: TWallet) => void;
     } = {
       chainType: null,
-      onWalletSelect: (selectedWallet: AbstractWallet) => {},
+      onWalletSelect: (selectedWallet: TWallet) => {},
     };
     if (chainType) params.chainType = chainType;
     if (availableWallets) params.availableWallets = availableWallets;
     if (noWalletExplanationText) params.noWalletExplanationText = noWalletExplanationText;
 
-    params.onWalletSelect = function (selectedWallet: AbstractWallet) {
+    params.onWalletSelect = function (selectedWallet: TWallet) {
       if (!selectedWallet) return;
 
       setTimeout(() => resolve(selectedWallet), 1);
@@ -45,4 +45,4 @@ module.exports = function (
 
     navigateFunc('SelectWallet', params);
   });
-};
+}
