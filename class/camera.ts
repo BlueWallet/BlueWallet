@@ -1,6 +1,7 @@
-import { Linking, Alert } from 'react-native';
-import loc from '../loc';
+import { Alert, Linking } from 'react-native';
+
 import { isDesktop } from '../blue_modules/environment';
+import loc from '../loc';
 
 export const openPrivacyDesktopSettings = () => {
   if (isDesktop) {

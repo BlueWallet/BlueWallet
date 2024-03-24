@@ -1,53 +1,54 @@
-import React, { useEffect, useState, useCallback, useContext, useRef, useMemo, useLayoutEffect } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  I18nManager,
+  InteractionManager,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
   Text,
   TextInput,
-  Alert,
-  KeyboardAvoidingView,
   TouchableOpacity,
-  Keyboard,
   TouchableWithoutFeedback,
-  Switch,
-  Platform,
-  Linking,
-  StyleSheet,
-  ScrollView,
-  InteractionManager,
-  ActivityIndicator,
-  I18nManager,
+  View,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import Biometric from '../../class/biometrics';
-import {
-  HDSegwitBech32Wallet,
-  SegwitP2SHWallet,
-  LegacyWallet,
-  SegwitBech32Wallet,
-  WatchOnlyWallet,
-  MultisigHDWallet,
-  HDAezeedWallet,
-  LightningLdkWallet,
-} from '../../class';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
+import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import Share from 'react-native-share';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
+
 import { isDesktop } from '../../blue_modules/environment';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import presentAlert from '../../components/Alert';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
-import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
-import { useTheme } from '../../components/themes';
-import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import {
+  HDAezeedWallet,
+  HDSegwitBech32Wallet,
+  LegacyWallet,
+  LightningLdkWallet,
+  MultisigHDWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
+  WatchOnlyWallet,
+} from '../../class';
+import Biometric from '../../class/biometrics';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
+import navigationStyle from '../../components/navigationStyle';
 import { SecondButton } from '../../components/SecondButton';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 
 const prompt = require('../../helpers/prompt');
 

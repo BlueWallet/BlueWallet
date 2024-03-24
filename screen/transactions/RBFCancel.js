@@ -1,14 +1,15 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, ScrollView } from 'react-native';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import CPFP from './CPFP';
-import loc from '../../loc';
+import React from 'react';
+import { ActivityIndicator, ScrollView, View } from 'react-native';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import loc from '../../loc';
+import CPFP from './CPFP';
 
 export default class RBFCancel extends CPFP {
   static contextType = BlueStorageContext;

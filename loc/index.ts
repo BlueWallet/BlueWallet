@@ -1,15 +1,15 @@
-import Localization from 'react-localization';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import Localization from 'react-localization';
+import { I18nManager } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 
+import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
-import { I18nManager } from 'react-native';
-import { satoshiToLocalCurrency } from '../blue_modules/currency';
 
 export const STORAGE_KEY = 'lang';
 

@@ -1,5 +1,5 @@
-import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
 import ElectrumClient from 'electrum-client';
 
 const net = require('net');

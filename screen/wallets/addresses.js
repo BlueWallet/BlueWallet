@@ -1,14 +1,15 @@
-import React, { useCallback, useState, useContext, useRef, useEffect, useLayoutEffect } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc from '../../loc';
-import navigationStyle from '../../components/navigationStyle';
+import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
-import { WatchOnlyWallet } from '../../class';
+import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 

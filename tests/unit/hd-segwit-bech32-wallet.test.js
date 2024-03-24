@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import { HDSegwitBech32Wallet } from '../../class';
 
 describe('Bech32 Segwit HD (BIP84)', () => {

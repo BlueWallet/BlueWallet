@@ -1,6 +1,7 @@
 /* global it, describe */
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
+
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 
 describe('AbstractHDElectrumWallet.cosign', () => {

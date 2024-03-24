@@ -1,10 +1,10 @@
 // import assert from 'assert';
-import { ECPairFactory } from 'ecpair';
-
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BIP47Factory from '@spsina/bip47';
 import assert from 'assert';
+import { ECPairFactory } from 'ecpair';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
 
 const bitcoin = require('bitcoinjs-lib');
 const ecc = require('tiny-secp256k1');

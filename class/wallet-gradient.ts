@@ -1,18 +1,18 @@
-import { LegacyWallet } from './wallets/legacy-wallet';
-import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet'; // Missing import
-import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
-import { WatchOnlyWallet } from './wallets/watch-only-wallet';
-import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
-import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
-import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
-import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
-import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
-import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
-import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
-import { SLIP39LegacyP2PKHWallet, SLIP39SegwitP2SHWallet, SLIP39SegwitBech32Wallet } from './wallets/slip39-wallets';
 import { useTheme } from '../components/themes';
+import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
+import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
+import { LegacyWallet } from './wallets/legacy-wallet';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet'; // Missing import
+import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
+import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet: string[] = ['#007AFF', '#0040FF'];

@@ -1,41 +1,42 @@
-import React, { Component } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   Alert,
-  View,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Text,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Switch,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import loc from '../../loc';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import navigationStyle from '../../components/navigationStyle';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import WidgetCommunication from '../../blue_modules/WidgetCommunication';
 import {
   BlueButtonLink,
   BlueCard,
+  BlueDismissKeyboardInputAccessory,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueLoading,
   BlueSpacing20,
   BlueText,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
-import WidgetCommunication from '../../blue_modules/WidgetCommunication';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import navigationStyle from '../../components/navigationStyle';
+import { BlueCurrentTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 

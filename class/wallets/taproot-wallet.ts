@@ -1,4 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
+
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 
 export class TaprootWallet extends SegwitBech32Wallet {

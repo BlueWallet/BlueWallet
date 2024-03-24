@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import { SegwitP2SHWallet } from '../../class';
 const BlueApp = require('../../BlueApp');
 const AppStorage = BlueApp.AppStorage;

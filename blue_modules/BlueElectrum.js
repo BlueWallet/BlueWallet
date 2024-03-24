@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
-import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import DefaultPreference from 'react-native-default-preference';
+
+import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
+import presentAlert from '../components/Alert';
 import loc from '../loc';
 import WidgetCommunication from './WidgetCommunication';
-import presentAlert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const BigNumber = require('bignumber.js');

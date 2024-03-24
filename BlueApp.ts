@@ -20,16 +20,16 @@ import {
   LightningCustodianWallet,
   LightningLdkWallet,
   MultisigHDWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
   SLIP39SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
   WatchOnlyWallet,
 } from './class/';
 import Biometric from './class/biometrics';
 import { randomBytes } from './class/rng';
-import { TWallet, Transaction } from './class/wallets/types';
+import { Transaction, TWallet } from './class/wallets/types';
 import presentAlert from './components/Alert';
 import loc from './loc';
 

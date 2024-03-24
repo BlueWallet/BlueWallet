@@ -1,6 +1,6 @@
 // @ts-ignore: Ignore
 import type { Element } from 'react';
-import { Text, TouchableNativeFeedback, TouchableWithoutFeedback, View, findNodeHandle, UIManager } from 'react-native';
+import { findNodeHandle, Text, TouchableNativeFeedback, TouchableWithoutFeedback, UIManager, View } from 'react-native';
 
 type PopupMenuItem = { id?: any; label: string };
 type OnPopupMenuItemSelect = (selectedPopupMenuItem: PopupMenuItem) => void;
@@ -28,5 +28,5 @@ function showPopupMenu(
   );
 }
 
-export type { PopupMenuItem, OnPopupMenuItemSelect, PopupMenuOptions };
+export type { OnPopupMenuItemSelect, PopupMenuItem, PopupMenuOptions };
 export default showPopupMenu;

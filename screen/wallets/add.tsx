@@ -10,10 +10,13 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
   useColorScheme,
+  View,
 } from 'react-native';
 
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { AppStorage } from '../../BlueApp';
 import {
   BitcoinButton,
   BlueButtonLink,
@@ -24,8 +27,6 @@ import {
   LightningButton,
   VaultButton,
 } from '../../BlueComponents';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -35,7 +36,6 @@ import { useTheme } from '../../components/themes';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
-import { AppStorage } from '../../BlueApp';
 const A = require('../../blue_modules/analytics');
 
 enum ButtonSelected {

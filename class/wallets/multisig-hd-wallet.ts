@@ -3,13 +3,14 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
+import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import createHash from 'create-hash';
 import { ECPairFactory } from 'ecpair';
 import * as mn from 'electrum-mnemonic';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
 
 const ECPair = ECPairFactory(ecc);

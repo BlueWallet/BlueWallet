@@ -1,8 +1,8 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
-import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { createHmac } from 'crypto';
 import secp256k1 from 'secp256k1';
+import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 const CryptoJS = require('crypto-js');
 const createHash = require('create-hash');
 

@@ -2,13 +2,14 @@ import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } fr
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import Button from '../../components/Button';
+import HandoffComponent from '../../components/handoff';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import HandoffComponent from '../../components/handoff';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';

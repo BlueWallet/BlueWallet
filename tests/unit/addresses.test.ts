@@ -1,6 +1,7 @@
 import assert from 'assert';
-import { getAddress, sortByAddressIndex, totalBalance, filterByAddressType } from '../../screen/wallets/addresses';
+
 import { TABS } from '../../components/addresses/AddressTypeTabs';
+import { filterByAddressType, getAddress, sortByAddressIndex, totalBalance } from '../../screen/wallets/addresses';
 
 jest.mock('../../blue_modules/currency', () => {
   return {

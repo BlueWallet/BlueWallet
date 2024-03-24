@@ -1,8 +1,9 @@
 import * as bitcoin from 'bitcoinjs-lib';
-import presentAlert from '../components/Alert';
 import { ECPairFactory } from 'ecpair';
-import ecc from '../blue_modules/noble_ecc';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import ecc from '../blue_modules/noble_ecc';
+import presentAlert from '../components/Alert';
 const ECPair = ECPairFactory(ecc);
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));

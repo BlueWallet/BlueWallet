@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { isTablet, getDeviceType } from 'react-native-device-info';
+import { getDeviceType, isTablet } from 'react-native-device-info';
 
 const isDesktop: boolean = getDeviceType() === 'Desktop';
 

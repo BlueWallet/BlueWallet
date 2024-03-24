@@ -1,18 +1,17 @@
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
-import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { SquareButton } from '../../components/SquareButton';
-
-import loc from '../../loc';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import SafeArea from '../../components/SafeArea';
 import { isDesktop } from '../../blue_modules/environment';
+import { BlueSpacing20 } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import { SquareButton } from '../../components/SquareButton';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
 

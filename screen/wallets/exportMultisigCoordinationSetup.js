@@ -1,16 +1,17 @@
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Biometric from '../../class/biometrics';
-import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import Biometric from '../../class/biometrics';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import { SquareButton } from '../../components/SquareButton';
+import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 const fs = require('../../blue_modules/fs');
 
 const ExportMultisigCoordinationSetup = () => {

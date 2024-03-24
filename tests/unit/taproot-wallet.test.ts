@@ -1,5 +1,6 @@
-import { TaprootWallet } from '../../class';
 import assert from 'assert';
+
+import { TaprootWallet } from '../../class';
 
 describe('Taproot wallet', () => {
   it('can convert scriptPubKey to address', () => {

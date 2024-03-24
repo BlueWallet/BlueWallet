@@ -1,8 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect } from 'react';
-import { BlueStorageContext } from './storage-context';
 import DefaultPreference from 'react-native-default-preference';
 import RNWidgetCenter from 'react-native-widget-center';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { BlueStorageContext } from './storage-context';
 
 function WidgetCommunication() {
   WidgetCommunication.WidgetCommunicationAllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance';
