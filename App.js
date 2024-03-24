@@ -305,11 +305,11 @@ const App = () => {
             <Notifications onProcessNotifications={processPushNotifications} />
             <MenuElements />
             <DeviceQuickActions />
+            <Biometric />
           </NavigationProvider>
         </NavigationContainer>
       </View>
       <WatchConnectivity />
-      <Biometric />
       <WidgetCommunication />
     </SafeAreaProvider>
   );

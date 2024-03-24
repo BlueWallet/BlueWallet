@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -52,6 +52,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -61,7 +62,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const { navigate, goBack, dispatch, addListener } = useNavigation();
+  const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -214,13 +215,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       enableBlur();
 
       const task = InteractionManager.runAfterInteractions(async () => {
-        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-        if (isBiometricsEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            return goBack();
-          }
-        }
         if (!w.current) {
           // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();

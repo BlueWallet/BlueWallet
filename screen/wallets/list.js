@@ -20,7 +20,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -30,6 +30,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
@@ -49,7 +50,7 @@ const WalletsList = () => {
   } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate, setOptions } = useNavigation();
+  const { navigate, setOptions } = useExtendedNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const [isLoading, setIsLoading] = useState(false);
