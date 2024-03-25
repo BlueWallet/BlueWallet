@@ -8,6 +8,7 @@
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
+#import <Bugsnag/Bugsnag.h>
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
