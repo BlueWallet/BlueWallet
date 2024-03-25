@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const mainLocFile = './loc/en.json';
-const dirsToInterate = ['components', 'screen', 'blue_modules', 'class'];
+const dirsToInterate = ['components', 'screen', 'blue_modules', 'class', 'hooks', 'helpers'];
 const addFiles = ['BlueComponents.js', 'App.js', 'BlueApp.ts', 'Navigation.tsx'];
 const allowedLocPrefixes = ['loc.lnurl_auth', 'loc.units'];
 

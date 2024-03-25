@@ -4,7 +4,6 @@ import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
 import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Biometric from '../../class/biometrics';
 import Button from '../../components/Button';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
@@ -43,13 +42,6 @@ const WalletXpub: React.FC = () => {
       enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-          if (isBiometricsEnabled) {
-            if (!(await Biometric.unlockWithBiometrics())) {
-              return navigation.goBack();
-            }
-          }
           const walletXpub = wallet.getXpub();
           if (xpub !== walletXpub) {
             navigation.setParams({ xpub: walletXpub || undefined });
