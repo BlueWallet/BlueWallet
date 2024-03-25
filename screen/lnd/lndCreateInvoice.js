@@ -350,7 +350,7 @@ const LNDCreateInvoice = () => {
   };
 
   const navigateToSelectWallet = () => {
-    navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
+    navigate('SelectWallet', { chainType: Chain.OFFCHAIN });
   };
 
   const renderWalletSelectionButton = () => {
@@ -374,11 +374,6 @@ const LNDCreateInvoice = () => {
         </View>
       </View>
     );
-  };
-
-  const onWalletSelect = selectedWallet => {
-    setParams({ walletID: selectedWallet.getID() });
-    pop();
   };
 
   if (!wallet.current) {

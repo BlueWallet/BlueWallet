@@ -39,7 +39,7 @@ import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
 import ProvideEntropy from './screen/wallets/provideEntropy';
 import ReorderWallets from './screen/wallets/reorderWallets';
-import SelectWallet from './screen/wallets/selectWallet';
+import SelectWallet from './screen/wallets/SelectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
 import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
@@ -108,7 +108,11 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
       <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions(theme)} />
-      <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <WalletsStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
       <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
       <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
@@ -269,7 +273,11 @@ const SendDetailsRoot = () => {
           gestureEnabled: false,
         }}
       />
-      <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <SendDetailsStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <SendDetailsStack.Screen name="CoinControl" component={CoinControl} options={CoinControl.navigationOptions(theme)} />
     </SendDetailsStack.Navigator>
   );
@@ -286,7 +294,11 @@ const LNDCreateInvoiceRoot = () => {
         component={LNDCreateInvoice}
         options={LNDCreateInvoice.navigationOptions(theme)}
       />
-      <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LNDCreateInvoiceStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
       <LNDCreateInvoiceStack.Screen
         name="LNDViewAdditionalInvoiceInformation"
@@ -315,7 +327,11 @@ const ScanLndInvoiceRoot = () => {
         options={ScanLndInvoice.navigationOptions(theme)}
         initialParams={ScanLndInvoice.initialParams}
       />
-      <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <ScanLndInvoiceStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
@@ -329,7 +345,11 @@ const LDKOpenChannelRoot = () => {
 
   return (
     <LDKOpenChannelStack.Navigator id="LDKOpenChannelRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="SelectWallet">
-      <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LDKOpenChannelStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <LDKOpenChannelStack.Screen
         name="LDKOpenChannelSetAmount"
         component={LdkOpenChannel}

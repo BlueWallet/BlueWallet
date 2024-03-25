@@ -61,7 +61,6 @@ const SendDetails = () => {
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
-  const [wallet, setWallet] = useState(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
   const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
@@ -81,7 +80,8 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-  const { isEditable } = routeParams;
+  const { isEditable, walletID } = routeParams;
+  const wallet = wallets.find(w => w.getID() === walletID);
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -197,7 +197,7 @@ const SendDetails = () => {
       return;
     }
     const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
-    setWallet(newWallet);
+    navigation.setParams({ walletID: newWallet.getID() });
     setFeeUnit(newWallet.getPreferredBalanceUnit());
     setAmountUnit(newWallet.preferredBalanceUnit); // default for whole screen
 
@@ -587,11 +587,6 @@ const SendDetails = () => {
       psbt,
     });
     setIsLoading(false);
-  };
-
-  const onWalletSelect = w => {
-    setWallet(w);
-    navigation.pop();
   };
 
   /**
@@ -1294,7 +1289,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, onChainRequiresSend: true })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -1304,7 +1299,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, onChainRequiresSend: true })}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
