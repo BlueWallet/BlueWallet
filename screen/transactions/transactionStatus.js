@@ -341,7 +341,9 @@ const TransactionsStatus = () => {
       if (txMetadata[tx.hash].memo) {
         return (
           <View style={styles.memo}>
-            <Text style={styles.memoText}>{txMetadata[tx.hash].memo}</Text>
+            <Text selectable style={styles.memoText}>
+              {txMetadata[tx.hash].memo}
+            </Text>
             <BlueSpacing20 />
           </View>
         );
@@ -367,7 +369,7 @@ const TransactionsStatus = () => {
       <View style={styles.container}>
         <BlueCard>
           <View style={styles.center}>
-            <Text style={[styles.value, stylesHook.value]}>
+            <Text style={[styles.value, stylesHook.value]} selectable>
               {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
               {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
                 <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
