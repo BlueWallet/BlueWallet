@@ -1,16 +1,18 @@
 import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
-import { InteractionManager, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet, AppState } from 'react-native';
-import { useTheme, useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
+import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
+import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import HandoffComponent from '../../components/handoff';
+import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -21,6 +23,7 @@ const WalletExport = () => {
   const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const appState = useRef(AppState.currentState);
+  const { enableBlur, disableBlur } = usePrivacy();
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
@@ -50,7 +53,7 @@ const WalletExport = () => {
 
   useFocusEffect(
     useCallback(() => {
-      Privacy.enableBlur();
+      enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -69,8 +72,9 @@ const WalletExport = () => {
       });
       return () => {
         task.cancel();
-        Privacy.disableBlur();
+        disableBlur();
       };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [goBack, saveToDisk, wallet]),
   );
 
@@ -93,8 +97,7 @@ const WalletExport = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
-      <StatusBar barStyle="light-content" />
+    <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
@@ -130,7 +133,7 @@ const WalletExport = () => {
           </React.Fragment>
         ))}
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -163,7 +166,8 @@ const styles = StyleSheet.create({
 WalletExport.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
+    statusBarStyle: 'light',
   },
   opts => ({ ...opts, title: loc.wallets.export_title }),
 );

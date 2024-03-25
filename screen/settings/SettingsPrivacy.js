@@ -1,14 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Linking, Platform, Pressable } from 'react-native';
-import { useTheme } from '@react-navigation/native';
+import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text } from 'react-native';
+import { openSettings } from 'react-native-permissions';
 
 import navigationStyle from '../../components/navigationStyle';
-import { BlueText, BlueSpacing20, BlueListItem, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
 import DeviceQuickActions from '../../class/quick-actions';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import WidgetCommunication from '../../blue_modules/WidgetCommunication';
+import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
 
 const A = require('../../blue_modules/analytics');
 
@@ -24,6 +26,11 @@ const SettingsPrivacy = () => {
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState(false);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState(true);
   const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState(0);
+  const styleHooks = StyleSheet.create({
+    widgetsHeader: {
+      color: colors.foregroundColor,
+    },
+  });
 
   useEffect(() => {
     (async () => {
@@ -93,7 +100,7 @@ const SettingsPrivacy = () => {
   });
 
   const openApplicationSettings = () => {
-    Linking.openSettings();
+    openSettings();
   };
 
   const onDisablePrivacyTapped = () => {
@@ -102,11 +109,11 @@ const SettingsPrivacy = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
+    <ScrollView style={[styles.root, stylesWithThemeHook.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
-        <BlueHeaderDefaultSub leftText={loc.settings.general} rightComponent={null} />
+        {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
       </Pressable>
-      <BlueListItem
+      <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
@@ -118,7 +125,7 @@ const SettingsPrivacy = () => {
       <BlueSpacing20 />
       {!storageIsEncrypted && (
         <>
-          <BlueListItem
+          <ListItem
             hideChevron
             title={loc.settings.privacy_quickactions}
             Component={TouchableWithoutFeedback}
@@ -134,10 +141,22 @@ const SettingsPrivacy = () => {
           </BlueCard>
         </>
       )}
+      <ListItem
+        hideChevron
+        title={loc.settings.privacy_do_not_track}
+        Component={TouchableWithoutFeedback}
+        switch={{ onValueChange: onDoNotTrackValueChange, value: doNotTrackSwitchValue, disabled: isLoading === sections.ALL }}
+      />
+      <BlueCard>
+        <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
+      </BlueCard>
       {Platform.OS === 'ios' && !storageIsEncrypted && (
         <>
-          <BlueHeaderDefaultSub leftText={loc.settings.widgets} rightComponent={null} />
-          <BlueListItem
+          <BlueSpacing40 />
+          <Text adjustsFontSizeToFit style={[styles.widgetsHeader, styleHooks.widgetsHeader]}>
+            {loc.settings.widgets}
+          </Text>
+          <ListItem
             hideChevron
             title={loc.settings.total_balance}
             Component={TouchableWithoutFeedback}
@@ -154,17 +173,8 @@ const SettingsPrivacy = () => {
       )}
       <BlueSpacing20 />
 
-      <BlueListItem
-        hideChevron
-        title={loc.settings.privacy_do_not_track}
-        Component={TouchableWithoutFeedback}
-        switch={{ onValueChange: onDoNotTrackValueChange, value: doNotTrackSwitchValue, disabled: isLoading === sections.ALL }}
-      />
-      <BlueCard>
-        <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
-      </BlueCard>
       <BlueSpacing20 />
-      <BlueListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
+      <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
       <BlueSpacing20 />
     </ScrollView>
   );
@@ -174,8 +184,13 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
+  widgetsHeader: {
+    fontWeight: 'bold',
+    fontSize: 30,
+    marginLeft: 17,
+  },
 });
 
-SettingsPrivacy.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.privacy }));
+SettingsPrivacy.navigationOptions = navigationStyle({ headerLargeTitle: true }, opts => ({ ...opts, title: loc.settings.privacy }));
 
 export default SettingsPrivacy;

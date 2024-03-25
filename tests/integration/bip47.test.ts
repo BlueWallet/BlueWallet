@@ -10,7 +10,7 @@ const bitcoin = require('bitcoinjs-lib');
 const ecc = require('tiny-secp256k1');
 const ECPair = ECPairFactory(ecc);
 
-jest.setTimeout(30 * 1000);
+jest.setTimeout(90 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate

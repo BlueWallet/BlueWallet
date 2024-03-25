@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  StatusBar,
   View,
   TouchableOpacity,
   Text,
@@ -12,23 +11,26 @@ import {
   useWindowDimensions,
   findNodeHandle,
   I18nManager,
+  InteractionManager,
 } from 'react-native';
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useIsFocused, useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import presentAlert from '../../components/Alert';
 
-const scanqrHelper = require('../../helpers/scan-qr');
 const A = require('../../blue_modules/analytics');
 const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
@@ -36,10 +38,17 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS'
 const WalletsList = () => {
   const walletsCarousel = useRef();
   const currentWalletIndex = useRef(0);
-  const { wallets, getTransactions, getBalance, refreshAllWalletTransactions, setSelectedWallet, isElectrumDisabled } =
-    useContext(BlueStorageContext);
+  const {
+    wallets,
+    getTransactions,
+    getBalance,
+    refreshAllWalletTransactions,
+    setSelectedWalletID,
+    isElectrumDisabled,
+    setReloadTransactionsMenuActionFunction,
+  } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
-  const { colors, scanImage, barStyle } = useTheme();
+  const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
@@ -66,7 +75,13 @@ const WalletsList = () => {
   useFocusEffect(
     useCallback(() => {
       verifyBalance();
-      setSelectedWallet('');
+      setSelectedWalletID(undefined);
+      InteractionManager.runAfterInteractions(() => {
+        setReloadTransactionsMenuActionFunction(() => onRefresh);
+      });
+      return () => {
+        setReloadTransactionsMenuActionFunction(() => {});
+      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
@@ -76,10 +91,7 @@ const WalletsList = () => {
     if (wallets.length > walletsCount.current) {
       walletsCarousel.current?.scrollToItem({ item: wallets[walletsCount.current] });
     }
-    // wallet has been deleted
-    if (wallets.length < walletsCount.current) {
-      walletsCarousel.current?.scrollToItem({ item: false });
-    }
+
     walletsCount.current = wallets.length;
   }, [wallets]);
 
@@ -93,13 +105,10 @@ const WalletsList = () => {
 
   useLayoutEffect(() => {
     setOptions({
+      navigationBarColor: colors.navigationBarColor,
       headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: colors.customHeader,
-        borderBottomWidth: 0,
-        elevation: 0,
-        shadowOpacity: 0,
-        shadowOffset: { height: 0, width: 0 },
       },
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () =>
@@ -156,7 +165,6 @@ const WalletsList = () => {
       navigate('WalletTransactions', {
         walletID,
         walletType: item.type,
-        key: `WalletTransactions-${walletID}`,
       });
     } else {
       navigate('AddWalletRoot');
@@ -195,7 +203,7 @@ const WalletsList = () => {
     if (wallets.length > 1) {
       navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
 
@@ -268,7 +276,7 @@ const WalletsList = () => {
   const renderScanButton = () => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef}>
+        <FContainer ref={walletActionButtonsRef.current}>
           <FButton
             onPress={onScanButtonPressed}
             onLongPress={sendButtonLongPress}
@@ -287,13 +295,13 @@ const WalletsList = () => {
   };
 
   const onScanButtonPressed = () => {
-    scanqrHelper(navigate, routeName, false).then(onBarScanned);
+    scanQrHelper(navigate, routeName).then(onBarScanned);
   };
 
   const onBarScanned = value => {
     if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-      ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       navigate(...completionValue);
     });
   };
@@ -304,51 +312,43 @@ const WalletsList = () => {
 
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions(
-        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            fs.showImagePickerAndReadImage().then(onBarScanned);
-          } else if (buttonIndex === 2) {
-            scanqrHelper(navigate, routeName, false).then(onBarScanned);
-          } else if (buttonIndex === 3) {
-            copyFromClipboard();
-          }
-        },
-      );
-    } else if (Platform.OS === 'android') {
-      const buttons = [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc.wallets.list_long_choose,
-          onPress: () => fs.showImagePickerAndReadImage().then(onBarScanned),
-        },
-        {
-          text: loc.wallets.list_long_scan,
-          onPress: () => scanqrHelper(navigate, routeName, false).then(onBarScanned),
-        },
-      ];
-      if (!isClipboardEmpty) {
-        buttons.push({
-          text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipboard,
-        });
-      }
-      ActionSheet.showActionSheetWithOptions({
-        title: '',
-        message: '',
-        buttons,
-      });
+
+    const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+    if (!isClipboardEmpty) {
+      options.push(loc.wallets.list_long_clipboard);
     }
+
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.send.header,
+        options,
+        cancelButtonIndex: 0,
+        anchor: findNodeHandle(walletActionButtonsRef.current),
+      },
+      buttonIndex => {
+        switch (buttonIndex) {
+          case 0:
+            break;
+          case 1:
+            fs.showImagePickerAndReadImage()
+              .then(onBarScanned)
+              .catch(error => {
+                console.log(error);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                presentAlert({ title: loc.errors.error, message: error.message });
+              });
+            break;
+          case 2:
+            scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
+            break;
+          case 3:
+            if (!isClipboardEmpty) {
+              copyFromClipboard();
+            }
+            break;
+        }
+      },
+    );
   };
 
   const onLayout = _e => {
@@ -358,17 +358,17 @@ const WalletsList = () => {
   const onRefresh = () => {
     refreshTransactions(true, false);
   };
+  // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
   return (
     <View style={styles.root} onLayout={onLayout}>
-      <StatusBar barStyle={barStyle} backgroundColor="transparent" translucent animated />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList
           removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
-          refreshing={isLoading}
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh })}
+          {...refreshProps}
           renderItem={renderSectionItem}
           keyExtractor={sectionListKeyExtractor}
           renderSectionHeader={renderSectionHeader}

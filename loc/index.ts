@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import { I18nManager } from 'react-native';
-const currency = require('../blue_modules/currency');
+import { satoshiToLocalCurrency } from '../blue_modules/currency';
 
 export const STORAGE_KEY = 'lang';
 
@@ -29,6 +29,10 @@ const setDateTimeLocale = async () => {
     case 'bg_bg':
       lang = 'bg';
       require('dayjs/locale/bg');
+      break;
+    case 'bqi':
+      lang = 'fa';
+      require('dayjs/locale/fa');
       break;
     case 'ca':
       require('dayjs/locale/ca');
@@ -87,6 +91,10 @@ const setDateTimeLocale = async () => {
     case 'ko_kr':
       lang = 'ko';
       require('dayjs/locale/ko');
+      break;
+    case 'lrc':
+      lang = 'fa';
+      require('dayjs/locale/fa');
       break;
     case 'kn':
       require('dayjs/locale/kn');
@@ -203,6 +211,7 @@ const loc = new Localization({
   ar: require('./ar.json'),
   be: require('./be@tarask.json'),
   bg_bg: require('./bg_bg.json'),
+  bqi: require('./bqi.json'),
   ca: require('./ca.json'),
   cy: require('./cy.json'),
   cs_cz: require('./cs_cz.json'),
@@ -222,6 +231,7 @@ const loc = new Localization({
   it: require('./it.json'),
   jp_jp: require('./jp_jp.json'),
   ko_kr: require('./ko_KR.json'),
+  lrc: require('./lrc.json'),
   ms: require('./ms.json'),
   kn: require('./kn.json'),
   ne: require('./ne.json'),
@@ -305,7 +315,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
   } else if (toUnit === BitcoinUnit.SATS) {
     return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(balance);
+    return satoshiToLocalCurrency(balance);
   }
 }
 
@@ -327,7 +337,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
     } else if (toUnit === BitcoinUnit.SATS) {
       return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(balance);
+      return satoshiToLocalCurrency(balance);
     }
   }
   return balance.toString();
@@ -344,7 +354,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return _leaveNumbersAndDots(newInputValue);
+  return _leaveNumbersAndDots(newInputValue.toString());
 }
 
 export function _leaveNumbersAndDots(newInputValue: string) {

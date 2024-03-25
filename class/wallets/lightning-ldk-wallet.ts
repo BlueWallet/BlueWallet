@@ -1,19 +1,24 @@
-import RNFS from 'react-native-fs';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import RnLdk from 'rn-ldk/src/index';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import SyncedAsyncStorage from '../synced-async-storage';
-import { randomBytes } from '../rng';
 import * as bip39 from 'bip39';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import * as bitcoin from 'bitcoinjs-lib';
 import bolt11 from 'bolt11';
+import RNFS from 'react-native-fs';
+import RnLdk from 'rn-ldk/src/index';
+import presentAlert from '../../components/Alert';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { randomBytes } from '../rng';
+import SyncedAsyncStorage from '../synced-async-storage';
+import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import { SegwitBech32Wallet } from './segwit-bech32-wallet';
-import alert from '../../components/Alert';
-const bitcoin = require('bitcoinjs-lib');
 
 export class LightningLdkWallet extends LightningCustodianWallet {
-  static type = 'lightningLdk';
-  static typeReadable = 'Lightning LDK';
+  static readonly type = 'lightningLdk';
+  static readonly typeReadable = 'Lightning LDK';
+  // @ts-ignore: override
+  public readonly type = LightningLdkWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = LightningLdkWallet.typeReadable;
+
   private _listChannels: any[] = [];
   private _listPayments: any[] = [];
   private _listInvoices: any[] = [];
@@ -44,8 +49,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return pubkeyHex;
   }
 
-  constructor(props: any) {
-    super(props);
+  constructor() {
+    super();
     this.preferredBalanceUnit = BitcoinUnit.SATS;
     this.chain = Chain.OFFCHAIN;
     this.user_invoices_raw = []; // compatibility with other lightning wallet class
@@ -202,8 +207,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     }
   }
 
-  getAddress() {
-    return undefined;
+  getAddress(): string | false {
+    return false;
   }
 
   getSecret() {
@@ -273,7 +278,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       this._execInBackground(this.reestablishChannels);
       if (this.timeToCheckBlockchain()) this._execInBackground(this.checkBlockchain);
     } catch (error: any) {
-      alert('LDK init error: ' + error.message);
+      presentAlert({ message: 'LDK init error: ' + error.message });
     }
   }
 
@@ -366,12 +371,12 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     }
   }
 
-  async getUserInvoices(limit = false) {
+  async getUserInvoices(limit: number | false = false) {
     const newInvoices: any[] = [];
     let found = false;
 
-    // okay, so the idea is that `this._listInvoices` is a persistant storage of invoices, while
-    // `RnLdk.receivedPayments` is only a temp storage of emited events
+    // okay, so the idea is that `this._listInvoices` is a persistent storage of invoices, while
+    // `RnLdk.receivedPayments` is only a temp storage of emitted events
 
     // we iterate through all stored invoices
     for (const invoice of this._listInvoices) {
@@ -433,7 +438,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     return paymentRequest;
   }
 
-  async getAddressAsync() {
+  async getAddressAsync(): Promise<string> {
     throw new Error('getAddressAsync: Not implemented');
   }
 
@@ -563,7 +568,8 @@ export class LightningLdkWallet extends LightningCustodianWallet {
     console.log('fetching balance...');
     await wallet.fetchUtxo();
     console.log(wallet.getBalance(), wallet.getUtxo());
-    console.log('creating transation...');
+    console.log('creating transaction...');
+    // @ts-ignore wtf wallet.getUtxo() and first arg of createTransaction are not compatible
     const { tx } = wallet.createTransaction(wallet.getUtxo(), [{ address }], 2, address, 0, false, 0);
     if (!tx) throw new Error('claimCoins: could not create transaction');
     console.log('broadcasting...');
@@ -684,7 +690,7 @@ export class LightningLdkWallet extends LightningCustodianWallet {
       try {
         await func.call(that);
       } catch (error: any) {
-        alert('_execInBackground error:' + error.message);
+        presentAlert({ message: '_execInBackground error:' + error.message });
       }
     })();
   }

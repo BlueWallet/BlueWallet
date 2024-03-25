@@ -88,13 +88,13 @@ describe('HDSegwitBech32Transaction', () => {
         {
           vout: 1,
           value: 108150,
-          txId: 'f3d7fb23248168c977e8085b6bd5381d73c85da423056a47cbf734b5665615f1',
+          txid: 'f3d7fb23248168c977e8085b6bd5381d73c85da423056a47cbf734b5665615f1',
           address: 'bc1qahhgjtxexjx9t0e5pjzqwtjnxexzl6f5an38hq',
         },
         {
           vout: 0,
           value: 200000,
-          txId: '89bcff166c39b3831e03257d4bcc1034dd52c18af46a3eb459e72e692a88a2d8',
+          txid: '89bcff166c39b3831e03257d4bcc1034dd52c18af46a3eb459e72e692a88a2d8',
           address: 'bc1qvh44cwd2v7zld8ef9ld5rs5zafmejuslp6yd73',
         },
       ]),
@@ -177,7 +177,7 @@ describe('HDSegwitBech32Transaction', () => {
         {
           vout: 0,
           value: 200000,
-          txId: '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f',
+          txid: '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f',
           address: 'bc1qvlmgrq0gtatanmas0tswrsknllvupq2g844ss2',
         },
       ]),

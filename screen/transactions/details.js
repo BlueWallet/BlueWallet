@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet, Keyboard } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -8,7 +8,9 @@ import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -112,28 +114,34 @@ const TransactionsDetails = () => {
   const handleOnSaveButtonTapped = () => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
-    saveToDisk().then(_success => alert(loc.transactions.transaction_note_saved));
+    saveToDisk().then(_success => {
+      triggerHapticFeedback(HapticFeedbackTypes.Success);
+      presentAlert({ message: loc.transactions.transaction_note_saved });
+    });
   };
 
-  const handleOnOpenTransactionOnBlockExporerTapped = () => {
+  const handleOnOpenTransactionOnBlockExplorerTapped = () => {
     const url = `https://mempool.space/tx/${tx.hash}`;
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported) {
           Linking.openURL(url).catch(e => {
-            console.log('openURL failed in handleOnOpenTransactionOnBlockExporerTapped');
+            console.log('openURL failed in handleOnOpenTransactionOnBlockExplorerTapped');
             console.log(e.message);
-            alert(e.message);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            presentAlert({ message: e.message });
           });
         } else {
-          console.log('canOpenURL supported is false in handleOnOpenTransactionOnBlockExporerTapped');
-          alert(loc.transactions.open_url_error);
+          console.log('canOpenURL supported is false in handleOnOpenTransactionOnBlockExplorerTapped');
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          presentAlert({ message: loc.transactions.open_url_error });
         }
       })
       .catch(e => {
-        console.log('canOpenURL failed in handleOnOpenTransactionOnBlockExporerTapped');
+        console.log('canOpenURL failed in handleOnOpenTransactionOnBlockExplorerTapped');
         console.log(e.message);
-        alert(e.message);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: e.message });
       });
   };
 
@@ -161,7 +169,6 @@ const TransactionsDetails = () => {
     navigate('WalletTransactions', {
       walletID,
       walletType: wallet.type,
-      key: `WalletTransactions-${walletID}`,
     });
   };
 
@@ -217,7 +224,6 @@ const TransactionsDetails = () => {
         type={HandoffComponent.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
-      <StatusBar barStyle="default" />
       <BlueCard>
         <View>
           <TextInput
@@ -263,7 +269,7 @@ const TransactionsDetails = () => {
         {tx.hash && (
           <>
             <View style={styles.rowHeader}>
-              <BlueText style={[styles.txId, stylesHooks.txId]}>{loc.transactions.txid}</BlueText>
+              <BlueText style={styles.txid}>{loc.transactions.txid}</BlueText>
               <BlueCopyToClipboardButton stringToCopy={tx.hash} />
             </View>
             <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
@@ -312,11 +318,10 @@ const TransactionsDetails = () => {
             },
           ]}
           onPressMenuItem={handleCopyPress}
-          onPress={handleOnOpenTransactionOnBlockExporerTapped}
+          onPress={handleOnOpenTransactionOnBlockExplorerTapped}
+          buttonStyle={[styles.greyButton, stylesHooks.greyButton]}
         >
-          <View style={[styles.greyButton, stylesHooks.greyButton]}>
-            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
-          </View>
+          <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
         </ToolTipMenu>
       </BlueCard>
     </ScrollView>
@@ -360,7 +365,7 @@ const styles = StyleSheet.create({
   marginBottom18: {
     marginBottom: 18,
   },
-  txId: {
+  txid: {
     fontSize: 16,
     fontWeight: '500',
   },
@@ -412,12 +417,9 @@ export default TransactionsDetails;
 TransactionsDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerStyle: {
       backgroundColor: theme.colors.customHeader,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      shadowOffset: { height: 0, width: 0 },
     },
   };
 });

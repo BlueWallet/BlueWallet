@@ -3,15 +3,13 @@ import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } 
 import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useTheme } from '@react-navigation/native';
-
+import { useNavigation } from '@react-navigation/native';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import * as NavigationService from '../NavigationService';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import Lnurl from '../class/lnurl';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
-import { BlueListItem } from '../BlueComponents';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
 import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
 import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
@@ -19,6 +17,8 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
+import { useTheme } from './themes';
+import ListItem from './ListItem';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
@@ -323,7 +323,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   return (
     <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
-        <BlueListItem
+        <ListItem
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}

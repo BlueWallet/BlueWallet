@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -17,15 +16,14 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { BlueButton, BlueDismissKeyboardInputAccessory, BlueListItem, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
 import { navigationStyleTx } from '../../components/navigationStyle';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -41,14 +39,19 @@ import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
-const currency = require('../../blue_modules/currency');
+import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import presentAlert from '../../components/Alert';
 const prompt = require('../../helpers/prompt');
 const fs = require('../../blue_modules/fs');
-const scanqr = require('../../helpers/scan-qr');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWallet, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useNavigation();
   const { name, params: routeParams } = useRoute();
   const scrollView = useRef();
@@ -78,7 +81,7 @@ const SendDetails = () => {
   const [payjoinUrl, setPayjoinUrl] = useState(null);
   const [changeAddress, setChangeAddress] = useState();
   const [dumb, setDumb] = useState(false);
-  const { isEditable = true } = routeParams;
+  const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
   const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
@@ -143,12 +146,12 @@ const SendDetails = () => {
             currentAddress.address = address;
             if (Number(amount) > 0) {
               currentAddress.amount = amount;
-              currentAddress.amountSats = currency.btcToSatoshi(amount);
+              currentAddress.amountSats = btcToSatoshi(amount);
             }
             addrs[scrollIndex.current] = currentAddress;
             return [...addrs];
           } else {
-            return [...addrs, { address, amount, amountSats: currency.btcToSatoshi(amount), key: String(Math.random()) }];
+            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount), key: String(Math.random()) }];
           }
         });
 
@@ -159,7 +162,7 @@ const SendDetails = () => {
         setPayjoinUrl(pjUrl);
       } catch (error) {
         console.log(error);
-        Alert.alert(loc.errors.error, loc.send.details_error_decode);
+        presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
     } else if (routeParams.address) {
       const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
@@ -189,7 +192,7 @@ const SendDetails = () => {
     // check if we have a suitable wallet
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
     if (suitable.length === 0) {
-      Alert.alert(loc.errors.error, loc.send.details_wallet_before_tx);
+      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
       navigation.goBack();
       return;
     }
@@ -229,7 +232,7 @@ const SendDetails = () => {
   // change header and reset state on wallet change
   useEffect(() => {
     if (!wallet) return;
-    setSelectedWallet(wallet.getID());
+    setSelectedWalletID(wallet.getID());
 
     // reset other values
     setUtxo(null);
@@ -283,8 +286,8 @@ const SendDetails = () => {
         if (value > 0) {
           targets.push({ address: transaction.address, value });
         } else if (transaction.amount) {
-          if (currency.btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+          if (btcToSatoshi(transaction.amount) > 0) {
+            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
           }
         }
       }
@@ -393,7 +396,7 @@ const SendDetails = () => {
     if (!data.replace) {
       // user probably scanned PSBT and got an object instead of string..?
       setIsLoading(false);
-      return Alert.alert(loc.errors.error, loc.send.details_address_field_is_not_valid);
+      return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
     }
 
     const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
@@ -483,8 +486,8 @@ const SendDetails = () => {
       if (error) {
         scrollView.current.scrollToIndex({ index });
         setIsLoading(false);
-        Alert.alert(loc.errors.error, error);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        presentAlert({ title: loc.errors.error, message: error });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         return;
       }
     }
@@ -493,8 +496,8 @@ const SendDetails = () => {
       await createPsbtTransaction();
     } catch (Err) {
       setIsLoading(false);
-      Alert.alert(loc.errors.error, Err.message);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      presentAlert({ title: loc.errors.error, message: Err.message });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
   };
 
@@ -515,8 +518,8 @@ const SendDetails = () => {
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
-        if (currency.btcToSatoshi(transaction.amount) > 0) {
-          targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+        if (btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
         }
       }
     }
@@ -598,25 +601,26 @@ const SendDetails = () => {
    */
   const importQrTransaction = () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert(loc.errors.error, 'Error: importing transaction in non-watchonly wallet (this should never happen)');
+      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
     setOptionsVisible(false);
-
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned: importQrTransactionOnBarScanned,
-        showFileImportButton: false,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned: importQrTransactionOnBarScanned,
+          showFileImportButton: false,
+        },
+      });
     });
   };
 
   const importQrTransactionOnBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -646,7 +650,7 @@ const SendDetails = () => {
    */
   const importTransaction = async () => {
     if (wallet.type !== WatchOnlyWallet.type) {
-      return Alert.alert(loc.errors.error, 'Importing transaction in non-watchonly wallet (this should never happen)');
+      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
     try {
@@ -689,10 +693,10 @@ const SendDetails = () => {
         return;
       }
 
-      Alert.alert(loc.errors.error, loc.send.details_unrecognized_file_format);
+      presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        Alert.alert(loc.errors.error, loc.send.details_no_signed_tx);
+        presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
   };
@@ -739,7 +743,7 @@ const SendDetails = () => {
         walletID: wallet.getID(),
       });
     } catch (error) {
-      Alert.alert(loc.send.problem_with_psbt, error.message);
+      presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
     }
     setIsLoading(false);
     setOptionsVisible(false);
@@ -750,10 +754,10 @@ const SendDetails = () => {
   };
 
   const onBarScanned = ret => {
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      Alert.alert(loc.errors.error, 'BC-UR not decoded. This should never happen');
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
@@ -765,12 +769,14 @@ const SendDetails = () => {
 
   const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        onBarScanned,
-        showFileImportButton: true,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      });
     });
   };
 
@@ -809,7 +815,7 @@ const SendDetails = () => {
     setIsLoading(true);
     setOptionsVisible(false);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
-    const scannedData = await scanqr(navigation.navigate, name);
+    const scannedData = await scanQrHelper(navigation.navigate, name);
     if (!scannedData) return setIsLoading(false);
 
     let tx;
@@ -818,7 +824,7 @@ const SendDetails = () => {
       psbt = bitcoin.Psbt.fromBase64(scannedData);
       tx = wallet.cosignPsbt(psbt).tx;
     } catch (e) {
-      Alert.alert(loc.errors.error, e.message);
+      presentAlert({ title: loc.errors.error, message: e.message });
       return;
     } finally {
       setIsLoading(false);
@@ -996,7 +1002,7 @@ const SendDetails = () => {
   };
 
   const onUseAllPressed = () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning');
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
       loc.send.details_adv_full,
@@ -1199,78 +1205,53 @@ const SendDetails = () => {
         <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
             {isEditable && (
-              <BlueListItem
+              <ListItem
                 testID="sendMaxButton"
                 disabled={balance === 0 || isSendMaxUsed}
                 title={loc.send.details_adv_full}
                 hideChevron
-                component={TouchableOpacity}
                 onPress={onUseAllPressed}
               />
             )}
             {wallet.type === HDSegwitBech32Wallet.type && isEditable && (
-              <BlueListItem
+              <ListItem
                 title={loc.send.details_adv_fee_bump}
                 Component={TouchableWithoutFeedback}
                 switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
               />
             )}
             {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <BlueListItem title={loc.send.details_adv_import} hideChevron component={TouchableOpacity} onPress={importTransaction} />
+              <ListItem title={loc.send.details_adv_import} hideChevron component={TouchableOpacity} onPress={importTransaction} />
             )}
             {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <BlueListItem
+              <ListItem
                 testID="ImportQrTransactionButton"
                 title={loc.send.details_adv_import_qr}
                 hideChevron
-                component={TouchableOpacity}
                 onPress={importQrTransaction}
               />
             )}
             {wallet.type === MultisigHDWallet.type && isEditable && (
-              <BlueListItem
-                title={loc.send.details_adv_import}
-                hideChevron
-                component={TouchableOpacity}
-                onPress={importTransactionMultisig}
-              />
+              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransactionMultisig} />
             )}
             {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-              <BlueListItem
-                title={loc.multisig.co_sign_transaction}
-                hideChevron
-                component={TouchableOpacity}
-                onPress={importTransactionMultisigScanQr}
-              />
+              <ListItem title={loc.multisig.co_sign_transaction} hideChevron onPress={importTransactionMultisigScanQr} />
             )}
             {isEditable && (
               <>
-                <BlueListItem
-                  testID="AddRecipient"
-                  title={loc.send.details_add_rec_add}
-                  hideChevron
-                  component={TouchableOpacity}
-                  onPress={handleAddRecipient}
-                />
-                <BlueListItem
+                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} hideChevron onPress={handleAddRecipient} />
+                <ListItem
                   testID="RemoveRecipient"
                   title={loc.send.details_add_rec_rem}
                   hideChevron
                   disabled={addresses.length < 2}
-                  component={TouchableOpacity}
                   onPress={handleRemoveRecipient}
                 />
               </>
             )}
-            <BlueListItem testID="CoinControl" title={loc.cc.header} hideChevron component={TouchableOpacity} onPress={handleCoinControl} />
+            <ListItem testID="CoinControl" title={loc.cc.header} hideChevron onPress={handleCoinControl} />
             {wallet.allowCosignPsbt() && isEditable && (
-              <BlueListItem
-                testID="PsbtSign"
-                title={loc.send.psbt_sign}
-                hideChevron
-                component={TouchableOpacity}
-                onPress={handlePsbtSign}
-              />
+              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} hideChevron onPress={handlePsbtSign} />
             )}
           </View>
         </KeyboardAvoidingView>
@@ -1284,7 +1265,7 @@ const SendDetails = () => {
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <Button onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -1349,11 +1330,11 @@ const SendDetails = () => {
                   addr.amountSats = parseInt(addr.amount, 10);
                   break;
                 case BitcoinUnit.BTC:
-                  addr.amountSats = currency.btcToSatoshi(addr.amount);
+                  addr.amountSats = btcToSatoshi(addr.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   // also accounting for cached fiat->sat conversion to avoid rounding error
-                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || currency.btcToSatoshi(currency.fiatToBTC(addr.amount));
+                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(addr.amount));
                   break;
               }
 
@@ -1370,10 +1351,10 @@ const SendDetails = () => {
               item.amount = text;
               switch (units[index] || amountUnit) {
                 case BitcoinUnit.BTC:
-                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  item.amountSats = btcToSatoshi(item.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
-                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  item.amountSats = btcToSatoshi(fiatToBTC(item.amount));
                   break;
                 case BitcoinUnit.SATS:
                 default:
@@ -1436,7 +1417,6 @@ const SendDetails = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        <StatusBar barStyle="light-content" />
         <View>
           <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
             <FlatList
@@ -1678,4 +1658,7 @@ const styles = StyleSheet.create({
 SendDetails.navigationOptions = navigationStyleTx({}, options => ({
   ...options,
   title: loc.send.header,
+  statusBarStyle: 'light',
 }));
+
+SendDetails.initialParams = { isEditable: true };

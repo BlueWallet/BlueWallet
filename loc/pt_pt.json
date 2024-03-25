@@ -5,7 +5,6 @@
     "continue": "Continuar",
     "enter_password": "Inserir password",
     "never": "nunca",
-    "disabled": "Desativado",
     "of": "6\n{number} de {total}",
     "ok": "OK",
     "storage_is_encrypted": "O armazenamento está encriptado. Uma password é necessária para desencriptar.",
@@ -15,8 +14,6 @@
     "seed": "Seed",
     "success": "Sucesso",
     "wallet_key": "Chave da carteira",
-    "invalid_animated_qr_code_fragment": "Fragmento de QRCode animado inválido. Por favor, tente novamente.",
-    "downloads_folder": "Pasta de downloads",
     "close": "Fechar",
     "more": "Mais",
     "pick_file": "Escolha um ficheiro",
@@ -46,7 +43,6 @@
   },
   "lnd": {
     "new_channel": "Novo canal",
-    "errorInvoiceExpired": "Factura expirada",
     "expired": "Expirado",
     "expiresIn": "Expira em {time} minutos",
     "payButton": "Paga",
@@ -58,6 +54,7 @@
     "refill_create": "Para continuar, crie uma carteira Bitcoin para recarregar.",
     "refill_external": "Recarregar com carteira externa",
     "refill_lnd_balance": "Carregar o saldo da Lightning wallet",
+    "sameWalletAsInvoiceError": "Não pode pagar uma factura com a mesma wallet usada para a criar.",
     "title": "Gerir saldo"
   },
   "lndViewInvoice": {
@@ -67,7 +64,6 @@
     "open_direct_channel": "Abrir canal directo com este nó:",
     "please_pay_between_and": "Por favor pague entre {min} e {max}",
     "please_pay": "Por favor pague",
-    "preimage": "Preimage",
     "sats": "sats",
     "wasnt_paid_and_expired": "Esta factura não foi paga e expirou"
   },
@@ -85,12 +81,9 @@
   },
   "pleasebackup": {
     "ask": "Salvou a frase de backup da sua carteira? Esta frase de backup é necessária para pode ter acesso aos fundos em caso de perder este dispositivo. Sem a frase de backup, os fundos serão perdidos permanentemente.",
-    "ask_no": "Não, eu não tenho",
-    "ask_yes": "Sim, eu fiz",
-    "ok": "OK, eu anotei",
-    "ok_lnd": "OK, eu guardei",
+    "ok_lnd": "Ok, eu guardei.",
     "text_lnd": "Por favor, reserve um momento para guardar este backup. É o seu backup que lhe permite restaurar a carteira em outro dispositivo.",
-    "title": "A sua carteira foi criada"
+    "title": "A sua wallet foi criada..."
   },
   "receive": {
     "details_create": "Criar",
@@ -155,7 +148,6 @@
     "permission_camera_message": "Precisamos da sua permissão para usar a sua câmera",
     "psbt_sign": "Assinar transação",
     "open_settings": "Abrir configurações",
-    "permission_storage_later": "Perguntar mais tarde",
     "permission_storage_message": "A BlueWallet precisa da sua permissão para aceder ao seu armazenamento para guardar esta transação.",
     "permission_storage_denied_message": "A BlueWallet não conseguiu gravar este ficheiro. Por favor aceda às definições do seu dispositivo e habilite as permissões de armazenamento.",
     "permission_storage_title": "Permissão de acesso ao armazenamento",
@@ -195,7 +187,6 @@
     "default_wallets": "Ver todas as carteiras",
     "electrum_connected": "Conectado",
     "electrum_connected_not": "Desconectado",
-    "electrum_error_connect": "Não é possível conectar ao servidor Electrum fornecido",
     "use_ssl": "Usar SSL",
     "electrum_saved": "As alterações foram guardadas com sucesso. Pode ser necessário reiniciar para que as alterações tenham efeito.",
     "set_electrum_server_as_default": "Definir {server} como servidor Electrum predefinido?",
@@ -231,7 +222,6 @@
     "lightning_error_lndhub_uri": "URI de LNDHub inválido",
     "lightning_saved": "As alterações foram guardadas com sucesso",
     "lightning_settings": "Definições de Lightning",
-    "tor_settings": "Definições de Tor",
     "network": "Rede",
     "network_broadcast": "Transmitir transação",
     "network_electrum": "Electrum server",
@@ -245,21 +235,17 @@
     "privacy": "Privacidade",
     "privacy_system_settings": "Configurações do Sistema",
     "privacy_quickactions": "Atalhos da Carteira",
-    "privacy_quickactions_explanation": "Toque e mantenha pressionado o ícone da aplicação BlueWallet no ecrã inicial para ver rapidamente o saldo da sua carteira.",
     "push_notifications": "Notificações via push",
     "retype_password": "Inserir password novamente",
     "save": "Guardar",
     "saved": "Guardado",
-    "success_transaction_broadcasted": "Sucesso! A sua transação foi transmitida!",
     "total_balance": "Saldo Total",
     "total_balance_explanation": "Mostrar o saldo total de todas as suas carteiras nos widgets do ecrã inicial.",
     "widgets": "Widgets",
     "tools": "Ferramentas"
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "Você gostaria de receber notificações quando você receber pagamentos?",
-    "no_and_dont_ask": "Não, e não perguntar novamente",
-    "ask_me_later": "Pergunte-me depois"
+    "would_you_like_to_receive_notifications": "Você gostaria de receber notificações quando você receber pagamentos?"
   },
   "transactions": {
     "cancel_no": "Esta transacção não é substituível",
@@ -323,7 +309,6 @@
     "details_advanced": "Avançado",
     "details_are_you_sure": "Tem a certeza?",
     "details_connected_to": "Conectado a",
-    "details_del_wb_err": "O valor do saldo fornecido não corresponde ao saldo desta carteira. Por favor, tente novamente",
     "details_del_wb_q": "Esta carteira tem saldo. Antes de continuar, tenha em atenção que não poderá recuperar os fundos sem as palavras-semente desta carteira. Para evitar uma remoção acidental, introduza o saldo da sua carteira de {balance} satoshis.",
     "details_delete": "Eliminar",
     "details_delete_wallet": "Remover carteira",

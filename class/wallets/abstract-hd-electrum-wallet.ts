@@ -1,27 +1,24 @@
 /* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
-import * as bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
-import b58 from 'bs58check';
-import BIP32Factory, { BIP32Interface } from 'bip32';
-
-import { ECPairInterface } from 'ecpair/src/ecpair';
-import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
-import ecc from '../../blue_modules/noble_ecc';
-
 import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
+import BigNumber from 'bignumber.js';
+import BIP32Factory, { BIP32Interface } from 'bip32';
+import * as bip39 from 'bip39';
+import * as bitcoin from 'bitcoinjs-lib';
+import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
+import b58 from 'bs58check';
+import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
+import { ECPairInterface } from 'ecpair/src/ecpair';
 
+import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
+import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
+import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
-import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
 
 const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
-const reverse = require('buffer-reverse');
 const bip32 = BIP32Factory(ecc);
 const bip47 = BIP47Factory(ecc);
 
@@ -34,10 +31,14 @@ type BalanceByIndex = {
  * Electrum - means that it utilizes Electrum protocol for blockchain data
  */
 export class AbstractHDElectrumWallet extends AbstractHDWallet {
-  static type = 'abstract';
-  static typeReadable = 'abstract';
+  static readonly type = 'abstract';
+  static readonly typeReadable = 'abstract';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
   static finalRBFSequence = 4294967295; // 0xFFFFFFFF
+  // @ts-ignore: override
+  public readonly type = AbstractHDElectrumWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = AbstractHDElectrumWallet.typeReadable;
 
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;
@@ -325,7 +326,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const vinTxids = [];
     for (const txdata of Object.values(txdatas)) {
       for (const vin of txdata.vin) {
-        vinTxids.push(vin.txid);
+        vin.txid && vinTxids.push(vin.txid);
+        // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
       }
     }
     const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
@@ -857,7 +859,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._lastBalanceFetch = +new Date();
   }
 
-  async fetchUtxo() {
+  async fetchUtxo(): Promise<void> {
     // fetching utxo of addresses that only have some balance
     let addressess = [];
 
@@ -913,17 +915,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       this._utxo = this._utxo.concat(arr);
     }
 
-    // backward compatibility TODO: remove when we make sure `.utxo` is not used
-    this.utxo = this._utxo;
     // this belongs in `.getUtxo()`
-    for (const u of this.utxo) {
-      u.txid = u.txId;
-      u.amount = u.value;
+    for (const u of this._utxo) {
       u.wif = this._getWifForAddress(u.address);
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
     }
 
-    this.utxo = this.utxo.sort((a, b) => Number(a.amount) - Number(b.amount));
+    this._utxo = this._utxo.sort((a, b) => Number(a.value) - Number(b.value));
     // more consistent, so txhex in unit tests wont change
   }
 
@@ -932,10 +930,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    *     [ { height: 0,
    *    value: 666,
    *    address: 'string',
-   *    txId: 'string',
    *    vout: 1,
    *    txid: 'string',
-   *    amount: 666,
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
@@ -984,11 +980,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
-            txId: tx.txid,
             vout: output.n,
             address: String(address),
             value,
-            amount: value,
             confirmations: tx.confirmations,
             wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
@@ -1104,7 +1098,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String}>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address
@@ -1168,7 +1162,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -1194,7 +1188,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
         if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
         const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
-        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+        masterFingerprintBuffer = Buffer.from(hexBuffer).reverse();
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -1242,10 +1236,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       throw new Error('Internal error: pubkey or path are invalid');
     }
     const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    if (!p2wpkh.output) {
+      throw new Error('Internal error: could not create p2wpkh output during _addPsbtInput');
+    }
 
     psbt.addInput({
-      // @ts-ignore
-      hash: input.txid || input.txId,
+      hash: input.txid,
       index: input.vout,
       sequence,
       bip32Derivation: [
@@ -1292,15 +1288,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * Creates Segwit Bech32 Bitcoin address
    */
   _nodeToBech32SegwitAddress(hdNode: BIP32Interface): string {
-    return bitcoin.payments.p2wpkh({
+    const { address } = bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
-    }).address;
+    });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToBech32SegwitAddress');
+    }
+
+    return address;
   }
 
   _nodeToLegacyAddress(hdNode: BIP32Interface): string {
-    return bitcoin.payments.p2pkh({
+    const { address } = bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
-    }).address;
+    });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToLegacyAddress');
+    }
+
+    return address;
   }
 
   /**
@@ -1310,6 +1318,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const { address } = bitcoin.payments.p2sh({
       redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
     });
+
+    if (!address) {
+      throw new Error('Could not create address in _nodeToP2shSegwitAddress');
+    }
+
     return address;
   }
 
@@ -1427,7 +1440,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   /**
    * @param seed {Buffer} Buffer object with seed
-   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has lenght of 8 chars and correct leading zeroes. All caps
+   * @returns {string} Hex string of fingerprint derived from mnemonics. Always has length of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed: Buffer) {
     const root = bip32.fromSeed(seed);
@@ -1440,13 +1453,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param mnemonic {string}  Mnemonic phrase (12 or 24 words)
    * @returns {string} Hex fingerprint
    */
-  static mnemonicToFingerprint(mnemonic: string, passphrase: string) {
+  static mnemonicToFingerprint(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return AbstractHDElectrumWallet.seedToFingerprint(seed);
   }
 
   /**
-   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has lenght of 8 chars and correct leading zeroes
+   * @returns {string} Hex string of fingerprint derived from wallet mnemonics. Always has length of 8 chars and correct leading zeroes
    */
   getMasterFingerprintHex() {
     const seed = this._getSeed();

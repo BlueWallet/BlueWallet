@@ -1,5 +1,4 @@
 # script thats used to build & sign release APK in preparation for Detox e2e testing.
-# should be copied in .detoxrc.json - apps - android.release - build
 
 # deleting old artifacts
 find android | grep '\.apk' --color=never | xargs -l rm
@@ -12,6 +11,8 @@ keytool -genkeypair -v -keystore detox.keystore -alias detox  -keyalg RSA -keysi
 cd android && ./gradlew assembleRelease assembleAndroidTest -DtestBuildType=release && cd ..
 
 # signing
+echo wheres waldo?
+find $ANDROID_HOME | grep apksigner | grep -v jar
 mv ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./android/app/build/outputs/apk/release/app-release.apk
-$ANDROID_HOME/build-tools/30.0.2/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/release/app-release.apk
-$ANDROID_HOME/build-tools/30.0.2/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+$ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/release/app-release.apk
+$ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks detox.keystore   --ks-pass=pass:123456 ./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk

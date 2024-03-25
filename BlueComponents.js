@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Text, Header, ListItem, Avatar } from 'react-native-elements';
+import { Icon, Text, Header } from 'react-native-elements';
 import {
   ActivityIndicator,
   Alert,
@@ -12,22 +12,23 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
-  Switch,
   TextInput,
   TouchableOpacity,
   View,
   I18nManager,
   ImageBackground,
+  findNodeHandle,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTheme } from '@react-navigation/native';
-import { BlueCurrentTheme } from './components/themes';
+import { BlueCurrentTheme, useTheme } from './components/themes';
 import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
+import SafeArea from './components/SafeArea';
+import { isDesktop } from './blue_modules/environment';
+import ActionSheet from './screen/ActionSheet';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -37,78 +38,6 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
-
-export const BlueButton = props => {
-  const { colors } = useTheme();
-
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.mainColor || BlueCurrentTheme.colors.mainColor;
-  let fontColor = props.buttonTextColor || colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  return (
-    <TouchableOpacity
-      style={{
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        flexGrow: 1,
-      }}
-      accessibilityRole="button"
-      {...props}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor, fontWeight: '500' }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-export const SecondButton = forwardRef((props, ref) => {
-  const { colors } = useTheme();
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonBlueBackgroundColor;
-  let fontColor = colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      style={{
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        flexGrow: 1,
-      }}
-      {...props}
-      ref={ref}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-});
 
 export const BitcoinButton = props => {
   const { colors } = useTheme();
@@ -267,16 +196,37 @@ export const BlueButtonLink = forwardRef((props, ref) => {
   );
 });
 
-export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
-  Alert.alert(
-    loc.wallets.details_title,
-    loc.pleasebackup.ask,
-    [
-      { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
-      { text: loc.pleasebackup.ask_no, onPress: onFailure },
-    ],
-    { cancelable: false },
-  );
+export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure, anchor }) => {
+  if (isDesktop) {
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.wallets.details_title, // Changed from loc.send.header to loc.wallets.details_title
+        message: loc.pleasebackup.ask,
+        options: [loc.pleasebackup.ask_yes, loc.pleasebackup.ask_no],
+        anchor: findNodeHandle(anchor), // Kept the same for context
+      },
+      buttonIndex => {
+        switch (buttonIndex) {
+          case 0:
+            onSuccess(); // Assuming the first button (yes) triggers onSuccess
+            break;
+          case 1:
+            onFailure(); // Assuming the second button (no) triggers onFailure
+            break;
+        }
+      },
+    );
+  } else {
+    Alert.alert(
+      loc.wallets.details_title,
+      loc.pleasebackup.ask,
+      [
+        { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
+        { text: loc.pleasebackup.ask_no, onPress: onFailure },
+      ],
+      { cancelable: false },
+    );
+  }
 };
 
 export const BluePrivateBalance = () => {
@@ -365,13 +315,6 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-export const SafeBlueArea = props => {
-  const { style, ...nonStyleProps } = props;
-  const { colors } = useTheme();
-  const baseStyle = { flex: 1, backgroundColor: colors.background };
-  return <SafeAreaView forceInset={{ horizontal: 'always' }} style={[baseStyle, style]} {...nonStyleProps} />;
-};
-
 export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;
 };
@@ -386,73 +329,6 @@ export const BlueTextCentered = props => {
   const { colors } = useTheme();
   return <Text {...props} style={{ color: colors.foregroundColor, textAlign: 'center' }} />;
 };
-
-export const BlueListItem = React.memo(props => {
-  const { colors } = useTheme();
-
-  return (
-    <ListItem
-      containerStyle={props.containerStyle ?? { backgroundColor: 'transparent' }}
-      Component={props.Component ?? TouchableOpacity}
-      bottomDivider={props.bottomDivider !== undefined ? props.bottomDivider : true}
-      topDivider={props.topDivider !== undefined ? props.topDivider : false}
-      testID={props.testID}
-      onPress={props.onPress}
-      onLongPress={props.onLongPress}
-      disabled={props.disabled}
-      accessible={props.switch === undefined}
-    >
-      {props.leftAvatar && <Avatar>{props.leftAvatar}</Avatar>}
-      {props.leftIcon && <Avatar icon={props.leftIcon} />}
-      <ListItem.Content>
-        <ListItem.Title
-          style={{
-            color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
-            fontSize: 16,
-            fontWeight: '500',
-            writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-          }}
-          numberOfLines={0}
-          accessible={props.switch === undefined}
-        >
-          {props.title}
-        </ListItem.Title>
-        {props.subtitle && (
-          <ListItem.Subtitle
-            numberOfLines={props.subtitleNumberOfLines ?? 1}
-            accessible={props.switch === undefined}
-            style={{
-              flexWrap: 'wrap',
-              writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-              color: colors.alternativeTextColor,
-              fontWeight: '400',
-              fontSize: 14,
-            }}
-          >
-            {props.subtitle}
-          </ListItem.Subtitle>
-        )}
-      </ListItem.Content>
-      {props.rightTitle && (
-        <ListItem.Content right>
-          <ListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
-            {props.rightTitle}
-          </ListItem.Title>
-        </ListItem.Content>
-      )}
-      {props.isLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <>
-          {props.chevron && <ListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
-          {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...props.switch} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
-          {props.checkmark && <ListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
-        </>
-      )}
-    </ListItem>
-  );
-});
 
 export const BlueFormLabel = props => {
   const { colors } = useTheme();
@@ -507,7 +383,7 @@ export const BlueHeaderDefaultSub = props => {
   const { colors } = useTheme();
 
   return (
-    <SafeAreaView>
+    <SafeArea>
       <Header
         backgroundColor={colors.background}
         leftContainerStyle={{ minWidth: '100%' }}
@@ -529,7 +405,7 @@ export const BlueHeaderDefaultSub = props => {
         }
         {...props}
       />
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
@@ -559,12 +435,7 @@ export const BlueHeaderDefaultMain = props => {
       >
         {props.leftText}
       </Text>
-      <PlusIcon
-        accessibilityRole="button"
-        accessibilityLabel={loc.wallets.add_title}
-        onPress={props.onNewWalletPress}
-        Component={TouchableOpacity}
-      />
+      <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={props.onNewWalletPress} />
     </View>
   );
 };

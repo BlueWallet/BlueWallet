@@ -1,17 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueButton, BlueCard, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 const bitcoin = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
-const currency = require('../../blue_modules/currency');
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
@@ -78,7 +81,7 @@ const PsbtMultisig = () => {
   }
   destination = shortenAddress(destination.join(', '));
   const totalBtc = new BigNumber(totalSat).dividedBy(100000000).toNumber();
-  const totalFiat = currency.satoshiToLocalCurrency(totalSat);
+  const totalFiat = satoshiToLocalCurrency(totalSat);
 
   const getFee = () => {
     return wallet.calculateFeeFromPsbt(psbt);
@@ -155,7 +158,7 @@ const PsbtMultisig = () => {
       const newPsbt = psbt.combine(receivedPSBT);
       setPsbt(newPsbt);
     } catch (error) {
-      alert(error);
+      presentAlert({ message: error });
     }
   };
 
@@ -183,7 +186,7 @@ const PsbtMultisig = () => {
         satoshiPerByte,
       });
     } catch (error) {
-      alert(error);
+      presentAlert({ message: error });
     }
   };
 
@@ -249,13 +252,13 @@ const PsbtMultisig = () => {
       <View style={styles.bottomWrapper}>
         <View style={styles.bottomFeesWrapper}>
           <BlueText style={[styles.feeFiatText, stylesHook.feeFiatText]}>
-            {loc.formatString(loc.multisig.fee, { number: currency.satoshiToLocalCurrency(getFee()) })} -{' '}
+            {loc.formatString(loc.multisig.fee, { number: satoshiToLocalCurrency(getFee()) })} -{' '}
           </BlueText>
-          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: currency.satoshiToBTC(getFee()) })}</BlueText>
+          <BlueText>{loc.formatString(loc.multisig.fee_btc, { number: satoshiToBTC(getFee()) })}</BlueText>
         </View>
       </View>
       <View style={styles.marginConfirmButton}>
-        <BlueButton disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
+        <Button disabled={!isConfirmEnabled()} title={loc.multisig.confirm} onPress={onConfirm} testID="PsbtMultisigConfirmButton" />
       </View>
     </>
   );
@@ -265,7 +268,7 @@ const PsbtMultisig = () => {
   };
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <View style={styles.container}>
         <View style={styles.mstopcontainer}>
           <View style={styles.mscontainer}>
@@ -299,7 +302,7 @@ const PsbtMultisig = () => {
           </View>
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

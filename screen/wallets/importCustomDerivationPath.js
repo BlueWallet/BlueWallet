@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
-import { FlatList, StatusBar, StyleSheet, TextInput, View } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueButton, BlueFormLabel, BlueSpacing20, BlueTextCentered, SafeBlueArea } from '../../BlueComponents';
+import { BlueFormLabel, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
@@ -10,6 +10,9 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
 import debounce from '../../blue_modules/debounce';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const WRONG_PATH = 'WRONG_PATH';
 const WALLET_FOUND = 'WALLET_FOUND';
@@ -93,7 +96,7 @@ const ImportCustomDerivationPath = () => {
     importing.current = true;
     const wallet = wallets[path][type];
     addAndSaveWallet(wallet);
-    navigation.dangerouslyGetParent().pop();
+    navigation.getParent().pop();
   };
 
   const renderItem = ({ item }) => {
@@ -117,8 +120,7 @@ const ImportCustomDerivationPath = () => {
   };
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import_derivation_subtitle}</BlueFormLabel>
       <BlueSpacing20 />
@@ -140,7 +142,7 @@ const ImportCustomDerivationPath = () => {
 
       <View style={[styles.center, stylesHook.center]}>
         <View style={styles.buttonContainer}>
-          <BlueButton
+          <Button
             disabled={wallets[path]?.[selected] === undefined}
             title={loc.wallets.import_do_import}
             testID="ImportButton"
@@ -148,7 +150,7 @@ const ImportCustomDerivationPath = () => {
           />
         </View>
       </View>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
@@ -162,6 +164,7 @@ const styles = StyleSheet.create({
   center: {
     marginHorizontal: 16,
     alignItems: 'center',
+    top: -100,
   },
   buttonContainer: {
     height: 45,
@@ -181,6 +184,10 @@ const styles = StyleSheet.create({
   },
 });
 
-ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_derivation_title }));
+ImportCustomDerivationPath.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  title: loc.wallets.import_derivation_title,
+  statusBarStyle: 'light',
+}));
 
 export default ImportCustomDerivationPath;

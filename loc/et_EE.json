@@ -13,8 +13,7 @@
     "save": "Salvesta",
     "seed": "Seeme",
     "success": "Toiming õnnestus",
-    "wallet_key": "Rahakoti võti",
-    "invalid_animated_qr_code_fragment": "Vale animeeritud QR-koodi fragment. Palun proovi uuesti."
+    "wallet_key": "Rahakoti võti"
   },
   "azteco": {
     "codeIs": "Sinu vautšeri kood on",

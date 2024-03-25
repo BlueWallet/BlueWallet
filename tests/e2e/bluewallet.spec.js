@@ -199,11 +199,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('cr34t3d'))).toBeVisible();
     await element(by.id('cr34t3d')).tap();
     await element(by.id('ReceiveButton')).tap();
-    await element(by.text('Yes, I have')).tap();
+    await element(by.text('Yes, I have.')).tap();
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and don’t ask me again`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap();
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('BlueCopyTextToClipboard');
@@ -452,6 +452,85 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
+  it('can import 2of2 multisig using individual cosigners (1 signer, 1 xpub)', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('can import 2of2 multisig using individual cosigners (1 signer, 1 xpub)');
+    if (process.env.TRAVIS) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+    }
+    await device.launchApp({ newInstance: true });
+    await helperSwitchAdvancedMode();
+    await yo('WalletsList');
+    await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await sleep(200); // Wait until bounce animation finishes.
+    // going to Import Wallet screen and importing Vault
+    await element(by.id('CreateAWallet')).tap();
+    await yo('ActivateVaultButton');
+    await element(by.id('ActivateVaultButton')).tap();
+    await element(by.id('Create')).tap();
+    // vault settings:
+    await element(by.id('VaultAdvancedCustomize')).tap();
+    await element(by.id('DecreaseN')).tap();
+    await element(by.id('ModalDoneButton')).tap();
+
+    //
+
+    await element(by.id('LetsStart')).tap();
+
+    // key1 - seed:
+
+    await element(by.id('VaultCosignerImport1')).tap();
+    await element(by.id('ScanOrOpenFile')).tap();
+
+    await sleep(5000); // wait for camera screen to initialize
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+    }
+    await element(by.id('scanQrBackdoorInput')).replaceText(
+      'pipe goose bottom run seed curious thought kangaroo example family coral success',
+    );
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await element(by.id('DoImportKeyButton')).tap(); // when seed - need to extra tap the button
+
+    // key2 - xpub:
+
+    await element(by.id('VaultCosignerImport2')).tap();
+    await element(by.id('ScanOrOpenFile')).tap();
+
+    await sleep(5000); // wait for camera screen to initialize
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+    }
+    await element(by.id('scanQrBackdoorInput')).replaceText(
+      'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
+    );
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    // when xpub - it automatically closes the modal, so no need to tap the button
+
+    await element(by.id('CreateButton')).tap();
+    await yo('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap(); // go inside the wallet
+
+    await element(by.id('ReceiveButton')).tap();
+    await element(by.text('Yes, I have.')).tap();
+    try {
+      // in case emulator has no google services and doesnt support pushes
+      // we just dont show this popup
+      await element(by.text(`No, and do not ask me again.`)).tap();
+    } catch (_) {}
+
+    await sup('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
+
+    await device.pressBack();
+
+    await element(by.id('WalletDetails')).tap();
+    await sup('2 / 2 (native segwit)');
+
+    await device.pressBack();
+    await helperDeleteWallet('Multisig Vault');
+    await helperSwitchAdvancedMode(); // turn off advanced mode
+    process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
+  });
+
   it('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t6');
     if (process.env.TRAVIS) {
@@ -460,6 +539,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
     await yo('WalletsList');
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await sleep(200); // Wait until bounce animation finishes.
     // going to Import Wallet screen and importing mnemonic
     await element(by.id('CreateAWallet')).tap();
     await element(by.id('ImportWallet')).tap();
@@ -474,6 +554,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of urs) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -525,6 +606,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of ursSignedByPassport) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -545,6 +627,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     for (const ur of urSignedByPassportAndKeystone) {
       // tapping 5 times invisible button is a backdoor:
+      await sleep(5000); // wait for camera screen to initialize
       for (let c = 0; c <= 5; c++) {
         await element(by.id('ScanQrBackdoorButton')).tap();
       }
@@ -580,7 +663,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can discover wallet account and import it', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('t6');
+    const lockFile = '/tmp/travislock.' + hashIt('t7');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t6'), 'as it previously passed on Travis');
     }
@@ -591,8 +674,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperSwitchAdvancedMode();
 
     await element(by.id('WalletsList')).swipe('left', 'fast', 1); // in case emu screen is small and it doesnt fit
+    await sleep(200); // Wait until bounce animation finishes.
     // going to Import Wallet screen and importing mnemonic
     await element(by.id('CreateAWallet')).tap();
+    await element(by.id('ScrollView')).swipe('up', 'fast', 0.9); // in case emu screen is small and it doesnt fit
     await element(by.id('ImportWallet')).tap();
     await element(by.id('MnemonicInput')).replaceText(
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
@@ -618,10 +703,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // open custom derivation path screen and import the wallet
     await element(by.id('CustomDerivationPathButton')).tap();
     await element(by.id('DerivationPathInput')).replaceText("m/44'/0'/1'");
-    await waitFor(element(by.text('found'))) // wait for discovery to be completed
+    await waitFor(element(by.text('Found'))) // wait for discovery to be completed
       .toExist()
       .withTimeout(300 * 1000);
-    await element(by.text('found')).tap();
+    await element(by.text('Found')).tap();
     await element(by.id('ImportButton')).tap();
     await element(by.text('OK')).tap();
 

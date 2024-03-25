@@ -12,17 +12,14 @@ import {
   Platform,
   Linking,
   StyleSheet,
-  StatusBar,
   ScrollView,
-  PermissionsAndroid,
   InteractionManager,
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton, BlueListItem } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import {
   HDSegwitBech32Wallet,
@@ -35,16 +32,22 @@ import {
   LightningLdkWallet,
 } from '../../class';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useTheme, useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { isDesktop } from '../../blue_modules/environment';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
+import { useTheme } from '../../components/themes';
+import ListItem from '../../components/ListItem';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Button from '../../components/Button';
+import { SecondButton } from '../../components/SecondButton';
 
 const prompt = require('../../helpers/prompt');
 
@@ -119,7 +122,7 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWallet, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -195,7 +198,7 @@ const WalletDetails = () => {
     }
     saveToDisk()
       .then(() => {
-        alert(loc.wallets.details_wallet_updated);
+        presentAlert({ message: loc.wallets.details_wallet_updated });
         goBack();
       })
       .catch(error => {
@@ -226,7 +229,7 @@ const WalletDetails = () => {
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
-      setSelectedWallet(walletID);
+      setSelectedWalletID(walletID);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
@@ -241,11 +244,11 @@ const WalletDetails = () => {
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
   };
 
   const presentWalletHasBalanceAlert = useCallback(async () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     try {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
@@ -258,9 +261,9 @@ const WalletDetails = () => {
       if (Number(walletBalanceConfirmation) === wallet.getBalance()) {
         navigateToOverviewAndDeleteWallet();
       } else {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
-        alert(loc.wallets.details_del_wb_err);
+        presentAlert({ message: loc.wallets.details_del_wb_err });
       }
     } catch (_) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -355,32 +358,26 @@ const WalletDetails = () => {
       Share.open({
         url: 'file://' + filePath,
         saveToFiles: isDesktop,
+        failOnCancel: false,
       })
         .catch(error => {
           console.log(error);
-          alert(error.message);
+          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
+      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+      if (granted === RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, contents);
-          alert(loc.formatString(loc.send.txSaved, { filePath: fileName }));
+          presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath: fileName }) });
         } catch (e) {
           console.log(e);
-          alert(e.message);
+          presentAlert({ message: e.message });
         }
       } else {
         console.log('Storage Permission: Denied');
@@ -406,13 +403,13 @@ const WalletDetails = () => {
     if (wallet.type === HDSegwitBech32Wallet.type) {
       wallet._txs_by_external_index = {};
       wallet._txs_by_internal_index = {};
-      alert(msg);
+      presentAlert({ message: msg });
     }
 
     if (wallet._hdWalletInstance) {
       wallet._hdWalletInstance._txs_by_external_index = {};
       wallet._hdWalletInstance._txs_by_internal_index = {};
-      alert(msg);
+      presentAlert({ message: msg });
     }
   };
 
@@ -424,12 +421,17 @@ const WalletDetails = () => {
   };
 
   const onExportHistoryPressed = async () => {
-    let csvFile = [
+    const csvFileArray = [
       loc.transactions.date,
       loc.transactions.txid,
       `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
       loc.send.create_memo,
-    ].join(','); // CSV header
+    ];
+    if (wallet.chain === Chain.OFFCHAIN) {
+      csvFileArray.push(loc.lnd.payment);
+    }
+
+    let csvFile = csvFileArray.join(','); // CSV header
     const transactions = wallet.getTransactions();
 
     for (const transaction of transactions) {
@@ -437,24 +439,32 @@ const WalletDetails = () => {
 
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
+      let status;
 
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash;
         memo = transaction.description;
-
+        status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
           const bb = Buffer.from(hash);
           hash = bb.toString('hex');
         }
       }
-      csvFile += '\n' + [new Date(transaction.received).toString(), hash, value, memo].join(','); // CSV line
+
+      const data = [new Date(transaction.received).toString(), hash, value, memo];
+
+      if (wallet.chain === Chain.OFFCHAIN) {
+        data.push(status);
+      }
+
+      csvFile += '\n' + data.join(','); // CSV line
     }
 
     await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
   };
 
   const handleDeleteButtonTapped = () => {
-    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     Alert.alert(
       loc.wallets.details_delete_wallet,
       loc.wallets.details_are_you_sure,
@@ -496,8 +506,6 @@ const WalletDetails = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View>
             <BlueCard style={styles.address}>
-              <StatusBar barStyle="default" />
-
               {(() => {
                 if (
                   [LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) ||
@@ -642,13 +650,13 @@ const WalletDetails = () => {
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <BlueListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+              <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && isBIP47Enabled && <BlueListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
+            {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
-                <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
@@ -700,6 +708,8 @@ const WalletDetails = () => {
                 <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
                   <Text textBreakStrategy="simple" style={styles.delete}>{`${loc.wallets.details_delete}${'  '}`}</Text>
                 </TouchableOpacity>
+                <BlueSpacing20 />
+                <BlueSpacing20 />
               </View>
             </BlueCard>
           </View>
@@ -709,6 +719,10 @@ const WalletDetails = () => {
   );
 };
 
-WalletDetails.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.details_title }));
+WalletDetails.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  headerTitle: loc.wallets.details_title,
+  statusBarStyle: 'auto',
+}));
 
 export default WalletDetails;

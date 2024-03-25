@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useRoute, useTheme, useNavigation } from '@react-navigation/native';
+import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import loc from '../../loc';
@@ -10,19 +9,21 @@ import { HDSegwitBech32Wallet } from '../../class';
 import navigationStyle from '../../components/navigationStyle';
 import {
   BlueBigCheckmark,
-  BlueButton,
   BlueButtonLink,
   BlueCard,
   BlueFormLabel,
   BlueSpacing10,
   BlueSpacing20,
   BlueTextCentered,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
-
-const scanqr = require('../../helpers/scan-qr');
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
+import { scanQrHelper } from '../../helpers/scan-qr';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -63,20 +64,20 @@ const Broadcast = () => {
         setTx(txid);
 
         setBroadcastResult(BROADCAST_RESULT.success);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         Notifications.majorTomToGroundControl([], [], [txid]);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);
       }
     } catch (error) {
-      Alert.alert(loc.errors.error, error.message);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      presentAlert({ title: loc.errors.error, message: error.message });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
     }
   };
 
   const handleQRScan = async () => {
-    const scannedData = await scanqr(navigate, name);
+    const scannedData = await scanQrHelper(navigate, name);
     if (!scannedData) return;
 
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
@@ -110,7 +111,7 @@ const Broadcast = () => {
   }
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <KeyboardAvoidingView
         enabled={!Platform.isPad}
         behavior={Platform.OS === 'ios' ? 'position' : null}
@@ -142,10 +143,10 @@ const Broadcast = () => {
               </View>
               <BlueSpacing20 />
 
-              <BlueButton title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+              <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
               <BlueSpacing20 />
 
-              <BlueButton
+              <Button
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
                 disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
@@ -157,7 +158,7 @@ const Broadcast = () => {
           {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
         </View>
       </KeyboardAvoidingView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

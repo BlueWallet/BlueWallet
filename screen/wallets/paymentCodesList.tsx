@@ -1,21 +1,19 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { NativeStackScreenProps } from 'react-native-screens/lib/typescript/native-stack';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { BlueCopyTextToClipboard } from '../../BlueComponents';
+import { PaymentCodeStackParamList } from '../../Navigation';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
-
-type PaymentCodesListStackParamList = {
-  PaymentCodesList: { walletID: string };
-};
 
 interface DataSection {
   title: string;
   data: string[];
 }
 
-export default function PaymentCodesList({ route }: NativeStackScreenProps<PaymentCodesListStackParamList, 'PaymentCodesList'>) {
+type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCodesList'>;
+
+export default function PaymentCodesList({ route }: Props) {
   const { walletID } = route.params;
   const { wallets } = useContext(BlueStorageContext);
   const [data, setData] = useState<DataSection[]>([]);
@@ -23,12 +21,13 @@ export default function PaymentCodesList({ route }: NativeStackScreenProps<Payme
   useEffect(() => {
     if (!walletID) return;
 
-    const foundWallet: AbstractHDElectrumWallet = wallets.find((w: AbstractHDElectrumWallet) => w.getID() === walletID);
+    const foundWallet = wallets.find(w => w.getID() === walletID);
     if (!foundWallet) return;
 
     const newData: DataSection[] = [
       {
         title: loc.bip47.who_can_pay_me,
+        // @ts-ignore remove later
         data: foundWallet.getBIP47SenderPaymentCodes(),
       },
     ];

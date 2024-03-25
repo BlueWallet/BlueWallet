@@ -3,7 +3,7 @@ import { StyleSheet, Pressable, View, Keyboard } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import React, { useState } from 'react';
 import loc from '../loc';
-import { useTheme } from '@react-navigation/native';
+import { useTheme } from './themes';
 
 interface IHash {
   [key: string]: string;
@@ -23,7 +23,6 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
 
   const stylesHook = {
     text: {
-      // @ts-ignore: Ignore theme typescript error
       color: colors.foregroundColor,
     },
   };

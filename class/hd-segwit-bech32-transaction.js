@@ -2,7 +2,6 @@ import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
-const reverse = require('buffer-reverse');
 const BigNumber = require('bignumber.js');
 
 /**
@@ -98,7 +97,7 @@ export class HDSegwitBech32Transaction {
   /**
    * Checks that tx belongs to a wallet and also
    * tx value is < 0, which means its a spending transaction
-   * definately initiated by us, can be RBF'ed.
+   * definitely initiated by us, can be RBF'ed.
    *
    * @returns {Promise<boolean>}
    */
@@ -150,7 +149,7 @@ export class HDSegwitBech32Transaction {
 
     const prevInputs = [];
     for (const inp of this._txDecoded.ins) {
-      let reversedHash = Buffer.from(reverse(inp.hash));
+      let reversedHash = Buffer.from(inp.hash).reverse();
       reversedHash = reversedHash.toString('hex');
       prevInputs.push(reversedHash);
     }
@@ -161,14 +160,14 @@ export class HDSegwitBech32Transaction {
     let wentIn = 0;
     const utxos = [];
     for (const inp of this._txDecoded.ins) {
-      let reversedHash = Buffer.from(reverse(inp.hash));
+      let reversedHash = Buffer.from(inp.hash).reverse();
       reversedHash = reversedHash.toString('hex');
       if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
         let value = prevTransactions[reversedHash].vout[inp.index].value;
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
         const address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
-        utxos.push({ vout: inp.index, value, txId: reversedHash, address });
+        utxos.push({ vout: inp.index, value, txid: reversedHash, address });
       }
     }
 
@@ -206,7 +205,7 @@ export class HDSegwitBech32Transaction {
         unconfirmedUtxos.push({
           vout: outp.n,
           value,
-          txId: this._txid || this._txDecoded.getId(),
+          txid: this._txid || this._txDecoded.getId(),
           address,
         });
       }
@@ -228,7 +227,7 @@ export class HDSegwitBech32Transaction {
 
     const spentUtxos = this._wallet.getDerivedUtxoFromOurTransaction(true);
     for (const inp of this._txDecoded.ins) {
-      const txidInUtxo = reverse(inp.hash).toString('hex');
+      const txidInUtxo = Buffer.from(inp.hash).reverse().toString('hex');
 
       let found = false;
       for (const spentU of spentUtxos) {

@@ -2,12 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
 import navigationStyle from '../../components/navigationStyle';
-import { BlueSpacing20, SafeBlueArea, BlueText } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import SafeArea from '../../components/SafeArea';
 
 const styles = StyleSheet.create({
   root: {
@@ -56,7 +57,7 @@ export default class RBFBumpFee extends CPFP {
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert(loc.errors.error + ': ' + _.message);
+        presentAlert({ message: loc.errors.error + ': ' + _.message });
       }
     }
   }
@@ -85,7 +86,7 @@ export default class RBFBumpFee extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={styles.root}>
+        <SafeArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -93,14 +94,14 @@ export default class RBFBumpFee extends CPFP {
           <BlueSpacing20 />
 
           <BlueText h4>{loc.transactions.cpfp_no_bump}</BlueText>
-        </SafeBlueArea>
+        </SafeArea>
       );
     }
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeArea style={styles.root}>
         <ScrollView>{this.renderStage1(loc.transactions.rbf_explain)}</ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

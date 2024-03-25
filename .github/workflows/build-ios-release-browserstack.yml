@@ -1,0 +1,183 @@
+name: Build Release PR and upload to BrowserStack (iOS)
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    if: contains(github.event.pull_request.labels.*.name, 'browserstack')
+    runs-on: macos-14
+    timeout-minutes: 180
+    outputs:
+      new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
+      project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
+      latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetches all history
+
+      - name: Specify node version
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: 18
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 15.2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install dependencies with Bundler
+        run: bundle install
+
+      - name: Install Fastlane 2.217.0
+        run: gem install fastlane -v 2.217.0
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      - name: Clear Derived Data
+        run: bundle exec fastlane ios clear_derived_data_lane
+        working-directory: ./ios
+  
+      - name: Install node_modules
+        run: npm install
+
+      - name: Display release-notes.txt
+        run: cat release-notes.txt
+
+      - name: Get Latest Commit Message
+        id: get_latest_commit_message
+        run: |
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
+
+      - name: Set up Git Authentication
+        env:
+          ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+        run: |
+          git config --global credential.helper 'cache --timeout=3600'
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
+
+      - name: Create Temporary Keychain
+        run: bundle exec fastlane ios create_temp_keychain
+        working-directory: ./ios
+        env: 
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Setup Provisioning Profiles
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios setup_provisioning_profiles
+        working-directory: ./ios
+
+      - name: Generate Build Number based on timestamp
+        id: generate_build_number
+        run: |
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+
+      - name: Set Build Number
+        run: bundle exec fastlane ios increment_build_number_lane
+        working-directory: ./ios
+
+      - name: Determine Marketing Version
+        id: determine_marketing_version
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=project_version::$MARKETING_VERSION"
+
+
+      - name: Expected IPA file name
+        run: |
+          echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
+  
+      - name: Install CocoaPods Dependencies
+        run: bundle exec fastlane ios install_pods
+        working-directory: ./ios
+
+      - name: Build App
+        run: bundle exec fastlane ios build_app_lane
+        working-directory: ./ios
+
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
+
+  upload-to-browserstack:
+    if: contains(github.event.pull_request.labels.*.name, 'browserstack')
+    needs: build 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: List files in the build directory
+        run: ls -l ./build
+
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          path: ./build
+
+      - name: Set permissions for the IPA file
+        run: chmod 644 ./build/BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+      
+
+      - name: Upload IPA to BrowserStack
+        env:
+          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+        run: |
+          curl -u "$BROWSERSTACK_USERNAME:$BROWSERSTACK_ACCESS_KEY" \
+              -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+              -F "file=@./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa" \
+              -o browserstack_response.json
+
+      - name: Extract BrowserStack App URL
+        id: extract_url
+        run: |
+          APP_URL=$(jq -r '.app_url' browserstack_response.json)
+          echo "APP_URL=$APP_URL"
+          echo "::set-output name=app_url::$APP_URL"
+
+
+      - name: Post comment with BrowserStack link
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const prNumber = context.issue.number;
+            const browserStackLink = '${{ steps.extract_url.outputs.app_url }}'; // Use the output from the previous step.
+            const message = `🚀 App is now available for testing on BrowserStack: [Test Here](${browserStackLink})`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: message
+            });
+      

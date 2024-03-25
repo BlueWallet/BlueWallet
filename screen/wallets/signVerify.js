@@ -1,26 +1,27 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
   Platform,
-  StatusBar,
   StyleSheet,
   TextInput,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useRoute, useTheme } from '@react-navigation/native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
-import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
+import presentAlert from '../../components/Alert';
 
 const SignVerify = () => {
   const { colors } = useTheme();
@@ -73,8 +74,8 @@ const SignVerify = () => {
       setSignature(newSignature);
       setIsShareVisible(true);
     } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(loc.errors.error, e.message);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ title: loc.errors.error, message: e.message });
     }
 
     setLoading(false);
@@ -85,16 +86,16 @@ const SignVerify = () => {
     await sleep(10); // wait for loading indicator to appear
     try {
       const res = wallet.verifyMessage(message, address, signature);
-      Alert.alert(
-        res ? loc._.success : loc.errors.error,
-        res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
-      );
+      presentAlert({
+        title: res ? loc._.success : loc.errors.error,
+        message: res ? loc.addresses.sign_signature_correct : loc.addresses.sign_signature_incorrect,
+      });
       if (res) {
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (e) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      Alert.alert(loc.errors.error, e.message);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ title: loc.errors.error, message: e.message });
     }
     setLoading(false);
   };
@@ -112,8 +113,7 @@ const SignVerify = () => {
     );
 
   return (
-    <SafeBlueArea style={[styles.root, stylesHooks.root]}>
-      <StatusBar barStyle="light-content" />
+    <SafeArea style={[styles.root, stylesHooks.root]}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <KeyboardAvoidingView style={[styles.root, stylesHooks.root]}>
           {!isKeyboardVisible && (
@@ -228,11 +228,11 @@ const SignVerify = () => {
           })}
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 
-SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerHideBackButton: true }, opts => ({
+SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerBackVisible: false, statusBarStyle: 'light' }, opts => ({
   ...opts,
   title: loc.addresses.sign_title,
 }));

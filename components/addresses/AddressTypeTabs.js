@@ -1,7 +1,7 @@
-import { useTheme } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import loc from '../../loc';
+import { useTheme } from '../themes';
 
 export const TABS = {
   EXTERNAL: 'receive',

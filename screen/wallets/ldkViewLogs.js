@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import { BlueLoading, BlueSpacing20, BlueText, SafeBlueArea } from '../../BlueComponents';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Icon } from 'react-native-elements';
+
+import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
-import { Icon } from 'react-native-elements';
 import { LightningLdkWallet } from '../../class';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
 const fs = require('../../blue_modules/fs');
 
 const LdkViewLogs = () => {
@@ -72,9 +75,9 @@ const LdkViewLogs = () => {
   const selfTest = async () => {
     try {
       await wallet.selftest();
-      alert('ok');
+      presentAlert({ message: 'ok' });
     } catch (error) {
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 
@@ -108,7 +111,7 @@ const LdkViewLogs = () => {
   }
 
   return (
-    <SafeBlueArea>
+    <SafeArea>
       <ScrollView style={styles.root}>
         <TouchableOpacity accessibilityRole="button" onPress={selfTest} style={styles.button}>
           <BlueText>self test</BlueText>
@@ -126,7 +129,7 @@ const LdkViewLogs = () => {
 
         <BlueText>{logs}</BlueText>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

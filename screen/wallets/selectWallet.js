@@ -1,26 +1,31 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet, StatusBar } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { useRoute, useTheme, useNavigation, useNavigationState } from '@react-navigation/native';
+import { useRoute, useNavigation, useNavigationState } from '@react-navigation/native';
 
-import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
+import { Chain } from '../../models/bitcoinUnits';
 
 const SelectWallet = () => {
-  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
+  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
-  const { pop, navigate, setOptions, dangerouslyGetParent } = useNavigation();
+  const { pop, navigate, setOptions, getParent } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
   const { colors, closeImage } = useTheme();
   const isModal = useNavigationState(state => state.routes.length) === 1;
-  let data = chainType
-    ? wallets.filter(item => item.chain === chainType && item.allowSend())
-    : wallets.filter(item => item.allowSend()) || [];
+  let data = !onChainRequireSend
+    ? wallets.filter(item => item.chain === Chain.ONCHAIN) || []
+    : chainType
+      ? wallets.filter(item => item.chain === chainType && item.allowSend())
+      : wallets.filter(item => item.allowSend()) || [];
 
   if (availableWallets && availableWallets.length > 0) {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check
@@ -101,6 +106,14 @@ const SelectWallet = () => {
   }, []);
 
   useEffect(() => {
+    if (isLoading || data.length === 0) {
+      setOptions({ statusBarStyle: 'light' });
+    } else {
+      setOptions({ statusBarStyle: 'auto' });
+    }
+  }, [isLoading, data.length, setOptions]);
+
+  useEffect(() => {
     setOptions(
       isModal
         ? {
@@ -110,7 +123,7 @@ const SelectWallet = () => {
                 accessibilityRole="button"
                 style={styles.button}
                 onPress={() => {
-                  dangerouslyGetParent().pop();
+                  getParent().pop();
                 }}
                 testID="NavigationCloseButton"
               >
@@ -127,7 +140,7 @@ const SelectWallet = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
           onWalletSelect(item, { navigation: { pop, navigate } });
         }}
         accessibilityRole="button"
@@ -176,27 +189,24 @@ const SelectWallet = () => {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <StatusBar barStyle="light-content" />
         <ActivityIndicator />
       </View>
     );
   } else if (data.length <= 0) {
     return (
-      <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
+      <SafeArea>
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>{loc.wallets.select_no_bitcoin}</BlueText>
           <BlueSpacing20 />
           <BlueText style={styles.center}>{noWalletExplanationText || loc.wallets.select_no_bitcoin_exp}</BlueText>
         </View>
-      </SafeBlueArea>
+      </SafeArea>
     );
   } else {
     return (
-      <SafeBlueArea>
-        <StatusBar barStyle="default" />
+      <SafeArea>
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 };

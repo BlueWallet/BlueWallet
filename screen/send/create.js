@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, PermissionsAndroid, Alert } from 'react-native';
+import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, Alert } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
@@ -8,15 +8,17 @@ import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import { BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { isDesktop } from '../../blue_modules/environment';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-import alert from '../../components/Alert';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import presentAlert from '../../components/Alert';
+import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
+import { useTheme } from '../../components/themes';
+import { satoshiToBTC } from '../../blue_modules/currency';
+import usePrivacy from '../../hooks/usePrivacy';
 const bitcoin = require('bitcoinjs-lib');
-const currency = require('../../blue_modules/currency');
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;
@@ -24,6 +26,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
+  const { enableBlur, disableBlur } = usePrivacy();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -44,13 +47,12 @@ const SendCreate = () => {
   });
 
   useEffect(() => {
-    Privacy.enableBlur();
-
     console.log('send/create - useEffect');
+    enableBlur();
     return () => {
-      Privacy.disableBlur();
+      disableBlur();
     };
-  }, []);
+  }, [disableBlur, enableBlur]);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;
@@ -68,23 +70,16 @@ const SendCreate = () => {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
-        title: loc.send.permission_storage_title,
-        message: loc.send.permission_storage_message,
-        buttonNeutral: loc.send.permission_storage_later,
-        buttonNegative: loc._.cancel,
-        buttonPositive: loc._.ok,
-      });
-
-      if (granted === PermissionsAndroid.RESULTS.GRANTED || Platform.Version >= 33) {
+      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+      if (granted === RESULTS.GRANTED) {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
         try {
           await RNFS.writeFile(filePath, tx);
-          alert(loc.formatString(loc.send.txSaved, { filePath }));
+          presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath }) });
         } catch (e) {
           console.log(e);
-          alert(e.message);
+          presentAlert({ message: e.message });
         }
       } else {
         console.log('Storage Permission: Denied');
@@ -121,7 +116,7 @@ const SendCreate = () => {
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>{item.address}</Text>
           <Text style={[styles.transactionDetailsTitle, styleHooks.transactionDetailsTitle]}>{loc.send.create_amount}</Text>
           <Text style={[styles.transactionDetailsSubtitle, styleHooks.transactionDetailsSubtitle]}>
-            {currency.satoshiToBTC(item.value)} {BitcoinUnit.BTC}
+            {satoshiToBTC(item.value)} {BitcoinUnit.BTC}
           </Text>
           {recipients.length > 1 && (
             <BlueText style={styles.itemOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>

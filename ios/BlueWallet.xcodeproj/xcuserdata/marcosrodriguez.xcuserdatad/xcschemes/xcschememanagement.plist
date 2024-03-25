@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>BlueWallet copy.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>113</integer>
+		</dict>
 		<key>BlueWallet for Apple Watch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -14,15 +19,25 @@
 			<key>orderHint</key>
 			<integer>71</integer>
 		</dict>
-		<key>BlueWallet-tvOS.xcscheme_^#shared#^_</key>
+		<key>BlueWallet-NoLDK.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>136</integer>
 		</dict>
 		<key>BlueWallet.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
+		</dict>
+		<key>BlueWalletUITests.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>97</integer>
+		</dict>
+		<key>BlueWalletWatch (Complication).xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>123</integer>
 		</dict>
 		<key>BlueWalletWatch (Glance).xcscheme_^#shared#^_</key>
 		<dict>
@@ -32,22 +47,37 @@
 		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>7</integer>
 		</dict>
 		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>6</integer>
 		</dict>
-		<key>Stickers.xcscheme_^#shared#^_</key>
+		<key>MarketWidget.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>4</integer>
 		</dict>
-		<key>WidgetsExtension.xcscheme_^#shared#^_</key>
+		<key>PriceWidget.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>144</integer>
+			<integer>5</integer>
+		</dict>
+		<key>Stickers.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>WalletInformationAndMarketWidget.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>WalletInformationWidget.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
@@ -68,6 +98,11 @@
 			<true/>
 		</dict>
 		<key>B40D4E2F225841EC00428FCC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B47B21E82B2128B8001F6690</key>
 		<dict>
 			<key>primary</key>
 			<true/>

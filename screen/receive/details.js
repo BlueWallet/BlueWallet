@@ -6,18 +6,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
-  BlueButton,
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
@@ -34,11 +32,13 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc, { formatBalance } from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { SuccessView } from '../send/success';
-const currency = require('../../blue_modules/currency');
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -61,6 +61,7 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
+  const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -94,7 +95,7 @@ const ReceiveDetails = () => {
 
   useEffect(() => {
     if (showConfirmedBalance) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     }
   }, [showConfirmedBalance]);
 
@@ -124,7 +125,7 @@ const ReceiveDetails = () => {
             setInitialConfirmed(balance.confirmed);
             setInitialUnconfirmed(balance.unconfirmed);
             setIntervalMs(25000);
-            ReactNativeHapticFeedback.trigger('impactHeavy', { ignoreAndroidSystemSettings: false });
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
           }
 
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(address2use);
@@ -161,7 +162,7 @@ const ReceiveDetails = () => {
           const balanceToShow = balance.confirmed - initialConfirmed;
 
           if (balanceToShow > 0) {
-            // address has actually more coins then initially, so we definately gained something
+            // address has actually more coins than initially, so we definitely gained something
             setShowConfirmedBalance(true);
             setShowPendingBalance(false);
             setShowAddress(false);
@@ -270,7 +271,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
         <View style={styles.share}>
           <BlueCard>
@@ -280,7 +281,7 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <BlueButton onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -295,7 +296,7 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([address], [], []);
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
@@ -323,7 +324,7 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,7 +345,6 @@ const ReceiveDetails = () => {
             BlueAlertWalletExportReminder({
               onSuccess: obtainWalletAddress,
               onFailure: () => {
-                goBack();
                 navigate('WalletExportRoot', {
                   screen: 'WalletExport',
                   params: {
@@ -352,6 +352,7 @@ const ReceiveDetails = () => {
                   },
                 });
               },
+              anchor: receiveAddressButton.current,
             });
           } else {
             obtainWalletAddress();
@@ -385,14 +386,14 @@ const ReceiveDetails = () => {
         // nop
         break;
       case BitcoinUnit.SATS:
-        amount = currency.satoshiToBTC(customAmount);
+        amount = satoshiToBTC(customAmount);
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
           // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = currency.satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+          amount = satoshiToBTC(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
         } else {
-          amount = currency.fiatToBTC(customAmount);
+          amount = fiatToBTC(customAmount);
         }
         break;
     }
@@ -419,7 +420,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton
+              <Button
                 testID="CustomAmountSaveButton"
                 style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.details_create}
@@ -447,9 +448,9 @@ const ReceiveDetails = () => {
         case BitcoinUnit.BTC:
           return customAmount + ' BTC';
         case BitcoinUnit.SATS:
-          return currency.satoshiToBTC(customAmount) + ' BTC';
+          return satoshiToBTC(customAmount) + ' BTC';
         case BitcoinUnit.LOCAL_CURRENCY:
-          return currency.fiatToBTC(customAmount) + ' BTC';
+          return fiatToBTC(customAmount) + ' BTC';
       }
       return customAmount + ' ' + customUnit;
     } else {
@@ -459,7 +460,6 @@ const ReceiveDetails = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <StatusBar barStyle="light-content" />
       {address !== undefined && showAddress && (
         <HandoffComponent title={loc.send.details_address} type={HandoffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
@@ -539,9 +539,9 @@ const styles = StyleSheet.create({
 ReceiveDetails.navigationOptions = navigationStyle(
   {
     closeButton: true,
-    headerHideBackButton: true,
+    headerBackVisible: false,
   },
-  opts => ({ ...opts, title: loc.receive.header }),
+  opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
 );
 
 export default ReceiveDetails;

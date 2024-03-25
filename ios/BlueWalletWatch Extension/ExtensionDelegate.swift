@@ -3,37 +3,52 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/6/19.
-//  Copyright © 2019 Facebook. All rights reserved.
+
 //
 
 import WatchKit
 import ClockKit
+import Bugsnag
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
+  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
   func applicationDidFinishLaunching() {
-    // Perform any final initialization of your application.
     scheduleNextReload()
-    ExtensionDelegate.preferredFiatCurrencyChanged()
+    updatePreferredFiatCurrency()
+    if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
+      Bugsnag.start()
+    }
   }
   
-  static func preferredFiatCurrencyChanged() {
-    let fiatUnitUserDefaults: FiatUnit
-    if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
-      fiatUnitUserDefaults = preferredFiatUnit
+  func updatePreferredFiatCurrency() {
+    guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else { return }
+    updateMarketData(for: fiatUnitUserDefaults)
+  }
+  
+  private func fetchPreferredFiatUnit() -> FiatUnit? {
+    if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+      return preferredFiatUnit
     } else {
-      fiatUnitUserDefaults = fiatUnit(currency: "USD")!
+      return fiatUnit(currency: "USD")
     }
-    WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { (data, error) in
-      if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
-        UserDefaults.standard.set(encodedData, forKey: MarketData.string)
-        UserDefaults.standard.synchronize()
-        let server = CLKComplicationServer.sharedInstance()
-        
-        for complication in server.activeComplications ?? [] {
-          server.reloadTimeline(for: complication)
-        }
-      }
+  }
+  
+  private func updateMarketData(for fiatUnit: FiatUnit) {
+    WidgetAPI.fetchPrice(currency: fiatUnit.endPointKey) { (data, error) in
+      guard let data = data, let encodedData = try? PropertyListEncoder().encode(data) else { return }
+      let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+      groupUserDefaults?.set(encodedData, forKey: MarketData.string)
+      groupUserDefaults?.synchronize()
+      ExtensionDelegate.reloadActiveComplications()
+    }
+  }
+  
+  private static func reloadActiveComplications() {
+    let server = CLKComplicationServer.sharedInstance()
+    for complication in server.activeComplications ?? [] {
+      server.reloadTimeline(for: complication)
     }
   }
   
@@ -44,9 +59,6 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   
   func scheduleNextReload() {
     let targetDate = nextReloadTime(after: Date())
-    
-    NSLog("ExtensionDelegate: scheduling next update at %@", "\(targetDate)")
-    
     WKExtension.shared().scheduleBackgroundRefresh(
       withPreferredDate: targetDate,
       userInfo: nil,
@@ -54,52 +66,25 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     )
   }
   
-  func reloadActiveComplications() {
-    let server = CLKComplicationServer.sharedInstance()
-    
-    for complication in server.activeComplications ?? [] {
-      server.reloadTimeline(for: complication)
-    }
-  }
-  
-  
-  func applicationDidBecomeActive() {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-  }
-  
-  func applicationWillResignActive() {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, etc.
-  }
-  
   func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
     for task in backgroundTasks {
       switch task {
         case let backgroundTask as WKApplicationRefreshBackgroundTask:
-        NSLog("ExtensionDelegate: handling WKApplicationRefreshBackgroundTask")
-        
-        scheduleNextReload()
-          let fiatUnitUserDefaults: FiatUnit
-          if let preferredFiatCurrency = UserDefaults.standard.string(forKey: "preferredFiatCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
-            fiatUnitUserDefaults = preferredFiatUnit
-          } else {
-            fiatUnitUserDefaults = fiatUnit(currency: "USD")!
-          }
-          WidgetAPI.fetchPrice(currency: fiatUnitUserDefaults.endPointKey) { [weak self] (data, error) in
-          if let data = data, let encodedData = try? PropertyListEncoder().encode(data) {
-            UserDefaults.standard.set(encodedData, forKey: MarketData.string)
-            UserDefaults.standard.synchronize()
-            self?.reloadActiveComplications()
-            backgroundTask.setTaskCompletedWithSnapshot(false)
-          }
-        }
-        
-      default:
-        task.setTaskCompletedWithSnapshot(false)
+          handleApplicationRefreshBackgroundTask(backgroundTask)
+        default:
+          task.setTaskCompletedWithSnapshot(false)
       }
     }
   }
   
-  
+  private func handleApplicationRefreshBackgroundTask(_ backgroundTask: WKApplicationRefreshBackgroundTask) {
+      scheduleNextReload()
+      guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else {
+          backgroundTask.setTaskCompletedWithSnapshot(false)
+          return
+      }
+      updateMarketData(for: fiatUnitUserDefaults)
+      backgroundTask.setTaskCompletedWithSnapshot(false)
+  }
   
 }

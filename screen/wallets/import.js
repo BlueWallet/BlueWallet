@@ -1,21 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
-
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
-  BlueButton,
   BlueButtonLink,
   BlueDoneAndDismissKeyboardInputAccessory,
   BlueFormLabel,
   BlueFormMultiInput,
   BlueSpacing20,
   BlueText,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Privacy from '../../blue_modules/Privacy';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import usePrivacy from '../../hooks/usePrivacy';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -30,6 +31,7 @@ const WalletsImport = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [searchAccounts, setSearchAccounts] = useState(false);
   const [askPassphrase, setAskPassphrase] = useState(false);
+  const { enableBlur, disableBlur } = usePrivacy();
 
   const styles = StyleSheet.create({
     root: {
@@ -57,15 +59,15 @@ const WalletsImport = () => {
   };
 
   useEffect(() => {
-    Privacy.enableBlur();
+    enableBlur();
     Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true));
     Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsToolbarVisibleForAndroid(false));
     return () => {
       Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
       Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide');
-      Privacy.disableBlur();
+      disableBlur();
     };
-  }, []);
+  }, [disableBlur, enableBlur]);
 
   useEffect(() => {
     isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
@@ -92,14 +94,16 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        onBarScanned,
-        showFileImportButton: true,
-      },
-    });
+    requestCameraAuthorization().then(() =>
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          onBarScanned,
+          showFileImportButton: true,
+        },
+      }),
+    );
   };
 
   const speedBackdoorTap = () => {
@@ -129,7 +133,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={styles.center}>
         <>
-          <BlueButton
+          <Button
             disabled={importText.trim().length === 0}
             title={loc.wallets.import_do_import}
             testID="DoImport"
@@ -143,7 +147,7 @@ const WalletsImport = () => {
   );
 
   return (
-    <SafeBlueArea style={styles.root}>
+    <SafeArea style={styles.root}>
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
         <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
@@ -183,7 +187,7 @@ const WalletsImport = () => {
           />
         ),
       })}
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

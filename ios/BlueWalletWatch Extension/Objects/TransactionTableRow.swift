@@ -3,7 +3,7 @@
 //  BlueWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/10/19.
-//  Copyright © 2019 Facebook. All rights reserved.
+
 //
 
 import WatchKit
@@ -50,3 +50,13 @@ class TransactionTableRow: NSObject {
   }
   
 }
+
+// TransactionTableRow extension for configuration
+ extension TransactionTableRow {
+   func configure(with transaction: Transaction) {
+     amount = transaction.amount
+     type = transaction.type
+     memo = transaction.memo
+     time = transaction.time
+   }
+ }

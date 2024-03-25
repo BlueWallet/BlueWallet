@@ -1,5 +1,4 @@
 #import "AppDelegate.h"
-
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTI18nUtil.h>
@@ -9,9 +8,10 @@
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
-#import <WatchConnectivity/WatchConnectivity.h>
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
+
+@property (nonatomic, strong) UIView *launchScreenView;
 
 @end
 
@@ -19,7 +19,24 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+
+NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
+  if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
+      // Set the appType based on the current platform
+#if TARGET_OS_MACCATALYST
+  BugsnagConfiguration *config = [BugsnagConfiguration loadConfig];
+  config.appType = @"macOS";
+  // Start Bugsnag with the configuration
+  [Bugsnag startWithConfiguration:config];
+#else
+  [Bugsnag start];
+#endif
+  }
+
+
   [self copyDeviceUID];
+  
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"
                                               options:NSKeyValueObservingOptionNew
@@ -28,6 +45,8 @@
                                            forKeyPath:@"deviceUIDCopy"
                                               options:NSKeyValueObservingOptionNew
                                               context:NULL];
+  [self addSplashScreenView];
+
   self.moduleName = @"BlueWallet";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
@@ -41,6 +60,22 @@
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
+- (void)addSplashScreenView
+{
+  // Get the rootView
+  RCTRootView *rootView = (RCTRootView *)self.window.rootViewController.view;
+
+  // Capture the launch screen view
+  UIStoryboard *launchScreenStoryboard = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+  UIViewController *launchScreenVC = [launchScreenStoryboard instantiateInitialViewController];
+  UIView *launchScreenView = launchScreenVC.view;
+  launchScreenView.frame = self.window.bounds;
+  [self.window addSubview:launchScreenView];
+
+  // Keep a reference to the launch screen view to remove it later
+  rootView.loadingView = launchScreenView;
+}
+
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
 #if DEBUG
@@ -49,17 +84,6 @@
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
 }
-
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feature is enabled. Otherwise, it returns `false`.
-- (BOOL)concurrentRootEnabled
-{
-  return true;
-}
-
 
 - (void)observeValueForKeyPath:(NSString *) keyPath ofObject:(id) object change:(NSDictionary *) change context:(void *) context
 {
@@ -101,7 +125,6 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  [WCSession.defaultSession updateApplicationContext:@{@"isWalletsInitialized": @NO} error:nil];
   NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   [defaults removeObjectForKey:@"onUserActivityOpen"];
 }
@@ -118,23 +141,71 @@
   completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
 }
 
-- (void)openSettings {
-  [EventEmitter.sharedInstance openSettings];
-}
-
 - (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
   [super buildMenuWithBuilder:builder];
   [builder removeMenuForIdentifier:UIMenuServices];
   [builder removeMenuForIdentifier:UIMenuFormat];
   [builder removeMenuForIdentifier:UIMenuToolbar];
-  [builder removeMenuForIdentifier:UIMenuFile];
-
-  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings)];
+  
+  // File -> Add Wallet (Command + A)
+ UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" 
+                                                      modifierFlags:UIKeyModifierCommand | UIKeyModifierShift 
+                                                            action:@selector(addWalletAction:)];
+[addWalletCommand setTitle:@"Add Wallet"];
+  
+  // File -> Import Wallet
+  UIKeyCommand *importWalletCommand = [UIKeyCommand keyCommandWithInput:@"I" modifierFlags:UIKeyModifierCommand action:@selector(importWalletAction:)];
+  [importWalletCommand setTitle:@"Import Wallet"];
+  
+  // Group Add Wallet and Import Wallet in a displayInline menu
+  UIMenu *walletOperationsMenu = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[addWalletCommand, importWalletCommand]];
+  
+  // Modify the existing File menu to include Wallet Operations
+  UIMenu *fileMenu = [builder menuForIdentifier:UIMenuFile];
+  if (fileMenu) {
+      // Add "Reload Transactions"
+      UIKeyCommand *reloadTransactionsCommand = [UIKeyCommand keyCommandWithInput:@"R" modifierFlags:UIKeyModifierCommand action:@selector(reloadTransactionsAction:)];
+      [reloadTransactionsCommand setTitle:@"Reload Transactions"];
+      
+      // Combine wallet operations and Reload Transactions into the new File menu
+      UIMenu *newFileMenu = [UIMenu menuWithTitle:fileMenu.title image:nil identifier:fileMenu.identifier options:fileMenu.options children:@[walletOperationsMenu, reloadTransactionsCommand]];
+      [builder replaceMenuForIdentifier:UIMenuFile withMenu:newFileMenu];
+  }
+  
+  // BlueWallet -> Settings (Command + ,)
+  UIKeyCommand *settingsCommand = [UIKeyCommand keyCommandWithInput:@"," modifierFlags:UIKeyModifierCommand action:@selector(openSettings:)];
   [settingsCommand setTitle:@"Settings..."];
-  UIMenu *settings = [UIMenu menuWithTitle:@"Settings..." image:nil identifier:@"openSettings" options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
+  UIMenu *settings = [UIMenu menuWithTitle:@"" image:nil identifier:nil options:UIMenuOptionsDisplayInline children:@[settingsCommand]];
   
   [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
+
+
+- (void)openSettings:(UIKeyCommand *)keyCommand {
+  [EventEmitter.sharedInstance openSettings];
+}
+
+- (void)addWalletAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance addWalletMenuAction];
+
+    NSLog(@"Add Wallet action performed");
+}
+
+- (void)importWalletAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance importWalletMenuAction];
+
+    NSLog(@"Import Wallet action performed");
+}
+
+- (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
+    // Implement the functionality for adding a wallet
+      [EventEmitter.sharedInstance reloadTransactionsMenuAction];
+
+    NSLog(@"Reload Transactions action performed");
+}
+
 
 
 -(void)showHelp:(id)sender {

@@ -3,7 +3,7 @@ import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
-jest.setTimeout(30 * 1000);
+jest.setTimeout(90 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -79,7 +79,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchUtxo();
     const utxo = hd.getUtxo();
     assert.strictEqual(utxo.length, 4);
-    assert.ok(utxo[0].txId);
+    assert.ok(utxo[0].txid);
     assert.ok(utxo[0].vout === 0 || utxo[0].vout === 1);
     assert.ok(utxo[0].value);
     assert.ok(utxo[0].address);

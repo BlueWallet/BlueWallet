@@ -1,32 +1,27 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
+import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
 import Share from 'react-native-share';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useNavigation, useNavigationState, useRoute, useTheme } from '@react-navigation/native';
-import {
-  BlueLoading,
-  BlueText,
-  SafeBlueArea,
-  BlueButton,
-  BlueCopyTextToClipboard,
-  BlueSpacing20,
-  BlueTextCentered,
-} from '../../BlueComponents';
+import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
+import { BlueLoading, BlueText, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
-  const { wallets, setSelectedWallet, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
-  const { goBack, navigate, setParams, setOptions, dangerouslyGetParent } = useNavigation();
+  const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();
   const [isLoading, setIsLoading] = useState(typeof invoice === 'string');
   const [isFetchingInvoices, setIsFetchingInvoices] = useState(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState(false);
@@ -65,14 +60,10 @@ const LNDViewInvoice = () => {
       isModal
         ? {
             headerStyle: {
-              borderBottomWidth: 0,
               backgroundColor: colors.customHeader,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
             },
             gestureEnabled: false,
-            headerHideBackButton: true,
+            headerBackVisible: false,
 
             // eslint-disable-next-line react/no-unstable-nested-components
             headerRight: () => (
@@ -80,7 +71,7 @@ const LNDViewInvoice = () => {
                 accessibilityRole="button"
                 style={styles.button}
                 onPress={() => {
-                  dangerouslyGetParent().pop();
+                  getParent().pop();
                 }}
                 testID="NavigationCloseButton"
               >
@@ -92,11 +83,6 @@ const LNDViewInvoice = () => {
             headerRight: () => {},
             headerStyle: {
               backgroundColor: colors.customHeader,
-
-              borderBottomWidth: 0,
-              elevation: 0,
-              shadowOpacity: 0,
-              shadowOffset: { height: 0, width: 0 },
             },
           },
     );
@@ -104,7 +90,7 @@ const LNDViewInvoice = () => {
   }, [colors, isModal]);
 
   useEffect(() => {
-    setSelectedWallet(walletID);
+    setSelectedWalletID(walletID);
     console.log('LNDViewInvoice - useEffect');
     if (!invoice.ispaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
@@ -135,7 +121,7 @@ const LNDViewInvoice = () => {
                   // invoice expired :-(
                   fetchAndSaveWalletTransactions(walletID);
                   setIsFetchingInvoices(false);
-                  ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
                   clearInterval(fetchInvoiceInterval.current);
                   fetchInvoiceInterval.current = undefined;
                 }
@@ -183,7 +169,7 @@ const LNDViewInvoice = () => {
 
   useEffect(() => {
     if (invoiceStatusChanged) {
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     }
   }, [invoiceStatusChanged]);
 
@@ -268,10 +254,10 @@ const LNDViewInvoice = () => {
             )}
             <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
 
-            <BlueButton onPress={handleOnSharePressed} title={loc.receive.details_share} />
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 
             <BlueSpacing20 />
-            <BlueButton
+            <Button
               style={stylesHook.additionalInfo}
               onPress={handleOnViewAdditionalInformationPressed}
               title={loc.lndViewInvoice.additional_info}
@@ -282,12 +268,7 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return (
-    <SafeBlueArea onLayout={onLayout}>
-      <StatusBar barStyle="default" />
-      {render()}
-    </SafeBlueArea>
-  );
+  return <SafeArea onLayout={onLayout}>{render()}</SafeArea>;
 };
 
 const styles = StyleSheet.create({
@@ -334,6 +315,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
   return {
     ...options,
+    statusBarStyle: 'auto',
     headerTitle: loc.lndViewInvoice.lightning_invoice,
     headerStyle: {
       backgroundColor: theme.colors.customHeader,

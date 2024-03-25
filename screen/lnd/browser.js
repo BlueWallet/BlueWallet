@@ -1,26 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  ActivityIndicator,
-  Alert,
-  BackHandler,
-  Keyboard,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { SafeBlueArea } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
 import loc from '../../loc';
 import { Button } from 'react-native-elements';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import SafeArea from '../../components/SafeArea';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -438,10 +427,8 @@ export default class Browser extends Component {
 
   render() {
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <View style={styles.safeRoot}>
-          <StatusBar barStyle="default" />
-
           <Button
             icon={{
               type: 'ionicon',
@@ -513,7 +500,7 @@ export default class Browser extends Component {
           </View>
         </View>
         {this.renderWebView()}
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }
@@ -532,8 +519,9 @@ Browser.contextType = BlueStorageContext;
 
 Browser.navigationOptions = navigationStyle(
   {
-    headerHideBackButton: true,
+    headerBackVisible: false,
     closeButton: true,
+    statusBarStyle: 'auto',
   },
   opts => ({ ...opts, title: loc.wallets.list_ln_browser }),
 );

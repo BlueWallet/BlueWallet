@@ -6,7 +6,6 @@
     "clipboard": "剪贴板",
     "enter_password": "输入密码",
     "never": "永不",
-    "disabled": "禁用",
     "of": "{total}其中之{number}",
     "ok": "好的",
     "storage_is_encrypted": "你的储存资料已经被加密， 请输入密码解密。",
@@ -15,10 +14,7 @@
     "save": "保存",
     "seed": "种子",
     "success": "成功",
-    "wallet_key": "钱包密钥",
-    "invalid_animated_qr_code_fragment": "无效的动态二维码，请重试。",
-    "file_saved": "文件已保存",
-    "downloads_folder": "下载文件夹"
+    "wallet_key": "钱包密钥"
   },
   "alert": {
     "default": "提示"
@@ -45,16 +41,13 @@
   "lnd": {
     "active": "激活",
     "inactive": "无效",
-    "errorInvoiceExpired": "账单已过期",
     "expired": "已过期",
     "payButton": "支付",
-    "placeholder": "账单",
-    "potentialFee": "潜在费用：{fee}",
     "refill": "充值",
     "refill_create": "为了继续进行，请创建一个要充值的比特币钱包。",
     "refill_external": "用外部钱包充值",
     "refill_lnd_balance": "给闪电钱包充值余额",
-    "sameWalletAsInvoiceError": "你不能用创建账单的钱包去支付此账单",
+    "sameWalletAsInvoiceError": "你不能用创建账单的钱包去支付该账单",
     "title": "管理资金"
   },
   "lndViewInvoice": {
@@ -63,7 +56,6 @@
     "lightning_invoice": "闪电账单",
     "open_direct_channel": "使用此节点来开啟直接频道：",
     "please_pay": "请支付",
-    "preimage": "原像",
     "sats": "聪",
     "wasnt_paid_and_expired": "此账单尚未支付，已过期。"
   },
@@ -81,9 +73,10 @@
   },
   "pleasebackup": {
     "ask": "您是否保存了钱包的备份短语？ 如果您丢失了此设备，则需要此备份短语来访问您的资金。没有此备份短语，您的资金将永久丢失。",
-    "ask_no": "不，我还没有",
-    "ask_yes": "是的，我完成了",
-    "text_lnd": "请保存此钱包备份。这个备份可以在装置遗失时用来恢复此钱包。"
+    "ok": "好，我把它写下来了。",
+    "ok_lnd": "OK！我已保存好，",
+    "text_lnd": "请保存此钱包备份。这个备份可以在装置遗失时用来恢复此钱包。",
+    "title": "你的钱包已创建。"
   },
   "receive": {
     "details_create": "创建",
@@ -124,7 +117,6 @@
     "details_error_decode": "错误：无法解密比特币地址",
     "details_fee_field_is_not_valid": "费用无效",
     "details_next": "下一步",
-    "details_no_signed_tx": "所选文件不包含可以导入的交易。",
     "details_note_placeholder": "给自己的备注",
     "details_scan": "扫描",
     "details_total_exceeds_balance": "发送金额超过可用馀额",
@@ -150,7 +142,6 @@
     "permission_camera_message": "我们需要您的授权许可才能使用您的相机。",
     "psbt_sign": "签署一笔交易",
     "open_settings": "打开设置",
-    "permission_storage_later": "等会问我",
     "permission_storage_message": "BlueWallet需要您的授权许可才能访问您的存储空间以保存此文件。",
     "permission_storage_title": "存储访问权限",
     "psbt_clipboard": "复制到剪贴板",
@@ -190,7 +181,6 @@
     "default_wallets": "查看所有钱包",
     "electrum_connected": "已连接",
     "electrum_connected_not": "未连接",
-    "electrum_error_connect": "无法连接到提供的Electrum服务器",
     "lndhub_uri": "举例：{example}",
     "electrum_host": "举例：{example}",
     "electrum_offline_mode": "离线模式",
@@ -238,7 +228,6 @@
     "privacy_read_clipboard": "阅读剪贴板",
     "privacy_system_settings": "系统设置",
     "privacy_quickactions": "钱包捷径",
-    "privacy_quickactions_explanation": "触碰并按住主屏幕上的BlueWallet应用图标，以快速查看您的钱包余额。",
     "privacy_clipboard_explanation": "如果在剪贴板中找到地址或发票，请提供捷径。",
     "push_notifications": "推送通知",
     "retype_password": "再次输入密码",
@@ -251,9 +240,7 @@
     "tools": "工具"
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "您想在收到款项时得到通知吗？",
-    "no_and_dont_ask": "不，不要再问我",
-    "ask_me_later": "待会问我"
+    "would_you_like_to_receive_notifications": "您想在收到款项时得到通知吗？"
   },
   "transactions": {
     "cancel_no": "此交易不可替换。",
@@ -311,7 +298,6 @@
     "details_advanced": "进阶的",
     "details_are_you_sure": "你确认么?",
     "details_connected_to": "连接到",
-    "details_del_wb_err": "提供的余额与此钱包的余额不匹配，请再试一遍。",
     "details_delete": "删除",
     "details_delete_wallet": "删除钱包",
     "details_derivation_path": "推导路径",
@@ -339,10 +325,8 @@
     "import_scan_qr": "扫描或导入一个档案",
     "import_success": "你的钱包已成功导入。",
     "import_title": "导入",
-    "import_derivation_unknown": "未知",
     "list_create_a_button": "现在添加",
     "list_create_a_wallet": "添加钱包",
-    "list_create_a_wallet_text": "这是免费的，您可以创建\n喜欢多少就多少。",
     "list_empty_txs1": "你的交易将在这里展示",
     "list_empty_txs1_lightning": "应使用闪电钱包进行日常交易。费用超便宜而且速度飞快。",
     "list_empty_txs2": "从你的钱包开始。",
@@ -406,19 +390,14 @@
     "quorum_header": "法定人数",
     "of": "的",
     "wallet_type": "钱包类型",
-    "invalid_mnemonics": "这个助记短语似乎无效。",
     "not_a_multisignature_xpub": "这不是来自多重签名钱包的公钥！",
-    "invalid_cosigner_format": "不正确的签名人：这不是{format}格式的签名人。",
     "create_new_key": "创建新的",
     "scan_or_open_file": "扫描或打开文件",
     "i_have_mnemonics": "我有这个密钥的种子。",
     "type_your_mnemonics": "插入种子以导入现有的保管库密钥。",
-    "this_is_cosigners_xpub": "这是共同签名者的公钥，可以导入另一个钱包。 分享是安全的。",
     "wallet_key_created": "您的保管库密钥已创建。花点时间安全地备份您的助记符种子。",
     "are_you_sure_seed_will_be_lost": "你确定吗？ 如果没有备份，助记符种子将丢失。",
     "forget_this_seed": "忘记此种子，而是使用公钥。",
-    "view_edit_cosigners": "查看/编辑共同签名者",
-    "this_cosigner_is_already_imported": "此共同签名者已经被导入。",
     "export_signed_psbt": "导出已签名的PSBT",
     "input_fp": "输入指纹",
     "input_fp_explain": "跳过以使用默认值（00000000）",
@@ -441,13 +420,11 @@
     "owns": "{label}拥有{address}",
     "enter_address": "输入地址",
     "check_address": "检查地址",
-    "no_wallet_owns_address": "没有可用的钱包拥有提供的地址。",
-    "view_qrcode": "查看二维码"
+    "no_wallet_owns_address": "没有可用的钱包拥有提供的地址。"
   },
   "cc": {
     "change": "更变",
     "coins_selected": "所选的币（{number}）",
-    "empty": "此钱包目前没有币。",
     "freeze": "冻结",
     "freezeLabel": "冻结",
     "freezeLabel_un": "解冻",

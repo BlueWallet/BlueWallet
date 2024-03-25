@@ -23,6 +23,7 @@
     "expired": "Isteklo",
     "refill": "Dopuni",
     "refill_lnd_balance": "Dopuni Lightning volet saldo",
+    "sameWalletAsInvoiceError": "Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.",
     "title": "Uredi novčeke"
   },
   "plausibledeniability": {

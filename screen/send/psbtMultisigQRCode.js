@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
-import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
-import { BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import SafeArea from '../../components/SafeArea';
+import { isDesktop } from '../../blue_modules/environment';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
-
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
@@ -49,14 +50,14 @@ const PsbtMultisigQRCode = () => {
   const onBarScanned = ret => {
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
+      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
-      alert(loc.wallets.import_error);
+      presentAlert({ message: loc.wallets.import_error });
     } else {
       // psbt base64?
-      navigate('PsbtMultisig', { receivedPSBTBase64: ret.data });
+      navigate({ name: 'PsbtMultisig', params: { receivedPSBTBase64: ret.data }, merge: true });
     }
   };
 
@@ -64,13 +65,15 @@ const PsbtMultisigQRCode = () => {
     if (isDesktop) {
       fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
     } else {
-      navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          onBarScanned,
-          showFileImportButton: true,
-        },
-      });
+      requestCameraAuthorization().then(() =>
+        navigate('ScanQRCodeRoot', {
+          screen: 'ScanQRCode',
+          params: {
+            onBarScanned,
+            showFileImportButton: true,
+          },
+        }),
+      );
     }
   };
 
@@ -88,7 +91,7 @@ const PsbtMultisigQRCode = () => {
   };
 
   return (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.modalContentShort, stylesHook.modalContentShort]}>
           <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
@@ -112,7 +115,7 @@ const PsbtMultisigQRCode = () => {
           )}
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

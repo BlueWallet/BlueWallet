@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ScrollView, View, StyleSheet, Linking, Platform } from 'react-native';
+import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
 
 import loc from '../loc';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueLoading, BlueButton } from '../BlueComponents';
+import { BlueSpacing20, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
 import navigationStyle from '../components/navigationStyle';
 import {
   SegwitP2SHWallet,
@@ -17,6 +17,9 @@ import {
   SLIP39LegacyP2PKHWallet,
 } from '../class';
 import ecc from '../blue_modules/noble_ecc';
+import Button from '../components/Button';
+import SafeArea from '../components/SafeArea';
+import presentAlert from '../components/Alert';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -39,7 +42,21 @@ export default class Selftest extends Component {
   }
 
   onPressSaveToStorage = () => {
-    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success');
+    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success on ' + new Date().toUTCString());
+  };
+
+  onPressImportDocument = async () => {
+    try {
+      fs.showFilePickerAndReadFile().then(file => {
+        if (file && file.data && file.data.length > 0) {
+          presentAlert({ message: file.data });
+        } else {
+          presentAlert({ message: 'Error reading file' });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   async componentDidMount() {
@@ -254,6 +271,10 @@ export default class Selftest extends Component {
       }
 
       //
+
+      assertStrictEqual(Buffer.from('00ff0f', 'hex').reverse().toString('hex'), '0fff00');
+
+      //
     } catch (Err) {
       errorMessage += Err;
       isOk = false;
@@ -272,7 +293,7 @@ export default class Selftest extends Component {
     }
 
     return (
-      <SafeBlueArea>
+      <SafeArea>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />
@@ -298,15 +319,13 @@ export default class Selftest extends Component {
                 );
               }
             })()}
-            {Platform.OS === 'android' && (
-              <>
-                <BlueSpacing20 />
-                <BlueButton title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
-              </>
-            )}
+            <BlueSpacing20 />
+            <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+            <BlueSpacing20 />
+            <Button title="Test File Import" onPress={this.onPressImportDocument} />
           </ScrollView>
         </BlueCard>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }

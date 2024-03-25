@@ -2,7 +2,7 @@ type Utxo = {
   height: number;
   value: number;
   address: string;
-  txId: string;
+  txid: string;
   vout: number;
   wif?: string;
 };
@@ -59,11 +59,11 @@ export function multiGetUtxoByAddress(addresses: string[]): Promise<Record<strin
 
 // TODO: this function returns different results based on the value of `verbose`, consider splitting it into two
 export function multiGetTransactionByTxid(
-  txIds: string[],
+  txids: string[],
   batchsize: number = 45,
   verbose: true = true,
 ): Promise<Record<string, ElectrumTransaction>>;
-export function multiGetTransactionByTxid(txIds: string[], batchsize: number, verbose: false): Promise<Record<string, string>>;
+export function multiGetTransactionByTxid(txids: string[], batchsize: number, verbose: false): Promise<Record<string, string>>;
 
 export type MultiGetBalanceResponse = {
   balance: number;

@@ -1,22 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import {
-  BlueButton,
-  BlueButtonLink,
-  BlueCard,
-  BlueLoading,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
-  SafeBlueArea,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {
@@ -81,7 +73,7 @@ export default class LnurlPaySuccess extends Component {
     const { preamble, message, url, justPaid } = this.state;
 
     return (
-      <SafeBlueArea style={styles.root}>
+      <SafeArea style={styles.root}>
         <ScrollView style={styles.container}>
           {justPaid && <SuccessView />}
 
@@ -94,7 +86,7 @@ export default class LnurlPaySuccess extends Component {
           {(preamble || url || message) && (
             <BlueCard>
               <View style={styles.successContainer}>
-                <Text style={styles.successText}>{preamble}</Text>
+                <BlueText style={styles.successText}>{preamble}</BlueText>
                 {url ? (
                   <BlueButtonLink
                     title={url}
@@ -103,9 +95,7 @@ export default class LnurlPaySuccess extends Component {
                     }}
                   />
                 ) : (
-                  <Text selectable style={{ ...styles.successText, ...styles.successValue }}>
-                    {message}
-                  </Text>
+                  <BlueText selectable>{message}</BlueText>
                 )}
               </View>
             </BlueCard>
@@ -113,7 +103,7 @@ export default class LnurlPaySuccess extends Component {
 
           <BlueCard>
             {repeatable ? (
-              <BlueButton
+              <Button
                 onPress={() => {
                   this.props.navigation.navigate('ScanLndInvoiceRoot', {
                     screen: 'LnurlPay',
@@ -127,16 +117,16 @@ export default class LnurlPaySuccess extends Component {
                 icon={{ name: 'refresh', type: 'font-awesome', color: '#9aa0aa' }}
               />
             ) : (
-              <BlueButton
+              <Button
                 onPress={() => {
-                  this.props.navigation.dangerouslyGetParent().popToTop();
+                  this.props.navigation.getParent().popToTop();
                 }}
                 title={loc.send.success_done}
               />
             )}
           </BlueCard>
         </ScrollView>
-      </SafeBlueArea>
+      </SafeArea>
     );
   }
 }
@@ -145,7 +135,7 @@ LnurlPaySuccess.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    dangerouslyGetParent: PropTypes.func,
+    getParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
@@ -175,9 +165,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 4,
   },
-  successValue: {
-    fontWeight: 'bold',
-  },
   description: {
     marginTop: 20,
   },
@@ -186,7 +173,7 @@ const styles = StyleSheet.create({
 LnurlPaySuccess.navigationOptions = navigationStyle({
   title: '',
   closeButton: true,
-  headerHideBackButton: true,
+  headerBackVisible: false,
   gestureEnabled: false,
-  closeButtonFunc: ({ navigation }) => navigation.dangerouslyGetParent().popToTop(),
+  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

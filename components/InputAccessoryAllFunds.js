@@ -2,11 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
 import { InputAccessoryView, StyleSheet, Keyboard, Platform, View } from 'react-native';
-import { useTheme } from '@react-navigation/native';
-
 import loc from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { BlueButtonLink } from '../BlueComponents';
+import { useTheme } from './themes';
 
 const InputAccessoryAllFunds = ({ balance, canUseAll, onUseAllPressed }) => {
   const { colors } = useTheme();

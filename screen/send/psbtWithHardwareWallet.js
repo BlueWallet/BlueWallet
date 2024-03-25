@@ -1,19 +1,23 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, TouchableOpacity, ScrollView, View, TextInput, Linking, Platform, Text, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useTheme, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
-import { SecondButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
+import { BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Notifications from '../../blue_modules/notifications';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import SafeArea from '../../components/SafeArea';
+import { SecondButton } from '../../components/SecondButton';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
@@ -62,7 +66,7 @@ const PsbtWithHardwareWallet = () => {
   const onBarScanned = ret => {
     if (ret && !ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
-      alert('BC-UR not decoded. This should never happen');
+      presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
@@ -75,12 +79,12 @@ const PsbtWithHardwareWallet = () => {
       if (launchedBy) {
         // we must navigate back to the screen who requested psbt (instead of broadcasting it ourselves)
         // most likely for LN channel opening
-        navigation.navigate(launchedBy, { psbt });
+        navigation.navigate({ name: launchedBy, params: { psbt }, merge: true });
         // ^^^ we just use `psbt` variable sinse it was finalized in the above _combinePSBT()
         // (passed by reference)
       }
     } catch (Err) {
-      alert(Err.message);
+      presentAlert({ message: Err.message });
     }
   };
 
@@ -94,7 +98,7 @@ const PsbtWithHardwareWallet = () => {
 
   useEffect(() => {
     if (!psbt && !route.params.txhex) {
-      alert(loc.send.no_tx_signing_in_progress);
+      presentAlert({ message: loc.send.no_tx_signing_in_progress });
     }
 
     if (deepLinkPSBT) {
@@ -103,7 +107,7 @@ const PsbtWithHardwareWallet = () => {
         const Tx = fromWallet.combinePsbt(routeParamsPSBT.current, newPsbt);
         setTxHex(Tx.toHex());
       } catch (Err) {
-        alert(Err);
+        presentAlert({ message: Err });
       }
     } else if (routeParamsTXHex) {
       setTxHex(routeParamsTXHex);
@@ -137,14 +141,14 @@ const PsbtWithHardwareWallet = () => {
         await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
         fetchAndSaveWalletTransactions(fromWallet.getID());
       } else {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         setIsLoading(false);
-        alert(loc.errors.broadcast);
+        presentAlert({ message: loc.errors.broadcast });
       }
     } catch (error) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
-      alert(error.message);
+      presentAlert({ message: error.message });
     }
   };
 
@@ -202,19 +206,21 @@ const PsbtWithHardwareWallet = () => {
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        alert(loc.send.details_no_signed_tx);
+        presentAlert({ message: loc.send.details_no_signed_tx });
       }
     }
   };
 
   const openScanner = () => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        showFileImportButton: false,
-        onBarScanned,
-      },
+    requestCameraAuthorization().then(() => {
+      navigation.navigate('ScanQRCodeRoot', {
+        screen: 'ScanQRCode',
+        params: {
+          launchedBy: route.name,
+          showFileImportButton: false,
+          onBarScanned,
+        },
+      });
     });
   };
 
@@ -225,7 +231,7 @@ const PsbtWithHardwareWallet = () => {
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={stylesHook.root}>
+    <SafeArea style={stylesHook.root}>
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
         <View style={styles.container}>
           <BlueCard>
@@ -277,7 +283,7 @@ const PsbtWithHardwareWallet = () => {
           </BlueCard>
         </View>
       </ScrollView>
-    </SafeBlueArea>
+    </SafeArea>
   );
 };
 

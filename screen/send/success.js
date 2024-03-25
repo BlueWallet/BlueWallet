@@ -1,21 +1,24 @@
 import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import LottieView from 'lottie-react-native';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-elements';
 import BigNumber from 'bignumber.js';
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import { BlueButton, BlueCard } from '../../BlueComponents';
+import { BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
 
 const Success = () => {
   const pop = () => {
-    dangerouslyGetParent().pop();
+    getParent().pop();
   };
   const { colors } = useTheme();
-  const { dangerouslyGetParent } = useNavigation();
+  const { getParent } = useNavigation();
   const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
   const stylesHook = StyleSheet.create({
     root: {
@@ -33,7 +36,7 @@ const Success = () => {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.root, stylesHook.root]}>
+    <SafeArea style={[styles.root, stylesHook.root]}>
       <SuccessView
         amount={amount}
         amountUnit={amountUnit}
@@ -42,9 +45,9 @@ const Success = () => {
         onDonePressed={onDonePressed}
       />
       <View style={styles.buttonContainer}>
-        <BlueButton onPress={onDonePressed} title={loc.send.success_done} />
+        <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

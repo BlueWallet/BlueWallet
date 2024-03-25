@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet, TextInput, Alert, PermissionsAndroid } from 'react-native';
+import { Image, View, TouchableOpacity, Platform, StyleSheet, TextInput, Alert } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
-import { useNavigation, useRoute, useIsFocused, useTheme } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import loc from '../../loc';
-import { BlueLoading, BlueText, BlueButton } from '../../BlueComponents';
-import alert from '../../components/Alert';
+import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import { openPrivacyDesktopSettings } from '../../class/camera';
+import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import Button from '../../components/Button';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
@@ -61,9 +65,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backdoorButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    width: 60,
+    height: 60,
+    backgroundColor: 'rgba(0,0,0,0.01)',
     position: 'absolute',
   },
   backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
@@ -82,8 +86,7 @@ const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const showFileImportButton = route.params.showFileImportButton || false;
-  const { launchedBy, onBarScanned, onDismiss, onBarScannerDismissWithoutData = () => {} } = route.params;
+  const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
   const scannedCache = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -93,7 +96,7 @@ const ScanQRCode = () => {
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
-  const [cameraStatus, setCameraStatus] = useState(false);
+  const [cameraStatusGranted, setCameraStatusGranted] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -108,30 +111,7 @@ const ScanQRCode = () => {
   });
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-          setCameraStatus(true);
-          return;
-        }
-        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-          title: '',
-          message: loc.send.permission_camera_message,
-          buttonNeutral: loc.send.permission_storage_later,
-          buttonNegative: loc._.no,
-          buttonPositive: loc._.yes,
-        });
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('You can use the camera');
-          setCameraStatus(true);
-        } else {
-          console.log('Camera permission denied');
-          setCameraStatus(false);
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    })();
+    isCameraAuthorizationStatusGranted().then(setCameraStatusGranted);
   }, []);
 
   const HashIt = function (s) {
@@ -146,7 +126,7 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -195,7 +175,7 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned({ data });
       } else {
@@ -258,7 +238,7 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
 
       if (launchedBy) {
-        navigation.navigate(launchedBy);
+        navigation.navigate({ name: launchedBy, params: {}, merge: true });
       }
       onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
@@ -268,7 +248,7 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate(launchedBy);
+          navigation.navigate({ name: launchedBy, params: {}, merge: true });
         }
         onBarScanned(ret.data);
       } catch (e) {
@@ -308,7 +288,7 @@ const ScanQRCode = () => {
                 if (!error) {
                   onBarCodeRead({ data: result });
                 } else {
-                  alert(loc.send.qr_error_no_qrcode);
+                  presentAlert({ message: loc.send.qr_error_no_qrcode });
                   setIsLoading(false);
                 }
               });
@@ -322,23 +302,25 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    onBarScannerDismissWithoutData();
     if (launchedBy) {
-      navigation.navigate(launchedBy);
+      navigation.navigate({ name: launchedBy, params: {}, merge: true });
     } else {
       navigation.goBack();
     }
     if (onDismiss) onDismiss();
   };
 
-  return isLoading ? (
-    <View style={styles.root}>
-      <BlueLoading />
-    </View>
+  const render = isLoading ? (
+    <BlueLoading />
   ) : (
-    <View style={styles.root}>
-      <StatusBar hidden />
-      {isFocused && cameraStatus ? (
+    <>
+      {!cameraStatusGranted ? (
+        <View style={[styles.openSettingsContainer, stylesHook.openSettingsContainer]}>
+          <BlueText>{loc.send.permission_camera_message}</BlueText>
+          <BlueSpacing40 />
+          <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
+        </View>
+      ) : isFocused ? (
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
@@ -386,7 +368,7 @@ const ScanQRCode = () => {
             value={backdoorText}
             onChangeText={setBackdoorText}
           />
-          <BlueButton
+          <Button
             title="OK"
             testID="scanQrBackdoorOkButton"
             onPress={() => {
@@ -413,8 +395,23 @@ const ScanQRCode = () => {
           setBackdoorVisible(true);
         }}
       />
-    </View>
+    </>
   );
+
+  return <View style={styles.root}>{render}</View>;
 };
 
 export default ScanQRCode;
+ScanQRCode.initialParams = {
+  isLoading: false,
+  cameraStatusGranted: undefined,
+  backdoorPressed: undefined,
+  launchedBy: undefined,
+  urTotal: undefined,
+  urHave: undefined,
+  backdoorText: '',
+  onDismiss: undefined,
+  showFileImportButton: true,
+  backdoorVisible: false,
+  animatedQRCodeData: {},
+};

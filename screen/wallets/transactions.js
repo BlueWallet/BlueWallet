@@ -6,18 +6,16 @@ import {
   FlatList,
   InteractionManager,
   PixelRatio,
-  Platform,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  findNodeHandle,
   TouchableOpacity,
   View,
   I18nManager,
+  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useRoute, useNavigation, useTheme, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Chain } from '../../models/bitcoinUnits';
 import { BlueAlertWalletExportReminder } from '../../BlueComponents';
 import WalletGradient from '../../class/wallet-gradient';
@@ -32,8 +30,11 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import LNNodeBar from '../../components/LNNodeBar';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import alert from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import PropTypes from 'prop-types';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useTheme } from '../../components/themes';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -44,7 +45,14 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const WalletTransactions = ({ navigation }) => {
-  const { wallets, saveToDisk, setSelectedWallet, walletTransactionUpdateStatus, isElectrumDisabled } = useContext(BlueStorageContext);
+  const {
+    wallets,
+    saveToDisk,
+    setSelectedWalletID,
+    walletTransactionUpdateStatus,
+    isElectrumDisabled,
+    setReloadTransactionsMenuActionFunction,
+  } = useContext(BlueStorageContext);
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -128,7 +136,7 @@ const WalletTransactions = ({ navigation }) => {
     setTimeElapsed(0);
     setItemPriceUnit(wallet.getPreferredBalanceUnit());
     setIsLoading(false);
-    setSelectedWallet(wallet.getID());
+    setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
       headerStyle: {
@@ -140,7 +148,7 @@ const WalletTransactions = ({ navigation }) => {
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
+  }, [wallet]);
 
   useEffect(() => {
     const newWallet = wallets.find(w => w.getID() === walletID);
@@ -231,7 +239,7 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
       noErr = false;
-      alert(err.message);
+      presentAlert({ message: err.message });
       setIsLoading(false);
       setTimeElapsed(prev => prev + 1);
     }
@@ -274,15 +282,6 @@ const WalletTransactions = ({ navigation }) => {
         )}
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          <TouchableOpacity
-            accessibilityRole="button"
-            testID="refreshTransactions"
-            style={style}
-            onPress={refreshTransactions}
-            disabled={isLoading}
-          >
-            <Icon name="refresh" type="font-awesome" color={colors.feeText} />
-          </TouchableOpacity>
         </View>
       </View>
     );
@@ -324,7 +323,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return alert(Err.message);
+          return presentAlert({ message: Err.message });
         }
       }
       navigate('SendDetailsRoot', {
@@ -367,7 +366,13 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const choosePhoto = () => {
-    fs.showImagePickerAndReadImage().then(onBarCodeRead);
+    fs.showImagePickerAndReadImage()
+      .then(onBarCodeRead)
+      .catch(error => {
+        console.log(error);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ title: loc.errors.error, message: error.message });
+      });
   };
 
   const copyFromClipboard = async () => {
@@ -405,66 +410,38 @@ const WalletTransactions = ({ navigation }) => {
 
   const sendButtonLongPress = async () => {
     const isClipboardEmpty = (await BlueClipboard().getClipboardContent()).trim().length === 0;
-    if (Platform.OS === 'ios') {
-      const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
-      if (!isClipboardEmpty) {
-        options.push(loc.wallets.list_long_clipboard);
-      }
-      ActionSheet.showActionSheetWithOptions(
-        { options, cancelButtonIndex: 0, anchor: findNodeHandle(walletActionButtonsRef.current) },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            choosePhoto();
-          } else if (buttonIndex === 2) {
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: name,
-                onBarScanned: onBarCodeRead,
-                showFileImportButton: false,
-              },
-            });
-          } else if (buttonIndex === 3) {
-            copyFromClipboard();
-          }
-        },
-      );
-    } else if (Platform.OS === 'android') {
-      const buttons = [
-        {
-          text: loc._.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: loc.wallets.list_long_choose,
-          onPress: choosePhoto,
-        },
-        {
-          text: loc.wallets.list_long_scan,
-          onPress: () =>
-            navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: name,
-                onBarScanned: onBarCodeRead,
-                showFileImportButton: false,
-              },
-            }),
-        },
-      ];
-      if (!isClipboardEmpty) {
-        buttons.push({
-          text: loc.wallets.list_long_clipboard,
-          onPress: copyFromClipboard,
-        });
-      }
-      ActionSheet.showActionSheetWithOptions({
-        title: '',
-        message: '',
-        buttons,
-      });
+    const options = [loc._.cancel, loc.wallets.list_long_choose, loc.wallets.list_long_scan];
+    const cancelButtonIndex = 0;
+
+    if (!isClipboardEmpty) {
+      options.push(loc.wallets.list_long_clipboard);
     }
+
+    ActionSheet.showActionSheetWithOptions(
+      {
+        title: loc.send.header,
+        options,
+        cancelButtonIndex,
+        anchor: findNodeHandle(walletActionButtonsRef.current),
+      },
+      async buttonIndex => {
+        switch (buttonIndex) {
+          case 0:
+            break;
+          case 1:
+            choosePhoto();
+            break;
+          case 2:
+            scanQrHelper(navigate, name, true).then(data => onBarCodeRead(data));
+            break;
+          case 3:
+            if (!isClipboardEmpty) {
+              copyFromClipboard();
+            }
+            break;
+        }
+      },
+    );
   };
 
   const navigateToViewEditCosigners = () => {
@@ -480,7 +457,7 @@ const WalletTransactions = ({ navigation }) => {
     if (id === actionKeys.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
-        alert(loc.lnd.refill_create);
+        presentAlert({ message: loc.lnd.refill_create });
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
@@ -496,15 +473,33 @@ const WalletTransactions = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    setOptions({ statusBarStyle: 'light', barTintColor: WalletGradient.headerColorFor(wallet.type) });
+  }, [setOptions, wallet.type]);
+
   const getItemLayout = (_, index) => ({
     length: 64,
     offset: 64 * index,
     index,
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      InteractionManager.runAfterInteractions(() => {
+        setReloadTransactionsMenuActionFunction(() => refreshTransactions);
+      });
+      return () => {
+        setReloadTransactionsMenuActionFunction(undefined);
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
+
+  // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions };
+
   return (
     <View style={styles.flex}>
-      <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(wallet.type)} animated />
       <TransactionsNavigationHeader
         navigation={navigation}
         wallet={wallet}
@@ -568,7 +563,7 @@ const WalletTransactions = ({ navigation }) => {
               {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
             </ScrollView>
           }
-          {...(isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh: refreshTransactions })}
+          {...refreshProps}
           data={dataSource}
           extraData={[timeElapsed, dataSource, wallets]}
           keyExtractor={_keyExtractor}

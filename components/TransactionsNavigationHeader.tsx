@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } 
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -10,9 +10,11 @@ import loc, { formatBalance } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
+import { FiatUnit } from '../models/fiatUnit';
+import { TWallet } from '../class/wallets/types';
 
 interface TransactionsNavigationHeaderProps {
-  wallet: AbstractWallet;
+  wallet: TWallet;
   onWalletUnitChange?: (wallet: any) => void;
   navigation: {
     navigate: (route: string, params?: any) => void;
@@ -40,7 +42,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
 
-  const context = useContext(BlueStorageContext);
+  const { preferredFiatCurrency, saveToDisk } = useContext(BlueStorageContext);
   const menuRef = useRef(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
@@ -48,7 +50,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       wallet
         .allowOnchainAddress()
         .then((value: boolean) => setAllowOnchainAddress(value))
-        .catch((e: any) => {
+        .catch((e: Error) => {
           console.log('This Lndhub wallet does not have an onchain address API.');
           setAllowOnchainAddress(false);
         });
@@ -56,24 +58,29 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet]);
 
   useEffect(() => {
+    setWallet(initialWallet);
+  }, [initialWallet]);
+
+  useEffect(() => {
     verifyIfWalletAllowsOnchainAddress();
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = () => {
-    Clipboard.setString(formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit()).toString());
+    const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
+    if (value) {
+      Clipboard.setString(value);
+    }
   };
 
-  const updateWalletVisibility = (w: AbstractWallet, newHideBalance: boolean) => {
+  const updateWalletVisibility = (w: TWallet, newHideBalance: boolean) => {
     w.hideBalance = newHideBalance;
     return w;
   };
 
   const handleBalanceVisibility = async () => {
-    // @ts-ignore: Gotta update this class
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled && wallet.hideBalance) {
-      // @ts-ignore: Ugh
       if (!(await Biometric.unlockWithBiometrics())) {
         return navigation.goBack();
       }
@@ -81,10 +88,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
     const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
     setWallet(updatedWallet);
-    context.saveToDisk();
+    saveToDisk();
   };
 
-  const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
+  const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
     w.preferredBalanceUnit = newPreferredUnit;
     return w;
   };
@@ -129,8 +136,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
     const balanceUnit = wallet.getPreferredBalanceUnit();
-    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true).toString();
-    return !hideBalance && balanceFormatted;
+    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true);
+    return !hideBalance && balanceFormatted?.toString();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
 
@@ -155,13 +162,19 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         })()}
         style={styles.chainIcon}
       />
+
       <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel}>
         {wallet.getLabel()}
       </Text>
       <ToolTipMenu
+        enableAndroidRipple={false}
         onPress={changeWalletBalanceUnit}
         ref={menuRef}
-        title={loc.wallets.balance}
+        title={`${loc.wallets.balance} (${
+          wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
+            ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
+            : wallet.getPreferredBalanceUnit()
+        })`}
         onPressMenuItem={onPressMenuItem}
         actions={
           wallet.hideBalance
@@ -201,6 +214,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           ) : (
             <Text
               testID="WalletBalance"
+              // @ts-ignore: Ugh
               key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
               numberOfLines={1}
               adjustsFontSizeToFit

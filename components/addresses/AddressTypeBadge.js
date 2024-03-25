@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useTheme } from '@react-navigation/native';
 import { StyleSheet, View, Text } from 'react-native';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import { useTheme } from '../themes';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,8 +32,8 @@ const AddressTypeBadge = ({ isInternal, hasTransactions }) => {
   const badgeLabel = hasTransactions
     ? loc.addresses.type_used
     : isInternal
-    ? formatStringAddTwoWhiteSpaces(loc.addresses.type_change)
-    : formatStringAddTwoWhiteSpaces(loc.addresses.type_receive);
+      ? formatStringAddTwoWhiteSpaces(loc.addresses.type_change)
+      : formatStringAddTwoWhiteSpaces(loc.addresses.type_receive);
 
   // eslint-disable-next-line prettier/prettier
   const badgeStyle = hasTransactions

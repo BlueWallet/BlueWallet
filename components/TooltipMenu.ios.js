@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
-import QRCodeComponent from './QRCodeComponent';
 import { TouchableOpacity } from 'react-native';
 
 const ToolTipMenu = (props, ref) => {
@@ -40,8 +39,7 @@ const ToolTipMenu = (props, ref) => {
   const menuTitle = props.title ?? '';
   const isButton = !!props.isButton;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
-  const previewQRCode = props.previewQRCode ?? false;
-  const previewValue = props.previewValue;
+  const renderPreview = props.renderPreview ?? undefined;
   const disabled = props.disabled ?? false;
 
   const buttonStyle = props.buttonStyle;
@@ -57,16 +55,41 @@ const ToolTipMenu = (props, ref) => {
         menuTitle,
         menuItems,
       }}
-      style={buttonStyle}
     >
       {props.onPress ? (
-        <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
+        <TouchableOpacity accessibilityRole="button" style={buttonStyle} onPress={props.onPress}>
           {props.children}
         </TouchableOpacity>
       ) : (
         props.children
       )}
     </ContextMenuButton>
+  ) : props.onPress ? (
+    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
+      <ContextMenuView
+        ref={ref}
+        internalCleanupMode="viewController"
+        onPressMenuItem={({ nativeEvent }) => {
+          props.onPressMenuItem(nativeEvent.actionKey);
+        }}
+        useActionSheetFallback={false}
+        menuConfig={{
+          menuTitle,
+          menuItems,
+        }}
+        {...(renderPreview
+          ? {
+              previewConfig: {
+                previewType: 'CUSTOM',
+                backgroundColor: 'white',
+              },
+              renderPreview,
+            }
+          : {})}
+      >
+        {props.children}
+      </ContextMenuView>
+    </TouchableOpacity>
   ) : (
     <ContextMenuView
       ref={ref}
@@ -74,27 +97,22 @@ const ToolTipMenu = (props, ref) => {
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
+      useActionSheetFallback={false}
       menuConfig={{
         menuTitle,
         menuItems,
       }}
-      {...(previewQRCode
+      {...(renderPreview
         ? {
             previewConfig: {
               previewType: 'CUSTOM',
               backgroundColor: 'white',
             },
-            renderPreview: () => <QRCodeComponent value={previewValue} isMenuAvailable={false} />,
+            renderPreview,
           }
         : {})}
     >
-      {props.onPress ? (
-        <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
-          {props.children}
-        </TouchableOpacity>
-      ) : (
-        props.children
-      )}
+      {props.children}
     </ContextMenuView>
   );
 };
@@ -107,7 +125,7 @@ ToolTipMenu.propTypes = {
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,
-  previewQRCode: PropTypes.bool,
+  renderPreview: PropTypes.element,
   onPress: PropTypes.func,
   previewValue: PropTypes.string,
   disabled: PropTypes.bool,

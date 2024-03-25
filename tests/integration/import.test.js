@@ -16,6 +16,7 @@ import {
 } from '../../class';
 import startImport from '../../class/wallet-import';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+const fs = require('fs');
 
 jest.setTimeout(90 * 1000);
 
@@ -503,5 +504,56 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
     assert.strictEqual(store.state.wallets[1].type, HDSegwitBech32Wallet.type);
     assert.strictEqual(store.state.wallets.length, 2);
+  });
+
+  it('can import coldcard mk4 descriptor.txt', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      fs.readFileSync('tests/unit/fixtures/coldcardmk4/descriptor.txt').toString('utf8'),
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+
+    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '086ee178');
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1q5y4r767v5fzx74ez4nw36hjqrhr4ayeyut5px6');
+  });
+
+  it('can import coldcard mk4 new-wasabi.json', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      fs.readFileSync('tests/unit/fixtures/coldcardmk4/new-wasabi.json').toString('utf8'),
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+
+    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '086ee178');
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1q5y4r767v5fzx74ez4nw36hjqrhr4ayeyut5px6');
+  });
+
+  it('can import coldcard mk4 sparrow-export.json', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      fs.readFileSync('tests/unit/fixtures/coldcardmk4/sparrow-export.json').toString('utf8'),
+      false,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+
+    assert.strictEqual(store.state.wallets.length, 1);
+    assert.strictEqual(store.state.wallets[0].type, WatchOnlyWallet.type);
+    assert.strictEqual(store.state.wallets[0].getMasterFingerprintHex(), '086ee178');
+    assert.strictEqual(store.state.wallets[0].getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1q5y4r767v5fzx74ez4nw36hjqrhr4ayeyut5px6');
   });
 });
