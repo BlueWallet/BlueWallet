@@ -532,11 +532,11 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   };
 
   const renderProvideMnemonicsModal = () => {
-    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+    // @ts-ignore weird, property exists on type definition. might be some ts bugs
     const isPad: boolean = Platform.isPad;
     return (
-      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
+        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
