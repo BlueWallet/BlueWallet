@@ -1,13 +1,13 @@
 import React, { useRef, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity } from 'react-native';
+import { Pressable } from 'react-native';
 import showPopupMenu from '../blue_modules/showPopupMenu';
 
 const ToolTipMenu = (props, ref) => {
   const menuRef = useRef();
   const disabled = props.disabled ?? false;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
-
+  const enableAndroidRipple = props.enableAndroidRipple ?? true;
   const buttonStyle = props.buttonStyle ?? {};
   const handleToolTipSelection = selection => {
     props.onPressMenuItem(selection.id);
@@ -39,19 +39,21 @@ const ToolTipMenu = (props, ref) => {
   };
 
   return (
-    <TouchableOpacity
-      style={buttonStyle}
+    <Pressable
+      {...(enableAndroidRipple ? { android_ripple: { color: 'lightgrey' } } : {})}
       ref={menuRef}
       disabled={disabled}
+      style={buttonStyle}
       {...(isMenuPrimaryAction ? { onPress: showMenu } : { onPress: props.onPress, onLongPress: showMenu })}
     >
       {props.children}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
 export default forwardRef(ToolTipMenu);
 ToolTipMenu.propTypes = {
+  enableAndroidRipple: PropTypes.bool,
   actions: PropTypes.object.isRequired,
   children: PropTypes.node.isRequired,
   onPressMenuItem: PropTypes.func.isRequired,

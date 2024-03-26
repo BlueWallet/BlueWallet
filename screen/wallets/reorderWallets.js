@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useContext, useState } from 'react';
 import { StyleSheet, useColorScheme, Platform } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import { useNavigation } from '@react-navigation/native';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -9,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const styles = StyleSheet.create({
   root: {
@@ -24,7 +24,7 @@ const ReorderWallets = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
   const colorScheme = useColorScheme();
-  const { navigate, setOptions } = useNavigation();
+  const { navigate, setOptions } = useExtendedNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [walletData, setWalletData] = useState([]);

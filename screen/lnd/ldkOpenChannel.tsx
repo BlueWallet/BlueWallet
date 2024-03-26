@@ -9,7 +9,7 @@ import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
-import { AbstractWallet, HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
+import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
 import Biometric from '../../class/biometrics';
@@ -45,8 +45,8 @@ const LdkOpenChannel = (props: any) => {
     psbt,
     remoteHostWithPubkey = '030c3f19d742ca294a55c00376b3b355c3c90d61c6b6b39554dbc7ac19b141c14f@52.50.244.44:9735' /* Bitrefill */,
   } = useRoute<LdkOpenChannelProps>().params;
-  const fundingWallet: HDSegwitBech32Wallet = wallets.find((w: AbstractWallet) => w.getID() === fundingWalletID);
-  const ldkWallet: LightningLdkWallet = wallets.find((w: AbstractWallet) => w.getID() === ldkWalletID);
+  const fundingWallet = wallets.find(w => w.getID() === fundingWalletID) as HDSegwitBech32Wallet;
+  const ldkWallet = wallets.find(w => w.getID() === ldkWalletID) as LightningLdkWallet;
   const [unit, setUnit] = useState<BitcoinUnit | string>(ldkWallet.getPreferredBalanceUnit());
   const [isLoading, setIsLoading] = useState(false);
   const psbtOpenChannelStartedTs = useRef<number>();

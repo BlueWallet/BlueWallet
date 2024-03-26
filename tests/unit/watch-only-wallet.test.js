@@ -33,7 +33,7 @@ describe('Watch only wallet', () => {
       w.setSecret(secret);
       assert.ok(w.valid());
       assert.strictEqual(w.isHd(), true);
-      assert.strictEqual(w.getMasterFingerprint(), false);
+      assert.strictEqual(w.getMasterFingerprint(), 0);
       assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
       assert.ok(w.isXpubValid(), w.secret);
       assert.ok(!w.useWithHardwareWalletEnabled());
@@ -126,18 +126,13 @@ describe('Watch only wallet', () => {
         height: 596736,
         value: 20000,
         address: 'bc1qhu8jqyzfazgatpctqn44xr7pdd3mdx6qy2r6xa',
-        txId: '7f3b9e032a84413d7a5027b0d020f8acf80ad28f68b5bce8fa8ac357248c5b80',
+        txid: '7f3b9e032a84413d7a5027b0d020f8acf80ad28f68b5bce8fa8ac357248c5b80',
         vout: 0,
       },
     ];
     // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
 
-    const { psbt } = await w.createTransaction(
-      utxos,
-      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }],
-      1,
-      changeAddress,
-    );
+    const { psbt } = w.createTransaction(utxos, [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }], 1, changeAddress);
 
     assert.strictEqual(
       psbt.toBase64(),
@@ -164,10 +159,8 @@ describe('Watch only wallet', () => {
         height: 618811,
         value: 66600,
         address: 'bc1qzqjwye4musmz56cg44ttnchj49zueh9yr0qsxt',
-        txId: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
         vout: 0,
         txid: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
-        amount: 66600,
         wif: false,
         confirmations: 1,
       },
@@ -204,10 +197,8 @@ describe('Watch only wallet', () => {
         height: 618811,
         value: 66600,
         address: 'bc1qzqjwye4musmz56cg44ttnchj49zueh9yr0qsxt',
-        txId: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
         vout: 0,
         txid: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
-        amount: 66600,
         wif: false,
         confirmations: 1,
       },
@@ -418,10 +409,8 @@ describe('Watch only wallet', () => {
         height: 557538,
         value: 51432,
         address: '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK',
-        txId: 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100',
         vout: 0,
         txid: 'b2ac59bc282083498d1e87805d89bef9d3f3bc216c1d2c4dfaa2e2911b547100',
-        amount: 51432,
         wif: false,
         confirmations: 132402,
       },
@@ -429,12 +418,7 @@ describe('Watch only wallet', () => {
 
     const changeAddress = '3DrZBgntD8kBBbuKLJtPVAeGT75BMC7NxU';
 
-    const { psbt } = await w.createTransaction(
-      utxos,
-      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }],
-      1,
-      changeAddress,
-    );
+    const { psbt } = w.createTransaction(utxos, [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }], 1, changeAddress);
 
     assert.strictEqual(
       psbt.data.outputs[1].bip32Derivation[0].pubkey.toString('hex'),

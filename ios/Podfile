@@ -65,8 +65,10 @@ target 'BlueWalletUITests' do
 end
 
 post_install do |installer|
-  react_native_post_install(installer, :mac_catalyst_enabled => true)
-
+  react_native_post_install(
+    installer,
+    :mac_catalyst_enabled => true
+  )
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported

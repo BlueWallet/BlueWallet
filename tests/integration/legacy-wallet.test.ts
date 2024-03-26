@@ -66,7 +66,6 @@ describe('LegacyWallet', function () {
       assert.strictEqual(tx.vout, 0);
       assert.strictEqual(tx.address, '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK');
       assert.strictEqual(tx.value, 51432);
-      assert.strictEqual(tx.value, tx.amount);
       assert.ok(tx.confirmations! > 0);
     }
   });

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, Linking, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -86,7 +86,7 @@ export default class LnurlPaySuccess extends Component {
           {(preamble || url || message) && (
             <BlueCard>
               <View style={styles.successContainer}>
-                <Text style={styles.successText}>{preamble}</Text>
+                <BlueText style={styles.successText}>{preamble}</BlueText>
                 {url ? (
                   <BlueButtonLink
                     title={url}
@@ -95,9 +95,7 @@ export default class LnurlPaySuccess extends Component {
                     }}
                   />
                 ) : (
-                  <Text selectable style={{ ...styles.successText, ...styles.successValue }}>
-                    {message}
-                  </Text>
+                  <BlueText selectable>{message}</BlueText>
                 )}
               </View>
             </BlueCard>
@@ -166,9 +164,6 @@ const styles = StyleSheet.create({
   successText: {
     textAlign: 'center',
     margin: 4,
-  },
-  successValue: {
-    fontWeight: 'bold',
   },
   description: {
     marginTop: 20,

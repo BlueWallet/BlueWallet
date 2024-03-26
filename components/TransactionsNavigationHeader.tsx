@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } 
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import Biometric from '../class/biometrics';
@@ -11,9 +11,10 @@ import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { BluePrivateBalance } from '../BlueComponents';
 import { FiatUnit } from '../models/fiatUnit';
+import { TWallet } from '../class/wallets/types';
 
 interface TransactionsNavigationHeaderProps {
-  wallet: AbstractWallet;
+  wallet: TWallet;
   onWalletUnitChange?: (wallet: any) => void;
   navigation: {
     navigate: (route: string, params?: any) => void;
@@ -71,7 +72,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   };
 
-  const updateWalletVisibility = (w: AbstractWallet, newHideBalance: boolean) => {
+  const updateWalletVisibility = (w: TWallet, newHideBalance: boolean) => {
     w.hideBalance = newHideBalance;
     return w;
   };
@@ -90,7 +91,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     saveToDisk();
   };
 
-  const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
+  const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
     w.preferredBalanceUnit = newPreferredUnit;
     return w;
   };
@@ -166,6 +167,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         {wallet.getLabel()}
       </Text>
       <ToolTipMenu
+        enableAndroidRipple={false}
         onPress={changeWalletBalanceUnit}
         ref={menuRef}
         title={`${loc.wallets.balance} (${

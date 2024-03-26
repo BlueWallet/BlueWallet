@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -18,6 +18,7 @@ import {
   findNodeHandle,
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
+
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -32,7 +33,7 @@ import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
 import * as NavigationService from '../../NavigationService';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
-import { AbstractWallet, HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
@@ -51,6 +52,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 const fs = require('../../blue_modules/fs');
 const prompt = require('../../helpers/prompt');
 
@@ -60,10 +62,10 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const { navigate, goBack, dispatch, addListener } = useNavigation();
+  const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
-  const w = useRef(wallets.find((wallet: AbstractWallet) => wallet.getID() === walletId));
+  const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
@@ -176,6 +178,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   };
 
   const onSave = async () => {
+    if (!wallet) {
+      throw new Error('Wallet is undefined');
+    }
     setIsLoading(true);
 
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
@@ -188,9 +193,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     }
 
     // eslint-disable-next-line prefer-const
-    let newWallets = wallets.filter((newWallet: MultisigHDWallet) => {
+    let newWallets = wallets.filter(newWallet => {
       return newWallet.getID() !== walletId;
-    });
+    }) as MultisigHDWallet[];
     if (!isElectrumDisabled) {
       await wallet?.fetchBalance();
     }
@@ -210,13 +215,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       enableBlur();
 
       const task = InteractionManager.runAfterInteractions(async () => {
-        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-        if (isBiometricsEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            return goBack();
-          }
-        }
         if (!w.current) {
           // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();
@@ -244,7 +242,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal}>
+      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal} coverScreen={false}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -534,11 +532,11 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   };
 
   const renderProvideMnemonicsModal = () => {
-    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+    // @ts-ignore weird, property exists on type definition. might be some ts bugs
     const isPad: boolean = Platform.isPad;
     return (
-      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal}>
-        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
+        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -571,7 +569,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
     return (
       // @ts-ignore wtf doneButton
-      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton>
+      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>

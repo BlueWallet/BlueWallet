@@ -11,7 +11,6 @@ import Share from 'react-native-share';
 import { useTheme } from '../themes';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -91,7 +90,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const handleCopyPrivkeyPress = () => {
-    const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+    const wallet = wallets.find(w => w.getID() === walletID);
     if (!wallet) {
       presentAlert({ message: 'Internal error: cant find wallet' });
       return;

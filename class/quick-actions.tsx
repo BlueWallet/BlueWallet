@@ -1,20 +1,21 @@
 import React, { useContext, useEffect } from 'react';
-import QuickActions from 'react-native-quick-actions';
-import { DeviceEventEmitter, Linking, Platform } from 'react-native';
-import { formatBalance } from '../loc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueStorageContext } from '../blue_modules/storage-context';
-import DeeplinkSchemaMatch from './deeplink-schema-match';
-import OnAppLaunch from './on-app-launch';
-import * as NavigationService from '../NavigationService';
 import { CommonActions } from '@react-navigation/native';
-import { AbstractWallet } from './wallets/abstract-wallet';
+import { DeviceEventEmitter, Linking, Platform } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
+import * as NavigationService from '../NavigationService';
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import { formatBalance } from '../loc';
+import DeeplinkSchemaMatch from './deeplink-schema-match';
+import { TWallet } from './wallets/types';
+import useOnAppLaunch from '../hooks/useOnAppLaunch';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
 function DeviceQuickActions(): JSX.Element | null {
   const { wallets, walletsInitialized, isStorageEncrypted, preferredFiatCurrency, addWallet, saveToDisk, setSharedCosigner } =
     useContext(BlueStorageContext);
+  const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
   useEffect(() => {
     if (walletsInitialized) {
@@ -91,22 +92,19 @@ function DeviceQuickActions(): JSX.Element | null {
           handleOpenURL({ url });
         }
       } else {
-        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
-        if (!isViewAllWalletsEnabled) {
-          const selectedDefaultWallet: AbstractWallet = (await OnAppLaunch.getSelectedDefaultWallet()) as AbstractWallet;
+        if (!(await isViewAllWalletsEnabled())) {
+          const selectedDefaultWalletID = (await getSelectedDefaultWallet()) as string;
+          const selectedDefaultWallet = wallets.find((w: TWallet) => w.getID() === selectedDefaultWalletID);
           if (selectedDefaultWallet) {
-            const wallet = wallets.find((w: AbstractWallet) => w.getID() === selectedDefaultWallet.getID());
-            if (wallet) {
-              NavigationService.dispatch(
-                CommonActions.navigate({
-                  name: 'WalletTransactions',
-                  params: {
-                    walletID: wallet.getID(),
-                    walletType: wallet.type,
-                  },
-                }),
-              );
-            }
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
+                params: {
+                  walletID: selectedDefaultWalletID,
+                  walletType: selectedDefaultWallet.type,
+                },
+              }),
+            );
           }
         }
       }

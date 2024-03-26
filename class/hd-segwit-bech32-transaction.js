@@ -97,7 +97,7 @@ export class HDSegwitBech32Transaction {
   /**
    * Checks that tx belongs to a wallet and also
    * tx value is < 0, which means its a spending transaction
-   * definately initiated by us, can be RBF'ed.
+   * definitely initiated by us, can be RBF'ed.
    *
    * @returns {Promise<boolean>}
    */
@@ -167,7 +167,7 @@ export class HDSegwitBech32Transaction {
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
         const address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
-        utxos.push({ vout: inp.index, value, txId: reversedHash, address });
+        utxos.push({ vout: inp.index, value, txid: reversedHash, address });
       }
     }
 
@@ -205,7 +205,7 @@ export class HDSegwitBech32Transaction {
         unconfirmedUtxos.push({
           vout: outp.n,
           value,
-          txId: this._txid || this._txDecoded.getId(),
+          txid: this._txid || this._txDecoded.getId(),
           address,
         });
       }

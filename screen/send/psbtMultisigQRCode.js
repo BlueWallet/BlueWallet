@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { getSystemName } from 'react-native-device-info';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
@@ -10,19 +9,18 @@ import { SquareButton } from '../../components/SquareButton';
 
 import loc from '../../loc';
 import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');
-
-const isDesktop = getSystemName() === 'Mac OS X';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
+  const { name } = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const dynamicQRCode = useRef();
   const isFocused = useIsFocused();
@@ -63,20 +61,9 @@ const PsbtMultisigQRCode = () => {
     }
   };
 
-  const openScanner = () => {
-    if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
-    } else {
-      requestCameraAuthorization().then(() =>
-        navigate('ScanQRCodeRoot', {
-          screen: 'ScanQRCode',
-          params: {
-            onBarScanned,
-            showFileImportButton: true,
-          },
-        }),
-      );
-    }
+  const openScanner = async () => {
+    const scanned = await scanQrHelper(navigate, name, true);
+    onBarScanned({ data: scanned });
   };
 
   const exportPSBT = () => {

@@ -12,17 +12,20 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import { Chain } from '../../models/bitcoinUnits';
 
 const SelectWallet = () => {
-  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText } = useRoute().params;
+  const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { pop, navigate, setOptions, getParent } = useNavigation();
   const { wallets } = useContext(BlueStorageContext);
   const { colors, closeImage } = useTheme();
   const isModal = useNavigationState(state => state.routes.length) === 1;
-  let data = chainType
-    ? wallets.filter(item => item.chain === chainType && item.allowSend())
-    : wallets.filter(item => item.allowSend()) || [];
+  let data = !onChainRequireSend
+    ? wallets.filter(item => item.chain === Chain.ONCHAIN) || []
+    : chainType
+      ? wallets.filter(item => item.chain === chainType && item.allowSend())
+      : wallets.filter(item => item.allowSend()) || [];
 
   if (availableWallets && availableWallets.length > 0) {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check

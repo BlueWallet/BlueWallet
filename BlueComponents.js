@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Icon, Text, Header } from 'react-native-elements';
 import {
   ActivityIndicator,
-  Alert,
   Animated,
   Dimensions,
   Image,
@@ -35,42 +34,6 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
-
-export const SecondButton = forwardRef((props, ref) => {
-  const { colors } = useTheme();
-  let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonBlueBackgroundColor;
-  let fontColor = colors.buttonTextColor;
-  if (props.disabled === true) {
-    backgroundColor = colors.buttonDisabledBackgroundColor;
-    fontColor = colors.buttonDisabledTextColor;
-  }
-
-  return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      style={{
-        borderWidth: 0.7,
-        borderColor: 'transparent',
-        backgroundColor,
-        minHeight: 45,
-        height: 45,
-        maxHeight: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        flexGrow: 1,
-      }}
-      {...props}
-      ref={ref}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{props.title}</Text>}
-      </View>
-    </TouchableOpacity>
-  );
-});
 
 export const BitcoinButton = props => {
   const { colors } = useTheme();
@@ -228,18 +191,6 @@ export const BlueButtonLink = forwardRef((props, ref) => {
     </TouchableOpacity>
   );
 });
-
-export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
-  Alert.alert(
-    loc.wallets.details_title,
-    loc.pleasebackup.ask,
-    [
-      { text: loc.pleasebackup.ask_yes, onPress: onSuccess, style: 'cancel' },
-      { text: loc.pleasebackup.ask_no, onPress: onFailure },
-    ],
-    { cancelable: false },
-  );
-};
 
 export const BluePrivateBalance = () => {
   return (

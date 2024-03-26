@@ -11,7 +11,7 @@ import Licensing from './screen/settings/Licensing';
 import NetworkSettings from './screen/settings/NetworkSettings';
 import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
-import DefaultView from './screen/settings/defaultView';
+import DefaultView from './screen/settings/DefaultView';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import EncryptStorage from './screen/settings/encryptStorage';
 import Language from './screen/settings/language';
@@ -66,7 +66,7 @@ import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
-import UnlockWith from './UnlockWith';
+import UnlockWith from './screen/UnlockWith';
 import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
@@ -83,7 +83,7 @@ import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
-import DrawerList from './screen/wallets/drawerList';
+import DrawerList from './screen/wallets/DrawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
@@ -114,7 +114,12 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
       <WalletsStack.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
       <WalletsStack.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
-      <WalletsStack.Screen name="DefaultView" component={DefaultView} options={DefaultView.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="DefaultView"
+        component={DefaultView}
+        options={navigationStyle({ title: loc.settings.default_title })(theme)}
+      />
+
       <WalletsStack.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
       <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
       <WalletsStack.Screen
@@ -360,7 +365,10 @@ const ScanQRCodeRoot = () => (
 
 const UnlockWithScreenStack = createNativeStackNavigator();
 const UnlockWithScreenRoot = () => (
-  <UnlockWithScreenStack.Navigator id="UnlockWithScreenRoot" screenOptions={{ headerShown: false, statusBarStyle: 'auto' }}>
+  <UnlockWithScreenStack.Navigator
+    id="UnlockWithScreenRoot"
+    screenOptions={{ headerShown: false, statusBarStyle: 'auto', autoHideHomeIndicator: true }}
+  >
     <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
   </UnlockWithScreenStack.Navigator>
 );
@@ -380,12 +388,17 @@ const ReorderWalletsStackRoot = () => {
   );
 };
 
+const DrawerListContent = (props: any) => {
+  return <DrawerList {...props} />;
+};
+
 const Drawer = createDrawerNavigator();
 const DrawerRoot = () => {
   const dimensions = useWindowDimensions();
   const isLargeScreen = useMemo(() => {
     return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
   }, [dimensions.width]);
+
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
       drawerPosition: I18nManager.isRTL ? 'right' : 'left',
@@ -396,7 +409,7 @@ const DrawerRoot = () => {
   );
 
   return (
-    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerList}>
+    <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
       <Drawer.Screen
         name="Navigation"
         component={Navigation}
@@ -567,6 +580,7 @@ const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
 };
+const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
 const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 const Navigation = () => {
   return (
@@ -574,7 +588,11 @@ const Navigation = () => {
       {/* stacks */}
       <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, statusBarTranslucent: false }} />
       <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationFormModalOptions} />
-      <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={NavigationDefaultOptions} />
+      <RootStack.Screen
+        name="SendDetailsRoot"
+        component={SendDetailsRoot}
+        options={isDesktop ? NavigationDefaultOptionsForDesktop : NavigationDefaultOptions}
+      />
       <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
@@ -592,7 +610,7 @@ const Navigation = () => {
       <RootStack.Screen
         name="ViewEditMultisigCosignersRoot"
         component={ViewEditMultisigCosignersRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
       />
       <RootStack.Screen
         name="WalletXpubRoot"

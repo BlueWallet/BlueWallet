@@ -17,7 +17,7 @@ import {
   ActivityIndicator,
   I18nManager,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText, SecondButton } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import Biometric from '../../class/biometrics';
@@ -32,7 +32,7 @@ import {
   LightningLdkWallet,
 } from '../../class';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -46,6 +46,9 @@ import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Button from '../../components/Button';
+import { SecondButton } from '../../components/SecondButton';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const prompt = require('../../helpers/prompt');
 
@@ -132,7 +135,7 @@ const WalletDetails = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, navigate, setOptions, popToTop } = useNavigation();
+  const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
   const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
@@ -356,6 +359,7 @@ const WalletDetails = () => {
       Share.open({
         url: 'file://' + filePath,
         saveToFiles: isDesktop,
+        failOnCancel: false,
       })
         .catch(error => {
           console.log(error);
@@ -653,7 +657,7 @@ const WalletDetails = () => {
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
-                <SecondButton onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />

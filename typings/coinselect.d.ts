@@ -10,7 +10,7 @@ declare module 'coinselect' {
   export type CoinSelectUtxo = {
     vout: number;
     value: number;
-    txId: string;
+    txid: string;
     address?: string;
     wif?: string;
     txhex?: string;
@@ -52,7 +52,7 @@ declare module 'coinselect/split' {
   type Utxo = {
     vout: number;
     value: number;
-    txId: string;
+    txid: string;
   };
 
   export default function coinSelectSplit<U extends Utxo>(

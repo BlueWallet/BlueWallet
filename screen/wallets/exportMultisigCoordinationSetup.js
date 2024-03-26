@@ -1,10 +1,9 @@
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import Biometric from '../../class/biometrics';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -21,7 +20,6 @@ const ExportMultisigCoordinationSetup = () => {
   const dynamicQRCode = useRef();
   const [isLoading, setIsLoading] = useState(true);
   const [isShareButtonTapped, setIsShareButtonTapped] = useState(false);
-  const { goBack } = useNavigation();
   const { colors } = useTheme();
   const { enableBlur, disableBlur } = usePrivacy();
   const stylesHook = StyleSheet.create({
@@ -54,13 +52,6 @@ const ExportMultisigCoordinationSetup = () => {
       enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-          if (isBiometricsEnabled) {
-            if (!(await Biometric.unlockWithBiometrics())) {
-              return goBack();
-            }
-          }
           qrCodeContents.current = Buffer.from(wallet.getXpub(), 'ascii').toString('hex');
           setIsLoading(false);
         }
@@ -69,7 +60,7 @@ const ExportMultisigCoordinationSetup = () => {
         task.cancel();
         disableBlur();
       };
-    }, [disableBlur, enableBlur, goBack, wallet]),
+    }, [disableBlur, enableBlur, wallet]),
   );
 
   return isLoading ? (

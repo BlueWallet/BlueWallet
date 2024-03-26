@@ -6,7 +6,7 @@ import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native'
 import RNFS from 'react-native-fs';
 import Biometric from '../../class/biometrics';
 
-import { SecondButton, BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
+import { BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -17,6 +17,7 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import { SecondButton } from '../../components/SecondButton';
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const bitcoin = require('bitcoinjs-lib');
 const fs = require('../../blue_modules/fs');

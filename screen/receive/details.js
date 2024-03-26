@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import {
@@ -19,7 +19,6 @@ import {
   BlueButtonLink,
   BlueText,
   BlueSpacing20,
-  BlueAlertWalletExportReminder,
   BlueCard,
   BlueSpacing40,
 } from '../../BlueComponents';
@@ -39,6 +38,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -53,7 +53,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const { navigate, goBack, setParams } = useNavigation();
+  const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
@@ -61,6 +61,7 @@ const ReceiveDetails = () => {
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const fetchAddressInterval = useRef();
+  const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
     modalContent: {
       backgroundColor: colors.modal,
@@ -161,7 +162,7 @@ const ReceiveDetails = () => {
           const balanceToShow = balance.confirmed - initialConfirmed;
 
           if (balanceToShow > 0) {
-            // address has actually more coins then initially, so we definately gained something
+            // address has actually more coins than initially, so we definitely gained something
             setShowConfirmedBalance(true);
             setShowPendingBalance(false);
             setShowAddress(false);
@@ -270,7 +271,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
         <View style={styles.share}>
           <BlueCard>
@@ -295,7 +296,7 @@ const ReceiveDetails = () => {
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([address], [], []);
     } else {
       if (wallet.chain === Chain.ONCHAIN) {
@@ -323,7 +324,7 @@ const ReceiveDetails = () => {
         }
       }
       setAddressBIP21Encoded(newAddress);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(receiveAddressButton.current);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -340,22 +341,7 @@ const ReceiveDetails = () => {
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          if (!wallet.getUserHasSavedExport()) {
-            BlueAlertWalletExportReminder({
-              onSuccess: obtainWalletAddress,
-              onFailure: () => {
-                goBack();
-                navigate('WalletExportRoot', {
-                  screen: 'WalletExport',
-                  params: {
-                    walletID: wallet.getID(),
-                  },
-                });
-              },
-            });
-          } else {
-            obtainWalletAddress();
-          }
+          obtainWalletAddress();
         } else if (!wallet && address) {
           setAddressBIP21Encoded(address);
         }

@@ -4,6 +4,8 @@
     "cancel": "Anuluj",
     "continue": "Kontynuuj",
     "clipboard": "Schowek",
+    "discard_changes": "Odrzucić zmiany?",
+    "discard_changes_explain": "Masz niezapisane zmiany. Czy na pewno chcesz je porzucić i opuścić ten ekran?",
     "enter_password": "Wprowadź hasło",
     "never": "Nigdy",
     "of": "{number} z {total}",
@@ -23,7 +25,8 @@
     "pick_image": "Wybierz obrazek z biblioteki",
     "pick_file": "Wybierz plik",
     "enter_amount": "Wprowadź kwotę",
-    "qr_custom_input_button": "Tapnij 10 razy aby wprowadzić własne dane"
+    "qr_custom_input_button": "Tapnij 10 razy aby wprowadzić własne dane",
+    "unlock": "Odblokuj"
   },
   "alert": {
     "default": "Powiadomienie"
@@ -228,6 +231,7 @@
     "about_sm_twitter": "Obserwuj nas na Twitterze",
     "advanced_options": "Opcje Zaawansowane",
     "biometrics": "Biometria",
+    "biometrics_no_longer_available": "Ustawienia Twojego urządzenia zostały zmienione i nie są już zgodne z wybranymi ustawieniami bezpieczeństwa w aplikacji. Proszę ponownie włączyć biometrię lub kod dostępu, a następnie uruchomić ponownie aplikację, aby zastosować te zmiany.",
     "biom_10times": "Próbowałeś podać hasło 10 razy. Czy chcesz zresetować magazyn danych? To usunie wszystkie portfele i odszyfruje dane.",
     "biom_conf_identity": "Proszę potwierdź swoją tożsamość",
     "biom_no_passcode": "Twoje urządzenie nie ma hasła. Aby przejść dalej, skonfiguruj hasło w Ustawieniach aplikacji.",

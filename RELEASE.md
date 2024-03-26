@@ -23,6 +23,6 @@ where `76ed479` is a latest commit in this version. replace the version as well.
 * test the build on a real device. We have accounts with browserstack where you can do so.
 * its imperative that you run selftest and it gives you OK. note which build you are testing
 * go to appcenter.ms, find this exact build under `master` builds, and press `Distribute` -> `Store` -> `Production`. 
-in `Release notes` write the release, this field is to smaller than iOS, so you need to keep it bellow 500 characters.
-* now just wait till appcenter displays a message that it is succesfully distributed
+in `Release notes` write the release, this field is smaller than iOS, so you need to keep it bellow 500 characters.
+* now just wait till appcenter displays a message that it is successfully distributed
 * noice!

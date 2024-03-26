@@ -33,6 +33,7 @@ import HandoffComponent from './components/handoff';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
+import { NavigationProvider } from './components/NavigationProvider';
 const A = require('./blue_modules/analytics');
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
@@ -99,27 +100,41 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    if (walletsInitialized) {
-      addListeners();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized]);
-
   const addListeners = () => {
-    Linking.addEventListener('url', handleOpenURL);
-    AppState.addEventListener('change', handleAppStateChange);
+    const urlSubscription = Linking.addEventListener('url', handleOpenURL);
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // Note: `getMostRecentUserActivity` doesn't create a persistent listener, so no need to unsubscribe
     EventEmitter?.getMostRecentUserActivity()
       .then(onUserActivityOpen)
       .catch(() => console.log('No userActivity object sent'));
-    handleAppStateChange(undefined);
-    /*
-      When a notification on iOS is shown while the app is on foreground;
-      On willPresent on AppDelegate.m
-     */
-    eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
+
+    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
+    const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
+
+    // Store subscriptions in a ref or state to remove them later
+    return {
+      urlSubscription,
+      appStateSubscription,
+      notificationSubscription,
+      activitySubscription,
+    };
   };
+
+  useEffect(() => {
+    if (walletsInitialized) {
+      const subscriptions = addListeners();
+
+      // Cleanup function
+      return () => {
+        subscriptions.urlSubscription?.remove();
+        subscriptions.appStateSubscription?.remove();
+        subscriptions.notificationSubscription?.remove();
+        subscriptions.activitySubscription?.remove();
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletsInitialized]); // Re-run when walletsInitialized changes
 
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
@@ -254,36 +269,23 @@ const App = () => {
     BlueClipboard()
       .getClipboardContent()
       .then(clipboard => {
-        if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-          ActionSheet.showActionSheetWithOptions(
-            {
-              options: [loc._.cancel, loc._.continue],
-              title: loc._.clipboard,
-              message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-              cancelButtonIndex: 0,
-            },
-            buttonIndex => {
-              if (buttonIndex === 1) {
-                handleOpenURL({ url: clipboard });
-              }
-            },
-          );
-        } else {
-          ActionSheet.showActionSheetWithOptions({
-            buttons: [
-              { text: loc._.cancel, style: 'cancel', onPress: () => {} },
-              {
-                text: loc._.continue,
-                style: 'default',
-                onPress: () => {
-                  handleOpenURL({ url: clipboard });
-                },
-              },
-            ],
+        ActionSheet.showActionSheetWithOptions(
+          {
             title: loc._.clipboard,
             message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
-          });
-        }
+            options: [loc._.cancel, loc._.continue],
+            cancelButtonIndex: 0,
+          },
+          buttonIndex => {
+            switch (buttonIndex) {
+              case 0: // Cancel
+                break;
+              case 1:
+                handleOpenURL({ url: clipboard });
+                break;
+            }
+          },
+        );
       });
   };
 
@@ -298,14 +300,16 @@ const App = () => {
     <SafeAreaProvider>
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-          <InitRoot />
-          <Notifications onProcessNotifications={processPushNotifications} />
-          <MenuElements />
-          <DeviceQuickActions />
+          <NavigationProvider>
+            <InitRoot />
+            <Notifications onProcessNotifications={processPushNotifications} />
+            <MenuElements />
+            <DeviceQuickActions />
+            <Biometric />
+          </NavigationProvider>
         </NavigationContainer>
       </View>
       <WatchConnectivity />
-      <Biometric />
       <WidgetCommunication />
     </SafeAreaProvider>
   );
