@@ -914,6 +914,7 @@
 				B47B21E72B2128B8001F6690 /* Resources */,
 				5BF4F7E206022ECCBEE8C01A /* [CP] Embed Pods Frameworks */,
 				22A7683E080229A2C227229E /* [CP] Copy Pods Resources */,
+				AAE34250649E2CC1D0530AD7 /* Upload Bugsnag dSYM */,
 			);
 			buildRules = (
 			);
@@ -1204,7 +1205,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/usr/bin/env ruby";
-			shellScript = "api_key = nil # Insert your key here to use it directly from this script\n\n# Attempt to get the API key from an environment variable\nunless api_key\n  api_key = ENV[\"BUGSNAG_API_KEY\"]\n\n  # If not present, attempt to lookup the value from the Info.plist\n  unless api_key\n    info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n    api_key = plist_buddy_response if $?.success?\n  end\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist, BUGSNAG_API_KEY environment variable or this Run Script phase\") unless api_key\n\nfork do\n  Process.setsid\n  STDIN.reopen(\"/dev/null\")\n  STDOUT.reopen(\"/dev/null\", \"a\")\n  STDERR.reopen(\"/dev/null\", \"a\")\n\n  require 'shellwords'\n\n  Dir[\"#{ENV[\"DWARF_DSYM_FOLDER_PATH\"]}/*/Contents/Resources/DWARF/*\"].each do |dsym|\n    curl_command = \"curl --http1.1 -F dsym=@#{Shellwords.escape(dsym)} -F projectRoot=#{Shellwords.escape(ENV[\"PROJECT_DIR\"])} \"\n    curl_command += \"-F apiKey=#{Shellwords.escape(api_key)} \"\n    curl_command += \"https://upload.bugsnag.com/\"\n    system(curl_command)\n  end\nend\n";
+			shellScript = "# Set DISABLE_COCOAPODS_BUGSNAG=YES via Xcode's Build Settings, xcconfig or xcodebuild to skip upload\nif ENV['DISABLE_COCOAPODS_BUGSNAG'] == 'YES'\n  puts 'Skipping dSYM upload'\n  return\nend\n\n# Attempt to get the API key from an environment variable (or Xcode build setting)\napi_key = ENV[\"BUGSNAG_API_KEY\"]\n\n# If not present, attempt to lookup the value from the Info.plist\nunless api_key\n  info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n  api_key = plist_buddy_response if $?.success?\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist or BUGSNAG_API_KEY environment variable\") unless api_key\n\nif ENV['ENABLE_USER_SCRIPT_SANDBOXING'] == 'YES'\n  count = ENV['SCRIPT_INPUT_FILE_COUNT'].to_i\n  abort 'error: dSYMs must be specified as build phase \"Input Files\" because ENABLE_USER_SCRIPT_SANDBOXING is enabled' unless count > 0\n  dsyms = []\n  for i in 0 .. count - 1\n    file = ENV[\"SCRIPT_INPUT_FILE_#{i}\"]\n    next if file.end_with? '.plist'\n    if File.exist? file\n      dsyms.append file\n    else\n      abort \"error: cannot read #{file}\" unless ENV['DEBUG_INFORMATION_FORMAT'] != 'dwarf-with-dsym'\n    end\n  end\nelse\n  dsyms = Dir[\"#{ENV['DWARF_DSYM_FOLDER_PATH']}/*/Contents/Resources/DWARF/*\"]\nend\n\ndsyms.each do |dsym|\n  Process.detach Process.spawn('/usr/bin/curl', '--http1.1',\n    '-F', \"apiKey=#{api_key}\",\n    '-F', \"dsym=@#{dsym}\",\n    '-F', \"projectRoot=#{ENV['PROJECT_DIR']}\",\n    'https://upload.bugsnag.com/',\n    %i[err out] => :close\n  )\nend\n";
 			showEnvVarsInLog = 0;
 		};
 		4D8F1D9E38ABBC60EA8546DF /* [CP] Copy Pods Resources */ = {
@@ -1277,6 +1278,27 @@
 			shellPath = /bin/sh;
 			shellScript = "SOURCE_MAP=\"$TMPDIR/$(md5 -qs \"$CONFIGURATION_BUILD_DIR\")-main.jsbundle.map\" ../node_modules/@bugsnag/react-native/bugsnag-react-native-xcode.sh";
 		};
+		AAE34250649E2CC1D0530AD7 /* Upload Bugsnag dSYM */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+			);
+			name = "Upload Bugsnag dSYM";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/usr/bin/env ruby";
+			shellScript = "# Set DISABLE_COCOAPODS_BUGSNAG=YES via Xcode's Build Settings, xcconfig or xcodebuild to skip upload\nif ENV['DISABLE_COCOAPODS_BUGSNAG'] == 'YES'\n  puts 'Skipping dSYM upload'\n  return\nend\n\n# Attempt to get the API key from an environment variable (or Xcode build setting)\napi_key = ENV[\"BUGSNAG_API_KEY\"]\n\n# If not present, attempt to lookup the value from the Info.plist\nunless api_key\n  info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n  api_key = plist_buddy_response if $?.success?\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist or BUGSNAG_API_KEY environment variable\") unless api_key\n\nif ENV['ENABLE_USER_SCRIPT_SANDBOXING'] == 'YES'\n  count = ENV['SCRIPT_INPUT_FILE_COUNT'].to_i\n  abort 'error: dSYMs must be specified as build phase \"Input Files\" because ENABLE_USER_SCRIPT_SANDBOXING is enabled' unless count > 0\n  dsyms = []\n  for i in 0 .. count - 1\n    file = ENV[\"SCRIPT_INPUT_FILE_#{i}\"]\n    next if file.end_with? '.plist'\n    if File.exist? file\n      dsyms.append file\n    else\n      abort \"error: cannot read #{file}\" unless ENV['DEBUG_INFORMATION_FORMAT'] != 'dwarf-with-dsym'\n    end\n  end\nelse\n  dsyms = Dir[\"#{ENV['DWARF_DSYM_FOLDER_PATH']}/*/Contents/Resources/DWARF/*\"]\nend\n\ndsyms.each do |dsym|\n  Process.detach Process.spawn('/usr/bin/curl', '--http1.1',\n    '-F', \"apiKey=#{api_key}\",\n    '-F', \"dsym=@#{dsym}\",\n    '-F', \"projectRoot=#{ENV['PROJECT_DIR']}\",\n    'https://upload.bugsnag.com/',\n    %i[err out] => :close\n  )\nend\n";
+			showEnvVarsInLog = 0;
+		};
 		B4A29A2A2B55C990002A67DF /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1345,7 +1367,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/usr/bin/env ruby";
-			shellScript = "api_key = nil # Insert your key here to use it directly from this script\n\n# Attempt to get the API key from an environment variable\nunless api_key\n  api_key = ENV[\"BUGSNAG_API_KEY\"]\n\n  # If not present, attempt to lookup the value from the Info.plist\n  unless api_key\n    info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n    plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n    api_key = plist_buddy_response if $?.success?\n  end\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist, BUGSNAG_API_KEY environment variable or this Run Script phase\") unless api_key\n\nfork do\n  Process.setsid\n  STDIN.reopen(\"/dev/null\")\n  STDOUT.reopen(\"/dev/null\", \"a\")\n  STDERR.reopen(\"/dev/null\", \"a\")\n\n  require 'shellwords'\n\n  Dir[\"#{ENV[\"DWARF_DSYM_FOLDER_PATH\"]}/*/Contents/Resources/DWARF/*\"].each do |dsym|\n    curl_command = \"curl --http1.1 -F dsym=@#{Shellwords.escape(dsym)} -F projectRoot=#{Shellwords.escape(ENV[\"PROJECT_DIR\"])} \"\n    curl_command += \"-F apiKey=#{Shellwords.escape(api_key)} \"\n    curl_command += \"https://upload.bugsnag.com/\"\n    system(curl_command)\n  end\nend\n";
+			shellScript = "# Set DISABLE_COCOAPODS_BUGSNAG=YES via Xcode's Build Settings, xcconfig or xcodebuild to skip upload\nif ENV['DISABLE_COCOAPODS_BUGSNAG'] == 'YES'\n  puts 'Skipping dSYM upload'\n  return\nend\n\n# Attempt to get the API key from an environment variable (or Xcode build setting)\napi_key = ENV[\"BUGSNAG_API_KEY\"]\n\n# If not present, attempt to lookup the value from the Info.plist\nunless api_key\n  info_plist_path = \"#{ENV[\"BUILT_PRODUCTS_DIR\"]}/#{ENV[\"INFOPLIST_PATH\"]}\"\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :bugsnag:apiKey\" \"#{info_plist_path}\"`\n  plist_buddy_response = `/usr/libexec/PlistBuddy -c \"print :BugsnagAPIKey\" \"#{info_plist_path}\"` if !$?.success?\n  api_key = plist_buddy_response if $?.success?\nend\n\nfail(\"No Bugsnag API key detected - add your key to your Info.plist or BUGSNAG_API_KEY environment variable\") unless api_key\n\nif ENV['ENABLE_USER_SCRIPT_SANDBOXING'] == 'YES'\n  count = ENV['SCRIPT_INPUT_FILE_COUNT'].to_i\n  abort 'error: dSYMs must be specified as build phase \"Input Files\" because ENABLE_USER_SCRIPT_SANDBOXING is enabled' unless count > 0\n  dsyms = []\n  for i in 0 .. count - 1\n    file = ENV[\"SCRIPT_INPUT_FILE_#{i}\"]\n    next if file.end_with? '.plist'\n    if File.exist? file\n      dsyms.append file\n    else\n      abort \"error: cannot read #{file}\" unless ENV['DEBUG_INFORMATION_FORMAT'] != 'dwarf-with-dsym'\n    end\n  end\nelse\n  dsyms = Dir[\"#{ENV['DWARF_DSYM_FOLDER_PATH']}/*/Contents/Resources/DWARF/*\"]\nend\n\ndsyms.each do |dsym|\n  Process.detach Process.spawn('/usr/bin/curl', '--http1.1',\n    '-F', \"apiKey=#{api_key}\",\n    '-F', \"dsym=@#{dsym}\",\n    '-F', \"projectRoot=#{ENV['PROJECT_DIR']}\",\n    'https://upload.bugsnag.com/',\n    %i[err out] => :close\n  )\nend\n";
 			showEnvVarsInLog = 0;
 		};
 		B4A29A402B55C990002A67DF /* [CP] Embed Pods Frameworks */ = {
