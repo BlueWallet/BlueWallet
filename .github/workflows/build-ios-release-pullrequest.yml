@@ -5,7 +5,7 @@ on:
     branches:
       - master
   pull_request:
-    types: [opened, reopened, synchronize, labeled, unlabeled]
+    types: [opened, reopened, synchronize, labeled]
     branches:
       - master
   workflow_dispatch:
