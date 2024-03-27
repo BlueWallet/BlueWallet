@@ -77,7 +77,7 @@ jobs:
       - name: Setup Provisioning Profiles
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
@@ -145,7 +145,7 @@ jobs:
           env: 
             APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
             MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-            MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.GIT_ACCESS_TOKEN }}
+            GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
             GIT_URL: ${{ secrets.GIT_URL }}
             ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
             ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
