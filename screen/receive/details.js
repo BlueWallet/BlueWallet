@@ -13,15 +13,7 @@ import {
 import { useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import {
-  BlueLoading,
-  BlueCopyTextToClipboard,
-  BlueButtonLink,
-  BlueText,
-  BlueSpacing20,
-  BlueCard,
-  BlueSpacing40,
-} from '../../BlueComponents';
+import { BlueLoading, BlueButtonLink, BlueText, BlueSpacing20, BlueCard, BlueSpacing40 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
@@ -39,6 +31,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -271,7 +264,7 @@ const ReceiveDetails = () => {
           )}
 
           <QRCodeComponent value={bip21encoded} />
-          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
+          <CopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
         <View style={styles.share}>
           <BlueCard>
