@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import loc from '../loc';
 
@@ -17,7 +17,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-export const CopyTextToClipboard: React.FC<CopyTextToClipboardProps> = ({ text, truncated }) => {
+const CopyTextToClipboard = forwardRef<TouchableOpacity, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
   const [hasTappedText, setHasTappedText] = useState(false);
   const [address, setAddress] = useState(text);
 
@@ -31,7 +31,7 @@ export const CopyTextToClipboard: React.FC<CopyTextToClipboardProps> = ({ text, 
   const copyToClipboard = () => {
     setHasTappedText(true);
     Clipboard.setString(text);
-    setAddress(loc.wallets.xpub_copiedToClipboard); // Replace with your localization logic if needed
+    setAddress(loc.wallets.xpub_copiedToClipboard); // Adjust according to your localization logic
     setTimeout(() => {
       setHasTappedText(false);
       setAddress(text);
@@ -40,7 +40,13 @@ export const CopyTextToClipboard: React.FC<CopyTextToClipboardProps> = ({ text, 
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity accessibilityRole="button" onPress={copyToClipboard} disabled={hasTappedText} testID="CopyTextToClipboard">
+      <TouchableOpacity
+        ref={ref}
+        accessibilityRole="button"
+        onPress={copyToClipboard}
+        disabled={hasTappedText}
+        testID="CopyTextToClipboard"
+      >
         <Animated.Text
           style={styleCopyTextToClipboard.address}
           {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
@@ -51,7 +57,7 @@ export const CopyTextToClipboard: React.FC<CopyTextToClipboardProps> = ({ text, 
       </TouchableOpacity>
     </View>
   );
-};
+});
 
 export default CopyTextToClipboard;
 
