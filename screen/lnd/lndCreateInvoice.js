@@ -38,7 +38,7 @@ const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
-  const createInvoiceRef = useRef()
+  const createInvoiceRef = useRef();
   const { name } = useRoute();
   const { colors } = useTheme();
   const { navigate, getParent, goBack, pop, setParams } = useNavigation();
@@ -318,7 +318,11 @@ const LNDCreateInvoice = () => {
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
-        {isLoading ? <ActivityIndicator /> : <Button disabled={!(amount > 0)} ref={createInvoiceRef}  onPress={createInvoice} title={loc.send.details_create} />}
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <Button disabled={!(amount > 0)} ref={createInvoiceRef} onPress={createInvoice} title={loc.send.details_create} />
+        )}
       </View>
     );
   };

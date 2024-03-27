@@ -55,7 +55,7 @@ export const Button = forwardRef<TouchableOpacity, ButtonProps>((props, ref) => 
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   button: {
