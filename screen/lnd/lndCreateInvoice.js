@@ -38,6 +38,7 @@ const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
+  const createInvoiceRef = useRef()
   const { name } = useRoute();
   const { colors } = useTheme();
   const { navigate, getParent, goBack, pop, setParams } = useNavigation();
@@ -194,7 +195,7 @@ const LNDCreateInvoice = () => {
       // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
       /** @type LightningCustodianWallet */
       const decoded = await wallet.current.decodeInvoice(invoiceRequest);
-      await Notifications.tryToObtainPermissions();
+      await Notifications.tryToObtainPermissions(createInvoiceRef);
       Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
 
       // send to lnurl-withdraw callback url if that exists
@@ -317,7 +318,7 @@ const LNDCreateInvoice = () => {
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
-        {isLoading ? <ActivityIndicator /> : <Button disabled={!(amount > 0)} onPress={createInvoice} title={loc.send.details_create} />}
+        {isLoading ? <ActivityIndicator /> : <Button disabled={!(amount > 0)} ref={createInvoiceRef}  onPress={createInvoice} title={loc.send.details_create} />}
       </View>
     );
   };
