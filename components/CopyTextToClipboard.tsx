@@ -21,7 +21,6 @@ const CopyTextToClipboard = forwardRef<TouchableOpacity, CopyTextToClipboardProp
   const [hasTappedText, setHasTappedText] = useState(false);
   const [address, setAddress] = useState(text);
 
-  // Replace `getDerivedStateFromProps`
   useEffect(() => {
     if (!hasTappedText) {
       setAddress(text);
