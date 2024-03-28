@@ -190,17 +190,18 @@ jobs:
       
       - name: Install dependencies with Bundler
         run: |
-          bundle config path vendor/bundle
+          bundle exec fastlanebundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
         working-directory: ./ios
       
       - name: Build the App for AdHoc Distribution
-        run: fastlane ios build_app_lane export_method:"ad-hoc"
+        run: bundle exec fastlane ios build_app_lane export_method:"ad-hoc"
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-  
+        working-directory: ./ios
+
       - name: Upload Build to BrowserStack
         id: upload_browserstack
         run: |
@@ -210,6 +211,7 @@ jobs:
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           PROJECT_VERSION: 1.0
           NEW_BUILD_NUMBER: ${{ github.run_number }}
+        working-directory: ./ios
 
       - name: Post BrowserStack Instructions as PR Comment
         if: ${{ success() }}
