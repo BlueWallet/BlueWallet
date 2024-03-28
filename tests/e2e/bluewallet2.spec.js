@@ -402,7 +402,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // XPUB
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.id('XPub')).tap();
-    await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
+    await expect(element(by.id('CopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
