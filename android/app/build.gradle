@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 /**
@@ -70,7 +71,7 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "io.bluewallet.bluewallet"
