@@ -94,34 +94,27 @@ const ReceiveDetails = () => {
 
   // re-fetching address balance periodically
   useEffect(() => {
-    console.log('receive/defails - useEffect');
+    console.log('receive/details - useEffect');
 
-    if (fetchAddressInterval.current) {
-      // interval already exists, lets cleanup it and recreate, so theres no duplicate intervals
-      clearInterval(fetchAddressInterval.current);
-      fetchAddressInterval.current = undefined;
-    }
-
-    fetchAddressInterval.current = setInterval(async () => {
+    const intervalId = setInterval(async () => {
       try {
         const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
-        const address2use = address || decoded.address;
-        if (!address2use) return;
+        const addressToUse = address || decoded.address;
+        if (!addressToUse) return;
 
-        console.log('checking address', address2use, 'for balance...');
-        const balance = await BlueElectrum.getBalanceByAddress(address2use);
+        console.log('checking address', addressToUse, 'for balance...');
+        const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
         console.log('...got', balance);
 
         if (balance.unconfirmed > 0) {
           if (initialConfirmed === 0 && initialUnconfirmed === 0) {
-            // saving initial values for later (when tx gets confirmed)
             setInitialConfirmed(balance.confirmed);
             setInitialUnconfirmed(balance.unconfirmed);
             setIntervalMs(25000);
             triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
           }
 
-          const txs = await BlueElectrum.getMempoolTransactionsByAddress(address2use);
+          const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
           if (tx) {
             const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], 10, true);
@@ -130,11 +123,9 @@ const ReceiveDetails = () => {
               const fees = await BlueElectrum.estimateFees();
               if (satPerVbyte >= fees.fast) {
                 setEta(loc.formatString(loc.transactions.eta_10m));
-              }
-              if (satPerVbyte >= fees.medium && satPerVbyte < fees.fast) {
+              } else if (satPerVbyte >= fees.medium) {
                 setEta(loc.formatString(loc.transactions.eta_3h));
-              }
-              if (satPerVbyte < fees.medium) {
+              } else {
                 setEta(loc.formatString(loc.transactions.eta_1d));
               }
             }
@@ -151,7 +142,6 @@ const ReceiveDetails = () => {
         } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
           // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
           // staring at the screen)
-
           const balanceToShow = balance.confirmed - initialConfirmed;
 
           if (balanceToShow > 0) {
@@ -159,17 +149,12 @@ const ReceiveDetails = () => {
             setShowConfirmedBalance(true);
             setShowPendingBalance(false);
             setShowAddress(false);
-
-            clearInterval(fetchAddressInterval.current);
-            fetchAddressInterval.current = undefined;
-
             setDisplayBalance(
               loc.formatString(loc.transactions.received_with_amount, {
                 amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
                 amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
               }),
             );
-
             fetchAndSaveWalletTransactions(walletID);
           } else {
             // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
@@ -182,6 +167,8 @@ const ReceiveDetails = () => {
         console.log(error);
       }
     }, intervalMs);
+
+    return () => clearInterval(intervalId);
   }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
 
   const renderConfirmedBalance = () => {
