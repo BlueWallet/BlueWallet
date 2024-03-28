@@ -494,7 +494,7 @@ PODS:
     - React-Core
   - RNLocalize (3.0.6):
     - React-Core
-  - RNPermissions (4.1.4):
+  - RNPermissions (4.1.5):
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
@@ -508,10 +508,10 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNScreens (3.29.0):
+  - RNScreens (3.30.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNShare (10.0.2):
+  - RNShare (10.1.0):
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
@@ -854,14 +854,14 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
-  RNPermissions: 31223c0cf32b7623e6ec4cd13a7e4552fd43c71c
+  RNPermissions: 9fa74223844f437bc309e112994859dc47194829
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: fc36806836aca984b797f01432abe31689663421
-  RNScreens: 8ba3eeb8f5cb9f13662df564e785d64ef7214bf2
-  RNShare: 859ff710211285676b0bcedd156c12437ea1d564
+  RNScreens: e5ee7223f7c8fa261f0c4594a0541c56ea99bbfc
+  RNShare: b674d9f1cb0dc11116983bebd8712908a226a3ee
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: 2b974a961e7ad079fafdd8af68b12210d5b4b28e
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236

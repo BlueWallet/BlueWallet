@@ -206,7 +206,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.text(`No, and do not ask me again.`)).tap();
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
-    await yo('BlueCopyTextToClipboard');
+    await yo('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
@@ -214,7 +214,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await sup('1 BTC');
     await sup('test');
     await yo('BitcoinAddressQRCodeContainer');
-    await yo('BlueCopyTextToClipboard');
+    await yo('CopyTextToClipboard');
     await device.pressBack();
     await device.pressBack();
     await helperDeleteWallet('cr34t3d');

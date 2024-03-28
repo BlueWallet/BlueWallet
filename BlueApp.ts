@@ -859,7 +859,11 @@ export class AppStorage {
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
+      const doNotTrackValue = !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
+      if (doNotTrackValue) {
+        await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+        AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+      }
     } catch (_) {}
     return false;
   };

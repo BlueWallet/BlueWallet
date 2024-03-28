@@ -1,4 +1,3 @@
-#import <Bugsnag/Bugsnag.h>
 #import "AppDelegate.h"
 #import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
@@ -9,6 +8,7 @@
 #import <RNCPushNotificationIOS.h>
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
+#import <Bugsnag/Bugsnag.h>
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -21,7 +21,10 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 
-  // Set the appType based on the current platform
+NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
+  if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
+      // Set the appType based on the current platform
 #if TARGET_OS_MACCATALYST
   BugsnagConfiguration *config = [BugsnagConfiguration loadConfig];
   config.appType = @"macOS";
@@ -30,6 +33,8 @@
 #else
   [Bugsnag start];
 #endif
+  }
+
 
   [self copyDeviceUID];
   
