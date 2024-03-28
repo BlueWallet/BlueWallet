@@ -150,7 +150,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
+export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
   const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
@@ -165,7 +165,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
     Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 1.0 }).start();
   };
 
-  const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+  const opacity = isSelectedWallet && isSelectedWallet === false ? 0.5 : 1.0;
   let image;
   switch (item.type) {
     case LightningLdkWallet.type:
@@ -193,7 +193,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
   return (
     <Animated.View
       style={[
-        isLargeScreen ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
+        !horizontal || isLargeScreen ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
         { opacity, transform: [{ scale: scaleValue }] },
       ]}
     >
@@ -248,6 +248,7 @@ WalletCarouselItem.propTypes = {
   item: PropTypes.any,
   onPress: PropTypes.func.isRequired,
   handleLongPress: PropTypes.func,
+  horizontal: PropTypes.bool,
   isSelectedWallet: PropTypes.bool,
 };
 
@@ -278,6 +279,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
           index={index}
           handleLongPress={handleLongPress}
           onPress={onPress}
+          horizontal={horizontal}
         />
       ) : (
         <NewWalletPanel onPress={onPress} />
@@ -358,8 +360,8 @@ WalletsCarousel.propTypes = {
   horizontal: PropTypes.bool,
   selectedWallet: PropTypes.string,
   onPress: PropTypes.func.isRequired,
-  handleLongPress: PropTypes.func.isRequired,
-  data: PropTypes.array,
+  handleLongPress: PropTypes.func,
+  data: PropTypes.objectOf(PropTypes.any),
 };
 
 export default WalletsCarousel;
