@@ -540,6 +540,7 @@ const WalletTransactions = ({ navigation }) => {
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
           getItemLayout={getItemLayout}
+          updateCellsBatchingPeriod={30}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
@@ -572,6 +573,8 @@ const WalletTransactions = ({ navigation }) => {
           initialNumToRender={10}
           removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+          maxToRenderPerBatch={15}
+          windowSize={25}
         />
       </View>
 
