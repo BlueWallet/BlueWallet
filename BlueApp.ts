@@ -863,7 +863,7 @@ export class AppStorage {
       if (doNotTrackValue) {
         await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
         AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
-      } 
+      }
     } catch (_) {}
     return false;
   };

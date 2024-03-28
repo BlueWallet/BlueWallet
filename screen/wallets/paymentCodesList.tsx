@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../Navigation';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 interface DataSection {
   title: string;
@@ -45,7 +45,7 @@ export default function PaymentCodesList({ route }: Props) {
             keyExtractor={(item, index) => item + index}
             renderItem={({ item }) => (
               <View>
-                <BlueCopyTextToClipboard truncated text={item} />
+                <CopyTextToClipboard truncated text={item} />
               </View>
             )}
             renderSectionHeader={({ section: { title } }) => <Text style={styles.titleText}>{title}</Text>}

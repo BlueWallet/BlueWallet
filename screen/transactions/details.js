@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { BlueCard, BlueCopyToClipboardButton, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
@@ -11,6 +11,7 @@ import ToolTipMenu from '../../components/TooltipMenu';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -240,7 +241,7 @@ const TransactionsDetails = () => {
           <>
             <View style={styles.rowHeader}>
               <BlueText style={styles.rowCaption}>{loc.transactions.details_from}</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
+              <CopyToClipboardButton stringToCopy={from.filter(onlyUnique).join(', ')} />
             </View>
             {renderSection(from.filter(onlyUnique))}
             <View style={styles.marginBottom18} />
@@ -251,7 +252,7 @@ const TransactionsDetails = () => {
           <>
             <View style={styles.rowHeader}>
               <BlueText style={styles.rowCaption}>{loc.transactions.details_to}</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
+              <CopyToClipboardButton stringToCopy={to.filter(onlyUnique).join(', ')} />
             </View>
             {renderSection(arrDiff(from, to.filter(onlyUnique)))}
             <View style={styles.marginBottom18} />
@@ -270,7 +271,7 @@ const TransactionsDetails = () => {
           <>
             <View style={styles.rowHeader}>
               <BlueText style={styles.txid}>{loc.transactions.txid}</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={tx.hash} />
+              <CopyToClipboardButton stringToCopy={tx.hash} />
             </View>
             <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
             <View style={styles.marginBottom18} />

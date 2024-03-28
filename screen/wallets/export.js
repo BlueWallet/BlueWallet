@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
 import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import { BlueSpacing20, BlueText, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
@@ -11,6 +11,7 @@ import HandoffComponent from '../../components/handoff';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -108,7 +109,7 @@ const WalletExport = () => {
             )}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
-              <BlueCopyTextToClipboard text={wallet.getSecret()} />
+              <CopyTextToClipboard text={wallet.getSecret()} />
             ) : (
               <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
                 {wallet.getSecret()}

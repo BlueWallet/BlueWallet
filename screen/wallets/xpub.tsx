@@ -2,7 +2,7 @@ import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } fr
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Button from '../../components/Button';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -11,6 +11,7 @@ import HandoffComponent from '../../components/handoff';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -91,7 +92,7 @@ const WalletXpub: React.FC = () => {
             <QRCodeComponent value={xpub} size={qrCodeSize} />
 
             <BlueSpacing20 />
-            <BlueCopyTextToClipboard text={xPubText} />
+            {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
           <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>

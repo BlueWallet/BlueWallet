@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, useWindowDimensions, StyleSheet, BackHandler, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -10,6 +10,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const PleaseBackupLdk = () => {
   const { wallets } = useContext(BlueStorageContext);
@@ -71,7 +72,7 @@ const PleaseBackupLdk = () => {
             ecl="H"
           />
         </View>
-        <BlueCopyTextToClipboard text={wallet.getSecret()} />
+        <CopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
         <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
