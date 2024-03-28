@@ -21,7 +21,6 @@ interface WalletButtonProps {
   active: boolean;
 }
 
-// Define the button details. Adjust image paths as necessary
 const buttonDetails: Record<string, ButtonDetails> = {
   Bitcoin: {
     image: require('../img/addWallet/bitcoin.png'), // Adjust path as necessary
@@ -47,8 +46,6 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
   const details = buttonDetails[buttonType];
   const { colors } = useTheme();
   const borderColor = active ? colors[details.borderColorActive] : colors.buttonDisabledBackgroundColor;
-
-  // Dynamic styles that depend on props and current theme
   const dynamicStyles = StyleSheet.create({
     buttonContainer: {
       borderColor,
