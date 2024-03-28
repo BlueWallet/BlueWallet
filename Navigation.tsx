@@ -639,7 +639,7 @@ const Navigation = () => {
       />
 
       <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
-      <InitStack.Screen
+      <RootStack.Screen
         name="ReorderWallets"
         component={ReorderWalletsStackRoot}
         options={{
