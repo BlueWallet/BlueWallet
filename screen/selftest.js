@@ -20,10 +20,10 @@ import ecc from '../blue_modules/noble_ecc';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
 import presentAlert from '../components/Alert';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
-const BlueElectrum = require('../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
 const fs = require('../blue_modules/fs');
 

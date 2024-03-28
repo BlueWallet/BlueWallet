@@ -114,7 +114,7 @@ const TransactionsStatus = () => {
         setIntervalMs(31000); // upon first execution we increase poll interval;
 
         console.log('checking tx', hash, 'for confirmations...');
-        const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], 10, true);
+        const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
         const txFromElectrum = transactions[hash];
         console.log('got txFromElectrum=', txFromElectrum);
 
