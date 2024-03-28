@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Icon, Text, Header } from 'react-native-elements';
 import {
   ActivityIndicator,
-  Animated,
   Dimensions,
   Image,
   InputAccessoryView,
@@ -203,80 +202,6 @@ export const BluePrivateBalance = () => {
     </View>
   );
 };
-
-export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
-  return (
-    <TouchableOpacity accessibilityRole="button" onPress={() => Clipboard.setString(stringToCopy)}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details_copy}</Text>
-    </TouchableOpacity>
-  );
-};
-
-export class BlueCopyTextToClipboard extends Component {
-  static propTypes = {
-    text: PropTypes.string,
-    truncated: PropTypes.bool,
-  };
-
-  static defaultProps = {
-    text: '',
-    truncated: false,
-  };
-
-  constructor(props) {
-    super(props);
-    this.state = { hasTappedText: false, address: props.text };
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    if (state.hasTappedText) {
-      return { hasTappedText: state.hasTappedText, address: state.address, truncated: props.truncated };
-    } else {
-      return { hasTappedText: state.hasTappedText, address: props.text, truncated: props.truncated };
-    }
-  }
-
-  copyToClipboard = () => {
-    this.setState({ hasTappedText: true }, () => {
-      Clipboard.setString(this.props.text);
-      this.setState({ address: loc.wallets.xpub_copiedToClipboard }, () => {
-        setTimeout(() => {
-          this.setState({ hasTappedText: false, address: this.props.text });
-        }, 1000);
-      });
-    });
-  };
-
-  render() {
-    return (
-      <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={this.copyToClipboard}
-          disabled={this.state.hasTappedText}
-          testID="BlueCopyTextToClipboard"
-        >
-          <Animated.Text
-            style={styleCopyTextToClipboard.address}
-            {...(this.props.truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
-            testID="AddressValue"
-          >
-            {this.state.address}
-          </Animated.Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
-
-const styleCopyTextToClipboard = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});
 
 export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;
