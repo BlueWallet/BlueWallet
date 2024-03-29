@@ -205,7 +205,9 @@ jobs:
       - name: Upload Build to BrowserStack
         id: upload_browserstack
         run: |
-          echo "::set-output name=browserstack_app_identifier::$(fastlane ios upload_to_browserstack)"
+          output=$(fastlane ios upload_to_browserstack)
+          echo "$output"
+          echo "$output" >> $GITHUB_OUTPUT
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -214,7 +216,7 @@ jobs:
         working-directory: ./ios
 
       - name: Post BrowserStack Instructions as PR Comment
-        if: ${{ success() }}
+        if: success()
         uses: actions/github-script@v5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

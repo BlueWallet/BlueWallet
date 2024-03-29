@@ -127,14 +127,39 @@
       cocoapods
     end
 
-    desc "Build the application"
+    desc "Build the application with specified export method"
     lane :build_app_lane do |options|
       UI.message("Building the application...")
-
+    
       scheme = "BlueWallet" # Your scheme name here
       workspace = "BlueWallet.xcworkspace" # Your workspace name here
       export_method = options[:export_method] || "app-store" # Default to 'app-store' if not specified
-      
+    
+      # Adjust provisioning profiles based on export_method
+      provisioning_profiles = if export_method == "adhoc"
+                                {
+                                  'io.bluewallet.bluewallet' => 'match AdHoc io.bluewallet.bluewallet',
+                                  'io.bluewallet.bluewallet.watch' => 'match AdHoc io.bluewallet.bluewallet.watch',
+                                  'io.bluewallet.bluewallet.watch.extension' => 'match AdHoc io.bluewallet.bluewallet.watch.extension',
+                                  'io.bluewallet.bluewallet.Stickers' => 'match AdHoc io.bluewallet.bluewallet.Stickers',
+                                  'io.bluewallet.bluewallet.MarketWidget' => 'match AdHoc io.bluewallet.bluewallet.MarketWidget'
+                                }
+                              else
+                                {
+                                  'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+                                  'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+                                  'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+                                  'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+                                  'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+                              }
+                                end
+
+      output_name = if export_method == "adhoc"
+        "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-adhoc.ipa"
+      else
+        "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa"
+      end
+
       build_app(
         scheme: scheme,
         workspace: workspace,
@@ -147,22 +172,15 @@
         export_team_id: ENV["ITC_TEAM_ID"],
         export_options: {
           signingStyle: "manual",
-          provisioningProfiles: {
-            'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-            'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-            'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-            'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
-            'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
-          }
+          provisioningProfiles: provisioning_profiles
         },
         xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
         output_directory: "./build", # Directory where the IPA file will be stored
-
-        output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        output_name: output_name,
         buildlog_path: "./build_logs"
       )
     end
-
+    
     desc "Upload to TestFlight without Processing Wait"
     lane :upload_to_testflight_lane do
       attempts = 0
@@ -315,21 +333,24 @@
       )
     end
 
-
-  desc "Upload the iOS build to BrowserStack and log the app name"
-  lane :upload_to_browserstack do
-    app_name = "YourAppName" # Customize this
-    version = ENV["PROJECT_VERSION"]
-    build_number = ENV["NEW_BUILD_NUMBER"]
-    app_identifier = "#{app_name}_#{version}_#{build_number}"
-
-    # Upload to BrowserStack. This part depends on your actual upload implementation.
-    # Let's assume the upload is successful and we print the identifier.
+    desc "Upload the Adhoc iOS build to BrowserStack"
+    lane :upload_to_browserstack do
+      version = ENV["PROJECT_VERSION"]
+      build_number = ENV["NEW_BUILD_NUMBER"]
+      app_identifier = "io.bluewallet.bluewallet"
     
-    UI.message("Upload successful. To find the build on BrowserStack, search for: #{app_identifier}")
+      # Define the file path for the Adhoc build
+      ipa_path = "./build/BlueWallet.#{version}(#{build_number})-adhoc.ipa"
     
-    # Output the identifier for GitHub Actions to use.
-    puts "::set-output name=browserstack_app_identifier::#{app_identifier}"
-  end
+      # Use the assumed or custom BrowserStack upload action
+      upload_to_browserstack_app_live(
+        browserstack_username: ENV["BROWSERSTACK_USERNAME"],
+        browserstack_access_key: ENV["BROWSERSTACK_ACCESS_KEY"],
+        file_path: ipa_path
+      )
+    
+      UI.message("Upload to BrowserStack App Live successful. To find the build, search for: #{app_identifier}")
+    end
+    
 
 end
