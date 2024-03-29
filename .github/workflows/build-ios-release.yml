@@ -71,7 +71,7 @@ jobs:
       - name: Install dependencies with Bundler
         run: bundle install
       - name: Install Fastlane
-        run: gem install fastlane -v 2.217.0 # If a specific version is needed for PR or not specified, keep only one version
+        run: gem install fastlane -v 2.219.0 # If a specific version is needed for PR or not specified, keep only one version
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
@@ -192,7 +192,7 @@ jobs:
         - name: Install dependencies with Bundler
           run: bundle install
         - name: Install Fastlane
-          run: gem install fastlane -v 2.217.0
+          run: gem install fastlane -v 2.219.0
         - name: Install dependencies with Bundler
           run: |
             bundle exec fastlane
