@@ -420,23 +420,17 @@ const WalletDetails = () => {
     }
   };
 
-  const exportHistoryContent = () => {
-    const csvFileArray = [
-      loc.transactions.date,
-      loc.transactions.txid,
-      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
-      loc.send.create_memo,
-    ];
+  const exportHistoryContent = useCallback(() => {
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
     if (wallet.chain === Chain.OFFCHAIN) {
-      csvFileArray.push(loc.lnd.payment);
+      headers.push(loc.lnd.payment);
     }
 
-    let csvFile = csvFileArray.join(','); // CSV header
+    const rows = [headers.join(',')];
     const transactions = wallet.getTransactions();
 
-    for (const transaction of transactions) {
+    transactions.forEach(transaction => {
       const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
       let status;
@@ -446,8 +440,7 @@ const WalletDetails = () => {
         memo = transaction.description;
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
-          const bb = Buffer.from(hash);
-          hash = bb.toString('hex');
+          hash = Buffer.from(hash.data).toString('hex');
         }
       }
 
@@ -457,10 +450,11 @@ const WalletDetails = () => {
         data.push(status);
       }
 
-      csvFile += '\n' + data.join(','); // CSV line
-    }
-    return csvFile;
-  };
+      rows.push(data.join(','));
+    });
+
+    return rows.join('\n');
+  }, [wallet, txMetadata]);
 
   const handleDeleteButtonTapped = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -664,7 +658,7 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent}>
+                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent()}>
                       <SecondButton title={loc.wallets.details_export_history} />
                     </SaveFileButton>
                   </>

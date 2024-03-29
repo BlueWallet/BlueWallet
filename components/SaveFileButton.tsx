@@ -7,7 +7,7 @@ const fs = require('../blue_modules/fs');
 
 interface SaveFileButtonProps {
   fileName: string;
-  fileContent: string | (() => string);
+  fileContent: string;
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
@@ -25,14 +25,13 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
       await beforeOnPress(); // Now properly awaiting a function that returns a promise
     }
     const action = actions.find(a => a.id === actionId);
-    const content = typeof fileContent === 'function' ? fileContent() : fileContent; // Simplified this line
 
     if (action?.id === 'save') {
-      await fs.writeFileAndExport(fileName, content, false, Platform.OS !== 'android').finally(() => {
+      await fs.writeFileAndExport(fileName, fileContent, false, Platform.OS !== 'android').finally(() => {
         afterOnPress?.(); // Safely call afterOnPress if it exists
       });
     } else if (action?.id === 'share') {
-      await fs.writeFileAndExport(fileName, content, true).finally(() => {
+      await fs.writeFileAndExport(fileName, fileContent, true).finally(() => {
         afterOnPress?.(); // Safely call afterOnPress if it exists
       });
     }
