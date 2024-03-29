@@ -13,7 +13,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -37,12 +36,10 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
-import { isDesktop } from '../../blue_modules/environment';
 import SaveFileButton from '../../components/SaveFileButton';
 
 const prompt = require('../../helpers/prompt');
 const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
@@ -468,15 +465,11 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const scanOrOpenFile = () => {
-    if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
-    } else {
-      setIsProvideMnemonicsModalVisible(false);
-      InteractionManager.runAfterInteractions(async () => {
-        const scanned = await scanQrHelper(navigation.navigate, name, true);
-        onBarScanned({ data: scanned });
-      });
-    }
+    setIsProvideMnemonicsModalVisible(false);
+    InteractionManager.runAfterInteractions(async () => {
+      const scanned = await scanQrHelper(navigation.navigate, name, true);
+      onBarScanned({ data: scanned });
+    });
   };
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {

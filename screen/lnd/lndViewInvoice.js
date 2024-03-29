@@ -4,7 +4,7 @@ import Share from 'react-native-share';
 import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import { BlueLoading, BlueText, BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueLoading, BlueText, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -15,6 +15,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
@@ -252,7 +253,7 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.for} {invoice.description}
               </BlueText>
             )}
-            <BlueCopyTextToClipboard truncated text={invoice.payment_request} />
+            <CopyTextToClipboard truncated text={invoice.payment_request} />
 
             <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
 

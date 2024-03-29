@@ -32,7 +32,7 @@ import {
   LightningLdkWallet,
 } from '../../class';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -48,6 +48,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import Button from '../../components/Button';
 import { SecondButton } from '../../components/SecondButton';
 import SaveFileButton from '../../components/SaveFileButton';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const prompt = require('../../helpers/prompt');
 
@@ -134,7 +135,7 @@ const WalletDetails = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, navigate, setOptions, popToTop } = useNavigation();
+  const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
   const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);

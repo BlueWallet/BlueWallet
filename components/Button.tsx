@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useTheme } from './themes';
@@ -19,7 +19,7 @@ interface ButtonProps {
   onPress?: () => void;
 }
 
-export const Button: React.FC<ButtonProps> = props => {
+export const Button = forwardRef<TouchableOpacity, ButtonProps>((props, ref) => {
   const { colors } = useTheme();
 
   let backgroundColor = props.backgroundColor ?? colors.mainColor;
@@ -48,13 +48,23 @@ export const Button: React.FC<ButtonProps> = props => {
   );
 
   return props.onPress ? (
-    <TouchableOpacity testID={props.testID} accessibilityRole="button" onPress={props.onPress} disabled={props.disabled}>
-      {buttonView}
+    <TouchableOpacity
+      ref={ref}
+      testID={props.testID}
+      style={[buttonStyle, props.style]}
+      accessibilityRole="button"
+      onPress={props.onPress}
+      disabled={props.disabled}
+    >
+      <View style={styles.content}>
+        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+        {props.title && <Text style={textStyle}>{props.title}</Text>}
+      </View>
     </TouchableOpacity>
   ) : (
     buttonView
   );
-};
+});
 
 const styles = StyleSheet.create({
   button: {
