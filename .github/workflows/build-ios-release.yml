@@ -11,7 +11,6 @@ on:
   workflow_dispatch:
 
 jobs:
-
   prepare:
     runs-on: macos-14
     outputs:
@@ -37,12 +36,13 @@ jobs:
           MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
+      
       - name: Get Latest Commit Message
-      id: get_latest_commit_message
-      run: |
-        LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
-        echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
-        echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
+        id: get_latest_commit_message
+        run: |
+          LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+          echo "LATEST_COMMIT_MESSAGE=${LATEST_COMMIT_MESSAGE}" >> $GITHUB_ENV
+          echo "::set-output name=commit_message::$LATEST_COMMIT_MESSAGE"
 
   build:
     needs: prepare
@@ -50,6 +50,8 @@ jobs:
     timeout-minutes: 180
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      NEW_BUILD_NUMBER: ${{ needs.prepare.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.prepare.outputs.project_version }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
@@ -87,7 +89,6 @@ jobs:
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
       - name: Display release-notes.txt
         run: cat release-notes.txt
-
       - name: Set up Git Authentication
         env:
           ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -100,6 +101,8 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Setup Provisioning Profiles
+        run: bundle exec fastlane ios setup_provisioning_profiles
+        working-directory: ./ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -107,18 +110,10 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane ios setup_provisioning_profiles
-        working-directory: ./ios
-  
       - name: Set Build Number
         run: bundle exec fastlane ios increment_build_number_lane
         working-directory: ./ios
-
-      - name: Expected IPA file name
-        run: |
-          echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
-
-
+    
       - name: Build App
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
@@ -127,16 +122,10 @@ jobs:
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
-
   testflight-upload:
       needs: build
       runs-on: macos-14
       if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-      env:
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-        PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-        LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
       steps:
         - name: Checkout project
           uses: actions/checkout@v3
@@ -145,12 +134,11 @@ jobs:
           with:
             path: vendor/bundle
             key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-gems-
         - name: Install dependencies with Bundler
           run: |
             bundle config path vendor/bundle
             bundle install --jobs 4 --retry 3
+            
         - name: Download IPA from Artifact
           uses: actions/download-artifact@v2
           with:
@@ -159,8 +147,10 @@ jobs:
         - name: Create App Store Connect API Key JSON
           run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
         - name: Upload to TestFlight
-          env: 
-            APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          run: bundle exec fastlane ios upload_to_testflight_lane
+          working-directory: ./ios
+          env:
+            APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.json
             MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
             GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
             GIT_URL: ${{ secrets.GIT_URL }}
@@ -169,81 +159,49 @@ jobs:
             APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
             APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          run: bundle exec fastlane ios upload_to_testflight_lane
-          working-directory: ./ios
         - name: Post PR Comment
           if: success() && github.event_name == 'pull_request'
           uses: actions/github-script@v6
-          env:
-            BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-            LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
           with:
             script: |
-              const buildNumber = process.env.BUILD_NUMBER;
-              const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
+              const buildNumber = '${{ needs.build.outputs.new_build_number }}';
+              const message = The build ${buildNumber} has been uploaded to TestFlight.;
               const prNumber = context.payload.pull_request.number;
-              const repo = context.repo;
               github.rest.issues.createComment({
-                ...repo,
-                issue_number: prNumber,
-                body: message,
+              issue_number: prNumber,
+              body: message,
               });
+            
   browserstack-upload:
-    needs: prepare
-    runs-on: macos-14
-    if: |
-      github.event_name == 'pull_request' && 
-      contains(github.event.pull_request.labels.*.name, 'browserstack')
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
-      
-      # This step caches the Ruby gems
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-      
-      - name: Install dependencies with Bundler
-        run: |
-          bundle exec fastlanebundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
-        working-directory: ./ios
-      
-      - name: Build the App for AdHoc Distribution
-        run: bundle exec fastlane ios build_app_lane export_method:"ad-hoc"
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
-          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-        working-directory: ./ios
-
-      - name: Upload Build to BrowserStack
-        id: upload_browserstack
-        run: |
-          output=$(fastlane ios upload_to_browserstack)
-          echo "$output"
-          echo "$output" >> $GITHUB_OUTPUT
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          NEW_BUILD_NUMBER: ${{ needs.prepare.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.prepare.outputs.project_version }}
-        working-directory: ./ios
-
-      - name: Post BrowserStack Instructions as PR Comment
-        if: success()
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issue_number = context.issue.number;
-            const app_identifier = "${{ steps.upload_browserstack.outputs.browserstack_app_identifier }}";
-            const comment_body = `🚀 Build uploaded to BrowserStack.\n\n🔍 To find the build on BrowserStack App Live, search for: **${app_identifier}**.`;
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue_number,
-              body: comment_body
-            });
+        needs: prepare
+        runs-on: macos-14
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack')
+        steps:
+        - name: Checkout project
+          uses: actions/checkout@v3
+        - name: Cache Ruby Gems
+          uses: actions/cache@v2
+          with:
+            path: vendor/bundle
+            key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        - name: Install dependencies with Bundler
+          run: |
+            bundle exec fastlane
+            bundle config path vendor/bundle
+            bundle install --jobs 4 --retry 3
+            working-directory: ./ios
+        - name: Build the App for AdHoc Distribution
+          run: bundle exec fastlane ios build_app_lane export_method:"ad-hoc"
+          env:
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+            FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
+            FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+            working-directory: ./ios
+        - name: Upload Build to BrowserStack
+          run: |
+            output=$(bundle exec fastlane ios upload_to_browserstack)
+            echo "$output"
+            env:
+            BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+            BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+            working-directory
