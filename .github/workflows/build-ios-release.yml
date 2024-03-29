@@ -184,6 +184,15 @@ jobs:
           with:
             path: vendor/bundle
             key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+
+        - name: Set up Ruby
+          uses: ruby/setup-ruby@v1
+          with:
+            bundler-cache: true
+        - name: Install dependencies with Bundler
+          run: bundle install
+        - name: Install Fastlane
+          run: gem install fastlane -v 2.217.0
         - name: Install dependencies with Bundler
           run: |
             bundle exec fastlane
