@@ -492,6 +492,11 @@ const WalletDetails = () => {
     );
   };
 
+  const fileName = useMemo(() => {
+    const label = wallet.getLabel().replace(' ', '-');
+    return `${label}-history.csv`;
+  }, [wallet]);
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -659,7 +664,7 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SaveFileButton fileName={`${wallet.getLabel().replace(' ', '-')}-history.csv`} fileContent={exportHistoryContent}>
+                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent}>
                       <SecondButton title={loc.wallets.details_export_history} />
                     </SaveFileButton>
                   </>
