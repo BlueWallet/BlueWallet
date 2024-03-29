@@ -352,7 +352,7 @@ PODS:
   - react-native-tcp-socket (6.0.6):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-webview (13.8.2):
+  - react-native-webview (13.8.4):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-widget-center (0.0.9):
@@ -485,7 +485,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.15.0):
+  - RNGestureHandler (2.16.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNHandoff (0.0.3):
@@ -822,7 +822,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
-  react-native-webview: 2adf6af211b3485284dc87a644d64e95243aa6e6
+  react-native-webview: 007d5c5a74de7243be6331221727639ed01ef760
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-NativeModulesApple: 694679e4193a49c09f0a76ee27ec09b2c466d59c
   React-perflogger: 63606aeab27683112e1bd4ef25bd099ec1cb03f8
@@ -850,7 +850,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 4f9c7cfd6b9db1b05eb919620a001cf35b536423
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: fc754e30bb46d093b46b47824e1a04e722fd8a3d
+  RNGestureHandler: b83cf821f60b7ec59827f0ed9e5b8c46b1de2c99
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: 4222a3756cdbe2dc9a5bdf445765a4d2572107cb
