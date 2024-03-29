@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   weOwnAddress: {
-    fontWeight: '600',
+    fontWeight: '700',
   },
   save: {
     alignItems: 'center',
