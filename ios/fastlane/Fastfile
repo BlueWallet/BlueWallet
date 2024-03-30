@@ -64,7 +64,7 @@
       }
 
       platform = options[:platform] || "ios" # Default to iOS if not specified
-      export_method = options[:export_method] || "app-store" # Default to 'app-store' if not specified
+      export_method = options[:export_method] || "appstore" # Default to 'app-store' if not specified
 
       target_to_app_identifier.each do |target, app_identifier|
         match(
@@ -135,10 +135,10 @@
     
       scheme = "BlueWallet" # Your scheme name here
       workspace = "BlueWallet.xcworkspace" # Your workspace name here
-      export_method = options[:export_method] || "app-store" # Default to 'app-store' if not specified
+      export_method = options[:export_method] || "appstore" # Default to 'app-store' if not specified
     
       # Adjust provisioning profiles based on export_method
-      provisioning_profiles = if export_method == "ad-hoc"
+      provisioning_profiles = if export_method == "adhoc"
                                 {
                                   'io.bluewallet.bluewallet' => 'match AdHoc io.bluewallet.bluewallet',
                                   'io.bluewallet.bluewallet.watch' => 'match AdHoc io.bluewallet.bluewallet.watch',
@@ -156,7 +156,7 @@
                               }
                                 end
 
-      output_name = if export_method == "ad-hoc"
+      output_name = if export_method == "adhoc"
         "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-adhoc.ipa"
       else
         "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa"
@@ -253,7 +253,7 @@
       scheme: "BlueWallet-NoLDK",
       configuration: "Release",
       catalyst_platform: "macos",
-      export_method: options[:type] || "app-store", # Default to app-store if not specified
+      export_method: options[:type] || "appstore", # Default to app-store if not specified
       xcargs: "ARCHS='arm64 x86_64' VALID_ARCHS='arm64 x86_64'",
       export_options: {
         provisioningProfiles: {
