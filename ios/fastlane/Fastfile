@@ -136,7 +136,7 @@
       export_method = options[:export_method] || "app-store" # Default to 'app-store' if not specified
     
       # Adjust provisioning profiles based on export_method
-      provisioning_profiles = if export_method == "adhoc"
+      provisioning_profiles = if export_method == "ad-hoc"
                                 {
                                   'io.bluewallet.bluewallet' => 'match AdHoc io.bluewallet.bluewallet',
                                   'io.bluewallet.bluewallet.watch' => 'match AdHoc io.bluewallet.bluewallet.watch',
@@ -154,7 +154,7 @@
                               }
                                 end
 
-      output_name = if export_method == "adhoc"
+      output_name = if export_method == "ad-hoc"
         "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']})-adhoc.ipa"
       else
         "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa"
