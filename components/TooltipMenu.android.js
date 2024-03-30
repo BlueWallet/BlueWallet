@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, forwardRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Pressable } from 'react-native';
 import showPopupMenu from '../blue_modules/showPopupMenu';
@@ -51,13 +51,16 @@ const ToolTipMenu = (props, ref) => {
   );
 };
 
-export default forwardRef(ToolTipMenu);
+export default ToolTipMenu;
 ToolTipMenu.propTypes = {
-  enableAndroidRipple: PropTypes.bool,
   actions: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
+  title: PropTypes.string,
+  children: PropTypes.node,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
+  isButton: PropTypes.bool,
+  renderPreview: PropTypes.element,
   onPress: PropTypes.func,
+  previewValue: PropTypes.string,
   disabled: PropTypes.bool,
 };

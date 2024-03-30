@@ -8,7 +8,7 @@ const fs = require('../blue_modules/fs');
 interface SaveFileButtonProps {
   fileName: string;
   fileContent: string;
-  children: ReactNode;
+  children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
   beforeOnPress?: () => Promise<void>; // Changed this line
@@ -38,9 +38,8 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
   };
 
   return (
-    <ToolTipMenu isButton isMenuPrimaryAction actions={actions} onPressMenuItem={handlePressMenuItem} buttonStyle={style}>
-      {children}
-    </ToolTipMenu>
+    // @ts-ignore: Tooltip must be refactored to use TSX}
+    <ToolTipMenu isButton isMenuPrimaryAction actions={actions} onPressMenuItem={handlePressMenuItem} buttonStyle={style} />
   );
 };
 
