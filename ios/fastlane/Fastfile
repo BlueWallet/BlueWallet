@@ -64,11 +64,13 @@
       }
 
       platform = options[:platform] || "ios" # Default to iOS if not specified
+      export_method = options[:export_method] || "app-store" # Default to 'app-store' if not specified
+
       target_to_app_identifier.each do |target, app_identifier|
         match(
           git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
           git_url: ENV["GIT_URL"],
-          type: "appstore",
+          type: export_method,
           platform: platform,
           app_identifier: app_identifier,
           team_id: ENV["ITC_TEAM_ID"],

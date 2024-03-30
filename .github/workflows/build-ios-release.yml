@@ -224,7 +224,7 @@ jobs:
           env:
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         - name: Setup Provisioning Profiles
-          run: bundle exec fastlane ios setup_provisioning_profiles
+          run: bundle exec fastlane ios setup_provisioning_profiles export_method:"ad-hoc"
           working-directory: ./ios
           env:
             MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
