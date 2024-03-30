@@ -198,7 +198,7 @@ jobs:
             bundle exec fastlane
             bundle config path vendor/bundle
             bundle install --jobs 4 --retry 3
-            working-directory: ./ios
+          working-directory: ./ios
         - name: Build the App for AdHoc Distribution
           run: bundle exec fastlane ios build_app_lane export_method:"ad-hoc"
           env:
@@ -213,4 +213,4 @@ jobs:
             env:
             BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
             BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-            working-directory
+          working-directory: ./ios
