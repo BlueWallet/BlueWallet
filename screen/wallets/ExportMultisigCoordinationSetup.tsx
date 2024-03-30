@@ -7,7 +7,6 @@ import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
-import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
 import { TWallet } from '../../class/wallets/types';
 const fs = require('../../blue_modules/fs');
@@ -71,7 +70,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { colors } = useTheme();
   const { enableBlur, disableBlur } = usePrivacy();
   const stylesHook = StyleSheet.create({
-    root: {
+    scrollViewContent: {
       backgroundColor: colors.elevated,
     },
     type: { color: colors.foregroundColor },
@@ -100,10 +99,10 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      enableBlur();
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
       const task = InteractionManager.runAfterInteractions(async () => {
+        enableBlur();
         if (wallet) {
           try {
             const xpub = wallet.getXpub();
@@ -126,7 +125,8 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         task.cancel();
         disableBlur();
       };
-    }, [disableBlur, enableBlur, wallet]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [wallet]),
   );
 
   const renderView = wallet ? (
@@ -148,11 +148,14 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   ) : null;
 
   return (
-    <SafeArea style={stylesHook.root}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent} centerContent={isLoading}>
-        {isLoading ? <ActivityIndicator /> : renderView}
-      </ScrollView>
-    </SafeArea>
+    <ScrollView
+      contentContainerStyle={[styles.scrollViewContent, stylesHook.scrollViewContent]}
+      centerContent={isLoading}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      {isLoading ? <ActivityIndicator /> : renderView}
+    </ScrollView>
   );
 };
 
