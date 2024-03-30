@@ -194,13 +194,56 @@ jobs:
         - name: Install Fastlane
           run: gem install fastlane -v 2.219.0
           working-directory: ./ios
+
+        - name: Clear Derived Data
+          run: bundle exec fastlane ios clear_derived_data_lane
+          working-directory: ./ios
+        - name: Install node_modules
+          run: npm install
+        - name: Install CocoaPods Dependencies
+          run: |
+            sudo gem install cocoapods # Ensure CocoaPods is installed
+            bundle exec pod install
+          working-directory: ./ios
+        - name: Cache CocoaPods Pods
+          uses: actions/cache@v2
+          with:
+            path: ios/Pods
+            key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+        - name: Display release-notes.txt
+          run: cat release-notes.txt
+        - name: Set up Git Authentication
+          env:
+            ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          run: |
+            git config --global credential.helper 'cache --timeout=3600'
+            git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
+        - name: Create Temporary Keychain
+          run: bundle exec fastlane ios create_temp_keychain
+          working-directory: ./ios
+          env:
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        - name: Setup Provisioning Profiles
+          run: bundle exec fastlane ios setup_provisioning_profiles
+          working-directory: ./ios
+          env:
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+            GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+            GIT_URL: ${{ secrets.GIT_URL }}
+            ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+            ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        - name: Set Build Number
+          run: bundle exec fastlane ios increment_build_number_lane
+          working-directory: ./ios
+    
         - name: Build the App for AdHoc Distribution
           run: bundle exec fastlane ios build_app_lane export_method:"ad-hoc"
           env:
             MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
             FASTLANE_USER: ${{ secrets.FASTLANE_USER }}
             FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-            working-directory: ./ios
+          working-directory: ./ios
         - name: Upload Build to BrowserStack
           run: |
             output=$(bundle exec fastlane ios upload_to_browserstack)
