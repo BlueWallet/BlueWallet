@@ -155,7 +155,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         style={styles.chainIcon}
       />
 
-      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel}>
+      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
         {wallet.getLabel()}
       </Text>
       <View style={styles.walletBalanceAndUnitContainer}>
