@@ -11,7 +11,7 @@ import { LightningLdkWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
-const fs = require('../../blue_modules/fs');
+import * as fs from '../../blue_modules/fs';
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();

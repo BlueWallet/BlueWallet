@@ -1,21 +1,22 @@
 import React, { useContext } from 'react';
-import { TouchableOpacity, ScrollView, Linking, Image, View, Text, StyleSheet, useWindowDimensions, Platform, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber, getUniqueIdSync, hasGmsSync } from 'react-native-device-info';
-import Rate, { AndroidMarket } from 'react-native-rate';
-import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation } from '@react-navigation/native';
+import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
+import { Icon } from 'react-native-elements';
+import Rate, { AndroidMarket } from 'react-native-rate';
+
+import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import A from '../../blue_modules/analytics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
 import { HDSegwitBech32Wallet } from '../../class';
-import { useTheme } from '../../components/themes';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
-const A = require('../../blue_modules/analytics');
 const branch = require('../../current-branch.json');
 
 const About = () => {

@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import loc from '../loc';
 
-module.exports = (
+export default (
   title: string,
   text: string,
   isCancelable = true,
