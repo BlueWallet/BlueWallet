@@ -41,6 +41,7 @@ const ToolTipMenu = (props, ref) => {
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
   const renderPreview = props.renderPreview ?? undefined;
   const disabled = props.disabled ?? false;
+  const onPress = props.onPress ?? undefined;
 
   const buttonStyle = props.buttonStyle;
   return isButton ? (
@@ -55,14 +56,11 @@ const ToolTipMenu = (props, ref) => {
         menuTitle,
         menuItems,
       }}
+      style={buttonStyle}
+      onPress={onPress}
+      accessibilityRole="button"
     >
-      {props.onPress ? (
-        <TouchableOpacity accessibilityRole="button" style={buttonStyle} onPress={props.onPress}>
-          {props.children}
-        </TouchableOpacity>
-      ) : (
-        props.children
-      )}
+      {props.children}
     </ContextMenuButton>
   ) : props.onPress ? (
     <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
