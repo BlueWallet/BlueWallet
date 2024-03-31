@@ -13,9 +13,10 @@ import {
   I18nManager,
   InteractionManager,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
+
 import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
-import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
@@ -31,9 +32,9 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import A from '../../blue_modules/analytics';
+import * as fs from '../../blue_modules/fs';
 
-const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
 const WalletsList = () => {
