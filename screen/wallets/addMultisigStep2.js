@@ -36,10 +36,10 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
+import prompt from '../../helpers/prompt';
+import A from '../../blue_modules/analytics';
 import SaveFileButton from '../../components/SaveFileButton';
 
-const prompt = require('../../helpers/prompt');
-const A = require('../../blue_modules/analytics');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {

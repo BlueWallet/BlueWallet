@@ -1,13 +1,13 @@
 import { getUniqueId } from 'react-native-device-info';
 import Bugsnag from '@bugsnag/react-native';
-const BlueApp = require('../BlueApp');
+import BlueApp from '../BlueApp';
 
 /**
  * in case Bugsnag was started, but user decided to opt out while using the app, we have this
  * flag `userHasOptedOut` and we forbid logging in `onError` handler
  * @type {boolean}
  */
-let userHasOptedOut = false;
+let userHasOptedOut: boolean = false;
 
 if (process.env.NODE_ENV !== 'development') {
   (async () => {
@@ -20,7 +20,6 @@ if (process.env.NODE_ENV !== 'development') {
     }
 
     Bugsnag.start({
-      collectUserIp: false,
       user: {
         id: uniqueID,
       },
@@ -31,7 +30,7 @@ if (process.env.NODE_ENV !== 'development') {
   })();
 }
 
-const A = async event => {};
+const A = async (event: string) => {};
 
 A.ENUM = {
   INIT: 'INIT',
@@ -42,13 +41,13 @@ A.ENUM = {
   APP_UNSUSPENDED: 'APP_UNSUSPENDED',
 };
 
-A.setOptOut = value => {
+A.setOptOut = (value: boolean) => {
   if (value) userHasOptedOut = true;
 };
 
-A.logError = errorString => {
+A.logError = (errorString: string) => {
   console.error(errorString);
   Bugsnag.notify(new Error(String(errorString)));
 };
 
-module.exports = A;
+export default A;

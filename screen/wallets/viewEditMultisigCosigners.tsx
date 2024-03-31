@@ -54,7 +54,7 @@ import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
 import SaveFileButton from '../../components/SaveFileButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-const prompt = require('../../helpers/prompt');
+import prompt from '../../helpers/prompt';
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
 
@@ -471,7 +471,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     return _handleUseMnemonicPhrase(importText, passphrase);
   };
 
-  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase: string) => {
+  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase?: string) => {
     if (!wallet || !currentlyEditingCosignerNum) {
       // failsafe
       return;
