@@ -9,7 +9,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import { TWallet } from '../../class/wallets/types';
-const fs = require('../../blue_modules/fs');
+import * as fs from '../../blue_modules/fs';
 
 type RootStackParamList = {
   ExportMultisigCoordinationSetup: {
@@ -84,8 +84,10 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     setIsShareButtonTapped(true);
     dynamicQRCode.current?.stopAutoMove();
     setTimeout(() => {
-      if (wallet) {
-        fs.writeFileAndExport(wallet.getLabel() + '.txt', wallet.getXpub()).finally(() => {
+      const label = wallet?.getLabel();
+      const xpub = wallet?.getXpub();
+      if (label && xpub) {
+        fs.writeFileAndExport(label + '.txt', xpub).finally(() => {
           setIsShareButtonTapped(false);
           dynamicQRCode.current?.startAutoMove();
         });
