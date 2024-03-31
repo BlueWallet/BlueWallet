@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { View, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -15,9 +15,35 @@ type RootStackParamList = {
 
 type DefaultViewNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SelectWallet'>;
 
+const enum ActionType {
+  SetDefaultWalletLabel = 'SET_DEFAULT_WALLET_LABEL',
+  SetViewAllWalletsSwitch = 'SET_VIEW_ALL_WALLETS_SWITCH',
+}
+
+type State = {
+  defaultWalletLabel: string;
+  isViewAllWalletsSwitchEnabled: boolean;
+};
+
+type Action = { type: ActionType.SetDefaultWalletLabel; payload: string } | { type: ActionType.SetViewAllWalletsSwitch; payload: boolean };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case ActionType.SetDefaultWalletLabel:
+      return { ...state, defaultWalletLabel: action.payload };
+    case ActionType.SetViewAllWalletsSwitch:
+      return { ...state, isViewAllWalletsSwitchEnabled: action.payload };
+    default:
+      return state;
+  }
+};
+
 const DefaultView: React.FC = () => {
-  const [defaultWalletLabel, setDefaultWalletLabel] = useState<string>('');
-  const [isViewAllWalletsSwitchEnabled, setIsViewAllWalletsSwitchEnabled] = useState<boolean>(true);
+  const [state, dispatch] = useReducer(reducer, {
+    defaultWalletLabel: '',
+    isViewAllWalletsSwitchEnabled: true,
+  });
+
   const { navigate, pop } = useNavigation<DefaultViewNavigationProp>();
   const { wallets } = useContext(BlueStorageContext);
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet, setSelectedDefaultWallet, setViewAllWalletsEnabled } = useOnAppLaunch();
@@ -32,23 +58,20 @@ const DefaultView: React.FC = () => {
         const w = wallets.find(wallet => wallet.getID() === walletID);
         if (w) newDefaultWalletLabel = w.getLabel();
       }
-      setDefaultWalletLabel(newDefaultWalletLabel);
-      setIsViewAllWalletsSwitchEnabled(newViewAllWalletsEnabled);
+      dispatch({ type: ActionType.SetDefaultWalletLabel, payload: newDefaultWalletLabel });
+      dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: newViewAllWalletsEnabled });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onViewAllWalletsSwitchValueChanged = async (value: boolean) => {
     await setViewAllWalletsEnabled(value);
-    if (value) {
-      setIsViewAllWalletsSwitchEnabled(true);
-      setDefaultWalletLabel('');
-    } else {
+    dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
+    if (!value) {
       const selectedWalletID = await getSelectedDefaultWallet();
       const selectedWallet = wallets.find(wallet => wallet.getID() === selectedWalletID);
       if (selectedWallet) {
-        setDefaultWalletLabel(selectedWallet.getLabel());
-        setIsViewAllWalletsSwitchEnabled(false);
+        dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
       }
     }
   };
@@ -60,8 +83,8 @@ const DefaultView: React.FC = () => {
   const onWalletSelectValueChanged = async (wallet: TWallet) => {
     await setViewAllWalletsEnabled(false);
     await setSelectedDefaultWallet(wallet.getID());
-    setDefaultWalletLabel(wallet.getLabel());
-    setIsViewAllWalletsSwitchEnabled(false);
+    dispatch({ type: ActionType.SetDefaultWalletLabel, payload: wallet.getLabel() });
+    dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: false });
     pop();
   };
 
@@ -73,15 +96,15 @@ const DefaultView: React.FC = () => {
           Component={TouchableWithoutFeedback}
           switch={{
             onValueChange: onViewAllWalletsSwitchValueChanged,
-            value: isViewAllWalletsSwitchEnabled,
+            value: state.isViewAllWalletsSwitchEnabled,
             disabled: wallets.length <= 0,
           }}
         />
         <BlueCard>
           <BlueText>{loc.settings.default_desc}</BlueText>
         </BlueCard>
-        {!isViewAllWalletsSwitchEnabled && (
-          <ListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
+        {!state.isViewAllWalletsSwitchEnabled && (
+          <ListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={state.defaultWalletLabel} chevron />
         )}
       </View>
     </ScrollView>
