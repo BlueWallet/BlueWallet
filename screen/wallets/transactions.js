@@ -514,15 +514,15 @@ const WalletTransactions = ({ navigation }) => {
         }
         onWalletBalanceVisibilityChange={async isShouldBeVisible => {
           const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-          if (wallet.hideBalance) {
-            if (isBiometricsEnabled) {
-              if (!(await Biometric.unlockWithBiometrics())) {
-                throw new Error('Biometrics failed');
-              }
+
+          if (wallet.hideBalance && isBiometricsEnabled) {
+            const unlocked = await Biometric.unlockWithBiometrics();
+            if (!unlocked) {
+              throw new Error('Biometrics failed');
             }
           }
-          const currentWallet = wallet;
-          currentWallet.hideBalance = isShouldBeVisible;
+
+          wallet.hideBalance = isShouldBeVisible;
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           await saveToDisk();
         }}
