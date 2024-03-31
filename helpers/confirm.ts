@@ -10,7 +10,7 @@ import loc from '../loc';
  *
  * @return {Promise<boolean>}
  */
-module.exports = function (title = 'Are you sure?', text = ''): Promise<boolean> {
+export default function (title = 'Are you sure?', text = ''): Promise<boolean> {
   return new Promise(resolve => {
     Alert.alert(
       title,
@@ -30,4 +30,4 @@ module.exports = function (title = 'Are you sure?', text = ''): Promise<boolean>
       { cancelable: false },
     );
   });
-};
+}

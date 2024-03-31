@@ -53,8 +53,8 @@ import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-const fs = require('../../blue_modules/fs');
-const prompt = require('../../helpers/prompt');
+import prompt from '../../helpers/prompt';
+import * as fs from '../../blue_modules/fs';
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
 
@@ -472,7 +472,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     return _handleUseMnemonicPhrase(importText, passphrase);
   };
 
-  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase: string) => {
+  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase?: string) => {
     if (!wallet || !currentlyEditingCosignerNum) {
       // failsafe
       return;

@@ -15,7 +15,7 @@ import Biometric from '../../class/biometrics';
 import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import QRCodeComponent from '../QRCodeComponent';
-const confirm = require('../../helpers/confirm');
+import confirm from '../../helpers/confirm';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript

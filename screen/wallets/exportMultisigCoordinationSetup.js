@@ -10,7 +10,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
-const fs = require('../../blue_modules/fs');
+import * as fs from '../../blue_modules/fs';
 
 const ExportMultisigCoordinationSetup = () => {
   const walletId = useRoute().params.walletId;

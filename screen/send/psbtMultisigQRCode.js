@@ -1,19 +1,18 @@
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { SquareButton } from '../../components/SquareButton';
-
-import loc from '../../loc';
+import * as fs from '../../blue_modules/fs';
 import presentAlert from '../../components/Alert';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
-const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
+import { SquareButton } from '../../components/SquareButton';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
