@@ -5,7 +5,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
-import Biometric from '../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
@@ -20,7 +19,8 @@ interface TransactionsNavigationHeaderProps {
     navigate: (route: string, params?: any) => void;
     goBack: () => void;
   };
-  onManageFundsPressed?: (id: string) => void; // Add a type definition for this prop
+  onManageFundsPressed?: (id: string) => void;
+  onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
   actionKeys: {
     CopyToClipboard: 'copyToClipboard';
     WalletBalanceVisibility: 'walletBalanceVisibility';
@@ -38,11 +38,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   navigation,
   // @ts-ignore: Ugh
   onManageFundsPressed,
+  // @ts-ignore: Ugh
+  onWalletBalanceVisibilityChange,
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
 
-  const { preferredFiatCurrency, saveToDisk } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency } = useContext(BlueStorageContext);
   const menuRef = useRef(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
@@ -72,24 +74,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   };
 
-  const updateWalletVisibility = (w: TWallet, newHideBalance: boolean) => {
-    w.hideBalance = newHideBalance;
-    return w;
-  };
-
-  const handleBalanceVisibility = async () => {
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled && wallet.hideBalance) {
-      if (!(await Biometric.unlockWithBiometrics())) {
-        return navigation.goBack();
-      }
-    }
-
-    const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setWallet(updatedWallet);
-    saveToDisk();
+  const handleBalanceVisibility = () => {
+    onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
   };
 
   const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {

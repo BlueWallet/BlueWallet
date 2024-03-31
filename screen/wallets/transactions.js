@@ -13,6 +13,7 @@ import {
   View,
   I18nManager,
   findNodeHandle,
+  LayoutAnimation,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useRoute, useFocusEffect } from '@react-navigation/native';
@@ -36,6 +37,7 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import Biometric from '../../class/biometrics';
 
 const fs = require('../../blue_modules/fs');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
@@ -510,6 +512,20 @@ const WalletTransactions = ({ navigation }) => {
             saveToDisk();
           })
         }
+        onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+          if (wallet.hideBalance) {
+            if (isBiometricsEnabled) {
+              if (!(await Biometric.unlockWithBiometrics())) {
+                throw new Error('Biometrics failed');
+              }
+            }
+          }
+          const currentWallet = wallet;
+          currentWallet.hideBalance = isShouldBeVisible;
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          await saveToDisk();
+        }}
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();

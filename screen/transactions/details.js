@@ -12,6 +12,7 @@ import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -262,7 +263,7 @@ const TransactionsDetails = () => {
         {tx.fee && (
           <>
             <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
-            <BlueText style={styles.rowValue}>{tx.fee + ' sats'}</BlueText>
+            <BlueText style={styles.rowValue}>{tx.fee + ` ${BitcoinUnit.SATS}`}</BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
