@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Text, Keyboard, TouchableOpacity, SectionList } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { Psbt } from 'bitcoinjs-lib';
+
 import { BlueSpacing20, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -9,14 +11,15 @@ import loc, { formatBalance } from '../../loc';
 import LNNodeBar from '../../components/LNNodeBar';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
-import { Psbt } from 'bitcoinjs-lib';
-import { AbstractWallet, LightningLdkWallet } from '../../class';
+import { LightningLdkWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import StyledButton, { StyledButtonType } from '../../components/StyledButton';
 import SafeArea from '../../components/SafeArea';
-const selectWallet = require('../../helpers/select-wallet');
-const confirm = require('../../helpers/confirm');
+import confirm from '../../helpers/confirm';
+import selectWallet from '../../helpers/select-wallet';
+import { TWallet } from '../../class/wallets/types';
+
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
 type LdkInfoRouteProps = RouteProp<
@@ -314,9 +317,15 @@ const LdkInfo = () => {
       params: {
         availableWallets,
         chainType: Chain.ONCHAIN,
-        onWalletSelect: (selectedWallet: AbstractWallet) => {
+        onWalletSelect: (selectedWallet: TWallet) => {
           const selectedWalletID = selectedWallet.getID();
-          selectedWallet.getAddressAsync().then(selectWallet.setRefundAddress);
+          selectedWallet.getAddressAsync().then((address): void => {
+            if (!address) {
+              presentAlert({ message: 'Error: could not get address for channel withdrawal' });
+              return;
+            }
+            wallet.setRefundAddress(address);
+          });
           // @ts-ignore: Address types later
           navigate('LDKOpenChannelRoot', {
             screen: 'LDKOpenChannelSetAmount',
