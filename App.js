@@ -34,7 +34,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapti
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
 import { NavigationProvider } from './components/NavigationProvider';
-const A = require('./blue_modules/analytics');
+import A from './blue_modules/analytics';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { EventEmitter, SplashScreen } = NativeModules;

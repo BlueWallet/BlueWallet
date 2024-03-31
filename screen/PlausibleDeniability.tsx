@@ -8,8 +8,8 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapt
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import presentAlert from '../components/Alert';
 import Button from '../components/Button';
+import prompt from '../helpers/prompt';
 import loc from '../loc';
-const prompt = require('../helpers/prompt');
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -56,7 +56,7 @@ const PlausibleDeniability: React.FC = () => {
         dispatch({ type: SET_LOADING, payload: false });
         return;
       }
-      const p2 = await prompt(loc.plausibledeniability.retype_password);
+      const p2 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.retype_password);
       if (p1 !== p2) {
         dispatch({ type: SET_LOADING, payload: false });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -64,7 +64,7 @@ const PlausibleDeniability: React.FC = () => {
       }
 
       await createFakeStorage(p1);
-      await resetWallets();
+      resetWallets();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       presentAlert({ message: loc.plausibledeniability.success });
       navigation.popToTop();
