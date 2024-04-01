@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
   findNodeHandle,
+  LayoutAnimation,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -38,6 +39,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
+import Biometric from '../../class/biometrics';
 
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
@@ -511,6 +513,20 @@ const WalletTransactions = ({ navigation }) => {
             saveToDisk();
           })
         }
+        onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+          if (wallet.hideBalance && isBiometricsEnabled) {
+            const unlocked = await Biometric.unlockWithBiometrics();
+            if (!unlocked) {
+              throw new Error('Biometrics failed');
+            }
+          }
+
+          wallet.hideBalance = isShouldBeVisible;
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          await saveToDisk();
+        }}
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
