@@ -39,7 +39,9 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
 
   return (
     // @ts-ignore: Tooltip must be refactored to use TSX}
-    <ToolTipMenu isButton isMenuPrimaryAction actions={actions} onPressMenuItem={handlePressMenuItem} buttonStyle={style} />
+    <ToolTipMenu isButton isMenuPrimaryAction actions={actions} onPressMenuItem={handlePressMenuItem} buttonStyle={style}>
+      {children}
+    </ToolTipMenu>
   );
 };
 
