@@ -8,7 +8,6 @@ import TransactionIncomingIcon from '../../components/icons/TransactionIncomingI
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../components/handoff';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
@@ -18,6 +17,7 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import HandOff from '../../components/HandOff';
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -360,9 +360,9 @@ const TransactionsStatus = () => {
   }
   return (
     <SafeArea>
-      <HandoffComponent
+      <HandOff
         title={loc.transactions.details_title}
-        type={HandoffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOff.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 

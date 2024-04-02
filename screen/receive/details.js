@@ -17,7 +17,6 @@ import { BlueLoading, BlueButtonLink, BlueText, BlueSpacing20, BlueCard, BlueSpa
 import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import HandoffComponent from '../../components/handoff';
 import AmountInput from '../../components/AmountInput';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import loc, { formatBalance } from '../../loc';
@@ -32,6 +31,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOff from '../../components/HandOff';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -426,7 +426,7 @@ const ReceiveDetails = () => {
   return (
     <View style={[styles.root, stylesHook.root]}>
       {address !== undefined && showAddress && (
-        <HandoffComponent title={loc.send.details_address} type={HandoffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
+        <HandOff title={loc.send.details_address} type={HandOff.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}

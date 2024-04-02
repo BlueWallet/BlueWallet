@@ -4,7 +4,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../components/handoff';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -13,6 +12,7 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import HandOff from '../../components/HandOff';
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -221,9 +221,9 @@ const TransactionsDetails = () => {
 
   return (
     <ScrollView style={styles.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <HandoffComponent
+      <HandOff
         title={loc.transactions.details_title}
-        type={HandoffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOff.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
       <BlueCard>
