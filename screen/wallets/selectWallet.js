@@ -3,7 +3,7 @@ import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, Fl
 import LinearGradient from 'react-native-linear-gradient';
 import { useRoute, useNavigation, useNavigationState } from '@react-navigation/native';
 
-import { BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import { BlueText, BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
@@ -13,6 +13,7 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { Chain } from '../../models/bitcoinUnits';
+import { BlurredBalanceView } from '../../components/BlurredBalanceView';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = useRoute().params;
@@ -167,7 +168,7 @@ const SelectWallet = () => {
               {item.getLabel()}
             </Text>
             {item.hideBalance ? (
-              <BluePrivateBalance />
+              <BlurredBalanceView />
             ) : (
               <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
                 {formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}

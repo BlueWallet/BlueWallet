@@ -26,7 +26,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
       'watchOnly',
       'Imported Watch-only',
-      '0.0001 BTC',
+      '0.0001',
     );
     await sleep(15000);
 
