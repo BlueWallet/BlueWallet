@@ -7,7 +7,7 @@ interface ButtonDetails {
   image: ImageSourcePropType;
   title: string;
   explain: string;
-  borderColorActive: keyof Theme['colors']; // Use the color keys from your theme
+  borderColorActive: keyof Theme['colors'];
 }
 
 interface WalletButtonProps {
@@ -23,19 +23,19 @@ interface WalletButtonProps {
 
 const buttonDetails: Record<string, ButtonDetails> = {
   Bitcoin: {
-    image: require('../img/addWallet/bitcoin.png'), // Adjust path as necessary
+    image: require('../img/addWallet/bitcoin.png'),
     title: loc.wallets.add_bitcoin,
     explain: loc.wallets.add_bitcoin_explain,
     borderColorActive: 'newBlue',
   },
   Vault: {
-    image: require('../img/addWallet/vault.png'), // Adjust path as necessary
+    image: require('../img/addWallet/vault.png'),
     title: loc.multisig.multisig_vault,
     explain: loc.multisig.multisig_vault_explain,
     borderColorActive: 'foregroundColor',
   },
   Lightning: {
-    image: require('../img/addWallet/lightning.png'), // Adjust path as necessary
+    image: require('../img/addWallet/lightning.png'),
     title: loc.wallets.add_lightning,
     explain: loc.wallets.add_lightning_explain,
     borderColorActive: 'lnborderColor',
