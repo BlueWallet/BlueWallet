@@ -5,7 +5,7 @@ import { useTheme } from './themes';
 interface SquareButtonProps {
   title: string;
   onPress?: () => void;
-  style: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 

@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,16 +15,7 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import {
-  BitcoinButton,
-  BlueButtonLink,
-  BlueFormLabel,
-  BlueSpacing20,
-  BlueSpacing40,
-  BlueText,
-  LightningButton,
-  VaultButton,
-} from '../../BlueComponents';
+import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet } from '../../class';
@@ -36,6 +28,7 @@ import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { AppStorage } from '../../BlueApp';
+import WalletButton from '../../components/WalletButton';
 import A from '../../blue_modules/analytics';
 
 enum ButtonSelected {
@@ -345,16 +338,19 @@ const WalletsAdd: React.FC = () => {
   };
 
   const handleOnVaultButtonPressed = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.VAULT);
   };
 
   const handleOnBitcoinButtonPressed = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
   const handleOnLightningButtonPressed = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     // @ts-ignore: Return later to update
     setBackdoorPressed((prevState: number) => {
       return prevState + 1;
@@ -364,6 +360,7 @@ const WalletsAdd: React.FC = () => {
   };
 
   const handleOnLdkButtonPressed = async () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.LDK);
   };
@@ -387,16 +384,18 @@ const WalletsAdd: React.FC = () => {
         </View>
         <BlueFormLabel>{loc.wallets.add_wallet_type}</BlueFormLabel>
         <View style={styles.buttons}>
-          <BitcoinButton
+          <WalletButton
+            buttonType="Bitcoin"
             testID="ActivateBitcoinButton"
             active={selectedWalletType === ButtonSelected.ONCHAIN}
             onPress={handleOnBitcoinButtonPressed}
-            style={styles.button}
+            size={styles.button}
           />
-          <LightningButton
+          <WalletButton
+            buttonType="Lightning"
             active={selectedWalletType === ButtonSelected.OFFCHAIN}
             onPress={handleOnLightningButtonPressed}
-            style={styles.button}
+            size={styles.button}
           />
           {backdoorPressed > 10 ? (
             <LdkButton
@@ -407,11 +406,12 @@ const WalletsAdd: React.FC = () => {
               text="LDK"
             />
           ) : null}
-          <VaultButton
+          <WalletButton
+            buttonType="Vault"
             testID="ActivateVaultButton"
             active={selectedWalletType === ButtonSelected.VAULT}
             onPress={handleOnVaultButtonPressed}
-            style={styles.button}
+            size={styles.button}
           />
         </View>
 
