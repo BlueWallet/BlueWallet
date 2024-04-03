@@ -576,8 +576,13 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SaveFileButton fileContent={exportString} fileName={exportFilename} afterOnPress={saveFileButtonAfterOnPress}>
-                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} title={loc.multisig.share} />
+              <SaveFileButton
+                style={[styles.exportButton, stylesHook.exportButton]}
+                fileContent={exportString}
+                fileName={exportFilename}
+                afterOnPress={saveFileButtonAfterOnPress}
+              >
+                <SquareButton title={loc.multisig.share} />
               </SaveFileButton>
             </View>
           </View>
