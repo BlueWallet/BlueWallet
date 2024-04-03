@@ -8,7 +8,7 @@ import TransactionIncomingIcon from '../../components/icons/TransactionIncomingI
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../components/handoff';
+import HandOffComponent from '../../components/HandOffComponent';
 import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
@@ -360,9 +360,9 @@ const TransactionsStatus = () => {
   }
   return (
     <SafeArea>
-      <HandoffComponent
+      <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandoffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 

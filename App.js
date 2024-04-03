@@ -29,15 +29,15 @@ import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
-import HandoffComponent from './components/handoff';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
 import { NavigationProvider } from './components/NavigationProvider';
 import A from './blue_modules/analytics';
+import HandOffComponentListener from './components/HandOffComponentListener';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
-const { EventEmitter, SplashScreen } = NativeModules;
+const { SplashScreen } = NativeModules;
 
 LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
@@ -77,47 +77,17 @@ const App = () => {
     if (payload.foreground) await processPushNotifications();
   };
 
-  const onUserActivityOpen = data => {
-    switch (data.activityType) {
-      case HandoffComponent.activityTypes.ReceiveOnchain:
-        NavigationService.navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: {
-            address: data.userInfo.address,
-          },
-        });
-        break;
-      case HandoffComponent.activityTypes.Xpub:
-        NavigationService.navigate('WalletXpubRoot', {
-          screen: 'WalletXpub',
-          params: {
-            xpub: data.userInfo.xpub,
-          },
-        });
-        break;
-      default:
-        break;
-    }
-  };
-
   const addListeners = () => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
 
-    // Note: `getMostRecentUserActivity` doesn't create a persistent listener, so no need to unsubscribe
-    EventEmitter?.getMostRecentUserActivity()
-      .then(onUserActivityOpen)
-      .catch(() => console.log('No userActivity object sent'));
-
     const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
-    const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
 
     // Store subscriptions in a ref or state to remove them later
     return {
       urlSubscription,
       appStateSubscription,
       notificationSubscription,
-      activitySubscription,
     };
   };
 
@@ -130,7 +100,6 @@ const App = () => {
         subscriptions.urlSubscription?.remove();
         subscriptions.appStateSubscription?.remove();
         subscriptions.notificationSubscription?.remove();
-        subscriptions.activitySubscription?.remove();
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -306,6 +275,7 @@ const App = () => {
             <MenuElements />
             <DeviceQuickActions />
             <Biometric />
+            <HandOffComponentListener />
           </NavigationProvider>
         </NavigationContainer>
       </View>

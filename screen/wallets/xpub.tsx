@@ -7,7 +7,7 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import Button from '../../components/Button';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import HandoffComponent from '../../components/handoff';
+import HandOffComponent from '../../components/HandOffComponent';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
@@ -94,7 +94,7 @@ const WalletXpub: React.FC = () => {
             <BlueSpacing20 />
             {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
-          <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
