@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useReducer, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -10,6 +10,7 @@ import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import { TWallet } from '../../class/wallets/types';
 import * as fs from '../../blue_modules/fs';
+import SaveFileButton from '../../components/SaveFileButton';
 
 type RootStackParamList = {
   ExportMultisigCoordinationSetup: {
@@ -80,20 +81,8 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     },
   });
 
-  const exportTxtFile = async () => {
-    setIsShareButtonTapped(true);
-    dynamicQRCode.current?.stopAutoMove();
-    setTimeout(() => {
-      const label = wallet?.getLabel();
-      const xpub = wallet?.getXpub();
-      if (label && xpub) {
-        fs.writeFileAndExport(label + '.txt', xpub).finally(() => {
-          setIsShareButtonTapped(false);
-          dynamicQRCode.current?.startAutoMove();
-        });
-      }
-    }, 10);
-  };
+  const label = useMemo(() => wallet?.getLabel(), [wallet]);
+  const xpub = useMemo(() => wallet?.getXpub(), [wallet]);
 
   const setIsShareButtonTapped = (value: boolean) => {
     dispatch({ type: ActionType.SET_SHARE_BUTTON_TAPPED, isShareButtonTapped: value });
@@ -131,6 +120,16 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     }, [wallet]),
   );
 
+  const exportTxtFileBeforeOnPress = async () => {
+    setIsShareButtonTapped(true);
+    dynamicQRCode.current?.stopAutoMove();
+  };
+
+  const exportTxtFileAfterOnPress = () => {
+    setIsShareButtonTapped(false);
+    dynamicQRCode.current?.startAutoMove();
+  };
+
   const renderView = wallet ? (
     <>
       <View>
@@ -142,8 +141,20 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       {isShareButtonTapped ? (
         <ActivityIndicator />
       ) : (
-        <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportTxtFile} title={loc.multisig.share} />
+        label &&
+        xpub && (
+          <SaveFileButton
+            style={[styles.exportButton, stylesHook.exportButton]}
+            fileName={`${label}.txt`}
+            fileContent={xpub}
+            beforeOnPress={exportTxtFileBeforeOnPress}
+            afterOnPress={exportTxtFileAfterOnPress}
+          >
+            <SquareButton title={loc.multisig.share} />
+          </SaveFileButton>
+        )
       )}
+
       <BlueSpacing20 />
       <BlueText style={[styles.secret, stylesHook.secret]}>{wallet.getXpub()}</BlueText>
     </>
