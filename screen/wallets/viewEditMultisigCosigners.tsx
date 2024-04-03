@@ -52,9 +52,9 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
+import SaveFileButton from '../../components/SaveFileButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import prompt from '../../helpers/prompt';
-import * as fs from '../../blue_modules/fs';
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
 
@@ -172,9 +172,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const exportCosigner = () => {
+  const saveFileButtonAfterOnPress = () => {
     setIsShareModalVisible(false);
-    setTimeout(() => fs.writeFileAndExport(exportFilename, exportString), 1000);
   };
 
   const onSave = async () => {
@@ -568,7 +567,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     const isPad: boolean = Platform.isPad;
 
     return (
-      // @ts-ignore wtf doneButton
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
@@ -578,7 +576,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              <SaveFileButton fileContent={exportString} fileName={exportFilename} afterOnPress={saveFileButtonAfterOnPress}>
+                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} title={loc.multisig.share} />
+              </SaveFileButton>
             </View>
           </View>
         </KeyboardAvoidingView>

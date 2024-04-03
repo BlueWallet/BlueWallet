@@ -107,7 +107,15 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="Settings"
+        component={Settings}
+        options={navigationStyle({
+          headerTransparent: true,
+          title: Platform.select({ ios: loc.settings.header, default: '' }),
+          headerLargeTitle: true,
+        })(theme)}
+      />
       <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <WalletsStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
       <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
