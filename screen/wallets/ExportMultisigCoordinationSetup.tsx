@@ -9,7 +9,6 @@ import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import { TWallet } from '../../class/wallets/types';
-import * as fs from '../../blue_modules/fs';
 import SaveFileButton from '../../components/SaveFileButton';
 
 type RootStackParamList = {
