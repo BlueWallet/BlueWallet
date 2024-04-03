@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import HandoffComponent from '../../components/handoff';
+import HandOffComponent from '../../components/HandOffComponent';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -221,9 +221,9 @@ const TransactionsDetails = () => {
 
   return (
     <ScrollView style={styles.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <HandoffComponent
+      <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandoffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
       <BlueCard>

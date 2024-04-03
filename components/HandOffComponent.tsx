@@ -1,16 +1,13 @@
-import React, { useContext } from 'react';
-// @ts-ignore: react-native-handoff is not in the type definition
-import Handoff from 'react-native-handoff';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import React from 'react';
 
-interface HandoffComponentProps {
+interface HandOffComponentProps {
   url?: string;
   title?: string;
   type: (typeof HandOffComponent.activityTypes)[keyof typeof HandOffComponent.activityTypes];
   userInfo?: object;
 }
 
-interface HandoffComponentWithActivityTypes extends React.FC<HandoffComponentProps> {
+interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentProps> {
   activityTypes: {
     ReceiveOnchain: string;
     Xpub: string;
@@ -18,12 +15,7 @@ interface HandoffComponentWithActivityTypes extends React.FC<HandoffComponentPro
   };
 }
 
-const HandOffComponent: HandoffComponentWithActivityTypes = props => {
-  const { isHandOffUseEnabled } = useContext(BlueStorageContext);
-
-  if (isHandOffUseEnabled) {
-    return <Handoff {...props} />;
-  }
+const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   return null;
 };
 
