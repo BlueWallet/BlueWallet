@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
   },
   borderRadius6: {
     borderRadius: 6,
+    minHeight: 54,
   },
   buttonContainer: {
     padding: 24,
