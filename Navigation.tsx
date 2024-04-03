@@ -42,7 +42,7 @@ import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
-import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
+import ViewEditMultisigCosigners from './screen/wallets/ViewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
 
 import CPFP from './screen/transactions/CPFP';
