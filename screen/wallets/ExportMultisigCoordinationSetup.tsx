@@ -95,7 +95,6 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         enableBlur();
         if (wallet) {
           try {
-            const xpub = wallet.getXpub();
             if (typeof xpub === 'string') {
               const value = Buffer.from(xpub, 'ascii').toString('hex');
               dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
