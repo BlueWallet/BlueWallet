@@ -45,49 +45,51 @@ const ToolTipMenu = (props, ref) => {
 
   const buttonStyle = props.buttonStyle;
   return isButton ? (
-    <ContextMenuButton
-      ref={ref}
-      disabled={disabled}
-      onPressMenuItem={({ nativeEvent }) => {
-        props.onPressMenuItem(nativeEvent.actionKey);
-      }}
-      isMenuPrimaryAction={isMenuPrimaryAction}
-      menuConfig={{
-        menuTitle,
-        menuItems,
-      }}
-      style={buttonStyle}
-      onPress={onPress}
-      accessibilityRole="button"
-    >
-      {props.children}
-    </ContextMenuButton>
-  ) : props.onPress ? (
-    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
-      <ContextMenuView
+    <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
+      <ContextMenuButton
         ref={ref}
-        internalCleanupMode="viewController"
+        useActionSheetFallback={false}
         onPressMenuItem={({ nativeEvent }) => {
           props.onPressMenuItem(nativeEvent.actionKey);
         }}
-        useActionSheetFallback={false}
+        isMenuPrimaryAction={isMenuPrimaryAction}
         menuConfig={{
           menuTitle,
           menuItems,
         }}
-        {...(renderPreview
-          ? {
-              previewConfig: {
-                previewType: 'CUSTOM',
-                backgroundColor: 'white',
-              },
-              renderPreview,
-            }
-          : {})}
       >
         {props.children}
-      </ContextMenuView>
+      </ContextMenuButton>
     </TouchableOpacity>
+  ) : props.onPress ? (
+    <ContextMenuView
+      ref={ref}
+      lazyPreview
+      shouldEnableAggressiveCleanup
+      shouldCleanupOnComponent
+      internalCleanupMode="viewController"
+      onPressMenuItem={({ nativeEvent }) => {
+        props.onPressMenuItem(nativeEvent.actionKey);
+      }}
+      useActionSheetFallback={false}
+      menuConfig={{
+        menuTitle,
+        menuItems,
+      }}
+      {...(renderPreview
+        ? {
+            previewConfig: {
+              previewType: 'CUSTOM',
+              backgroundColor: 'white',
+            },
+            renderPreview,
+          }
+        : {})}
+    >
+      <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
+        {props.children}
+      </TouchableOpacity>
+    </ContextMenuView>
   ) : (
     <ContextMenuView
       ref={ref}
