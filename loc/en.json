@@ -120,7 +120,7 @@
     "details_create": "Create",
     "details_label": "Description",
     "details_setAmount": "Receive with amount",
-    "details_share": "Share",
+    "details_share": "Share...",
     "header": "Receive",
     "maxSats": "Maximum amount is {max} sats",
     "maxSatsFull": "Maximum amount is {max} sats or {currency}",
@@ -210,6 +210,7 @@
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
+    "file_saved_at_path": "The file ({fileName}) has been saved in your Downloads folder.",
     "problem_with_psbt": "Problem with PSBT"
   },
   "settings": {
@@ -481,7 +482,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "Confirm",
     "header": "Send",
-    "share": "Share",
+    "share": "Share...",
     "view": "View",
     "shared_key_detected": "Shared co-signer",
     "shared_key_detected_question": "A co-signer was shared with you, do you want to import it?",

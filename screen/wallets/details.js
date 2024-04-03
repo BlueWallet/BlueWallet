@@ -21,10 +21,8 @@ import {
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import Share from 'react-native-share';
-
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { isDesktop } from '../../blue_modules/environment';
-import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -51,6 +49,7 @@ import prompt from '../../helpers/prompt';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -363,7 +362,6 @@ const WalletDetails = () => {
       })
         .catch(error => {
           console.log(error);
-          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
@@ -421,23 +419,17 @@ const WalletDetails = () => {
     }
   };
 
-  const onExportHistoryPressed = async () => {
-    const csvFileArray = [
-      loc.transactions.date,
-      loc.transactions.txid,
-      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
-      loc.send.create_memo,
-    ];
+  const exportHistoryContent = useCallback(() => {
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
     if (wallet.chain === Chain.OFFCHAIN) {
-      csvFileArray.push(loc.lnd.payment);
+      headers.push(loc.lnd.payment);
     }
 
-    let csvFile = csvFileArray.join(','); // CSV header
+    const rows = [headers.join(',')];
     const transactions = wallet.getTransactions();
 
-    for (const transaction of transactions) {
+    transactions.forEach(transaction => {
       const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
       let status;
@@ -447,8 +439,7 @@ const WalletDetails = () => {
         memo = transaction.description;
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
-          const bb = Buffer.from(hash);
-          hash = bb.toString('hex');
+          hash = Buffer.from(hash.data).toString('hex');
         }
       }
 
@@ -458,11 +449,11 @@ const WalletDetails = () => {
         data.push(status);
       }
 
-      csvFile += '\n' + data.join(','); // CSV line
-    }
+      rows.push(data.join(','));
+    });
 
-    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
-  };
+    return rows.join('\n');
+  }, [wallet, txMetadata]);
 
   const handleDeleteButtonTapped = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -493,6 +484,11 @@ const WalletDetails = () => {
       { cancelable: false },
     );
   };
+
+  const fileName = useMemo(() => {
+    const label = wallet.getLabel().replace(' ', '-');
+    return `${label}-history.csv`;
+  }, [wallet]);
 
   return (
     <ScrollView
@@ -661,7 +657,9 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent()}>
+                      <SecondButton title={loc.wallets.details_export_history} />
+                    </SaveFileButton>
                   </>
                 )}
                 {wallet.type === MultisigHDWallet.type && (
