@@ -23,6 +23,7 @@ import SafeArea from '../components/SafeArea';
 import presentAlert from '../components/Alert';
 import * as encryption from '../blue_modules/encryption';
 import * as fs from '../blue_modules/fs';
+import SaveFileButton from '../components/SaveFileButton';
 
 const BlueCrypto = require('react-native-blue-crypto');
 const BlueElectrum = require('../blue_modules/BlueElectrum');
@@ -41,10 +42,6 @@ export default class Selftest extends Component {
       isLoading: true,
     };
   }
-
-  onPressSaveToStorage = () => {
-    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success on ' + new Date().toUTCString());
-  };
 
   onPressImportDocument = async () => {
     try {
@@ -321,7 +318,9 @@ export default class Selftest extends Component {
               }
             })()}
             <BlueSpacing20 />
-            <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+            <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
+              <Button title="Test Save to Storage" />
+            </SaveFileButton>
             <BlueSpacing20 />
             <Button title="Test File Import" onPress={this.onPressImportDocument} />
           </ScrollView>

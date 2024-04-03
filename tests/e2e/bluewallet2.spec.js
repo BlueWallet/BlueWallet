@@ -18,7 +18,7 @@ beforeAll(async () => {
   await device.launchApp({ delete: true });
 
   console.log('before all - importing bip48...');
-  await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+  await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
   console.log('...imported!');
   await device.pressBack();
   await sleep(15000);

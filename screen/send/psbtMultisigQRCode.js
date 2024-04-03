@@ -2,9 +2,7 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-
 import { BlueSpacing20 } from '../../BlueComponents';
-import * as fs from '../../blue_modules/fs';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
@@ -13,6 +11,7 @@ import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
@@ -65,17 +64,14 @@ const PsbtMultisigQRCode = () => {
     onBarScanned({ data: scanned });
   };
 
-  const exportPSBT = () => {
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(
-      () =>
-        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
-          setIsLoading(false);
-          dynamicQRCode.current?.startAutoMove();
-        }),
-      10,
-    );
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    setIsLoading(false);
+    dynamicQRCode.current?.startAutoMove();
   };
 
   return (
@@ -99,7 +95,15 @@ const PsbtMultisigQRCode = () => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <SaveFileButton
+              fileName={fileName}
+              fileContent={psbt.toBase64()}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
+              style={[styles.exportButton, stylesHook.exportButton]}
+            >
+              <SquareButton title={loc.multisig.share} />
+            </SaveFileButton>
           )}
         </View>
       </ScrollView>

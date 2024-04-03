@@ -14,7 +14,6 @@ import {
   TouchableOpacity,
   View,
   I18nManager,
-  ImageBackground,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
@@ -55,18 +54,6 @@ export const BlueButtonLink = forwardRef((props, ref) => {
     </TouchableOpacity>
   );
 });
-
-export const BluePrivateBalance = () => {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 13, borderRadius: 9 }}>
-      <ImageBackground
-        blurRadius={6}
-        style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 110, marginRight: 8, borderRadius: 9 }}
-      />
-      <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
-    </View>
-  );
-};
 
 export const BlueCard = props => {
   return <View {...props} style={{ padding: 20 }} />;

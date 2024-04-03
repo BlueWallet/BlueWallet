@@ -19,10 +19,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import { BluePrivateBalance } from '../BlueComponents';
+import { BlueSpacing10 } from '../BlueComponents';
 import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
 import { isTablet, isDesktop } from '../blue_modules/environment';
 import { useTheme } from './themes';
+import { BlurredBalanceView } from './BlurredBalanceView';
 
 const nStyles = StyleSheet.create({
   container: {
@@ -218,7 +219,10 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
               {item.getLabel()}
             </Text>
             {item.hideBalance ? (
-              <BluePrivateBalance />
+              <>
+                <BlueSpacing10 />
+                <BlurredBalanceView />
+              </>
             ) : (
               <Text
                 numberOfLines={1}

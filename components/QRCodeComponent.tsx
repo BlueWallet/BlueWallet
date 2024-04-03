@@ -6,6 +6,7 @@ import Share from 'react-native-share';
 import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useTheme } from './themes';
+import { ActionIcons } from '../typings/ActionIcons';
 
 interface QRCodeComponentProps {
   value: string;
@@ -15,11 +16,6 @@ interface QRCodeComponentProps {
   size?: number;
   ecl?: 'H' | 'Q' | 'M' | 'L';
   onError?: () => void;
-}
-
-interface ActionIcons {
-  iconType: 'SYSTEM';
-  iconValue: string;
 }
 
 interface ActionType {
@@ -37,11 +33,6 @@ const actionKeys: ActionType = {
   Share: 'share',
   Copy: 'copy',
 };
-
-interface ActionIcons {
-  iconType: 'SYSTEM';
-  iconValue: string;
-}
 
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
