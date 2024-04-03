@@ -281,7 +281,7 @@ const WalletDetails = () => {
     navigate('ExportMultisigCoordinationSetupRoot', {
       screen: 'ExportMultisigCoordinationSetup',
       params: {
-        walletId: wallet.getID(),
+        walletID: wallet.getID(),
       },
     });
   };
