@@ -4,6 +4,7 @@
     "cancel": "Vazgeç",
     "continue": "Devam et",
     "clipboard": "Pano",
+    "discard_changes": "Değişiklikleri iptal et?",
     "enter_password": "Şifre gir",
     "never": "Asla",
     "of": "{number} / {total}",
@@ -93,7 +94,6 @@
     "details_create": "Oluştur",
     "details_label": "Açıklama",
     "details_setAmount": "Miktar ile al",
-    "details_share": "Paylaş",
     "header": "Al"
   },
   "send": {
@@ -229,7 +229,6 @@
   "multisig": {
     "confirm": "Onayla",
     "header": "Gönder",
-    "share": "Paylaş",
     "create": "Oluştur",
     "co_sign_transaction": "Bir işlemi imzalayın",
     "ms_help": "Yardım",

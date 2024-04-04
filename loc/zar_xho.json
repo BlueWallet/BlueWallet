@@ -3,14 +3,35 @@
     "bad_password": "Iphasiwedi engalunganga, zama kwakhona",
     "cancel": "Rhoxisa",
     "continue": "Qhubeka",
-    "enter_password": "Faka inombolo yokuvula",
-    "never": "Ungalingi",
-    "ok": "OK",
-    "storage_is_encrypted": "Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe",
-    "save": "ndoloza",
-    "success": "Iphumelele"
+    "clipboard": "ibhodi eqhotyoshwayo",
+    "discard_changes": "Lahla utshintsho?",
+    "discard_changes_explain": "Unotshintsho olungagcinwanga. Uqinisekile ukuba ufuna ukuzilahla kwaye ushiye isikrini?",
+    "enter_password": "ngenisa igama lokugqitha",
+    "never": "Soze",
+    "ok": "Kulungile",
+    "storage_is_encrypted": "Indawo yakho yokugcina inoguqulelo oluntsonkothileyo. Igama lokugqitha liyafuneka ukuyisusa ngokuntsonkotha.",
+    "yes": "Ewe",
+    "no": "Hayi",
+    "save": "Gcina",
+    "seed": "Imbewu",
+    "success": "Imphumelelo",
+    "wallet_key": "Isitshixo sesipaji",
+    "invalid_animated_qr_code_fragment": "Iqhekeza leKhowudi ye-QR ephilayo engasebenziyo. Nceda zama kwakhona.",
+    "close": "Kufutshane",
+    "change_input_currency": "Guqula imali yokufaka",
+    "refresh": "Hlaziya",
+    "more": "Kaninzi",
+    "pick_image": "Khetha umfanekiso kwithala leencwadi",
+    "pick_file": "Khetha ifayile",
+    "enter_amount": "Faka imali",
+    "qr_custom_input_button": "Cofa amaxesha ali-10 ukufaka igalelo lesiqhelo"
+  },
+  "alert": {
+    "default": "Isilumkiso"
   },
   "azteco": {
+    "codeIs": "Ikhowudi yakho yevawutsha ithi",
+    "errorBeforeRefeem": "Ngaphambi kokuba uhlawule, kufuneka uqale wongeze i-wallet ye-Bitcoin.",
     "success": "Iphumelele"
   },
   "entropy": {
@@ -39,7 +60,6 @@
     "details_create": "Yenza",
     "details_label": "Inkcazo",
     "details_setAmount": "Fumana ngexabiso",
-    "details_share": "yabelana",
     "header": "Fumana"
   },
   "send": {
@@ -128,7 +148,6 @@
   "multisig": {
     "confirm": "Qiniseka",
     "header": "Thumela",
-    "share": "yabelana",
     "create": "Yakha",
     "ms_help_title5": "Enable advanced mode"
   },

@@ -75,7 +75,6 @@
     "details_create": "สร้าง",
     "details_label": "คำอธิบาย",
     "details_setAmount": "รับด้วยจำนวน",
-    "details_share": "แชร์",
     "header": "รับ"
   },
   "send": {
@@ -241,7 +240,6 @@
     "details_connected_to": "เชื่อมไปที่",
     "details_delete": "ลบ",
     "details_delete_wallet": "ลบกระเป๋าสตางค์",
-    "details_display": "แสดงในรายการกระเป๋าสตางค์",
     "details_export_backup": "ส่งออก / สำรอง",
     "details_master_fingerprint": "ลายนิ้วมือต้นแบบ",
     "details_no_cancel": "ไม่ใช่, ยกเลิก",
@@ -290,7 +288,6 @@
     "fee_btc": "{number} บิตคอยน์",
     "confirm": "ยืนยัน",
     "header": "ส่ง",
-    "share": "แชร์",
     "view": "ดู",
     "manage_keys": "จัดการกุญแจ",
     "signatures_required_to_spend": "ต้องมีลายเซ็น {number}",

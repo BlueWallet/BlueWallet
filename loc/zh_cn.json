@@ -4,6 +4,7 @@
     "cancel": "取消",
     "continue": "继续",
     "clipboard": "剪贴板",
+    "discard_changes": "放弃更变？",
     "enter_password": "输入密码",
     "never": "永不",
     "of": "{total}其中之{number}",
@@ -82,7 +83,6 @@
     "details_create": "创建",
     "details_label": "描述",
     "details_setAmount": "收款金额",
-    "details_share": "分享",
     "header": "收款"
   },
   "send": {
@@ -301,7 +301,6 @@
     "details_delete": "删除",
     "details_delete_wallet": "删除钱包",
     "details_derivation_path": "推导路径",
-    "details_display": "在钱包清单中显示",
     "details_export_backup": "导出/备份",
     "details_master_fingerprint": "主指纹",
     "details_multisig_type": "多重签名",
@@ -363,7 +362,6 @@
     "fee_btc": "{number} 比特币",
     "confirm": "确认",
     "header": "发送",
-    "share": "分享",
     "view": "查看",
     "manage_keys": "管理密钥",
     "how_many_signatures_can_bluewallet_make": "BlueWallet能够生成多少签名？",

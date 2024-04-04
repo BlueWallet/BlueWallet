@@ -3,6 +3,7 @@
     "bad_password": "Грешна парола, опитайте отново.",
     "cancel": "Отказ",
     "continue": "Продължи",
+    "discard_changes": "Отказваш промените?",
     "enter_password": "Въведете парола",
     "never": "Никога",
     "of": "{number} от {total}",
@@ -75,7 +76,6 @@
     "details_create": "Създай",
     "details_label": "Описание",
     "details_setAmount": "Получаване на определена сума",
-    "details_share": "Сподели",
     "header": "Получаване"
   },
   "send": {
@@ -211,7 +211,6 @@
   "multisig": {
     "confirm": "Потвърди",
     "header": "Изпрати",
-    "share": "Сподели",
     "create": "Създай",
     "co_sign_transaction": "Подпиши транзакция",
     "ms_help_title5": "Развирени Настройки"

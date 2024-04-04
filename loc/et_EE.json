@@ -3,6 +3,7 @@
     "bad_password": "Vale parool. Palun proovi uuesti.",
     "cancel": "Katkesta",
     "continue": "Jätka",
+    "discard_changes": "Loobu muudatustest?",
     "enter_password": "Sisesta parool",
     "never": "Mitte kunagi",
     "of": "{number} {total}-st",
