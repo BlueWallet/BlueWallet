@@ -202,7 +202,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             {wallet.hideBalance ? (
               <BlurredBalanceView />
             ) : (
-              <TouchableOpacity>
+              <View>
                 <Text
                   testID="WalletBalance"
                   // @ts-ignore: Ugh
@@ -214,7 +214,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 >
                   {balance}
                 </Text>
-              </TouchableOpacity>
+              </View>
             )}
           </View>
         </ToolTipMenu>
