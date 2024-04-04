@@ -94,7 +94,6 @@
   "receive": {
     "details_create": "وورکل",
     "details_setAmount": "گرؽڌن وا مقدار",
-    "details_share": "یک رسۊوی",
     "header": "گرؽڌن",
     "maxSats": "بیشترین مقدار {max} ساتۊشی هڌ.",
     "maxSatsFull": "بیشترین مقدار {max} ساتۊشی یا {currency} هڌ.",
@@ -247,7 +246,6 @@
   "multisig": {
     "confirm": "تاییڌ",
     "header": "فشناڌن",
-    "share": "یک رسۊوی",
     "create": "وورکل",
     "co_sign_transaction": "امزا کردن تراکونش",
     "ms_help_title5": "هالت پؽش رئڌه"

@@ -4,6 +4,8 @@
     "cancel": "中止",
     "continue": "続行",
     "clipboard": "クリップボード",
+    "discard_changes": "変更を破棄しますか？",
+    "discard_changes_explain": "未保存の変更があります。破棄して画面を移動しますか？",
     "enter_password": "パスワードを入力",
     "never": "データなし",
     "of": "{number} / {total}",
@@ -23,7 +25,8 @@
     "pick_image": "ライブラリから画像を選択",
     "pick_file": "ファイルを選択",
     "enter_amount": "額を入力",
-    "qr_custom_input_button": "10回タップしてカスタム入力"
+    "qr_custom_input_button": "10回タップしてカスタム入力",
+    "unlock": "ロック解除"
   },
   "alert": {
     "default": "注意"
@@ -117,7 +120,7 @@
     "details_create": "作成",
     "details_label": "概要",
     "details_setAmount": "入金額",
-    "details_share": "共有",
+    "details_share": "共有...",
     "header": "入金",
     "maxSats": "最大額は{max}satsです",
     "maxSatsFull": "最大額は{max}sats（{currency}）です",
@@ -207,6 +210,7 @@
     "reset_amount_confirm": "額をリセットしますか？",
     "success_done": "完了",
     "txSaved": "トランザクションファイル ({filePath}) はダウンロードフォルダに保存されました。",
+    "file_saved_at_path": "ファイル({fileName})がダウンロードフォルダに保存されました。",
     "problem_with_psbt": "PSBTに問題"
   },
   "settings": {
@@ -228,6 +232,7 @@
     "about_sm_twitter": "Twitterでフォロー",
     "advanced_options": "高度な設定",
     "biometrics": "生体認証",
+    "biometrics_no_longer_available": "デバイスの設定が変更され、アプリ内で選択したセキュリティ設定に適合しなくなりました。生体認証かパスコードを再度有効にしてから、アプリを再起動して変更を適用してください。",
     "biom_10times": "パスワードを10回入力しようとしました。ストレージをリセットしますか？これにより全てのウォレットが削除され、ストレージが復号化されます。",
     "biom_conf_identity": "個人情報を確認して下さい。",
     "biom_no_passcode": "お使いの端末にはパスコードが設定されていません。続行するには、「設定」アプリでパスコードを設定してください。",
@@ -386,7 +391,6 @@
     "add_title": "ウォレットの追加",
     "add_wallet_name": "ウォレット名",
     "add_wallet_type": "タイプ",
-    "balance": "残高",
     "clipboard_bitcoin": "クリップボードにビットコインのアドレスがあります。このアドレスを使って取引をしますか？",
     "clipboard_lightning": "クリップボードにライトニングのインボイスがあります。このインボイスを使って取引をしますか？",
     "details_address": "アドレス",
@@ -398,7 +402,7 @@
     "details_delete": "削除",
     "details_delete_wallet": "ウォレット削除",
     "details_derivation_path": "派生パス(derivation path)",
-    "details_display": "ウォレットリストで表示",
+    "details_display": "ホーム画面に表示",
     "details_export_backup": "エクスポート / バックアップ",
     "details_export_history": "履歴をCSVにエクスポート",
     "details_master_fingerprint": "マスタフィンガープリント",
@@ -477,7 +481,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "承認",
     "header": "送る",
-    "share": "共有",
+    "share": "共有...",
     "view": "表示",
     "shared_key_detected": "共同署名の共有",
     "shared_key_detected_question": "共同署名が共有されました。インポートしますか？",
