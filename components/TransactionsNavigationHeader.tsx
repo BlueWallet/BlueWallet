@@ -165,11 +165,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           enableAndroidRipple={false}
           ref={menuRef}
           buttonStyle={styles.walletBalance}
-          title={`${loc.wallets.balance} (${
-            wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
-              : wallet.getPreferredBalanceUnit()
-          })`}
           onPressMenuItem={onPressMenuItem}
           actions={
             wallet.hideBalance
