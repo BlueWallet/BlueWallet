@@ -31,7 +31,11 @@ class TransactionTableRow: NSObject {
   
   var time: String = "" {
     willSet {
-      transactionTimeLabel.setText(newValue)
+      if type == "pendingConfirmation" {
+        transactionTimeLabel.setText("Pending...")
+      } else {
+        transactionTimeLabel.setText(newValue)
+      }
     }
   }
   
