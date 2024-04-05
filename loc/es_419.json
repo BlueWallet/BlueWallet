@@ -120,6 +120,7 @@
     "details_create": "Crear",
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
+    "details_share": "Compartir…",
     "header": "Recibir",
     "maxSats": "La cantidad máxima es {max} sats",
     "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
@@ -209,6 +210,7 @@
     "reset_amount_confirm": "¿Te gustaría restablecer la cantidad?",
     "success_done": "Hecho",
     "txSaved": "El archivo ({filePath}) se ha guardado en tu carpeta de Descargas.",
+    "file_saved_at_path": "El archivo ({fileName}) se ha guardado en tu carpeta Descargas.",
     "problem_with_psbt": "Problema con PSBT"
   },
   "settings": {
@@ -400,6 +402,7 @@
     "details_delete": "Eliminar",
     "details_delete_wallet": "Eliminar Billetera",
     "details_derivation_path": "ruta de derivación",
+    "details_display": "Mostrar en la pantalla de inicio",
     "details_export_backup": "Exportar / Copia de seguridad",
     "details_export_history": "Exportar historial a CSV",
     "details_master_fingerprint": "Huella Digital Maestra",
@@ -478,6 +481,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "Confirmar",
     "header": "Enviar",
+    "share": "Compartir…",
     "view": "Vista",
     "shared_key_detected": "Cofirmante compartido",
     "shared_key_detected_question": "Se compartió un cofirmante contigo, ¿quieres importarlo?",
