@@ -15,62 +15,61 @@ struct APIError: LocalizedError {
 extension WidgetAPI {
   
   static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
-    guard let host = userElectrumSettings.host, let _ = userElectrumSettings.sslPort, let port = userElectrumSettings.port else {
-      print("No valid UserDefaultsElectrumSettings found");
-      return
-    }
-    DispatchQueue.global(qos: .background).async {
-      let client = SwiftTCPClient()
-      client.receiveCompletion = { result in
-        switch result {
-        case .success(let data):
-          print("Received: \(data)")
-          guard let response = String(bytes: data, encoding: .utf8)?.data(using: .utf8) else {
-            client.close()
-            completion(nil, APIError())
-            return
-          }
-          do {
-            if let json = try JSONSerialization.jsonObject(with: response, options: .allowFragments) as? [String: AnyObject], let nextBlockResponseDouble = json["result"] as? Double {
-              print("Successfully obtained response from Electrum sever")
-              print(userElectrumSettings)
-              client.close()
-              let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
-              completion(marketData, nil)
-            }
-          } catch {
-            client.close()
-            completion(nil, APIError())
-          }
-        case .failure(let error):
-          print("Error: \(error.localizedDescription)")
-          client.close()
-          completion(nil, APIError())
-        }
-      }
+         let settings = userElectrumSettings
+         let portToUse = settings.sslPort ?? settings.port
+         let isSSLSupported = settings.sslPort != nil
+
+         DispatchQueue.global(qos: .background).async {
+             let client = SwiftTCPClient()
+             
+             defer {
+               print("Closing connection to \(String(describing: settings.host)):\(String(describing: portToUse)).")
+                 client.close()
+             }
+           
+           guard let host = settings.host, let portToUse = portToUse else { return }
+           
+           print("Attempting to connect to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
       
-      if client.connect(to: host, port: UInt32(exactly: port)!) {
-        let message =  "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
-        if let data = message.data(using: .utf8), client.send(data: data) {
-          print("Message sent!")
-          RunLoop.current.run(until: Date(timeIntervalSinceNow: 5))
-        }
-        client.close()
-      } else {
-        print("Connection failed")
-        client.close()
-        if userElectrumSettings.host == DefaultElectrumPeers.last?.host {
-          completion(nil, APIError())
-        } else if let currentIndex = DefaultElectrumPeers.firstIndex(where: {$0.host == userElectrumSettings.host}) {
-          fetchNextBlockFee(completion: completion, userElectrumSettings: DefaultElectrumPeers[DefaultElectrumPeers.index(after: currentIndex)])
-        } else {
-          if let first = DefaultElectrumPeers.first {
-            fetchNextBlockFee(completion: completion, userElectrumSettings: first)
-          }
-        }
-      }
-    }
-  }
+             if client.connect(to: host, port: UInt32(portToUse), useSSL: isSSLSupported) {
+               print("Successfully connected to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
+             } else {
+               print("Failed to connect to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
+                 completion(nil, APIError())
+                 return
+             }
+           
+             let message = "{\"id\": 1, \"method\": \"blockchain.estimatefee\", \"params\": [1]}\n"
+             guard let data = message.data(using: .utf8), client.send(data: data) else {
+               print("Message sending failed to \(String(describing: settings.host)):\(portToUse) with SSL supported: \(isSSLSupported).")
+                 completion(nil, APIError())
+                 return
+             }
+           print("Message sent successfully to \(String(describing: settings.host)):\(portToUse) with SSL:\(isSSLSupported).")
+
+             do {
+                 let receivedData = try client.receive()
+                 print("Data received. Parsing...")
+                 guard let responseString = String(data: receivedData, encoding: .utf8),
+                       let responseData = responseString.data(using: .utf8),
+                       let json = try JSONSerialization.jsonObject(with: responseData, options: .allowFragments) as? [String: AnyObject],
+                       let nextBlockResponseDouble = json["result"] as? Double else {
+                   print("Failed to parse response from \(String(describing: settings.host)).")
+                     completion(nil, APIError())
+                     return
+                 }
+               
+               print("Response: \(json)")
+
+               print("Response from \(String(describing: settings.host)) parsed successfully.")
+                 let marketData = MarketData(nextBlock: String(format: "%.0f", (nextBlockResponseDouble / 1024) * 100000000), sats: "0", price: "0", rate: 0)
+                 completion(marketData, nil) // Successfully fetched data, return it
+             } catch {
+               print("Error receiving data from \(String(describing: settings.host)): \(error.localizedDescription)")
+                 completion(nil, APIError())
+             }
+         }
+     }
   
   static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
     var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
