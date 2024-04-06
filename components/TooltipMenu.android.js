@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { Pressable } from 'react-native';
 import showPopupMenu from '../blue_modules/showPopupMenu';
 
-const ToolTipMenu = (props, ref) => {
+const BaseToolTipMenu = (props, ref) => {
   const menuRef = useRef();
   const disabled = props.disabled ?? false;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
@@ -51,9 +51,11 @@ const ToolTipMenu = (props, ref) => {
   );
 };
 
+const ToolTipMenu = forwardRef(BaseToolTipMenu);
+
 export default ToolTipMenu;
 ToolTipMenu.propTypes = {
-  actions: PropTypes.object.isRequired,
+  actions: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
   children: PropTypes.node,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,

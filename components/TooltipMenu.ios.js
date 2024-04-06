@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 
-const ToolTipMenu = (props, ref) => {
+const BaseToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
     const item = {
       actionKey: action.id,
@@ -117,9 +117,11 @@ const ToolTipMenu = (props, ref) => {
   );
 };
 
+const ToolTipMenu = forwardRef(BaseToolTipMenu);
+
 export default ToolTipMenu;
 ToolTipMenu.propTypes = {
-  actions: PropTypes.object.isRequired,
+  actions: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
   title: PropTypes.string,
   children: PropTypes.node,
   onPressMenuItem: PropTypes.func.isRequired,
