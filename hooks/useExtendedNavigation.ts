@@ -51,6 +51,7 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
           } else {
             console.error('Biometric authentication failed');
             // Decide if navigation should proceed or not after failed authentication
+            return; // Prevent proceeding with the original navigation if bio fails
           }
         }
       }
