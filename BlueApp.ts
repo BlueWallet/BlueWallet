@@ -871,7 +871,7 @@ export class AppStorage {
       }
     } catch (_) {}
     const doNotTrackValue = await DefaultPreference.get(AppStorage.DO_NOT_TRACK);
-    return doNotTrackValue === '1' ?? false ;
+    return doNotTrackValue === '1' || false;
   };
 
   setDoNotTrack = async (value: boolean) => {
