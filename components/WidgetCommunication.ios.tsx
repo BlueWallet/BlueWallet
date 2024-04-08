@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 // @ts-ignore: fix later
 import RNWidgetCenter from 'react-native-widget-center';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import { TWallet, Transaction } from '../class/wallets/types';
+import { TWallet } from '../class/wallets/types';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -13,81 +12,69 @@ enum WidgetCommunicationKeys {
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
 }
 
+export const reloadAllTimelines = (): void => {
+  RNWidgetCenter.reloadAllTimelines();
+};
+
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
-    const displayBalance = await AsyncStorage.getItem(WidgetCommunicationKeys.DisplayBalanceAllowed);
-    return displayBalance !== null ? JSON.parse(displayBalance) : true;
+    const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
+    console.warn('isBalanceDisplayAllowed', displayBalance);
+    return displayBalance === '1';
   } catch {
-    return true;
+    return false;
   }
 };
 
 export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> => {
-  await AsyncStorage.setItem(WidgetCommunicationKeys.DisplayBalanceAllowed, JSON.stringify(value));
+  if (value) {
+    await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
+  } else {
+    await DefaultPreference.clear(WidgetCommunicationKeys.DisplayBalanceAllowed);
+  }
   reloadAllTimelines();
-};
-
-export const reloadAllTimelines = (): void => {
-  RNWidgetCenter.reloadAllTimelines();
 };
 
 const WidgetCommunication: React.FC = () => {
   const { wallets, walletsInitialized } = useContext(BlueStorageContext);
 
-  const serializedWallets = useMemo(
-    () =>
-      JSON.stringify(
-        wallets.map(wallet => ({
-          balance: wallet.getBalance(),
-          latestTransactionTimeEpoch: wallet.getLatestTransactionTimeEpoch(),
-          transactions: wallet.getTransactions().map((tx: Transaction) => ({
-            confirmations: tx.confirmations,
-          })),
-          hideBalance: wallet.hideBalance,
-        })),
-      ),
-    [wallets],
-  );
-
-  const allWalletsBalanceAndTransactionTime = async (): Promise<{ allWalletsBalance: number; latestTransactionTime: number | string }> => {
-    if (!walletsInitialized || !(await isBalanceDisplayAllowed())) {
-      return { allWalletsBalance: 0, latestTransactionTime: 0 };
-    } else {
-      let balance = 0;
-      let latestTransactionTime: number | string = 0; // Can be a number or the special string
-      wallets.forEach((wallet: TWallet) => {
-        if (wallet.hideBalance) return;
-        balance += wallet.getBalance();
-        const walletLatestTime = wallet.getLatestTransactionTimeEpoch();
-
-        // Ensure we only compare numbers; ignore comparison if latestTransactionTime is a string
-        if (typeof latestTransactionTime === 'number' && walletLatestTime > latestTransactionTime) {
-          // Check if the latest transaction is unconfirmed
-          if (wallet.getTransactions()[0]?.confirmations === 0) {
-            latestTransactionTime = WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
-          } else {
-            latestTransactionTime = walletLatestTime;
-          }
-        }
-      });
-      return { allWalletsBalance: balance, latestTransactionTime };
-    }
-  };
-
-  const setValues = async (): Promise<void> => {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime();
-    await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, JSON.stringify(allWalletsBalance));
-    await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, JSON.stringify(latestTransactionTime));
-    RNWidgetCenter.reloadAllTimelines();
-  };
-
   useEffect(() => {
+    const allWalletsBalanceAndTransactionTime = async (): Promise<{
+      allWalletsBalance: number;
+      latestTransactionTime: number | string;
+    }> => {
+      console.warn('isBalanceDisplayAllowed', await isBalanceDisplayAllowed());
+      if (!walletsInitialized || !(await isBalanceDisplayAllowed())) {
+        return { allWalletsBalance: 0, latestTransactionTime: 0 };
+      } else {
+        let balance = 0;
+        let latestTransactionTime: number | string = 0;
+        wallets.forEach((wallet: TWallet) => {
+          if (wallet.hideBalance) return;
+          balance += wallet.getBalance();
+          const walletLatestTime = wallet.getLatestTransactionTimeEpoch();
+
+          if (typeof latestTransactionTime === 'number' && walletLatestTime > latestTransactionTime) {
+            latestTransactionTime =
+              wallet.getTransactions()[0]?.confirmations === 0 ? WidgetCommunicationKeys.LatestTransactionIsUnconfirmed : walletLatestTime;
+          }
+        });
+        return { allWalletsBalance: balance, latestTransactionTime };
+      }
+    };
+
+    const setValues = async (): Promise<void> => {
+      await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+      const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime();
+      await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance));
+      await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime));
+      reloadAllTimelines();
+    };
+
     if (walletsInitialized) {
       setValues();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serializedWallets, walletsInitialized]);
+  }, [wallets, walletsInitialized]);
 
   return null;
 };
