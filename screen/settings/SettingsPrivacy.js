@@ -15,7 +15,7 @@ import A from '../../blue_modules/analytics';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted, setDoNotTrack, isDoNotTrackEnabled, setIsPrivacyBlurEnabled } = useContext(BlueStorageContext);
+  const { isStorageEncrypted, isDoNotTrackEnabled, setDoNotTrack, setIsPrivacyBlurEnabled } = useContext(BlueStorageContext);
   const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2, WIDGETS: 3 });
   const [isLoading, setIsLoading] = useState(sections.ALL);
   const [isReadClipboardAllowed, setIsReadClipboardAllowed] = useState(false);
@@ -34,7 +34,7 @@ const SettingsPrivacy = () => {
   useEffect(() => {
     (async () => {
       try {
-        setDoNotTrackSwitchValue(await isDoNotTrackEnabled());
+        isDoNotTrackEnabled().then(setDoNotTrackSwitchValue);
         setIsReadClipboardAllowed(await BlueClipboard().isReadClipboardAllowed());
         setStorageIsEncrypted(await isStorageEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
@@ -61,9 +61,9 @@ const SettingsPrivacy = () => {
   const onDoNotTrackValueChange = async value => {
     setIsLoading(sections.ALL);
     try {
-      setDoNotTrackSwitchValue(value);
-      A.setOptOut(value);
       await setDoNotTrack(value);
+      A.setOptOut(value);
+      setDoNotTrackSwitchValue(value);
     } catch (e) {
       console.log(e);
     }

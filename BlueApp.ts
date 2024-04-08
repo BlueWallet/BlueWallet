@@ -858,19 +858,29 @@ export class AppStorage {
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      const doNotTrackValue = !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
-      if (doNotTrackValue) {
-        await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
-        AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+      const keyExists = await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK);
+      if (keyExists !== null) {
+        const doNotTrackValue = !!keyExists;
+        if (doNotTrackValue) {
+          await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+          await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+          AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+        } else {
+          return Boolean(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
+        }
       }
     } catch (_) {}
-    return false;
+    const doNotTrackValue = await DefaultPreference.get(AppStorage.DO_NOT_TRACK);
+    return doNotTrackValue === '1' || false;
   };
 
-  setDoNotTrack = async (value: string) => {
-    await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+  setDoNotTrack = async (value: boolean) => {
     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    if (value) {
+      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+    } else {
+      await DefaultPreference.clear(AppStorage.DO_NOT_TRACK);
+    }
   };
 
   /**
