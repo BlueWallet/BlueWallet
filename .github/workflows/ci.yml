@@ -15,15 +15,15 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: Checkout project
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Specify node version
-      uses: actions/setup-node@v2-beta
+      uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
 
     - name: Use npm caches
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.npm
         key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
@@ -32,7 +32,7 @@ jobs:
 
     - name: Use node_modules caches
       id: cache-nm
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: node_modules
         key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
@@ -58,15 +58,15 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Specify node version
-      uses: actions/setup-node@v2-beta
+      uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 20
 
     - name: Use gradle caches
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -76,7 +76,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Use npm caches
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.npm
         key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
