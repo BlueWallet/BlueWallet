@@ -12,9 +12,20 @@ interface SaveFileButtonProps {
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
   beforeOnPress?: () => Promise<void>; // Changed this line
+  onMenuWillHide?: () => void;
+  onMenuWillShow?: () => void;
 }
 
-const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, children, style, beforeOnPress, afterOnPress }) => {
+const SaveFileButton: React.FC<SaveFileButtonProps> = ({
+  fileName,
+  fileContent,
+  children,
+  style,
+  beforeOnPress,
+  afterOnPress,
+  onMenuWillHide,
+  onMenuWillShow,
+}) => {
   const actions = [
     { id: 'save', text: loc._.save, icon: actionIcons.Save },
     { id: 'share', text: loc.receive.details_share, icon: actionIcons.Share },
@@ -39,7 +50,15 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
 
   return (
     // @ts-ignore: Tooltip must be refactored to use TSX}
-    <ToolTipMenu isButton isMenuPrimaryAction actions={actions} onPressMenuItem={handlePressMenuItem} buttonStyle={style}>
+    <ToolTipMenu
+      onMenuWillHide={onMenuWillHide}
+      onMenuWillShow={onMenuWillShow}
+      isButton
+      isMenuPrimaryAction
+      actions={actions}
+      onPressMenuItem={handlePressMenuItem}
+      buttonStyle={style}
+    >
       {children}
     </ToolTipMenu>
   );
