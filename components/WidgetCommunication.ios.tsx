@@ -19,7 +19,6 @@ export const reloadAllTimelines = (): void => {
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
     const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
-    console.warn('isBalanceDisplayAllowed', displayBalance);
     return displayBalance === '1';
   } catch {
     return false;
@@ -43,7 +42,6 @@ const WidgetCommunication: React.FC = () => {
       allWalletsBalance: number;
       latestTransactionTime: number | string;
     }> => {
-      console.warn('isBalanceDisplayAllowed', await isBalanceDisplayAllowed());
       if (!walletsInitialized || !(await isBalanceDisplayAllowed())) {
         return { allWalletsBalance: 0, latestTransactionTime: 0 };
       } else {
