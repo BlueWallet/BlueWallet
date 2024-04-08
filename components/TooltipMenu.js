@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 
-const BaseToolTipMenu = props => {
+const BaseToolTipMenu = (props, _ref) => {
   return props.children;
 };
 
