@@ -191,7 +191,6 @@ const WalletsAddMultisigStep2 = () => {
       setIsLoading(true);
       setIsMnemonicsModalVisible(true);
 
-      // filling cache
       setTimeout(() => {
         // filling cache
         setXpubCacheForMnemonics(w.getSecret());
@@ -229,7 +228,7 @@ const WalletsAddMultisigStep2 = () => {
     } else {
       const path = getPath();
 
-      const xpub = getXpubCacheForMnemonics(cosigner[0]);
+      const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
       const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
@@ -238,17 +237,17 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const getXpubCacheForMnemonics = seed => {
+  const getXpubCacheForMnemonics = (seed, passphrase) => {
     const path = getPath();
-    return staticCache[seed + path] || setXpubCacheForMnemonics(seed);
+    return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
   };
 
-  const setXpubCacheForMnemonics = seed => {
+  const setXpubCacheForMnemonics = (seed, passphrase) => {
     const path = getPath();
     const w = new MultisigHDWallet();
     w.setDerivationPath(path);
-    staticCache[seed + path] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
-    return staticCache[seed + path];
+    staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+    return staticCache[seed + path + passphrase];
   };
 
   const getFpCacheForMnemonics = (seed, passphrase) => {

@@ -6,7 +6,7 @@ import * as Keychain from 'react-native-keychain';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import Realm from 'realm';
 
-import BlueElectrum from './blue_modules/BlueElectrum';
+import * as BlueElectrum from './blue_modules/BlueElectrum';
 import { initCurrencyDaemon } from './blue_modules/currency';
 import * as encryption from './blue_modules/encryption';
 import {

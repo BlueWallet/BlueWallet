@@ -78,7 +78,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
-  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef<any[]>();
@@ -275,6 +275,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                 entries={vaultKeyData.seed.split(' ')}
                 appendNumber
               />
+              {vaultKeyData.passphrase.length > 1 && (
+                <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
+              )}
             </>
           )}
           <BlueSpacing20 />
@@ -344,6 +347,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                     setVaultKeyData({
                       keyIndex,
                       seed: '',
+                      passphrase: '',
                       xpub,
                       fp,
                       path,
@@ -385,12 +389,14 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                   onPress: () => {
                     const keyIndex = el.index + 1;
                     const seed = wallet.getCosigner(keyIndex);
+                    const passphrase = wallet.getCosignerPassphrase(keyIndex);
                     setVaultKeyData({
                       keyIndex,
                       seed,
                       xpub: '',
                       fp: '',
                       path: '',
+                      passphrase: passphrase ?? '',
                       isLoading: false,
                     });
                     setIsMnemonicsModalVisible(true);
@@ -400,7 +406,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                       presentAlert({ message: 'Cannot find derivation path for this cosigner' });
                       return;
                     }
-                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
+                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                     setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');

@@ -117,7 +117,7 @@ const ReceiveDetails = () => {
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
           if (tx) {
-            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], 10, true);
+            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
             if (rez && rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
               const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
               const fees = await BlueElectrum.estimateFees();

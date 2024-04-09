@@ -1951,6 +1951,59 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerPassphrase(3), w2.getCosignerPassphrase(3));
   });
 
+  it('can work with passphrases when seeds are the same but passwords differ', () => {
+    // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
+    const path = "m/48'/0'/0'/2'";
+    const w = new MultisigHDWallet();
+    w.addCosigner(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      undefined,
+      undefined,
+      '1',
+    );
+    w.addCosigner(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      undefined,
+      undefined,
+      '2',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(w.getCosignerPassphrase(1), '1');
+    assert.strictEqual(w.getCosignerPassphrase(2), '2');
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qhlxgpu8deq24p3hgyh0f9zkj3uxzg2hcs4ccfy65cr9fg8vm30tqdlssmv');
+
+    assert.strictEqual(
+      w.convertXpubToMultisignatureXpub(
+        MultisigHDWallet.seedToXpub(w.getCosigner(1), w.getCustomDerivationPathForCosigner(1), w.getCosignerPassphrase(1)),
+      ),
+      'Zpub74GDyQuS45cpaH8C24Mfrk3Kvrtw78ZtX918Wj4T7dBQSW5BMcxiJAYh95Upjf9ywSbzomNf1SqVrzeZLpwxBjH488uWNaFWkXv1B93HRe7',
+    );
+
+    //
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w.getCosignerPassphrase(1), w2.getCosignerPassphrase(1));
+    assert.strictEqual(w.getCosignerPassphrase(2), w2.getCosignerPassphrase(2));
+
+    const w3coordinator = new MultisigHDWallet();
+    w3coordinator.setSecret(w.getXpub());
+    assert.strictEqual(w3coordinator.getFingerprint(1), '126CF4F5');
+    assert.strictEqual(
+      w3coordinator.getCosigner(1),
+      'Zpub74GDyQuS45cpaH8C24Mfrk3Kvrtw78ZtX918Wj4T7dBQSW5BMcxiJAYh95Upjf9ywSbzomNf1SqVrzeZLpwxBjH488uWNaFWkXv1B93HRe7',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w3coordinator._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getInternalAddressByIndex(0), w3coordinator._getInternalAddressByIndex(0));
+  });
+
   it('can import descriptor from Sparrow', () => {
     const payload =
       'UR:CRYPTO-OUTPUT/TAADMETAADMSOEADAOAOLSTAADDLOLAOWKAXHDCLAOCEBDFLNNTKJTIOJSFSURBNFXRPEEHKDLGYRTEMRPYTGYZOCASWENCYMKPAVWJKHYAAHDCXJEFTGSZOIMFEYNDYHYZEJTBAMSJEHLDSRDDIYLSRFYTSZTKNRNYLRNDPAMTLDPZCAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYUOHFJPKOAXAAAYCYCSYASAVDTAADDLOLAOWKAXHDCLAXMSZTWZDIGERYDKFSFWTYDPFNDKLNAYSWTTMUHYZTOXHSETPEWSFXPEAYWLJSDEMTAAHDCXSPLTSTDPNTLESANSUTTLPRPFHNVSPFCNMHESOYGASTLRPYVAATNNDKFYHLQZPKLEAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYWZFEPLETAXAAAYCYCPCKRENBTAADDLOLAOWKAXHDCLAOLSFWYKYLKTFHJLPYEMGLCEDPFNSNRDDSRFASEOZTGWIALFLUIYDNFXHGVESFEMMEAAHDCXHTZETLJNKPHHAYLSCXWPNDSWPSTPGTEOJKKGHDAELSKPNNBKBSYAWZJTFWNNBDKTAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYSKTPJPMSAXAAAYCYCEBKWLAMTDWZGRZE\n';

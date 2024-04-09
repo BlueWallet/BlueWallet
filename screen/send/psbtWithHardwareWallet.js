@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
@@ -20,8 +21,7 @@ import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import SaveFileButton from '../../components/SaveFileButton';
-
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
