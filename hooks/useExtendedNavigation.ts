@@ -74,11 +74,13 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
             wallet.setUserHasSavedExport(true);
             await saveToDisk(); // Assuming saveToDisk() returns a Promise.
             proceedWithNavigation();
-          } catch {
-            originalNavigation.navigate('WalletExportRoot', {
-              screen: 'WalletExport',
-              params: { walletID },
-            });
+          } catch (error) {
+            if (error) {
+              originalNavigation.navigate('WalletExportRoot', {
+                screen: 'WalletExport',
+                params: { walletID },
+              });
+            }
           }
 
           return; // Prevent proceeding with the original navigation if the reminder is shown

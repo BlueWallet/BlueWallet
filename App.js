@@ -27,7 +27,7 @@ import WatchConnectivity from './WatchConnectivity';
 import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
-import WidgetCommunication from './blue_modules/WidgetCommunication';
+import WidgetCommunication from './components/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
