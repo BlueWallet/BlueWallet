@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext, useState } from 'react';
+import React, { useEffect, useRef, useContext, useState, useLayoutEffect } from 'react';
 import { StyleSheet, useColorScheme, Platform } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import navigationStyle from '../../components/navigationStyle';
@@ -54,7 +54,7 @@ const ReorderWallets = () => {
     setWalletData(filteredWallets);
   }, [wallets, searchQuery]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Set navigation options dynamically
     setOptions({
       headerSearchBarOptions: {
