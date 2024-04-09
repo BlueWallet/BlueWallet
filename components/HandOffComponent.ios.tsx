@@ -3,14 +3,14 @@ import React, { useContext } from 'react';
 import Handoff from 'react-native-handoff';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
-interface HandoffComponentProps {
+interface HandOffComponentProps {
   url?: string;
   title?: string;
-  type: (typeof HandoffComponent.activityTypes)[keyof typeof HandoffComponent.activityTypes];
+  type: (typeof HandOffComponent.activityTypes)[keyof typeof HandOffComponent.activityTypes];
   userInfo?: object;
 }
 
-interface HandoffComponentWithActivityTypes extends React.FC<HandoffComponentProps> {
+interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentProps> {
   activityTypes: {
     ReceiveOnchain: string;
     Xpub: string;
@@ -18,9 +18,12 @@ interface HandoffComponentWithActivityTypes extends React.FC<HandoffComponentPro
   };
 }
 
-const HandoffComponent: HandoffComponentWithActivityTypes = props => {
+const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   const { isHandOffUseEnabled } = useContext(BlueStorageContext);
 
+  if (process.env.NODE_ENV === 'development') {
+    console.log('HandOffComponent: props', props);
+  }
   if (isHandOffUseEnabled) {
     return <Handoff {...props} />;
   }
@@ -33,6 +36,6 @@ const activityTypes = {
   ViewInBlockExplorer: 'io.bluewallet.bluewallet.blockexplorer',
 };
 
-HandoffComponent.activityTypes = activityTypes;
+HandOffComponent.activityTypes = activityTypes;
 
-export default HandoffComponent;
+export default HandOffComponent;

@@ -3,6 +3,7 @@
     "bad_password": "Palavra-passe errada. Por favor, tente novamente.",
     "cancel": "Cancelar",
     "continue": "Continuar",
+    "discard_changes": "Descartar alterações?",
     "enter_password": "Inserir password",
     "never": "nunca",
     "of": "6\n{number} de {total}",
@@ -89,7 +90,6 @@
     "details_create": "Criar",
     "details_label": "Descrição",
     "details_setAmount": "Quantia a receber",
-    "details_share": "Partilhar",
     "header": "Receber"
   },
   "send": {
@@ -302,7 +302,6 @@
     "add_title": "Adicionar carteira",
     "add_wallet_name": "nome",
     "add_wallet_type": "tipo",
-    "balance": "Saldo",
     "clipboard_bitcoin": "Tem um endereço Bitcoin copiado. Gostaria de o utilizar para uma transação?",
     "clipboard_lightning": "Tem uma fatura de Lightning copiada. Gostaria de a utilizar para uma transação?",
     "details_address": "Endereço",
@@ -313,7 +312,6 @@
     "details_delete": "Eliminar",
     "details_delete_wallet": "Remover carteira",
     "details_derivation_path": "caminho de derivação",
-    "details_display": "mostrar na lista de carteiras",
     "details_export_backup": "Exportar / backup",
     "details_export_history": "Exportar histórico para CSV",
     "details_master_fingerprint": "Master fingerprint",
@@ -359,7 +357,6 @@
   "multisig": {
     "confirm": "Confirmar",
     "header": "Enviar",
-    "share": "partilhar",
     "create": "Criar",
     "co_sign_transaction": "Assinar transação",
     "ms_help_title5": "Ligar modo avançado"

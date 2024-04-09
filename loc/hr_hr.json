@@ -42,7 +42,6 @@
     "details_create": "Stvori",
     "details_label": "Opis",
     "details_setAmount": "Odredi iznos za primiti",
-    "details_share": "podijeli",
     "header": "Primi"
   },
   "send": {
@@ -130,7 +129,6 @@
   "multisig": {
     "confirm": "Potvrdi",
     "header": "Šalji",
-    "share": "podijeli",
     "create": "Stvori",
     "ms_help_title5": "Enable advanced mode"
   },

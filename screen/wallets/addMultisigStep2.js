@@ -13,7 +13,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -37,11 +36,10 @@ import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import usePrivacy from '../../hooks/usePrivacy';
-import { isDesktop } from '../../blue_modules/environment';
+import prompt from '../../helpers/prompt';
+import A from '../../blue_modules/analytics';
+import SaveFileButton from '../../components/SaveFileButton';
 
-const prompt = require('../../helpers/prompt');
-const A = require('../../blue_modules/analytics');
-const fs = require('../../blue_modules/fs');
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
@@ -193,7 +191,6 @@ const WalletsAddMultisigStep2 = () => {
       setIsLoading(true);
       setIsMnemonicsModalVisible(true);
 
-      // filling cache
       setTimeout(() => {
         // filling cache
         setXpubCacheForMnemonics(w.getSecret());
@@ -231,7 +228,7 @@ const WalletsAddMultisigStep2 = () => {
     } else {
       const path = getPath();
 
-      const xpub = getXpubCacheForMnemonics(cosigner[0]);
+      const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
       const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
@@ -240,17 +237,17 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const getXpubCacheForMnemonics = seed => {
+  const getXpubCacheForMnemonics = (seed, passphrase) => {
     const path = getPath();
-    return staticCache[seed + path] || setXpubCacheForMnemonics(seed);
+    return staticCache[seed + path + passphrase] || setXpubCacheForMnemonics(seed, passphrase);
   };
 
-  const setXpubCacheForMnemonics = seed => {
+  const setXpubCacheForMnemonics = (seed, passphrase) => {
     const path = getPath();
     const w = new MultisigHDWallet();
     w.setDerivationPath(path);
-    staticCache[seed + path] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
-    return staticCache[seed + path];
+    staticCache[seed + path + passphrase] = w.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
+    return staticCache[seed + path + passphrase];
   };
 
   const getFpCacheForMnemonics = (seed, passphrase) => {
@@ -467,15 +464,11 @@ const WalletsAddMultisigStep2 = () => {
   };
 
   const scanOrOpenFile = () => {
-    if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(onBarScanned);
-    } else {
-      setIsProvideMnemonicsModalVisible(false);
-      InteractionManager.runAfterInteractions(async () => {
-        const scanned = await scanQrHelper(navigation.navigate, name, true);
-        onBarScanned({ data: scanned });
-      });
-    }
+    setIsProvideMnemonicsModalVisible(false);
+    InteractionManager.runAfterInteractions(async () => {
+      const scanned = await scanQrHelper(navigation.navigate, name, true);
+      onBarScanned({ data: scanned });
+    });
   };
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {
@@ -647,9 +640,12 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const exportCosigner = () => {
+  const exportCosignerBeforeOnPress = () => {
     setIsLoading(true);
-    fs.writeFileAndExport(cosignerXpubFilename, cosignerXpub).finally(() => setIsLoading(false));
+  };
+
+  const exportCosignerAfterOnPress = () => {
+    setIsLoading(false);
   };
 
   const hideCosignersXpubModal = () => {
@@ -672,7 +668,15 @@ const WalletsAddMultisigStep2 = () => {
               {isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+                <SaveFileButton
+                  style={[styles.exportButton, stylesHook.exportButton]}
+                  fileName={cosignerXpubFilename}
+                  fileContent={cosignerXpub}
+                  beforeOnPress={exportCosignerBeforeOnPress}
+                  afterOnPress={exportCosignerAfterOnPress}
+                >
+                  <SquareButton title={loc.multisig.share} />
+                </SaveFileButton>
               )}
             </View>
           </View>

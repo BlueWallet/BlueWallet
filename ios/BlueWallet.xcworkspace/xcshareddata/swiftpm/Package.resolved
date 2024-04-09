@@ -1,5 +1,15 @@
 {
+  "originHash" : "89509f555bc90a15b96ca0a326a69850770bdaac04a46f9cf482d81533702e3c",
   "pins" : [
+    {
+      "identity" : "bugsnag-cocoa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bugsnag/bugsnag-cocoa",
+      "state" : {
+        "revision" : "49f60b8dc2e94e7ede1114e2c39ba6ac0b576f42",
+        "version" : "6.28.1"
+      }
+    },
     {
       "identity" : "efqrcode",
       "kind" : "remoteSourceControl",

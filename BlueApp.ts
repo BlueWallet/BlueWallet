@@ -5,8 +5,9 @@ import DefaultPreference from 'react-native-default-preference';
 import * as Keychain from 'react-native-keychain';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import Realm from 'realm';
-import BlueElectrum from './blue_modules/BlueElectrum';
+import * as BlueElectrum from './blue_modules/BlueElectrum';
 import { initCurrencyDaemon } from './blue_modules/currency';
+import * as encryption from './blue_modules/encryption';
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,
@@ -30,11 +31,9 @@ import Biometric from './class/biometrics';
 import { randomBytes } from './class/rng';
 import { TWallet, Transaction } from './class/wallets/types';
 import presentAlert from './components/Alert';
+import prompt from './helpers/prompt';
 import RNFS from 'react-native-fs';
 import loc from './loc';
-
-const prompt = require('./helpers/prompt');
-const encryption = require('./blue_modules/encryption');
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -863,15 +862,29 @@ export class AppStorage {
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK));
+      const keyExists = await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK);
+      if (keyExists !== null) {
+        const doNotTrackValue = !!keyExists;
+        if (doNotTrackValue) {
+          await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+          await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+          AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+        } else {
+          return Boolean(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
+        }
+      }
     } catch (_) {}
-    return false;
+    const doNotTrackValue = await DefaultPreference.get(AppStorage.DO_NOT_TRACK);
+    return doNotTrackValue === '1' || false;
   };
 
-  setDoNotTrack = async (value: string) => {
-    await AsyncStorage.setItem(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+  setDoNotTrack = async (value: boolean) => {
     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-    await DefaultPreference.set(AppStorage.DO_NOT_TRACK, value ? '1' : '');
+    if (value) {
+      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+    } else {
+      await DefaultPreference.clear(AppStorage.DO_NOT_TRACK);
+    }
   };
 
   /**

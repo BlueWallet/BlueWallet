@@ -1,12 +1,11 @@
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Alert, Platform, findNodeHandle } from 'react-native';
+import { Platform, findNodeHandle } from 'react-native';
 import Frisbee from 'frisbee';
 import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../loc';
 import { requestNotifications } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
-import { isDesktop } from './environment';
 import ActionSheet from '../screen/ActionSheet';
 
 const constants = require('./constants');
@@ -144,63 +143,30 @@ function Notifications(props) {
     }
 
     return new Promise(function (resolve) {
-      if (isDesktop) {
-        ActionSheet.showActionSheetWithOptions(
-          {
-            title: loc.settings.notifications,
-            message: loc.notifications.would_you_like_to_receive_notifications,
-            options: [loc.notifications.no_and_dont_ask, loc.notifications.ask_me_later, loc._.ok],
-            cancelButtonIndex: 0, // Assuming 'no and don't ask' is treated as the cancel action
-            anchor: findNodeHandle(anchor.current), // Assuming you have a relevant anchor as before
-          },
-          buttonIndex => {
-            switch (buttonIndex) {
-              case 0:
-                AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, '1');
-                resolve(false);
-                break;
-              case 1:
-                resolve(false);
-                break;
-              case 2:
-                (async () => {
-                  resolve(await configureNotifications());
-                })();
-                break;
-            }
-          },
-        );
-      } else {
-        Alert.alert(
-          loc.settings.notifications,
-          loc.notifications.would_you_like_to_receive_notifications,
-          [
-            {
-              text: loc.notifications.no_and_dont_ask,
-              onPress: () => {
-                AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, '1');
-                resolve(false);
-              },
-              style: 'cancel',
-            },
-            {
-              text: loc.notifications.ask_me_later,
-              onPress: () => {
-                resolve(false);
-              },
-              style: 'cancel',
-            },
-            {
-              text: loc._.ok,
-              onPress: async () => {
-                resolve(await configureNotifications());
-              },
-              style: 'default',
-            },
-          ],
-          { cancelable: false },
-        );
-      }
+      const options = [loc.notifications.no_and_dont_ask, loc.notifications.ask_me_later, loc._.ok];
+
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title: loc.settings.notifications,
+          message: loc.notifications.would_you_like_to_receive_notifications,
+          options,
+          cancelButtonIndex: 0, // Assuming 'no and don't ask' is still treated as the cancel action
+          anchor: findNodeHandle(anchor.current),
+        },
+        buttonIndex => {
+          switch (buttonIndex) {
+            case 0:
+              AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, '1').then(() => resolve(false));
+              break;
+            case 1:
+              resolve(false);
+              break;
+            case 2:
+              configureNotifications().then(resolve);
+              break;
+          }
+        },
+      );
     });
   };
 

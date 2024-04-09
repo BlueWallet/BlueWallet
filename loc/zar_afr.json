@@ -4,6 +4,7 @@
     "cancel": "Kanselleer",
     "continue": "Gaan voort",
     "clipboard": "Knipbord",
+    "discard_changes": "Verwerp veranderinge?",
     "enter_password": "Sleutel wagwoord in",
     "never": "Nooit",
     "of": "{number} van {total}",
@@ -83,7 +84,6 @@
     "details_create": "Skep",
     "details_label": "Beskrywing",
     "details_setAmount": "Bedrag ontvang",
-    "details_share": "deel",
     "header": "Ontvang"
   },
   "send": {
@@ -176,7 +176,6 @@
   "multisig": {
     "confirm": "Bevestig",
     "header": "Stuur",
-    "share": "deel",
     "create": "Skep",
     "ms_help_title5": "Enable advanced mode"
   },

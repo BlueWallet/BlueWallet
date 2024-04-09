@@ -2,6 +2,9 @@ package io.bluewallet.bluewallet;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.bugsnag.android.Bugsnag;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -13,7 +16,6 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import java.util.List;
-import com.bugsnag.android.Bugsnag;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -57,7 +59,6 @@ public class MainApplication extends Application implements ReactApplication {
   @Override
   public void onCreate() {
     super.onCreate();
-    Bugsnag.start(this);
     I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
     sharedI18nUtilInstance.allowRTL(getApplicationContext(), true);
     SoLoader.init(this, /* native exopackage */ false);
@@ -65,5 +66,15 @@ public class MainApplication extends Application implements ReactApplication {
 	      // If you opted-in for the New Architecture, we load the native entry point for this app.
 	      DefaultNewArchitectureEntryPoint.load();
 	    }
+      SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE);
+
+      // Retrieve the "donottrack" value. Default to "0" if not found.
+      String isDoNotTrackEnabled = sharedPref.getString("donottrack", "0");
+
+      // Check if do not track is not enabled and initialize Bugsnag if so
+      if (!isDoNotTrackEnabled.equals("1")) {
+          // Initialize Bugsnag or your error tracking here
+          Bugsnag.start(this);
+      }
   }
 }

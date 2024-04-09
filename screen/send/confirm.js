@@ -18,7 +18,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 const Bignumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 

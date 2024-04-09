@@ -29,14 +29,15 @@ import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './blue_modules/WidgetCommunication';
 import ActionSheet from './screen/ActionSheet';
-import HandoffComponent from './components/handoff';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
 import MenuElements from './components/MenuElements';
 import { updateExchangeRate } from './blue_modules/currency';
-const A = require('./blue_modules/analytics');
+import { NavigationProvider } from './components/NavigationProvider';
+import A from './blue_modules/analytics';
+import HandOffComponentListener from './components/HandOffComponentListener';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
-const { EventEmitter, SplashScreen } = NativeModules;
+const { SplashScreen } = NativeModules;
 
 LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
@@ -76,50 +77,33 @@ const App = () => {
     if (payload.foreground) await processPushNotifications();
   };
 
-  const onUserActivityOpen = data => {
-    switch (data.activityType) {
-      case HandoffComponent.activityTypes.ReceiveOnchain:
-        NavigationService.navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: {
-            address: data.userInfo.address,
-          },
-        });
-        break;
-      case HandoffComponent.activityTypes.Xpub:
-        NavigationService.navigate('WalletXpubRoot', {
-          screen: 'WalletXpub',
-          params: {
-            xpub: data.userInfo.xpub,
-          },
-        });
-        break;
-      default:
-        break;
-    }
+  const addListeners = () => {
+    const urlSubscription = Linking.addEventListener('url', handleOpenURL);
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
+
+    // Store subscriptions in a ref or state to remove them later
+    return {
+      urlSubscription,
+      appStateSubscription,
+      notificationSubscription,
+    };
   };
 
   useEffect(() => {
     if (walletsInitialized) {
-      addListeners();
+      const subscriptions = addListeners();
+
+      // Cleanup function
+      return () => {
+        subscriptions.urlSubscription?.remove();
+        subscriptions.appStateSubscription?.remove();
+        subscriptions.notificationSubscription?.remove();
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized]);
-
-  const addListeners = () => {
-    Linking.addEventListener('url', handleOpenURL);
-    AppState.addEventListener('change', handleAppStateChange);
-    EventEmitter?.getMostRecentUserActivity()
-      .then(onUserActivityOpen)
-      .catch(() => console.log('No userActivity object sent'));
-    handleAppStateChange(undefined);
-    /*
-      When a notification on iOS is shown while the app is on foreground;
-      On willPresent on AppDelegate.m
-     */
-    eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
-    eventEmitter?.addListener('onUserActivityOpen', onUserActivityOpen);
-  };
+  }, [walletsInitialized]); // Re-run when walletsInitialized changes
 
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
@@ -285,14 +269,17 @@ const App = () => {
     <SafeAreaProvider>
       <View style={styles.root}>
         <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-          <InitRoot />
-          <Notifications onProcessNotifications={processPushNotifications} />
-          <MenuElements />
-          <DeviceQuickActions />
+          <NavigationProvider>
+            <InitRoot />
+            <Notifications onProcessNotifications={processPushNotifications} />
+            <MenuElements />
+            <DeviceQuickActions />
+            <Biometric />
+            <HandOffComponentListener />
+          </NavigationProvider>
         </NavigationContainer>
       </View>
       <WatchConnectivity />
-      <Biometric />
       <WidgetCommunication />
     </SafeAreaProvider>
   );

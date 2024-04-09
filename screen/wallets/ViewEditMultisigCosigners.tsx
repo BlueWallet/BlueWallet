@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
@@ -52,8 +52,9 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { isDesktop } from '../../blue_modules/environment';
 import ActionSheet from '../ActionSheet';
-const fs = require('../../blue_modules/fs');
-const prompt = require('../../helpers/prompt');
+import SaveFileButton from '../../components/SaveFileButton';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import prompt from '../../helpers/prompt';
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
 
@@ -61,7 +62,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const { navigate, goBack, dispatch, addListener } = useNavigation();
+  const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
@@ -77,7 +78,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
-  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', path: '', fp: '', isLoading: false }); // string rendered in modal
+  const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [askPassphrase, setAskPassphrase] = useState(false);
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef<any[]>();
@@ -171,9 +172,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const exportCosigner = () => {
+  const saveFileButtonAfterOnPress = () => {
     setIsShareModalVisible(false);
-    setTimeout(() => fs.writeFileAndExport(exportFilename, exportString), 1000);
   };
 
   const onSave = async () => {
@@ -214,13 +214,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       enableBlur();
 
       const task = InteractionManager.runAfterInteractions(async () => {
-        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-        if (isBiometricsEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            return goBack();
-          }
-        }
         if (!w.current) {
           // lets create fake wallet so renderer wont throw any errors
           w.current = new MultisigHDWallet();
@@ -282,6 +275,9 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                 entries={vaultKeyData.seed.split(' ')}
                 appendNumber
               />
+              {vaultKeyData.passphrase.length > 1 && (
+                <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
+              )}
             </>
           )}
           <BlueSpacing20 />
@@ -351,6 +347,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                     setVaultKeyData({
                       keyIndex,
                       seed: '',
+                      passphrase: '',
                       xpub,
                       fp,
                       path,
@@ -392,12 +389,14 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                   onPress: () => {
                     const keyIndex = el.index + 1;
                     const seed = wallet.getCosigner(keyIndex);
+                    const passphrase = wallet.getCosignerPassphrase(keyIndex);
                     setVaultKeyData({
                       keyIndex,
                       seed,
                       xpub: '',
                       fp: '',
                       path: '',
+                      passphrase: passphrase ?? '',
                       isLoading: false,
                     });
                     setIsMnemonicsModalVisible(true);
@@ -407,7 +406,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
                       presentAlert({ message: 'Cannot find derivation path for this cosigner' });
                       return;
                     }
-                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path));
+                    const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                     setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');
@@ -478,7 +477,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     return _handleUseMnemonicPhrase(importText, passphrase);
   };
 
-  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase: string) => {
+  const _handleUseMnemonicPhrase = (mnemonic: string, passphrase?: string) => {
     if (!wallet || !currentlyEditingCosignerNum) {
       // failsafe
       return;
@@ -538,11 +537,11 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   };
 
   const renderProvideMnemonicsModal = () => {
-    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
+    // @ts-ignore weird, property exists on type definition. might be some ts bugs
     const isPad: boolean = Platform.isPad;
     return (
-      <BottomModal isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
+        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -574,7 +573,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     const isPad: boolean = Platform.isPad;
 
     return (
-      // @ts-ignore wtf doneButton
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
         <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
@@ -584,7 +582,14 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
             <BlueSpacing20 />
             <View style={styles.squareButtonWrapper}>
-              <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportCosigner} title={loc.multisig.share} />
+              <SaveFileButton
+                style={[styles.exportButton, stylesHook.exportButton]}
+                fileContent={exportString}
+                fileName={exportFilename}
+                afterOnPress={saveFileButtonAfterOnPress}
+              >
+                <SquareButton title={loc.multisig.share} />
+              </SaveFileButton>
             </View>
           </View>
         </KeyboardAvoidingView>

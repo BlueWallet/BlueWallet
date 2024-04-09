@@ -18,7 +18,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-const prompt = require('../../helpers/prompt');
+import prompt from '../../helpers/prompt';
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value

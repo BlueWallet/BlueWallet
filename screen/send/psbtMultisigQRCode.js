@@ -1,26 +1,24 @@
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, findNodeHandle, ScrollView, StyleSheet, View } from 'react-native';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
-
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { SquareButton } from '../../components/SquareButton';
-
-import loc from '../../loc';
 import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
-import { isDesktop } from '../../blue_modules/environment';
-const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
+import { SquareButton } from '../../components/SquareButton';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef();
   const { psbtBase64, isShowOpenScanner } = useRoute().params;
+  const { name } = useRoute();
   const [isLoading, setIsLoading] = useState(false);
   const dynamicQRCode = useRef();
   const isFocused = useIsFocused();
@@ -61,33 +59,19 @@ const PsbtMultisigQRCode = () => {
     }
   };
 
-  const openScanner = () => {
-    if (isDesktop) {
-      fs.showActionSheet({ anchor: findNodeHandle(openScannerButton.current) }).then(data => onBarScanned({ data }));
-    } else {
-      requestCameraAuthorization().then(() =>
-        navigate('ScanQRCodeRoot', {
-          screen: 'ScanQRCode',
-          params: {
-            onBarScanned,
-            showFileImportButton: true,
-          },
-        }),
-      );
-    }
+  const openScanner = async () => {
+    const scanned = await scanQrHelper(navigate, name, true);
+    onBarScanned({ data: scanned });
   };
 
-  const exportPSBT = () => {
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
     setIsLoading(true);
-    setTimeout(
-      () =>
-        fs.writeFileAndExport(fileName, psbt.toBase64()).finally(() => {
-          setIsLoading(false);
-          dynamicQRCode.current?.startAutoMove();
-        }),
-      10,
-    );
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    setIsLoading(false);
+    dynamicQRCode.current?.startAutoMove();
   };
 
   return (
@@ -111,7 +95,15 @@ const PsbtMultisigQRCode = () => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <SquareButton style={[styles.exportButton, stylesHook.exportButton]} onPress={exportPSBT} title={loc.multisig.share} />
+            <SaveFileButton
+              fileName={fileName}
+              fileContent={psbt.toBase64()}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
+              style={[styles.exportButton, stylesHook.exportButton]}
+            >
+              <SquareButton title={loc.multisig.share} />
+            </SaveFileButton>
           )}
         </View>
       </ScrollView>

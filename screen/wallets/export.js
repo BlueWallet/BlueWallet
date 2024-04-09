@@ -1,18 +1,17 @@
 import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
 import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-
-import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
+import { BlueSpacing20, BlueText, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
-import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import HandoffComponent from '../../components/handoff';
+import HandOffComponent from '../../components/HandOffComponent';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);
@@ -56,13 +55,6 @@ const WalletExport = () => {
       enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-          if (isBiometricsEnabled) {
-            if (!(await Biometric.unlockWithBiometrics())) {
-              return goBack();
-            }
-          }
           if (!wallet.getUserHasSavedExport()) {
             wallet.setUserHasSavedExport(true);
             saveToDisk();
@@ -75,7 +67,7 @@ const WalletExport = () => {
         disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, saveToDisk, wallet]),
+    }, [wallet]),
   );
 
   if (isLoading || !wallet)
@@ -117,16 +109,16 @@ const WalletExport = () => {
             )}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
-              <BlueCopyTextToClipboard text={wallet.getSecret()} />
+              <CopyTextToClipboard text={wallet.getSecret()} />
             ) : (
               <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
                 {wallet.getSecret()}
               </BlueText>
             )}
             {wallet.type === WatchOnlyWallet.type && (
-              <HandoffComponent
+              <HandOffComponent
                 title={loc.wallets.xpub_title}
-                type={HandoffComponent.activityTypes.Xpub}
+                type={HandOffComponent.activityTypes.Xpub}
                 userInfo={{ xpub: wallet.getSecret() }}
               />
             )}

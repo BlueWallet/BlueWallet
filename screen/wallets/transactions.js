@@ -1,43 +1,46 @@
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
   FlatList,
+  I18nManager,
   InteractionManager,
+  LayoutAnimation,
   PixelRatio,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  I18nManager,
   findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
-import { BlueAlertWalletExportReminder } from '../../BlueComponents';
-import WalletGradient from '../../class/wallet-gradient';
-import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
-import { isDesktop } from '../../blue_modules/environment';
-import BlueClipboard from '../../blue_modules/clipboard';
-import LNNodeBar from '../../components/LNNodeBar';
-import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import presentAlert from '../../components/Alert';
-import PropTypes from 'prop-types';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 
-const fs = require('../../blue_modules/fs');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { isDesktop } from '../../blue_modules/environment';
+import * as fs from '../../blue_modules/fs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import Biometric from '../../class/biometrics';
+import WalletGradient from '../../class/wallet-gradient';
+import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
+import LNNodeBar from '../../components/LNNodeBar';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
+import ActionSheet from '../ActionSheet';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -63,7 +66,7 @@ const WalletTransactions = ({ navigation }) => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
-  const { setParams, setOptions, navigate } = useNavigation();
+  const { setParams, setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [lnNodeInfo, setLnNodeInfo] = useState({ canReceive: 0, canSend: 0 });
   const walletActionButtonsRef = useRef();
@@ -509,6 +512,20 @@ const WalletTransactions = ({ navigation }) => {
             saveToDisk();
           })
         }
+        onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+          if (wallet.hideBalance && isBiometricsEnabled) {
+            const unlocked = await Biometric.unlockWithBiometrics();
+            if (!unlocked) {
+              throw new Error('Biometrics failed');
+            }
+          }
+
+          wallet.hideBalance = isShouldBeVisible;
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          await saveToDisk();
+        }}
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
@@ -518,20 +535,20 @@ const WalletTransactions = ({ navigation }) => {
             if (wallet.getUserHasSavedExport()) {
               onManageFundsPressed({ id });
             } else {
-              BlueAlertWalletExportReminder({
-                onSuccess: async () => {
+              presentWalletExportReminder()
+                .then(async () => {
                   wallet.setUserHasSavedExport(true);
                   await saveToDisk();
                   onManageFundsPressed({ id });
-                },
-                onFailure: () =>
+                })
+                .catch(() => {
                   navigate('WalletExportRoot', {
                     screen: 'WalletExport',
                     params: {
                       walletID: wallet.getID(),
                     },
-                  }),
-              });
+                  });
+                });
             }
           }
         }}
@@ -539,6 +556,7 @@ const WalletTransactions = ({ navigation }) => {
       <View style={[styles.list, stylesHook.list]}>
         <FlatList
           getItemLayout={getItemLayout}
+          updateCellsBatchingPeriod={30}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
@@ -571,6 +589,8 @@ const WalletTransactions = ({ navigation }) => {
           initialNumToRender={10}
           removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+          maxToRenderPerBatch={15}
+          windowSize={25}
         />
       </View>
 

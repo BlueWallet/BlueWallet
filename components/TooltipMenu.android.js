@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Pressable } from 'react-native';
 import showPopupMenu from '../blue_modules/showPopupMenu';
 
-const ToolTipMenu = (props, ref) => {
+const BaseToolTipMenu = (props, ref) => {
   const menuRef = useRef();
   const disabled = props.disabled ?? false;
   const isMenuPrimaryAction = props.isMenuPrimaryAction ?? false;
@@ -51,11 +51,12 @@ const ToolTipMenu = (props, ref) => {
   );
 };
 
-export default forwardRef(ToolTipMenu);
+const ToolTipMenu = forwardRef(BaseToolTipMenu);
+
+export default ToolTipMenu;
 ToolTipMenu.propTypes = {
-  enableAndroidRipple: PropTypes.bool,
-  actions: PropTypes.object.isRequired,
-  children: PropTypes.node.isRequired,
+  actions: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
+  children: PropTypes.node,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   onPress: PropTypes.func,

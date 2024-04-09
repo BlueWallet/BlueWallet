@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { BlueCopyTextToClipboard } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../Navigation';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import loc from '../../loc';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCode'>;
 
@@ -17,7 +17,7 @@ export default function PaymentCode({ route }: Props) {
       {paymentCode && (
         <>
           <QRCodeComponent value={paymentCode} />
-          <BlueCopyTextToClipboard text={paymentCode} />
+          <CopyTextToClipboard text={paymentCode} truncated={false} />
         </>
       )}
     </View>

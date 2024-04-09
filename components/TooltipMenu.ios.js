@@ -3,7 +3,7 @@ import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-men
 import PropTypes from 'prop-types';
 import { TouchableOpacity } from 'react-native';
 
-const ToolTipMenu = (props, ref) => {
+const BaseToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
     const item = {
       actionKey: action.id,
@@ -41,55 +41,55 @@ const ToolTipMenu = (props, ref) => {
   const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
   const renderPreview = props.renderPreview ?? undefined;
   const disabled = props.disabled ?? false;
+  const onPress = props.onPress ?? undefined;
 
   const buttonStyle = props.buttonStyle;
   return isButton ? (
-    <ContextMenuButton
-      ref={ref}
-      disabled={disabled}
-      onPressMenuItem={({ nativeEvent }) => {
-        props.onPressMenuItem(nativeEvent.actionKey);
-      }}
-      isMenuPrimaryAction={isMenuPrimaryAction}
-      menuConfig={{
-        menuTitle,
-        menuItems,
-      }}
-    >
-      {props.onPress ? (
-        <TouchableOpacity accessibilityRole="button" style={buttonStyle} onPress={props.onPress}>
-          {props.children}
-        </TouchableOpacity>
-      ) : (
-        props.children
-      )}
-    </ContextMenuButton>
-  ) : props.onPress ? (
-    <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
-      <ContextMenuView
+    <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
+      <ContextMenuButton
         ref={ref}
-        internalCleanupMode="viewController"
+        useActionSheetFallback={false}
         onPressMenuItem={({ nativeEvent }) => {
           props.onPressMenuItem(nativeEvent.actionKey);
         }}
-        useActionSheetFallback={false}
+        isMenuPrimaryAction={isMenuPrimaryAction}
         menuConfig={{
           menuTitle,
           menuItems,
         }}
-        {...(renderPreview
-          ? {
-              previewConfig: {
-                previewType: 'CUSTOM',
-                backgroundColor: 'white',
-              },
-              renderPreview,
-            }
-          : {})}
       >
         {props.children}
-      </ContextMenuView>
+      </ContextMenuButton>
     </TouchableOpacity>
+  ) : props.onPress ? (
+    <ContextMenuView
+      ref={ref}
+      lazyPreview
+      shouldEnableAggressiveCleanup
+      shouldCleanupOnComponent
+      internalCleanupMode="viewController"
+      onPressMenuItem={({ nativeEvent }) => {
+        props.onPressMenuItem(nativeEvent.actionKey);
+      }}
+      useActionSheetFallback={false}
+      menuConfig={{
+        menuTitle,
+        menuItems,
+      }}
+      {...(renderPreview
+        ? {
+            previewConfig: {
+              previewType: 'CUSTOM',
+              backgroundColor: 'white',
+            },
+            renderPreview,
+          }
+        : {})}
+    >
+      <TouchableOpacity accessibilityRole="button" onPress={props.onPress}>
+        {props.children}
+      </TouchableOpacity>
+    </ContextMenuView>
   ) : (
     <ContextMenuView
       ref={ref}
@@ -117,11 +117,13 @@ const ToolTipMenu = (props, ref) => {
   );
 };
 
-export default forwardRef(ToolTipMenu);
+const ToolTipMenu = forwardRef(BaseToolTipMenu);
+
+export default ToolTipMenu;
 ToolTipMenu.propTypes = {
-  actions: PropTypes.object.isRequired,
+  actions: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
   title: PropTypes.string,
-  children: PropTypes.node.isRequired,
+  children: PropTypes.node,
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,

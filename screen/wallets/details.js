@@ -1,55 +1,55 @@
-import React, { useEffect, useState, useCallback, useContext, useRef, useMemo, useLayoutEffect } from 'react';
+import { useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
-  View,
+  ActivityIndicator,
+  Alert,
+  I18nManager,
+  InteractionManager,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
   Text,
   TextInput,
-  Alert,
-  KeyboardAvoidingView,
   TouchableOpacity,
-  Keyboard,
   TouchableWithoutFeedback,
-  Switch,
-  Platform,
-  Linking,
-  StyleSheet,
-  ScrollView,
-  InteractionManager,
-  ActivityIndicator,
-  I18nManager,
+  View,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import Biometric from '../../class/biometrics';
-import {
-  HDSegwitBech32Wallet,
-  SegwitP2SHWallet,
-  LegacyWallet,
-  SegwitBech32Wallet,
-  WatchOnlyWallet,
-  MultisigHDWallet,
-  HDAezeedWallet,
-  LightningLdkWallet,
-} from '../../class';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
-import Share from 'react-native-share';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import { isDesktop } from '../../blue_modules/environment';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import presentAlert from '../../components/Alert';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { writeFileAndExport } from '../../blue_modules/fs';
 import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
-import { useTheme } from '../../components/themes';
-import ListItem from '../../components/ListItem';
+import Share from 'react-native-share';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { isDesktop } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import {
+  HDAezeedWallet,
+  HDSegwitBech32Wallet,
+  LegacyWallet,
+  LightningLdkWallet,
+  MultisigHDWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
+  WatchOnlyWallet,
+} from '../../class';
+import Biometric from '../../class/biometrics';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import ListItem from '../../components/ListItem';
 import { SecondButton } from '../../components/SecondButton';
-
-const prompt = require('../../helpers/prompt');
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import prompt from '../../helpers/prompt';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import SaveFileButton from '../../components/SaveFileButton';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -134,7 +134,7 @@ const WalletDetails = () => {
   const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, navigate, setOptions, popToTop } = useNavigation();
+  const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
   const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
@@ -281,7 +281,7 @@ const WalletDetails = () => {
     navigate('ExportMultisigCoordinationSetupRoot', {
       screen: 'ExportMultisigCoordinationSetup',
       params: {
-        walletId: wallet.getID(),
+        walletID: wallet.getID(),
       },
     });
   };
@@ -358,10 +358,10 @@ const WalletDetails = () => {
       Share.open({
         url: 'file://' + filePath,
         saveToFiles: isDesktop,
+        failOnCancel: false,
       })
         .catch(error => {
           console.log(error);
-          presentAlert({ message: error.message });
         })
         .finally(() => {
           RNFS.unlink(filePath);
@@ -419,23 +419,17 @@ const WalletDetails = () => {
     }
   };
 
-  const onExportHistoryPressed = async () => {
-    const csvFileArray = [
-      loc.transactions.date,
-      loc.transactions.txid,
-      `${loc.send.create_amount} (${BitcoinUnit.BTC})`,
-      loc.send.create_memo,
-    ];
+  const exportHistoryContent = useCallback(() => {
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
     if (wallet.chain === Chain.OFFCHAIN) {
-      csvFileArray.push(loc.lnd.payment);
+      headers.push(loc.lnd.payment);
     }
 
-    let csvFile = csvFileArray.join(','); // CSV header
+    const rows = [headers.join(',')];
     const transactions = wallet.getTransactions();
 
-    for (const transaction of transactions) {
+    transactions.forEach(transaction => {
       const value = formatBalanceWithoutSuffix(transaction.value, BitcoinUnit.BTC, true);
-
       let hash = transaction.hash;
       let memo = txMetadata[transaction.hash]?.memo?.trim() ?? '';
       let status;
@@ -445,8 +439,7 @@ const WalletDetails = () => {
         memo = transaction.description;
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (hash?.type === 'Buffer' && hash?.data) {
-          const bb = Buffer.from(hash);
-          hash = bb.toString('hex');
+          hash = Buffer.from(hash.data).toString('hex');
         }
       }
 
@@ -456,11 +449,11 @@ const WalletDetails = () => {
         data.push(status);
       }
 
-      csvFile += '\n' + data.join(','); // CSV line
-    }
+      rows.push(data.join(','));
+    });
 
-    await writeFileAndExport(`${wallet.label.replace(' ', '-')}-history.csv`, csvFile);
-  };
+    return rows.join('\n');
+  }, [wallet, txMetadata]);
 
   const handleDeleteButtonTapped = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
@@ -491,6 +484,11 @@ const WalletDetails = () => {
       { cancelable: false },
     );
   };
+
+  const fileName = useMemo(() => {
+    const label = wallet.getLabel().replace(' ', '-');
+    return `${label}-history.csv`;
+  }, [wallet]);
 
   return (
     <ScrollView
@@ -659,7 +657,9 @@ const WalletDetails = () => {
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={onExportHistoryPressed} title={loc.wallets.details_export_history} />
+                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent()}>
+                      <SecondButton title={loc.wallets.details_export_history} />
+                    </SaveFileButton>
                   </>
                 )}
                 {wallet.type === MultisigHDWallet.type && (

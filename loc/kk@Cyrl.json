@@ -35,8 +35,7 @@
     "passwords_do_not_match": "Құпия сөздер сәйкес келмейді. Қайталап көріңіз."
   },
   "receive": {
-    "details_create": "Жасау",
-    "details_share": "Бөлісу"
+    "details_create": "Жасау"
   },
   "send": {
     "broadcastError": "Қате",
@@ -83,7 +82,6 @@
   "multisig": {
     "confirm": "Растау",
     "header": "Жіберу",
-    "share": "Бөлісу",
     "create": "Жасау"
   },
   "addresses": {

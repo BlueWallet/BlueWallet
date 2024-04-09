@@ -4,6 +4,7 @@
     "cancel": "取消",
     "continue": "繼續",
     "clipboard": "剪貼簿",
+    "discard_changes": "放棄更變？",
     "enter_password": "輸入密碼",
     "never": "永不",
     "of": "{total}其中之{number}",
@@ -79,7 +80,6 @@
     "details_create": "建立",
     "details_label": "描述",
     "details_setAmount": "收款金額",
-    "details_share": "分享",
     "header": "收款"
   },
   "send": {
@@ -295,7 +295,6 @@
     "details_delete": "移除",
     "details_delete_wallet": "移除錢包",
     "details_derivation_path": "推導路徑",
-    "details_display": "在錢包清單中顯示",
     "details_export_backup": "匯出備份",
     "details_master_fingerprint": "主指紋",
     "details_multisig_type": "多重簽名",
@@ -356,7 +355,6 @@
     "fee_btc": "{number} 比特幣",
     "confirm": "確認",
     "header": "發送",
-    "share": "分享",
     "view": "查看",
     "manage_keys": "管理密鑰",
     "how_many_signatures_can_bluewallet_make": "BlueWallet能夠生成多少簽署？",

@@ -11,7 +11,7 @@ import Licensing from './screen/settings/Licensing';
 import NetworkSettings from './screen/settings/NetworkSettings';
 import Settings from './screen/settings/Settings';
 import About from './screen/settings/about';
-import DefaultView from './screen/settings/defaultView';
+import DefaultView from './screen/settings/DefaultView';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import EncryptStorage from './screen/settings/encryptStorage';
 import Language from './screen/settings/language';
@@ -27,7 +27,7 @@ import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
-import ExportMultisigCoordinationSetup from './screen/wallets/exportMultisigCoordinationSetup';
+import ExportMultisigCoordinationSetup from './screen/wallets/ExportMultisigCoordinationSetup';
 import GenerateWord from './screen/wallets/generateWord';
 import ImportWallet from './screen/wallets/import';
 import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
@@ -42,7 +42,7 @@ import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
-import ViewEditMultisigCosigners from './screen/wallets/viewEditMultisigCosigners';
+import ViewEditMultisigCosigners from './screen/wallets/ViewEditMultisigCosigners';
 import WalletXpub from './screen/wallets/xpub';
 
 import CPFP from './screen/transactions/CPFP';
@@ -107,14 +107,27 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Settings" component={Settings} options={Settings.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="Settings"
+        component={Settings}
+        options={navigationStyle({
+          headerTransparent: true,
+          title: Platform.select({ ios: loc.settings.header, default: '' }),
+          headerLargeTitle: true,
+        })(theme)}
+      />
       <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
       <WalletsStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
       <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
       <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
       <WalletsStack.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
       <WalletsStack.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
-      <WalletsStack.Screen name="DefaultView" component={DefaultView} options={DefaultView.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="DefaultView"
+        component={DefaultView}
+        options={navigationStyle({ title: loc.settings.default_title })(theme)}
+      />
+
       <WalletsStack.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
       <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
       <WalletsStack.Screen
@@ -543,7 +556,12 @@ const ExportMultisigCoordinationSetupRoot = () => {
       <ExportMultisigCoordinationSetupStack.Screen
         name="ExportMultisigCoordinationSetup"
         component={ExportMultisigCoordinationSetup}
-        options={ExportMultisigCoordinationSetup.navigationOptions(theme)}
+        options={navigationStyle({
+          closeButton: true,
+          headerBackVisible: false,
+          statusBarStyle: 'light',
+          title: loc.multisig.export_coordination_setup,
+        })(theme)}
       />
     </ExportMultisigCoordinationSetupStack.Navigator>
   );
@@ -634,7 +652,7 @@ const Navigation = () => {
       />
 
       <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
-      <InitStack.Screen
+      <RootStack.Screen
         name="ReorderWallets"
         component={ReorderWalletsStackRoot}
         options={{

@@ -139,14 +139,13 @@ export class LegacyWallet extends AbstractWallet {
       // now we need to fetch txhash for each input as required by PSBT
       if (LegacyWallet.type !== this.type) return; // but only for LEGACY single-address wallets
       const txhexes = await BlueElectrum.multiGetTransactionByTxid(
-        this._utxo.map(u => u.txId),
-        50,
+        this._utxo.map(u => u.txid),
         false,
       );
 
       const newUtxos = [];
       for (const u of this._utxo) {
-        if (txhexes[u.txId]) u.txhex = txhexes[u.txId];
+        if (txhexes[u.txid]) u.txhex = txhexes[u.txid];
         newUtxos.push(u);
       }
 
@@ -161,10 +160,8 @@ export class LegacyWallet extends AbstractWallet {
    *     [ { height: 0,
    *    value: 666,
    *    address: 'string',
-   *    txId: 'string',
    *    vout: 1,
    *    txid: 'string',
-   *    amount: 666,
    *    wif: 'string',
    *    confirmations: 0 } ]
    *
@@ -174,7 +171,6 @@ export class LegacyWallet extends AbstractWallet {
   getUtxo(respectFrozen = false): Utxo[] {
     let ret: Utxo[] = [];
     for (const u of this._utxo) {
-      if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
     }
@@ -211,11 +207,9 @@ export class LegacyWallet extends AbstractWallet {
           const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
           utxos.push({
             txid: tx.txid,
-            txId: tx.txid,
             vout: output.n,
             address,
             value,
-            amount: value,
             confirmations: tx.confirmations,
             wif: false,
             height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
@@ -280,7 +274,7 @@ export class LegacyWallet extends AbstractWallet {
     // is safe because in that case our cache is filled
 
     // next, batch fetching each txid we got
-    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs), true);
     const transactions = Object.values(txdatas);
 
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
@@ -292,7 +286,7 @@ export class LegacyWallet extends AbstractWallet {
         // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
       }
     }
-    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
+    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true);
 
     // fetched all transactions from our inputs. now we need to combine it.
     // iterating all _our_ transactions:
@@ -404,7 +398,7 @@ export class LegacyWallet extends AbstractWallet {
 
   /**
    *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
+   * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String, txhex: String, }>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address

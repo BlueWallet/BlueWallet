@@ -25,7 +25,7 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 const styles = StyleSheet.create({
   root: {

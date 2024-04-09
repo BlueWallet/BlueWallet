@@ -36,7 +36,6 @@
     "details_create": "Opret",
     "details_label": "Beskrivelse",
     "details_setAmount": "Modtag med beløb",
-    "details_share": "del",
     "header": "Modtag"
   },
   "send": {
@@ -117,7 +116,6 @@
   },
   "multisig": {
     "confirm": "Bekræft",
-    "share": "del",
     "create": "Opret",
     "ms_help_title5": "Enable advanced mode"
   },

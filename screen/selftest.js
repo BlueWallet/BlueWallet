@@ -4,6 +4,7 @@ import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import loc from '../loc';
 import { BlueSpacing20, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
@@ -20,12 +21,14 @@ import ecc from '../blue_modules/noble_ecc';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
 import presentAlert from '../components/Alert';
-const bitcoin = require('bitcoinjs-lib');
+import * as encryption from '../blue_modules/encryption';
+import * as fs from '../blue_modules/fs';
+import SaveFileButton from '../components/SaveFileButton';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
+
 const BlueCrypto = require('react-native-blue-crypto');
-const encryption = require('../blue_modules/encryption');
-const BlueElectrum = require('../blue_modules/BlueElectrum');
+
 const bip32 = BIP32Factory(ecc);
-const fs = require('../blue_modules/fs');
 
 const styles = StyleSheet.create({
   center: {
@@ -40,10 +43,6 @@ export default class Selftest extends Component {
       isLoading: true,
     };
   }
-
-  onPressSaveToStorage = () => {
-    fs.writeFileAndExport('bluewallet-storagesave-test.txt', 'Success on ' + new Date().toUTCString());
-  };
 
   onPressImportDocument = async () => {
     try {
@@ -320,7 +319,9 @@ export default class Selftest extends Component {
               }
             })()}
             <BlueSpacing20 />
-            <Button title="Test Save to Storage" onPress={this.onPressSaveToStorage} />
+            <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
+              <Button title="Test Save to Storage" />
+            </SaveFileButton>
             <BlueSpacing20 />
             <Button title="Test File Import" onPress={this.onPressImportDocument} />
           </ScrollView>

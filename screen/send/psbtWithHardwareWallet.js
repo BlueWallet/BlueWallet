@@ -1,26 +1,27 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, TouchableOpacity, ScrollView, View, TextInput, Linking, Platform, Text, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
-import Biometric from '../../class/biometrics';
 
-import { BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import Biometric from '../../class/biometrics';
+import presentAlert from '../../components/Alert';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
 import { SecondButton } from '../../components/SecondButton';
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
+import SaveFileButton from '../../components/SaveFileButton';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
@@ -185,12 +186,12 @@ const PsbtWithHardwareWallet = () => {
     );
   };
 
-  const exportPSBT = () => {
-    const fileName = `${Date.now()}.psbt`;
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
-    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
-      dynamicQRCode.current?.startAutoMove();
-    });
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    dynamicQRCode.current?.startAutoMove();
   };
 
   const openSignedTransaction = async () => {
@@ -264,18 +265,25 @@ const PsbtWithHardwareWallet = () => {
               title={loc.send.psbt_tx_open}
             />
             <BlueSpacing20 />
-            <SecondButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: colors.buttonTextColor,
-              }}
-              onPress={exportPSBT}
-              title={loc.send.psbt_tx_export}
-            />
+            <SaveFileButton
+              fileName={`${Date.now()}.psbt`}
+              fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
+              style={styles.exportButton}
+              beforeOnPress={saveFileButtonBeforeOnPress}
+              afterOnPress={saveFileButtonAfterOnPress}
+            >
+              <SecondButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: colors.buttonTextColor,
+                }}
+                title={loc.send.psbt_tx_export}
+              />
+            </SaveFileButton>
             <BlueSpacing20 />
             <View style={styles.copyToClipboard}>
-              <BlueCopyToClipboardButton
+              <CopyToClipboardButton
                 stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()}
                 displayText={loc.send.psbt_clipboard}
               />

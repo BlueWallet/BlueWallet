@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { MultisigHDWallet } from '../../class/';
+import * as bitcoin from 'bitcoinjs-lib';
+import Base43 from '../../blue_modules/base43';
 import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
+import { MultisigHDWallet } from '../../class/';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
-const bitcoin = require('bitcoinjs-lib');
-const Base43 = require('../../blue_modules/base43');
 
 const fp1cobo = 'D37EAD88';
 const Zpub1 = 'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ';
@@ -68,10 +68,8 @@ describe('multisig-wallet (p2sh)', () => {
         height: 666,
         value: 100000,
         address: '3J5xQcgBqoykSHhmDJLYp87SgVSNhYrvnz',
-        txId: '630a227c0b4ca30bc98689d40d31e0407fcc5d61730ce1fa548b26630efddeec',
         vout: 0,
         txid: '630a227c0b4ca30bc98689d40d31e0407fcc5d61730ce1fa548b26630efddeec',
-        amount: 100000,
         wif: false,
         confirmations: 666,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
@@ -161,10 +159,8 @@ describe('multisig-wallet (p2sh)', () => {
         height: 666,
         value: 100000,
         address: '3J5xQcgBqoykSHhmDJLYp87SgVSNhYrvnz',
-        txId: '630a227c0b4ca30bc98689d40d31e0407fcc5d61730ce1fa548b26630efddeec',
         vout: 0,
         txid: '630a227c0b4ca30bc98689d40d31e0407fcc5d61730ce1fa548b26630efddeec',
-        amount: 100000,
         wif: false,
         confirmations: 666,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
@@ -242,10 +238,8 @@ describe('multisig-wallet (p2sh)', () => {
         height: 666,
         value: 87740,
         address: '3PmqRLiPnBXhdYGN6mAHChXLPvw8wb3Yt8',
-        txId: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
         vout: 1,
         txid: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
-        amount: 87740,
         wif: false,
         confirmations: 666,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
@@ -310,10 +304,8 @@ describe('multisig-wallet (p2sh)', () => {
         height: 666,
         value: 87740,
         address: '3PmqRLiPnBXhdYGN6mAHChXLPvw8wb3Yt8',
-        txId: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
         vout: 1,
         txid: '33eaa5193c71519deb968852c9938824d14504a785479a051ea07cc68400ee23',
-        amount: 87740,
         wif: false,
         confirmations: 666,
         txhex:
@@ -392,10 +384,8 @@ describe('multisig-wallet (wrapped segwit)', () => {
         height: 666,
         value: 100000,
         address: '38xA38nfy649CC2JjjZj1CYAhtrcRc67dk',
-        txId: 'e36f630517f5b094a9287e73bdb443792088255c50d74414c7f25bd7fbdcf18e',
         vout: 0,
         txid: 'e36f630517f5b094a9287e73bdb443792088255c50d74414c7f25bd7fbdcf18e',
-        amount: 100000,
         wif: false,
         confirmations: 666,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
@@ -460,10 +450,8 @@ describe('multisig-wallet (wrapped segwit)', () => {
         height: 666,
         value: 100000,
         address: '38xA38nfy649CC2JjjZj1CYAhtrcRc67dk',
-        txId: 'e36f630517f5b094a9287e73bdb443792088255c50d74414c7f25bd7fbdcf18e',
         vout: 0,
         txid: 'e36f630517f5b094a9287e73bdb443792088255c50d74414c7f25bd7fbdcf18e',
-        amount: 100000,
         wif: false,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 666,
@@ -536,10 +524,8 @@ describe('multisig-wallet (wrapped segwit)', () => {
         height: 666,
         value: 87740,
         address: '3PU8J9pdiKAMsLnrhyrG7RZ4LZiTURQp5r',
-        txId: '31d614bc1d6fcbcb273f585f87d2e619784920f8cb0c2396e4a03f1bb86fed64',
         vout: 1,
         txid: '31d614bc1d6fcbcb273f585f87d2e619784920f8cb0c2396e4a03f1bb86fed64',
-        amount: 87740,
         wif: false,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 666,
@@ -822,10 +808,8 @@ describe('multisig-wallet (native segwit)', () => {
         height: 666,
         value: 100000,
         address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
-        txId: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         vout: 0,
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
-        amount: 100000,
         wif: false,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 0,
@@ -974,10 +958,8 @@ describe('multisig-wallet (native segwit)', () => {
         height: 666,
         value: 100000,
         address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
-        txId: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         vout: 0,
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
-        amount: 100000,
         wif: false,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
         confirmations: 0,
@@ -1046,10 +1028,8 @@ describe('multisig-wallet (native segwit)', () => {
         height: 666,
         value: 100000,
         address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
-        txId: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         vout: 0,
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
-        amount: 100000,
         wif: false,
         confirmations: 0,
         script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
@@ -1256,10 +1236,8 @@ describe('multisig-wallet (native segwit)', () => {
         height: 666,
         value: 100000,
         address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
-        txId: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
         vout: 0,
         txid: '666b1f2ee25dfd92377bb66a8db2badf45625a59e93f5a89836e178f9f5ed396',
-        amount: 100000,
         wif: false,
         confirmations: 0,
         txhex:
@@ -1416,10 +1394,8 @@ describe('multisig-wallet (native segwit)', () => {
           height: 666,
           value: 100000,
           address: 'bc1q2mkhkvx9l7aqksvyf0dwd2x4yn8qx2w3sythjltdkjw70r8hsves2evfg6',
-          txId: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',
           vout: 0,
           txid: 'c097161e8ae3b12ae2c90da95ade1185e368269a861ea9a8da023714d6fea31e',
-          amount: 100000,
           wif: false,
           script: { length: 107 }, // incorrect value so old tests pass. in reality its calculated on the fly
           confirmations: 666,
@@ -1466,9 +1442,7 @@ describe('multisig-wallet (native segwit)', () => {
     const utxos = [
       {
         address: 'bc1qmpyrvv6fmkv494r9qk9nllyuyngtqj62fywcl2xzessgwf9qgrssxff69u',
-        amount: 68419,
         height: 0,
-        txId: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
         txhex:
           '02000000000101d7bf498a92b19bab8a58260efedd7e6cd3b7713ff1e9d2603ff9f06a64f66291000000001716001440512e04b685a0cd66a03bea0896c27000c828dcffffffff01430b010000000000220020d848363349dd9952d465058b3ffc9c24d0b04b4a491d8fa8c2cc208724a040e10247304402201ad742ffee74e5ae4b3867d9818b8ad6505ca5239280138f9da3f93e4c27ee0802202918fa6034485077596bf64501ae6954371e91d250ee98f5a3c5889d4dee923e012103a681da832358050bd9b197aaa55d921f1447025b999eadb018aa67c5b8f64a0900000000',
         txid: '2d40b967bb3a4ecd8517843d01042b0dd4227192acbe0e1ad1f1cf144a1ec0c9',
@@ -1858,10 +1832,8 @@ describe('multisig-wallet (native segwit)', () => {
         height: 662352,
         value: 100000,
         address: 'bc1qlkh0zgq5ypcdfs9rdvrucra96c5gmjgaufm0au8cglkkrah29nesrkvewg',
-        txId: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
         vout: 0,
         txid: 'e112e3b109aff5fe76d4fde90bd3c2df58bfb250280a4404421fff42d6801fd2',
-        amount: 100000,
         wif: false,
         confirmations: 1,
         txhex:
@@ -1907,10 +1879,8 @@ describe('multisig-wallet (native segwit)', () => {
     const utxos = [
       {
         address: 'bc1qzwt595g0q0xauxzr4h56kw4zavfrnq3r4zkx42relm8rvwuuxyvsqndmgl',
-        amount: 2120,
         confirmations: 33,
         height: 668483,
-        txId: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
         txhex:
           '020000000001019e590dee7124728b988e32c1daad3a550663327b3478c4f9ee15eeaf740b898f0100000017160014018958ab9e2b29b7313a39c1a62189affeac94a8ffffffff014808000000000000220020139742d10f03cdde1843ade9ab3aa2eb12398223a8ac6aa879fece363b9c311902483045022100f431ad4d213265531f600ebf242cabd3adcb7b5c27464ad080a34ce4fb4a5e5702206fad42768d29ee1121e19dc4489366d0c02a412e9d60431cac59d49642868c7b0121037a24a1d8a4e86946e89478f352bda9d6b40843e01b86af5c94b99634cbb0c6b200000000',
         txid: '43b2ac418539b61610c3ae2e216052d634b9b20fcece05940b5662fe5cf3f3b5',
@@ -1920,10 +1890,8 @@ describe('multisig-wallet (native segwit)', () => {
       },
       {
         address: 'bc1qn0j7y5hau6s8tdcpnxyyumck256lfet78ehpxdkytv5nt570dr4qxl9s3p',
-        amount: 10000,
         confirmations: 1,
         height: 668515,
-        txId: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
         txhex:
           '02000000000101a1fba4a09a1a7ed090c64f15024de4b9008b6ec4ee5e336f0f0fc43f78022dfa01000000171600142f78bf055b26feb8f2f6b3caa5956b991c507e49ffffffff0210270000000000002200209be5e252fde6a075b70199884e6f165535f4e57e3e6e1336c45b2935d3cf68ea9a8705000000000017a91484d55f28fc28676c5f195ce649851428ec5010a3870248304502210098a970398bc40a34423d5661ecc499240bb0edb6e6bea74a752269f92e588b1b022031fcdf66c4ed8378f352a5a096c438e7a8c1415c47c119a4c69ef787e1cdf5d9012102ade0a25d66406f67dc3e4a6c8bedd989dd3ceed7a623fb4c2839a84b5262ca0900000000',
         txid: '3a2753147121c2ab312a419f0788cb534232d3c0bd4838de718487aca495ac7a',
@@ -1981,6 +1949,59 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerPassphrase(1), w2.getCosignerPassphrase(1));
     assert.strictEqual(w.getCosignerPassphrase(2), w2.getCosignerPassphrase(2));
     assert.strictEqual(w.getCosignerPassphrase(3), w2.getCosignerPassphrase(3));
+  });
+
+  it('can work with passphrases when seeds are the same but passwords differ', () => {
+    // test case from https://github.com/BlueWallet/BlueWallet/issues/3665#issuecomment-907377442
+    const path = "m/48'/0'/0'/2'";
+    const w = new MultisigHDWallet();
+    w.addCosigner(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      undefined,
+      undefined,
+      '1',
+    );
+    w.addCosigner(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      undefined,
+      undefined,
+      '2',
+    );
+    w.setDerivationPath(path);
+    w.setM(2);
+
+    assert.strictEqual(w.getCosignerPassphrase(1), '1');
+    assert.strictEqual(w.getCosignerPassphrase(2), '2');
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1qhlxgpu8deq24p3hgyh0f9zkj3uxzg2hcs4ccfy65cr9fg8vm30tqdlssmv');
+
+    assert.strictEqual(
+      w.convertXpubToMultisignatureXpub(
+        MultisigHDWallet.seedToXpub(w.getCosigner(1), w.getCustomDerivationPathForCosigner(1), w.getCosignerPassphrase(1)),
+      ),
+      'Zpub74GDyQuS45cpaH8C24Mfrk3Kvrtw78ZtX918Wj4T7dBQSW5BMcxiJAYh95Upjf9ywSbzomNf1SqVrzeZLpwxBjH488uWNaFWkXv1B93HRe7',
+    );
+
+    //
+
+    const w2 = new MultisigHDWallet();
+    w2.setSecret(w.getSecret());
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w2._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getExternalAddressByIndex(1), w2._getExternalAddressByIndex(1));
+    assert.strictEqual(w.getCosignerPassphrase(1), w2.getCosignerPassphrase(1));
+    assert.strictEqual(w.getCosignerPassphrase(2), w2.getCosignerPassphrase(2));
+
+    const w3coordinator = new MultisigHDWallet();
+    w3coordinator.setSecret(w.getXpub());
+    assert.strictEqual(w3coordinator.getFingerprint(1), '126CF4F5');
+    assert.strictEqual(
+      w3coordinator.getCosigner(1),
+      'Zpub74GDyQuS45cpaH8C24Mfrk3Kvrtw78ZtX918Wj4T7dBQSW5BMcxiJAYh95Upjf9ywSbzomNf1SqVrzeZLpwxBjH488uWNaFWkXv1B93HRe7',
+    );
+
+    assert.strictEqual(w._getExternalAddressByIndex(0), w3coordinator._getExternalAddressByIndex(0));
+    assert.strictEqual(w._getInternalAddressByIndex(0), w3coordinator._getInternalAddressByIndex(0));
   });
 
   it('can import descriptor from Sparrow', () => {
