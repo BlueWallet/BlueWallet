@@ -131,7 +131,7 @@ ToolTipMenu.propTypes = {
   onPressMenuItem: PropTypes.func.isRequired,
   isMenuPrimaryAction: PropTypes.bool,
   isButton: PropTypes.bool,
-  renderPreview: PropTypes.element,
+  renderPreview: PropTypes.func,
   onPress: PropTypes.func,
   previewValue: PropTypes.string,
   disabled: PropTypes.bool,
