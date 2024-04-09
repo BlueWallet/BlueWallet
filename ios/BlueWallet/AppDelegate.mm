@@ -30,22 +30,15 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
   config.appType = @"macOS";
   // Start Bugsnag with the configuration
   [Bugsnag startWithConfiguration:config];
+    [self copyDeviceUID];
+
 #else
   [Bugsnag start];
+  [self copyDeviceUID];
+
 #endif
   }
 
-
-  [self copyDeviceUID];
-  
-  [[NSUserDefaults standardUserDefaults] addObserver:self
-                                           forKeyPath:@"deviceUID"
-                                              options:NSKeyValueObservingOptionNew
-                                              context:NULL];
-  [[NSUserDefaults standardUserDefaults] addObserver:self
-                                           forKeyPath:@"deviceUIDCopy"
-                                              options:NSKeyValueObservingOptionNew
-                                              context:NULL];
   [self addSplashScreenView];
 
   self.moduleName = @"BlueWallet";
@@ -95,6 +88,14 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
 }
 
 - (void)copyDeviceUID {
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUID"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
+  [[NSUserDefaults standardUserDefaults] addObserver:self
+                                           forKeyPath:@"deviceUIDCopy"
+                                              options:NSKeyValueObservingOptionNew
+                                              context:NULL];
   NSString *deviceUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"deviceUID"];
   if (deviceUID && deviceUID.length > 0) {
     [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
