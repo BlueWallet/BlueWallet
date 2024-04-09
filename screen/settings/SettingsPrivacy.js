@@ -8,7 +8,7 @@ import loc from '../../loc';
 import DeviceQuickActions from '../../class/quick-actions';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import WidgetCommunication from '../../blue_modules/WidgetCommunication';
+import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import A from '../../blue_modules/analytics';
@@ -38,7 +38,7 @@ const SettingsPrivacy = () => {
         setIsReadClipboardAllowed(await BlueClipboard().isReadClipboardAllowed());
         setStorageIsEncrypted(await isStorageEncrypted());
         setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
-        setIsDisplayWidgetBalanceAllowed(await WidgetCommunication.isBalanceDisplayAllowed());
+        setIsDisplayWidgetBalanceAllowed(await isBalanceDisplayAllowed());
       } catch (e) {
         console.log(e);
       }
@@ -84,7 +84,7 @@ const SettingsPrivacy = () => {
   const onWidgetsTotalBalanceValueChange = async value => {
     setIsLoading(sections.WIDGETS);
     try {
-      await WidgetCommunication.setBalanceDisplayAllowed(value);
+      await setBalanceDisplayAllowed(value);
       setIsDisplayWidgetBalanceAllowed(value);
     } catch (e) {
       console.log(e);
