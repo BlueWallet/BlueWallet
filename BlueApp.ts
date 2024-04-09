@@ -5,8 +5,6 @@ import DefaultPreference from 'react-native-default-preference';
 import * as Keychain from 'react-native-keychain';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import Realm from 'realm';
-
-import * as BlueElectrum from './blue_modules/BlueElectrum';
 import { initCurrencyDaemon } from './blue_modules/currency';
 import * as encryption from './blue_modules/encryption';
 import {
@@ -37,7 +35,6 @@ import loc from './loc';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
-BlueElectrum.connectMain();
 
 export type TTXMetadata = {
   [txid: string]: {
