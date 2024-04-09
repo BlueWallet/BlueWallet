@@ -10,7 +10,7 @@ import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 
-import type BlueElectrumNs from '../../blue_modules/BlueElectrum';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
@@ -18,7 +18,6 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
-const BlueElectrum: typeof BlueElectrumNs = require('../../blue_modules/BlueElectrum');
 const bip32 = BIP32Factory(ecc);
 const bip47 = BIP47Factory(ecc);
 
@@ -319,7 +318,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     // next, batch fetching each txid we got
-    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs), true);
 
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
     // then we combine all this data (we need inputs to see source addresses and amounts)
@@ -330,7 +329,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
       }
     }
-    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
+    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true);
 
     // fetched all transactions from our inputs. now we need to combine it.
     // iterating all _our_ transactions:
@@ -1505,7 +1504,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const histories = await BlueElectrum.multiGetHistoryByAddress([address]);
     const txHashes = histories[address].map(({ tx_hash }) => tx_hash);
 
-    const txHexs = await BlueElectrum.multiGetTransactionByTxid(txHashes, 50, false);
+    const txHexs = await BlueElectrum.multiGetTransactionByTxid(txHashes, false);
     for (const txHex of Object.values(txHexs)) {
       try {
         const paymentCode = bip47_instance.getPaymentCodeFromRawNotificationTransaction(txHex);

@@ -140,7 +140,6 @@ export class LegacyWallet extends AbstractWallet {
       if (LegacyWallet.type !== this.type) return; // but only for LEGACY single-address wallets
       const txhexes = await BlueElectrum.multiGetTransactionByTxid(
         this._utxo.map(u => u.txid),
-        50,
         false,
       );
 
@@ -275,7 +274,7 @@ export class LegacyWallet extends AbstractWallet {
     // is safe because in that case our cache is filled
 
     // next, batch fetching each txid we got
-    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs), true);
     const transactions = Object.values(txdatas);
 
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
@@ -287,7 +286,7 @@ export class LegacyWallet extends AbstractWallet {
         // ^^^^ not all inputs have txid, some of them are Coinbase (newly-created coins)
       }
     }
-    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
+    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true);
 
     // fetched all transactions from our inputs. now we need to combine it.
     // iterating all _our_ transactions:

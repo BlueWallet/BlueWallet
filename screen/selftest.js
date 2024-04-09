@@ -24,9 +24,10 @@ import presentAlert from '../components/Alert';
 import * as encryption from '../blue_modules/encryption';
 import * as fs from '../blue_modules/fs';
 import SaveFileButton from '../components/SaveFileButton';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
 
 const BlueCrypto = require('react-native-blue-crypto');
-const BlueElectrum = require('../blue_modules/BlueElectrum');
+
 const bip32 = BIP32Factory(ecc);
 
 const styles = StyleSheet.create({
