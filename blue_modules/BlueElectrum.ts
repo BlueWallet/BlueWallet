@@ -8,6 +8,7 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } fro
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { reloadAllTimelines } from '../components/WidgetCommunication';
+import RNFS from 'react-native-fs';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
