@@ -32,11 +32,7 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
   [Bugsnag startWithConfiguration:config];
 #else
   [Bugsnag start];
-#endif
-  }
-
-
-  [self copyDeviceUID];
+    [self copyDeviceUID];
   
   [[NSUserDefaults standardUserDefaults] addObserver:self
                                            forKeyPath:@"deviceUID"
@@ -46,6 +42,9 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
                                            forKeyPath:@"deviceUIDCopy"
                                               options:NSKeyValueObservingOptionNew
                                               context:NULL];
+#endif
+  }
+
   [self addSplashScreenView];
 
   self.moduleName = @"BlueWallet";
