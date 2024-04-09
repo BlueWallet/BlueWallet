@@ -1,10 +1,11 @@
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import { Psbt } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput } from 'coinselect';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+
 const bip32 = BIP32Factory(ecc);
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
  * HD Wallet (BIP39).
@@ -70,7 +71,6 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     // now we need to fetch txhash for each input as required by PSBT
     const txhexes = await BlueElectrum.multiGetTransactionByTxid(
       this.getUtxo().map(x => x.txid),
-      50,
       false,
     );
 

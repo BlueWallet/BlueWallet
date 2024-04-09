@@ -16,7 +16,7 @@ import {
   BlueSpacing20,
   BlueTextCentered,
 } from '../../BlueComponents';
-import BlueElectrum from '../../blue_modules/BlueElectrum';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import Notifications from '../../blue_modules/notifications';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
