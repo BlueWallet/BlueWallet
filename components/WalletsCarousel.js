@@ -227,7 +227,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
               <Text
                 numberOfLines={1}
                 key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                ellipsizeMode='middle'
+                ellipsizeMode="middle"
                 style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
               >
                 {`${balance} `}
