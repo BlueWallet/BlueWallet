@@ -34,7 +34,13 @@ export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((pro
   );
 
   return props.onPress ? (
-    <TouchableOpacity accessibilityRole="button" style={[styles.button, { backgroundColor }]} {...props} ref={ref}>
+    <TouchableOpacity
+      disabled={props.disabled}
+      accessibilityRole="button"
+      style={[styles.button, { backgroundColor }]}
+      {...props}
+      ref={ref}
+    >
       {buttonView}
     </TouchableOpacity>
   ) : (

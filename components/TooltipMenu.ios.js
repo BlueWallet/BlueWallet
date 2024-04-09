@@ -42,12 +42,16 @@ const BaseToolTipMenu = (props, ref) => {
   const renderPreview = props.renderPreview ?? undefined;
   const disabled = props.disabled ?? false;
   const onPress = props.onPress ?? undefined;
+  const onMenuWillShow = props.onMenuWillShow ?? undefined;
+  const onMenuWillHide = props.onMenuWillHide ?? undefined;
 
   const buttonStyle = props.buttonStyle;
   return isButton ? (
     <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
       <ContextMenuButton
         ref={ref}
+        onMenuWillShow={onMenuWillShow}
+        onMenuWillHide={onMenuWillHide}
         useActionSheetFallback={false}
         onPressMenuItem={({ nativeEvent }) => {
           props.onPressMenuItem(nativeEvent.actionKey);

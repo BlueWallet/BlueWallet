@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   delete: {
-    color: '#d0021b',
     fontSize: 15,
     fontWeight: '500',
     textAlign: 'center',
@@ -147,6 +146,10 @@ const WalletDetails = () => {
     }
   }, [wallet]);
   const [lightningWalletInfo, setLightningWalletInfo] = useState({});
+  const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState(false);
+
+  const onMenuWillShow = () => setIsToolTipMenuVisible(true);
+  const onMenuWillHide = () => setIsToolTipMenuVisible(false);
 
   useEffect(() => {
     if (isAdvancedModeEnabledRender && wallet.allowMasterFingerprint()) {
@@ -176,6 +179,9 @@ const WalletDetails = () => {
     },
     saveText: {
       color: colors.buttonTextColor,
+    },
+    delete: {
+      color: isToolTipMenuVisible ? colors.buttonDisabledTextColor : '#d0021b',
     },
   });
   useEffect(() => {
@@ -216,7 +222,7 @@ const WalletDetails = () => {
         <TouchableOpacity
           accessibilityRole="button"
           testID="Save"
-          disabled={isLoading}
+          disabled={isLoading || isToolTipMenuVisible}
           style={[styles.save, stylesHook.save]}
           onPress={save}
         >
@@ -225,7 +231,7 @@ const WalletDetails = () => {
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled]);
+  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled, isToolTipMenuVisible]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
@@ -594,7 +600,11 @@ const WalletDetails = () => {
                 </Text>
                 <View style={styles.hardware}>
                   <BlueText onPress={() => setBackdoorBip47Pressed(prevState => prevState + 1)}>{loc.wallets.details_display}</BlueText>
-                  <Switch value={hideTransactionsInWalletsList} onValueChange={setHideTransactionsInWalletsList} />
+                  <Switch
+                    disabled={isToolTipMenuVisible}
+                    value={hideTransactionsInWalletsList}
+                    onValueChange={setHideTransactionsInWalletsList}
+                  />
                 </View>
               </>
               <>
@@ -647,17 +657,27 @@ const WalletDetails = () => {
               </View>
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
-              <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+              <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
             {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
-                <Button onPress={navigateToWalletExport} testID="WalletExport" title={loc.wallets.details_export_backup} />
+                <Button
+                  disabled={isToolTipMenuVisible}
+                  onPress={navigateToWalletExport}
+                  testID="WalletExport"
+                  title={loc.wallets.details_export_backup}
+                />
                 {walletTransactionsLength > 0 && (
                   <>
                     <BlueSpacing20 />
-                    <SaveFileButton fileName={fileName} fileContent={exportHistoryContent()}>
+                    <SaveFileButton
+                      onMenuWillHide={onMenuWillHide}
+                      onMenuWillShow={onMenuWillShow}
+                      fileName={fileName}
+                      fileContent={exportHistoryContent()}
+                    >
                       <SecondButton title={loc.wallets.details_export_history} />
                     </SaveFileButton>
                   </>
@@ -666,6 +686,7 @@ const WalletDetails = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton
+                      disabled={isToolTipMenuVisible}
                       onPress={navigateToMultisigCoordinationSetup}
                       testID="MultisigCoordinationSetup"
                       title={loc.multisig.export_coordination_setup.replace(/^\w/, c => c.toUpperCase())}
@@ -677,6 +698,7 @@ const WalletDetails = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton
+                      disabled={isToolTipMenuVisible}
                       onPress={navigateToViewEditCosigners}
                       testID="ViewEditCosigners"
                       title={loc.multisig.view_edit_cosigners}
@@ -687,25 +709,48 @@ const WalletDetails = () => {
                 {wallet.allowXpub() && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={navigateToXPub} testID="XPub" title={loc.wallets.details_show_xpub} />
+                    <SecondButton
+                      disabled={isToolTipMenuVisible}
+                      onPress={navigateToXPub}
+                      testID="XPub"
+                      title={loc.wallets.details_show_xpub}
+                    />
                   </>
                 )}
                 {wallet.allowSignVerifyMessage() && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
+                    <SecondButton
+                      disabled={isToolTipMenuVisible}
+                      onPress={navigateToSignVerify}
+                      testID="SignVerify"
+                      title={loc.addresses.sign_title}
+                    />
                   </>
                 )}
                 {wallet.type === LightningLdkWallet.type && (
                   <>
                     <BlueSpacing20 />
-                    <SecondButton onPress={navigateToLdkViewLogs} testID="LdkLogs" title={loc.lnd.view_logs} />
+                    <SecondButton
+                      disabled={isToolTipMenuVisible}
+                      onPress={navigateToLdkViewLogs}
+                      testID="LdkLogs"
+                      title={loc.lnd.view_logs}
+                    />
                   </>
                 )}
                 <BlueSpacing20 />
                 <BlueSpacing20 />
-                <TouchableOpacity accessibilityRole="button" onPress={handleDeleteButtonTapped} testID="DeleteButton">
-                  <Text textBreakStrategy="simple" style={styles.delete}>{`${loc.wallets.details_delete}${'  '}`}</Text>
+                <TouchableOpacity
+                  disabled={isToolTipMenuVisible}
+                  accessibilityRole="button"
+                  onPress={handleDeleteButtonTapped}
+                  testID="DeleteButton"
+                >
+                  <Text
+                    textBreakStrategy="simple"
+                    style={[styles.delete, stylesHook.delete]}
+                  >{`${loc.wallets.details_delete}${'  '}`}</Text>
                 </TouchableOpacity>
                 <BlueSpacing20 />
                 <BlueSpacing20 />
