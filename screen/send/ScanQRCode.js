@@ -6,6 +6,7 @@ import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View }
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
+import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 
 import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import * as fs from '../../blue_modules/fs';
@@ -17,8 +18,6 @@ import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import Base43 from '../../blue_modules/base43';
-
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 let decoder = false;
 
