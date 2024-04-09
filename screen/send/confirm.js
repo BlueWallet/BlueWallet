@@ -3,6 +3,9 @@ import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
 import PropTypes from 'prop-types';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueText, BlueCard } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -19,8 +22,6 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-const Bignumber = require('bignumber.js');
-const bitcoin = require('bitcoinjs-lib');
 
 const Confirm = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
@@ -31,7 +32,7 @@ const Confirm = () => {
   const [isPayjoinEnabled, setIsPayjoinEnabled] = useState(false);
   const wallet = wallets.find(w => w.getID() === walletID);
   const payjoinUrl = wallet.allowPayJoin() ? params.payjoinUrl : false;
-  const feeSatoshi = new Bignumber(fee).multipliedBy(100000000).toNumber();
+  const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { navigate, setOptions } = useNavigation();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({

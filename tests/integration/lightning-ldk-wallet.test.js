@@ -1,6 +1,6 @@
 import { LightningLdkWallet } from '../../class';
 import SyncedAsyncStorage from '../../class/synced-async-storage';
-const assert = require('assert');
+import assert from 'assert';
 
 describe('', () => {
   // eslint-disable-next-line jest/no-disabled-tests

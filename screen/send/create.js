@@ -6,6 +6,8 @@ import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -18,7 +20,6 @@ import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
 import { useTheme } from '../../components/themes';
 import { satoshiToBTC } from '../../blue_modules/currency';
 import usePrivacy from '../../hooks/usePrivacy';
-const bitcoin = require('bitcoinjs-lib');
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;

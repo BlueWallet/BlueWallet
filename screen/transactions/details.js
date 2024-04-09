@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import dayjs from 'dayjs';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -13,7 +14,6 @@ import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;

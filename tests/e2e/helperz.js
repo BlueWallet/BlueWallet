@@ -1,4 +1,4 @@
-const createHash = require('create-hash');
+import createHash from 'create-hash';
 
 export function yo(id, timeout = 33000) {
   return waitFor(element(by.id(id)))
