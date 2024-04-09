@@ -902,17 +902,17 @@ export class AppStorage {
   }
 
   async deleteRealmFilesFromDefaultDirectory() {
-    const cachesPath = RNFS.CachesDirectoryPath; // Path to caches folder
+    const documentPath = RNFS.DocumentDirectoryPath; // Path to documentPath folder
     try {
-      if (!(await RNFS.exists(cachesPath))) return; // If the caches directory does not exist, return (nothing to delete)
-      const files = await RNFS.readDir(cachesPath); // Read all files in caches directory
-      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to delete
+      if (!(await RNFS.exists(documentPath))) return; // If the documentPath directory does not exist, return (nothing to delete)
+      const files = await RNFS.readDir(documentPath); // Read all files in documentPath directory
+      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to delete)
       const appRealmFiles = files.filter(
         file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
       );
 
       for (const file of appRealmFiles) {
-        const filePath = `${cachesPath}/${file.name}`;
+        const filePath = `${documentPath}/${file.name}`;
         const fileExists = await RNFS.exists(filePath); // Check if the file exists
         if (fileExists) {
           await RNFS.unlink(filePath); // Delete the file if it exists
