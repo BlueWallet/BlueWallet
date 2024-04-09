@@ -259,15 +259,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   /**
    * Stored cosigner can be EITHER xpub (or Zpub or smth), OR mnemonic phrase. This method converts it to xpub
    *
-   * @param cosigner {string} Zpub (or similar) or mnemonic seed
+   * @param index {number}
    * @returns {string} xpub
    * @private
    */
-  _getXpubFromCosigner(cosigner: string) {
+  protected _getXpubFromCosignerIndex(index: number) {
+    let cosigner: string = this._cosigners[index];
     if (MultisigHDWallet.isXprvString(cosigner)) cosigner = MultisigHDWallet.convertXprvToXpub(cosigner);
     let xpub = cosigner;
     if (!MultisigHDWallet.isXpubString(cosigner)) {
-      const index = this._cosigners.indexOf(cosigner);
       xpub = MultisigHDWallet.seedToXpub(
         cosigner,
         this._cosignersCustomPaths[index] || this._derivationPath,
@@ -289,12 +289,12 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
   _getAddressFromNode(nodeIndex: number, index: number) {
     const pubkeys = [];
-    for (const [cosignerIndex, cosigner] of this._cosigners.entries()) {
+    for (const [cosignerIndex] of this._cosigners.entries()) {
       this._nodes[nodeIndex] = this._nodes[nodeIndex] || [];
       let _node;
 
       if (!this._nodes[nodeIndex][cosignerIndex]) {
-        const xpub = this._getXpubFromCosigner(cosigner);
+        const xpub = this._getXpubFromCosignerIndex(cosignerIndex);
         const hdNode = bip32.fromBase58(xpub);
         _node = hdNode.derive(nodeIndex);
         this._nodes[nodeIndex][cosignerIndex] = _node;
@@ -725,7 +725,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Buffer) {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const pubkeys = [];
-    for (const [cosignerIndex, cosigner] of this._cosigners.entries()) {
+    for (const [cosignerIndex] of this._cosigners.entries()) {
       if (!input.address) {
         throw new Error('Could not find address in input');
       }
@@ -740,7 +740,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         throw new Error('Could not find derivation path for address ' + input.address);
       }
 
-      const xpub = this._getXpubFromCosigner(cosigner);
+      const xpub = this._getXpubFromCosignerIndex(cosignerIndex);
       const hdNode0 = bip32.fromBase58(xpub);
       const splt = path.split('/');
       const internal = +splt[splt.length - 2];
@@ -837,7 +837,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   _getOutputDataForChange(address: string): TOutputData {
     const bip32Derivation: TBip32Derivation = []; // array per each pubkey thats gona be used
     const pubkeys = [];
-    for (const [cosignerIndex, cosigner] of this._cosigners.entries()) {
+    for (const [cosignerIndex] of this._cosigners.entries()) {
       const path = this._getDerivationPathByAddressWithCustomPath(
         address,
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
@@ -849,7 +849,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         throw new Error('Could not find derivation path for address ' + address);
       }
 
-      const xpub = this._getXpubFromCosigner(cosigner);
+      const xpub = this._getXpubFromCosignerIndex(cosignerIndex);
       const hdNode0 = bip32.fromBase58(xpub);
       const splt = path.split('/');
       const internal = +splt[splt.length - 2];
