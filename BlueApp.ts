@@ -236,12 +236,12 @@ export class AppStorage {
    * Database file is deterministically derived from encryption key.
    */
   async getRealm() {
-    const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
+    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
     const encryptionKey = Int8Array.from(buf);
     const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
-    const path = `${tempFolderPath}/${fileName}`; // Use temporary folder path
+    const path = `${cacheFolderPath}/${fileName}`; // Use cache folder path
 
     const schema = [
       {
@@ -270,7 +270,7 @@ export class AppStorage {
    * @returns {Promise<Realm>}
    */
   async openRealmKeyValue(): Promise<Realm> {
-    const tempFolderPath = RNFS.TemporaryDirectoryPath; // Path to temporary folder
+    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const service = 'realm_encryption_key';
     let password;
     const credentials = await Keychain.getGenericPassword({ service });
@@ -284,7 +284,7 @@ export class AppStorage {
 
     const buf = Buffer.from(password, 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = `${tempFolderPath}/keyvalue.realm`; // Use temporary folder path
+    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
 
     const schema = [
       {
