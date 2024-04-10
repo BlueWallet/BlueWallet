@@ -9,9 +9,7 @@ import { LightningCustodianWallet, WatchOnlyWallet } from './';
 import Azteco from './azteco';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
-
-const BlueApp = require('../BlueApp');
-const AppStorage = BlueApp.AppStorage;
+import { AppStorage } from '../BlueApp';
 
 type TCompletionHandlerParams = [string, object];
 type TContext = {

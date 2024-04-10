@@ -9,8 +9,8 @@ import {
   helperCreateWallet,
   helperSwitchAdvancedMode,
 } from './helperz';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
+import * as bitcoin from 'bitcoinjs-lib';
+import assert from 'assert';
 
 /**
  * this testsuite is for test cases that require no wallets to be present
