@@ -20,7 +20,10 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
   })
     .catch(error => {
       console.log(error);
-      presentAlert({ message: error.message });
+      // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
+      if (error.message !== 'CANCELLED') {
+        presentAlert({ message: error.message });
+      }
     })
     .finally(() => {
       RNFS.unlink(filePath);

@@ -38,7 +38,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
     const action = actions.find(a => a.id === actionId);
 
     if (action?.id === 'save') {
-      await fs.writeFileAndExport(fileName, fileContent, false, Platform.OS !== 'android').finally(() => {
+      await fs.writeFileAndExport(fileName, fileContent, Platform.OS !== 'android').finally(() => {
         afterOnPress?.(); // Safely call afterOnPress if it exists
       });
     } else if (action?.id === 'share') {
