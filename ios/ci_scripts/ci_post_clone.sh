@@ -20,6 +20,6 @@ echo "===== Running pod install ====="
 cd ios
 pod install | tee pod-install-log.txt
 echo "pod install complete. Full log output in pod-install-log.txt"
-cd ..
+
 
 echo "===== Installation and Setup Complete ====="
