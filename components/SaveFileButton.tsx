@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Platform, StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
