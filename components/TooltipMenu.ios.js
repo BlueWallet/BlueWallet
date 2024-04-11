@@ -1,7 +1,7 @@
-import React, { forwardRef } from 'react';
-import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
 import PropTypes from 'prop-types';
+import React, { forwardRef } from 'react';
 import { TouchableOpacity } from 'react-native';
+import { ContextMenuButton, ContextMenuView } from 'react-native-ios-context-menu';
 
 const BaseToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {

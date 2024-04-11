@@ -1,4 +1,4 @@
-import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo } from './helperz';
+import { hashIt, helperDeleteWallet, helperImportWallet, sleep, sup, yo } from './helperz';
 
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage

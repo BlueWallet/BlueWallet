@@ -1,10 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { PaymentCodeStackParamList } from '../../Navigation';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc from '../../loc';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import loc from '../../loc';
+import { PaymentCodeStackParamList } from '../../Navigation';
 
 interface DataSection {
   title: string;

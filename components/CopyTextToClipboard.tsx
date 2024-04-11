@@ -1,6 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useState, useEffect, forwardRef } from 'react';
-import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import React, { forwardRef, useEffect, useState } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+
 import loc from '../loc';
 
 type CopyTextToClipboardProps = {

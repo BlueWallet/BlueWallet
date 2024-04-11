@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
+import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import AmountInput from '../../components/AmountInput';
-import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
-import Biometric from '../../class/biometrics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import Biometric from '../../class/biometrics';
+import Lnurl from '../../class/lnurl';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value

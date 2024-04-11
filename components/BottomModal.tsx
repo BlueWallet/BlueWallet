@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Platform, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Modal from 'react-native-modal';
+
 import { BlueSpacing10 } from '../BlueComponents';
 import loc from '../loc';
-import { useTheme } from './themes';
 import Button from './Button';
+import { useTheme } from './themes';
 
 const styles = StyleSheet.create({
   root: {

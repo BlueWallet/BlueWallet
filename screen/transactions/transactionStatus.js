@@ -1,23 +1,23 @@
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Transaction } from '../../class';
+import Button from '../../components/Button';
+import HandOffComponent from '../../components/HandOffComponent';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import navigationStyle from '../../components/navigationStyle';
-import HandOffComponent from '../../components/HandOffComponent';
-import { HDSegwitBech32Transaction } from '../../class';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const buttonStatus = Object.freeze({
   possible: 1,

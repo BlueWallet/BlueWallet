@@ -1,14 +1,15 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { View, Linking, StyleSheet, Image, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native';
+
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import Lnurl from '../../class/lnurl';
+import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
-import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 
 export default class LnurlPaySuccess extends Component {
   constructor(props) {

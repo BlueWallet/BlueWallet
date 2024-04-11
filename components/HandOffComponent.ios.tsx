@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 // @ts-ignore: react-native-handoff is not in the type definition
 import Handoff from 'react-native-handoff';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
 
 interface HandOffComponentProps {

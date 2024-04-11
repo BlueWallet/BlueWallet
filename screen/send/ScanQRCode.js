@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
+import React, { useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from 'react-native-elements';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
+import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import Base43 from '../../blue_modules/base43';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 

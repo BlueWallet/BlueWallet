@@ -1,5 +1,6 @@
 import bitcoin from 'bitcoinjs-lib';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
+
 import { HDAezeedWallet } from './hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';

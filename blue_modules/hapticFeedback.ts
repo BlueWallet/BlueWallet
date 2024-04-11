@@ -1,5 +1,5 @@
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import DeviceInfo, { PowerState } from 'react-native-device-info';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 // Define a const enum for HapticFeedbackTypes
 export const enum HapticFeedbackTypes {

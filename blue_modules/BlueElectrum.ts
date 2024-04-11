@@ -4,10 +4,11 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Alert } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import Realm from 'realm';
+
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
-import loc from '../loc';
 import { reloadAllTimelines } from '../components/WidgetCommunication';
+import loc from '../loc';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');

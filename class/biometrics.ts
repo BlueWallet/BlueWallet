@@ -3,10 +3,11 @@ import { Alert, Platform } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import PasscodeAuth from 'react-native-passcode-auth';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
-import loc from '../loc';
-import * as NavigationService from '../NavigationService';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import presentAlert from '../components/Alert';
+import loc from '../loc';
+import * as NavigationService from '../NavigationService';
 
 const STORAGEKEY = 'Biometrics';
 

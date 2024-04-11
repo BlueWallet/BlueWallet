@@ -1,39 +1,39 @@
+import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  SectionList,
-  Platform,
-  Image,
   Dimensions,
-  useWindowDimensions,
   findNodeHandle,
   I18nManager,
+  Image,
   InteractionManager,
+  Platform,
+  SectionList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueHeaderDefaultMain } from '../../BlueComponents';
-import WalletsCarousel from '../../components/WalletsCarousel';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isTablet } from '../../blue_modules/environment';
-import BlueClipboard from '../../blue_modules/clipboard';
-import navigationStyle from '../../components/navigationStyle';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import A from '../../blue_modules/analytics';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueHeaderDefaultMain } from '../../BlueComponents';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import WalletsCarousel from '../../components/WalletsCarousel';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import ActionSheet from '../ActionSheet';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 

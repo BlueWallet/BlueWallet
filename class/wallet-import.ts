@@ -1,6 +1,7 @@
-import wif from 'wif';
 import bip38 from 'bip38';
+import wif from 'wif';
 
+import loc from '../loc';
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,
@@ -13,17 +14,16 @@ import {
   LightningCustodianWallet,
   LightningLdkWallet,
   MultisigHDWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
   SLIP39SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '.';
-import type { TWallet } from './wallets/types';
-import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
+import type { TWallet } from './wallets/types';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;

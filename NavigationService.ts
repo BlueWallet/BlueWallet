@@ -1,4 +1,4 @@
-import { createNavigationContainerRef, ParamListBase, NavigationAction } from '@react-navigation/native';
+import { createNavigationContainerRef, NavigationAction, ParamListBase } from '@react-navigation/native';
 
 export const navigationRef = createNavigationContainerRef<ParamListBase>();
 

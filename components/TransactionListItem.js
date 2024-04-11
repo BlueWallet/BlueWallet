@@ -1,15 +1,12 @@
 /* eslint react/prop-types: "off" */
-import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
-import { BitcoinUnit } from '../models/bitcoinUnits';
-import * as NavigationService from '../NavigationService';
-import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
-import Lnurl from '../class/lnurl';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Linking, StyleSheet, View } from 'react-native';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import ToolTipMenu from './TooltipMenu';
+import Lnurl from '../class/lnurl';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
 import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
 import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
@@ -17,8 +14,12 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
-import { useTheme } from './themes';
+import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import * as NavigationService from '../NavigationService';
 import ListItem from './ListItem';
+import { useTheme } from './themes';
+import ToolTipMenu from './TooltipMenu';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);

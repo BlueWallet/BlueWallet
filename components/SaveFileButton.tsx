@@ -1,8 +1,9 @@
 import React, { ReactNode } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
-import ToolTipMenu from './TooltipMenu';
+
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
+import ToolTipMenu from './TooltipMenu';
 const fs = require('../blue_modules/fs');
 
 interface SaveFileButtonProps {

@@ -1,18 +1,19 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LottieView from 'lottie-react-native';
-import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import BottomModal from '../../components/BottomModal';
-import { MultisigHDWallet } from '../../class';
-import loc from '../../loc';
+import LottieView from 'lottie-react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing20 } from '../../BlueComponents';
+import { MultisigHDWallet } from '../../class';
+import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();

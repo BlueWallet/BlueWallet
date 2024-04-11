@@ -1,15 +1,15 @@
-import assert from 'assert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import assert from 'assert';
 
-import { FiatUnit } from '../../models/fiatUnit';
 import {
   EXCHANGE_RATES_STORAGE_KEY,
-  LAST_UPDATED,
-  PREFERRED_CURRENCY_STORAGE_KEY,
   getPreferredCurrency,
   initCurrencyDaemon,
+  LAST_UPDATED,
+  PREFERRED_CURRENCY_STORAGE_KEY,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
+import { FiatUnit } from '../../models/fiatUnit';
 
 jest.setTimeout(90 * 1000);
 

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { I18nManager, ActivityIndicator, TouchableOpacity, Switch, StyleSheet, Pressable, PressableProps } from 'react-native';
-import { ListItem as RNElementsListItem, Avatar } from 'react-native-elements'; // Replace with actual import paths
+import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { Avatar, ListItem as RNElementsListItem } from 'react-native-elements'; // Replace with actual import paths
+
 import { useTheme } from './themes';
 
 // Update the type for the props

@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
-import { ScrollView, StyleSheet, Platform } from 'react-native';
-import { BlueHeaderDefaultSub } from '../../BlueComponents';
-import loc from '../../loc';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueHeaderDefaultSub } from '../../BlueComponents';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

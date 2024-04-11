@@ -6,22 +6,22 @@ import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, Tex
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
-import SafeArea from '../../components/SafeArea';
-import { SecondButton } from '../../components/SecondButton';
 import navigationStyle from '../../components/navigationStyle';
+import SafeArea from '../../components/SafeArea';
+import SaveFileButton from '../../components/SaveFileButton';
+import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import SaveFileButton from '../../components/SaveFileButton';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);

@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Icon } from 'react-native-elements';
+
 import { useTheme } from './themes';
 
 // Define an interface for the props

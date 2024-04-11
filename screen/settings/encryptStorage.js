@@ -1,16 +1,17 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
-import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
-import Biometric from '../../class/biometrics';
-import loc from '../../loc';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
+import loc from '../../loc';
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useContext(BlueStorageContext);

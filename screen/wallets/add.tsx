@@ -11,25 +11,25 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  View,
   useColorScheme,
+  View,
 } from 'react-native';
 
-import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { AppStorage } from '../../BlueApp';
+import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
+import WalletButton from '../../components/WalletButton';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
-import { AppStorage } from '../../BlueApp';
-import WalletButton from '../../components/WalletButton';
-import A from '../../blue_modules/analytics';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update

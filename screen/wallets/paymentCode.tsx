@@ -1,10 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PaymentCodeStackParamList } from '../../Navigation';
+
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import loc from '../../loc';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import { PaymentCodeStackParamList } from '../../Navigation';
 
 type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCode'>;
 

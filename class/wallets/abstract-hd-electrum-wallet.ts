@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
+import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';

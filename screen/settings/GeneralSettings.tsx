@@ -1,10 +1,10 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';

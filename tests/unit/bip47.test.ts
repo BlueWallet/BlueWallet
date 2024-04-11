@@ -1,10 +1,10 @@
 import BIP47Factory from '@spsina/bip47';
-import ecc from 'tiny-secp256k1';
 import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+import { ECPairFactory } from 'ecpair';
+import ecc from 'tiny-secp256k1';
 
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-import { ECPairFactory } from 'ecpair';
-import * as bitcoin from 'bitcoinjs-lib';
 
 const ECPair = ECPairFactory(ecc);
 

@@ -1,8 +1,9 @@
-import React, { createContext, useEffect, useState } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import React, { createContext, useEffect, useState } from 'react';
 
-import BlueApp, { TTXMetadata, startAndDecrypt } from '../BlueApp';
+import A from '../blue_modules/analytics';
 import Notifications from '../blue_modules/notifications';
+import BlueApp, { startAndDecrypt, TTXMetadata } from '../BlueApp';
 import { LegacyWallet, WatchOnlyWallet } from '../class';
 import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
@@ -11,7 +12,6 @@ import { FiatUnit, TFiatUnit } from '../models/fiatUnit';
 import * as BlueElectrum from './BlueElectrum';
 import { PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
-import A from '../blue_modules/analytics';
 
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};

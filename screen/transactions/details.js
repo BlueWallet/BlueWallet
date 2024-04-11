@@ -1,18 +1,19 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import dayjs from 'dayjs';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import HandOffComponent from '../../components/HandOffComponent';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import ToolTipMenu from '../../components/TooltipMenu';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import { Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import HandOffComponent from '../../components/HandOffComponent';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
+import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 function onlyUnique(value, index, self) {

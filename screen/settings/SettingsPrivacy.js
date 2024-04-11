@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 
-import navigationStyle from '../../components/navigationStyle';
-import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
-import loc from '../../loc';
-import DeviceQuickActions from '../../class/quick-actions';
+import A from '../../blue_modules/analytics';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
-import { useTheme } from '../../components/themes';
+import { BlueCard, BlueHeaderDefaultSub, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import DeviceQuickActions from '../../class/quick-actions';
 import ListItem from '../../components/ListItem';
-import A from '../../blue_modules/analytics';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
+import loc from '../../loc';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();

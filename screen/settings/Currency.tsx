@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import React, { useContext, useLayoutEffect, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
-import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
+
 import {
   CurrencyRate,
   getPreferredCurrency,
@@ -11,6 +11,7 @@ import {
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';

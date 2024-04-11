@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 import { useTheme } from './themes';
 
 export const StyledButtonType: Record<string, string> = { default: 'default', destroy: 'destroy', grey: 'grey' };
@@ -11,12 +12,7 @@ interface StyledButtonProps {
   buttonStyle?: keyof typeof StyledButtonType;
 }
 
-const StyledButton: FC<StyledButtonProps> = ({
-  onPress,
-  text,
-  disabled = false,
-  buttonStyle = StyledButtonType.default
-}) => {
+const StyledButton: FC<StyledButtonProps> = ({ onPress, text, disabled = false, buttonStyle = StyledButtonType.default }) => {
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     buttonGrey: {
@@ -26,8 +22,8 @@ const StyledButton: FC<StyledButtonProps> = ({
       color: colors.buttonTextColor,
     },
     container: {
-      opacity: disabled ? 0.5 : 1.0
-    }
+      opacity: disabled ? 0.5 : 1.0,
+    },
   });
   const textStyles = () => {
     if (buttonStyle === StyledButtonType.grey) {

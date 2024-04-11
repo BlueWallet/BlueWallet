@@ -1,13 +1,12 @@
 // import assert from 'assert';
-import { ECPairFactory } from 'ecpair';
-
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BIP47Factory from '@spsina/bip47';
 import assert from 'assert';
-
 import * as bitcoin from 'bitcoinjs-lib';
+import { ECPairFactory } from 'ecpair';
 import ecc from 'tiny-secp256k1';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
 const ECPair = ECPairFactory(ecc);
 
 jest.setTimeout(90 * 1000);

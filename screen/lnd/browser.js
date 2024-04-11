@@ -1,15 +1,15 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { Component } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button } from 'react-native-elements';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { WebView } from 'react-native-webview';
 
-import navigationStyle from '../../components/navigationStyle';
 import Notifications from '../../blue_modules/notifications';
-import loc from '../../loc';
-import { Button } from 'react-native-elements';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import loc from '../../loc';
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;

@@ -1,5 +1,6 @@
-import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
 import assert from 'assert';
+
+import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
 
 describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
   it('wont accept BIP39 seed', () => {

@@ -1,7 +1,8 @@
-import React, { useEffect, useContext } from 'react';
-import * as NavigationService from '../NavigationService';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import React, { useContext, useEffect } from 'react';
 import { NativeEventEmitter, NativeModules } from 'react-native';
+
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import * as NavigationService from '../NavigationService';
 import HandOffComponent from './HandOffComponent.ios';
 
 interface UserActivityData {

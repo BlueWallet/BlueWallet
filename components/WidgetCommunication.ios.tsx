@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 // @ts-ignore: fix later
 import RNWidgetCenter from 'react-native-widget-center';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { TWallet } from '../class/wallets/types';
 
