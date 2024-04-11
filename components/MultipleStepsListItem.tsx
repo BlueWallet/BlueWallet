@@ -1,25 +1,49 @@
-import React, { useRef } from 'react';
-
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, findNodeHandle } from 'react-native';
-import PropTypes from 'prop-types';
+import React, { FC, useRef } from 'react';
+import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, findNodeHandle, StyleProp } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useTheme } from './themes';
-import ActionSheetOptions from '../screen/ActionSheet.common';
+import { ActionSheetOptions } from '../screen/ActionSheet.common';
 import ActionSheet from '../screen/ActionSheet';
+
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
 
-const MultipleStepsListItem = props => {
+interface MultipleStepsListItemProps {
+  circledText?: string;
+  checked?: boolean;
+  leftText?: string;
+  showActivityIndicator?: boolean;
+  useActionSheet?: boolean;
+  actionSheetOptions?: ActionSheetOptions;
+  dashes?: number;
+  button?: {
+    text: string;
+    onPress: (arg: any) => void;
+    disabled: boolean;
+    buttonType: number;
+    leftText?: string;
+    testID?: string;
+  };
+  rightButton?: {
+    text: string;
+    onPress: () => void;
+    disabled: boolean;
+  };
+}
+
+const MultipleStepsListItem: FC<MultipleStepsListItemProps> = ({
+  showActivityIndicator = false,
+  dashes = MultipleStepsListItemDashType.none,
+  circledText = '',
+  leftText = '',
+  checked = false,
+  useActionSheet = false,
+  actionSheetOptions = null, // Default to null or appropriate default
+  button,
+  rightButton
+}) => {
   const { colors } = useTheme();
-  const {
-    showActivityIndicator = false,
-    dashes = MultipleStepsListItemDashType.none,
-    circledText = '',
-    leftText = '',
-    checked = false,
-    useActionSheet = false,
-    actionSheetOptions = null, // Default to null or appropriate default
-  } = props;
+
   const stylesHook = StyleSheet.create({
     provideKeyButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -57,8 +81,8 @@ const MultipleStepsListItem = props => {
 
       ActionSheet.showActionSheetWithOptions(modifiedOptions, buttonIndex => {
         // Call the original onPress function, if provided, and not cancelled
-        if (buttonIndex !== -1 && props.button.onPress) {
-          props.button.onPress(buttonIndex);
+        if (buttonIndex !== -1 && button?.onPress) {
+          button.onPress(buttonIndex);
         }
       });
     }
@@ -103,10 +127,11 @@ const MultipleStepsListItem = props => {
         return {};
     }
   };
-  const buttonOpacity = { opacity: props.button?.disabled ? 0.5 : 1.0 };
-  const rightButtonOpacity = { opacity: props.rightButton?.disabled ? 0.5 : 1.0 };
+  const buttonOpacity = { opacity: button?.disabled ? 0.5 : 1.0 };
+  const rightButtonOpacity = { opacity: rightButton?.disabled ? 0.5 : 1.0 };
   return (
     <View>
+      {/* @ts-ignore */}
       <View style={renderDashes()} />
       <View style={styles.container}>
         <View style={styles.itemKeyUnprovidedWrapper}>
@@ -128,78 +153,56 @@ const MultipleStepsListItem = props => {
           )}
           {showActivityIndicator && <ActivityIndicator style={styles.activityIndicator} />}
         </View>
-        {!showActivityIndicator && props.button && (
+        {!showActivityIndicator && button && (
           <>
-            {props.button.buttonType === undefined ||
-              (props.button.buttonType === MultipleStepsListItemButtohType.full && (
+            {button.buttonType === undefined ||
+              (button.buttonType === MultipleStepsListItemButtohType.full && (
                 <TouchableOpacity
                   ref={useActionSheet ? selfRef : null}
-                  testID={props.button.testID}
+                  testID={button.testID}
                   accessibilityRole="button"
-                  disabled={props.button.disabled}
+                  disabled={button.disabled}
                   style={[styles.provideKeyButton, stylesHook.provideKeyButton, buttonOpacity]}
-                  onPress={useActionSheet ? handleOnPressForActionSheet : props.button.onPress}
+                  onPress={useActionSheet ? handleOnPressForActionSheet : button.onPress}
                 >
-                  <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.button.text}</Text>
+                  <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{button.text}</Text>
                 </TouchableOpacity>
               ))}
-            {props.button.buttonType === MultipleStepsListItemButtohType.partial && (
+            {button.buttonType === MultipleStepsListItemButtohType.partial && (
               <View style={styles.buttonPartialContainer}>
                 <Text numberOfLines={1} style={[styles.rowPartialLeftText, stylesHook.rowPartialLeftText]} lineBreakMode="middle">
-                  {props.button.leftText}
+                  {button.leftText}
                 </Text>
                 <TouchableOpacity
-                  testID={props.button.testID}
+                  testID={button.testID}
                   accessibilityRole="button"
-                  disabled={props.button.disabled}
+                  disabled={button.disabled}
                   style={[styles.rowPartialRightButton, stylesHook.provideKeyButton, rightButtonOpacity]}
-                  onPress={props.button.onPress}
+                  onPress={button.onPress}
                 >
                   <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText, styles.rightButton]}>
-                    {props.button.text}
+                    {button.text}
                   </Text>
                 </TouchableOpacity>
               </View>
             )}
           </>
         )}
-        {!showActivityIndicator && props.rightButton && checked && (
+        {!showActivityIndicator && rightButton && checked && (
           <View style={styles.rightButtonContainer}>
             <TouchableOpacity
               accessibilityRole="button"
-              disabled={props.rightButton.disabled}
+              disabled={rightButton.disabled}
               style={styles.rightButton}
-              onPress={props.rightButton.onPress}
+              onPress={rightButton.onPress}
             >
-              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{props.rightButton.text}</Text>
+              <Text style={[styles.provideKeyButtonText, stylesHook.provideKeyButtonText]}>{rightButton.text}</Text>
             </TouchableOpacity>
           </View>
         )}
       </View>
     </View>
   );
-};
-
-MultipleStepsListItem.propTypes = {
-  circledText: PropTypes.string,
-  checked: PropTypes.bool,
-  leftText: PropTypes.string,
-  showActivityIndicator: PropTypes.bool,
-  useActionSheet: PropTypes.bool,
-  actionSheetOptions: PropTypes.shape(ActionSheetOptions),
-  dashes: PropTypes.number,
-  button: PropTypes.shape({
-    text: PropTypes.string,
-    onPress: PropTypes.func,
-    disabled: PropTypes.bool,
-    buttonType: PropTypes.number,
-    leftText: PropTypes.string,
-  }),
-  rightButton: PropTypes.shape({
-    text: PropTypes.string,
-    onPress: PropTypes.func,
-    disabled: PropTypes.bool,
-  }),
 };
 
 const styles = StyleSheet.create({

@@ -6,6 +6,7 @@ export interface ActionSheetOptions {
   destructiveButtonIndex?: number;
   cancelButtonIndex?: number;
   anchor?: number;
+  confirmButtonIndex?: number;
 }
 
 export type CompletionCallback = (buttonIndex: number) => void;
