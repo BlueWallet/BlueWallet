@@ -324,7 +324,7 @@ export class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
-    await this.deleteRealmFilesFromDefaultDirectory();
+    await this.moveRealmFilesToCacheDirectory();
     let data = await this.getItemWithFallbackToRealm('data');
     if (password) {
       data = this.decryptData(data, password);
@@ -899,29 +899,31 @@ export class AppStorage {
     });
   }
 
-  async deleteRealmFilesFromDefaultDirectory() {
+  async moveRealmFilesToCacheDirectory() {
     const documentPath = RNFS.DocumentDirectoryPath; // Path to documentPath folder
+    const cachePath = RNFS.CachesDirectoryPath; // Path to cachePath folder
     try {
-      if (!(await RNFS.exists(documentPath))) return; // If the documentPath directory does not exist, return (nothing to delete)
+      if (!(await RNFS.exists(documentPath))) return; // If the documentPath directory does not exist, return (nothing to move)
       const files = await RNFS.readDir(documentPath); // Read all files in documentPath directory
-      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to delete)
+      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to move)
       const appRealmFiles = files.filter(
         file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
       );
 
       for (const file of appRealmFiles) {
         const filePath = `${documentPath}/${file.name}`;
+        const newFilePath = `${cachePath}/${file.name}`;
         const fileExists = await RNFS.exists(filePath); // Check if the file exists
         if (fileExists) {
-          await RNFS.unlink(filePath); // Delete the file if it exists
-          console.log(`Deleted Realm file: ${filePath}`);
+          await RNFS.moveFile(filePath, newFilePath); // Move the file if it exists
+          console.log(`Moved Realm file: ${filePath} to ${newFilePath}`);
         } else {
           console.log(`File does not exist: ${filePath}`);
         }
       }
-    } catch (error: unknown) {
-      console.error('Error deleting Realm files:', error);
-      throw new Error(`Error deleting Realm files: ${(error as Error).message}`);
+    } catch (error) {
+      console.error('Error moving Realm files:', error);
+      throw new Error(`Error moving Realm files: ${(error as Error).message}`);
     }
   }
 }
