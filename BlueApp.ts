@@ -31,6 +31,7 @@ import { randomBytes } from './class/rng';
 import { TWallet, Transaction } from './class/wallets/types';
 import presentAlert from './components/Alert';
 import prompt from './helpers/prompt';
+import RNFS from 'react-native-fs';
 import loc from './loc';
 
 let usedBucketNum: boolean | number = false;
@@ -233,10 +234,12 @@ export class AppStorage {
    * Database file is deterministically derived from encryption key.
    */
   async getRealm() {
+    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
+    const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
+    const path = `${cacheFolderPath}/${fileName}`; // Use cache folder path
 
     const schema = [
       {
@@ -265,6 +268,7 @@ export class AppStorage {
    * @returns {Promise<Realm>}
    */
   async openRealmKeyValue(): Promise<Realm> {
+    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const service = 'realm_encryption_key';
     let password;
     const credentials = await Keychain.getGenericPassword({ service });
@@ -278,7 +282,7 @@ export class AppStorage {
 
     const buf = Buffer.from(password, 'hex');
     const encryptionKey = Int8Array.from(buf);
-    const path = 'keyvalue.realm';
+    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
 
     const schema = [
       {
@@ -320,6 +324,7 @@ export class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
+    await this.moveRealmFilesToCacheDirectory();
     let data = await this.getItemWithFallbackToRealm('data');
     if (password) {
       data = this.decryptData(data, password);
@@ -892,6 +897,34 @@ export class AppStorage {
     return Realm.deleteFile({
       path,
     });
+  }
+
+  async moveRealmFilesToCacheDirectory() {
+    const documentPath = RNFS.DocumentDirectoryPath; // Path to documentPath folder
+    const cachePath = RNFS.CachesDirectoryPath; // Path to cachePath folder
+    try {
+      if (!(await RNFS.exists(documentPath))) return; // If the documentPath directory does not exist, return (nothing to move)
+      const files = await RNFS.readDir(documentPath); // Read all files in documentPath directory
+      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to move)
+      const appRealmFiles = files.filter(
+        file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
+      );
+
+      for (const file of appRealmFiles) {
+        const filePath = `${documentPath}/${file.name}`;
+        const newFilePath = `${cachePath}/${file.name}`;
+        const fileExists = await RNFS.exists(filePath); // Check if the file exists
+        if (fileExists) {
+          await RNFS.moveFile(filePath, newFilePath); // Move the file if it exists
+          console.log(`Moved Realm file: ${filePath} to ${newFilePath}`);
+        } else {
+          console.log(`File does not exist: ${filePath}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error moving Realm files:', error);
+      throw new Error(`Error moving Realm files: ${(error as Error).message}`);
+    }
   }
 }
 
