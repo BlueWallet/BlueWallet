@@ -1,9 +1,9 @@
+import * as bitcoin from 'bitcoinjs-lib';
+import assert from 'assert';
 import { LegacyWallet } from '../../class';
 import { ECPairFactory } from 'ecpair';
 import ecc from '../../blue_modules/noble_ecc';
 const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
 
 describe('Legacy wallet', () => {
   it('can validate addresses', () => {

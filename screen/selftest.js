@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ScrollView, View, StyleSheet, Linking } from 'react-native';
 import wif from 'wif';
+import * as bip39 from 'bip39';
 import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -172,8 +173,6 @@ export default class Selftest extends Component {
       }
 
       //
-
-      const bip39 = require('bip39');
       const mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
       const seed = bip39.mnemonicToSeedSync(mnemonic);

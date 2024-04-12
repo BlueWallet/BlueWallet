@@ -12,9 +12,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
-
-const BlueApp = require('../../BlueApp');
-const AppStorage = BlueApp.AppStorage;
+import { AppStorage } from '../../BlueApp';
 
 const styles = StyleSheet.create({
   uri: {

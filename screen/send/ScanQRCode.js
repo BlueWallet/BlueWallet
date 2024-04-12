@@ -16,9 +16,9 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import Base43 from '../../blue_modules/base43';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const Base43 = require('../../blue_modules/base43');
 
 let decoder = false;
 

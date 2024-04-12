@@ -3,8 +3,8 @@ import bolt11 from 'bolt11';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { createHmac } from 'crypto';
 import secp256k1 from 'secp256k1';
-const CryptoJS = require('crypto-js');
-const createHash = require('create-hash');
+import CryptoJS from 'crypto-js';
+import createHash from 'create-hash';
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 

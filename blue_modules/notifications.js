@@ -7,14 +7,14 @@ import loc from '../loc';
 import { requestNotifications } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
 import ActionSheet from '../screen/ActionSheet';
+import { groundControlUri } from './constants';
 
-const constants = require('./constants');
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
-let baseURI = constants.groundControlUri;
+let baseURI = groundControlUri;
 
 function Notifications(props) {
   async function _setPushToken(token) {
@@ -254,11 +254,11 @@ function Notifications(props) {
   };
 
   Notifications.getDefaultUri = function () {
-    return constants.groundControlUri;
+    return groundControlUri;
   };
 
   Notifications.saveUri = async function (uri) {
-    baseURI = uri || constants.groundControlUri; // settign the url to use currently. if not set - use default
+    baseURI = uri || groundControlUri; // settign the url to use currently. if not set - use default
     return AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, uri);
   };
 
