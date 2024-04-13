@@ -48,8 +48,8 @@ describe('Localization', () => {
     [123000000, BitcoinUnit.SATS, true, '123,000,000', false],
     [123456000, BitcoinUnit.BTC, true, '1.23456', false],
     ['123456000', BitcoinUnit.BTC, true, '1.23456', false], // can handle strings
-    [100000000, BitcoinUnit.BTC, true, '1', false],
-    [10000000, BitcoinUnit.BTC, true, '0.1', false],
+    [100000000, BitcoinUnit.BTC, true, '1.00000000', false],
+    [10000000, BitcoinUnit.BTC, true, '0.10000000', false],
     [1, BitcoinUnit.BTC, true, '0.00000001', false],
     [10000000, BitcoinUnit.LOCAL_CURRENCY, true, '...', true], // means unknown since we did not receive exchange rate
   ])(

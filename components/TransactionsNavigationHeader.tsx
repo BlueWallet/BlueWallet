@@ -210,7 +210,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                   numberOfLines={1}
                   adjustsFontSizeToFit
                   style={styles.walletBalanceText}
-                  ellipsizeMode="middle"
                 >
                   {balance}
                 </Text>
@@ -297,6 +296,7 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
+    height: 35,
   },
   manageFundsButton: {
     marginTop: 14,

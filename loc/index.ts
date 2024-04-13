@@ -286,18 +286,6 @@ export const transactionTimeToReadable = (time: number) => {
   return ret;
 };
 
-export const removeTrailingZeros = (value: number | string) => {
-  let ret = value.toString();
-
-  if (ret.indexOf('.') === -1) {
-    return ret;
-  }
-  while ((ret.slice(-1) === '0' || ret.slice(-1) === '.') && ret.indexOf('.') !== -1) {
-    ret = ret.substr(0, ret.length - 1);
-  }
-  return ret;
-};
-
 /**
  *
  * @param balance {number} Satoshis
@@ -311,7 +299,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(+value) + ' ' + loc.units[BitcoinUnit.BTC];
+    return +value + ' ' + loc.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
     return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
@@ -333,7 +321,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-      return removeTrailingZeros(value);
+      return value;
     } else if (toUnit === BitcoinUnit.SATS) {
       return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {

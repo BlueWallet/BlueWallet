@@ -6,7 +6,7 @@ import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpac
 
 import confirm from '../helpers/confirm';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros } from '../loc';
+import loc, { formatBalanceWithoutSuffix, formatBalancePlain } from '../loc';
 import { BlueText } from '../BlueComponents';
 import dayjs from 'dayjs';
 import { useTheme } from './themes';
@@ -291,9 +291,7 @@ class AmountInput extends Component {
               </View>
               <View style={styles.secondaryRoot}>
                 <Text style={styles.secondaryText}>
-                  {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
-                    ? removeTrailingZeros(secondaryDisplayCurrency)
-                    : secondaryDisplayCurrency}
+                  {secondaryDisplayCurrency}
                   {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${loc.units[BitcoinUnit.BTC]}` : null}
                 </Text>
               </View>
