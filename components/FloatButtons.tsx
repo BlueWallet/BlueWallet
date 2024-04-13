@@ -1,5 +1,5 @@
-import React, { useState, useRef, forwardRef, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
+import React, { useState, useRef, forwardRef, ReactNode, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio, Animated, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
@@ -39,6 +39,18 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
   const bottomInsets = { bottom: insets.bottom ? insets.bottom + 10 : 30 };
+  const { height } = useWindowDimensions();
+  const slideAnimation = useRef(new Animated.Value(height)).current;
+
+  useEffect(() => {
+    slideAnimation.setValue(height);
+    Animated.spring(slideAnimation, {
+      toValue: 0,
+      useNativeDriver: true,
+      speed: 100,
+      bounciness: 3,
+    }).start();
+  }, [height, slideAnimation]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
@@ -53,7 +65,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   };
 
   return (
-    <View
+    <Animated.View
       ref={ref}
       onLayout={onLayout}
       style={[
@@ -61,6 +73,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
         bottomInsets,
         newWidth ? cStyles.rootPost : cStyles.rootPre,
+        { transform: [{ translateY: slideAnimation }] },
       ]}
     >
       {newWidth
@@ -82,7 +95,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               });
             })
         : props.children}
-    </View>
+    </Animated.View>
   );
 });
 
