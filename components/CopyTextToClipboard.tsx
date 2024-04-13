@@ -2,6 +2,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useState, useEffect, forwardRef } from 'react';
 import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import loc from '../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 type CopyTextToClipboardProps = {
   text: string;
@@ -30,6 +31,7 @@ const CopyTextToClipboard = forwardRef<TouchableOpacity, CopyTextToClipboardProp
   const copyToClipboard = () => {
     setHasTappedText(true);
     Clipboard.setString(text);
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
     setAddress(loc.wallets.xpub_copiedToClipboard); // Adjust according to your localization logic
     setTimeout(() => {
       setHasTappedText(false);
