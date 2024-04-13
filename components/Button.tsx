@@ -41,17 +41,17 @@ export const Button = forwardRef<TouchableOpacity, ButtonProps>((props, ref) => 
   };
 
   const buttonView = (
-    <View style={[buttonStyle, props.style, styles.content]}>
+    <>
       {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
       {props.title && <Text style={textStyle}>{props.title}</Text>}
-    </View>
+    </>
   );
 
   return props.onPress ? (
     <TouchableOpacity
       ref={ref}
       testID={props.testID}
-      style={[buttonStyle, props.style]}
+      style={[buttonStyle, props.style, styles.content]}
       accessibilityRole="button"
       onPress={props.onPress}
       disabled={props.disabled}
@@ -59,7 +59,7 @@ export const Button = forwardRef<TouchableOpacity, ButtonProps>((props, ref) => 
       {buttonView}
     </TouchableOpacity>
   ) : (
-    buttonView
+    <View style={[buttonStyle, props.style, styles.content]}>{buttonView}</View>
   );
 });
 
