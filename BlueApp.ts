@@ -324,7 +324,12 @@ export class AppStorage {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
-    await this.moveRealmFilesToCacheDirectory();
+    // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
+    try {
+      await this.moveRealmFilesToCacheDirectory();
+    } catch (error: any) {
+      console.warn('moveRealmFilesToCacheDirectory error:', error.message);
+    }
     let data = await this.getItemWithFallbackToRealm('data');
     if (password) {
       data = this.decryptData(data, password);
@@ -914,8 +919,14 @@ export class AppStorage {
         const filePath = `${documentPath}/${file.name}`;
         const newFilePath = `${cachePath}/${file.name}`;
         const fileExists = await RNFS.exists(filePath); // Check if the file exists
+        const cacheFileExists = await RNFS.exists(newFilePath); // Check if the file already exists in the cache directory
+
         if (fileExists) {
-          await RNFS.moveFile(filePath, newFilePath); // Move the file if it exists
+          if (cacheFileExists) {
+            await RNFS.unlink(newFilePath); // Delete the file in the cache directory if it exists
+            console.log(`Existing file removed from cache: ${newFilePath}`);
+          }
+          await RNFS.moveFile(filePath, newFilePath); // Move the file
           console.log(`Moved Realm file: ${filePath} to ${newFilePath}`);
         } else {
           console.log(`File does not exist: ${filePath}`);
