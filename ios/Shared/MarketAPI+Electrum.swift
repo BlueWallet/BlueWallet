@@ -12,7 +12,7 @@ struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }
 
-extension WidgetAPI {
+extension MarketAPI {
   
   static func fetchNextBlockFee(completion: @escaping ((MarketData?, Error?) -> Void), userElectrumSettings: UserDefaultsElectrumSettings = UserDefaultsGroup.getElectrumSettings()) {
          let settings = userElectrumSettings
@@ -73,12 +73,12 @@ extension WidgetAPI {
   
   static func fetchMarketData(currency: String, completion: @escaping ((MarketData?, Error?) -> Void)) {
     var marketDataEntry = MarketData(nextBlock: "...", sats: "...", price: "...", rate: 0)
-    WidgetAPI.fetchPrice(currency: currency, completion: { (result, error) in
+    MarketAPI.fetchPrice(currency: currency, completion: { (result, error) in
       if let result = result {
         marketDataEntry.rate = result.rateDouble
         marketDataEntry.price = result.formattedRate ?? "!"
       }
-      WidgetAPI.fetchNextBlockFee { (marketData, error) in
+      MarketAPI.fetchNextBlockFee { (marketData, error) in
         if let nextBlock = marketData?.nextBlock {
           marketDataEntry.nextBlock = nextBlock
         } else {
