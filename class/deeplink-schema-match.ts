@@ -5,11 +5,10 @@ import URL from 'url';
 
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { Chain } from '../models/bitcoinUnits';
-import { LightningCustodianWallet, WatchOnlyWallet } from './';
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
 import Azteco from './azteco';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
-import { AppStorage } from '../BlueApp';
 
 type TCompletionHandlerParams = [string, object];
 type TContext = {

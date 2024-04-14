@@ -1,7 +1,6 @@
 import assert from 'assert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SegwitP2SHWallet } from '../../class';
-import { AppStorage } from '../../BlueApp';
+import { SegwitP2SHWallet, AppStorage } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {

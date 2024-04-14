@@ -12,7 +12,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
-import { AppStorage } from '../../BlueApp';
+import { AppStorage } from '../../class';
 
 const styles = StyleSheet.create({
   uri: {

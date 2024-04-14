@@ -18,7 +18,14 @@ import {
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, LightningLdkWallet, SegwitP2SHWallet } from '../../class';
+import {
+  AppStorage,
+  HDSegwitBech32Wallet,
+  HDSegwitP2SHWallet,
+  LightningCustodianWallet,
+  LightningLdkWallet,
+  SegwitP2SHWallet,
+} from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { LdkButton } from '../../components/LdkButton';
@@ -27,7 +34,6 @@ import { useTheme } from '../../components/themes';
 import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
-import { AppStorage } from '../../BlueApp';
 import WalletButton from '../../components/WalletButton';
 import A from '../../blue_modules/analytics';
 
