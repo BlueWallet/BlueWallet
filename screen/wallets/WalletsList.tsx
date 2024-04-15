@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -34,16 +34,86 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
 import { TWallet, Transaction } from '../../class/wallets/types';
+import { getIsLargeScreen } from '../../helpers/getIsLargeScreen';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
-interface WalletsListProps {}
 
 type SectionData = {
   key: string;
   data: Transaction[] | string[];
 };
 
-const WalletsList: React.FC<WalletsListProps> = () => {
+enum ActionTypes {
+  SET_LOADING = 'SET_LOADING',
+  SET_WALLETS = 'SET_WALLETS',
+  SET_CURRENT_INDEX = 'SET_CURRENT_INDEX',
+  SET_IS_LARGE_SCREEN = 'SET_IS_LARGE_SCREEN',
+  SET_REFRESH_FUNCTION = 'SET_REFRESH_FUNCTION',
+}
+
+interface SetLoadingAction {
+  type: ActionTypes.SET_LOADING;
+  payload: boolean;
+}
+
+interface SetWalletsAction {
+  type: ActionTypes.SET_WALLETS;
+  payload: TWallet[];
+}
+
+interface SetCurrentIndexAction {
+  type: ActionTypes.SET_CURRENT_INDEX;
+  payload: number;
+}
+
+interface SetIsLargeScreenAction {
+  type: ActionTypes.SET_IS_LARGE_SCREEN;
+  payload: boolean;
+}
+
+interface SetRefreshFunctionAction {
+  type: ActionTypes.SET_REFRESH_FUNCTION;
+  payload: () => void;
+}
+
+type WalletListAction = SetLoadingAction | SetWalletsAction | SetCurrentIndexAction | SetIsLargeScreenAction | SetRefreshFunctionAction;
+
+interface WalletListState {
+  isLoading: boolean;
+  wallets: TWallet[];
+  currentWalletIndex: number;
+  isLargeScreen: boolean;
+  refreshFunction: () => void;
+}
+
+const initialState = {
+  isLoading: false,
+  wallets: [],
+  currentWalletIndex: 0,
+  isLargeScreen: getIsLargeScreen(), // Set initial state based on condition
+  refreshFunction: () => {},
+};
+
+function reducer(state: WalletListState, action: WalletListAction) {
+  switch (action.type) {
+    case ActionTypes.SET_LOADING:
+      return { ...state, isLoading: action.payload };
+    case ActionTypes.SET_WALLETS:
+      return { ...state, wallets: action.payload };
+    case ActionTypes.SET_CURRENT_INDEX:
+      return { ...state, currentWalletIndex: action.payload };
+    case ActionTypes.SET_IS_LARGE_SCREEN:
+      return { ...state, isLargeScreen: action.payload };
+    case ActionTypes.SET_REFRESH_FUNCTION:
+      return { ...state, refreshFunction: action.payload };
+    default:
+      return state;
+  }
+}
+
+const WalletsList: React.FC = () => {
+  const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
+  const { isLoading, isLargeScreen } = state;
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const {
@@ -60,10 +130,6 @@ const WalletsList: React.FC<WalletsListProps> = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isLargeScreen, setIsLargeScreen] = useState<boolean>(
-    Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
-  );
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
@@ -157,9 +223,14 @@ const WalletsList: React.FC<WalletsListProps> = () => {
    * Triggered manually by user on pull-to-refresh.
    */
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
-    if (isElectrumDisabled) return setIsLoading(false);
-    setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => setIsLoading(false));
+    if (isElectrumDisabled) {
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+      return;
+    }
+    dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
+    refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+      dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+    });
   };
 
   useEffect(() => {
@@ -177,6 +248,10 @@ const WalletsList: React.FC<WalletsListProps> = () => {
     } else {
       navigate('AddWalletRoot');
     }
+  };
+
+  const setIsLoading = (value: boolean) => {
+    dispatch({ type: ActionTypes.SET_LOADING, payload: value });
   };
 
   const onSnapToItem = (e: { nativeEvent: { contentOffset: any } }) => {
@@ -363,7 +438,10 @@ const WalletsList: React.FC<WalletsListProps> = () => {
   };
 
   const onLayout = (_e: any) => {
-    setIsLargeScreen(Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop);
+    dispatch({
+      type: ActionTypes.SET_IS_LARGE_SCREEN,
+      payload: Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
+    });
   };
 
   const onRefresh = () => {
