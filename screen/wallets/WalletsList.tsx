@@ -25,7 +25,6 @@ import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
-import navigationStyle from '../../components/navigationStyle';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -34,12 +33,19 @@ import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
+import { TWallet, Transaction } from '../../class/wallets/types';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
+interface WalletsListProps {}
 
-const WalletsList = () => {
-  const walletsCarousel = useRef();
-  const currentWalletIndex = useRef(0);
+type SectionData = {
+  key: string;
+  data: Transaction[] | string[];
+};
+
+const WalletsList: React.FC<WalletsListProps> = () => {
+  const walletsCarousel = useRef<any>();
+  const currentWalletIndex = useRef<number>(0);
   const {
     wallets,
     getTransactions,
@@ -54,13 +60,13 @@ const WalletsList = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLargeScreen, setIsLargeScreen] = useState(
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLargeScreen, setIsLargeScreen] = useState<boolean>(
     Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
   );
-  const dataSource = getTransactions(null, 10);
-  const walletsCount = useRef(wallets.length);
-  const walletActionButtonsRef = useRef();
+  const dataSource = getTransactions(undefined, 10);
+  const walletsCount = useRef<number>(wallets.length);
+  const walletActionButtonsRef = useRef<any>();
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -153,7 +159,7 @@ const WalletsList = () => {
   const refreshTransactions = async (showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
     if (isElectrumDisabled) return setIsLoading(false);
     setIsLoading(showLoadingIndicator);
-    refreshAllWalletTransactions(false, showUpdateStatusIndicator).finally(() => setIsLoading(false));
+    refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => setIsLoading(false));
   };
 
   useEffect(() => {
@@ -161,7 +167,7 @@ const WalletsList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // call refreshTransactions() only once, when screen mounts
 
-  const handleClick = item => {
+  const handleClick = (item?: TWallet) => {
     if (item?.getID) {
       const walletID = item.getID();
       navigate('WalletTransactions', {
@@ -173,7 +179,7 @@ const WalletsList = () => {
     }
   };
 
-  const onSnapToItem = e => {
+  const onSnapToItem = (e: { nativeEvent: { contentOffset: any } }) => {
     if (!isFocused) return;
 
     const contentOffset = e.nativeEvent.contentOffset;
@@ -209,9 +215,10 @@ const WalletsList = () => {
     }
   };
 
-  const renderTransactionListsRow = data => {
+  const renderTransactionListsRow = (data: { item: Transaction }) => {
     return (
       <View style={styles.transaction}>
+        {/** @ts-ignore: Fix later **/}
         <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} walletID={data.item.walletID} />
       </View>
     );
@@ -220,6 +227,7 @@ const WalletsList = () => {
   const renderWalletsCarousel = () => {
     return (
       <WalletsCarousel
+        // @ts-ignore: Convert to TS later
         data={wallets.concat(false)}
         extraData={[wallets]}
         onPress={handleClick}
@@ -233,18 +241,19 @@ const WalletsList = () => {
     );
   };
 
-  const renderSectionItem = item => {
+  const renderSectionItem = (item: { section?: any; item?: Transaction }) => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : renderWalletsCarousel();
       case WalletsListSections.TRANSACTIONS:
+        /* @ts-ignore: fix later */
         return renderTransactionListsRow(item);
       default:
         return null;
     }
   };
 
-  const renderSectionHeader = section => {
+  const renderSectionHeader = (section: { section: { key: any } }) => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : (
@@ -257,7 +266,7 @@ const WalletsList = () => {
     }
   };
 
-  const renderSectionFooter = section => {
+  const renderSectionFooter = (section: { section: { key: any } }) => {
     switch (section.section.key) {
       case WalletsListSections.TRANSACTIONS:
         if (dataSource.length === 0 && !isLoading) {
@@ -292,7 +301,7 @@ const WalletsList = () => {
     }
   };
 
-  const sectionListKeyExtractor = (item, index) => {
+  const sectionListKeyExtractor = (item: any, index: any) => {
     return `${item}${index}}`;
   };
 
@@ -300,7 +309,7 @@ const WalletsList = () => {
     scanQrHelper(navigate, routeName).then(onBarScanned);
   };
 
-  const onBarScanned = value => {
+  const onBarScanned = (value: any) => {
     if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -320,40 +329,40 @@ const WalletsList = () => {
       options.push(loc.wallets.list_long_clipboard);
     }
 
-    ActionSheet.showActionSheetWithOptions(
-      {
-        title: loc.send.header,
-        options,
-        cancelButtonIndex: 0,
-        anchor: findNodeHandle(walletActionButtonsRef.current),
-      },
-      buttonIndex => {
-        switch (buttonIndex) {
-          case 0:
-            break;
-          case 1:
-            fs.showImagePickerAndReadImage()
-              .then(onBarScanned)
-              .catch(error => {
-                console.log(error);
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                presentAlert({ title: loc.errors.error, message: error.message });
-              });
-            break;
-          case 2:
-            scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
-            break;
-          case 3:
-            if (!isClipboardEmpty) {
-              copyFromClipboard();
-            }
-            break;
-        }
-      },
-    );
+    const props = { title: loc.send.header, options, cancelButtonIndex: 0 };
+
+    const anchor = findNodeHandle(walletActionButtonsRef.current);
+
+    if (anchor) {
+      options.push(anchor);
+    }
+
+    ActionSheet.showActionSheetWithOptions(props, buttonIndex => {
+      switch (buttonIndex) {
+        case 0:
+          break;
+        case 1:
+          fs.showImagePickerAndReadImage()
+            .then(onBarScanned)
+            .catch(error => {
+              console.log(error);
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              presentAlert({ title: loc.errors.error, message: error.message });
+            });
+          break;
+        case 2:
+          scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
+          break;
+        case 3:
+          if (!isClipboardEmpty) {
+            copyFromClipboard();
+          }
+          break;
+      }
+    });
   };
 
-  const onLayout = _e => {
+  const onLayout = (_e: any) => {
     setIsLargeScreen(Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop);
   };
 
@@ -363,10 +372,15 @@ const WalletsList = () => {
   // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
+  const sections: SectionData[] = [
+    { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
+    { key: WalletsListSections.TRANSACTIONS, data: dataSource },
+  ];
+
   return (
     <View style={styles.root} onLayout={onLayout}>
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
-        <SectionList
+        <SectionList<any | string, SectionData>
           removeClippedSubviews
           contentInsetAdjustmentBehavior="automatic"
           automaticallyAdjustContentInsets
@@ -377,10 +391,7 @@ const WalletsList = () => {
           initialNumToRender={20}
           contentInset={styles.scrollContent}
           renderSectionFooter={renderSectionFooter}
-          sections={[
-            { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-            { key: WalletsListSections.TRANSACTIONS, data: dataSource },
-          ]}
+          sections={sections}
         />
         {renderScanButton()}
       </View>
@@ -389,7 +400,6 @@ const WalletsList = () => {
 };
 
 export default WalletsList;
-WalletsList.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: '', headerBackTitle: loc.wallets.list_title }));
 
 const styles = StyleSheet.create({
   root: {

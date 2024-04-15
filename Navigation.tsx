@@ -33,7 +33,7 @@ import ImportWallet from './screen/wallets/import';
 import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
 import ImportWalletDiscovery from './screen/wallets/importDiscovery';
 import ImportSpeed from './screen/wallets/importSpeed';
-import WalletsList from './screen/wallets/list';
+import WalletsList from './screen/wallets/WalletsList';
 import PleaseBackup from './screen/wallets/pleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
@@ -96,7 +96,11 @@ const WalletsRoot = () => {
 
   return (
     <WalletsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="WalletsList"
+        component={WalletsList}
+        options={navigationStyle({ title: '', headerBackTitle: loc.wallets.list_title })(theme)}
+      />
       <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
       <WalletsStack.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
       <WalletsStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
