@@ -31,7 +31,7 @@ jobs:
           node-version: 18
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 15.2
+          xcode-version: 15.3
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:

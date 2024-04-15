@@ -8,6 +8,7 @@ import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } fro
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { reloadAllTimelines } from '../components/WidgetCommunication';
+import RNFS from 'react-native-fs';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -108,10 +109,11 @@ let _realm: Realm | undefined;
 async function _getRealm() {
   if (_realm) return _realm;
 
+  const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
   const password = bitcoin.crypto.sha256(Buffer.from('fyegjitkyf[eqjnc.lf')).toString('hex');
   const buf = Buffer.from(password + password, 'hex');
   const encryptionKey = Int8Array.from(buf);
-  const path = 'electrumcache.realm';
+  const path = `${cacheFolderPath}/electrumcache.realm`; // Use cache folder path
 
   const schema = [
     {
@@ -130,6 +132,7 @@ async function _getRealm() {
     path,
     encryptionKey,
   });
+
   return _realm;
 }
 
