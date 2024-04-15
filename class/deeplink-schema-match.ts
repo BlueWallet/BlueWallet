@@ -5,7 +5,7 @@ import URL from 'url';
 
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { Chain } from '../models/bitcoinUnits';
-import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from './';
+import { BlueApp, LightningCustodianWallet, WatchOnlyWallet } from './';
 import Azteco from './azteco';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
@@ -231,7 +231,7 @@ class DeeplinkSchemaMatch {
                 w.setLabel(w.typeReadable);
 
                 try {
-                  const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                  const lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
                   if (lndhub) {
                     w.setBaseURI(lndhub);
                     w.init();

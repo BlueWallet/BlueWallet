@@ -1,11 +1,11 @@
 import { Platform } from 'react-native';
-import { initCurrencyDaemon } from './blue_modules/currency';
-import Biometric from './class/biometrics';
-import prompt from './helpers/prompt';
-import loc from './loc';
-import { AppStorage } from './class/';
+import { initCurrencyDaemon } from '../blue_modules/currency';
+import Biometric from '../class/biometrics';
+import prompt from '../helpers/prompt';
+import loc from '../loc';
+import { BlueApp as BlueAppClass } from '../class/';
 
-const BlueApp = new AppStorage();
+const BlueApp = BlueAppClass.getInstance();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
 let unlockAttempt = 0;
 

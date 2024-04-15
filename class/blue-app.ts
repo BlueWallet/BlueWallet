@@ -43,14 +43,16 @@ type TRealmTransaction = {
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
 
-export class AppStorage {
+export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
-  static keys2migrate = [AppStorage.HANDOFF_STORAGE_KEY, AppStorage.DO_NOT_TRACK, AppStorage.ADVANCED_MODE_ENABLED];
+  private static _instance: BlueApp | null = null;
+
+  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK, BlueApp.ADVANCED_MODE_ENABLED];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -62,13 +64,21 @@ export class AppStorage {
     this.cachedPassword = false;
   }
 
+  static getInstance(): BlueApp {
+    if (!BlueApp._instance) {
+      BlueApp._instance = new BlueApp();
+    }
+
+    return BlueApp._instance;
+  }
+
   async migrateKeys() {
     // do not migrate keys if we are not in RN env
     if (!isReactNative) {
       return;
     }
 
-    for (const key of AppStorage.keys2migrate) {
+    for (const key of BlueApp.keys2migrate) {
       try {
         const value = await RNSecureKeyStore.get(key);
         if (value) {
@@ -126,9 +136,9 @@ export class AppStorage {
   storageIsEncrypted = async (): Promise<boolean> => {
     let data;
     try {
-      data = await this.getItemWithFallbackToRealm(AppStorage.FLAG_ENCRYPTED);
+      data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
     } catch (error: any) {
-      console.warn('error reading `' + AppStorage.FLAG_ENCRYPTED + '` key:', error.message);
+      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
       return false;
     }
 
@@ -190,7 +200,7 @@ export class AppStorage {
     data = JSON.stringify(data);
     this.cachedPassword = password;
     await this.setItem('data', data);
-    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   };
 
   /**
@@ -405,7 +415,7 @@ export class AppStorage {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
             let lndhub: false | any = false;
             try {
-              lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+              lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
             } catch (error) {
               console.warn(error);
             }
@@ -674,12 +684,12 @@ export class AppStorage {
       }
 
       await this.setItem('data', JSON.stringify(data));
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      await this.setItem(BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
 
       // now, backing up same data in realm:
       const realmkeyValue = await this.openRealmKeyValue();
       this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, AppStorage.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
       realmkeyValue.close();
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
@@ -834,50 +844,50 @@ export class AppStorage {
 
   isAdvancedModeEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+      return !!(await AsyncStorage.getItem(BlueApp.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
   };
 
   setIsAdvancedModeEnabled = async (value: boolean) => {
-    await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
+    await AsyncStorage.setItem(BlueApp.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 
   isHandoffEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.HANDOFF_STORAGE_KEY));
+      return !!(await AsyncStorage.getItem(BlueApp.HANDOFF_STORAGE_KEY));
     } catch (_) {}
     return false;
   };
 
   setIsHandoffEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(AppStorage.HANDOFF_STORAGE_KEY, value ? '1' : '');
+    await AsyncStorage.setItem(BlueApp.HANDOFF_STORAGE_KEY, value ? '1' : '');
   };
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      const keyExists = await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK);
+      const keyExists = await AsyncStorage.getItem(BlueApp.DO_NOT_TRACK);
       if (keyExists !== null) {
         const doNotTrackValue = !!keyExists;
         if (doNotTrackValue) {
           await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-          await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
-          AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+          await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
+          AsyncStorage.removeItem(BlueApp.DO_NOT_TRACK);
         } else {
-          return Boolean(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
+          return Boolean(await DefaultPreference.get(BlueApp.DO_NOT_TRACK));
         }
       }
     } catch (_) {}
-    const doNotTrackValue = await DefaultPreference.get(AppStorage.DO_NOT_TRACK);
+    const doNotTrackValue = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
     return doNotTrackValue === '1' || false;
   };
 
   setDoNotTrack = async (value: boolean) => {
     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
     if (value) {
-      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+      await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
     } else {
-      await DefaultPreference.clear(AppStorage.DO_NOT_TRACK);
+      await DefaultPreference.clear(BlueApp.DO_NOT_TRACK);
     }
   };
 

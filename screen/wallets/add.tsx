@@ -19,7 +19,7 @@ import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText }
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import {
-  AppStorage,
+  BlueApp,
   HDSegwitBech32Wallet,
   HDSegwitP2SHWallet,
   LightningCustodianWallet,
@@ -149,7 +149,7 @@ const WalletsAdd: React.FC = () => {
   };
 
   useEffect(() => {
-    AsyncStorage.getItem(AppStorage.LNDHUB)
+    AsyncStorage.getItem(BlueApp.LNDHUB)
       .then(url => (url ? setWalletBaseURI(url) : setWalletBaseURI('')))
       .catch(() => setWalletBaseURI(''))
       .finally(() => setIsLoading(false));
