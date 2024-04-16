@@ -1,23 +1,12 @@
 //
-//  FiatUnit.swift
+//  Bundle+decode.swift
 //  BlueWallet
 //
-//  Created by Marcos Rodriguez on 11/20/20.
-//  Copyright © 2020 BlueWallet. All rights reserved.
+//  Created by Marcos Rodriguez on 4/14/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
 //
+
 import Foundation
-
-struct FiatUnit: Codable {
-  let endPointKey: String
-  let symbol: String
-  let locale: String
-  let source: String
-  
-}
-
-func fiatUnit(currency: String) -> FiatUnit? {
-  return Bundle.main.decode([String: FiatUnit].self, from: "fiatUnits.json").first(where: {$1.endPointKey == currency})?.value
-}
 
 extension Bundle {
     func decode<T: Decodable>(_ type: T.Type, from file: String, dateDecodingStrategy: JSONDecoder.DateDecodingStrategy = .deferredToDate, keyDecodingStrategy: JSONDecoder.KeyDecodingStrategy = .useDefaultKeys) -> T {
