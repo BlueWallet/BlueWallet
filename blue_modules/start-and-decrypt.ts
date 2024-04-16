@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import { initCurrencyDaemon } from '../blue_modules/currency';
 import Biometric from '../class/biometrics';
 import prompt from '../helpers/prompt';
 import loc from '../loc';
@@ -66,7 +65,5 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
     return true;
   }
 };
-
-initCurrencyDaemon();
 
 export default BlueApp;
