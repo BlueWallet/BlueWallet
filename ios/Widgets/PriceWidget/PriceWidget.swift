@@ -36,14 +36,14 @@ struct PriceWidgetProvider: TimelineProvider {
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
     } else {
-      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
-      if userPreferredCurrency != WidgetAPI.getLastSelectedCurrency() {
+      let userPreferredCurrency = Currency.getUserPreferredCurrency()
+      if userPreferredCurrency != Currency.getLastSelectedCurrency() {
         marketData[.Current] = nil
         marketData[.Previous] = nil
-        WidgetAPI.saveNewSelectedCurrency()
+        Currency.saveNewSelectedCurrency()
       }
       
-      WidgetAPI.fetchPrice(currency: userPreferredCurrency) { (data, error) in
+      MarketAPI.fetchPrice(currency: userPreferredCurrency) { (data, error) in
         let entry: PriceWidgetEntry
         
         if let data = data, let formattedRate = data.formattedRate {

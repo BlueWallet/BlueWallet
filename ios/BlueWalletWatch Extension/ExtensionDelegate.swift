@@ -36,7 +36,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
   }
   
   private func updateMarketData(for fiatUnit: FiatUnit) {
-    WidgetAPI.fetchPrice(currency: fiatUnit.endPointKey) { (data, error) in
+    MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { (data, error) in
       guard let data = data, let encodedData = try? PropertyListEncoder().encode(data) else { return }
       let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
       groupUserDefaults?.set(encodedData, forKey: MarketData.string)
