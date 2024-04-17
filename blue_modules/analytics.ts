@@ -1,6 +1,8 @@
 import { getUniqueId } from 'react-native-device-info';
 import Bugsnag from '@bugsnag/react-native';
-import BlueApp from '../BlueApp';
+import { BlueApp as BlueAppClass } from '../class';
+
+const BlueApp = BlueAppClass.getInstance();
 
 /**
  * in case Bugsnag was started, but user decided to opt out while using the app, we have this

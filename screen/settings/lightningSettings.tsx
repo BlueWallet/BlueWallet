@@ -12,7 +12,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
-import { AppStorage } from '../../BlueApp';
+import { BlueApp } from '../../class';
 
 const styles = StyleSheet.create({
   uri: {
@@ -62,7 +62,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   });
 
   useEffect(() => {
-    AsyncStorage.getItem(AppStorage.LNDHUB)
+    AsyncStorage.getItem(BlueApp.LNDHUB)
       .then(value => setURI(value ?? undefined))
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
@@ -101,9 +101,9 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         // validating only if its not empty. empty means use default
       }
       if (URI) {
-        await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+        await AsyncStorage.setItem(BlueApp.LNDHUB, URI);
       } else {
-        await AsyncStorage.removeItem(AppStorage.LNDHUB);
+        await AsyncStorage.removeItem(BlueApp.LNDHUB);
       }
       presentAlert({ message: loc.settings.lightning_saved });
     } catch (error) {

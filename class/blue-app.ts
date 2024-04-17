@@ -1,38 +1,29 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import createHash from 'create-hash';
-import { Platform } from 'react-native';
-import DefaultPreference from 'react-native-default-preference';
-import * as Keychain from 'react-native-keychain';
+import { Transaction, TWallet } from './wallets/types';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
-import Realm from 'realm';
-import { initCurrencyDaemon } from './blue_modules/currency';
-import * as encryption from './blue_modules/encryption';
-import {
-  HDAezeedWallet,
-  HDLegacyBreadwalletWallet,
-  HDLegacyElectrumSeedP2PKHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitElectrumSeedP2WPKHWallet,
-  HDSegwitP2SHWallet,
-  LegacyWallet,
-  LightningCustodianWallet,
-  LightningLdkWallet,
-  MultisigHDWallet,
-  SLIP39LegacyP2PKHWallet,
-  SLIP39SegwitBech32Wallet,
-  SLIP39SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-  WatchOnlyWallet,
-} from './class/';
-import Biometric from './class/biometrics';
-import { randomBytes } from './class/rng';
-import { TWallet, Transaction } from './class/wallets/types';
-import presentAlert from './components/Alert';
-import prompt from './helpers/prompt';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as encryption from '../blue_modules/encryption';
+import createHash from 'create-hash';
 import RNFS from 'react-native-fs';
-import loc from './loc';
+import Realm from 'realm';
+import Keychain from 'react-native-keychain';
+import { randomBytes } from './rng';
+import presentAlert from '../components/Alert';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
+import { WatchOnlyWallet } from './wallets/watch-only-wallet';
+import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
+import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
+import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+import { LegacyWallet } from './wallets/legacy-wallet';
+import DefaultPreference from 'react-native-default-preference';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -52,14 +43,16 @@ type TRealmTransaction = {
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
 
-export class AppStorage {
+export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
-  static keys2migrate = [AppStorage.HANDOFF_STORAGE_KEY, AppStorage.DO_NOT_TRACK, AppStorage.ADVANCED_MODE_ENABLED];
+  private static _instance: BlueApp | null = null;
+
+  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK, BlueApp.ADVANCED_MODE_ENABLED];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -71,13 +64,21 @@ export class AppStorage {
     this.cachedPassword = false;
   }
 
+  static getInstance(): BlueApp {
+    if (!BlueApp._instance) {
+      BlueApp._instance = new BlueApp();
+    }
+
+    return BlueApp._instance;
+  }
+
   async migrateKeys() {
     // do not migrate keys if we are not in RN env
     if (!isReactNative) {
       return;
     }
 
-    for (const key of AppStorage.keys2migrate) {
+    for (const key of BlueApp.keys2migrate) {
       try {
         const value = await RNSecureKeyStore.get(key);
         if (value) {
@@ -135,9 +136,9 @@ export class AppStorage {
   storageIsEncrypted = async (): Promise<boolean> => {
     let data;
     try {
-      data = await this.getItemWithFallbackToRealm(AppStorage.FLAG_ENCRYPTED);
+      data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
     } catch (error: any) {
-      console.warn('error reading `' + AppStorage.FLAG_ENCRYPTED + '` key:', error.message);
+      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
       return false;
     }
 
@@ -199,7 +200,7 @@ export class AppStorage {
     data = JSON.stringify(data);
     this.cachedPassword = password;
     await this.setItem('data', data);
-    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   };
 
   /**
@@ -414,7 +415,7 @@ export class AppStorage {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
             let lndhub: false | any = false;
             try {
-              lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+              lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
             } catch (error) {
               console.warn(error);
             }
@@ -683,12 +684,12 @@ export class AppStorage {
       }
 
       await this.setItem('data', JSON.stringify(data));
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      await this.setItem(BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
 
       // now, backing up same data in realm:
       const realmkeyValue = await this.openRealmKeyValue();
       this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, AppStorage.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
       realmkeyValue.close();
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
@@ -843,50 +844,50 @@ export class AppStorage {
 
   isAdvancedModeEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+      return !!(await AsyncStorage.getItem(BlueApp.ADVANCED_MODE_ENABLED));
     } catch (_) {}
     return false;
   };
 
   setIsAdvancedModeEnabled = async (value: boolean) => {
-    await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
+    await AsyncStorage.setItem(BlueApp.ADVANCED_MODE_ENABLED, value ? '1' : '');
   };
 
   isHandoffEnabled = async (): Promise<boolean> => {
     try {
-      return !!(await AsyncStorage.getItem(AppStorage.HANDOFF_STORAGE_KEY));
+      return !!(await AsyncStorage.getItem(BlueApp.HANDOFF_STORAGE_KEY));
     } catch (_) {}
     return false;
   };
 
   setIsHandoffEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(AppStorage.HANDOFF_STORAGE_KEY, value ? '1' : '');
+    await AsyncStorage.setItem(BlueApp.HANDOFF_STORAGE_KEY, value ? '1' : '');
   };
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
     try {
-      const keyExists = await AsyncStorage.getItem(AppStorage.DO_NOT_TRACK);
+      const keyExists = await AsyncStorage.getItem(BlueApp.DO_NOT_TRACK);
       if (keyExists !== null) {
         const doNotTrackValue = !!keyExists;
         if (doNotTrackValue) {
           await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-          await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
-          AsyncStorage.removeItem(AppStorage.DO_NOT_TRACK);
+          await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
+          AsyncStorage.removeItem(BlueApp.DO_NOT_TRACK);
         } else {
-          return Boolean(await DefaultPreference.get(AppStorage.DO_NOT_TRACK));
+          return Boolean(await DefaultPreference.get(BlueApp.DO_NOT_TRACK));
         }
       }
     } catch (_) {}
-    const doNotTrackValue = await DefaultPreference.get(AppStorage.DO_NOT_TRACK);
+    const doNotTrackValue = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
     return doNotTrackValue === '1' || false;
   };
 
   setDoNotTrack = async (value: boolean) => {
     await DefaultPreference.setName('group.io.bluewallet.bluewallet');
     if (value) {
-      await DefaultPreference.set(AppStorage.DO_NOT_TRACK, '1');
+      await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
     } else {
-      await DefaultPreference.clear(AppStorage.DO_NOT_TRACK);
+      await DefaultPreference.clear(BlueApp.DO_NOT_TRACK);
     }
   };
 
@@ -938,69 +939,3 @@ export class AppStorage {
     }
   }
 }
-
-const BlueApp = new AppStorage();
-// If attempt reaches 10, a wipe keychain option will be provided to the user.
-let unlockAttempt = 0;
-
-export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
-  console.log('startAndDecrypt');
-  if (BlueApp.getWallets().length > 0) {
-    console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
-    return true;
-  }
-  await BlueApp.migrateKeys();
-  let password: undefined | string;
-  if (await BlueApp.storageIsEncrypted()) {
-    do {
-      password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
-    } while (!password);
-  }
-  let success = false;
-  let wasException = false;
-  try {
-    success = await BlueApp.loadFromDisk(password);
-  } catch (error) {
-    // in case of exception reading from keystore, lets retry instead of assuming there is no storage and
-    // proceeding with no wallets
-    console.warn('exception loading from disk:', error);
-    wasException = true;
-  }
-
-  if (wasException) {
-    // retrying, but only once
-    try {
-      await new Promise(resolve => setTimeout(resolve, 3000)); // sleep
-      success = await BlueApp.loadFromDisk(password);
-    } catch (error) {
-      console.warn('second exception loading from disk:', error);
-    }
-  }
-
-  if (success) {
-    console.log('loaded from disk');
-    // We want to return true to let the UnlockWith screen that its ok to proceed.
-    return true;
-  }
-
-  if (password) {
-    // we had password and yet could not load/decrypt
-    unlockAttempt++;
-    if (unlockAttempt < 10 || Platform.OS !== 'ios') {
-      return startAndDecrypt(true);
-    } else {
-      unlockAttempt = 0;
-      Biometric.showKeychainWipeAlert();
-      // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
-      return false;
-    }
-  } else {
-    unlockAttempt = 0;
-    // Return true because there was no wallet data in keychain. Proceed.
-    return true;
-  }
-};
-
-initCurrencyDaemon();
-
-export default BlueApp;
