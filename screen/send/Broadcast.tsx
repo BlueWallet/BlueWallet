@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
 import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
-import navigationStyle from '../../components/navigationStyle';
 import {
   BlueBigCheckmark,
   BlueButtonLink,
@@ -24,6 +22,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { isTablet } from 'react-native-device-info';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -32,13 +31,18 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-const Broadcast = () => {
+interface BroadcastProps {}
+interface SuccessScreenProps {
+  tx: string;
+}
+
+const Broadcast: React.FC<BroadcastProps> = () => {
   const { name } = useRoute();
   const { navigate } = useNavigation();
-  const [tx, setTx] = useState();
-  const [txHex, setTxHex] = useState();
+  const [tx, setTx] = useState<string | undefined>();
+  const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
-  const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
+  const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
 
   const stylesHooks = StyleSheet.create({
     input: {
@@ -48,7 +52,7 @@ const Broadcast = () => {
     },
   });
 
-  const handleUpdateTxHex = nextValue => setTxHex(nextValue.trim());
+  const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
 
   const handleBroadcast = async () => {
     Keyboard.dismiss();
@@ -57,19 +61,22 @@ const Broadcast = () => {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
       const walletObj = new HDSegwitBech32Wallet();
-      const result = await walletObj.broadcastTx(txHex);
-      if (result) {
-        const newTx = bitcoin.Transaction.fromHex(txHex);
-        const txid = newTx.getId();
-        setTx(txid);
+      if (txHex) {
+        const result = await walletObj.broadcastTx(txHex);
+        if (result) {
+          const newTx = bitcoin.Transaction.fromHex(txHex);
+          const txid = newTx.getId();
+          setTx(txid);
 
-        setBroadcastResult(BROADCAST_RESULT.success);
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        Notifications.majorTomToGroundControl([], [], [txid]);
-      } else {
-        setBroadcastResult(BROADCAST_RESULT.error);
+          setBroadcastResult(BROADCAST_RESULT.success);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          // @ts-ignore: fix later
+          Notifications.majorTomToGroundControl([], [], [txid]);
+        } else {
+          setBroadcastResult(BROADCAST_RESULT.error);
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       presentAlert({ title: loc.errors.error, message: error.message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setBroadcastResult(BROADCAST_RESULT.error);
@@ -80,13 +87,11 @@ const Broadcast = () => {
     const scannedData = await scanQrHelper(navigate, name);
     if (!scannedData) return;
 
-    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
+    if (!scannedData.includes('+') && !scannedData.includes('=')) {
       return handleUpdateTxHex(scannedData);
     }
 
     try {
-      // sould be base64 encoded PSBT
       const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
       return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
@@ -112,11 +117,7 @@ const Broadcast = () => {
 
   return (
     <SafeArea>
-      <KeyboardAvoidingView
-        enabled={!Platform.isPad}
-        behavior={Platform.OS === 'ios' ? 'position' : null}
-        keyboardShouldPersistTaps="handled"
-      >
+      <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
         <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
@@ -128,10 +129,6 @@ const Broadcast = () => {
               <View style={[styles.input, stylesHooks.input]}>
                 <TextInput
                   style={styles.text}
-                  maxHeight={100}
-                  minHeight={100}
-                  maxWidth="100%"
-                  minWidth="100%"
                   multiline
                   editable
                   placeholderTextColor="#81868e"
@@ -149,21 +146,40 @@ const Broadcast = () => {
               <Button
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
-                disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
+                disabled={broadcastResult === BROADCAST_RESULT.pending || !txHex || txHex.length === 0}
                 testID="BroadcastButton"
               />
               <BlueSpacing20 />
             </BlueCard>
           )}
-          {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
+          {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} />}
         </View>
       </KeyboardAvoidingView>
     </SafeArea>
   );
 };
 
+const SuccessScreen: React.FC<SuccessScreenProps> = ({ tx }) => {
+  if (!tx) {
+    return null;
+  }
+
+  return (
+    <View style={styles.wrapper}>
+      <BlueCard>
+        <View style={styles.broadcastResultWrapper}>
+          <BlueBigCheckmark />
+          <BlueSpacing20 />
+          <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
+          <BlueSpacing10 />
+          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(`https://mempool.space/tx/${tx}`)} />
+        </View>
+      </BlueCard>
+    </View>
+  );
+};
+
 export default Broadcast;
-Broadcast.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.create_broadcast }));
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -203,31 +219,10 @@ const styles = StyleSheet.create({
   },
   text: {
     padding: 8,
-    minHeight: 33,
     color: '#81868e',
+    maxHeight: 100,
+    minHeight: 100,
+    maxWidth: '100%',
+    minWidth: '100%',
   },
 });
-
-const SuccessScreen = ({ tx }) => {
-  if (!tx) {
-    return null;
-  }
-
-  return (
-    <View style={styles.wrapper}>
-      <BlueCard>
-        <View style={styles.broadcastResultWrapper}>
-          <BlueBigCheckmark />
-          <BlueSpacing20 />
-          <BlueTextCentered>{loc.settings.success_transaction_broadcasted}</BlueTextCentered>
-          <BlueSpacing10 />
-          <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(`https://mempool.space/tx/${tx}`)} />
-        </View>
-      </BlueCard>
-    </View>
-  );
-};
-
-SuccessScreen.propTypes = {
-  tx: PropTypes.string.isRequired,
-};
