@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Dimensions, Platform } from 'react-native';
-import DeviceInfo, { isTablet } from 'react-native-device-info';
+import { useState, useEffect, useMemo } from 'react';
+import { Dimensions } from 'react-native';
+import { isTablet } from 'react-native-device-info';
 import { isDesktop } from '../blue_modules/environment';
 
 // Custom hook to determine if the screen is large
