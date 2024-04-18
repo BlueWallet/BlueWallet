@@ -34,7 +34,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
 import { TWallet, Transaction } from '../../class/wallets/types';
-import { getIsLargeScreen } from '../../helpers/getIsLargeScreen';
+import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -47,7 +47,6 @@ enum ActionTypes {
   SET_LOADING = 'SET_LOADING',
   SET_WALLETS = 'SET_WALLETS',
   SET_CURRENT_INDEX = 'SET_CURRENT_INDEX',
-  SET_IS_LARGE_SCREEN = 'SET_IS_LARGE_SCREEN',
   SET_REFRESH_FUNCTION = 'SET_REFRESH_FUNCTION',
 }
 
@@ -66,23 +65,17 @@ interface SetCurrentIndexAction {
   payload: number;
 }
 
-interface SetIsLargeScreenAction {
-  type: ActionTypes.SET_IS_LARGE_SCREEN;
-  payload: boolean;
-}
-
 interface SetRefreshFunctionAction {
   type: ActionTypes.SET_REFRESH_FUNCTION;
   payload: () => void;
 }
 
-type WalletListAction = SetLoadingAction | SetWalletsAction | SetCurrentIndexAction | SetIsLargeScreenAction | SetRefreshFunctionAction;
+type WalletListAction = SetLoadingAction | SetWalletsAction | SetCurrentIndexAction | SetRefreshFunctionAction;
 
 interface WalletListState {
   isLoading: boolean;
   wallets: TWallet[];
   currentWalletIndex: number;
-  isLargeScreen: boolean;
   refreshFunction: () => void;
 }
 
@@ -90,7 +83,6 @@ const initialState = {
   isLoading: false,
   wallets: [],
   currentWalletIndex: 0,
-  isLargeScreen: getIsLargeScreen(), // Set initial state based on condition
   refreshFunction: () => {},
 };
 
@@ -102,8 +94,6 @@ function reducer(state: WalletListState, action: WalletListAction) {
       return { ...state, wallets: action.payload };
     case ActionTypes.SET_CURRENT_INDEX:
       return { ...state, currentWalletIndex: action.payload };
-    case ActionTypes.SET_IS_LARGE_SCREEN:
-      return { ...state, isLargeScreen: action.payload };
     case ActionTypes.SET_REFRESH_FUNCTION:
       return { ...state, refreshFunction: action.payload };
     default:
@@ -113,7 +103,8 @@ function reducer(state: WalletListState, action: WalletListAction) {
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
-  const { isLoading, isLargeScreen } = state;
+  const { isLoading } = state;
+  const isLargeScreen = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
   const {
@@ -437,13 +428,6 @@ const WalletsList: React.FC = () => {
     });
   };
 
-  const onLayout = (_e: any) => {
-    dispatch({
-      type: ActionTypes.SET_IS_LARGE_SCREEN,
-      payload: Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop,
-    });
-  };
-
   const onRefresh = () => {
     refreshTransactions(true, false);
   };
@@ -456,7 +440,7 @@ const WalletsList: React.FC = () => {
   ];
 
   return (
-    <View style={styles.root} onLayout={onLayout}>
+    <View style={styles.root}>
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList<any | string, SectionData>
           removeClippedSubviews

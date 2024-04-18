@@ -88,6 +88,7 @@ import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
+import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 
 const WalletsStack = createNativeStackNavigator();
 
@@ -407,10 +408,7 @@ const DrawerListContent = (props: any) => {
 
 const Drawer = createDrawerNavigator();
 const DrawerRoot = () => {
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = useMemo(() => {
-    return Platform.OS === 'android' ? isTablet() : (dimensions.width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
-  }, [dimensions.width]);
+  const isLargeScreen = useIsLargeScreen();
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
