@@ -5,9 +5,7 @@ import {
   Text,
   StyleSheet,
   SectionList,
-  Platform,
   Image,
-  Dimensions,
   useWindowDimensions,
   findNodeHandle,
   I18nManager,
@@ -23,7 +21,7 @@ import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isDesktop, isTablet } from '../../blue_modules/environment';
+import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { scanQrHelper } from '../../helpers/scan-qr';
@@ -44,10 +42,10 @@ type SectionData = {
 };
 
 enum ActionTypes {
-  SET_LOADING = 'SET_LOADING',
-  SET_WALLETS = 'SET_WALLETS',
-  SET_CURRENT_INDEX = 'SET_CURRENT_INDEX',
-  SET_REFRESH_FUNCTION = 'SET_REFRESH_FUNCTION',
+  SET_LOADING,
+  SET_WALLETS,
+  SET_CURRENT_INDEX,
+  SET_REFRESH_FUNCTION,
 }
 
 interface SetLoadingAction {

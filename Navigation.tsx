@@ -1,7 +1,7 @@
 import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useContext, useMemo } from 'react';
-import { Dimensions, I18nManager, Platform, useWindowDimensions } from 'react-native';
+import { I18nManager, Platform } from 'react-native';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
 import Selftest from './screen/selftest';
@@ -67,7 +67,7 @@ import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
 import UnlockWith from './screen/UnlockWith';
-import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
+import { isDesktop, isHandset } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
