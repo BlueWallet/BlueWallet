@@ -210,7 +210,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                   numberOfLines={1}
                   adjustsFontSizeToFit
                   style={styles.walletBalanceText}
-                  ellipsizeMode="middle"
                 >
                   {balance}
                 </Text>
@@ -250,24 +249,23 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       )}
 
       {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
-        <TouchableOpacity accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
-          </View>
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
+          <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
         </TouchableOpacity>
       )}
       {wallet.type === LightningLdkWallet.type && (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc.lnd.title} onPress={handleManageFundsPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-          </View>
+        <TouchableOpacity
+          style={styles.manageFundsButton}
+          accessibilityRole="button"
+          accessibilityLabel={loc.lnd.title}
+          onPress={handleManageFundsPressed}
+        >
+          <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </TouchableOpacity>
       )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity accessibilityRole="button" onPress={handleManageFundsPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
-          </View>
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleManageFundsPressed}>
+          <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
     </LinearGradient>
@@ -297,6 +295,7 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
+    height: 30,
   },
   manageFundsButton: {
     marginTop: 14,
