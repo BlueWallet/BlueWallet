@@ -187,19 +187,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsQuickActionsEnabled(value);
   }, []);
 
-  const setIsPrivacyBlurEnabledState = useCallback((value: boolean) => {
-    setIsPrivacyBlurEnabled(value);
-    if (!value) {
-      presentAlert({ message: 'Privacy blur has been disabled.' });
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
-    if (!isPrivacyBlurEnabled) {
-      presentAlert({ message: 'Privacy blur has been disabled.' });
-    }
-  }, [isPrivacyBlurEnabled]);
+  const setIsPrivacyBlurEnabledState = useCallback(
+    (value: boolean) => {
+      setIsPrivacyBlurEnabled(value);
+      console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
+      if (!value) {
+        presentAlert({ message: 'Privacy blur has been disabled.' });
+      }
+    },
+    [isPrivacyBlurEnabled],
+  );
 
   const value = useMemo(
     () => ({
