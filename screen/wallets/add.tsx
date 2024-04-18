@@ -31,11 +31,11 @@ import Button from '../../components/Button';
 import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import useAsyncPromise from '../../hooks/useAsyncPromise';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import WalletButton from '../../components/WalletButton';
 import A from '../../blue_modules/analytics';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -123,8 +123,8 @@ const WalletsAdd: React.FC = () => {
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, isAdvancedModeEnabled, wallets } = useContext(BlueStorageContext);
-  const isAdvancedOptionsEnabled = useAsyncPromise(isAdvancedModeEnabled);
+  const { addWallet, saveToDisk, wallets } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {
     advancedText: {
@@ -423,7 +423,7 @@ const WalletsAdd: React.FC = () => {
 
         <View style={styles.advanced}>
           {(() => {
-            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedOptionsEnabled.data) {
+            if (selectedWalletType === ButtonSelected.ONCHAIN && isAdvancedModeEnabled) {
               return (
                 <View>
                   <BlueSpacing20 />
@@ -478,7 +478,7 @@ const WalletsAdd: React.FC = () => {
               );
             }
           })()}
-          {isAdvancedOptionsEnabled.data === true && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
+          {isAdvancedModeEnabled === true && selectedWalletType === ButtonSelected.ONCHAIN && !isLoading && (
             <BlueButtonLink style={styles.import} title={entropyButtonText} onPress={navigateToEntropy} />
           )}
           <BlueSpacing20 />

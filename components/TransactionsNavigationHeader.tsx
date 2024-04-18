@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet, LayoutAnimation } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
@@ -6,11 +6,11 @@ import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, Mul
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import ToolTipMenu from './TooltipMenu';
 import { FiatUnit } from '../models/fiatUnit';
 import { TWallet } from '../class/wallets/types';
 import { BlurredBalanceView } from './BlurredBalanceView';
+import { useSettings } from './Context/SettingsContext';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -43,8 +43,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
+  const { preferredFiatCurrency } = useSettings();
 
-  const { preferredFiatCurrency } = useContext(BlueStorageContext);
   const menuRef = useRef(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {

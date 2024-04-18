@@ -1,13 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const styles = StyleSheet.create({
   root: {
@@ -16,29 +16,17 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings: React.FC = () => {
-  const { isAdvancedModeEnabled, setIsAdvancedModeEnabled, wallets, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } =
-    useContext(BlueStorageContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdvancedModeSwitchEnabled, setIsAdvancedModeSwitchEnabled] = useState(false);
-  const [isURv1SwitchEnabled, setIsURv1SwitchEnabled] = useState(false);
+  const { wallets } = useContext(BlueStorageContext);
+  const {
+    isAdvancedModeEnabled,
+    setIsAdvancedModeEnabledStorage,
+    isHandOffUseEnabled,
+    setIsHandOffUseEnabledAsyncStorage,
+    isLegacyURv1Enabled,
+    setIsLegacyURv1EnabledStorage,
+  } = useSettings();
   const { navigate } = useNavigation();
   const { colors } = useTheme();
-  const onAdvancedModeSwitch = async (value: boolean) => {
-    await setIsAdvancedModeEnabled(value);
-    setIsAdvancedModeSwitchEnabled(value);
-  };
-  const onLegacyURv1Switch = async (value: boolean) => {
-    setIsURv1SwitchEnabled(value);
-    return value ? setUseURv1() : clearUseURv1();
-  };
-
-  useEffect(() => {
-    (async () => {
-      setIsAdvancedModeSwitchEnabled(await isAdvancedModeEnabled());
-      setIsURv1SwitchEnabled(await isURv1Enabled());
-      setIsLoading(false);
-    })();
-  });
 
   const navigateToPrivacy = () => {
     // @ts-ignore: Fix later
@@ -51,9 +39,7 @@ const GeneralSettings: React.FC = () => {
     },
   };
 
-  return isLoading ? (
-    <BlueLoading />
-  ) : (
+  return (
     <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
       {wallets.length > 1 && (
         <>
@@ -79,7 +65,7 @@ const GeneralSettings: React.FC = () => {
       <ListItem
         Component={PressableWrapper}
         title={loc.settings.general_adv_mode}
-        switch={{ onValueChange: onAdvancedModeSwitch, value: isAdvancedModeSwitchEnabled, testID: 'AdvancedMode' }}
+        switch={{ onValueChange: setIsAdvancedModeEnabledStorage, value: isAdvancedModeEnabled, testID: 'AdvancedMode' }}
       />
       <BlueCard>
         <BlueText>{loc.settings.general_adv_mode_e}</BlueText>
@@ -88,7 +74,7 @@ const GeneralSettings: React.FC = () => {
       <ListItem
         Component={PressableWrapper}
         title="Legacy URv1 QR"
-        switch={{ onValueChange: onLegacyURv1Switch, value: isURv1SwitchEnabled }}
+        switch={{ onValueChange: setIsLegacyURv1EnabledStorage, value: isLegacyURv1Enabled }}
       />
       <BlueSpacing20 />
     </ScrollView>

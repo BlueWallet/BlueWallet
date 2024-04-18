@@ -1,14 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
-import loc, { saveLanguage } from '../../loc';
+import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const styles = StyleSheet.create({
   flex: {
@@ -17,8 +17,7 @@ const styles = StyleSheet.create({
 });
 
 const Language = () => {
-  const { setLanguage, language } = useContext(BlueStorageContext);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(loc.getLanguage());
+  const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useNavigation();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -37,10 +36,8 @@ const Language = () => {
   }, [language]);
 
   const onLanguageSelect = (item: TLanguage) => {
-    const currentLanguage = AvailableLanguages.find(l => l.value === selectedLanguage);
-    saveLanguage(item.value).then(() => {
-      setSelectedLanguage(item.value);
-      setLanguage();
+    const currentLanguage = AvailableLanguages.find(l => l.value === language);
+    setLanguageStorage(item.value).then(() => {
       if (currentLanguage?.isRTL !== item.isRTL) {
         presentAlert({ message: loc.settings.language_isRTL });
       }
@@ -48,7 +45,7 @@ const Language = () => {
   };
 
   const renderItem = ({ item }: { item: TLanguage }) => {
-    return <ListItem title={item.label} checkmark={selectedLanguage === item.value} onPress={() => onLanguageSelect(item)} />;
+    return <ListItem title={item.label} checkmark={language === item.value} onPress={() => onLanguageSelect(item)} />;
   };
 
   return (

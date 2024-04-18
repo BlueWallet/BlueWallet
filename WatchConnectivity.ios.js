@@ -13,10 +13,11 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import Notifications from './blue_modules/notifications';
 import { FiatUnit } from './models/fiatUnit';
 import { MultisigHDWallet } from './class';
+import { useSettings } from './components/Context/SettingsContext';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata, preferredFiatCurrency } =
-    useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency } = useSettings();
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false
   const messagesListenerActive = useRef(false);
