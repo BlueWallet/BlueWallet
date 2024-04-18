@@ -103,6 +103,9 @@ const iStyles = StyleSheet.create({
     borderRadius: 12,
     minHeight: 164,
   },
+  balanceContainer: {
+    height: 40,
+  },
   image: {
     width: 99,
     height: 94,
@@ -218,21 +221,23 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
             <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
               {item.getLabel()}
             </Text>
-            {item.hideBalance ? (
-              <>
-                <BlueSpacing10 />
-                <BlurredBalanceView />
-              </>
-            ) : (
-              <Text
-                numberOfLines={1}
-                key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                ellipsizeMode="middle"
-                style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
-              >
-                {`${balance} `}
-              </Text>
-            )}
+            <View style={iStyles.balanceContainer}>
+              {item.hideBalance ? (
+                <>
+                  <BlueSpacing10 />
+                  <BlurredBalanceView />
+                </>
+              ) : (
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                  style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                >
+                  {`${balance} `}
+                </Text>
+              )}
+            </View>
             <Text style={iStyles.br} />
             <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
               {loc.wallets.list_latest_transaction}
