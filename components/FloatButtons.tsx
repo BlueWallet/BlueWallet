@@ -11,7 +11,7 @@ const ICON_MARGIN = 7;
 const cStyles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    height: '6.3%',
+    height: '6.9%',
     minHeight: 44,
   },
   rootAbsolute: {
