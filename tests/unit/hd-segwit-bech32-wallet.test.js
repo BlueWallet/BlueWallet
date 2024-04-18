@@ -236,7 +236,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       utxo,
       [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp' }], // sendMAX
       1,
-      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', // change wont actually be used
+      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', // change won't actually be used
     );
 
     const actualFeerate = psbt.getFee() / tx.virtualSize();

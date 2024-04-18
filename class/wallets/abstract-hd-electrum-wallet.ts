@@ -511,7 +511,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    if (txs.length === 0) return []; // guard clause; so we wont spend time calculating addresses
+    if (txs.length === 0) return []; // guard clause; so we won't spend time calculating addresses
 
     // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
     // iterates over all addresses in hierarchy
@@ -921,7 +921,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     this._utxo = this._utxo.sort((a, b) => Number(a.value) - Number(b.value));
-    // more consistent, so txhex in unit tests wont change
+    // more consistent, so txhex in unit tests won't change
   }
 
   /**

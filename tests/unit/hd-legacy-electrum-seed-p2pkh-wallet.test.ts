@@ -2,7 +2,7 @@ import assert from 'assert';
 import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {
-  it('wont accept BIP39 seed', () => {
+  it('won't accept BIP39 seed', () => {
     const hd = new HDLegacyElectrumSeedP2PKHWallet();
     hd.setSecret(
       'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode',
@@ -10,7 +10,7 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
     assert.ok(!hd.validateMnemonic());
   });
 
-  it('wont accept electrum seed, but SEGWIT seed', () => {
+  it('won't accept electrum seed, but SEGWIT seed', () => {
     const hd = new HDLegacyElectrumSeedP2PKHWallet();
     hd.setSecret('method goddess  humble  crumble output snake essay carpet monster barely trip betray ');
     assert.ok(!hd.validateMnemonic());

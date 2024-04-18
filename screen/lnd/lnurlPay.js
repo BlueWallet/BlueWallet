@@ -23,7 +23,7 @@ import prompt from '../../helpers/prompt';
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
  * to satoshi, and attempt to pay this satoshi value, which might be a little bit off from `min` & `max` values
- * provided by LnUrl. thats why we cache initial precise conversion rate so the reverse conversion wont be off.
+ * provided by LnUrl. thats why we cache initial precise conversion rate so the reverse conversion won't be off.
  */
 const _cacheFiatToSat = {};
 

@@ -123,7 +123,7 @@ const App = () => {
     await Notifications.clearStoredNotifications();
     Notifications.setApplicationIconBadgeNumber(0);
     const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
+    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble won't disappear too fast
 
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);

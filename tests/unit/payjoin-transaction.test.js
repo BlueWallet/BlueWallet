@@ -74,7 +74,7 @@ describe('PayjoinTransaction', () => {
     w.setSecret(process.env.MNEMONICS_COLDCARD);
     // bitcoin:bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj
 
-    // because `createTransaction()` has now readjusted coinselect algo, actual created psbt differs, and wont work
+    // because `createTransaction()` has now readjusted coinselect algo, actual created psbt differs, and won't work
     // with hardcoded psbt from btcpayserver. so instead of redoing whole process to get fresh psbt, we hardcode
     // created cransaction:
     const psbtOrigin = bitcoin.Psbt.fromBase64(

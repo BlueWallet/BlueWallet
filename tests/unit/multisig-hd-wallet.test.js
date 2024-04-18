@@ -757,7 +757,7 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint(fp2coldcard), process.env.MNEMONICS_COLDCARD);
     assert.strictEqual(w.howManySignaturesCanWeMake(), 1);
 
-    // now, provide fp with mnemonics and expect that wallet wont recalculate fp, and will use provided
+    // now, provide fp with mnemonics and expect that wallet won't recalculate fp, and will use provided
     w = new MultisigHDWallet();
     w.addCosigner(process.env.MNEMONICS_COLDCARD, 'DEADBABE');
     w.addCosigner(process.env.MNEMONICS_COBO);

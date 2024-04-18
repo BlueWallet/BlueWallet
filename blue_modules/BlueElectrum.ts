@@ -231,7 +231,7 @@ export async function connectMain(): Promise<void> {
         // code which does connection retries
         mainClient.close();
         mainConnected = false;
-        // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
+        // dropping `mainConnected` flag ensures there won't be reconnection race condition if several
         // errors triggered
         console.log('reconnecting after socket error');
         setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);

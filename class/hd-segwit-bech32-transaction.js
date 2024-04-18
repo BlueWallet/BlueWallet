@@ -314,7 +314,7 @@ export class HDSegwitBech32Transaction {
 
     if (changeAmount === 0) delete targets[0].value;
     // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
-    // target since fee wont change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
+    // target since fee won't change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
 
     if (targets.length === 0) {
       // looks like this was cancelled tx with single change output, so it wasnt included in `this.getInfo()` targets

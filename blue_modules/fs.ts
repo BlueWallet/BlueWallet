@@ -82,7 +82,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
 };
 
 /**
- * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (wont throw).
+ * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (won't throw).
  */
 export const openSignedTransaction = async function (): Promise<string | boolean> {
   try {

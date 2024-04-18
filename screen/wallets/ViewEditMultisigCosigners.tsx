@@ -215,7 +215,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
       const task = InteractionManager.runAfterInteractions(async () => {
         if (!w.current) {
-          // lets create fake wallet so renderer wont throw any errors
+          // lets create fake wallet so renderer won't throw any errors
           w.current = new MultisigHDWallet();
           w.current.setNativeSegwit();
         } else {

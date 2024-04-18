@@ -208,7 +208,7 @@ export class BlueApp {
    * Encrypts the bucket and saves it storage
    */
   createFakeStorage = async (fakePassword: string): Promise<boolean> => {
-    usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
+    usedBucketNum = false; // resetting currently used bucket so we won't overwrite it
     this.wallets = [];
     this.tx_metadata = {};
 
@@ -325,7 +325,7 @@ export class BlueApp {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
-    // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
+    // Wrap inside a try so if anything goes wrong it won't block loadFromDisk from continuing
     try {
       await this.moveRealmFilesToCacheDirectory();
     } catch (error: any) {
@@ -638,7 +638,7 @@ export class BlueApp {
         }
 
         if ('_bip47_instance' in keyCloned) {
-          delete keyCloned._bip47_instance; // since it wont be restored into a proper class instance
+          delete keyCloned._bip47_instance; // since it won't be restored into a proper class instance
         }
 
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));

@@ -100,7 +100,7 @@ const LNDViewInvoice = () => {
             const userInvoices = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just won't be updated
             const updatedUserInvoice = userInvoices.filter(filteredInvoice =>
               typeof invoice === 'object'
                 ? filteredInvoice.payment_request === invoice.payment_request

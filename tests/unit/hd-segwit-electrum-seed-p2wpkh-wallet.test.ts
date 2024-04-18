@@ -2,13 +2,13 @@ import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
 import assert from 'assert';
 
 describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
-  it('wont accept BIP39 seed', () => {
+  it('won't accept BIP39 seed', () => {
     const hd = new HDSegwitElectrumSeedP2WPKHWallet();
     hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
     assert.ok(!hd.validateMnemonic());
   });
 
-  it('wont accept electrum seed, but STANDARD p2pkh seed', () => {
+  it('won't accept electrum seed, but STANDARD p2pkh seed', () => {
     const hd = new HDSegwitElectrumSeedP2WPKHWallet();
     hd.setSecret('receive happy  wash prosper update    pet neck acid try profit proud hungry  ');
     assert.ok(!hd.validateMnemonic());

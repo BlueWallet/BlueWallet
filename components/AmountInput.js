@@ -104,7 +104,7 @@ class AmountInput extends Component {
     console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
+      // we cache conversion, so when we will need reverse conversion there won't be a rounding error
       AmountInput.conversionCache[newInputValue + newUnit] = amount;
     }
     this.props.onChangeText(newInputValue);
