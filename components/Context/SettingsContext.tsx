@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
@@ -19,7 +19,7 @@ interface SettingsContextType {
   isHandOffUseEnabled: boolean;
   setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
   isPrivacyBlurEnabled: boolean;
-  setIsPrivacyBlurEnabled: (value: boolean) => void;
+  setIsPrivacyBlurEnabledState: (value: boolean) => void;
   isAdvancedModeEnabled: boolean;
   setIsAdvancedModeEnabledStorage: (value: boolean) => Promise<void>;
   isDoNotTrackEnabled: boolean;
@@ -42,7 +42,7 @@ const defaultSettingsContext: SettingsContextType = {
   isHandOffUseEnabled: false,
   setIsHandOffUseEnabledAsyncStorage: async () => {},
   isPrivacyBlurEnabled: true,
-  setIsPrivacyBlurEnabled: () => {},
+  setIsPrivacyBlurEnabledState: () => {},
   isAdvancedModeEnabled: false,
   setIsAdvancedModeEnabledStorage: async () => {},
   isDoNotTrackEnabled: false,
@@ -132,51 +132,67 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [walletsInitialized]);
 
-  const setPreferredFiatCurrencyStorage = async (currency: TFiatUnit) => {
+  const setPreferredFiatCurrencyStorage = useCallback(async (currency: TFiatUnit) => {
     await setPreferredFiatCurrency(currency);
     setPreferredFiatCurrency(currency);
-  };
+  }, []);
 
-  const setLanguageStorage = async (newLanguage: string) => {
+  const setLanguageStorage = useCallback(async (newLanguage: string) => {
     await saveLanguage(newLanguage);
     setLanguage(newLanguage);
-  };
+  }, []);
 
-  const setIsAdvancedModeEnabledStorage = async (value: boolean) => {
-    await advancedModeStorage.setItem(JSON.stringify(value));
-    setIsAdvancedModeEnabled(value);
-  };
+  const setIsAdvancedModeEnabledStorage = useCallback(
+    async (value: boolean) => {
+      await advancedModeStorage.setItem(JSON.stringify(value));
+      setIsAdvancedModeEnabled(value);
+    },
+    [advancedModeStorage],
+  );
 
-  const setDoNotTrackStorage = async (value: boolean) => {
-    await doNotTrackStorage.setItem(JSON.stringify(value));
-    setIsDoNotTrackEnabled(value);
-  };
+  const setDoNotTrackStorage = useCallback(
+    async (value: boolean) => {
+      await doNotTrackStorage.setItem(JSON.stringify(value));
+      setIsDoNotTrackEnabled(value);
+    },
+    [doNotTrackStorage],
+  );
 
-  const setIsHandOffUseEnabledAsyncStorage = async (value: boolean) => {
-    setIsHandOffUseEnabled(value);
-    await isHandOffUseEnabledStorage.setItem;
-  };
+  const setIsHandOffUseEnabledAsyncStorage = useCallback(
+    async (value: boolean) => {
+      setIsHandOffUseEnabled(value);
+      await isHandOffUseEnabledStorage.setItem;
+    },
+    [isHandOffUseEnabledStorage.setItem],
+  );
 
-  const setIsWidgetBalanceDisplayAllowedStorage = async (value: boolean) => {
+  const setIsWidgetBalanceDisplayAllowedStorage = useCallback(async (value: boolean) => {
     await setBalanceDisplayAllowed(value);
     setIsWidgetBalanceDisplayAllowed(value);
-  };
+  }, []);
 
-  const setIsLegacyURv1EnabledStorage = async (value: boolean) => {
+  const setIsLegacyURv1EnabledStorage = useCallback(async (value: boolean) => {
     value ? await setUseURv1() : await clearUseURv1();
     await setIsLegacyURv1Enabled(value);
-  };
+  }, []);
 
-  const setIsClipboardGetContentEnabledStorage = async (value: boolean) => {
+  const setIsClipboardGetContentEnabledStorage = useCallback(async (value: boolean) => {
     await BlueClipboard().setReadClipboardAllowed(value);
     setIsClipboardGetContentEnabled(value);
-  };
+  }, []);
 
-  const setIsQuickActionsEnabledStorage = async (value: boolean) => {
+  const setIsQuickActionsEnabledStorage = useCallback(async (value: boolean) => {
     // @ts-ignore: Fix later
     await DeviceQuickActions.setEnabled(value);
     setIsQuickActionsEnabled(value);
-  };
+  }, []);
+
+  const setIsPrivacyBlurEnabledState = useCallback((value: boolean) => {
+    setIsPrivacyBlurEnabled(value);
+    if (!value) {
+      presentAlert({ message: 'Privacy blur has been disabled.' });
+    }
+  }, []);
 
   useEffect(() => {
     console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
@@ -185,28 +201,52 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, [isPrivacyBlurEnabled]);
 
-  const value: SettingsContextType = {
-    preferredFiatCurrency,
-    setPreferredFiatCurrencyStorage,
-    language,
-    setLanguageStorage,
-    isHandOffUseEnabled,
-    setIsHandOffUseEnabledAsyncStorage,
-    isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabled,
-    isAdvancedModeEnabled,
-    setIsAdvancedModeEnabledStorage,
-    isDoNotTrackEnabled,
-    setDoNotTrackStorage,
-    isWidgetBalanceDisplayAllowed,
-    setIsWidgetBalanceDisplayAllowedStorage,
-    isLegacyURv1Enabled,
-    setIsLegacyURv1EnabledStorage,
-    isClipboardGetContentEnabled,
-    setIsClipboardGetContentEnabledStorage,
-    isQuickActionsEnabled,
-    setIsQuickActionsEnabledStorage,
-  };
+  const value = useMemo(
+    () => ({
+      preferredFiatCurrency,
+      setPreferredFiatCurrencyStorage,
+      language,
+      setLanguageStorage,
+      isHandOffUseEnabled,
+      setIsHandOffUseEnabledAsyncStorage,
+      isPrivacyBlurEnabled,
+      setIsPrivacyBlurEnabledState,
+      isAdvancedModeEnabled,
+      setIsAdvancedModeEnabledStorage,
+      isDoNotTrackEnabled,
+      setDoNotTrackStorage,
+      isWidgetBalanceDisplayAllowed,
+      setIsWidgetBalanceDisplayAllowedStorage,
+      isLegacyURv1Enabled,
+      setIsLegacyURv1EnabledStorage,
+      isClipboardGetContentEnabled,
+      setIsClipboardGetContentEnabledStorage,
+      isQuickActionsEnabled,
+      setIsQuickActionsEnabledStorage,
+    }),
+    [
+      preferredFiatCurrency,
+      setPreferredFiatCurrencyStorage,
+      language,
+      setLanguageStorage,
+      isHandOffUseEnabled,
+      setIsHandOffUseEnabledAsyncStorage,
+      isPrivacyBlurEnabled,
+      setIsPrivacyBlurEnabledState,
+      isAdvancedModeEnabled,
+      setIsAdvancedModeEnabledStorage,
+      isDoNotTrackEnabled,
+      setDoNotTrackStorage,
+      isWidgetBalanceDisplayAllowed,
+      setIsWidgetBalanceDisplayAllowedStorage,
+      isLegacyURv1Enabled,
+      setIsLegacyURv1EnabledStorage,
+      isClipboardGetContentEnabled,
+      setIsClipboardGetContentEnabledStorage,
+      isQuickActionsEnabled,
+      setIsQuickActionsEnabledStorage,
+    ],
+  );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };

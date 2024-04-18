@@ -5,7 +5,6 @@ import { openSettings } from 'react-native-permissions';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
-import DeviceQuickActions from '../../class/quick-actions';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
@@ -18,16 +17,17 @@ const SettingsPrivacy = () => {
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
-    setIsPrivacyBlurEnabled,
+    setIsPrivacyBlurEnabledState,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
     setIsClipboardGetContentEnabledStorage,
+    isQuickActionsEnabled,
+    setIsQuickActionsEnabledStorage,
   } = useSettings();
   const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2, WIDGETS: 3 });
   const [isLoading, setIsLoading] = useState(sections.ALL);
 
-  const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState(false);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState(true);
   const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState(0);
   const styleHooks = StyleSheet.create({
@@ -40,7 +40,6 @@ const SettingsPrivacy = () => {
     (async () => {
       try {
         setStorageIsEncrypted(await isStorageEncrypted());
-        setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
       } catch (e) {
         console.log(e);
       }
@@ -63,8 +62,7 @@ const SettingsPrivacy = () => {
   const onQuickActionsValueChange = async value => {
     setIsLoading(sections.QUICKACTION);
     try {
-      await DeviceQuickActions.setEnabled(value);
-      setIsQuickActionsEnabled(value);
+      setIsQuickActionsEnabledStorage(value);
     } catch (e) {
       console.log(e);
     }
@@ -92,15 +90,13 @@ const SettingsPrivacy = () => {
   };
 
   const onDisablePrivacyTapped = () => {
-    setIsPrivacyBlurEnabled(!(isPrivacyBlurEnabledTapped >= 10));
+    setIsPrivacyBlurEnabledState(!(isPrivacyBlurEnabledTapped >= 10));
     setIsPrivacyBlurEnabledTapped(prev => prev + 1);
   };
 
   return (
     <ScrollView style={[styles.root, stylesWithThemeHook.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
-        {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
-      </Pressable>
+      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
       <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
@@ -113,7 +109,9 @@ const SettingsPrivacy = () => {
         }}
       />
       <BlueCard>
-        <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
+        <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
+          <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
+        </Pressable>
       </BlueCard>
       <BlueSpacing20 />
       {!storageIsEncrypted && (
