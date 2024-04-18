@@ -208,6 +208,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                   // @ts-ignore: Ugh
                   key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
                   numberOfLines={1}
+                  minimumFontScale={0.5}
                   adjustsFontSizeToFit
                   style={styles.walletBalanceText}
                 >
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
-    height: 30,
+    height: 34,
   },
   manageFundsButton: {
     marginTop: 14,

@@ -55,7 +55,7 @@ import AztecoRedeem from './screen/receive/aztecoRedeem';
 import ReceiveDetails from './screen/receive/details';
 
 import ScanQRCode from './screen/send/ScanQRCode';
-import Broadcast from './screen/send/broadcast';
+import Broadcast from './screen/send/Broadcast';
 import CoinControl from './screen/send/coinControl';
 import Confirm from './screen/send/confirm';
 import SendCreate from './screen/send/create';
@@ -161,7 +161,8 @@ const WalletsRoot = () => {
         component={LNDViewAdditionalInvoicePreImage}
         options={LNDViewAdditionalInvoicePreImage.navigationOptions(theme)}
       />
-      <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions(theme)} />
+
+      <WalletsStack.Screen name="Broadcast" component={Broadcast} options={navigationStyle({ title: loc.send.create_broadcast })(theme)} />
       <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
       <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
       <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
