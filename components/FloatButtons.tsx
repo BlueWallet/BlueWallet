@@ -4,14 +4,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
 
-const BORDER_RADIUS = 30;
-const PADDINGS = 8;
+const BORDER_RADIUS = 8;
+const PADDINGS = 24;
 const ICON_MARGIN = 7;
 
 const cStyles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    height: '6.3%',
+    height: '6.9%',
     minHeight: 44,
   },
   rootAbsolute: {
@@ -23,7 +23,6 @@ const cStyles = StyleSheet.create({
     bottom: -1000,
   },
   rootPost: {
-    borderRadius: BORDER_RADIUS,
     flexDirection: 'row',
     overflow: 'hidden',
   },
@@ -138,6 +137,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
   const bStylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.buttonBackgroundColor,
+      borderRadius: BORDER_RADIUS,
     },
     text: {
       color: colors.buttonAlternativeTextColor,
@@ -145,19 +145,25 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
     textDisabled: {
       color: colors.formBorder,
     },
+    marginRight: {
+      marginRight: 10,
+    },
   });
   const style: Record<string, any> = {};
+  const additionalStyles = !last ? bStylesHook.marginRight : {};
 
   if (width) {
-    const paddingLeft = first ? BORDER_RADIUS / 2 : PADDINGS;
-    const paddingRight = last ? BORDER_RADIUS / 2 : PADDINGS;
-    style.paddingRight = paddingRight;
-    style.paddingLeft = paddingLeft;
-    style.width = width + paddingRight + paddingLeft;
+    style.paddingHorizontal = PADDINGS;
+    style.width = width + PADDINGS * 2;
   }
 
   return (
-    <TouchableOpacity accessibilityLabel={text} accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
+    <TouchableOpacity
+      accessibilityLabel={text}
+      accessibilityRole="button"
+      style={[bStyles.root, bStylesHook.root, style, additionalStyles]}
+      {...props}
+    >
       <View style={bStyles.icon}>{icon}</View>
       <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}

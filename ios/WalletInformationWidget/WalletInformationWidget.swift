@@ -29,10 +29,10 @@ struct WalletInformationWidgetProvider: TimelineProvider {
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [WalletInformationWidgetEntry] = []
-    let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
+    let userPreferredCurrency = Currency.getUserPreferredCurrency()
     let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
     
-    WidgetAPI.fetchPrice(currency: userPreferredCurrency) { (result, error) in
+    MarketAPI.fetchPrice(currency: userPreferredCurrency) { (result, error) in
       let entry: WalletInformationWidgetEntry
       
       if let result = result {

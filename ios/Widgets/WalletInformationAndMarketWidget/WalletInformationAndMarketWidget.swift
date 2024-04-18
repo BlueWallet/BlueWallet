@@ -35,10 +35,10 @@ struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
       let timeline = Timeline(entries: entries, policy: .atEnd)
       completion(timeline)
     } else {
-      let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
+      let userPreferredCurrency = Currency.getUserPreferredCurrency()
       let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
       
-      WidgetAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
+      MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
         let entry: WalletInformationAndMarketWidgetEntry
         
         if let result = result {

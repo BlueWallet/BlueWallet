@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.22.6):
+  - BugsnagReactNative (7.22.7):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -352,7 +352,7 @@ PODS:
   - react-native-tcp-socket (6.0.6):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-webview (13.8.4):
+  - react-native-webview (13.8.6):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - react-native-widget-center (0.0.9):
@@ -469,7 +469,7 @@ PODS:
     - React-perflogger (= 0.72.12)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.6.2):
+  - RealmJS (12.7.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -782,7 +782,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BugsnagReactNative: 366a7e11c0bcf34842e54f40b15dd937cb267aa7
+  BugsnagReactNative: 7cc5c927f6a0b00a8e3cc7157dab4cc94a4bc575
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -822,7 +822,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
-  react-native-webview: 007d5c5a74de7243be6331221727639ed01ef760
+  react-native-webview: 2ce07db2190ee7b3af77e8fac75ff47abe47089f
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-NativeModulesApple: 694679e4193a49c09f0a76ee27ec09b2c466d59c
   React-perflogger: 63606aeab27683112e1bd4ef25bd099ec1cb03f8
@@ -842,7 +842,7 @@ SPEC CHECKSUMS:
   React-utils: 9a24cb88f950d1020ee55bddacbc8c16a611e2dc
   ReactCommon: 76843a9bb140596351ac2786257ac9fe60cafabb
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 385df5ee940d96f1de26b1dab153e325633d3052
+  RealmJS: 55c8cbedc3ef719a942e370f8c94e04cb7e6781c
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 090462274cc05b02628bd158baf6d73c3abe8441
