@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import {
@@ -31,12 +30,11 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-interface BroadcastProps {}
 interface SuccessScreenProps {
   tx: string;
 }
 
-const Broadcast: React.FC<BroadcastProps> = () => {
+const Broadcast: React.FC = () => {
   const { name } = useRoute();
   const { navigate } = useNavigation();
   const [tx, setTx] = useState<string | undefined>();
@@ -87,11 +85,13 @@ const Broadcast: React.FC<BroadcastProps> = () => {
     const scannedData = await scanQrHelper(navigate, name);
     if (!scannedData) return;
 
-    if (!scannedData.includes('+') && !scannedData.includes('=')) {
+    if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
       return handleUpdateTxHex(scannedData);
     }
 
     try {
+      // should be base64 encoded PSBT
       const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
       return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
@@ -146,7 +146,7 @@ const Broadcast: React.FC<BroadcastProps> = () => {
               <Button
                 title={loc.send.broadcastButton}
                 onPress={handleBroadcast}
-                disabled={broadcastResult === BROADCAST_RESULT.pending || !txHex || txHex.length === 0}
+                disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
                 testID="BroadcastButton"
               />
               <BlueSpacing20 />
