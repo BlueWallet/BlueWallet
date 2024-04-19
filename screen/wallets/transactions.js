@@ -277,7 +277,6 @@ const WalletTransactions = ({ navigation }) => {
 
     return (
       <View style={styles.flex}>
-        <View style={styles.listHeader}>{wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}</View>
         {wallet.type === LightningLdkWallet.type && (lnNodeInfo.canSend > 0 || lnNodeInfo.canReceive > 0) && (
           <View style={[styles.marginHorizontal18, styles.marginBottom18]}>
             <LNNodeBar canSend={lnNodeInfo.canSend} canReceive={lnNodeInfo.canReceive} itemPriceUnit={itemPriceUnit} />
@@ -287,26 +286,6 @@ const WalletTransactions = ({ navigation }) => {
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
         </View>
       </View>
-    );
-  };
-
-  const renderLappBrowserButton = () => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={() => {
-          navigate('LappBrowserRoot', {
-            screen: 'LappBrowser',
-            params: {
-              walletID,
-              url: 'https://duckduckgo.com',
-            },
-          });
-        }}
-        style={[styles.browserButton2, stylesHook.browserButton2]}
-      >
-        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_ln_browser}</Text>
-      </TouchableOpacity>
     );
   };
 

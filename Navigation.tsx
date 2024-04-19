@@ -71,7 +71,6 @@ import { isDesktop, isHandset, isTablet } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
-import LappBrowser from './screen/lnd/browser';
 import LdkInfo from './screen/lnd/ldkInfo';
 import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
@@ -492,17 +491,6 @@ const WalletExportStackRoot = () => {
   );
 };
 
-const LappBrowserStack = createNativeStackNavigator();
-const LappBrowserStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <LappBrowserStack.Navigator id="LappBrowserRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="LappBrowser">
-      <LappBrowserStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions(theme)} />
-    </LappBrowserStack.Navigator>
-  );
-};
-
 const InitStack = createNativeStackNavigator();
 const InitRoot = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
@@ -638,7 +626,6 @@ const Navigation = () => {
       />
       <RootStack.Screen name="SelectWallet" component={SelectWallet} />
       <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="LappBrowserRoot" component={LappBrowserStackRoot} options={NavigationDefaultOptions} />
       <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
 
       <RootStack.Screen
