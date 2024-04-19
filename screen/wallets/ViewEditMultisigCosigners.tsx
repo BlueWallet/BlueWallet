@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -55,13 +55,15 @@ import ActionSheet from '../ActionSheet';
 import SaveFileButton from '../../components/SaveFileButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import prompt from '../../helpers/prompt';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
 
 const ViewEditMultisigCosigners = ({ route }: Props) => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled, isAdvancedModeEnabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
   const { walletId } = route.params;
@@ -80,7 +82,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const data = useRef<any[]>();
   /* discardChangesRef is only so the action sheet can be shown on mac catalyst when a 
     user tries to leave the screen with unsaved changes.
@@ -166,11 +167,6 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
       return unsubscribe;
     }, [isSaveButtonDisabled, addListener, dispatch]),
   );
-
-  useEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const saveFileButtonAfterOnPress = () => {
     setIsShareModalVisible(false);
@@ -546,7 +542,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            {isAdvancedModeEnabledRender && (
+            {isAdvancedModeEnabled && (
               <>
                 <BlueSpacing10 />
                 <View style={styles.row}>

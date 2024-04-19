@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
-import React, { useContext, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import {
@@ -10,16 +10,16 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { useSettings } from '../../components/Context/SettingsContext';
 dayjs.extend(require('dayjs/plugin/calendar'));
 
 const Currency = () => {
-  const { setPreferredFiatCurrency } = useContext(BlueStorageContext);
+  const { setPreferredFiatCurrencyStorage } = useSettings();
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
@@ -74,7 +74,7 @@ const Currency = () => {
           await initCurrencyDaemon(true);
           await fetchCurrency();
           setSelectedCurrency(item);
-          setPreferredFiatCurrency();
+          setPreferredFiatCurrencyStorage(FiatUnit[item.endPointKey]);
         } catch (error: any) {
           console.log(error);
           presentAlert({

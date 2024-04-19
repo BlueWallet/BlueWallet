@@ -39,12 +39,13 @@ import usePrivacy from '../../hooks/usePrivacy';
 import prompt from '../../helpers/prompt';
 import A from '../../blue_modules/analytics';
 import SaveFileButton from '../../components/SaveFileButton';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, isAdvancedModeEnabled, sleep, currentSharedCosigner, setSharedCosigner } =
-    useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
   const navigation = useNavigation();
@@ -62,15 +63,9 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const openScannerButton = useRef();
   const data = useRef(new Array(n));
   const { enableBlur, disableBlur } = usePrivacy();
-
-  useEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -607,7 +602,7 @@ const WalletsAddMultisigStep2 = () => {
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
             <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            {isAdvancedModeEnabledRender && (
+            {isAdvancedModeEnabled && (
               <>
                 <BlueSpacing10 />
                 <View style={styles.row}>

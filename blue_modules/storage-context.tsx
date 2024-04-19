@@ -1,15 +1,11 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { startAndDecrypt } from './start-and-decrypt';
 import Notifications from '../blue_modules/notifications';
 import { LegacyWallet, TTXMetadata, WatchOnlyWallet, BlueApp as BlueAppClass } from '../class';
 import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
-import loc, { STORAGE_KEY as LOC_STORAGE_KEY } from '../loc';
-import { FiatUnit, TFiatUnit } from '../models/fiatUnit';
+import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
-import { initCurrencyDaemon, PREFERRED_CURRENCY_STORAGE_KEY } from './currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 import A from '../blue_modules/analytics';
 
@@ -35,23 +31,13 @@ interface BlueStorageContextType {
   setWalletsInitialized: (initialized: boolean) => void;
   refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
   resetWallets: () => void;
-  setPreferredFiatCurrency: () => void;
-  preferredFiatCurrency: TFiatUnit;
-  setLanguage: () => void;
-  language: string | undefined;
-  isHandOffUseEnabled: boolean;
-  setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
   isElectrumDisabled: boolean;
   setIsElectrumDisabled: (value: boolean) => void;
-  isPrivacyBlurEnabled: boolean;
-  setIsPrivacyBlurEnabled: (value: boolean) => void;
   reloadTransactionsMenuActionFunction: () => void;
   setReloadTransactionsMenuActionFunction: (func: () => void) => void;
-
   getTransactions: typeof BlueApp.getTransactions;
-  isAdvancedModeEnabled: typeof BlueApp.isAdvancedModeEnabled;
   fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
   fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
   getBalance: typeof BlueApp.getBalance;
@@ -63,9 +49,6 @@ interface BlueStorageContextType {
   decryptStorage: typeof BlueApp.decryptStorage;
   isPasswordInUse: typeof BlueApp.isPasswordInUse;
   cachedPassword: typeof BlueApp.cachedPassword;
-  setIsAdvancedModeEnabled: typeof BlueApp.setIsAdvancedModeEnabled;
-  setDoNotTrack: typeof BlueApp.setDoNotTrack;
-  isDoNotTrackEnabled: typeof BlueApp.isDoNotTrackEnabled;
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
 }
@@ -83,14 +66,8 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
-  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState<TFiatUnit>(FiatUnit.USD);
-  const [language, _setLanguage] = useState<string | undefined>();
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState<boolean>(false);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
-  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
-  const getPreferredCurrencyAsyncStorage = useAsyncStorage(PREFERRED_CURRENCY_STORAGE_KEY).getItem;
-  const getLanguageAsyncStorage = useAsyncStorage(LOC_STORAGE_KEY).getItem;
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   useEffect(() => {
@@ -99,22 +76,9 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (walletsInitialized) {
-      initCurrencyDaemon();
       BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
-
-  useEffect(() => {
-    console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
-    if (!isPrivacyBlurEnabled) {
-      presentAlert({ message: 'Privacy blur has been disabled.' });
-    }
-  }, [isPrivacyBlurEnabled]);
-
-  const setIsHandOffUseEnabledAsyncStorage = (value: boolean) => {
-    setIsHandOffUseEnabled(value);
-    return BlueApp.setIsHandoffEnabled(value);
-  };
 
   const saveToDisk = async (force: boolean = false) => {
     if (BlueApp.getWallets().length === 0 && !force) {
@@ -129,47 +93,6 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const enabledHandoff = await BlueApp.isHandoffEnabled();
-        setIsHandOffUseEnabled(!!enabledHandoff);
-      } catch (_e) {
-        setIsHandOffUseEnabledAsyncStorage(false);
-        setIsHandOffUseEnabled(false);
-      }
-    })();
-  }, []);
-
-  const getPreferredCurrency = async () => {
-    // @ts-ignore TODO: fix this
-    const item = JSON.parse(await getPreferredCurrencyAsyncStorage()) ?? FiatUnit.USD;
-    _setPreferredFiatCurrency(item);
-    return item;
-  };
-
-  const setPreferredFiatCurrency = () => {
-    getPreferredCurrency();
-  };
-
-  const getLanguage = async () => {
-    const item = await getLanguageAsyncStorage();
-    if (item === null) {
-      return;
-    }
-    _setLanguage(item);
-  };
-
-  const setLanguage = () => {
-    getLanguage();
-  };
-
-  useEffect(() => {
-    getPreferredCurrency();
-    getLanguageAsyncStorage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const resetWallets = () => {
@@ -272,7 +195,6 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
 
   let txMetadata = BlueApp.tx_metadata;
   const getTransactions = BlueApp.getTransactions;
-  const isAdvancedModeEnabled = BlueApp.isAdvancedModeEnabled;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
   const getBalance = BlueApp.getBalance;
@@ -283,9 +205,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   const decryptStorage = BlueApp.decryptStorage;
   const isPasswordInUse = BlueApp.isPasswordInUse;
   const cachedPassword = BlueApp.cachedPassword;
-  const setIsAdvancedModeEnabled = BlueApp.setIsAdvancedModeEnabled;
-  const setDoNotTrack = BlueApp.setDoNotTrack;
-  const isDoNotTrackEnabled = BlueApp.isDoNotTrackEnabled;
+
   const getItem = BlueApp.getItem;
   const setItem = BlueApp.setItem;
 
@@ -304,7 +224,6 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     addAndSaveWallet,
     setItem,
     getItem,
-    isAdvancedModeEnabled,
     fetchWalletBalances,
     fetchWalletTransactions,
     fetchAndSaveWalletTransactions,
@@ -321,24 +240,15 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     resetWallets,
     decryptStorage,
     isPasswordInUse,
-    setIsAdvancedModeEnabled,
-    setPreferredFiatCurrency,
-    preferredFiatCurrency,
-    setLanguage,
-    language,
-    isHandOffUseEnabled,
-    setIsHandOffUseEnabledAsyncStorage,
     walletTransactionUpdateStatus,
     setWalletTransactionUpdateStatus,
-    setDoNotTrack,
-    isDoNotTrackEnabled,
     isElectrumDisabled,
     setIsElectrumDisabled,
-    isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabled,
     reloadTransactionsMenuActionFunction,
     setReloadTransactionsMenuActionFunction,
   };
 
   return <BlueStorageContext.Provider value={value}>{children}</BlueStorageContext.Provider>;
 };
+
+export const useStorage = () => useContext(BlueStorageContext);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
@@ -11,12 +11,12 @@ import {
 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -24,11 +24,10 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
-  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
+  const { isAdvancedModeEnabled } = useSettings();
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const [, setSpeedBackdoor] = useState(0);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [searchAccounts, setSearchAccounts] = useState(false);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const { enableBlur, disableBlur } = usePrivacy();
@@ -70,7 +69,6 @@ const WalletsImport = () => {
   }, [disableBlur, enableBlur]);
 
   useEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -117,7 +115,7 @@ const WalletsImport = () => {
 
   const renderOptionsAndImportButton = (
     <>
-      {isAdvancedModeEnabledRender && (
+      {isAdvancedModeEnabled && (
         <>
           <View style={styles.row}>
             <BlueText>{loc.wallets.import_passphrase}</BlueText>

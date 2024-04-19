@@ -14,7 +14,7 @@ import About from './screen/settings/about';
 import DefaultView from './screen/settings/DefaultView';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import EncryptStorage from './screen/settings/encryptStorage';
-import Language from './screen/settings/language';
+import Language from './screen/settings/Language';
 import LightningSettings from './screen/settings/lightningSettings';
 import NotificationSettings from './screen/settings/notificationSettings';
 import ReleaseNotes from './screen/settings/releasenotes';

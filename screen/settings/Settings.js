@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { ScrollView, StyleSheet, Platform } from 'react-native';
 import { BlueHeaderDefaultSub } from '../../BlueComponents';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const styles = StyleSheet.create({
   root: {
@@ -22,7 +22,7 @@ const Settings = () => {
   const { navigate } = useExtendedNavigation();
   // By simply having it here, it'll re-render the UI if language is changed
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { language } = useContext(BlueStorageContext);
+  const { language } = useSettings();
 
   return (
     <ScrollView
