@@ -325,8 +325,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage'); // retyping
     await element(by.text('OK')).tap();
 
-    await expect(element(by.text('Success'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    // Disable for now, Toast doesnt seem to exposed on Detox.
+    // await expect(element(by.text('Success'))).toBeVisible();
+    // await element(by.text('OK')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -406,8 +407,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
     await element(by.text('OK')).tap();
-    await expect(element(by.text('Success'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    // Disable for now, Toast doesnt seem to exposed on Detox.
+    // await expect(element(by.text('Success'))).toBeVisible();
+    // await element(by.text('OK')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
