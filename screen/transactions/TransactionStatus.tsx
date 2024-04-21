@@ -17,6 +17,7 @@ import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Transaction } from '../../class/wallets/types';
 
 enum ButtonStatus {
   Possible,
@@ -164,10 +165,11 @@ const TransactionsStatus = () => {
   }, [colors, tx]);
 
   useEffect(() => {
-    for (const newTx of wallet.current?.getTransactions()) {
-      if (newTx.hash === hash) {
+    if (wallet.current) {
+      const transactions = wallet.current.getTransactions();
+      const newTx = transactions.find((t: Transaction) => t.hash === hash);
+      if (newTx) {
         setTX(newTx);
-        break;
       }
     }
 
@@ -199,18 +201,22 @@ const TransactionsStatus = () => {
         console.log('checking tx', hash, 'for confirmations...');
         const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
         const txFromElectrum = transactions[hash];
+        if (!txFromElectrum) return;
+
         console.log('got txFromElectrum=', txFromElectrum);
 
         const address = (txFromElectrum?.vout[0]?.scriptPubKey?.addresses || []).pop();
+        if (!address) return;
 
         if (txFromElectrum && !txFromElectrum.confirmations && txFromElectrum.vsize && address) {
           const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
           let txFromMempool;
-          // searhcing for a correct tx in case this address has several pending txs:
+          // searching for a correct tx in case this address has several pending txs:
           for (const tempTxM of txsM) {
             if (tempTxM.tx_hash === hash) txFromMempool = tempTxM;
           }
           if (!txFromMempool) return;
+
           console.log('txFromMempool=', txFromMempool);
 
           const satPerVbyte = Math.round(txFromMempool.fee / txFromElectrum.vsize);
