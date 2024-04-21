@@ -19,13 +19,15 @@ import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import { useTheme } from './themes';
 import ListItem from './ListItem';
+import { useSettings } from './Context/SettingsContext';
 
 export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const menuRef = useRef();
-  const { txMetadata, wallets, preferredFiatCurrency, language } = useContext(BlueStorageContext);
+  const { txMetadata, wallets } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency, language } = useSettings();
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',

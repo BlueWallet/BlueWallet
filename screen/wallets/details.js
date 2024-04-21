@@ -50,6 +50,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import SaveFileButton from '../../components/SaveFileButton';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -129,8 +130,7 @@ const WalletDetails = () => {
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
-  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
+  const { isAdvancedModeEnabled } = useSettings();
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
@@ -152,12 +152,12 @@ const WalletDetails = () => {
   const onMenuWillHide = () => setIsToolTipMenuVisible(false);
 
   useEffect(() => {
-    if (isAdvancedModeEnabledRender && wallet.allowMasterFingerprint()) {
+    if (isAdvancedModeEnabled && wallet.allowMasterFingerprint()) {
       InteractionManager.runAfterInteractions(() => {
         setMasterFingerprint(wallet.getMasterFingerprintHex());
       });
     }
-  }, [isAdvancedModeEnabledRender, wallet]);
+  }, [isAdvancedModeEnabled, wallet]);
   const stylesHook = StyleSheet.create({
     textLabel1: {
       color: colors.feeText,
@@ -214,8 +214,6 @@ const WalletDetails = () => {
   };
 
   useLayoutEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
-
     setOptions({
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () => (
@@ -635,7 +633,7 @@ const WalletDetails = () => {
                     </View>
                   </>
                 )}
-                {isAdvancedModeEnabledRender && (
+                {isAdvancedModeEnabled && (
                   <View style={styles.row}>
                     {wallet.allowMasterFingerprint() && (
                       <View style={styles.marginRight16}>

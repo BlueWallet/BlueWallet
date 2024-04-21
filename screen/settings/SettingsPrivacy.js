@@ -5,24 +5,29 @@ import { openSettings } from 'react-native-permissions';
 import navigationStyle from '../../components/navigationStyle';
 import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
-import DeviceQuickActions from '../../class/quick-actions';
-import BlueClipboard from '../../blue_modules/clipboard';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import A from '../../blue_modules/analytics';
+import { useSettings } from '../../components/Context/SettingsContext';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted, isDoNotTrackEnabled, setDoNotTrack, setIsPrivacyBlurEnabled } = useContext(BlueStorageContext);
+  const { isStorageEncrypted } = useContext(BlueStorageContext);
+  const {
+    isDoNotTrackEnabled,
+    setDoNotTrackStorage,
+    setIsPrivacyBlurEnabledState,
+    isWidgetBalanceDisplayAllowed,
+    setIsWidgetBalanceDisplayAllowedStorage,
+    isClipboardGetContentEnabled,
+    setIsClipboardGetContentEnabledStorage,
+    isQuickActionsEnabled,
+    setIsQuickActionsEnabledStorage,
+  } = useSettings();
   const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2, WIDGETS: 3 });
   const [isLoading, setIsLoading] = useState(sections.ALL);
-  const [isReadClipboardAllowed, setIsReadClipboardAllowed] = useState(false);
-  const [doNotTrackSwitchValue, setDoNotTrackSwitchValue] = useState(false);
 
-  const [isDisplayWidgetBalanceAllowed, setIsDisplayWidgetBalanceAllowed] = useState(false);
-  const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState(false);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState(true);
   const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState(0);
   const styleHooks = StyleSheet.create({
@@ -34,11 +39,7 @@ const SettingsPrivacy = () => {
   useEffect(() => {
     (async () => {
       try {
-        isDoNotTrackEnabled().then(setDoNotTrackSwitchValue);
-        setIsReadClipboardAllowed(await BlueClipboard().isReadClipboardAllowed());
         setStorageIsEncrypted(await isStorageEncrypted());
-        setIsQuickActionsEnabled(await DeviceQuickActions.getEnabled());
-        setIsDisplayWidgetBalanceAllowed(await isBalanceDisplayAllowed());
       } catch (e) {
         console.log(e);
       }
@@ -47,23 +48,11 @@ const SettingsPrivacy = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onValueChange = async value => {
-    setIsLoading(sections.CLIPBOARDREAD);
-    try {
-      await BlueClipboard().setReadClipboardAllowed(value);
-      setIsReadClipboardAllowed(value);
-    } catch (e) {
-      console.log(e);
-    }
-    setIsLoading(false);
-  };
-
   const onDoNotTrackValueChange = async value => {
     setIsLoading(sections.ALL);
     try {
-      await setDoNotTrack(value);
+      setDoNotTrackStorage(value);
       A.setOptOut(value);
-      setDoNotTrackSwitchValue(value);
     } catch (e) {
       console.log(e);
     }
@@ -73,8 +62,7 @@ const SettingsPrivacy = () => {
   const onQuickActionsValueChange = async value => {
     setIsLoading(sections.QUICKACTION);
     try {
-      await DeviceQuickActions.setEnabled(value);
-      setIsQuickActionsEnabled(value);
+      setIsQuickActionsEnabledStorage(value);
     } catch (e) {
       console.log(e);
     }
@@ -84,8 +72,7 @@ const SettingsPrivacy = () => {
   const onWidgetsTotalBalanceValueChange = async value => {
     setIsLoading(sections.WIDGETS);
     try {
-      await setBalanceDisplayAllowed(value);
-      setIsDisplayWidgetBalanceAllowed(value);
+      setIsWidgetBalanceDisplayAllowedStorage(value);
     } catch (e) {
       console.log(e);
     }
@@ -103,23 +90,28 @@ const SettingsPrivacy = () => {
   };
 
   const onDisablePrivacyTapped = () => {
-    setIsPrivacyBlurEnabled(!(isPrivacyBlurEnabledTapped >= 10));
+    setIsPrivacyBlurEnabledState(!(isPrivacyBlurEnabledTapped >= 10));
     setIsPrivacyBlurEnabledTapped(prev => prev + 1);
   };
 
   return (
     <ScrollView style={[styles.root, stylesWithThemeHook.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
-        {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
-      </Pressable>
+      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
       <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
-        switch={{ onValueChange, value: isReadClipboardAllowed, disabled: isLoading === sections.ALL, testID: 'ClipboardSwitch' }}
+        switch={{
+          onValueChange: setIsClipboardGetContentEnabledStorage,
+          value: isClipboardGetContentEnabled,
+          disabled: isLoading === sections.ALL,
+          testID: 'ClipboardSwitch',
+        }}
       />
       <BlueCard>
-        <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
+        <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
+          <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
+        </Pressable>
       </BlueCard>
       <BlueSpacing20 />
       {!storageIsEncrypted && (
@@ -144,7 +136,7 @@ const SettingsPrivacy = () => {
         hideChevron
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
-        switch={{ onValueChange: onDoNotTrackValueChange, value: doNotTrackSwitchValue, disabled: isLoading === sections.ALL }}
+        switch={{ onValueChange: onDoNotTrackValueChange, value: isDoNotTrackEnabled, disabled: isLoading === sections.ALL }}
       />
       <BlueCard>
         <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
@@ -161,7 +153,7 @@ const SettingsPrivacy = () => {
             Component={TouchableWithoutFeedback}
             switch={{
               onValueChange: onWidgetsTotalBalanceValueChange,
-              value: isDisplayWidgetBalanceAllowed,
+              value: isWidgetBalanceDisplayAllowed,
               disabled: isLoading === sections.ALL,
             }}
           />

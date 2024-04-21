@@ -9,12 +9,14 @@ import { formatBalance } from '../loc';
 import DeeplinkSchemaMatch from './deeplink-schema-match';
 import { TWallet } from './wallets/types';
 import useOnAppLaunch from '../hooks/useOnAppLaunch';
+import { useSettings } from '../components/Context/SettingsContext';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
 function DeviceQuickActions(): JSX.Element | null {
-  const { wallets, walletsInitialized, isStorageEncrypted, preferredFiatCurrency, addWallet, saveToDisk, setSharedCosigner } =
-    useContext(BlueStorageContext);
+  const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency } = useSettings();
+
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
   useEffect(() => {

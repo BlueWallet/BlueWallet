@@ -23,6 +23,7 @@ import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/st
 import { useTheme } from './themes';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import { useSettings } from './Context/SettingsContext';
 
 const nStyles = StyleSheet.create({
   container: {
@@ -275,7 +276,7 @@ const cStyles = StyleSheet.create({
 const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef((props, ref) => {
-  const { preferredFiatCurrency, language } = useContext(BlueStorageContext);
+  const { preferredFiatCurrency, language } = useSettings();
   const { horizontal, data, handleLongPress, onPress, selectedWallet } = props;
   const renderItem = useCallback(
     ({ item, index }) =>
