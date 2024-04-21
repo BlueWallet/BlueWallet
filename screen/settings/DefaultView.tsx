@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { View, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -45,7 +45,7 @@ const DefaultView: React.FC = () => {
   });
 
   const { navigate, pop } = useNavigation<DefaultViewNavigationProp>();
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet, setSelectedDefaultWallet, setViewAllWalletsEnabled } = useOnAppLaunch();
 
   useEffect(() => {
@@ -67,7 +67,13 @@ const DefaultView: React.FC = () => {
   const onViewAllWalletsSwitchValueChanged = async (value: boolean) => {
     await setViewAllWalletsEnabled(value);
     dispatch({ type: ActionType.SetViewAllWalletsSwitch, payload: value });
-    if (!value) {
+
+    if (!value && wallets.length === 1) {
+      // Automatically select the wallet if there is only one
+      const selectedWallet = wallets[0];
+      await setSelectedDefaultWallet(selectedWallet.getID());
+      dispatch({ type: ActionType.SetDefaultWalletLabel, payload: selectedWallet.getLabel() });
+    } else if (!value) {
       const selectedWalletID = await getSelectedDefaultWallet();
       const selectedWallet = wallets.find(wallet => wallet.getID() === selectedWalletID);
       if (selectedWallet) {
@@ -104,7 +110,13 @@ const DefaultView: React.FC = () => {
           <BlueText>{loc.settings.default_desc}</BlueText>
         </BlueCard>
         {!state.isViewAllWalletsSwitchEnabled && (
-          <ListItem title={loc.settings.default_info} onPress={selectWallet} rightTitle={state.defaultWalletLabel} chevron />
+          <ListItem
+            title={loc.settings.default_info}
+            onPress={selectWallet}
+            rightTitle={state.defaultWalletLabel}
+            chevron
+            disabled={wallets.length <= 1}
+          />
         )}
       </View>
     </ScrollView>

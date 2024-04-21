@@ -40,8 +40,8 @@ const GeneralSettings: React.FC = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, stylesWithThemeHook.root]}>
-      {wallets.length > 1 && (
+    <ScrollView style={[styles.root, stylesWithThemeHook.root]} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
+      {wallets.length > 0 && (
         <>
           {/* @ts-ignore: Fix later */}
           <ListItem onPress={() => navigate('DefaultView')} title={loc.settings.default_title} chevron />

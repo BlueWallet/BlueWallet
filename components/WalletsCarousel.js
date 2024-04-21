@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   View,
-  Dimensions,
   FlatList,
   Pressable,
 } from 'react-native';
@@ -21,9 +20,9 @@ import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '
 import WalletGradient from '../class/wallet-gradient';
 import { BlueSpacing10 } from '../BlueComponents';
 import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
-import { isTablet, isDesktop } from '../blue_modules/environment';
 import { useTheme } from './themes';
 import { BlurredBalanceView } from './BlurredBalanceView';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import { useSettings } from './Context/SettingsContext';
 
 const nStyles = StyleSheet.create({
@@ -57,7 +56,7 @@ const NewWalletPanel = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
+  const isLargeScreen = useIsLargeScreen();
   const nStylesHooks = StyleSheet.create({
     container: isLargeScreen
       ? {
@@ -161,7 +160,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
   const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = Platform.OS === 'android' ? isTablet() : (width >= Dimensions.get('screen').width / 2 && isTablet()) || isDesktop;
+  const isLargeScreen = useIsLargeScreen();
   const onPressedIn = () => {
     Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 0.9 }).start();
   };
