@@ -45,7 +45,14 @@ const Language = () => {
   };
 
   const renderItem = ({ item }: { item: TLanguage }) => {
-    return <ListItem title={item.label} checkmark={language === item.value} onPress={() => onLanguageSelect(item)} />;
+    return (
+      <ListItem
+        disabled={language == item.value}
+        title={item.label}
+        checkmark={language === item.value}
+        onPress={() => onLanguageSelect(item)}
+      />
+    );
   };
 
   return (
