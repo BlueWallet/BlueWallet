@@ -208,7 +208,7 @@ const TransactionsStatus = () => {
         const address = (txFromElectrum?.vout[0]?.scriptPubKey?.addresses || []).pop();
         if (!address) return;
 
-        if (txFromElectrum && !txFromElectrum.confirmations && txFromElectrum.vsize && address) {
+        if (!txFromElectrum.confirmations && txFromElectrum.vsize) {
           const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
           let txFromMempool;
           // searching for a correct tx in case this address has several pending txs:
