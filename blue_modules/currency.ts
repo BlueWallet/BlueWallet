@@ -37,11 +37,18 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
 }
 
 async function getPreferredCurrency(): Promise<FiatUnitType> {
-  const preferredCurrency = JSON.parse((await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY)) || '{}');
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredCurrency.endPointKey);
-  await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredCurrency.locale.replace('-', '_'));
-  return preferredCurrency;
+  const preferredCurrency = await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY);
+
+  if (preferredCurrency) {
+    const parsedPreferredCurrency = JSON.parse(preferredCurrency);
+    preferredFiatCurrency = FiatUnit[parsedPreferredCurrency.endPointKey];
+
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredFiatCurrency.endPointKey);
+    await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredFiatCurrency.locale.replace('-', '_'));
+    return preferredFiatCurrency;
+  }
+  return FiatUnit.USD;
 }
 
 async function _restoreSavedExchangeRatesFromStorage(): Promise<void> {
