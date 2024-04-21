@@ -3,7 +3,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
 import { BlueApp } from '../../class';
-import presentAlert from '../Alert';
+import presentAlert, { AlertType } from '../Alert';
 import { STORAGE_KEY, saveLanguage } from '../../loc';
 import { useStorage } from '../../blue_modules/storage-context';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
@@ -192,7 +192,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsPrivacyBlurEnabled(value);
       console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
       if (!value) {
-        presentAlert({ message: 'Privacy blur has been disabled.' });
+        presentAlert({ message: 'Privacy blur has been disabled.', type: AlertType.Toast });
       }
     },
     [isPrivacyBlurEnabled],

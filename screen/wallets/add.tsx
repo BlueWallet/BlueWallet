@@ -313,6 +313,7 @@ const WalletsAdd: React.FC = () => {
     } catch (Err: any) {
       setIsLoading(false);
       console.warn('lnd create failure', Err);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       if (Err.message) {
         return presentAlert({ message: Err.message });
       } else {

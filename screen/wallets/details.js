@@ -39,7 +39,7 @@ import {
 import Biometric from '../../class/biometrics';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { SecondButton } from '../../components/SecondButton';
@@ -204,12 +204,14 @@ const WalletDetails = () => {
     }
     saveToDisk()
       .then(() => {
-        presentAlert({ message: loc.wallets.details_wallet_updated });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        presentAlert({ message: loc.wallets.details_wallet_updated, type: AlertType.Toast });
         goBack();
       })
       .catch(error => {
         console.log(error.message);
         setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       });
   };
 
