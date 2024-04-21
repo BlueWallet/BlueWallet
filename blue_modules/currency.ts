@@ -41,13 +41,12 @@ async function getPreferredCurrency(): Promise<FiatUnitType> {
 
   if (preferredCurrency) {
     const parsedPreferredCurrency = JSON.parse(preferredCurrency);
-    if (FiatUnit[parsedPreferredCurrency]) {
-      preferredFiatCurrency = FiatUnit[parsedPreferredCurrency];
-      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-      await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredFiatCurrency.endPointKey);
-      await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredFiatCurrency.locale.replace('-', '_'));
-      return parsedPreferredCurrency;
-    }
+    preferredFiatCurrency = FiatUnit[parsedPreferredCurrency.endPointKey];
+
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, preferredFiatCurrency.endPointKey);
+    await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, preferredFiatCurrency.locale.replace('-', '_'));
+    return preferredFiatCurrency;
   }
   return FiatUnit.USD;
 }
