@@ -91,29 +91,29 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     const fetchSettings = async () => {
       const advMode = await advancedModeStorage.getItem();
-      console.log('SettingsContext advMode:', advMode);
+      console.debug('SettingsContext advMode:', advMode);
       const handOff = await isHandOffUseEnabledStorage.getItem();
-      console.log('SettingsContext handOff:', handOff);
+      console.debug('SettingsContext handOff:', handOff);
       const lang = (await languageStorage.getItem()) ?? 'en';
-      console.log('SettingsContext lang:', lang);
+      console.debug('SettingsContext lang:', lang);
       setIsAdvancedModeEnabled(advMode ? JSON.parse(advMode) : false);
       setIsHandOffUseEnabled(handOff ? JSON.parse(handOff) : false);
       const isBalanceDisplayAllowedStorage = await isBalanceDisplayAllowed();
-      console.log('SettingsContext isBalanceDisplayAllowed:', isBalanceDisplayAllowedStorage);
+      console.debug('SettingsContext isBalanceDisplayAllowed:', isBalanceDisplayAllowedStorage);
       setIsWidgetBalanceDisplayAllowed(isBalanceDisplayAllowedStorage);
       setLanguage(lang);
 
       const isURv1EnabledStorage = await isURv1Enabled();
-      console.log('SettingsContext isURv1Enabled:', isURv1EnabledStorage);
+      console.debug('SettingsContext isURv1Enabled:', isURv1EnabledStorage);
       setIsLegacyURv1EnabledStorage(isURv1EnabledStorage);
 
       const isClipboardGetContentEnabledStorage = await BlueClipboard().isReadClipboardAllowed();
-      console.log('SettingsContext isClipboardGetContentEnabled:', isClipboardGetContentEnabledStorage);
+      console.debug('SettingsContext isClipboardGetContentEnabled:', isClipboardGetContentEnabledStorage);
       setIsClipboardGetContentEnabledStorage(isClipboardGetContentEnabledStorage);
 
       // @ts-ignore: Fix later
       const isQuickActionsEnabledStorage = await DeviceQuickActions.getEnabled();
-      console.log('SettingsContext isQuickActionsEnabled:', isQuickActionsEnabledStorage);
+      console.debug('SettingsContext isQuickActionsEnabled:', isQuickActionsEnabledStorage);
       setIsQuickActionsEnabledStorage(isQuickActionsEnabledStorage);
     };
 
@@ -125,7 +125,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (walletsInitialized) {
       initCurrencyDaemon().finally(() => {
         getPreferredCurrency().then(currency => {
-          console.log('SettingsContext currency:', currency);
+          console.debug('SettingsContext currency:', currency);
           setPreferredFiatCurrency(FiatUnit[currency.endPointKey]);
         });
       });
@@ -190,7 +190,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const setIsPrivacyBlurEnabledState = useCallback(
     (value: boolean) => {
       setIsPrivacyBlurEnabled(value);
-      console.log(`Privacy blur: ${isPrivacyBlurEnabled}`);
+      console.debug(`Privacy blur: ${isPrivacyBlurEnabled}`);
       if (!value) {
         presentAlert({ message: 'Privacy blur has been disabled.' });
       }
