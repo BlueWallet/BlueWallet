@@ -6,7 +6,7 @@ import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 
 const STORAGEKEY = 'Biometrics';
 
@@ -121,7 +121,7 @@ const Biometric = function () {
       NavigationService.reset();
     } catch (error: any) {
       console.warn(error);
-      presentAlert({ message: error.message });
+      presentAlert({ message: error.messag, type: AlertType.Toast });
     }
   };
 

@@ -5,7 +5,7 @@ import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { isDesktop } from './environment';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import { readFile } from './react-native-bw-file-access';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -58,7 +58,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         if (showShareDialog) {
           await _shareOpen(filePath);
         } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName }) });
+          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName }), type: AlertType.Toast });
         }
       } catch (e: any) {
         console.log(e);

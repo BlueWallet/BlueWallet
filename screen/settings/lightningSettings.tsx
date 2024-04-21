@@ -9,7 +9,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { Button } from '../../components/Button';
 import { BlueApp } from '../../class';
@@ -105,7 +105,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
       } else {
         await AsyncStorage.removeItem(BlueApp.LNDHUB);
       }
-      presentAlert({ message: loc.settings.lightning_saved });
+      presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
     } catch (error) {
       presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
       console.log(error);

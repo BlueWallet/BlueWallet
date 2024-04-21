@@ -3,7 +3,7 @@ import { startAndDecrypt } from './start-and-decrypt';
 import Notifications from '../blue_modules/notifications';
 import { LegacyWallet, TTXMetadata, WatchOnlyWallet, BlueApp as BlueAppClass } from '../class';
 import type { TWallet } from '../class/wallets/types';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
@@ -185,7 +185,10 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     addWallet(w);
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
-    presentAlert({ message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success });
+    presentAlert({
+      message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
+      type: WatchOnlyWallet.type ? AlertType.Alert : AlertType.Toast,
+    });
     // @ts-ignore need to type notifications first
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
     // start balance fetching at the background
