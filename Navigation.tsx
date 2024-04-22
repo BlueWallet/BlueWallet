@@ -49,7 +49,7 @@ import CPFP from './screen/transactions/CPFP';
 import RBFBumpFee from './screen/transactions/RBFBumpFee';
 import RBFCancel from './screen/transactions/RBFCancel';
 import TransactionDetails from './screen/transactions/details';
-import TransactionStatus from './screen/transactions/transactionStatus';
+import TransactionStatus from './screen/transactions/TransactionStatus';
 
 import AztecoRedeem from './screen/receive/aztecoRedeem';
 import ReceiveDetails from './screen/receive/details';
@@ -107,7 +107,21 @@ const WalletsRoot = () => {
       <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
       <WalletsStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
       <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
-      <WalletsStack.Screen name="TransactionStatus" component={TransactionStatus} options={TransactionStatus.navigationOptions(theme)} />
+      <WalletsStack.Screen
+        name="TransactionStatus"
+        component={TransactionStatus}
+        initialParams={{
+          hash: undefined,
+          walletID: undefined,
+        }}
+        options={navigationStyle({
+          title: '',
+          statusBarStyle: 'auto',
+          headerStyle: {
+            backgroundColor: theme.colors.customHeader,
+          },
+        })(theme)}
+      />
       <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
       <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
