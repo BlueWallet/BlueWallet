@@ -465,7 +465,7 @@ const WalletTransactions = ({ navigation }) => {
         setReloadTransactionsMenuActionFunction(() => refreshTransactions);
       });
       return () => {
-        setReloadTransactionsMenuActionFunction(undefined);
+        setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),

@@ -1,44 +1,98 @@
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
-
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
-import navigationStyle from '../../components/navigationStyle';
 import HandOffComponent from '../../components/HandOffComponent';
-import { HDSegwitBech32Transaction } from '../../class';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Transaction } from '../../class/wallets/types';
 
-const buttonStatus = Object.freeze({
-  possible: 1,
-  unknown: 2,
-  notPossible: 3,
-});
+enum ButtonStatus {
+  Possible,
+  Unknown,
+  NotPossible,
+}
+
+interface TransactionStatusProps {
+  route: RouteProp<{ params: { hash?: string; walletID?: string } }, 'params'>;
+  navigation: NativeStackNavigationProp<any>;
+}
+
+enum ActionType {
+  SetCPFPPossible,
+  SetRBFBumpFeePossible,
+  SetRBFCancelPossible,
+  SetTransaction,
+  SetLoading,
+  SetEta,
+  SetIntervalMs,
+  SetAllButtonStatus,
+}
+
+interface State {
+  isCPFPPossible: ButtonStatus;
+  isRBFBumpFeePossible: ButtonStatus;
+  isRBFCancelPossible: ButtonStatus;
+  tx: any;
+  isLoading: boolean;
+  eta: string;
+  intervalMs: number;
+}
+
+const initialState: State = {
+  isCPFPPossible: ButtonStatus.Unknown,
+  isRBFBumpFeePossible: ButtonStatus.Unknown,
+  isRBFCancelPossible: ButtonStatus.Unknown,
+  tx: undefined,
+  isLoading: true,
+  eta: '',
+  intervalMs: 1000,
+};
+
+const reducer = (state: State, action: { type: ActionType; payload?: any }): State => {
+  switch (action.type) {
+    case ActionType.SetCPFPPossible:
+      return { ...state, isCPFPPossible: action.payload };
+    case ActionType.SetRBFBumpFeePossible:
+      return { ...state, isRBFBumpFeePossible: action.payload };
+    case ActionType.SetRBFCancelPossible:
+      return { ...state, isRBFCancelPossible: action.payload };
+    case ActionType.SetTransaction:
+      return { ...state, tx: action.payload };
+    case ActionType.SetLoading:
+      return { ...state, isLoading: action.payload };
+    case ActionType.SetEta:
+      return { ...state, eta: action.payload };
+    case ActionType.SetIntervalMs:
+      return { ...state, intervalMs: action.payload };
+    case ActionType.SetAllButtonStatus:
+      return { ...state, isCPFPPossible: action.payload, isRBFBumpFeePossible: action.payload, isRBFCancelPossible: action.payload };
+    default:
+      return state;
+  }
+};
 
 const TransactionsStatus = () => {
-  const { setSelectedWalletID, wallets, txMetadata, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const { hash, walletID } = useRoute().params;
-  const { navigate, setOptions, goBack } = useNavigation();
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs } = state;
+  const { setSelectedWalletID, wallets, txMetadata, fetchAndSaveWalletTransactions } = useStorage();
+  const { hash, walletID } = useRoute<TransactionStatusProps['route']>().params;
+  const { navigate, setOptions, goBack } = useNavigation<TransactionStatusProps['navigation']>();
   const { colors } = useTheme();
   const wallet = useRef(wallets.find(w => w.getID() === walletID));
-  const [isCPFPPossible, setIsCPFPPossible] = useState();
-  const [isRBFBumpFeePossible, setIsRBFBumpFeePossible] = useState();
-  const [isRBFCancelPossible, setIsRBFCancelPossible] = useState();
-  const [tx, setTX] = useState();
-  const [isLoading, setIsLoading] = useState(true);
-  const fetchTxInterval = useRef();
-  const [intervalMs, setIntervalMs] = useState(1000);
-  const [eta, setEta] = useState('');
+  const fetchTxInterval = useRef<NodeJS.Timeout>();
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.alternativeTextColor2,
@@ -57,11 +111,41 @@ const TransactionsStatus = () => {
     },
   });
 
-  useEffect(() => {
-    setIsCPFPPossible(buttonStatus.unknown);
-    setIsRBFBumpFeePossible(buttonStatus.unknown);
-    setIsRBFCancelPossible(buttonStatus.unknown);
-  }, []);
+  // Dispatch Calls
+
+  const setTX = (value: any) => {
+    dispatch({ type: ActionType.SetTransaction, payload: value });
+  };
+
+  const setIntervalMs = (ms: number) => {
+    dispatch({ type: ActionType.SetIntervalMs, payload: ms });
+  };
+
+  const setEta = (value: string) => {
+    dispatch({ type: ActionType.SetEta, payload: value });
+  };
+
+  const setAllButtonStatus = (status: ButtonStatus) => {
+    dispatch({ type: ActionType.SetAllButtonStatus, payload: status });
+  };
+
+  const setIsLoading = (value: boolean) => {
+    dispatch({ type: ActionType.SetLoading, payload: value });
+  };
+
+  const setIsCPFPPossible = (status: ButtonStatus) => {
+    dispatch({ type: ActionType.SetCPFPPossible, payload: status });
+  };
+
+  const setIsRBFBumpFeePossible = (status: ButtonStatus) => {
+    dispatch({ type: ActionType.SetRBFBumpFeePossible, payload: status });
+  };
+
+  const setIsRBFCancelPossible = (status: ButtonStatus) => {
+    dispatch({ type: ActionType.SetRBFCancelPossible, payload: status });
+  };
+
+  //
 
   useLayoutEffect(() => {
     setOptions({
@@ -81,10 +165,11 @@ const TransactionsStatus = () => {
   }, [colors, tx]);
 
   useEffect(() => {
-    for (const newTx of wallet.current.getTransactions()) {
-      if (newTx.hash === hash) {
+    if (wallet.current) {
+      const transactions = wallet.current.getTransactions();
+      const newTx = transactions.find((t: Transaction) => t.hash === hash);
+      if (newTx) {
         setTX(newTx);
-        break;
       }
     }
 
@@ -116,18 +201,22 @@ const TransactionsStatus = () => {
         console.log('checking tx', hash, 'for confirmations...');
         const transactions = await BlueElectrum.multiGetTransactionByTxid([hash], true, 10);
         const txFromElectrum = transactions[hash];
+        if (!txFromElectrum) return;
+
         console.log('got txFromElectrum=', txFromElectrum);
 
         const address = (txFromElectrum?.vout[0]?.scriptPubKey?.addresses || []).pop();
+        if (!address) return;
 
-        if (txFromElectrum && !txFromElectrum.confirmations && txFromElectrum.vsize && address) {
+        if (!txFromElectrum.confirmations && txFromElectrum.vsize) {
           const txsM = await BlueElectrum.getMempoolTransactionsByAddress(address);
           let txFromMempool;
-          // searhcing for a correct tx in case this address has several pending txs:
+          // searching for a correct tx in case this address has several pending txs:
           for (const tempTxM of txsM) {
             if (tempTxM.tx_hash === hash) txFromMempool = tempTxM;
           }
           if (!txFromMempool) return;
+
           console.log('txFromMempool=', txFromMempool);
 
           const satPerVbyte = Math.round(txFromMempool.fee / txFromElectrum.vsize);
@@ -142,11 +231,11 @@ const TransactionsStatus = () => {
           if (satPerVbyte < fees.medium) {
             setEta(loc.formatString(loc.transactions.eta_1d));
           }
-        } else if (txFromElectrum.confirmations > 0) {
+        } else if (txFromElectrum.confirmations && txFromElectrum.confirmations > 0) {
           // now, handling a case when tx became confirmed!
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           setEta('');
-          setTX(prevState => {
+          setTX((prevState: any) => {
             return Object.assign({}, prevState, { confirmations: txFromElectrum.confirmations });
           });
           clearInterval(fetchTxInterval.current);
@@ -160,7 +249,7 @@ const TransactionsStatus = () => {
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions]);
 
   const handleBackButton = () => {
-    goBack(null);
+    goBack();
     return true;
   };
 
@@ -175,21 +264,19 @@ const TransactionsStatus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const initialState = async () => {
+  const initialButtonsState = async () => {
     try {
       await checkPossibilityOfCPFP();
       await checkPossibilityOfRBFBumpFee();
       await checkPossibilityOfRBFCancel();
     } catch (e) {
-      setIsCPFPPossible(buttonStatus.notPossible);
-      setIsRBFBumpFeePossible(buttonStatus.notPossible);
-      setIsRBFCancelPossible(buttonStatus.notPossible);
+      setAllButtonStatus(ButtonStatus.NotPossible);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
-    initialState();
+    initialButtonsState();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, wallets]);
@@ -207,51 +294,54 @@ const TransactionsStatus = () => {
   }, []);
 
   const checkPossibilityOfCPFP = async () => {
-    if (!wallet.current.allowRBF()) {
-      return setIsCPFPPossible(buttonStatus.notPossible);
+    if (!wallet.current?.allowRBF()) {
+      return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
-    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
-    if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
-      return setIsCPFPPossible(buttonStatus.possible);
-    } else {
-      return setIsCPFPPossible(buttonStatus.notPossible);
+    if (wallet.current) {
+      const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
+      if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
+        return setIsCPFPPossible(ButtonStatus.Possible);
+      } else {
+        return setIsCPFPPossible(ButtonStatus.NotPossible);
+      }
     }
+    return setIsCPFPPossible(ButtonStatus.NotPossible);
   };
 
   const checkPossibilityOfRBFBumpFee = async () => {
-    if (!wallet.current.allowRBF()) {
-      return setIsRBFBumpFeePossible(buttonStatus.notPossible);
+    if (!wallet.current?.allowRBF()) {
+      return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
       (await rbfTx.isSequenceReplaceable()) &&
       (await rbfTx.canBumpTx())
     ) {
-      return setIsRBFBumpFeePossible(buttonStatus.possible);
+      return setIsRBFBumpFeePossible(ButtonStatus.Possible);
     } else {
-      return setIsRBFBumpFeePossible(buttonStatus.notPossible);
+      return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
   };
 
   const checkPossibilityOfRBFCancel = async () => {
-    if (!wallet.current.allowRBF()) {
-      return setIsRBFCancelPossible(buttonStatus.notPossible);
+    if (!wallet.current?.allowRBF()) {
+      return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current);
+    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet.current as HDSegwitBech32Wallet);
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
       (await rbfTx.isSequenceReplaceable()) &&
       (await rbfTx.canCancelTx())
     ) {
-      return setIsRBFCancelPossible(buttonStatus.possible);
+      return setIsRBFCancelPossible(ButtonStatus.Possible);
     } else {
-      return setIsRBFCancelPossible(buttonStatus.notPossible);
+      return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
   };
 
@@ -280,14 +370,14 @@ const TransactionsStatus = () => {
   };
 
   const renderCPFP = () => {
-    if (isCPFPPossible === buttonStatus.unknown) {
+    if (isCPFPPossible === ButtonStatus.Unknown) {
       return (
         <>
           <ActivityIndicator />
           <BlueSpacing20 />
         </>
       );
-    } else if (isCPFPPossible === buttonStatus.possible) {
+    } else if (isCPFPPossible === ButtonStatus.Possible) {
       return (
         <>
           <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
@@ -298,13 +388,13 @@ const TransactionsStatus = () => {
   };
 
   const renderRBFCancel = () => {
-    if (isRBFCancelPossible === buttonStatus.unknown) {
+    if (isRBFCancelPossible === ButtonStatus.Unknown) {
       return (
         <>
           <ActivityIndicator />
         </>
       );
-    } else if (isRBFCancelPossible === buttonStatus.possible) {
+    } else if (isRBFCancelPossible === ButtonStatus.Possible) {
       return (
         <>
           <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
@@ -319,14 +409,14 @@ const TransactionsStatus = () => {
   };
 
   const renderRBFBumpFee = () => {
-    if (isRBFBumpFeePossible === buttonStatus.unknown) {
+    if (isRBFBumpFeePossible === ButtonStatus.Unknown) {
       return (
         <>
           <ActivityIndicator />
           <BlueSpacing20 />
         </>
       );
-    } else if (isRBFBumpFeePossible === buttonStatus.possible) {
+    } else if (isRBFBumpFeePossible === ButtonStatus.Possible) {
       return (
         <>
           <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
@@ -351,7 +441,7 @@ const TransactionsStatus = () => {
     }
   };
 
-  if (isLoading || !tx) {
+  if (isLoading || !tx || wallet.current === undefined) {
     return (
       <SafeArea>
         <BlueLoading />
@@ -371,7 +461,7 @@ const TransactionsStatus = () => {
           <View style={styles.center}>
             <Text style={[styles.value, stylesHook.value]} selectable>
               {formatBalanceWithoutSuffix(tx.value, wallet.current.preferredBalanceUnit, true)}{' '}
-              {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              {wallet.current?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
                 <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{loc.units[wallet.current.preferredBalanceUnit]}</Text>
               )}
             </Text>
@@ -412,7 +502,7 @@ const TransactionsStatus = () => {
             <View style={styles.fee}>
               <BlueText style={styles.feeText}>
                 {loc.send.create_fee.toLowerCase()} {formatBalanceWithoutSuffix(tx.fee, wallet.current.preferredBalanceUnit, true)}{' '}
-                {wallet.current.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current.preferredBalanceUnit}
+                {wallet.current?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && wallet.current?.preferredBalanceUnit}
               </BlueText>
             </View>
           )}
@@ -540,16 +630,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-TransactionsStatus.navigationOptions = navigationStyle(
-  {
-    headerTitle: '',
-    statusBarStyle: 'auto',
-  },
-  (options, { theme }) => ({
-    ...options,
-    headerStyle: {
-      backgroundColor: theme.colors.customHeader,
-    },
-  }),
-);

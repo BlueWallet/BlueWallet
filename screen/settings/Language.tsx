@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  row: { minHeight: 60 },
 });
 
 const Language = () => {
@@ -51,6 +52,7 @@ const Language = () => {
         title={item.label}
         checkmark={language === item.value}
         onPress={() => onLanguageSelect(item)}
+        containerStyle={styles.row}
       />
     );
   };
