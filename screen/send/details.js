@@ -1416,74 +1416,72 @@ const SendDetails = () => {
     );
   }
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
-        <View>
-          <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
-            <FlatList
-              keyboardShouldPersistTaps="always"
-              scrollEnabled={addresses.length > 1}
-              data={addresses}
-              renderItem={renderBitcoinTransactionInfoFields}
-              ref={scrollView}
-              horizontal
-              pagingEnabled
-              removeClippedSubviews={false}
-              onMomentumScrollBegin={Keyboard.dismiss}
-              onMomentumScrollEnd={handleRecipientsScrollEnds}
-              onScroll={handleRecipientsScroll}
-              scrollEventThrottle={200}
-              scrollIndicatorInsets={styles.scrollViewIndicator}
-              contentContainerStyle={styles.scrollViewContent}
+    <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
+      <View>
+        <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
+          <FlatList
+            keyboardShouldPersistTaps="always"
+            scrollEnabled={addresses.length > 1}
+            data={addresses}
+            renderItem={renderBitcoinTransactionInfoFields}
+            ref={scrollView}
+            horizontal
+            pagingEnabled
+            removeClippedSubviews={false}
+            onMomentumScrollBegin={Keyboard.dismiss}
+            onMomentumScrollEnd={handleRecipientsScrollEnds}
+            onScroll={handleRecipientsScroll}
+            scrollEventThrottle={200}
+            scrollIndicatorInsets={styles.scrollViewIndicator}
+            contentContainerStyle={styles.scrollViewContent}
+          />
+          <View style={[styles.memo, stylesHook.memo]}>
+            <TextInput
+              onChangeText={setTransactionMemo}
+              placeholder={loc.send.details_note_placeholder}
+              placeholderTextColor="#81868e"
+              value={transactionMemo}
+              numberOfLines={1}
+              style={styles.memoText}
+              editable={!isLoading}
+              onSubmitEditing={Keyboard.dismiss}
+              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
-            <View style={[styles.memo, stylesHook.memo]}>
-              <TextInput
-                onChangeText={setTransactionMemo}
-                placeholder={loc.send.details_note_placeholder}
-                placeholderTextColor="#81868e"
-                value={transactionMemo}
-                numberOfLines={1}
-                style={styles.memoText}
-                editable={!isLoading}
-                onSubmitEditing={Keyboard.dismiss}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-            </View>
-            <TouchableOpacity
-              testID="chooseFee"
-              accessibilityRole="button"
-              onPress={() => setIsFeeSelectionModalVisible(true)}
-              disabled={isLoading}
-              style={styles.fee}
-            >
-              <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+          </View>
+          <TouchableOpacity
+            testID="chooseFee"
+            accessibilityRole="button"
+            onPress={() => setIsFeeSelectionModalVisible(true)}
+            disabled={isLoading}
+            style={styles.fee}
+          >
+            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-              {networkTransactionFeesIsLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <View style={[styles.feeRow, stylesHook.feeRow]}>
-                  <Text style={stylesHook.feeValue}>
-                    {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            {renderCreateButton()}
-            {renderFeeSelectionModal()}
-            {renderOptionsModal()}
-          </KeyboardAvoidingView>
-        </View>
-        <BlueDismissKeyboardInputAccessory />
-        {Platform.select({
-          ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
-          android: isAmountToolbarVisibleForAndroid && (
-            <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
-          ),
-        })}
-
-        {renderWalletSelectionOrCoinsSelected()}
+            {networkTransactionFeesIsLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <View style={[styles.feeRow, stylesHook.feeRow]}>
+                <Text style={stylesHook.feeValue}>
+                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          {renderCreateButton()}
+          {renderFeeSelectionModal()}
+          {renderOptionsModal()}
+        </KeyboardAvoidingView>
       </View>
-    </TouchableWithoutFeedback>
+      <BlueDismissKeyboardInputAccessory />
+      {Platform.select({
+        ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
+        android: isAmountToolbarVisibleForAndroid && (
+          <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
+        ),
+      })}
+
+      {renderWalletSelectionOrCoinsSelected()}
+    </View>
   );
 };
 
