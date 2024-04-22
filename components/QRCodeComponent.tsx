@@ -108,7 +108,12 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   );
 
   return (
-    <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
+    <View
+      style={styles.qrCodeContainer}
+      testID="BitcoinAddressQRCodeContainer"
+      accessibilityRole="image"
+      accessibilityLabel={loc.receive.qrcode_for_the_address}
+    >
       {isMenuAvailable ? (
         <ToolTipMenu actions={menuActions()} onPressMenuItem={onPressMenuItem}>
           {renderQRCode}
