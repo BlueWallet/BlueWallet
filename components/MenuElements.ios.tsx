@@ -42,8 +42,11 @@ const MenuElements = () => {
   };
 
   const reloadTransactionsMenuElementsFunction = useCallback(() => {
-    reloadTransactionsMenuActionFunction();
-  }, [reloadTransactionsMenuActionFunction]);
+    if (reloadTransactionsMenuActionFunction && typeof reloadTransactionsMenuActionFunction === 'function') {
+      reloadTransactionsMenuActionFunction();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     console.log('MenuElements: useEffect');
