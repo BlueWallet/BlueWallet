@@ -5,9 +5,9 @@ import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from '..';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget, CoinSelectUtxo } from 'coinselect';
+import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
-import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
 import ecc from '../../blue_modules/noble_ecc';
@@ -369,24 +369,21 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   coinselect(
-    utxos: CoinSelectUtxo[],
-    targets: CoinSelectTarget[],
+    utxos: CreateTransactionUtxo[],
+    targets: CreateTransactionTarget[],
     feeRate: number,
-    changeAddress: string,
   ): {
     inputs: CoinSelectReturnInput[];
     outputs: CoinSelectOutput[];
     fee: number;
   } {
-    if (!changeAddress) throw new Error('No change address provided');
-
     let algo = coinSelect;
     // if targets has output without a value, we want send MAX to it
     if (targets.some(i => !('value' in i))) {
       algo = coinSelectSplit;
     }
 
-    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    const { inputs, outputs, fee } = algo(utxos, targets as CoinSelectTarget[], feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
@@ -417,7 +414,7 @@ export class LegacyWallet extends AbstractWallet {
     masterFingerprint: number,
   ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;

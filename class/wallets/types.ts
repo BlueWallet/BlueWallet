@@ -1,5 +1,5 @@
 import bitcoin from 'bitcoinjs-lib';
-import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
+import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectUtxo } from 'coinselect';
 import { HDAezeedWallet } from './hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
@@ -31,16 +31,19 @@ export type Utxo = {
 };
 
 /**
- * basically the same as coinselect.d.ts/CoinselectUtxo
- * and should be unified as soon as bullshit with txid/txId is sorted
+ * same as coinselect.d.ts/CoinSelectUtxo
  */
-export type CreateTransactionUtxo = {
-  txid: string;
-  txhex: string;
-  vout: number;
-  value: number;
+export interface CreateTransactionUtxo extends CoinSelectUtxo {}
+
+/**
+ * if address is missing and `script.hex` is set - this is a custom script (like OP_RETURN)
+ */
+export type CreateTransactionTarget = {
+  address?: string;
+  value?: number;
   script?: {
-    length: number;
+    length?: number; // either length or hex should be present
+    hex?: string;
   };
 };
 

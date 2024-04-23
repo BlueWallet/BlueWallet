@@ -7,6 +7,10 @@ declare module 'coinselect' {
     };
   };
 
+  /**
+   * not an accurate definition since coinselect lib can ignore certain fields, and just passes through unknown fields,
+   * which we actually rely on
+   */
   export type CoinSelectUtxo = {
     vout: number;
     value: number;

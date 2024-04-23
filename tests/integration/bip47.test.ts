@@ -7,7 +7,8 @@ import BIP47Factory from '@spsina/bip47';
 import assert from 'assert';
 
 import * as bitcoin from 'bitcoinjs-lib';
-import ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
+
 const ECPair = ECPairFactory(ecc);
 
 jest.setTimeout(90 * 1000);
@@ -135,5 +136,11 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
         ?.scriptPubKey.hex,
       '6a4c50' + blindedPaymentCode,
     );
+
+    assert.strictEqual(
+      w.getTransactions().find(tx => tx.txid === '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f')?.outputs?.[1]
+        .scriptPubKey.addresses[0],
+      bobBip47.getNotificationAddress(),
+    ); // transaction is to Bob's notification address
   });
 });
