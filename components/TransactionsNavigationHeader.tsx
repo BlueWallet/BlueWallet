@@ -296,7 +296,6 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
-    marginT: 50,
   },
   manageFundsButton: {
     marginTop: 14,
