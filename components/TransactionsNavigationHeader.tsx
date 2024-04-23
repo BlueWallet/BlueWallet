@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
-    height: 34,
+    marginT: 50,
   },
   manageFundsButton: {
     marginTop: 14,
@@ -330,10 +330,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderRadius: 8,
-    paddingVertical: 5,
     minHeight: 35,
     minWidth: 65,
-    padding: 10, // Adjust padding as needed to fit the content
   },
   walletPreferredUnitText: {
     color: '#fff',
