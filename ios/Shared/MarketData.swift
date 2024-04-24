@@ -14,7 +14,18 @@ struct MarketData:Codable  {
   var price: String
   var rate: Double
   var formattedNextBlock: String {
-    return nextBlock == "..." ? "..." : #"\#(nextBlock) sat/b"#
+    if nextBlock == "..." {
+      return "..."
+    } else {
+      if let nextBlockInt = Int(nextBlock) {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        if let formattedNumber = numberFormatter.string(from: NSNumber(value: nextBlockInt)) {
+          return "\(formattedNumber) sat/vb"
+        }
+      }
+      return "\(nextBlock) sat/vb"  // Fallback in case the nextBlock cannot be converted to an Int
+    }
   }
   var dateString: String = ""
   var formattedDate: String? {
