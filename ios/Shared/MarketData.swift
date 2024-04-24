@@ -21,10 +21,10 @@ struct MarketData:Codable  {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         if let formattedNumber = numberFormatter.string(from: NSNumber(value: nextBlockInt)) {
-          return "\(formattedNumber) sat/b"
+          return "\(formattedNumber) sat/vb"
         }
       }
-      return "\(nextBlock) sat/b"  // Fallback in case the nextBlock cannot be converted to an Int
+      return "\(nextBlock) sat/vb"  // Fallback in case the nextBlock cannot be converted to an Int
     }
   }
   var dateString: String = ""
