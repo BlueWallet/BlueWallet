@@ -345,7 +345,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.9.0):
+  - react-native-safe-area-context (4.10.1):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -472,7 +472,7 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.23.1):
     - React-Core
-  - RNCClipboard (1.14.0):
+  - RNCClipboard (1.14.1):
     - React-Core
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
@@ -505,10 +505,11 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNScreens (3.30.1):
+  - RNScreens (3.31.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - RNShare (10.1.0):
+    - React-RCTImage
+  - RNShare (10.2.0):
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
@@ -813,7 +814,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: b97eb6f9e3b7f437806c2ce5983f479f8eb5de4b
+  react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
   react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
@@ -838,7 +839,7 @@ SPEC CHECKSUMS:
   RealmJS: 3fdc3b6cb6d4ff67eaf0e5f7f861be51304e7525
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
-  RNCClipboard: 090462274cc05b02628bd158baf6d73c3abe8441
+  RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: 42aadf1282ffa0a88dc38a504a7be145eb010dfa
@@ -853,8 +854,8 @@ SPEC CHECKSUMS:
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: fc36806836aca984b797f01432abe31689663421
-  RNScreens: e5ee7223f7c8fa261f0c4594a0541c56ea99bbfc
-  RNShare: b674d9f1cb0dc11116983bebd8712908a226a3ee
+  RNScreens: b8d370282cdeae9df85dd5eab20c88eb5181243b
+  RNShare: 554a91f5cfbe4adac4cfe3654826ee8b299fe365
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
   RNVectorIcons: 2b974a961e7ad079fafdd8af68b12210d5b4b28e
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
