@@ -187,7 +187,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     A(A.ENUM.CREATED_WALLET);
     presentAlert({
       message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
-      type: WatchOnlyWallet.type ? AlertType.Alert : AlertType.Toast,
+      type: w.type === WatchOnlyWallet.type ? AlertType.Alert : AlertType.Toast,
     });
     // @ts-ignore need to type notifications first
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
