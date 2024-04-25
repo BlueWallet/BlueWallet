@@ -10,6 +10,7 @@ import { useTheme } from '../../components/themes';
 import ListItem from '../../components/ListItem';
 import A from '../../blue_modules/analytics';
 import { useSettings } from '../../components/Context/SettingsContext';
+import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 
 const SettingsPrivacy = () => {
   const { colors } = useTheme();
@@ -72,6 +73,7 @@ const SettingsPrivacy = () => {
   const onWidgetsTotalBalanceValueChange = async value => {
     setIsLoading(sections.WIDGETS);
     try {
+      await setBalanceDisplayAllowed(value);
       setIsWidgetBalanceDisplayAllowedStorage(value);
     } catch (e) {
       console.log(e);
