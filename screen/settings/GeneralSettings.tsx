@@ -33,6 +33,10 @@ const GeneralSettings: React.FC = () => {
     navigate('SettingsPrivacy');
   };
 
+  const onHandOffUseEnabledChange = async (value: boolean) => {
+    await setIsHandOffUseEnabledAsyncStorage(value);
+  };
+
   const stylesWithThemeHook = {
     root: {
       backgroundColor: colors.background,
@@ -54,7 +58,7 @@ const GeneralSettings: React.FC = () => {
             hideChevron
             title={loc.settings.general_continuity}
             Component={PressableWrapper}
-            switch={{ onValueChange: setIsHandOffUseEnabledAsyncStorage, value: isHandOffUseEnabled }}
+            switch={{ onValueChange: onHandOffUseEnabledChange, value: isHandOffUseEnabled }}
           />
           <BlueCard>
             <BlueText>{loc.settings.general_continuity_e}</BlueText>
