@@ -1,5 +1,5 @@
 import BIP47Factory from '@spsina/bip47';
-import ecc from 'tiny-secp256k1';
+import ecc from '../../blue_modules/noble_ecc';
 import assert from 'assert';
 
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
@@ -22,6 +22,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     const bobNotificationAddress = bip47.getNotificationAddress();
 
     expect(bobNotificationAddress).toEqual('1ChvUUvht2hUQufHBXF8NgLhW8SwE2ecGV'); // our notif address
+
+    assert.strictEqual(bobWallet.getBIP47NotificationAddress(), '1ChvUUvht2hUQufHBXF8NgLhW8SwE2ecGV'); // our notif address
 
     assert.ok(!bobWallet.weOwnAddress('1JDdmqFLhpzcUwPeinhJbUPw4Co3aWLyzW')); // alice notif address, we dont own it
   });
@@ -67,6 +69,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     expect(ourNotificationAddress).toEqual(publicBip47.getNotificationAddress());
 
     expect(ourNotificationAddress).toEqual('1EiP2kSqxNqRhn8MPMkrtSEqaWiCWLYyTS'); // our notif address
+
+    assert.strictEqual(w.getBIP47NotificationAddress(), '1EiP2kSqxNqRhn8MPMkrtSEqaWiCWLYyTS'); // our notif address
 
     // since we dont do network calls in unit test we cant get counterparties payment codes from our notif address,
     // and thus, dont know collaborative addresses with our payers. lets hardcode our counterparty payment code to test

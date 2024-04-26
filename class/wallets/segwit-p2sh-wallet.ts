@@ -102,7 +102,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
     for (const u of utxos) {
       u.script = { length: 50 };
     }
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;

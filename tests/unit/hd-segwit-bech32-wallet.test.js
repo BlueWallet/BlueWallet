@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class';
+import * as bitcoin from 'bitcoinjs-lib';
 
 describe('Bech32 Segwit HD (BIP84)', () => {
   it('can create', async function () {
@@ -213,7 +214,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.notStrictEqual(id1, id3);
   });
 
-  it('cat createTransaction with a correct feerate (with lenghty segwit address)', () => {
+  it('can createTransaction with a correct feerate (with lenghty segwit address)', () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -232,18 +233,71 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       },
     ];
 
-    const { tx, psbt } = hd.createTransaction(
+    const { tx, psbt, outputs } = hd.createTransaction(
       utxo,
-      [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp' }], // sendMAX
-      1,
-      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', // change wont actually be used
+      [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', value: 546 }],
+      10,
+      'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp',
     );
+
+    assert.strictEqual(outputs.length, 2);
 
     const actualFeerate = psbt.getFee() / tx.virtualSize();
     assert.strictEqual(
-      actualFeerate >= 1.0,
+      Math.round(actualFeerate) >= 10 && actualFeerate <= 11,
       true,
-      `bad feerate, got ${actualFeerate}, expected at least 1; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
+      `bad feerate, got ${actualFeerate}, expected at least 10; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
+    );
+  });
+
+  it('can createTransaction with OP_RETURN', () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    const utxo = [
+      {
+        address: 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl',
+        vout: 0,
+        txid: '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20',
+        value: 69909,
+        wif: '-',
+      },
+    ];
+
+    const { tx, psbt, outputs } = hd.createTransaction(
+      utxo,
+      [
+        { address: hd._getExternalAddressByIndex(0), value: 546 },
+        { script: { hex: '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff' }, value: 0 },
+      ],
+      150,
+      hd._getInternalAddressByIndex(0),
+    );
+
+    assert.strictEqual(outputs.length, 3); // destination, op_return, change
+    assert.ok(!outputs[1].address); // should not be there as it should be OP_RETURN
+
+    const decodedTx = bitcoin.Transaction.fromHex(tx.toHex());
+    // console.log(decodedTx.outs);
+
+    assert.strictEqual(decodedTx.outs[0].value, 546); // first output - destination
+    assert.strictEqual(decodedTx.outs[1].value, 0); // second output - op_return
+    assert.ok(decodedTx.outs[2].value > 0); // third output - change
+
+    assert.strictEqual(decodedTx.outs[1].script.toString('hex'), '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff'); // custom script that we are passing
+
+    // console.log(outputs);
+
+    const actualFeerate = psbt.getFee() / tx.virtualSize();
+    assert.strictEqual(
+      Math.round(actualFeerate) >= 150 && actualFeerate < 151,
+      true,
+      `bad feerate, got ${actualFeerate}, expected at least 11; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
     );
   });
 

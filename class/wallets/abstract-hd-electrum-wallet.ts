@@ -6,7 +6,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import { CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+import { CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 
@@ -15,7 +15,7 @@ import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
-import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -52,10 +52,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   // BIP47
   _enable_BIP47: boolean;
   _payment_code: string;
-  _sender_payment_codes: string[];
+  _sender_payment_codes: string[]; // who can pay us
+  _payer_payment_codes: string[]; // whom can we pay
   _addresses_by_payment_code: Record<string, string[]>;
   _next_free_payment_code_address_index: Record<string, number>;
-  _txs_by_payment_code_index: Record<string, Transaction[][]>;
+  _txs_by_payment_code_index: Record<string, Transaction[][]>; // incoming tx e.g. someone paid us
   _balances_by_payment_code_index: Record<string, BalanceByIndex>;
   _bip47_instance?: BIP47Interface;
 
@@ -73,6 +74,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     this._enable_BIP47 = false;
     this._payment_code = '';
     this._sender_payment_codes = [];
+    this._payer_payment_codes = [];
     this._next_free_payment_code_address_index = {};
     this._txs_by_payment_code_index = {};
     this._balances_by_payment_code_index = {};
@@ -1108,7 +1110,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   createTransaction(
     utxos: CreateTransactionUtxo[],
-    targets: CoinSelectTarget[],
+    targets: CreateTransactionTarget[],
     feeRate: number,
     changeAddress: string,
     sequence: number,
@@ -1128,13 +1130,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     for (const t of targets) {
-      if (t.address.startsWith('bc1')) {
+      if (t.address && t.address.startsWith('bc1')) {
         // in case address is non-typical and takes more bytes than coinselect library anticipates by default
         t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
       }
+
+      if (t.script?.hex) {
+        // setting length for coinselect lib manually as it is not aware of our field `hex`
+        t.script.length = t.script.hex.length / 2 - 4;
+      }
     }
 
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
     let psbt = new bitcoin.Psbt();
@@ -1172,9 +1179,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     });
 
     outputs.forEach(output => {
-      // if output has no address - this is change output
+      // if output has no address - this is change output or a custom script output
       let change = false;
-      if (!output.address) {
+      // @ts-ignore
+      if (!output.address && !output.script?.hex) {
         change = true;
         output.address = changeAddress;
       }
@@ -1197,6 +1205,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       psbt.addOutput({
         address: output.address,
+        // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
+        script: output.script?.hex ? Buffer.from(output.script.hex, 'hex') : undefined,
         value: output.value,
         bip32Derivation:
           change && path && pubkey

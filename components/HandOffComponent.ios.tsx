@@ -2,6 +2,9 @@ import React from 'react';
 // @ts-ignore: react-native-handoff is not in the type definition
 import Handoff from 'react-native-handoff';
 import { useSettings } from './Context/SettingsContext';
+import DefaultPreference from 'react-native-default-preference';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { BlueApp } from '../class';
 
 interface HandOffComponentProps {
   url?: string;
@@ -17,6 +20,19 @@ interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentPro
     ViewInBlockExplorer: string;
   };
 }
+
+export const setIsHandOffUseEnabled = async (value: boolean) => {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
+  console.log('setIsHandOffUseEnabledAsyncStorage', value);
+};
+
+export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  const isEnabledValue = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
+  console.log('getIsHandOffUseEnabledV', isEnabledValue);
+  return isEnabledValue === 'true';
+};
 
 const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   const { isHandOffUseEnabled } = useSettings();

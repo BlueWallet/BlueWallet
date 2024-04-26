@@ -957,7 +957,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       }
     }
 
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
 
     let psbt = new bitcoin.Psbt();

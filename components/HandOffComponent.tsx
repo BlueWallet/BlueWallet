@@ -19,6 +19,12 @@ const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   return null;
 };
 
+export const setIsHandOffUseEnabled = async (value: boolean) => {};
+
+export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
+  return false;
+};
+
 const activityTypes = {
   ReceiveOnchain: 'io.bluewallet.bluewallet.receiveonchain',
   Xpub: 'io.bluewallet.bluewallet.xpub',

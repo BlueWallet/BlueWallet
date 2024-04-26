@@ -9,6 +9,7 @@ import { useStorage } from '../../blue_modules/storage-context';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import BlueClipboard from '../../blue_modules/clipboard';
+import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import DeviceQuickActions from '../../class/quick-actions';
 
 interface SettingsContextType {
@@ -65,7 +66,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Language
   const [language, setLanguage] = useState<string>();
   // HandOff
-  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState<boolean>(false);
+  const [isHandOffUseEnabled, setHandOffUseEnabled] = useState<boolean>(false);
   // PrivacyBlur
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
   // AdvancedMode
@@ -83,7 +84,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const doNotTrackStorage = useAsyncStorage(BlueApp.DO_NOT_TRACK);
-  const isHandOffUseEnabledStorage = useAsyncStorage(BlueApp.HANDOFF_STORAGE_KEY);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
 
   const { walletsInitialized } = useStorage();
@@ -92,12 +92,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const fetchSettings = async () => {
       const advMode = await advancedModeStorage.getItem();
       console.debug('SettingsContext advMode:', advMode);
-      const handOff = await isHandOffUseEnabledStorage.getItem();
+      const handOff = await getIsHandOffUseEnabled();
       console.debug('SettingsContext handOff:', handOff);
+      setHandOffUseEnabled(handOff);
       const lang = (await languageStorage.getItem()) ?? 'en';
       console.debug('SettingsContext lang:', lang);
       setIsAdvancedModeEnabled(advMode ? JSON.parse(advMode) : false);
-      setIsHandOffUseEnabled(handOff ? JSON.parse(handOff) : false);
       const isBalanceDisplayAllowedStorage = await isBalanceDisplayAllowed();
       console.debug('SettingsContext isBalanceDisplayAllowed:', isBalanceDisplayAllowedStorage);
       setIsWidgetBalanceDisplayAllowed(isBalanceDisplayAllowedStorage);
@@ -158,13 +158,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [doNotTrackStorage],
   );
 
-  const setIsHandOffUseEnabledAsyncStorage = useCallback(
-    async (value: boolean) => {
-      setIsHandOffUseEnabled(value);
-      await isHandOffUseEnabledStorage.setItem;
-    },
-    [isHandOffUseEnabledStorage.setItem],
-  );
+  const setIsHandOffUseEnabledAsyncStorage = useCallback(async (value: boolean) => {
+    console.debug('setIsHandOffUseEnabledAsyncStorage', value);
+    await setIsHandOffUseEnabled(value);
+    setHandOffUseEnabled(value);
+  }, []);
 
   const setIsWidgetBalanceDisplayAllowedStorage = useCallback(async (value: boolean) => {
     await setBalanceDisplayAllowed(value);
