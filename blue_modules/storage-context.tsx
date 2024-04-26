@@ -8,6 +8,7 @@ import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 import A from '../blue_modules/analytics';
+import { InteractionManager } from 'react-native';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -104,32 +105,27 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     saveToDisk();
   };
 
-  const refreshAllWalletTransactions = async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
-    let noErr = true;
-    try {
-      await BlueElectrum.waitTillConnected();
-      if (showUpdateStatusIndicator) {
-        setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+  const refreshAllWalletTransactions = async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true): Promise<void> => {
+    await InteractionManager.runAfterInteractions(async () => {
+      try {
+        await BlueElectrum.waitTillConnected();
+
+        const tasks: Promise<any>[] = [
+          BlueApp.fetchSenderPaymentCodes(lastSnappedTo),
+          fetchWalletBalances(lastSnappedTo),
+          fetchWalletTransactions(lastSnappedTo),
+        ];
+        const results = await Promise.all(tasks);
+
+        const noErr = results.every(result => result !== undefined);
+
+        if (noErr) await saveToDisk();
+      } catch (err) {
+        console.warn('Error refreshing wallet transactions:', err);
+      } finally {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
-      const paymentCodesStart = Date.now();
-      await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-      const paymentCodesEnd = Date.now();
-      console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
-      const balanceStart = +new Date();
-      await fetchWalletBalances(lastSnappedTo);
-      const balanceEnd = +new Date();
-      console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-      const start = +new Date();
-      await fetchWalletTransactions(lastSnappedTo);
-      const end = +new Date();
-      console.log('fetch tx took', (end - start) / 1000, 'sec');
-    } catch (err) {
-      noErr = false;
-      console.warn(err);
-    } finally {
-      setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
-    }
-    if (noErr) await saveToDisk(); // caching
+    });
   };
 
   const fetchAndSaveWalletTransactions = async (walletID: string) => {

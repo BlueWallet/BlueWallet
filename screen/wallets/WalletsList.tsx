@@ -216,10 +216,18 @@ const WalletsList: React.FC = () => {
       dispatch({ type: ActionTypes.SET_LOADING, payload: false });
       return;
     }
+
     dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-    refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+
+    try {
+      await InteractionManager.runAfterInteractions(async () => {
+        await refreshAllWalletTransactions(undefined, showUpdateStatusIndicator);
+      });
+    } catch (error) {
+      console.error('Failed to refresh transactions:', error);
+    } finally {
       dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-    });
+    }
   };
 
   useEffect(() => {
