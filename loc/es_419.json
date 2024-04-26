@@ -125,7 +125,8 @@
     "maxSats": "La cantidad máxima es {max} sats",
     "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
     "minSats": "La cantidad mínima es {min} sats",
-    "minSatsFull": "La cantidad mínima es {min} sats o {currency}"
+    "minSatsFull": "La cantidad mínima es {min} sats o {currency}",
+    "qrcode_for_the_address": "Código QR para la dirección"
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
