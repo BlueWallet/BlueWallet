@@ -110,7 +110,7 @@
     "@react-navigation/native": "6.1.17",
     "@react-navigation/native-stack": "6.9.26",
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
-    "@spsina/bip47": "github:BlueWallet/bip47#0a2f02c90350802f2ec93afa4e6c8843be2d687c",
+    "@spsina/bip47": "github:BlueWallet/bip47#f4b8047",
     "aezeed": "0.0.5",
     "assert": "2.1.0",
     "base-x": "4.0.0",
