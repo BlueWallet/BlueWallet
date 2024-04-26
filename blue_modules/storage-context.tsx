@@ -185,7 +185,10 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     addWallet(w);
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
-    presentAlert({ message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success });
+    presentAlert({
+      hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
+      message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
+    });
     // @ts-ignore need to type notifications first
     Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
     // start balance fetching at the background
