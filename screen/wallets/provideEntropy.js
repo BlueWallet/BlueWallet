@@ -8,9 +8,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueSpacing20, BlueTabs } from '../../BlueComponents';
+import { BlueSpacing20 } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import { Tabs } from '../../components/Tabs';
 
 const ENTROPY_LIMIT = 256;
 
@@ -244,7 +245,7 @@ const Entropy = () => {
         </View>
       </TouchableOpacity>
 
-      <BlueTabs
+      <Tabs
         active={tab}
         onSwitch={setTab}
         tabs={[
