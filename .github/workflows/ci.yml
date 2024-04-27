@@ -90,7 +90,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '21'
 
     - name: Build
       run: npm run e2e:release-build
