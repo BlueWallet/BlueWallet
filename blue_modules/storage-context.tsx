@@ -186,6 +186,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     presentAlert({
+      hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
       message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       type: w.type === WatchOnlyWallet.type ? AlertType.Alert : AlertType.Toast,
     });

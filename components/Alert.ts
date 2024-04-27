@@ -1,12 +1,29 @@
-import { Alert as RNAlert } from 'react-native';
+import { Alert as RNAlert, ToastAndroid } from 'react-native';
 import loc from '../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 export enum AlertType {
   Alert,
   Toast,
 }
-const presentAlert = ({ title, message, type = AlertType.Alert }: { title?: string; message: string; type?: AlertType }) => {
+const presentAlert = ({
+  title,
+  message,
+  type = AlertType.Alert,
+  hapticFeedback,
+}: {
+  title?: string;
+  message: string;
+  type?: AlertType;
+  hapticFeedback?: HapticFeedbackTypes;
+}) => {
+  if (hapticFeedback) {
+    triggerHapticFeedback(hapticFeedback);
+  }
   switch (type) {
+    case AlertType.Toast:
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+      break;
     default:
       RNAlert.alert(title ?? loc.alert.default, message);
       break;
