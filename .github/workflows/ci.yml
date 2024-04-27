@@ -89,7 +89,7 @@ jobs:
     - name: Use specific Java version for sdkmanager to work
       uses: actions/setup-java@v4
       with:
-        distribution: 'zulu'
+        distribution: 'adopt'
         java-version: '11'
 
     - name: Setup Android SDK
