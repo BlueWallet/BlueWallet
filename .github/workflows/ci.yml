@@ -107,7 +107,7 @@ jobs:
         avd-name: Pixel_API_29_AOSP
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        arch: x86_64
+        arch: arm64-v8a
         script: npm run e2e:release-test
 
     - name: Test attempt 2
