@@ -20,7 +20,7 @@ import NotificationSettings from './screen/settings/notificationSettings';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Tools from './screen/settings/tools';
 
-import AddWallet from './screen/wallets/add';
+import AddWallet from './screen/wallets/Add';
 import WalletsAddMultisig from './screen/wallets/addMultisig';
 import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
 import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
