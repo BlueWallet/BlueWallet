@@ -12,7 +12,7 @@ export const useIsLargeScreen = () => {
     const updateScreenUsage = () => {
       const newWindowWidth = Dimensions.get('window').width;
       if (newWindowWidth !== windowWidth) {
-        console.log(`Window width changed: ${newWindowWidth}`);
+        console.debug(`Window width changed: ${newWindowWidth}`);
         setWindowWidth(newWindowWidth);
       }
     };
@@ -31,7 +31,7 @@ export const useIsLargeScreen = () => {
     const isRunningOnTabletOrDesktop = isTablet() || isDesktop;
     const halfScreenWidth = windowWidth >= screenWidth / 2;
     const condition = isRunningOnTabletOrDesktop && halfScreenWidth;
-    console.log(
+    console.debug(
       `Window width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isRunningOnTabletOrDesktop}, Is large screen: ${condition}`,
     );
     return condition;
