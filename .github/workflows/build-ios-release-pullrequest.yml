@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+name: Build Release and Upload to TestFlight (iOS and macOS)
 
 on:
   push:
