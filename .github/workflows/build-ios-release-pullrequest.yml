@@ -172,47 +172,29 @@ jobs:
                 body: message,
               });
   testflight-macos:
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'testflight-macOS')
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'testflight-macOS'
     steps:
-      - name: Add or remove TestFlight macOS label
+      - name: Add testflight-macOS tag to PR
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const labelName = 'testflight-macOS';
             const prNumber = context.payload.pull_request.number;
             const repo = context.repo;
 
-            async function manageLabels() {
-              if (context.payload.action === 'labeled' && context.payload.label.name === labelName) {
-                // Add the tag
-                await github.rest.issues.addLabels({
-                  owner: repo.owner,
-                  repo: repo.repo,
-                  issue_number: prNumber,
-                  labels: [labelName]
-                });
-              } else if (context.payload.action === 'unlabeled' && context.payload.label.name === labelName) {
-                // Remove the tag
-                await github.rest.issues.removeLabel({
-                  owner: repo.owner,
-                  repo: repo.repo,
-                  issue_number: prNumber,
-                  name: labelName
-                });
-              }
-            }
+            // Add the tag
+            await github.rest.issues.addLabels({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: prNumber,
+              labels: ['testflight-macOS']
+            });
 
-            await manageLabels().then(() => {
-              const action = (context.payload.action === 'labeled') ? 'added' : 'removed';
-              const message = `Label \`${labelName}\` was successfully ${action}. This will trigger a macOS build to be generated and pushed to TestFlight.`;
-              github.rest.issues.createComment({
-                owner: repo.owner,
-                repo: repo.repo,
-                issue_number: prNumber,
-                body: message
-              });
-            }).catch(error => {
-              core.setFailed(`Action failed with error: ${error}`);
+            // Optionally, you can post a comment indicating that the tag has been added
+            await github.rest.issues.createComment({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: prNumber,
+              body: 'The `testflight-macOS` tag has been added to this pull request and will trigger a macOS build to be generated and pushed to TestFlight.'
             });
