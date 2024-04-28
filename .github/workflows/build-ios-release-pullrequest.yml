@@ -171,4 +171,49 @@ jobs:
                 issue_number: prNumber,
                 body: message,
               });
-  
+  testflight-macos:
+    if: github.event_name == 'pull_request' && github.base.ref == 'master' && (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add or remove tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          const labelName = '${{ github.event.label.name }}';
+          const prNumber = ${{ github.event.pull_request.number }};
+          const repo = ${{ github.repository }};
+          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+
+          async function manageLabels() {
+            if (github.event.action === 'labeled' && labelName === 'testflight-macOS') {
+              // Add the tag
+              await octokit.rest.issues.addLabels({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: prNumber,
+                labels: ['testflight-macOS']
+              });
+            } else if (github.event.action === 'unlabeled' && labelName === 'testflight-macOS') {
+              // Remove the tag
+              await octokit.rest.issues.removeLabel({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: prNumber,
+                name: 'testflight-macOS'
+              });
+            }
+          }
+
+          try {
+            await manageLabels();
+            const action = (github.event.action === 'labeled') ? 'added' : 'removed';
+            const message = `Label \`${labelName}\` was successfully ${action}. This will trigger a macOS build to be generated and pushed to TestFlight.`;
+            await octokit.rest.issues.createComment({
+              owner: github.context.repo.owner,
+              repo: github.context.repo.repo,
+              issue_number: prNumber,
+              body: message
+            });
+          } catch (error) {
+            core.setFailed(`Action failed with error: ${error}`);
+          }
