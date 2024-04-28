@@ -3,7 +3,7 @@ import { StyleProp, ViewStyle } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
-const fs = require('../blue_modules/fs');
+import * as fs from '../blue_modules/fs';
 
 interface SaveFileButtonProps {
   fileName: string;

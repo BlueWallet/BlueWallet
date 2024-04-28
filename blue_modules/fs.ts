@@ -1,14 +1,13 @@
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
+import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import loc from '../loc';
 import DocumentPicker from 'react-native-document-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { isDesktop } from './environment';
 import presentAlert from '../components/Alert';
 import { readFile } from './react-native-bw-file-access';
-
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   return await Share.open({
