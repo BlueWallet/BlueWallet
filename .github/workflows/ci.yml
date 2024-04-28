@@ -55,7 +55,7 @@ jobs:
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   e2e:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
     - name: checkout
       uses: actions/checkout@v4
@@ -90,7 +90,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     - name: Build
       run: npm run e2e:release-build
