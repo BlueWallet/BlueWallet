@@ -113,6 +113,11 @@ async function isRateOutdated(): Promise<boolean> {
   }
 }
 
+async function restoreSavedPreferredFiatCurrencyAndExchangeFromStorage(): Promise<void> {
+  await _restoreSavedExchangeRatesFromStorage();
+  await _restoreSavedPreferredFiatCurrencyFromStorage();
+} 
+
 async function initCurrencyDaemon(clearLastUpdatedTime: boolean = false): Promise<void> {
   await _restoreSavedExchangeRatesFromStorage();
   await _restoreSavedPreferredFiatCurrencyFromStorage();
@@ -235,4 +240,5 @@ export {
   LAST_UPDATED,
   mostRecentFetchedRate,
   isRateOutdated,
+  restoreSavedPreferredFiatCurrencyAndExchangeFromStorage,
 };

@@ -7,6 +7,7 @@ import App from './App';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 import A from './blue_modules/analytics';
 import { SettingsProvider } from './components/Context/SettingsContext';
+import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -15,6 +16,7 @@ if (!Error.captureStackTrace) {
 
 const BlueAppComponent = () => {
   useEffect(() => {
+    restoreSavedPreferredFiatCurrencyAndExchangeFromStorage();
     A(A.ENUM.INIT);
   }, []);
 
