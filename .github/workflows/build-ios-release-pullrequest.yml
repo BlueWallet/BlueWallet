@@ -175,50 +175,44 @@ jobs:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'testflight-macOS')
     runs-on: ubuntu-latest
     steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      - name: Add or remove TestFlight macOS label
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const labelName = 'testflight-macOS';
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
 
-      - name: Add or remove tags
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          const labelName = '${{ github.event.label.name }}';
-          const prNumber = ${{ github.event.pull_request.number }};
-          const repo = ${{ github.repository }};
-          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-
-          async function manageLabels() {
-            if (github.event.action === 'labeled' && labelName === 'testflight-macOS') {
-              // Add the tag
-              await octokit.rest.issues.addLabels({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                issue_number: prNumber,
-                labels: ['testflight-macOS']
-              });
-            } else if (github.event.action === 'unlabeled' && labelName === 'testflight-macOS') {
-              // Remove the tag
-              await octokit.rest.issues.removeLabel({
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                issue_number: prNumber,
-                name: 'testflight-macOS'
-              });
+            async function manageLabels() {
+              if (context.payload.action === 'labeled' && context.payload.label.name === labelName) {
+                // Add the tag
+                await github.rest.issues.addLabels({
+                  owner: repo.owner,
+                  repo: repo.repo,
+                  issue_number: prNumber,
+                  labels: [labelName]
+                });
+              } else if (context.payload.action === 'unlabeled' && context.payload.label.name === labelName) {
+                // Remove the tag
+                await github.rest.issues.removeLabel({
+                  owner: repo.owner,
+                  repo: repo.repo,
+                  issue_number: prNumber,
+                  name: labelName
+                });
+              }
             }
-          }
 
-          try {
-            await manageLabels();
-            const action = (github.event.action === 'labeled') ? 'added' : 'removed';
-            const message = `Label \`${labelName}\` was successfully ${action}. This will trigger a macOS build to be generated and pushed to TestFlight.`;
-            await octokit.rest.issues.createComment({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              issue_number: prNumber,
-              body: message
+            await manageLabels().then(() => {
+              const action = (context.payload.action === 'labeled') ? 'added' : 'removed';
+              const message = `Label \`${labelName}\` was successfully ${action}. This will trigger a macOS build to be generated and pushed to TestFlight.`;
+              github.rest.issues.createComment({
+                owner: repo.owner,
+                repo: repo.repo,
+                issue_number: prNumber,
+                body: message
+              });
+            }).catch(error => {
+              core.setFailed(`Action failed with error: ${error}`);
             });
-          } catch (error) {
-            core.setFailed(`Action failed with error: ${error}`);
-          }
