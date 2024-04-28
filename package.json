@@ -127,7 +127,7 @@
     "buffer": "6.0.3",
     "coinselect": "3.1.13",
     "crypto-js": "4.2.0",
-    "dayjs": "1.11.10",
+    "dayjs": "1.11.11",
     "detox": "20.18.4",
     "ecpair": "2.0.1",
     "ecurve": "1.0.6",
