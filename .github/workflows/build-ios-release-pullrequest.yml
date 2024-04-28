@@ -172,9 +172,14 @@ jobs:
                 body: message,
               });
   testflight-macos:
-    if: github.event_name == 'pull_request' && github.base.ref == 'master' && (github.event.action == 'labeled' || github.event.action == 'unlabeled')
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'testflight-macOS')
     runs-on: ubuntu-latest
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Add or remove tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
