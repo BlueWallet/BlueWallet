@@ -438,14 +438,12 @@ const WalletTransactions = ({ navigation }) => {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
     } else if (id === actionKeys.RefillWithExternalWallet) {
-      if (wallet.getUserHasSavedExport()) {
-        navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: {
-            walletID: wallet.getID(),
-          },
-        });
-      }
+      navigate('ReceiveDetailsRoot', {
+        screen: 'ReceiveDetails',
+        params: {
+          walletID: wallet.getID(),
+        },
+      });
     }
   };
 
