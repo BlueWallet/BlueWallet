@@ -19,7 +19,7 @@ interface TransactionsNavigationHeaderProps {
     navigate: (route: string, params?: any) => void;
     goBack: () => void;
   };
-  onManageFundsPressed?: (id: string) => void;
+  onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
   actionKeys: {
     CopyToClipboard: 'copyToClipboard';
@@ -103,10 +103,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = (actionKeyID: string) => {
+  const handleManageFundsPressed = (actionKeyID?: string) => {
     if (onManageFundsPressed) {
-      onManageFundsPressed(actionKeyID);
-    }
+      if (actionKeyID) {
+        onManageFundsPressed(actionKeyID);
+    }}
   };
 
   const handleOnPaymentCodeButtonPressed = () => {
@@ -260,13 +261,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           style={styles.manageFundsButton}
           accessibilityRole="button"
           accessibilityLabel={loc.lnd.title}
-          onPress={handleManageFundsPressed}
+          onPress={() => handleManageFundsPressed()}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </TouchableOpacity>
       )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleManageFundsPressed}>
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
