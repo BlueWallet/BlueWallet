@@ -5,6 +5,7 @@ import { PaymentCodeStackParamList } from '../../Navigation';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc from '../../loc';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 
 interface DataSection {
   title: string;
@@ -21,14 +22,17 @@ export default function PaymentCodesList({ route }: Props) {
   useEffect(() => {
     if (!walletID) return;
 
-    const foundWallet = wallets.find(w => w.getID() === walletID);
+    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
     if (!foundWallet) return;
 
     const newData: DataSection[] = [
       {
         title: loc.bip47.who_can_pay_me,
-        // @ts-ignore remove later
         data: foundWallet.getBIP47SenderPaymentCodes(),
+      },
+      {
+        title: loc.bip47.whom_can_i_pay,
+        data: foundWallet.getBIP47ReceiverPaymentCodes(),
       },
     ];
     setData(newData);

@@ -157,7 +157,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     const changeAddress = 'bc1q7vraw79vcf7qhnefeaul578h7vjc7tr95ywfuq';
 
-    const { tx, fee } = await walletSender.createBip47NotificationTransaction(
+    const { tx, fee } = walletSender.createBip47NotificationTransaction(
       utxos,
       bip47instanceReceiver.getSerializedPaymentCode(),
       33,
@@ -175,6 +175,91 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     const actualFeerate = fee / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 33);
+  });
+
+  it('should be able to pay to PC', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    // whom we are going to pay:
+    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(process.env.BIP47_HD_MNEMONIC.split(':')[0], undefined, '1');
+
+    // notifier:
+    const walletSender = new HDSegwitBech32Wallet();
+    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.switchBIP47(true);
+
+    // since we cant do network calls, we hardcode our senders so later `_getWIFbyAddress`
+    // could resolve wif for address deposited by him (funds we want to use reside on addresses from BIP47)
+    walletSender._receive_payment_codes = [
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    ];
+
+    walletSender.addBIP47Receiver(bip47instanceReceiver.getSerializedPaymentCode());
+
+    const utxos: CreateTransactionUtxo[] = [
+      {
+        value: 74822,
+        address: 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt',
+        txid: '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d',
+        vout: 0,
+        wif: walletSender._getWIFbyAddress('bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt') + '',
+      },
+      {
+        value: 894626,
+        address: 'bc1qr60ek5gtjs04akcp9f5x25v5gyp2tmspx78jxl',
+        txid: '64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f',
+        vout: 0,
+        wif: walletSender._getWIFbyAddress('bc1qr60ek5gtjs04akcp9f5x25v5gyp2tmspx78jxl') + '',
+      },
+    ];
+
+    const changeAddress = 'bc1q7vraw79vcf7qhnefeaul578h7vjc7tr95ywfuq';
+
+    const { tx, fee } = walletSender.createTransaction(
+      utxos,
+      [
+        { address: bip47instanceReceiver.getSerializedPaymentCode(), value: 10234 },
+        { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 22000 },
+      ],
+      6,
+      changeAddress,
+    );
+    assert(tx);
+
+    assert.strictEqual(tx.outs[0].value, 10234);
+    assert.strictEqual(
+      bitcoin.address.fromOutputScript(tx.outs[0].script),
+      walletSender._getBIP47AddressSend(bip47instanceReceiver.getSerializedPaymentCode(), 0),
+    );
+
+    assert.strictEqual(tx.outs[1].value, 22000);
+    assert.strictEqual(bitcoin.address.fromOutputScript(tx.outs[1].script), '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
+
+    const actualFeerate = fee / tx.virtualSize();
+    assert.strictEqual(Math.round(actualFeerate), 6);
+
+    // lets retry, but pretend that a few sender's addresses were used:
+
+    walletSender._next_free_payment_code_address_index_send[bip47instanceReceiver.getSerializedPaymentCode()] = 6;
+
+    const { tx: tx2 } = walletSender.createTransaction(
+      utxos,
+      [
+        { address: bip47instanceReceiver.getSerializedPaymentCode(), value: 10234 },
+        { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 22000 },
+      ],
+      6,
+      changeAddress,
+    );
+    assert(tx2);
+
+    assert.strictEqual(
+      bitcoin.address.fromOutputScript(tx2.outs[0].script),
+      walletSender._getBIP47AddressSend(bip47instanceReceiver.getSerializedPaymentCode(), 6),
+    );
   });
 
   it('can unwrap addresses to send & receive', () => {
