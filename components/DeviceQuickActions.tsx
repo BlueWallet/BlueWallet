@@ -18,7 +18,6 @@ export async function setEnabled(enabled: boolean = true): Promise<void> {
 }
 
 export async function getEnabled(): Promise<boolean> {
-  console.warn('getEnabled22');
   try {
     const isEnabled = await AsyncStorage.getItem(DeviceQuickActionsStorageKey);
     if (isEnabled === null) {
