@@ -41,6 +41,11 @@ type TRealmTransaction = {
   tx: string;
 };
 
+type TBucketStorage = {
+  wallets: string[]; // array of serialized wallets, not actual wallet objects
+  tx_metadata: TTXMetadata;
+};
+
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
 
 export class BlueApp {
@@ -212,7 +217,7 @@ export class BlueApp {
     this.wallets = [];
     this.tx_metadata = {};
 
-    const data = {
+    const data: TBucketStorage = {
       wallets: [],
       tx_metadata: {},
     };
@@ -234,7 +239,7 @@ export class BlueApp {
    * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
    * Database file is deterministically derived from encryption key.
    */
-  async getRealm() {
+  async getRealmForTransactions() {
     const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = Buffer.from(this.hashIt(password) + this.hashIt(password), 'hex');
@@ -263,7 +268,7 @@ export class BlueApp {
   }
 
   /**
-   * Returns instace of the Realm database, which is encrypted by device unique id
+   * Returns instace of the Realm database, which is encrypted by random bytes stored in keychain.
    * Database file is static.
    *
    * @returns {Promise<Realm>}
@@ -331,22 +336,22 @@ export class BlueApp {
     } catch (error: any) {
       console.warn('moveRealmFilesToCacheDirectory error:', error.message);
     }
-    let data = await this.getItemWithFallbackToRealm('data');
+    let dataRaw = await this.getItemWithFallbackToRealm('data');
     if (password) {
-      data = this.decryptData(data, password);
-      if (data) {
+      dataRaw = this.decryptData(dataRaw, password);
+      if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
       }
     }
-    if (data !== null) {
+    if (dataRaw !== null) {
       let realm;
       try {
-        realm = await this.getRealm();
+        realm = await this.getRealmForTransactions();
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
-      data = JSON.parse(data);
+      const data: TBucketStorage = JSON.parse(dataRaw);
       if (!data.wallets) return false;
       const wallets = data.wallets;
       for (const key of wallets) {
@@ -611,10 +616,10 @@ export class BlueApp {
     savingInProgress = 1;
 
     try {
-      const walletsToSave = [];
+      const walletsToSave: string[] = []; // serialized wallets
       let realm;
       try {
-        realm = await this.getRealm();
+        realm = await this.getRealmForTransactions();
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
@@ -644,7 +649,8 @@ export class BlueApp {
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
       if (realm) realm.close();
-      let data = {
+
+      let data: TBucketStorage | string[] /* either a bucket, or an array of encrypted buckets */ = {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
       };
@@ -653,7 +659,7 @@ export class BlueApp {
         // should find the correct bucket, encrypt and then save
         let buckets = await this.getItemWithFallbackToRealm('data');
         buckets = JSON.parse(buckets);
-        const newData = [];
+        const newData: string[] = []; // serialized buckets
         let num = 0;
         for (const bucket of buckets) {
           let decrypted;
@@ -679,7 +685,7 @@ export class BlueApp {
             newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
           }
         }
-        // @ts-ignore bla bla bla
+
         data = newData;
       }
 
