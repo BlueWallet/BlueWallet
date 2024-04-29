@@ -24,7 +24,6 @@ import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
-import DeviceQuickActions from './class/quick-actions';
 import Notifications from './blue_modules/notifications';
 import Biometric from './class/biometrics';
 import WidgetCommunication from './components/WidgetCommunication';
@@ -35,6 +34,7 @@ import { updateExchangeRate } from './blue_modules/currency';
 import { NavigationProvider } from './components/NavigationProvider';
 import A from './blue_modules/analytics';
 import HandOffComponentListener from './components/HandOffComponentListener';
+import DeviceQuickActions from './components/DeviceQuickActions';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { SplashScreen } = NativeModules;
@@ -266,22 +266,22 @@ const App = () => {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.root}>
-        <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-          <NavigationProvider>
+    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <NavigationProvider>
+        <SafeAreaProvider>
+          <View style={styles.root}>
             <InitRoot />
             <Notifications onProcessNotifications={processPushNotifications} />
             <MenuElements />
             <DeviceQuickActions />
             <Biometric />
             <HandOffComponentListener />
-          </NavigationProvider>
-        </NavigationContainer>
-      </View>
-      <WatchConnectivity />
-      <WidgetCommunication />
-    </SafeAreaProvider>
+          </View>
+          <WatchConnectivity />
+          <WidgetCommunication />
+        </SafeAreaProvider>
+      </NavigationProvider>
+    </NavigationContainer>
   );
 };
 

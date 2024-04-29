@@ -3,19 +3,17 @@ import React from 'react';
 export const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
 interface DeviceQuickActionsFunctions {
-  setEnabled: () => void;
-  getEnabled: () => Promise<boolean>;
   popInitialAction: () => void;
 }
 
-const DeviceQuickActions: React.FC & DeviceQuickActionsFunctions = () => {
-  return null;
+export const setEnabled = (): void => {};
+
+export const getEnabled = async (): Promise<boolean> => {
+  return false;
 };
 
-DeviceQuickActions.setEnabled = (): void => {};
-
-DeviceQuickActions.getEnabled = async (): Promise<boolean> => {
-  return false;
+const DeviceQuickActions: React.FC & DeviceQuickActionsFunctions = () => {
+  return null;
 };
 
 DeviceQuickActions.popInitialAction = (): void => {};
