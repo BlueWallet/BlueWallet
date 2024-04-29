@@ -103,8 +103,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = () => {
-    onManageFundsPressed?.(actionKeys.Refill);
+  const handleManageFundsPressed = (actionKeyID: string) => {
+    if (onManageFundsPressed) {
+      onManageFundsPressed(actionKeyID);
+    }
   };
 
   const handleOnPaymentCodeButtonPressed = () => {
@@ -248,7 +250,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
       )}
-
       {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
           <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
@@ -342,7 +343,7 @@ export const actionKeys = {
   CopyToClipboard: 'copyToClipboard',
   WalletBalanceVisibility: 'walletBalanceVisibility',
   Refill: 'refill',
-  RefillWithExternalWallet: 'qrcode',
+  RefillWithExternalWallet: 'refillWithExternalWallet',
 };
 
 export const actionIcons = {
