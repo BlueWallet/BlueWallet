@@ -1,33 +1,20 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../components/Context/SettingsContext';
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  row: { minHeight: 60 },
-});
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const { setOptions } = useNavigation();
+  const { setOptions } = useExtendedNavigation();
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const stylesHook = StyleSheet.create({
-    flex: {
-      backgroundColor: colors.background,
-    },
     content: {
-      paddingBottom: insets.bottom,
+      backgroundColor: colors.background,
     },
   });
 
@@ -52,14 +39,14 @@ const Language = () => {
         title={item.label}
         checkmark={language === item.value}
         onPress={() => onLanguageSelect(item)}
-        containerStyle={styles.row}
+        containerStyle={[styles.row, stylesHook.content]}
       />
     );
   };
 
   return (
     <FlatList
-      style={[styles.flex, stylesHook.flex]}
+      style={styles.flex}
       contentContainerStyle={stylesHook.content}
       keyExtractor={(_item, index) => `${index}`}
       data={AvailableLanguages}
@@ -72,3 +59,10 @@ const Language = () => {
 };
 
 export default Language;
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  row: { minHeight: 60 },
+});
