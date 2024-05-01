@@ -12,7 +12,7 @@ on: [pull_request]
 
 jobs:
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout project
       uses: actions/checkout@v4
@@ -55,10 +55,41 @@ jobs:
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
 
   e2e:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+
+    - name: Free Disk Space
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+        android: false
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    - name: npm and gradle caches in /mnt
+      run: |
+        rm -rf ~/.npm
+        rm -rf ~/.gradle
+        sudo mkdir -p /mnt/.npm
+        sudo mkdir -p /mnt/.gradle
+        sudo chown -R runner /mnt/.npm
+        sudo chown -R runner /mnt/.gradle
+        ln -s /mnt/.npm /home/runner/
+        ln -s /mnt/.gradle /home/runner/
+
+    - name: Create artifacts directory on /mnt
+      run: |
+        sudo mkdir -p /mnt/artifacts
+        sudo chown -R runner /mnt/artifacts
 
     - name: Specify node version
       uses: actions/setup-node@v4
@@ -84,68 +115,35 @@ jobs:
           ${{ runner.os }}-npm-
 
     - name: Install node_modules
-      run: npm install
+      run: npm install || npm install
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Enable KVM group perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
     - name: Build
       run: npm run e2e:release-build
 
-    - name: Test attempt 1
+    - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
-      continue-on-error: true
-      id: test1
       with:
         api-level: 31
         avd-name: Pixel_API_29_AOSP
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test
-
-    - name: Test attempt 2
-      uses: reactivecircus/android-emulator-runner@v2
-      continue-on-error: true
-      id: test2
-      if: steps.test1.outcome != 'success'
-      with:
-        api-level: 31
-        avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        arch: x86_64
-        script: npm run e2e:release-test
-
-    - name: Test attempt 3
-      uses: reactivecircus/android-emulator-runner@v2
-      continue-on-error: true
-      id: test3
-      if: steps.test1.outcome != 'success' && steps.test2.outcome != 'success'
-      with:
-        api-level: 31
-        avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        arch: x86_64
-        script: npm run e2e:release-test
-
-    - name: Test attempt 4
-      uses: reactivecircus/android-emulator-runner@v2
-      if: steps.test1.outcome != 'success' && steps.test2.outcome != 'success' && steps.test3.outcome != 'success'
-      with:
-        api-level: 31
-        avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
-        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
-        arch: x86_64
-        script: npm run e2e:release-test
+        script: npm run e2e:release-test --  --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 3 --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: e2e-test-videos
-        path: ./artifacts/
+        path: /mnt/artifacts/
