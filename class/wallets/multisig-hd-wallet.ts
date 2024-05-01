@@ -81,7 +81,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   private _isLegacy: boolean = false;
   private _nodes: BIP32Interface[][] = [];
   public _derivationPath: string = '';
-  public gap_limit: number = 10;
+  public gap_limit: number = 20;
 
   isLegacy() {
     return this._isLegacy;

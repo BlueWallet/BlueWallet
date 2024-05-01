@@ -10,7 +10,7 @@ import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetComm
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
-import DeviceQuickActions from '../../class/quick-actions';
+import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '..//DeviceQuickActions';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
@@ -111,8 +111,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.debug('SettingsContext isClipboardGetContentEnabled:', isClipboardGetContentEnabledStorage);
       setIsClipboardGetContentEnabledStorage(isClipboardGetContentEnabledStorage);
 
-      // @ts-ignore: Fix later
-      const isQuickActionsEnabledStorage = await DeviceQuickActions.getEnabled();
+      const isQuickActionsEnabledStorage = await getIsDeviceQuickActionsEnabled();
       console.debug('SettingsContext isQuickActionsEnabled:', isQuickActionsEnabledStorage);
       setIsQuickActionsEnabledStorage(isQuickActionsEnabledStorage);
     };
@@ -180,8 +179,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   const setIsQuickActionsEnabledStorage = useCallback(async (value: boolean) => {
-    // @ts-ignore: Fix later
-    await DeviceQuickActions.setEnabled(value);
+    await setIsDeviceQuickActionsEnabled(value);
     setIsQuickActionsEnabled(value);
   }, []);
 

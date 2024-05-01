@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
@@ -6,16 +6,33 @@ import QuickActions from 'react-native-quick-actions';
 import * as NavigationService from '../NavigationService';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { formatBalance } from '../loc';
-import DeeplinkSchemaMatch from './deeplink-schema-match';
-import { TWallet } from './wallets/types';
+import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import { TWallet } from '../class/wallets/types';
 import useOnAppLaunch from '../hooks/useOnAppLaunch';
 import { useSettings } from '../components/Context/SettingsContext';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
-function DeviceQuickActions(): JSX.Element | null {
+export async function setEnabled(enabled: boolean = true): Promise<void> {
+  await AsyncStorage.setItem(DeviceQuickActionsStorageKey, JSON.stringify(enabled));
+}
+
+export async function getEnabled(): Promise<boolean> {
+  try {
+    const isEnabled = await AsyncStorage.getItem(DeviceQuickActionsStorageKey);
+    if (isEnabled === null) {
+      await setEnabled(true);
+      return true;
+    }
+    return !!JSON.parse(isEnabled);
+  } catch {
+    return true;
+  }
+}
+
+function DeviceQuickActions() {
   const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useContext(BlueStorageContext);
-  const { preferredFiatCurrency } = useSettings();
+  const { preferredFiatCurrency, isQuickActionsEnabled } = useSettings();
 
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();
 
@@ -43,34 +60,20 @@ function DeviceQuickActions(): JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
-  // @ts-ignore: Fix later
-  DeviceQuickActions.setEnabled = async (enabled: boolean = true): Promise<void> => {
-    await AsyncStorage.setItem(DeviceQuickActionsStorageKey, JSON.stringify(enabled));
-    if (!enabled) {
-      removeShortcuts();
-    } else {
-      setQuickActions();
+  useEffect(() => {
+    if (walletsInitialized) {
+      if (isQuickActionsEnabled) {
+        setQuickActions();
+      } else {
+        removeShortcuts();
+      }
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isQuickActionsEnabled, walletsInitialized]);
 
   const popInitialShortcutAction = async (): Promise<any> => {
     const data = await QuickActions.popInitialAction();
     return data;
-  };
-
-  // @ts-ignore: Fix later
-  DeviceQuickActions.getEnabled = async (): Promise<boolean> => {
-    try {
-      const isEnabled = await AsyncStorage.getItem(DeviceQuickActionsStorageKey);
-      if (isEnabled === null) {
-        // @ts-ignore: Fix later
-        await DeviceQuickActions.setEnabled(true);
-        return true;
-      }
-      return !!JSON.parse(isEnabled);
-    } catch {
-      return true;
-    }
   };
 
   const popInitialAction = async (data: any): Promise<void> => {
@@ -147,8 +150,7 @@ function DeviceQuickActions(): JSX.Element | null {
   };
 
   const setQuickActions = async (): Promise<void> => {
-    // @ts-ignore: Fix later
-    if (await DeviceQuickActions.getEnabled()) {
+    if (await getEnabled()) {
       QuickActions.isSupported((error: null, _supported: any) => {
         if (error === null) {
           const shortcutItems = [];
@@ -175,7 +177,7 @@ function DeviceQuickActions(): JSX.Element | null {
     }
   };
 
-  return <></>;
+  return null;
 }
 
 export default DeviceQuickActions;
