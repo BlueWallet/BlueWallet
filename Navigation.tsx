@@ -67,7 +67,7 @@ import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
 import UnlockWith from './screen/UnlockWith';
-import { isDesktop, isHandset } from './blue_modules/environment';
+import { isDesktop } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
@@ -88,116 +88,6 @@ import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
-
-const WalletsStack = createNativeStackNavigator();
-
-const WalletsRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <WalletsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <WalletsStack.Screen
-        name="WalletsList"
-        component={WalletsList}
-        options={navigationStyle({ title: '', headerBackTitle: loc.wallets.list_title })(theme)}
-      />
-      <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
-      <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
-      <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="TransactionStatus"
-        component={TransactionStatus}
-        initialParams={{
-          hash: undefined,
-          walletID: undefined,
-        }}
-        options={navigationStyle({
-          title: '',
-          statusBarStyle: 'auto',
-          headerStyle: {
-            backgroundColor: theme.colors.customHeader,
-          },
-        })(theme)}
-      />
-      <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
-      <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
-      <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="Settings"
-        component={Settings}
-        options={navigationStyle({
-          headerTransparent: true,
-          title: Platform.select({ ios: loc.settings.header, default: '' }),
-          headerLargeTitle: true,
-        })(theme)}
-      />
-      <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
-      <WalletsStack.Screen name="About" component={About} options={About.navigationOptions(theme)} />
-      <WalletsStack.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="DefaultView"
-        component={DefaultView}
-        options={navigationStyle({ title: loc.settings.default_title })(theme)}
-      />
-
-      <WalletsStack.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
-      <WalletsStack.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="GeneralSettings"
-        component={GeneralSettings}
-        options={navigationStyle({ title: loc.settings.general })(theme)}
-      />
-      <WalletsStack.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="NotificationSettings"
-        component={NotificationSettings}
-        options={NotificationSettings.navigationOptions(theme)}
-      />
-      <WalletsStack.Screen
-        name="PlausibleDeniability"
-        component={PlausibleDeniability}
-        options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
-      />
-      <WalletsStack.Screen name="LightningSettings" component={LightningSettings} options={LightningSettings.navigationOptions(theme)} />
-      <WalletsStack.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
-      <WalletsStack.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions(theme)} />
-      <WalletsStack.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="LNDViewAdditionalInvoiceInformation"
-        component={LNDViewAdditionalInvoiceInformation}
-        options={LNDViewAdditionalInvoiceInformation.navigationOptions(theme)}
-      />
-      <WalletsStack.Screen
-        name="LNDViewAdditionalInvoicePreImage"
-        component={LNDViewAdditionalInvoicePreImage}
-        options={LNDViewAdditionalInvoicePreImage.navigationOptions(theme)}
-      />
-
-      <WalletsStack.Screen name="Broadcast" component={Broadcast} options={navigationStyle({ title: loc.send.create_broadcast })(theme)} />
-      <WalletsStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
-      <WalletsStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
-      <WalletsStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
-      <WalletsStack.Screen
-        name="Success"
-        component={Success}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <WalletsStack.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
-    </WalletsStack.Navigator>
-  );
-};
 
 const AddWalletStack = createNativeStackNavigator();
 const AddWalletRoot = () => {
@@ -390,16 +280,6 @@ const ScanQRCodeRoot = () => (
   </ScanQRCodeStack.Navigator>
 );
 
-const UnlockWithScreenStack = createNativeStackNavigator();
-const UnlockWithScreenRoot = () => (
-  <UnlockWithScreenStack.Navigator
-    id="UnlockWithScreenRoot"
-    screenOptions={{ headerShown: false, statusBarStyle: 'auto', autoHideHomeIndicator: true }}
-  >
-    <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
-  </UnlockWithScreenStack.Navigator>
-);
-
 const ReorderWalletsStack = createNativeStackNavigator();
 const ReorderWalletsStackRoot = () => {
   const theme = useTheme();
@@ -435,8 +315,8 @@ const DrawerRoot = () => {
   return (
     <Drawer.Navigator screenOptions={drawerStyle} drawerContent={DrawerListContent}>
       <Drawer.Screen
-        name="Navigation"
-        component={Navigation}
+        name="DetailViewStackScreensStack"
+        component={DetailViewStackScreensStack}
         options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
       />
     </Drawer.Navigator>
@@ -507,21 +387,201 @@ const WalletExportStackRoot = () => {
   );
 };
 
-const InitStack = createNativeStackNavigator();
-const InitRoot = () => {
+const DetailViewRoot = createNativeStackNavigator();
+const DetailViewStackScreensStack = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
+  const theme = useTheme();
   return (
-    <InitStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ animationTypeForReplace: 'push' }}>
+    <DetailViewRoot.Navigator
+      initialRouteName="UnlockWithScreen"
+      screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+    >
       {!walletsInitialized ? (
-        <InitStack.Screen name="UnlockWithScreenRoot" component={UnlockWithScreenRoot} options={{ headerShown: false }} />
-      ) : (
-        <InitStack.Screen
-          name={isHandset ? 'Navigation' : 'DrawerRoot'}
-          component={isHandset ? Navigation : DrawerRoot}
-          options={{ headerShown: false }}
+        <DetailViewRoot.Screen
+          name="UnlockWithScreen"
+          component={UnlockWith}
+          options={{ headerShown: false, statusBarStyle: 'auto', autoHideHomeIndicator: true }}
         />
+      ) : (
+        <DetailViewRoot.Group>
+          <DetailViewRoot.Screen
+            name="WalletsList"
+            component={WalletsList}
+            options={navigationStyle({ title: '', headerBackTitle: loc.wallets.list_title })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="WalletTransactions"
+            component={WalletTransactions}
+            options={WalletTransactions.navigationOptions(theme)}
+          />
+          <DetailViewRoot.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="TransactionDetails"
+            component={TransactionDetails}
+            options={TransactionDetails.navigationOptions(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="TransactionStatus"
+            component={TransactionStatus}
+            initialParams={{
+              hash: undefined,
+              walletID: undefined,
+            }}
+            options={navigationStyle({
+              title: '',
+              statusBarStyle: 'auto',
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+            })(theme)}
+          />
+          <DetailViewRoot.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="Settings"
+            component={Settings}
+            options={navigationStyle({
+              headerTransparent: true,
+              title: Platform.select({ ios: loc.settings.header, default: '' }),
+              headerLargeTitle: true,
+            })(theme)}
+          />
+          <DetailViewRoot.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
+          <DetailViewRoot.Screen name="About" component={About} options={About.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="DefaultView"
+            component={DefaultView}
+            options={navigationStyle({ title: loc.settings.default_title })(theme)}
+          />
+
+          <DetailViewRoot.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
+          <DetailViewRoot.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="GeneralSettings"
+            component={GeneralSettings}
+            options={navigationStyle({ title: loc.settings.general })(theme)}
+          />
+          <DetailViewRoot.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="NotificationSettings"
+            component={NotificationSettings}
+            options={NotificationSettings.navigationOptions(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="PlausibleDeniability"
+            component={PlausibleDeniability}
+            options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="LightningSettings"
+            component={LightningSettings}
+            options={LightningSettings.navigationOptions(theme)}
+          />
+          <DetailViewRoot.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="LNDViewAdditionalInvoiceInformation"
+            component={LNDViewAdditionalInvoiceInformation}
+            options={LNDViewAdditionalInvoiceInformation.navigationOptions(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="LNDViewAdditionalInvoicePreImage"
+            component={LNDViewAdditionalInvoicePreImage}
+            options={LNDViewAdditionalInvoicePreImage.navigationOptions(theme)}
+          />
+
+          <DetailViewRoot.Screen
+            name="Broadcast"
+            component={Broadcast}
+            options={navigationStyle({ title: loc.send.create_broadcast })(theme)}
+          />
+          <DetailViewRoot.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
+          <DetailViewRoot.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="Success"
+            component={Success}
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+            }}
+          />
+          <DetailViewRoot.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
+
+          <DetailViewRoot.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationFormModalOptions} />
+          <DetailViewRoot.Screen
+            name="SendDetailsRoot"
+            component={SendDetailsRoot}
+            options={isDesktop ? NavigationDefaultOptionsForDesktop : NavigationDefaultOptions}
+          />
+          <DetailViewRoot.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
+          {/* screens */}
+          <DetailViewRoot.Screen
+            name="WalletExportRoot"
+            component={WalletExportStackRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewRoot.Screen
+            name="ExportMultisigCoordinationSetupRoot"
+            component={ExportMultisigCoordinationSetupRoot}
+            options={NavigationDefaultOptions}
+          />
+          <DetailViewRoot.Screen
+            name="ViewEditMultisigCosignersRoot"
+            component={ViewEditMultisigCosignersRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
+          />
+          <DetailViewRoot.Screen
+            name="WalletXpubRoot"
+            component={WalletXpubStackRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewRoot.Screen
+            name="SignVerifyRoot"
+            component={SignVerifyStackRoot}
+            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+          />
+          <DetailViewRoot.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
+
+          <DetailViewRoot.Screen
+            name="ScanQRCodeRoot"
+            component={ScanQRCodeRoot}
+            options={{
+              headerShown: false,
+              presentation: 'fullScreenModal',
+              statusBarHidden: true,
+            }}
+            initialParams={ScanQRCode.initialParams}
+          />
+
+          <DetailViewRoot.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen
+            name="ReorderWallets"
+            component={ReorderWalletsStackRoot}
+            options={{
+              headerShown: false,
+              gestureEnabled: false,
+              presentation: 'modal',
+            }}
+          />
+        </DetailViewRoot.Group>
       )}
-    </InitStack.Navigator>
+    </DetailViewRoot.Navigator>
   );
 };
 
@@ -592,7 +652,6 @@ const PaymentCodeStackRoot = () => {
   );
 };
 
-const RootStack = createNativeStackNavigator();
 const NavigationDefaultOptions: NativeStackNavigationOptions = { headerShown: false, presentation: 'modal' };
 const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
@@ -600,73 +659,10 @@ const NavigationFormModalOptions: NativeStackNavigationOptions = {
 };
 const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
 const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
-const Navigation = () => {
-  return (
-    <RootStack.Navigator initialRouteName="UnlockWithScreenRoot" screenOptions={{ headerShadowVisible: false, statusBarStyle: 'auto' }}>
-      {/* stacks */}
-      <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, statusBarTranslucent: false }} />
-      <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationFormModalOptions} />
-      <RootStack.Screen
-        name="SendDetailsRoot"
-        component={SendDetailsRoot}
-        options={isDesktop ? NavigationDefaultOptionsForDesktop : NavigationDefaultOptions}
-      />
-      <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
-      {/* screens */}
-      <RootStack.Screen
-        name="WalletExportRoot"
-        component={WalletExportStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <RootStack.Screen
-        name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupRoot}
-        options={NavigationDefaultOptions}
-      />
-      <RootStack.Screen
-        name="ViewEditMultisigCosignersRoot"
-        component={ViewEditMultisigCosignersRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
-      />
-      <RootStack.Screen
-        name="WalletXpubRoot"
-        component={WalletXpubStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <RootStack.Screen
-        name="SignVerifyRoot"
-        component={SignVerifyStackRoot}
-        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-      />
-      <RootStack.Screen name="SelectWallet" component={SelectWallet} />
-      <RootStack.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
 
-      <RootStack.Screen
-        name="ScanQRCodeRoot"
-        component={ScanQRCodeRoot}
-        options={{
-          headerShown: false,
-          presentation: 'fullScreenModal',
-          statusBarHidden: true,
-        }}
-        initialParams={ScanQRCode.initialParams}
-      />
-
-      <RootStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
-      <RootStack.Screen
-        name="ReorderWallets"
-        component={ReorderWalletsStackRoot}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-          presentation: 'modal',
-        }}
-      />
-    </RootStack.Navigator>
-  );
+const MainRoot = () => {
+  const isLargeScreen = useIsLargeScreen();
+  return isLargeScreen ? <DrawerRoot /> : <DetailViewStackScreensStack />;
 };
 
-export default InitRoot;
+export default MainRoot;

@@ -19,7 +19,6 @@ enum WalletActionType {
 
 interface WalletState {
   wallets: TWallet[];
-  selectedWalletID: string | null;
   isFocused: boolean;
 }
 
@@ -63,15 +62,10 @@ interface DrawerListProps {
 const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
     case WalletActionType.SetWallets: {
-      const isSelectedWalletInNewSet = action.wallets.some(wallet => wallet.getID() === state.selectedWalletID);
       return {
         ...state,
         wallets: action.wallets,
-        selectedWalletID: isSelectedWalletInNewSet ? state.selectedWalletID : null,
       };
-    }
-    case WalletActionType.SelectWallet: {
-      return { ...state, selectedWalletID: action.walletID };
     }
     case WalletActionType.SetFocus: {
       return { ...state, isFocused: action.isFocused };
@@ -84,13 +78,12 @@ const walletReducer = (state: WalletState, action: WalletAction): WalletState =>
 const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   const initialState: WalletState = {
     wallets: [],
-    selectedWalletID: null,
     isFocused: false,
   };
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
   const walletsCarousel = useRef<FlatList<TWallet>>(null);
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets, selectedWalletID } = useContext(BlueStorageContext);
   const { colors } = useTheme();
   const isFocused = useIsFocused();
 
@@ -103,6 +96,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   );
 
   useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     dispatch({ type: WalletActionType.SetWallets, wallets });
     dispatch({ type: WalletActionType.SetFocus, isFocused });
   }, [wallets, isFocused]);
@@ -156,7 +150,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
         handleLongPress={handleLongPress}
         ref={walletsCarousel}
         testID="WalletsList"
-        selectedWallet={state.selectedWalletID}
+        selectedWallet={selectedWalletID}
         scrollEnabled={state.isFocused}
       />
     </DrawerContentScrollView>

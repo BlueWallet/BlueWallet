@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -20,7 +20,7 @@ import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -113,7 +113,7 @@ const WalletsList: React.FC = () => {
     setSelectedWalletID,
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
-  } = useContext(BlueStorageContext);
+  } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useExtendedNavigation();
@@ -137,10 +137,10 @@ const WalletsList: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      verifyBalance();
-      setSelectedWalletID(undefined);
       InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => onRefresh);
+        verifyBalance();
+        setSelectedWalletID(undefined);
       });
       return () => {
         setReloadTransactionsMenuActionFunction(() => {});
