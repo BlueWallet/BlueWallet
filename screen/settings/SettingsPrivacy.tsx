@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text } from 'react-native';
+import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
-import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
+import { BlueText, BlueSpacing20, BlueCard, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
@@ -9,6 +9,7 @@ import ListItem from '../../components/ListItem';
 import A from '../../blue_modules/analytics';
 import { useSettings } from '../../components/Context/SettingsContext';
 import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
+import { Header } from '../../components/Header';
 
 enum SettingsPrivacySection {
   None,
@@ -99,7 +100,12 @@ const SettingsPrivacy: React.FC = () => {
 
   return (
     <ScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : null}
+      {Platform.OS === 'android' ? (
+        <View style={styles.headerContainer}>
+          <Header leftText={loc.settings.general} />
+        </View>
+      ) : null}
+
       <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
@@ -182,6 +188,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 30,
     marginLeft: 17,
+  },
+  headerContainer: {
+    paddingVertical: 16,
   },
 });
 

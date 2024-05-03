@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ActionSheet from '../ActionSheet';
@@ -33,6 +32,7 @@ import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
 import { TWallet, Transaction } from '../../class/wallets/types';
 import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import { Header } from '../../components/Header';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -320,9 +320,7 @@ const WalletsList: React.FC = () => {
   const renderSectionHeader = (section: { section: { key: any } }) => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
-        return isLargeScreen ? null : (
-          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />
-        );
+        return isLargeScreen ? null : <Header leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />;
       case WalletsListSections.TRANSACTIONS:
         return renderListHeaderComponent();
       default:
