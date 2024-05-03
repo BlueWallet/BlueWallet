@@ -466,7 +466,7 @@ PODS:
     - React-perflogger (= 0.72.12)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.7.1):
+  - RealmJS (12.8.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -501,7 +501,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (2.2.0):
     - React-Core
-  - RNReanimated (3.9.0):
+  - RNReanimated (3.10.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
@@ -513,7 +513,7 @@ PODS:
     - React-Core
   - RNSVG (13.14.0):
     - React-Core
-  - RNVectorIcons (10.0.3):
+  - RNVectorIcons (10.1.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNWatch (1.1.0):
@@ -836,7 +836,7 @@ SPEC CHECKSUMS:
   React-utils: 9a24cb88f950d1020ee55bddacbc8c16a611e2dc
   ReactCommon: 76843a9bb140596351ac2786257ac9fe60cafabb
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 3fdc3b6cb6d4ff67eaf0e5f7f861be51304e7525
+  RealmJS: 3e6010ae878227830e947f40f996e13ccab4c8ba
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
@@ -853,11 +853,11 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
-  RNReanimated: 05fd6e30a340ba17b9dd32c5adf24b4e341c6c72
+  RNReanimated: e1ec9dbbd9540234d005557edcf324411b2a7124
   RNScreens: b8d370282cdeae9df85dd5eab20c88eb5181243b
   RNShare: 554a91f5cfbe4adac4cfe3654826ee8b299fe365
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
-  RNVectorIcons: 2b974a961e7ad079fafdd8af68b12210d5b4b28e
+  RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 87e59f6d458e5061d2421086c5de994b3f7cd151
