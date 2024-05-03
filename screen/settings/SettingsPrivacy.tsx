@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text } from 'react-native';
 import { openSettings } from 'react-native-permissions';
-
-import navigationStyle from '../../components/navigationStyle';
 import { BlueText, BlueSpacing20, BlueCard, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -12,7 +10,15 @@ import A from '../../blue_modules/analytics';
 import { useSettings } from '../../components/Context/SettingsContext';
 import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 
-const SettingsPrivacy = () => {
+enum SettingsPrivacySection {
+  None,
+  All,
+  ReadClipboard,
+  QuickActions,
+  Widget,
+}
+
+const SettingsPrivacy: React.FC = () => {
   const { colors } = useTheme();
   const { isStorageEncrypted } = useContext(BlueStorageContext);
   const {
@@ -26,12 +32,14 @@ const SettingsPrivacy = () => {
     isQuickActionsEnabled,
     setIsQuickActionsEnabledStorage,
   } = useSettings();
-  const sections = Object.freeze({ ALL: 0, CLIPBOARDREAD: 1, QUICKACTION: 2, WIDGETS: 3 });
-  const [isLoading, setIsLoading] = useState(sections.ALL);
+  const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
 
-  const [storageIsEncrypted, setStorageIsEncrypted] = useState(true);
-  const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState(0);
+  const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
+  const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState<number>(0);
   const styleHooks = StyleSheet.create({
+    root: {
+      backgroundColor: colors.background,
+    },
     widgetsHeader: {
       color: colors.foregroundColor,
     },
@@ -44,48 +52,41 @@ const SettingsPrivacy = () => {
       } catch (e) {
         console.log(e);
       }
-      setIsLoading(false);
+      setIsLoading(SettingsPrivacySection.None);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isStorageEncrypted]);
 
-  const onDoNotTrackValueChange = async value => {
-    setIsLoading(sections.ALL);
+  const onDoNotTrackValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.All);
     try {
       setDoNotTrackStorage(value);
       A.setOptOut(value);
     } catch (e) {
-      console.log(e);
+      console.debug('onDoNotTrackValueChange catch', e);
     }
-    setIsLoading(false);
+    setIsLoading(SettingsPrivacySection.None);
   };
 
-  const onQuickActionsValueChange = async value => {
-    setIsLoading(sections.QUICKACTION);
+  const onQuickActionsValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.QuickActions);
     try {
       setIsQuickActionsEnabledStorage(value);
     } catch (e) {
-      console.log(e);
+      console.debug('onQuickActionsValueChange catch', e);
     }
-    setIsLoading(false);
+    setIsLoading(SettingsPrivacySection.None);
   };
 
-  const onWidgetsTotalBalanceValueChange = async value => {
-    setIsLoading(sections.WIDGETS);
+  const onWidgetsTotalBalanceValueChange = async (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.Widget);
     try {
       await setBalanceDisplayAllowed(value);
       setIsWidgetBalanceDisplayAllowedStorage(value);
     } catch (e) {
-      console.log(e);
+      console.debug('onWidgetsTotalBalanceValueChange catch', e);
     }
-    setIsLoading(false);
+    setIsLoading(SettingsPrivacySection.None);
   };
-
-  const stylesWithThemeHook = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
-  });
 
   const openApplicationSettings = () => {
     openSettings();
@@ -97,8 +98,8 @@ const SettingsPrivacy = () => {
   };
 
   return (
-    <ScrollView style={[styles.root, stylesWithThemeHook.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
-      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : <></>}
+    <ScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
+      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.general} /> : null}
       <ListItem
         hideChevron
         title={loc.settings.privacy_read_clipboard}
@@ -106,7 +107,7 @@ const SettingsPrivacy = () => {
         switch={{
           onValueChange: setIsClipboardGetContentEnabledStorage,
           value: isClipboardGetContentEnabled,
-          disabled: isLoading === sections.ALL,
+          disabled: isLoading === SettingsPrivacySection.All,
           testID: 'ClipboardSwitch',
         }}
       />
@@ -125,7 +126,7 @@ const SettingsPrivacy = () => {
             switch={{
               onValueChange: onQuickActionsValueChange,
               value: isQuickActionsEnabled,
-              disabled: isLoading === sections.ALL,
+              disabled: isLoading === SettingsPrivacySection.All,
               testID: 'QuickActionsSwitch',
             }}
           />
@@ -138,7 +139,7 @@ const SettingsPrivacy = () => {
         hideChevron
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
-        switch={{ onValueChange: onDoNotTrackValueChange, value: isDoNotTrackEnabled, disabled: isLoading === sections.ALL }}
+        switch={{ onValueChange: onDoNotTrackValueChange, value: isDoNotTrackEnabled, disabled: isLoading === SettingsPrivacySection.All }}
       />
       <BlueCard>
         <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
@@ -156,7 +157,7 @@ const SettingsPrivacy = () => {
             switch={{
               onValueChange: onWidgetsTotalBalanceValueChange,
               value: isWidgetBalanceDisplayAllowed,
-              disabled: isLoading === sections.ALL,
+              disabled: isLoading === SettingsPrivacySection.All,
             }}
           />
           <BlueCard>
@@ -183,7 +184,5 @@ const styles = StyleSheet.create({
     marginLeft: 17,
   },
 });
-
-SettingsPrivacy.navigationOptions = navigationStyle({ headerLargeTitle: true }, opts => ({ ...opts, title: loc.settings.privacy }));
 
 export default SettingsPrivacy;
