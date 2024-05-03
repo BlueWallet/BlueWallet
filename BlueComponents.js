@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import { Icon, Text, Header } from 'react-native-elements';
+import { Icon, Text } from 'react-native-elements';
 import {
   ActivityIndicator,
   Dimensions,
@@ -20,7 +20,6 @@ import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeTyp
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlueCurrentTheme, useTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
-import SafeArea from './components/SafeArea';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -115,36 +114,6 @@ export const BlueFormMultiInput = props => {
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />
-  );
-};
-
-export const BlueHeaderDefaultSub = props => {
-  const { colors } = useTheme();
-
-  return (
-    <SafeArea>
-      <Header
-        backgroundColor={colors.background}
-        leftContainerStyle={{ minWidth: '100%' }}
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-        leftComponent={
-          <Text
-            adjustsFontSizeToFit
-            style={{
-              fontWeight: 'bold',
-              fontSize: 30,
-              color: colors.foregroundColor,
-            }}
-          >
-            {props.leftText}
-          </Text>
-        }
-        {...props}
-      />
-    </SafeArea>
   );
 };
 
