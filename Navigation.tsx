@@ -486,7 +486,11 @@ const DetailViewStackScreensStack = () => {
             options={LightningSettings.navigationOptions(theme)}
           />
           <DetailViewRoot.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="SettingsPrivacy" component={SettingsPrivacy} options={SettingsPrivacy.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="SettingsPrivacy"
+            component={SettingsPrivacy}
+            options={navigationStyle({ headerLargeTitle: true, title: loc.settings.privacy })(theme)}
+          />
           <DetailViewRoot.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
           <DetailViewRoot.Screen
