@@ -67,7 +67,7 @@ import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
 import UnlockWith from './screen/UnlockWith';
-import { isDesktop } from './blue_modules/environment';
+import { isDesktop, isHandset } from './blue_modules/environment';
 import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
@@ -661,8 +661,7 @@ const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { heade
 const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
 const MainRoot = () => {
-  const isLargeScreen = useIsLargeScreen();
-  return isLargeScreen ? <DrawerRoot /> : <DetailViewStackScreensStack />;
+  return isHandset ? <DetailViewStackScreensStack /> : <DrawerRoot />;
 };
 
 export default MainRoot;
