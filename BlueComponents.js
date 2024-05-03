@@ -19,7 +19,6 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlueCurrentTheme, useTheme } from './components/themes';
-import PlusIcon from './components/icons/PlusIcon';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
 import SafeArea from './components/SafeArea';
 
@@ -146,37 +145,6 @@ export const BlueHeaderDefaultSub = props => {
         {...props}
       />
     </SafeArea>
-  );
-};
-
-export const BlueHeaderDefaultMain = props => {
-  const { colors } = useTheme();
-  const { isDrawerList } = props;
-  return (
-    <View
-      style={{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: isDrawerList ? colors.elevated : colors.background,
-        paddingHorizontal: 16,
-        borderTopColor: isDrawerList ? colors.elevated : colors.background,
-        borderBottomColor: isDrawerList ? colors.elevated : colors.background,
-        marginBottom: 8,
-      }}
-    >
-      <Text
-        style={{
-          textAlign: 'left',
-          fontWeight: 'bold',
-          fontSize: 34,
-          color: colors.foregroundColor,
-        }}
-      >
-        {props.leftText}
-      </Text>
-      <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={props.onNewWalletPress} />
-    </View>
   );
 };
 

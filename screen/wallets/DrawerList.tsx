@@ -2,13 +2,13 @@ import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useRe
 import { StyleSheet, LayoutAnimation, FlatList, ViewStyle, InteractionManager } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useIsFocused, NavigationProp, ParamListBase } from '@react-navigation/native';
-import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
+import { Header } from '../../components/Header';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -141,7 +141,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
-      <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
         // @ts-ignore: refactor later
         data={state.wallets.concat(false as any)}
