@@ -325,9 +325,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage'); // retyping
     await element(by.text('OK')).tap();
 
-    // Disable for now, Toast doesnt seem to exposed on Detox.
-    // await expect(element(by.text('Success'))).toBeVisible();
-    // await element(by.text('OK')).tap();
+    await expect(element(by.text('Success'))).toBeVisible();
+    await element(by.text('OK')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -407,9 +406,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.text('Re-type password'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
     await element(by.text('OK')).tap();
-    // Disable for now, Toast doesnt seem to exposed on Detox.
-    // await expect(element(by.text('Success'))).toBeVisible();
-    // await element(by.text('OK')).tap();
+    await expect(element(by.text('Success'))).toBeVisible();
+    await element(by.text('OK')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -566,9 +564,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     }
 
     if (process.env.TRAVIS) await sleep(60000);
-    await sup('OK', 3 * 61000); // waiting for wallet import
-    await element(by.text('OK')).tap();
-    // ok, wallet imported
+    // await sup('OK', 3 * 61000); // waiting for wallet import
+    // await element(by.text('OK')).tap();
+    // // ok, wallet imported
 
     // lets go inside wallet
     const expectedWalletLabel = 'Multisig Vault';
@@ -710,6 +708,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(300 * 1000);
     await element(by.text('Found')).tap();
     await element(by.id('ImportButton')).tap();
+    await element(by.text('OK')).tap();
 
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
