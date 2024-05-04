@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard, InteractionManager } from 'react-native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -59,68 +59,76 @@ const TransactionsDetails = () => {
     },
   });
 
-  useLayoutEffect(() => {
-    setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          disabled={isLoading}
-          style={[styles.save, stylesHooks.save]}
-          onPress={handleOnSaveButtonTapped}
-        >
-          <Text style={[styles.saveText, stylesHooks.saveText]}>{loc.wallets.details_save}</Text>
-        </TouchableOpacity>
-      ),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isLoading, memo]);
-
-  useEffect(() => {
-    let foundTx = {};
-    let newFrom = [];
-    let newTo = [];
-    for (const transaction of getTransactions(null, Infinity, true)) {
-      if (transaction.hash === hash) {
-        foundTx = transaction;
-        for (const input of foundTx.inputs) {
-          newFrom = newFrom.concat(input.addresses);
-        }
-        for (const output of foundTx.outputs) {
-          if (output.addresses) newTo = newTo.concat(output.addresses);
-          if (output.scriptPubKey && output.scriptPubKey.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
-        }
-      }
-    }
-
-    for (const w of wallets) {
-      for (const t of w.getTransactions()) {
-        if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
-        }
-      }
-    }
-    if (txMetadata[foundTx.hash]) {
-      if (txMetadata[foundTx.hash].memo) {
-        setMemo(txMetadata[foundTx.hash].memo);
-      }
-    }
-
-    setTX(foundTx);
-    setFrom(newFrom);
-    setTo(newTo);
-    setIsLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash, wallets]);
-
-  const handleOnSaveButtonTapped = () => {
+  const handleOnSaveButtonTapped = useCallback(() => {
     Keyboard.dismiss();
     txMetadata[tx.hash] = { memo };
     saveToDisk().then(_success => {
       triggerHapticFeedback(HapticFeedbackTypes.Success);
       presentAlert({ message: loc.transactions.transaction_note_saved });
     });
-  };
+  }, [tx, memo, saveToDisk, txMetadata]);
+
+  const HeaderRightButton = useMemo(() => {
+    return (
+      <TouchableOpacity
+        accessibilityRole="button"
+        disabled={isLoading}
+        style={[styles.save, stylesHooks.save]}
+        onPress={handleOnSaveButtonTapped}
+      >
+        <Text style={[styles.saveText, stylesHooks.saveText]}>{loc.wallets.details_save}</Text>
+      </TouchableOpacity>
+    );
+  }, [isLoading, stylesHooks.save, stylesHooks.saveText, handleOnSaveButtonTapped]);
+
+  useEffect(() => {
+    // This effect only handles changes in `colors`
+    setOptions({ headerRight: () => HeaderRightButton });
+  }, [colors, HeaderRightButton, setOptions]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
+        let foundTx = {};
+        let newFrom = [];
+        let newTo = [];
+        for (const transaction of getTransactions(null, Infinity, true)) {
+          if (transaction.hash === hash) {
+            foundTx = transaction;
+            for (const input of foundTx.inputs) {
+              newFrom = newFrom.concat(input.addresses);
+            }
+            for (const output of foundTx.outputs) {
+              if (output.addresses) newTo = newTo.concat(output.addresses);
+              if (output.scriptPubKey && output.scriptPubKey.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
+            }
+          }
+        }
+
+        for (const w of wallets) {
+          for (const t of w.getTransactions()) {
+            if (t.hash === hash) {
+              console.log('tx', hash, 'belongs to', w.getLabel());
+            }
+          }
+        }
+        if (txMetadata[foundTx.hash]) {
+          if (txMetadata[foundTx.hash].memo) {
+            setMemo(txMetadata[foundTx.hash].memo);
+          }
+        }
+
+        setTX(foundTx);
+        setFrom(newFrom);
+        setTo(newTo);
+        setIsLoading(false);
+      });
+      return () => {
+        task.cancel();
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hash, wallets]),
+  );
 
   const handleOnOpenTransactionOnBlockExplorerTapped = () => {
     const url = `https://mempool.space/tx/${tx.hash}`;
