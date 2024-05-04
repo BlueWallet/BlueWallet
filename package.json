@@ -59,7 +59,6 @@
     "patches": "patch -p1   < scripts/rn-ldk.patch; patch -p1   < scripts/react-native-camera-kit.patch;  patch -p1   < scripts/react-native-widget-center.patch",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
     "jest": "jest -b tests/integration/*",
-    "windowspatches": "./scripts/windows-patches.sh",
     "e2e:debug-build": "detox build -c android.debug",
     "e2e:debug-test": "detox test -c android.debug -d 200000 -l info",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
@@ -70,7 +69,6 @@
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest -b -i tests/unit/*",
-    "windows": "react-native run-windows"
   },
   "jest": {
     "preset": "react-native",
