@@ -1,17 +1,14 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import React, { useCallback, useEffect } from 'react';
+import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useStorage } from '../../blue_modules/storage-context';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 
 const PleaseBackup: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
-  const [isLoading, setIsLoading] = useState(true);
+  const { wallets } = useStorage();
   const { walletID } = useRoute().params as { walletID: string };
   const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
@@ -40,12 +37,11 @@ const PleaseBackup: React.FC = () => {
   }, [navigation]);
 
   useEffect(() => {
-    enableBlur();
-    setIsLoading(false);
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    enableBlur();
     return () => {
-      disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+      disableBlur();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -71,31 +67,27 @@ const PleaseBackup: React.FC = () => {
   };
 
   return (
-    <SafeArea style={[isLoading ? styles.loading : {}, stylesHook.flex]}>
-      {isLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <ScrollView contentContainerStyle={styles.flex} testID="PleaseBackupScrollView">
-          <View style={styles.please}>
-            <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
-          </View>
-          <View style={styles.list}>
-            <View style={styles.secret}>{renderSecret()}</View>
-          </View>
-          <View style={styles.bottom}>
-            <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
-          </View>
-        </ScrollView>
-      )}
-    </SafeArea>
+    <ScrollView
+      style={styles.flex}
+      contentContainerStyle={[styles.flex, stylesHook.flex]}
+      testID="PleaseBackupScrollView"
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View style={styles.please}>
+        <Text style={[styles.pleaseText, stylesHook.pleaseText]}>{loc.pleasebackup.text}</Text>
+      </View>
+      <View style={styles.list}>
+        <View style={styles.secret}>{renderSecret()}</View>
+      </View>
+      <View style={styles.bottom}>
+        <Button testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-  },
   flex: {
     flex: 1,
     justifyContent: 'space-around',
