@@ -389,5 +389,11 @@
 		<key>apiKey</key>
 		<string>17ba9059f676f1cc4f45d98182388b01</string>
 	</dict>
+	<key>NSBonjourServices</key>
+        <array>
+            <string>_bluewallet._tcp.</string>
+        </array>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>BlueWallet will use your local Wi-Fi network for secure P2P communication when creating MultiSig wallets (with the P2P option only).</string>
 </dict>
 </plist>

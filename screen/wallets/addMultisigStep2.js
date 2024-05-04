@@ -13,8 +13,10 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput,
+  Alert,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon, Image } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import navigationStyle from '../../components/navigationStyle';
@@ -40,9 +42,13 @@ import prompt from '../../helpers/prompt';
 import A from '../../blue_modules/analytics';
 import SaveFileButton from '../../components/SaveFileButton';
 import { useSettings } from '../../components/Context/SettingsContext';
+import { P2PClient, P2PHost, P2PSession } from 'react-native-p2p-secure'
+import OTPTextView from 'react-native-otp-textinput';
+import { openSettings } from 'react-native-permissions';
+
 
 const staticCache = {};
-
+//TODO: Permissions for network access
 const WalletsAddMultisigStep2 = () => {
   const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useContext(BlueStorageContext);
   const { isAdvancedModeEnabled } = useSettings();
@@ -67,6 +73,26 @@ const WalletsAddMultisigStep2 = () => {
   const data = useRef(new Array(n));
   const { enableBlur, disableBlur } = usePrivacy();
 
+  const [showP2PModal, setShowP2PModal] = useState(false);
+  const [showP2PHostModal, setShowP2PHostModal] = useState(false);
+  const [showP2PJoinModal, setShowP2PJoinModal] = useState(false);
+  const [p2pUsername, setP2PUsername] = useState('');
+  const [p2pSession, setP2PSession] = useState(null);
+  const [p2pClient, setP2PClient] = useState(null);
+  const [p2pHost, setP2PHost] = useState(null);
+
+  const [p2pConnected, setP2PConnected] = useState(false);
+  const [p2pDone, setP2PDone] = useState(false); 
+  const [p2pSharedKeys, setP2PSharedKeys] = useState([]);
+
+  const [connectedNeighbors, setConnectedNeighbors] = useState([]);
+
+  const [sessions, setSessions] = useState([]);
+  const [connectingToSession, setConnectingToSession] = useState(false);
+  const [p2pHostConnected, setP2PHostConnected] = useState(false);
+
+  const p2pPasscode = useRef(null);
+
   useFocusEffect(
     useCallback(() => {
       enableBlur();
@@ -90,8 +116,43 @@ const WalletsAddMultisigStep2 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
 
+  useEffect(() => {
+    P2PSession.create('bluewallet').then(session => {
+      setP2PSession(session);
+    });
+  }, []);
+
+
+  //adding first shared cosigner and triggering the rest of the process
+  useEffect(() => {
+    if(p2pSharedKeys.length == n - 1){
+      let key = p2pSharedKeys.pop();
+      onBarScanned({ data: key });
+    }
+  }, [p2pSharedKeys]);
+
+  //adding cosigners one by one to the vault
+  useEffect(() => {
+    if(p2pSharedKeys.length > 0){
+      let key = p2pSharedKeys.pop();
+      onBarScanned({ data: key });
+    }
+  }, [cosigners]);
+
   const handleOnHelpPress = () => {
     navigation.navigate('WalletsAddMultisigHelp');
+  };
+
+  const handleOnP2PPress = () => {
+    if(cosigners.length === 0){
+      Alert.alert(loc.errors.error, loc.multisig.p2p_error_no_key);
+    } else if(cosigners.length !== 1){
+      Alert.alert(loc.errors.error, loc.multisig.p2p_error_too_many_keys, [{text: loc.multisig.p2p_clear, onPress: () => setCosigners([]), style: 'destructive'}, {text: loc._.cancel}]);
+    } else if(cosigners.every(c => MultisigHDWallet.isXpubValid(c[0]))){
+      Alert.alert(loc.multisig.p2p_warning, loc.multisig.p2p_warning_text, [{text: loc.multisig.p2p_clear, onPress: () => setCosigners([]), style: 'destructive'}, {text: loc._.continue, onPress: () => setShowP2PModal(true)}, {text: loc._.cancel}]);
+    } else {
+      setShowP2PModal(true);
+    }
   };
 
   const stylesHook = StyleSheet.create({
@@ -119,10 +180,10 @@ const WalletsAddMultisigStep2 = () => {
     wordText: {
       color: colors.labelText,
     },
-    helpButton: {
+    headerButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
-    helpButtonText: {
+    headerButtonText: {
       color: colors.foregroundColor,
     },
   });
@@ -214,12 +275,11 @@ const WalletsAddMultisigStep2 = () => {
     return path;
   };
 
-  const viewKey = cosigner => {
+  const viewKey = (cosigner, showXpubModal = true) => {
     if (MultisigHDWallet.isXpubValid(cosigner[0])) {
       setCosignerXpub(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(cosigner[1], cosigner[0], cosigner[2]))[0]);
       setCosignerXpubFilename('bw-cosigner-' + cosigner[1] + '.bwcosigner');
-      setIsRenderCosignersXpubModalVisible(true);
     } else {
       const path = getPath();
 
@@ -228,7 +288,9 @@ const WalletsAddMultisigStep2 = () => {
       setCosignerXpub(MultisigCosigner.exportToJson(fp, xpub, path));
       setCosignerXpubURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
       setCosignerXpubFilename('bw-cosigner-' + fp + '.bwcosigner');
-      setIsRenderCosignersXpubModalVisible(true);
+    }
+    if(showXpubModal) {
+      setIsRenderCosignersXpubModalVisible(true)
     }
   };
 
@@ -680,12 +742,370 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const renderHelp = () => {
+  const hideP2PModal = () => {
+    Keyboard.dismiss();
+    setShowP2PModal(false);
+    hideP2PHostModal();
+    hideP2PJoinModal();
+  };
+
+  const hideP2PHostModal = () => {
+    Keyboard.dismiss();
+    setShowP2PHostModal(false);
+    p2pHost? p2pHost.destroy() : null;
+    setP2PHost(null);
+    setP2PConnected(false);
+    setP2PDone(false);
+    setConnectedNeighbors([]);
+    setP2PSharedKeys([]);
+  };
+
+  const hideP2PJoinModal = () => {
+    Keyboard.dismiss();
+    setShowP2PJoinModal(false);
+    p2pClient? p2pClient.destroy() : null;
+    setP2PClient(null);
+    p2pPasscode.current = null;
+    setSessions([]);
+    setConnectingToSession(false);
+    setP2PHostConnected(false);
+    setP2PConnected(false);
+    setP2PDone(false);
+    setP2PSharedKeys([]);
+  };
+
+  const initP2PSession = (session) => {
+    session.onNodeEvent('node-message', (sender, message) => {
+      setP2PSharedKeys(p2pSharedKeys => [...p2pSharedKeys, message]);
+    });
+  }
+
+  const startHostP2PSession = () => {
+    p2pUsername ? p2pSession.setIdentifier(p2pUsername) : null;
+    let server = new P2PHost(p2pSession);
+    setP2PHost(server); 
+
+    server.on('coordinator-connected', (neighbor) => {
+      setConnectedNeighbors(connectedNeighbors => connectedNeighbors.map(n => {
+          if (n.username === neighbor) {
+              return {...n, connected: true, connecting: false}
+          }
+          return n;
+      }));
+    });
+    server.on('coordinator-disconnected', (neighbor) => {
+        setConnectedNeighbors(connectedNeighbors => connectedNeighbors.map(n => {
+            if (n.username === neighbor) {
+                return {...n, disconnected: true}
+                }
+                return n;
+        }));
+    });
+    server.on('coordinator-reconnected', (neighbor) => {
+        setConnectedNeighbors(connectedNeighbors => connectedNeighbors.map(n => {
+            if (n.username === neighbor) {
+                return {...n, disconnected: false}
+            }
+            return n;
+        }));
+    });
+    server.on('coordinator-connection-start', (neighbor) => {
+        setConnectedNeighbors(connectedNeighbors => connectedNeighbors.filter(n => n.username !== neighbor));
+        setConnectedNeighbors(connectedNeighbors => [...connectedNeighbors, {username: neighbor, connected: false, connecting: true, disconnected: false}]);
+    });
+    server.on('coordinator-connection-fail', (neighbor, error) => {
+        setConnectedNeighbors(connectedNeighbors => connectedNeighbors.filter(n => n.username !== neighbor));
+    });
+    server.on('session-started', () => {
+      setP2PConnected(true);
+      let interval = setInterval(() => {
+        let neighbors = server.getNeighborStatus();
+        if(neighbors.length == n - 1 && neighbors.every(n => n.status == 'connected')){ 
+          
+          let cosigner = cosigners[0];
+          const path = getPath();
+          const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
+          const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
+          let payload = ((MultisigCosigner.exportToJson(fp, xpub, path)));
+          // console.log('startHostP2PSession', 'server sending message', JSON.stringify(payload));
+          server.broadcastMessage(payload);
+          clearInterval(interval);
+          setP2PDone(true);
+        }
+      }, 1000);
+
+    });
+
+    server.start();
+    setShowP2PHostModal(true);
+    
+    initP2PSession(server);
+
+  }
+
+  const startClientP2PSession = () => {
+    p2pUsername ? p2pSession.setIdentifier(p2pUsername) : null;
+    let client = new P2PClient(p2pSession);
+    setP2PClient(client);
+    client.on('discovery-service-list-update', (updatedSessions) => {
+      setSessions(sessions => [...updatedSessions]);
+    })
+    client.on('session-started', () => {
+      setP2PConnected(true);
+      let interval = setInterval(() => {
+        let neighbors = client.getNeighborStatus();
+        if(neighbors.length == n - 1 && neighbors.every(n => n.status == 'connected')){
+
+          let cosigner = cosigners[0];
+          const path = getPath();
+          const xpub = getXpubCacheForMnemonics(cosigner[0], cosigner[3]);
+          const fp = getFpCacheForMnemonics(cosigner[0], cosigner[3]);
+          let payload = ((MultisigCosigner.exportToJson(fp, xpub, path)));
+          // console.log('startClientP2pSession', 'server sending message', JSON.stringify(payload));
+          client.broadcastMessage(payload);
+          clearInterval(interval);
+          setP2PDone(true);
+        }
+      }, 1000);
+    });
+    client.on('coordinator-error', (error) => {
+        Alert.alert(loc.errors.error, error);
+        setConnectingToSession(false);
+        setP2PHostConnected(false);
+    });
+    client.on('coordinator-disconnected', () => {
+        setConnectingToSession(false);
+        setP2PHostConnected(false);
+    });
+    client.on('coordinator-authenticated', () => {
+        setConnectingToSession(false);
+        setP2PHostConnected(true);
+    });
+    client.start();
+    setShowP2PJoinModal(true);
+
+    initP2PSession(client);
+  }
+
+  const renderP2PModal = () => {
+
+    let homeView = (
+      p2pSession? (
+      <View>
+        <View style={styles.p2pImageContainer}>
+          <Image source={require('../../img/addWallet/peer-to-peer.png')} style={styles.p2pImage} />
+        </View>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_general_desc}</Text>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_username_guidance}</Text>
+        <BlueSpacing20 />
+        <TextInput placeholder={p2pSession.getIdentifier()} value={p2pUsername} style={styles.p2pTextInput} onChangeText={text => setP2PUsername(text)} />
+        <BlueSpacing20 />
+        <Button title={loc.multisig.p2p_host_button} onPress={() => startHostP2PSession()} />
+        <BlueSpacing20 />
+        <Button title={loc.multisig.p2p_join_button} onPress={() => startClientP2PSession()} />
+        <BlueSpacing20 />
+        <Text style={[styles.headerText, stylesHook.headerText]}>* {loc.multisig.p2p_permissions_text} <Text style={[styles.textDestination, stylesHook.textDestination]} onPress={() => openSettings()}>{loc.multisig.p2p_go_to_settings}</Text></Text>
+        
+      </View>
+      ) : (
+        <View>
+          <ActivityIndicator size={100}/>
+          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.creating_p2p}</Text>
+        </View>
+      )
+    );
+
+    let hostView = (
+      p2pHost? (
+      <View>
+        <Icon style={styles.p2pBackChevron} name="chevron-left" onPress={() => hideP2PHostModal()} />
+        <View style={styles.p2pImageContainer}>
+          <Image source={require('../../img/addWallet/peer-to-peer.png')} style={styles.p2pImage} />
+        </View>
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_host_description}</Text>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_username_title}: </Text>
+        <TextInput editable={false} style={styles.p2pTextInput} value={p2pSession.getIdentifier()} />
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_session_passcode}: </Text>
+        <OTPTextView 
+        inputCount={6} 
+        tintColor={'#007aff'} 
+        offTintColor={'#007aff'} 
+        editable={false} 
+        defaultValue={p2pHost.getSessionPasscode()}               
+        keyboardType='numeric' 
+        textInputStyle={styles.p2pTextInput} 
+        />
+        <Text style={[styles.headerText, stylesHook.headerText]}>{loc.multisig.p2p_share_passcode_session}</Text>
+        <BlueSpacing20 />
+        {
+        p2pDone? (
+          <View>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_key_share_success_message}</Text>
+            <BlueSpacing20 />
+            <Button title={loc.multisig.p2p_done} onPress={() => hideP2PModal()} />
+          </View>
+        ) :
+        !p2pConnected? (
+          <View>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_peers_connected_title}: </Text>
+            <FlatList 
+            style={styles.p2pList}
+            ListEmptyComponent={
+            <View style={styles.p2pLoadingListContainer}>
+              <ActivityIndicator size={100}/>
+              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_no_peers_connected}</Text>
+            </View>
+            }
+            data={connectedNeighbors} 
+            renderItem={({item}) => 
+              <View style={styles.p2pListItem}>
+              <Text style={styles.p2pListItemText}>{item.username}</Text>
+              {
+                  item.disconnected?
+                      <Text>❌</Text>
+                  :
+                  item.connecting?
+                      <ActivityIndicator size="small" color="#000000" />
+                  : item.connected?
+                      <Text>✅</Text>
+                  : <Text>❌</Text>
+              }
+            </View>
+            }
+            keyExtractor={item => item.username}
+            extraData={connectedNeighbors}
+            />
+            <Button disabled={connectedNeighbors.filter(item => item.connected).length !== n - 1} title={loc.multisig.p2p_start_key_transfer} onPress={() => {
+              p2pHost.startP2PSession();
+            }} />
+          </View>
+        ) : (
+          <View style={styles.p2pLoadingListContainer}>
+            <ActivityIndicator size={100}/>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_sharing_keys_message}</Text>
+          </View>
+        )
+        }
+      </View>
+      ) : (
+        <View>
+          <ActivityIndicator size={100}/>
+          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_host_creating_session}</Text>
+        </View>
+      )
+    );
+
+    let joinView = (
+      p2pClient? (
+      <View>
+        <Icon style={styles.p2pBackChevron} name="chevron-left" onPress={() => hideP2PJoinModal()} />
+        <View style={styles.p2pImageContainer}>
+          <Image source={require('../../img/addWallet/peer-to-peer.png')} style={styles.p2pImage} />
+        </View>
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_join_description}</Text>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_username_title}: </Text>
+        <TextInput editable={false} style={styles.p2pTextInput} value={p2pSession.getIdentifier()} />
+        <BlueSpacing20 />
+        
+        {
+          p2pDone?
+          <View>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_key_share_success_message}</Text>
+            <BlueSpacing20 />
+            <Button title={loc.multisig.p2p_done} onPress={() => hideP2PModal()} />
+          </View> :
+          p2pConnected?
+          <View style={styles.p2pLoadingListContainer}>
+            <ActivityIndicator size={100}/>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_sharing_keys_message}</Text>
+          </View> :
+          p2pHostConnected? (
+              <View style={styles.alignItemsCenter}>
+                <ActivityIndicator size={50} />
+                <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_connected_to_host_message}</Text>
+              </View>
+          ) : 
+          !connectingToSession ? (
+          <View>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_session_passcode}: </Text>
+            <OTPTextView 
+              ref={p2pPasscode} 
+              inputCount={6} 
+              tintColor={'#007aff'} 
+              handleTextChange={(text) => {
+                if(text.length === 6){
+                  p2pPasscode.current = text
+                }
+              }}
+              keyboardType='numeric'
+              textInputStyle={styles.p2pTextInput}
+              />
+            <Text style={[styles.headerText, stylesHook.headerText]}>{loc.multisig.p2p_passcode_explanation}</Text>
+            <BlueSpacing20 />
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.p2p_available_sessions_title}: </Text>
+            <FlatList data={sessions} renderItem={({item}) => 
+            <TouchableOpacity style={styles.p2pListItem}
+            onPress={()=>{
+              if(p2pPasscode.current.length !== 6){
+                Alert.alert(loc.errors.error, loc.multisig.enter_p2p_passcode_provided_error);
+                return;
+              }
+              setConnectingToSession(true);
+              p2pClient.connectSession(item, p2pPasscode.current).catch((error) => {
+                console.log(error);
+              });
+            }}
+            >
+            <Text style={styles.p2pListItemText}>{item}</Text>
+            </TouchableOpacity>
+            } keyExtractor={item => item} 
+            extraData={sessions}
+            />
+            <View style={styles.p2pLoadingListContainer}>
+              <ActivityIndicator size={50}/>
+              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.looking_for_p2p}</Text>
+            </View>
+          </View>
+          ) : (
+          <View style={styles.alignItemsCenter}>
+                <ActivityIndicator size={50} />
+                <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.joining_p2p}</Text>
+          </View>
+          )
+        }
+      </View>
+      ) : (
+        <View>
+          <ActivityIndicator size={100}/>
+          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc.multisig.creating_p2p}</Text>
+        </View>
+      )
+    );
+
     return (
-      <View style={styles.helpButtonWrapper}>
-        <TouchableOpacity accessibilityRole="button" style={[styles.helpButton, stylesHook.helpButton]} onPress={handleOnHelpPress}>
+      <BottomModal isVisible={showP2PModal} onClose={() => hideP2PModal()}>
+        <View style={[styles.modalContent, stylesHook.modalContent]}>
+          {showP2PHostModal ? hostView : showP2PJoinModal? joinView: homeView}
+        </View>
+      </BottomModal>
+    );
+  };
+
+  const renderHeaderButtons = () => {
+    return (
+      <View style={styles.headerButtonsWrapper}>
+        <TouchableOpacity accessibilityRole="button" style={[styles.headerButton, stylesHook.headerButton]} onPress={handleOnHelpPress}>
           <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
+          <Text style={[styles.headerButtonText, stylesHook.headerButtonText]}>{loc.multisig.ms_help}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" style={[styles.headerButton, stylesHook.headerButton]} onPress={handleOnP2PPress}>
+          <Icon size={20} name="people" type="octaicon" color={colors.foregroundColor} />
+          <Text style={[styles.headerButtonText, stylesHook.headerButtonText]}>{loc.multisig.p2p_title}</Text> 
         </TouchableOpacity>
       </View>
     );
@@ -703,15 +1123,17 @@ const WalletsAddMultisigStep2 = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      {renderHelp()}
+      {renderHeaderButtons()}
       <View style={styles.wrapBox}>
         <FlatList data={data.current} renderItem={_renderKeyItem} keyExtractor={(_item, index) => `${index}`} />
       </View>
       {renderMnemonicsModal()}
-
+      
       {renderProvideMnemonicsModal()}
 
       {renderCosignersXpubModal()}
+
+      {renderP2PModal()}
       {footer}
     </View>
   );
@@ -739,7 +1161,6 @@ const styles = StyleSheet.create({
   modalContent: {
     paddingHorizontal: 22,
     paddingVertical: 32,
-    justifyContent: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
@@ -789,17 +1210,18 @@ const styles = StyleSheet.create({
   headerText: { fontSize: 15, color: '#13244D' },
   alignItemsCenter: { alignItems: 'center' },
   squareButtonWrapper: { height: 50, width: 250 },
-  helpButtonWrapper: {
+  headerButtonsWrapper: {
     alignItems: 'flex-end',
+    justifyContent: 'space-between',
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
   },
-  helpButton: {
+  headerButton: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 50,
     flexDirection: 'row',
   },
-  helpButtonText: {
+  headerButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
@@ -809,6 +1231,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     justifyContent: 'space-between',
+  },
+  p2pImageContainer: {  justifyContent: 'center', flexDirection: 'row' },
+  p2pImage: { width: 100, height: 100, alignSelf: 'center' },
+  p2pBackChevron: {alignSelf: 'flex-start', fontSize: 30},
+  p2pTextInput: { height: 40, borderColor: 'gray', borderWidth: 1, borderRadius: 5, padding: 10 },
+  p2pList: {
+    maxHeight: 150, 
+    minHeight: 150,
+    marginVertical: 10, 
+    borderRadius: 5, 
+    paddingHorizontal: 10,
+    shadowColor: '#000',
+  },
+  p2pLoadingListContainer: {  justifyContent: 'center', alignItems:'center', flexDirection: 'column' },
+  p2pListItem: {
+    flexDirection: 'row',
+    justifyContent:'space-between',
+    alignItems: 'center', 
+    paddingHorizontal:10,
+    backgroundColor: '#eef0f4',
+    borderRadius: 5,
+    marginVertical: 5
+  },
+  p2pListItemText: {
+    fontSize: 16,
+    padding: 10,
+    marginVertical: 5,
   },
 });
 
