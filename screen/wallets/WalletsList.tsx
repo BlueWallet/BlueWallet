@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -13,14 +13,13 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueHeaderDefaultMain } from '../../BlueComponents';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ActionSheet from '../ActionSheet';
 import loc from '../../loc';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import { isDesktop } from '../../blue_modules/environment';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -33,6 +32,7 @@ import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
 import { TWallet, Transaction } from '../../class/wallets/types';
 import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import { Header } from '../../components/Header';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -113,7 +113,7 @@ const WalletsList: React.FC = () => {
     setSelectedWalletID,
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
-  } = useContext(BlueStorageContext);
+  } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate, setOptions } = useExtendedNavigation();
@@ -137,10 +137,10 @@ const WalletsList: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      verifyBalance();
-      setSelectedWalletID(undefined);
       InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => onRefresh);
+        verifyBalance();
+        setSelectedWalletID(undefined);
       });
       return () => {
         setReloadTransactionsMenuActionFunction(() => {});
@@ -320,9 +320,7 @@ const WalletsList: React.FC = () => {
   const renderSectionHeader = (section: { section: { key: any } }) => {
     switch (section.section.key) {
       case WalletsListSections.CAROUSEL:
-        return isLargeScreen ? null : (
-          <BlueHeaderDefaultMain leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />
-        );
+        return isLargeScreen ? null : <Header leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />;
       case WalletsListSections.TRANSACTIONS:
         return renderListHeaderComponent();
       default:

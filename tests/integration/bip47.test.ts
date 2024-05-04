@@ -143,4 +143,105 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
       bobBip47.getNotificationAddress(),
     ); // transaction is to Bob's notification address
   });
+
+  it('can tell whom to notify and whom dont', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    // whom we are going to notify:
+    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(process.env.BIP47_HD_MNEMONIC.split(':')[0], undefined, '1');
+
+    // notifier:
+    const walletSender = new HDSegwitBech32Wallet();
+    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.switchBIP47(true);
+    await walletSender.fetchBIP47SenderPaymentCodes();
+    await walletSender.fetchBalance();
+    await walletSender.fetchTransactions();
+
+    assert.ok(walletSender.getTransactions().length >= 3);
+    assert.ok(walletSender._receive_payment_codes.length === 1);
+
+    assert.strictEqual(walletSender.needToNotifyBIP47(bip47instanceReceiver.getSerializedPaymentCode()), false); // already notified in the past
+    assert.strictEqual(
+      walletSender.needToNotifyBIP47(
+        'PM8TJdfXvRasx4WNpxky25ZKxhvfEiGYW9mka92tfiqDRSL7LQdxnC8uAk9k3okXctZowVwY2PUndjCQR6DHyuVVwqmy2aodmZNHgfFZcJRNTuBAXJCp',
+      ),
+      true,
+    ); // random PC from interwebz. never interacted with him, so need to notify
+  });
+
+  it('can tell with which counterparty PC transaction is', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[0]);
+    w.setPassphrase('1');
+
+    w.switchBIP47(true);
+
+    await w.fetchBIP47SenderPaymentCodes();
+    await w.fetchBalance();
+    await w.fetchTransactions();
+
+    assert.ok(
+      w
+        .getBIP47SenderPaymentCodes()
+        .includes('PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo'),
+    ); // sparrow payment code
+
+    assert.strictEqual(
+      w.getTransactions().find(tx => tx.txid === '64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f')?.value,
+      100000,
+    ); // sparrow paid us after sparrow made a notification tx
+
+    assert.ok(
+      !w.needToNotifyBIP47(
+        'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+      ),
+    );
+
+    assert.strictEqual(
+      w.getSenderByTxid('64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f'),
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ); // we got paid
+
+    // pretending that user added this PC as a counterparty (sent a notif tx) to pay to:
+    w.addBIP47Receiver(
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    );
+    assert.ok(
+      !w.needToNotifyBIP47(
+        'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+      ),
+    ); // dont need to notify
+
+    // prior to sync, we have no info on which joint address shall be available
+    assert.strictEqual(
+      w._next_free_payment_code_address_index_send
+        .PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo,
+      undefined, // basically zero
+    );
+
+    await w.syncBip47ReceiversAddresses(
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    );
+
+    // after sync, we know that index 0 was used so index 1 is next free:
+    assert.strictEqual(
+      w._next_free_payment_code_address_index_send
+        .PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo,
+      1,
+    );
+
+    assert.strictEqual(
+      w.getSenderByTxid('73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d'),
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ); // we paid sparrow
+  });
 });

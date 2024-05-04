@@ -1,10 +1,10 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Platform } from 'react-native';
-import { BlueHeaderDefaultSub } from '../../BlueComponents';
 import loc from '../../loc';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../components/Context/SettingsContext';
+import { Header } from '../../components/Header';
 
 const styles = StyleSheet.create({
   root: {
@@ -31,7 +31,7 @@ const Settings = () => {
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
     >
-      {Platform.OS === 'android' ? <BlueHeaderDefaultSub leftText={loc.settings.header} /> : <></>}
+      {Platform.OS === 'android' ? <Header leftText={loc.settings.header} /> : <></>}
       <ListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />
       <ListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />

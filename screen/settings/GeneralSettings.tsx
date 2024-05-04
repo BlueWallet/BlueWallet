@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 });
 
 const GeneralSettings: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const {
     isAdvancedModeEnabled,
     setIsAdvancedModeEnabledStorage,

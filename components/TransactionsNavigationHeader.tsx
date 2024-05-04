@@ -19,7 +19,7 @@ interface TransactionsNavigationHeaderProps {
     navigate: (route: string, params?: any) => void;
     goBack: () => void;
   };
-  onManageFundsPressed?: (id: string) => void;
+  onManageFundsPressed?: (id?: string) => void;
   onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
   actionKeys: {
     CopyToClipboard: 'copyToClipboard';
@@ -103,8 +103,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = () => {
-    onManageFundsPressed?.(actionKeys.Refill);
+  const handleManageFundsPressed = (actionKeyID?: string) => {
+    if (onManageFundsPressed) {
+      if (actionKeyID) {
+        onManageFundsPressed(actionKeyID);
+      }
+    }
   };
 
   const handleOnPaymentCodeButtonPressed = () => {
@@ -248,7 +252,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
       )}
-
       {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
           <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
@@ -259,13 +262,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           style={styles.manageFundsButton}
           accessibilityRole="button"
           accessibilityLabel={loc.lnd.title}
-          onPress={handleManageFundsPressed}
+          onPress={() => handleManageFundsPressed()}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </TouchableOpacity>
       )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleManageFundsPressed}>
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
           <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
@@ -342,7 +345,7 @@ export const actionKeys = {
   CopyToClipboard: 'copyToClipboard',
   WalletBalanceVisibility: 'walletBalanceVisibility',
   Refill: 'refill',
-  RefillWithExternalWallet: 'qrcode',
+  RefillWithExternalWallet: 'refillWithExternalWallet',
 };
 
 export const actionIcons = {

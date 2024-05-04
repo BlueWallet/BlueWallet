@@ -5,6 +5,7 @@
     "continue": "Continuar",
     "clipboard": "Área de transferência",
     "discard_changes": "Descartar alterações?",
+    "discard_changes_explain": "Você tem alterações não salvas. Tem certeza de que deseja descartá-los e sair da tela?",
     "enter_password": "Insira a senha",
     "never": "Nunca",
     "of": "{number} de {total}",
@@ -24,7 +25,8 @@
     "pick_image": "Escolher imagem da biblioteca",
     "pick_file": "Escolher arquivo",
     "enter_amount": "Insira o valor",
-    "qr_custom_input_button": "Toque 10 vezes para inserir uma entrada personalizada"
+    "qr_custom_input_button": "Toque 10 vezes para inserir uma entrada personalizada",
+    "unlock": "Desbloquear"
   },
   "alert": {
     "default": "Alerta"
@@ -118,6 +120,7 @@
     "details_create": "Criar",
     "details_label": "Descrição",
     "details_setAmount": "Quantia a receber",
+    "details_share": "Compartilhar...",
     "header": "Receber",
     "maxSats": "O Valor máximo é de {max} sats",
     "maxSatsFull": "O valor máximo é de {max} sats ou {currency}",
@@ -207,6 +210,7 @@
     "reset_amount_confirm": "Gostaria de redefinir a quantia?",
     "success_done": "Enviado",
     "txSaved": "O arquivo de transação ({filePath}) foi salvo na pasta Downloads.",
+    "file_saved_at_path": "O arquivo ({fileName}) foi salvo na sua pasta Downloads.",
     "problem_with_psbt": "Problema com a PSBT"
   },
   "settings": {
@@ -228,6 +232,7 @@
     "about_sm_twitter": "Siga-nos no Twitter",
     "advanced_options": "Opções avançadas",
     "biometrics": "Biometria",
+    "biometrics_no_longer_available": "As configurações do seu dispositivo foram alteradas e não correspondem mais às configurações de segurança selecionadas no aplicativo. Reative a biometria ou a senha e reinicie o aplicativo para aplicar essas alterações.",
     "biom_10times": "Você tentou digitar sua senha 10 vezes. Você gostaria de resetar seu armazenamento? Isso irá remover todas suas carteiras e descriptografar seu armazenamento.",
     "biom_conf_identity": "Por favor, confirme sua identidade.",
     "biom_no_passcode": "Seu dispositivo não possui uma senha. Para proceder, por favor configure uma senha no app de Configurações.",
@@ -397,6 +402,7 @@
     "details_delete": "Apagar",
     "details_delete_wallet": "Apagar Carteira",
     "details_derivation_path": "caminho de derivação",
+    "details_display": "Exibir na tela inicial",
     "details_export_backup": "Exportar/Backup",
     "details_export_history": "Exportar Histórico para CSV",
     "details_master_fingerprint": "Fingerprint Soberana",
@@ -443,7 +449,6 @@
     "list_empty_txs2": "Comece por sua carteira.",
     "list_empty_txs2_lightning": "\nPara começar a usar clique em \"administrar fundos\" e recarregue o seu saldo.",
     "list_latest_transaction": "Transação mais recente",
-    "list_ln_browser": "Navegador LApp",
     "list_long_choose": "Escolher foto",
     "list_long_clipboard": "Copiar da área de transferência",
     "list_long_scan": "Leia o código QR",
@@ -475,6 +480,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "Confirmar",
     "header": "Enviar",
+    "share": "Compartilhar...",
     "view": "Ver",
     "shared_key_detected": "Coassinatura compartilhada",
     "shared_key_detected_question": "Uma coassinatura foi compartilhada com você, deseja importá-la?",

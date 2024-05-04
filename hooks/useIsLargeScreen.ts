@@ -12,7 +12,7 @@ export const useIsLargeScreen = () => {
     const updateScreenUsage = () => {
       const newWindowWidth = Dimensions.get('window').width;
       if (newWindowWidth !== windowWidth) {
-        console.log(`Window width changed: ${newWindowWidth}`);
+        console.debug(`Window width changed: ${newWindowWidth}`);
         setWindowWidth(newWindowWidth);
       }
     };
@@ -28,11 +28,11 @@ export const useIsLargeScreen = () => {
 
   // Determine if the window width is at least half of the screen width
   const isLargeScreen = useMemo(() => {
-    const isRunningOnTabletOrDesktop = isTablet() || isDesktop;
+    const isRunningOnTablet = isTablet();
     const halfScreenWidth = windowWidth >= screenWidth / 2;
-    const condition = isRunningOnTabletOrDesktop && halfScreenWidth;
-    console.log(
-      `Window width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isRunningOnTabletOrDesktop}, Is large screen: ${condition}`,
+    const condition = (isRunningOnTablet && halfScreenWidth) || isDesktop;
+    console.debug(
+      `Window width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTablet}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
     );
     return condition;
   }, [windowWidth, screenWidth]);

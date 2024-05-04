@@ -187,6 +187,7 @@
     "lndhub_uri": "Π.χ., {example}",
     "electrum_host": "Π.χ., {example}",
     "electrum_offline_mode": "Κατάσταση εκτός σύνδεσης",
+    "electrum_port": "Θύρα, συνήθως {example}",
     "use_ssl": "Χρήση SSL",
     "electrum_settings_server": "Διακομιστής Electrum",
     "electrum_status": "Κατάσταση",
@@ -194,6 +195,8 @@
     "electrum_clear_alert_cancel": "Ακύρωση",
     "electrum_clear_alert_ok": "Εντάξει",
     "electrum_select": "Επιλογή",
+    "electrum_reset": "Επαναφορά προεπιλογής",
+    "electrum_unable_to_connect": "Αδυναμία σύνδεσης στον {server}.",
     "electrum_history": "Ιστορικό διακομιστή",
     "electrum_clear": "Καθαρισμός",
     "encrypt_decrypt": "Αποκρυπτογράφηση αποθηκευτικού χώρου",
@@ -204,6 +207,7 @@
     "header": "Ρυθμίσεις",
     "language": "Γλώσσα",
     "last_updated": "Τελευταία ενημέρωση",
+    "license": "Άδεια χρήσης",
     "lightning_error_lndhub_uri": "Μη έγκυρο LNDHub URI",
     "lightning_saved": "Η αλλαγές σας αποθηκεύτηκαν με επιτυχία.",
     "lightning_settings": "Ρυθμίσεις Lightning",
@@ -231,6 +235,7 @@
     "ask_me_later": "Να ερωτηθώ αργότερα."
   },
   "transactions": {
+    "cancel_no": "Αυτή η συναλλαγή δεν μπορεί να αντικατασταθεί.",
     "confirmations_lowercase": "{confirmations} επιβεβαιώσεις",
     "copy_link": "Αντιγραφή συνδέσμου",
     "expand_note": "Επέκταση σημείωσης",
@@ -251,13 +256,16 @@
     "received_with_amount": "+{amt1} ({amt2})",
     "view_wallet": "Προβολή {walletLabel}",
     "list_title": "Συναλλαγές",
-    "status_cancel": "Ακύρωση συναλλαγής"
+    "status_cancel": "Ακύρωση συναλλαγής",
+    "txid": "ID συναλλαγής"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
+    "add_bitcoin_explain": "Απλό και ισχυρό πορτοφόλι Bitcoin",
     "add_create": "Δημιουργία",
     "add_import_wallet": "Εισαγωγή πορτοφολιού",
     "add_lightning": "Lightning",
+    "add_lndhub": "Σύνδεση στο δικό σας LNDHub",
     "add_lndhub_placeholder": "Η  διεύθυνση του κόμβου σας",
     "add_placeholder": "το πρώτο μου πορτοφόλι",
     "add_title": "Προσθήκη πορτοφολιού",
@@ -292,6 +300,7 @@
     "import_discovery_no_wallets": "Δεν βρέθηκε κανένα πορτοφόλι",
     "import_derivation_found": "Βρέθηκε",
     "import_derivation_found_not": "Δεν βρέθηκε",
+    "import_derivation_loading": "Φορτώνεται...",
     "import_derivation_unknown": "Άγνωστο",
     "list_create_a_button": "Προσθήκη τώρα",
     "list_create_a_wallet": "Προσθέστε ένα πορτοφόλι",
@@ -299,6 +308,7 @@
     "list_latest_transaction": "Τελευταία συναλλαγή",
     "list_long_choose": "Επιλογή φωτογραφίας",
     "list_long_clipboard": "Αντιγραφή από το πρόχειρο",
+    "list_long_scan": "Σάρωση QR Code",
     "list_title": "Πορτοφόλια",
     "list_tryagain": "Προσπαθήστε ξανά",
     "reorder_title": "Αναδιάταξη των πορτοφολιών",
@@ -342,6 +352,7 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "Αντιγραφή ιδιωτικού κλειδιού",
     "sign_sign": "Υπογραφή",
     "sign_verify": "Επιβεβαίωση",
     "sign_signature_correct": "Επιτυχής επιβεβαίωση!",

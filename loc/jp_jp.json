@@ -125,7 +125,8 @@
     "maxSats": "最大額は{max}satsです",
     "maxSatsFull": "最大額は{max}sats（{currency}）です",
     "minSats": "最小額は{min}satsです",
-    "minSatsFull": "最小額は{min}sats（{currency}）です"
+    "minSatsFull": "最小額は{min}sats（{currency}）です",
+    "qrcode_for_the_address": "アドレスのQRコード"
   },
   "send": {
     "provided_address_is_invoice": "これはライトニングインボイスのようです。ライトニングウォレットを使って請求書に対する支払いを行ってください。",
@@ -449,7 +450,6 @@
     "list_empty_txs2": "あなたのウォレットから始めましょう。",
     "list_empty_txs2_lightning": "\n利用を開始するには\"資金の管理\"をタップしてウォレットへ送金してください。",
     "list_latest_transaction": "最新の取引",
-    "list_ln_browser": "Lapp Browser",
     "list_long_choose": "写真選択",
     "list_long_clipboard": "クリップボードからコピー",
     "list_long_scan": "QRコードをスキャン",
