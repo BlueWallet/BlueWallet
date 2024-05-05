@@ -50,6 +50,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import SaveFileButton from '../../components/SaveFileButton';
 import { useSettings } from '../../components/Context/SettingsContext';
+import { HeaderRightButton } from '../../components/HeaderRightButton';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -195,16 +196,16 @@ const WalletDetails = () => {
       });
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
-  const HeaderRightButton = useMemo(
+  const SaveButton = useMemo(
     () => <HeaderRightButton title={loc.wallets.details_save} onPress={handleSave} disabled={isLoading} testID="Save" />,
     [isLoading, handleSave],
   );
 
   useEffect(() => {
     setOptions({
-      headerRight: () => HeaderRightButton,
+      headerRight: () => SaveButton,
     });
-  }, [HeaderRightButton, setOptions]);
+  }, [SaveButton, setOptions]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
