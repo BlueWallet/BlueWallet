@@ -3,7 +3,6 @@ export type AddWalletStackParamList = {
   ImportWallet: undefined;
   ImportWalletDiscovery: undefined;
   ImportCustomDerivationPath: undefined;
-  ImportSpeed: undefined;
   PleaseBackup: undefined;
   PleaseBackupLNDHub: undefined;
   PleaseBackupLdk: undefined;

@@ -107,7 +107,7 @@ const WalletsImport = () => {
     setSpeedBackdoor(v => {
       v += 1;
       if (v < 5) return v;
-      navigation.navigate('ImportSpeed');
+      navigation.navigate('ImportWallet');
       return 0;
     });
   };

@@ -11,7 +11,7 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 
-const WalletsImportSpeed = () => {
+const WalletsImportWallet = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
@@ -92,6 +92,10 @@ const WalletsImportSpeed = () => {
   );
 };
 
-WalletsImportSpeed.navigationOptions = navigationStyle({}, opts => ({ ...opts, statusBarStyle: 'light', title: loc.wallets.import_title }));
+WalletsImportWallet.navigationOptions = navigationStyle({}, opts => ({
+  ...opts,
+  statusBarStyle: 'light',
+  title: loc.wallets.import_title,
+}));
 
-export default WalletsImportSpeed;
+export default WalletsImportWallet;

@@ -4,7 +4,8 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 // Define lazy imports
 const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
 const ImportCustomDerivationPath = lazy(() => import('../screen/wallets/importCustomDerivationPath'));
-const ImportSpeed = lazy(() => import('../screen/wallets/import'));
+const ImportWalletDiscovery = lazy(() => import('../screen/wallets/importDiscovery'));
+const ImportWallet = lazy(() => import('../screen/wallets/import'));
 const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
 const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
 const PleaseBackupLdk = lazy(() => import('../screen/wallets/pleaseBackupLdk'));
@@ -25,15 +26,21 @@ export const AddComponent = () => (
   </Suspense>
 );
 
+export const ImportWalletDiscoveryComponent = () => (
+  <Suspense fallback={<LoadingIndicator />}>
+    <ImportWalletDiscovery />
+  </Suspense>
+);
+
 export const ImportCustomDerivationPathComponent = () => (
   <Suspense fallback={<LoadingIndicator />}>
     <ImportCustomDerivationPath />
   </Suspense>
 );
 
-export const ImportSpeedComponent = () => (
+export const ImportWalletComponent = () => (
   <Suspense fallback={<LoadingIndicator />}>
-    <ImportSpeed />
+    <ImportWallet />
   </Suspense>
 );
 

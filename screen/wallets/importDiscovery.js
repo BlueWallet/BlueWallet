@@ -3,7 +3,6 @@ import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from '
 import IdleTimerManager from 'react-native-idle-timer';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
@@ -189,7 +188,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-ImportWalletDiscovery.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_discovery_title }));
 
 export default ImportWalletDiscovery;

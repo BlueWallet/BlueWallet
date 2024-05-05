@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   AddComponent,
   ImportCustomDerivationPathComponent,
-  ImportSpeedComponent,
+  ImportWalletComponent,
   PleaseBackupComponent,
   PleaseBackupLNDHubComponent,
   PleaseBackupLdkComponent,
@@ -11,6 +11,7 @@ import {
   WalletsAddMultisigComponent,
   WalletsAddMultisigStep2Component,
   WalletsAddMultisigHelpComponent,
+  ImportWalletDiscoveryComponent,
 } from './LazyLoadAddWalletStack';
 import { AddWalletStackParamList } from '../typings/NavigationTypes';
 import navigationStyle from '../components/navigationStyle';
@@ -34,9 +35,16 @@ const AddWalletStack = () => {
       />
       <Stack.Screen name="ImportCustomDerivationPath" component={ImportCustomDerivationPathComponent} />
       <Stack.Screen
-        name="ImportSpeed"
-        component={ImportSpeedComponent}
+        name="ImportWallet"
+        component={ImportWalletComponent}
         options={navigationStyle({ title: loc.wallets.import_title })(theme)}
+      />
+      <Stack.Screen
+        name="ImportWalletDiscovery"
+        component={ImportWalletDiscoveryComponent}
+        options={navigationStyle({
+          title: loc.wallets.import_discovery_title,
+        })(theme)}
       />
       <Stack.Screen
         name="PleaseBackup"
