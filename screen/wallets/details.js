@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -43,7 +43,6 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { SecondButton } from '../../components/SecondButton';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -174,12 +173,6 @@ const WalletDetails = () => {
 
       backgroundColor: colors.inputBackgroundColor,
     },
-    save: {
-      backgroundColor: colors.lightButton,
-    },
-    saveText: {
-      color: colors.buttonTextColor,
-    },
     delete: {
       color: isToolTipMenuVisible ? colors.buttonDisabledTextColor : '#d0021b',
     },
@@ -190,7 +183,7 @@ const WalletDetails = () => {
     }
   }, [wallet]);
 
-  const save = () => {
+  const handleSave = useCallback(() => {
     setIsLoading(true);
     if (walletName.trim().length > 0) {
       wallet.setLabel(walletName.trim());
@@ -211,25 +204,27 @@ const WalletDetails = () => {
         console.log(error.message);
         setIsLoading(false);
       });
-  };
+  }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
-  useLayoutEffect(() => {
+  const HeaderRightButton = useMemo(
+    () => (
+      <TouchableOpacity
+        accessibilityRole="button"
+        disabled={isLoading}
+        style={[styles.save, { backgroundColor: colors.lightButton }]}
+        onPress={handleSave}
+      >
+        <Text style={[styles.saveText, { color: colors.buttonTextColor }]}>{loc.wallets.details_save}</Text>
+      </TouchableOpacity>
+    ),
+    [isLoading, colors.lightButton, colors.buttonTextColor, handleSave],
+  );
+
+  useEffect(() => {
     setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          testID="Save"
-          disabled={isLoading || isToolTipMenuVisible}
-          style={[styles.save, stylesHook.save]}
-          onPress={save}
-        >
-          <Text style={[styles.saveText, stylesHook.saveText]}>{loc.wallets.details_save}</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: () => HeaderRightButton,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, colors, walletName, useWithHardwareWallet, hideTransactionsInWalletsList, isBIP47Enabled, isToolTipMenuVisible]);
+  }, [HeaderRightButton, setOptions]);
 
   useEffect(() => {
     if (wallets.some(w => w.getID() === walletID)) {
@@ -760,11 +755,5 @@ const WalletDetails = () => {
     </ScrollView>
   );
 };
-
-WalletDetails.navigationOptions = navigationStyle({}, opts => ({
-  ...opts,
-  headerTitle: loc.wallets.details_title,
-  statusBarStyle: 'auto',
-}));
 
 export default WalletDetails;
