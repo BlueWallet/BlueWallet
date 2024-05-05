@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -103,7 +103,7 @@ const SendDetails = () => {
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (wallet) {
       setHeaderRightOptions();
     }
