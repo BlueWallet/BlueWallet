@@ -107,17 +107,6 @@ const styles = StyleSheet.create({
   marginRight16: {
     marginRight: 16,
   },
-  save: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 34,
-  },
-  saveText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
 });
 
 const WalletDetails = () => {
@@ -207,17 +196,8 @@ const WalletDetails = () => {
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 
   const HeaderRightButton = useMemo(
-    () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        disabled={isLoading}
-        style={[styles.save, { backgroundColor: colors.lightButton }]}
-        onPress={handleSave}
-      >
-        <Text style={[styles.saveText, { color: colors.buttonTextColor }]}>{loc.wallets.details_save}</Text>
-      </TouchableOpacity>
-    ),
-    [isLoading, colors.lightButton, colors.buttonTextColor, handleSave],
+    () => <HeaderRightButton title={loc.wallets.details_save} onPress={handleSave} disabled={isLoading} testID="Save" />,
+    [isLoading, handleSave],
   );
 
   useEffect(() => {

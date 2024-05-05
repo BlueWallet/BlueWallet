@@ -394,7 +394,7 @@ const DetailViewStackScreensStack = () => {
   const theme = useTheme();
 
   const SaveButton = useMemo(() => {
-    return <HeaderRightButton disabled={true} title={loc.wallets.details_save} />;
+    return <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />;
   }, []);
 
   return (
