@@ -68,7 +68,7 @@ const PleaseBackup: React.FC = () => {
 
   return (
     <ScrollView
-      style={styles.flex}
+      style={styles.root}
       contentContainerStyle={[styles.flex, stylesHook.flex]}
       testID="PleaseBackupScrollView"
       automaticallyAdjustContentInsets
@@ -88,6 +88,9 @@ const PleaseBackup: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   flex: {
     flex: 1,
     justifyContent: 'space-around',

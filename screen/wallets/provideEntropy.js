@@ -9,7 +9,6 @@ import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { Tabs } from '../../components/Tabs';
 
@@ -272,8 +271,6 @@ const Entropy = () => {
     </SafeArea>
   );
 };
-
-Entropy.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.entropy.title }));
 
 const styles = StyleSheet.create({
   entropy: {

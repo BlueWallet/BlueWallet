@@ -1,7 +1,5 @@
 import React from 'react';
 import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-
 import loc from '../../loc';
 import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
@@ -106,17 +104,5 @@ const styles = StyleSheet.create({
     maxWidth: 390,
   },
 });
-
-export const WalletAddMultisigHelpNavigationOptions: NativeStackNavigationOptions = {
-  title: '',
-  gestureEnabled: false,
-  headerStyle: {
-    backgroundColor: '#0070FF',
-  },
-  headerTintColor: '#FFFFFF',
-  headerBackTitleVisible: false,
-  statusBarStyle: 'light',
-  headerShadowVisible: false,
-};
 
 export default WalletsAddMultisigHelp;

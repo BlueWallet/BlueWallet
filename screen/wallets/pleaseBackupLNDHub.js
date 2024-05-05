@@ -3,7 +3,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
 
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -71,14 +70,5 @@ const PleaseBackupLNDHub = () => {
     </SafeArea>
   );
 };
-
-PleaseBackupLNDHub.navigationOptions = navigationStyle(
-  {
-    gestureEnabled: false,
-    swipeEnabled: false,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
-);
 
 export default PleaseBackupLNDHub;
