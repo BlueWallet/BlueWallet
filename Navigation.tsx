@@ -34,7 +34,7 @@ import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationP
 import ImportWalletDiscovery from './screen/wallets/importDiscovery';
 import ImportSpeed from './screen/wallets/importSpeed';
 import WalletsList from './screen/wallets/WalletsList';
-import PleaseBackup from './screen/wallets/pleaseBackup';
+import PleaseBackup from './screen/wallets/PleaseBackup';
 import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
 import ProvideEntropy from './screen/wallets/provideEntropy';
