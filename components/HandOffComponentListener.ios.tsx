@@ -1,6 +1,6 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect } from 'react';
 import * as NavigationService from '../NavigationService';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import { useStorage } from '../blue_modules/storage-context';
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import HandOffComponent from './HandOffComponent.ios';
 
@@ -16,7 +16,7 @@ const { EventEmitter } = NativeModules;
 const eventEmitter = new NativeEventEmitter(EventEmitter);
 
 const HandOffComponentListener: React.FC = () => {
-  const { walletsInitialized } = useContext(BlueStorageContext); // Assuming 'walletsInitialized' is stored in context
+  const { walletsInitialized } = useStorage();
 
   useEffect(() => {
     if (!walletsInitialized) {
