@@ -8,6 +8,7 @@ import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 import A from '../blue_modules/analytics';
+import { InteractionManager } from 'react-native';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -71,29 +72,26 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-  }, []);
+    setWallets(BlueApp.getWallets());
 
-  useEffect(() => {
+    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
       BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
 
   const saveToDisk = async (force: boolean = false) => {
-    if (BlueApp.getWallets().length === 0 && !force) {
-      console.log('not saving empty wallets array');
-      return;
-    }
-    BlueApp.tx_metadata = txMetadata;
-    await BlueApp.saveToDisk();
-    setWallets([...BlueApp.getWallets()]);
-    txMetadata = BlueApp.tx_metadata;
+    InteractionManager.runAfterInteractions(async () => {
+      if (BlueApp.getWallets().length === 0 && !force) {
+        console.log('not saving empty wallets array');
+        return;
+      }
+      BlueApp.tx_metadata = txMetadata;
+      await BlueApp.saveToDisk();
+      setWallets([...BlueApp.getWallets()]);
+      txMetadata = BlueApp.tx_metadata;
+    });
   };
-
-  useEffect(() => {
-    setWallets(BlueApp.getWallets());
-  }, []);
 
   const resetWallets = () => {
     setWallets(BlueApp.getWallets());
