@@ -117,7 +117,7 @@ const Broadcast: React.FC = () => {
 
   return (
     <SafeArea>
-      <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <KeyboardAvoidingView enabled={!isTablet()} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
         <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
