@@ -32,7 +32,7 @@ export const useIsLargeScreen = () => {
     const halfScreenWidth = windowWidth >= screenWidth / 2;
     const condition = (isRunningOnTablet && halfScreenWidth) || isDesktop;
     console.debug(
-      `Window width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTablet}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
+      `Window width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTablet()}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
     );
     return condition;
   }, [windowWidth, screenWidth]);
