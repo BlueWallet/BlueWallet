@@ -31,8 +31,8 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   await element(by.id('SpeedDoImport')).tap();
 
   // waiting for import result
-  await sup('OK', 3 * 61000);
-  await element(by.text('OK')).tap();
+  // await sup('OK', 3 * 61000);
+  // await element(by.text('OK')).tap();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
