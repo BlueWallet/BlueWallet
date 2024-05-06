@@ -85,3 +85,7 @@ artifacts/
 *.mx
 *.realm
 *.realm.lock
+android/app/.project
+android/app/.classpath
+android/.settings/org.eclipse.buildship.core.prefs
+android/.project
