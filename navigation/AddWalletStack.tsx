@@ -12,6 +12,7 @@ import {
   WalletsAddMultisigStep2Component,
   WalletsAddMultisigHelpComponent,
   ImportWalletDiscoveryComponent,
+  ImportSpeedComponent,
 } from './LazyLoadAddWalletStack';
 import { AddWalletStackParamList } from '../typings/NavigationTypes';
 import navigationStyle from '../components/navigationStyle';
@@ -38,6 +39,11 @@ const AddWalletStack = () => {
         name="ImportWallet"
         component={ImportWalletComponent}
         options={navigationStyle({ title: loc.wallets.import_title })(theme)}
+      />
+      <Stack.Screen
+        name="ImportSpeed"
+        component={ImportSpeedComponent}
+        options={navigationStyle({ statusBarStyle: 'light', title: loc.wallets.import_title })(theme)}
       />
       <Stack.Screen
         name="ImportWalletDiscovery"
