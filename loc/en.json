@@ -373,6 +373,8 @@
     "status_cancel": "Cancel Transaction",
     "transactions_count": "Transactions Count",
     "txid": "Transaction ID",
+    "from": "From: {counterparty}",
+    "to": "To: {counterparty}",
     "updating": "Updating..."
   },
   "wallets": {
