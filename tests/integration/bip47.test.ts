@@ -207,7 +207,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
 
     assert.strictEqual(
-      w.getSenderByTxid('64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f'),
+      w.getBip47CounterpartyByTxid('64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f'),
       'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
     ); // we got paid
 
@@ -240,8 +240,22 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
 
     assert.strictEqual(
-      w.getSenderByTxid('73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d'),
+      w.getBip47CounterpartyByTxid('73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d'),
       'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
     ); // we paid sparrow
+
+    let txWithCounterparty = w.getTransactions().find(tx => tx.txid === '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d');
+    assert(txWithCounterparty);
+    assert.strictEqual(
+      txWithCounterparty.counterparty,
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    );
+
+    txWithCounterparty = w.getTransactions().find(tx => tx.txid === '64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f');
+    assert(txWithCounterparty);
+    assert.strictEqual(
+      txWithCounterparty.counterparty,
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    );
   });
 });
