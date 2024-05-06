@@ -591,6 +591,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }
+
+      if (this.allowBIP47() && this.isBIP47Enabled()) {
+        tx.counterparty = this.getBip47CounterpartyByTx(tx);
+      }
       ret.push(tx);
     }
 
@@ -1557,16 +1561,28 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * return BIP47 payment code of the counterparty of this transaction (someone paid us, or we paid someone)
-   * or false if it was a non-BIP47 transaction
+   * return BIP47 payment code of the counterparty of this transaction (someone who paid us, or someone we paid)
+   * or undefined if it was a non-BIP47 transaction
    */
-  getSenderByTxid(txid: string): string | false {
+  getBip47CounterpartyByTxid(txid: string): string | undefined {
+    const foundTx = this.getTransactions().find(tx => tx.txid === txid);
+    if (foundTx) {
+      return this.getBip47CounterpartyByTx(foundTx);
+    }
+    return undefined;
+  }
+
+  /**
+   * return BIP47 payment code of the counterparty of this transaction (someone who paid us, or someone we paid)
+   * or undefined if it was a non-BIP47 transaction
+   */
+  getBip47CounterpartyByTx(tx: Transaction): string | undefined {
     for (const pc of Object.keys(this._txs_by_payment_code_index)) {
       // iterating all payment codes
 
       for (const txs of Object.values(this._txs_by_payment_code_index[pc])) {
-        for (const tx of txs) {
-          if (tx.txid === txid) {
+        for (const tx2 of txs) {
+          if (tx2.txid === tx.txid) {
             return pc; // found it!
           }
         }
@@ -1576,19 +1592,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // checking txs we sent to counterparties
 
     for (const pc of this._send_payment_codes) {
-      for (const tx of this.getTransactions().filter(transaction => transaction.txid === txid)) {
-        for (const out of tx.outputs) {
-          for (const address of out.scriptPubKey?.addresses ?? []) {
-            if (this._addresses_by_payment_code_send[pc] && Object.values(this._addresses_by_payment_code_send[pc]).includes(address)) {
-              // found it!
-              return pc;
-            }
+      for (const out of tx.outputs) {
+        for (const address of out.scriptPubKey?.addresses ?? []) {
+          if (this._addresses_by_payment_code_send[pc] && Object.values(this._addresses_by_payment_code_send[pc]).includes(address)) {
+            // found it!
+            return pc;
           }
         }
       }
     }
 
-    return false; // found nothing
+    return undefined; // found nothing
   }
 
   createBip47NotificationTransaction(utxos: CreateTransactionUtxo[], receiverPaymentCode: string, feeRate: number, changeAddress: string) {

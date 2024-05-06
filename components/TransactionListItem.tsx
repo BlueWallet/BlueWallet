@@ -1,5 +1,4 @@
-/* eslint react/prop-types: "off" */
-import React, { useState, useMemo, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,8 +19,15 @@ import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import { useTheme } from './themes';
 import ListItem from './ListItem';
 import { useSettings } from './Context/SettingsContext';
+import { LightningTransaction, Transaction } from '../class/wallets/types';
 
-export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
+interface TransactionListItemProps {
+  itemPriceUnit: BitcoinUnit;
+  walletID: string;
+  item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
+}
+
+export const TransactionListItem: React.FC<TransactionListItemProps> = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
   const { navigate } = useNavigation();
@@ -39,17 +45,22 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     [colors.lightBorder],
   );
 
+  const shortenContactName = (addr: string): string => {
+    return addr.substr(0, 5) + '...' + addr.substr(addr.length - 4, 4);
+  };
+
   const title = useMemo(() => {
     if (item.confirmations === 0) {
       return loc.transactions.pending;
     } else {
-      return transactionTimeToReadable(item.received);
+      return transactionTimeToReadable(item.received!);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.confirmations, item.received, language]);
-  const txMemo = txMetadata[item.hash]?.memo ?? '';
+
+  const txMemo = (item.counterparty ? `[${shortenContactName(item.counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const subtitle = useMemo(() => {
-    let sub = item.confirmations < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
+    let sub = Number(item.confirmations) < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
     if (sub !== '') sub += ' ';
     sub += txMemo;
     if (item.memo) sub += item.memo;
@@ -58,12 +69,12 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
   const rowTitle = useMemo(() => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (isNaN(item.value)) {
-        item.value = '0';
+      if (isNaN(Number(item.value))) {
+        item.value = 0;
       }
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp + item.expire_time;
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
 
       if (invoiceExpiration > now) {
         return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
@@ -86,7 +97,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp + item.expire_time;
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
 
       if (invoiceExpiration > now) {
         color = colors.successColor;
@@ -97,7 +108,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           color = '#9AA0AA';
         }
       }
-    } else if (item.value / 100000000 < 0) {
+    } else if (item.value! / 100000000 < 0) {
       color = colors.foregroundColor;
     }
 
@@ -112,7 +123,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
 
   const avatar = useMemo(() => {
     // is it lightning refill tx?
-    if (item.category === 'receive' && item.confirmations < 3) {
+    if (item.category === 'receive' && item.confirmations! < 3) {
       return (
         <View style={styles.iconWidth}>
           <TransactionPendingIcon />
@@ -140,7 +151,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
       if (!item.ispaid) {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-        const invoiceExpiration = item.timestamp + item.expire_time;
+        const invoiceExpiration = item.timestamp! + item.expire_time!;
         if (invoiceExpiration < now) {
           return (
             <View style={styles.iconWidth}>
@@ -163,7 +174,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           <TransactionPendingIcon />
         </View>
       );
-    } else if (item.value < 0) {
+    } else if (item.value! < 0) {
       return (
         <View style={styles.iconWidth}>
           <TransactionOutgoingIcon />
@@ -183,8 +194,10 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   }, [subtitle]);
 
   const onPress = useCallback(async () => {
-    menuRef?.current?.dismissMenu();
+    // @ts-ignore: idk how to fix
+    menuRef?.current?.dismissMenu?.();
     if (item.hash) {
+      // @ts-ignore: idk how to fix
       navigate('TransactionStatus', { hash: item.hash, walletID });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
@@ -192,13 +205,14 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
         try {
           // is it a successful lnurl-pay?
           const LN = new Lnurl(false, AsyncStorage);
-          let paymentHash = item.payment_hash;
+          let paymentHash = item.payment_hash!;
           if (typeof paymentHash === 'object') {
             paymentHash = Buffer.from(paymentHash.data).toString('hex');
           }
           const loaded = await LN.loadSuccessfulPayment(paymentHash);
           if (loaded) {
             NavigationService.navigate('ScanLndInvoiceRoot', {
+              // @ts-ignore: idk how to fix
               screen: 'LnurlPaySuccess',
               params: {
                 paymentHash,
@@ -212,6 +226,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
           console.log(e);
         }
 
+        // @ts-ignore: idk how to fix
         navigate('LNDViewInvoice', {
           invoice: item,
           walletID: lightningWallet[0].getID(),
@@ -244,18 +259,18 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   }, [item.hash]);
 
   const onToolTipPress = useCallback(
-    id => {
-      if (id === TransactionListItem.actionKeys.CopyAmount) {
+    (id: any) => {
+      if (id === actionKeys.CopyAmount) {
         handleOnCopyAmountTap();
-      } else if (id === TransactionListItem.actionKeys.CopyNote) {
+      } else if (id === actionKeys.CopyNote) {
         handleOnCopyNote();
-      } else if (id === TransactionListItem.actionKeys.OpenInBlockExplorer) {
+      } else if (id === actionKeys.OpenInBlockExplorer) {
         handleOnViewOnBlockExplorer();
-      } else if (id === TransactionListItem.actionKeys.ExpandNote) {
+      } else if (id === actionKeys.ExpandNote) {
         handleOnExpandNote();
-      } else if (id === TransactionListItem.actionKeys.CopyBlockExplorerLink) {
+      } else if (id === actionKeys.CopyBlockExplorerLink) {
         handleCopyOpenInBlockExplorerPress();
-      } else if (id === TransactionListItem.actionKeys.CopyTXID) {
+      } else if (id === actionKeys.CopyTXID) {
         handleOnCopyTransactionID();
       }
     },
@@ -273,36 +288,36 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     const actions = [];
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
-        id: TransactionListItem.actionKeys.CopyAmount,
+        id: actionKeys.CopyAmount,
         text: loc.transactions.details_copy_amount,
-        icon: TransactionListItem.actionIcons.Clipboard,
+        icon: actionIcons.Clipboard,
       });
     }
 
     if (subtitle) {
       actions.push({
-        id: TransactionListItem.actionKeys.CopyNote,
+        id: actionKeys.CopyNote,
         text: loc.transactions.details_copy_note,
-        icon: TransactionListItem.actionIcons.Clipboard,
+        icon: actionIcons.Clipboard,
       });
     }
     if (item.hash) {
       actions.push(
         {
-          id: TransactionListItem.actionKeys.CopyTXID,
+          id: actionKeys.CopyTXID,
           text: loc.transactions.details_copy_txid,
-          icon: TransactionListItem.actionIcons.Clipboard,
+          icon: actionIcons.Clipboard,
         },
         {
-          id: TransactionListItem.actionKeys.CopyBlockExplorerLink,
+          id: actionKeys.CopyBlockExplorerLink,
           text: loc.transactions.details_copy_block_explorer_link,
-          icon: TransactionListItem.actionIcons.Clipboard,
+          icon: actionIcons.Clipboard,
         },
         [
           {
-            id: TransactionListItem.actionKeys.OpenInBlockExplorer,
+            id: actionKeys.OpenInBlockExplorer,
             text: loc.transactions.details_show_in_block_explorer,
-            icon: TransactionListItem.actionIcons.Link,
+            icon: actionIcons.Link,
           },
         ],
       );
@@ -311,9 +326,9 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     if (subtitle && subtitleNumberOfLines === 1) {
       actions.push([
         {
-          id: TransactionListItem.actionKeys.ExpandNote,
+          id: actionKeys.ExpandNote,
           text: loc.transactions.expand_note,
-          icon: TransactionListItem.actionIcons.Note,
+          icon: actionIcons.Note,
         },
       ]);
     }
@@ -326,6 +341,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
     <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <ListItem
+          // @ts-ignore wtf
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
@@ -342,7 +358,7 @@ export const TransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUn
   );
 });
 
-TransactionListItem.actionKeys = {
+const actionKeys = {
   CopyTXID: 'copyTX_ID',
   CopyBlockExplorerLink: 'copy_blockExplorer',
   ExpandNote: 'expandNote',
@@ -351,7 +367,7 @@ TransactionListItem.actionKeys = {
   CopyNote: 'copyNote',
 };
 
-TransactionListItem.actionIcons = {
+const actionIcons = {
   Eye: {
     iconType: 'SYSTEM',
     iconValue: 'eye',
