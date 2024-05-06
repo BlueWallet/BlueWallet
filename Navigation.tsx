@@ -88,6 +88,7 @@ import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
+import { HeaderRightButton } from './components/HeaderRightButton';
 
 const AddWalletStack = createNativeStackNavigator();
 const AddWalletRoot = () => {
@@ -391,6 +392,11 @@ const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
   const theme = useTheme();
+
+  const SaveButton = useMemo(() => {
+    return <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />;
+  }, []);
+
   return (
     <DetailViewRoot.Navigator
       initialRouteName="UnlockWithScreen"
@@ -416,7 +422,15 @@ const DetailViewStackScreensStack = () => {
           />
           <DetailViewRoot.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="WalletDetails"
+            component={WalletDetails}
+            options={navigationStyle({
+              headerTitle: loc.wallets.details_title,
+              statusBarStyle: 'auto',
+              headerRight: () => SaveButton,
+            })(theme)}
+          />
           <DetailViewRoot.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
           <DetailViewRoot.Screen
             name="TransactionDetails"
