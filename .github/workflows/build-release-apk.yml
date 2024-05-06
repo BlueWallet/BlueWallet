@@ -18,9 +18,9 @@ jobs:
           fetch-depth: "0"
 
       - name: Specify node version
-        uses: actions/setup-node@v2-beta
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
 
       - name: Use npm caches
         uses: actions/cache@v2
