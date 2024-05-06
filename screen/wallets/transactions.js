@@ -459,10 +459,11 @@ const WalletTransactions = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      InteractionManager.runAfterInteractions(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => refreshTransactions);
       });
       return () => {
+        task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
