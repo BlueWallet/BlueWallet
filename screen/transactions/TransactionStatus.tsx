@@ -426,7 +426,14 @@ const TransactionsStatus = () => {
     }
   };
 
+  const shortenCounterpartyName = (addr: string): string => {
+    if (addr.length < 20) return addr;
+    return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
+  };
+
   const renderTXMetadata = () => {
+    const counterparty = tx.counterparty ? shortenCounterpartyName(tx.counterparty) : false;
+
     if (txMetadata[tx.hash]) {
       if (txMetadata[tx.hash].memo) {
         return (
@@ -434,6 +441,20 @@ const TransactionsStatus = () => {
             <Text selectable style={styles.memoText}>
               {txMetadata[tx.hash].memo}
             </Text>
+            {counterparty ? (
+              <View>
+                <BlueSpacing10 />
+                <Text selectable style={styles.memoText}>
+                  {tx.value < 0
+                    ? loc.formatString(loc.transactions.to, {
+                        counterparty,
+                      })
+                    : loc.formatString(loc.transactions.from, {
+                        counterparty,
+                      })}
+                </Text>
+              </View>
+            ) : null}
             <BlueSpacing20 />
           </View>
         );
