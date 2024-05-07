@@ -56,6 +56,9 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
       fontWeight: '400',
       fontSize: 14,
     },
+    rightTitleContainer: {
+      flex: 1,
+    },
     containerStyle: {
       backgroundColor: colors.background,
     },
@@ -94,7 +97,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(props => {
         )}
       </RNElementsListItem.Content>
       {props.rightTitle && (
-        <RNElementsListItem.Content right>
+        <RNElementsListItem.Content right style={stylesHook.rightTitleContainer}>
           <RNElementsListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
             {props.rightTitle}
           </RNElementsListItem.Title>
