@@ -424,7 +424,7 @@ const WalletTransactions = ({ navigation }) => {
     navigate('ViewEditMultisigCosignersRoot', {
       screen: 'ViewEditMultisigCosigners',
       params: {
-        walletId: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -441,7 +441,7 @@ const WalletTransactions = ({ navigation }) => {
       navigate('ReceiveDetailsRoot', {
         screen: 'ReceiveDetails',
         params: {
-          walletID: wallet.getID(),
+          walletID,
         },
       });
     }
