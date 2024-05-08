@@ -117,7 +117,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       fontSize: 14,
       fontWeight: '600',
       textAlign: 'right',
-      width: 96,
     };
   }, [item, colors.foregroundColor, colors.successColor]);
 

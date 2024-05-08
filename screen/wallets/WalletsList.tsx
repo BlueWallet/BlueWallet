@@ -137,12 +137,13 @@ const WalletsList: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      InteractionManager.runAfterInteractions(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => onRefresh);
         verifyBalance();
         setSelectedWalletID(undefined);
       });
       return () => {
+        task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
