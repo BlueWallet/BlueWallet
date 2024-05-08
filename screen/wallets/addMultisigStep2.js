@@ -17,7 +17,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import loc from '../../loc';
 import { SquareButton } from '../../components/SquareButton';
@@ -810,12 +809,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     justifyContent: 'space-between',
   },
-});
-
-WalletsAddMultisigStep2.navigationOptions = navigationStyle({
-  title: null,
-  gestureEnabled: false,
-  swipeEnabled: false,
 });
 
 export default WalletsAddMultisigStep2;

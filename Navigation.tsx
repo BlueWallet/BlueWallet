@@ -2,6 +2,7 @@ import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigatio
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useContext, useMemo } from 'react';
 import { I18nManager, Platform } from 'react-native';
+import AddWalletStack from './navigation/AddWalletStack';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
 import Selftest from './screen/selftest';
@@ -19,25 +20,12 @@ import LightningSettings from './screen/settings/lightningSettings';
 import NotificationSettings from './screen/settings/notificationSettings';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Tools from './screen/settings/tools';
-
-import AddWallet from './screen/wallets/Add';
-import WalletsAddMultisig from './screen/wallets/addMultisig';
-import WalletsAddMultisigHelp, { WalletAddMultisigHelpNavigationOptions } from './screen/wallets/addMultisigHelp';
-import WalletsAddMultisigStep2 from './screen/wallets/addMultisigStep2';
 import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/ExportMultisigCoordinationSetup';
 import GenerateWord from './screen/wallets/generateWord';
-import ImportWallet from './screen/wallets/import';
-import ImportCustomDerivationPath from './screen/wallets/importCustomDerivationPath';
-import ImportWalletDiscovery from './screen/wallets/importDiscovery';
-import ImportSpeed from './screen/wallets/importSpeed';
 import WalletsList from './screen/wallets/WalletsList';
-import PleaseBackup from './screen/wallets/PleaseBackup';
-import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
-import PleaseBackupLdk from './screen/wallets/pleaseBackupLdk';
-import ProvideEntropy from './screen/wallets/provideEntropy';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
@@ -89,69 +77,6 @@ import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 import { HeaderRightButton } from './components/HeaderRightButton';
-
-const AddWalletStack = createNativeStackNavigator();
-const AddWalletRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <AddWalletStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <AddWalletStack.Screen
-        name="AddWallet"
-        component={AddWallet}
-        options={navigationStyle({
-          closeButton: true,
-          headerBackVisible: false,
-          title: loc.wallets.add_title,
-        })(theme)}
-      />
-      <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions(theme)} />
-      <AddWalletStack.Screen
-        name="ImportWalletDiscovery"
-        component={ImportWalletDiscovery}
-        options={ImportWalletDiscovery.navigationOptions(theme)}
-      />
-      <AddWalletStack.Screen
-        name="ImportCustomDerivationPath"
-        component={ImportCustomDerivationPath}
-        options={ImportCustomDerivationPath.navigationOptions(theme)}
-      />
-      <AddWalletStack.Screen name="ImportSpeed" component={ImportSpeed} options={ImportSpeed.navigationOptions(theme)} />
-      <AddWalletStack.Screen
-        name="PleaseBackup"
-        component={PleaseBackup}
-        options={navigationStyle({
-          gestureEnabled: false,
-          headerBackVisible: false,
-          title: loc.pleasebackup.title,
-        })(theme)}
-      />
-      <AddWalletStack.Screen
-        name="PleaseBackupLNDHub"
-        component={PleaseBackupLNDHub}
-        options={PleaseBackupLNDHub.navigationOptions(theme)}
-      />
-      <AddWalletStack.Screen name="PleaseBackupLdk" component={PleaseBackupLdk} options={PleaseBackupLdk.navigationOptions(theme)} />
-      <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions(theme)} />
-      <AddWalletStack.Screen
-        name="WalletsAddMultisig"
-        component={WalletsAddMultisig}
-        options={WalletsAddMultisig.navigationOptions(theme)}
-        initialParams={WalletsAddMultisig.initialParams}
-      />
-      <AddWalletStack.Screen
-        name="WalletsAddMultisigStep2"
-        component={WalletsAddMultisigStep2}
-        options={WalletsAddMultisigStep2.navigationOptions(theme)}
-      />
-      <AddWalletStack.Screen
-        name="WalletsAddMultisigHelp"
-        component={WalletsAddMultisigHelp}
-        options={WalletAddMultisigHelpNavigationOptions}
-      />
-    </AddWalletStack.Navigator>
-  );
-};
 
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createNativeStackNavigator();
@@ -538,7 +463,7 @@ const DetailViewStackScreensStack = () => {
           />
           <DetailViewRoot.Screen name="WalletAddresses" component={WalletAddresses} options={WalletAddresses.navigationOptions(theme)} />
 
-          <DetailViewRoot.Screen name="AddWalletRoot" component={AddWalletRoot} options={NavigationFormModalOptions} />
+          <DetailViewRoot.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
           <DetailViewRoot.Screen
             name="SendDetailsRoot"
             component={SendDetailsRoot}

@@ -9,7 +9,6 @@ import {
   BlueSpacing20,
   BlueText,
 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useTheme } from '../../components/themes';
@@ -188,7 +187,5 @@ const WalletsImport = () => {
     </SafeArea>
   );
 };
-
-WalletsImport.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
 
 export default WalletsImport;

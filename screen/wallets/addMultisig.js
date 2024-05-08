@@ -4,7 +4,6 @@ import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { MultisigHDWallet } from '../../class';
 import loc from '../../loc';
@@ -339,10 +338,6 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
       throw new Error('This should never happen');
   }
 };
-
-WalletsAddMultisig.navigationOptions = navigationStyle({
-  title: '',
-});
 
 WalletsAddMultisig.initialParams = {
   walletLabel: loc.multisig.default_label,
