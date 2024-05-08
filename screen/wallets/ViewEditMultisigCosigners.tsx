@@ -66,8 +66,8 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
-  const { walletId } = route.params;
-  const w = useRef(wallets.find(wallet => wallet.getID() === walletId));
+  const { walletID } = route.params;
+  const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
   const [isLoading, setIsLoading] = useState(true);
@@ -189,7 +189,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
 
     // eslint-disable-next-line prefer-const
     let newWallets = wallets.filter(newWallet => {
-      return newWallet.getID() !== walletId;
+      return newWallet.getID() !== walletID;
     }) as MultisigHDWallet[];
     if (!isElectrumDisabled) {
       await wallet?.fetchBalance();
@@ -227,7 +227,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
         task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [walletId]),
+    }, [walletID]),
   );
 
   const hideMnemonicsModal = () => {

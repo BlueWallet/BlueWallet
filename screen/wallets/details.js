@@ -269,7 +269,7 @@ const WalletDetails = () => {
     navigate('ViewEditMultisigCosignersRoot', {
       screen: 'ViewEditMultisigCosigners',
       params: {
-        walletId: wallet.getID(),
+        walletID,
       },
     });
   };

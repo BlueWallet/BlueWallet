@@ -12,7 +12,7 @@ import { readFile } from './react-native-bw-file-access';
 const _sanitizeFileName = (fileName: string) => {
   // Remove any path delimiters and non-alphanumeric characters except for -, _, and .
   return fileName.replace(/[^a-zA-Z0-9\-_.]/g, '');
-}
+};
 
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   return await Share.open({
