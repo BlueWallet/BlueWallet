@@ -529,7 +529,7 @@ const DetailViewStackScreensStack = () => {
 };
 
 export type ViewEditMultisigCosignersStackParamsList = {
-  ViewEditMultisigCosigners: { walletId: string };
+  ViewEditMultisigCosigners: { walletID: string };
 };
 
 const ViewEditMultisigCosignersStack = createNativeStackNavigator<ViewEditMultisigCosignersStackParamsList>();
