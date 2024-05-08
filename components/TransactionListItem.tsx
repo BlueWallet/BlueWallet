@@ -32,7 +32,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
   const { colors } = useTheme();
   const { navigate } = useNavigation();
   const menuRef = useRef();
-  const { txMetadata, wallets } = useContext(BlueStorageContext);
+  const { txMetadata, counterpartyMetadata, wallets } = useContext(BlueStorageContext);
   const { preferredFiatCurrency, language } = useSettings();
   const containerStyle = useMemo(
     () => ({
@@ -45,8 +45,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     [colors.lightBorder],
   );
 
-  const shortenContactName = (addr: string): string => {
-    return addr.substr(0, 5) + '...' + addr.substr(addr.length - 4, 4);
+  const shortenContactName = (name: string): string => {
+    if (name.length < 16) return name;
+    return name.substr(0, 8) + '...' + name.substr(name.length - 8, 8);
   };
 
   const title = useMemo(() => {
@@ -58,7 +59,11 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.confirmations, item.received, language]);
 
-  const txMemo = (item.counterparty ? `[${shortenContactName(item.counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  let counterparty;
+  if (item.counterparty) {
+    counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
+  }
+  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const subtitle = useMemo(() => {
     let sub = Number(item.confirmations) < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
     if (sub !== '') sub += ' ';

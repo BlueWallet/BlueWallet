@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet, Keyboard, InteractionManager } from 'react-native';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -13,13 +13,20 @@ import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Transaction, TWallet } from '../../class/wallets/types';
+import assert from 'assert';
 
-function onlyUnique(value, index, self) {
+interface TransactionDetailsProps {
+  route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
+  navigation: NativeStackNavigationProp<any>;
+}
+
+function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-function arrDiff(a1, a2) {
+function arrDiff(a1: any[], a2: any[]) {
   const ret = [];
   for (const v of a2) {
     if (a1.indexOf(v) === -1) {
@@ -29,15 +36,18 @@ function arrDiff(a1, a2) {
   return ret;
 }
 
-const TransactionsDetails = () => {
+const TransactionDetails = () => {
   const { setOptions, navigate } = useNavigation();
-  const { hash } = useRoute().params;
-  const { saveToDisk, txMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
-  const [from, setFrom] = useState();
-  const [to, setTo] = useState();
+  const { hash, walletID } = useRoute<TransactionDetailsProps['route']>().params;
+  const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
+  const [from, setFrom] = useState<string[]>([]);
+  const [to, setTo] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [tx, setTX] = useState();
-  const [memo, setMemo] = useState();
+  const [tx, setTX] = useState<Transaction>();
+  const [memo, setMemo] = useState<string>('');
+  const [counterpartyLabel, setCounterpartyLabel] = useState<string>('');
+  const [paymentCode, setPaymentCode] = useState<string>('');
+  const [isCounterpartyLabelVisible, setIsCounterpartyLabelVisible] = useState<boolean>(false);
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
     memoTextInput: {
@@ -61,12 +71,16 @@ const TransactionsDetails = () => {
 
   const handleOnSaveButtonTapped = useCallback(() => {
     Keyboard.dismiss();
+    if (!tx) return;
     txMetadata[tx.hash] = { memo };
+    if (counterpartyLabel && paymentCode) {
+      counterpartyMetadata[paymentCode] = { label: counterpartyLabel };
+    }
     saveToDisk().then(_success => {
-      triggerHapticFeedback(HapticFeedbackTypes.Success);
-      presentAlert({ message: loc.transactions.transaction_note_saved });
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      presentAlert({ message: loc.transactions.transaction_saved });
     });
-  }, [tx, memo, saveToDisk, txMetadata]);
+  }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
   const HeaderRightButton = useMemo(() => {
     return (
@@ -89,35 +103,39 @@ const TransactionsDetails = () => {
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        let foundTx = {};
-        let newFrom = [];
-        let newTo = [];
-        for (const transaction of getTransactions(null, Infinity, true)) {
+        let foundTx: Transaction | false = false;
+        let newFrom: string[] = [];
+        let newTo: string[] = [];
+        for (const transaction of getTransactions(undefined, Infinity, true)) {
           if (transaction.hash === hash) {
             foundTx = transaction;
             for (const input of foundTx.inputs) {
-              newFrom = newFrom.concat(input.addresses);
+              newFrom = newFrom.concat(input?.addresses ?? []);
             }
             for (const output of foundTx.outputs) {
-              if (output.addresses) newTo = newTo.concat(output.addresses);
-              if (output.scriptPubKey && output.scriptPubKey.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
+              if (output?.scriptPubKey?.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
             }
           }
         }
 
-        for (const w of wallets) {
-          for (const t of w.getTransactions()) {
-            if (t.hash === hash) {
-              console.log('tx', hash, 'belongs to', w.getLabel());
-            }
-          }
-        }
-        if (txMetadata[foundTx.hash]) {
-          if (txMetadata[foundTx.hash].memo) {
-            setMemo(txMetadata[foundTx.hash].memo);
+        assert(foundTx, 'Internal error: could not find transaction');
+
+        const wallet = wallets.find(w => w.getID() === walletID);
+        assert(wallet, 'Internal error: could not find wallet');
+
+        if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'getBip47CounterpartyByTxid' in wallet) {
+          const foundPaymentCode = wallet.getBip47CounterpartyByTxid(hash);
+          if (foundPaymentCode) {
+            // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
+            // and load user-defined alias for the pc if any
+
+            setCounterpartyLabel(counterpartyMetadata ? counterpartyMetadata[foundPaymentCode]?.label ?? '' : '');
+            setIsCounterpartyLabelVisible(true);
+            setPaymentCode(foundPaymentCode);
           }
         }
 
+        setMemo(txMetadata[foundTx.hash]?.memo ?? '');
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
@@ -131,7 +149,7 @@ const TransactionsDetails = () => {
   );
 
   const handleOnOpenTransactionOnBlockExplorerTapped = () => {
-    const url = `https://mempool.space/tx/${tx.hash}`;
+    const url = `https://mempool.space/tx/${tx?.hash}`;
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported) {
@@ -155,9 +173,9 @@ const TransactionsDetails = () => {
       });
   };
 
-  const handleCopyPress = stringToCopy => {
+  const handleCopyPress = (stringToCopy: string) => {
     Clipboard.setString(
-      stringToCopy !== TransactionsDetails.actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx.hash}`,
+      stringToCopy !== TransactionDetails.actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx?.hash}`,
     );
   };
 
@@ -165,7 +183,7 @@ const TransactionsDetails = () => {
     return <BlueLoading />;
   }
 
-  const weOwnAddress = address => {
+  const weOwnAddress = (address: string): TWallet | null => {
     for (const w of wallets) {
       if (w.weOwnAddress(address)) {
         return w;
@@ -174,30 +192,30 @@ const TransactionsDetails = () => {
     return null;
   };
 
-  const navigateToWallet = wallet => {
-    const walletID = wallet.getID();
+  const navigateToWallet = (wallet: TWallet) => {
+    // @ts-ignore idk how to fix it
     navigate('WalletTransactions', {
-      walletID,
+      walletID: wallet.getID(),
       walletType: wallet.type,
     });
   };
 
-  const renderSection = array => {
+  const renderSection = (array: any[]) => {
     const fromArray = [];
 
     for (const [index, address] of array.entries()) {
       const actions = [];
       actions.push({
-        id: TransactionsDetails.actionKeys.CopyToClipboard,
+        id: TransactionDetails.actionKeys.CopyToClipboard,
         text: loc.transactions.details_copy,
-        icon: TransactionsDetails.actionIcons.Clipboard,
+        icon: TransactionDetails.actionIcons.Clipboard,
       });
       const isWeOwnAddress = weOwnAddress(address);
       if (isWeOwnAddress) {
         actions.push({
-          id: TransactionsDetails.actionKeys.GoToWallet,
+          id: TransactionDetails.actionKeys.GoToWallet,
           text: loc.formatString(loc.transactions.view_wallet, { walletLabel: isWeOwnAddress.getLabel() }),
-          icon: TransactionsDetails.actionIcons.GoToWallet,
+          icon: TransactionDetails.actionIcons.GoToWallet,
         });
       }
 
@@ -208,11 +226,11 @@ const TransactionsDetails = () => {
           title={address}
           isMenuPrimaryAction
           actions={actions}
-          onPressMenuItem={id => {
-            if (id === TransactionsDetails.actionKeys.CopyToClipboard) {
+          onPressMenuItem={(id: string) => {
+            if (id === TransactionDetails.actionKeys.CopyToClipboard) {
               handleCopyPress(address);
-            } else if (id === TransactionsDetails.actionKeys.GoToWallet) {
-              navigateToWallet(isWeOwnAddress);
+            } else if (id === TransactionDetails.actionKeys.GoToWallet) {
+              isWeOwnAddress && navigateToWallet(isWeOwnAddress);
             }
           }}
         >
@@ -243,7 +261,19 @@ const TransactionsDetails = () => {
             style={[styles.memoTextInput, stylesHooks.memoTextInput]}
             onChangeText={setMemo}
           />
-          <BlueSpacing20 />
+          {isCounterpartyLabelVisible ? (
+            <View>
+              <BlueSpacing20 />
+              <TextInput
+                placeholder={loc.send.counterparty_label_placeholder}
+                value={counterpartyLabel}
+                placeholderTextColor="#81868e"
+                style={[styles.memoTextInput, stylesHooks.memoTextInput]}
+                onChangeText={setCounterpartyLabel}
+              />
+              <BlueSpacing20 />
+            </View>
+          ) : null}
         </View>
 
         {from && (
@@ -268,14 +298,6 @@ const TransactionsDetails = () => {
           </>
         )}
 
-        {tx.fee && (
-          <>
-            <BlueText style={styles.rowCaption}>{loc.send.create_fee}</BlueText>
-            <BlueText style={styles.rowValue}>{tx.fee + ` ${BitcoinUnit.SATS}`}</BlueText>
-            <View style={styles.marginBottom18} />
-          </>
-        )}
-
         {tx.hash && (
           <>
             <View style={styles.rowHeader}>
@@ -291,14 +313,6 @@ const TransactionsDetails = () => {
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
             <BlueText style={styles.rowValue}>{dayjs(tx.received).format('LLL')}</BlueText>
-            <View style={styles.marginBottom18} />
-          </>
-        )}
-
-        {tx.block_height > 0 && (
-          <>
-            <BlueText style={styles.rowCaption}>{loc.transactions.details_block}</BlueText>
-            <BlueText style={styles.rowValue}>{tx.block_height}</BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -322,9 +336,9 @@ const TransactionsDetails = () => {
           isButton
           actions={[
             {
-              id: TransactionsDetails.actionKeys.CopyToClipboard,
+              id: TransactionDetails.actionKeys.CopyToClipboard,
               text: loc.transactions.copy_link,
-              icon: TransactionsDetails.actionIcons.Clipboard,
+              icon: TransactionDetails.actionIcons.Clipboard,
             },
           ]}
           onPressMenuItem={handleCopyPress}
@@ -338,12 +352,12 @@ const TransactionsDetails = () => {
   );
 };
 
-TransactionsDetails.actionKeys = {
+TransactionDetails.actionKeys = {
   CopyToClipboard: 'copyToClipboard',
   GoToWallet: 'goToWallet',
 };
 
-TransactionsDetails.actionIcons = {
+TransactionDetails.actionIcons = {
   Clipboard: {
     iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
@@ -422,9 +436,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TransactionsDetails;
+export default TransactionDetails;
 
-TransactionsDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
+TransactionDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
   return {
     ...options,
     statusBarStyle: 'auto',

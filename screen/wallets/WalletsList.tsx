@@ -30,7 +30,7 @@ import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import A from '../../blue_modules/analytics';
 import * as fs from '../../blue_modules/fs';
-import { TWallet, Transaction } from '../../class/wallets/types';
+import { TWallet, Transaction, ExtendedTransaction } from '../../class/wallets/types';
 import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
 import { Header } from '../../components/Header';
 
@@ -263,11 +263,10 @@ const WalletsList: React.FC = () => {
     }
   };
 
-  const renderTransactionListsRow = (data: { item: Transaction }) => {
+  const renderTransactionListsRow = (item: ExtendedTransaction) => {
     return (
       <View style={styles.transaction}>
-        {/** @ts-ignore: Fix later **/}
-        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} walletID={data.item.walletID} />
+        <TransactionListItem item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
       </View>
     );
   };
@@ -289,13 +288,12 @@ const WalletsList: React.FC = () => {
     );
   };
 
-  const renderSectionItem = (item: { section?: any; item?: Transaction }) => {
+  const renderSectionItem = (item: { section: any; item: ExtendedTransaction }) => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : renderWalletsCarousel();
       case WalletsListSections.TRANSACTIONS:
-        /* @ts-ignore: fix later */
-        return renderTransactionListsRow(item);
+        return renderTransactionListsRow(item.item);
       default:
         return null;
     }

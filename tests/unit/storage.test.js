@@ -1,6 +1,6 @@
 import assert from 'assert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SegwitP2SHWallet, BlueApp } from '../../class';
+import { SegwitP2SHWallet, BlueApp, HDSegwitBech32Wallet } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -15,6 +15,16 @@ it('Appstorage - loadFromDisk works', async () => {
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
+  Storage.tx_metadata = {
+    txid: {
+      memo: 'tx label',
+    },
+  };
+  Storage.counterparty_metadata = {
+    'payment code': {
+      label: 'yegor letov',
+    },
+  };
   await Storage.saveToDisk();
 
   // saved, now trying to load
@@ -23,6 +33,8 @@ it('Appstorage - loadFromDisk works', async () => {
   await Storage2.loadFromDisk();
   assert.strictEqual(Storage2.wallets.length, 1);
   assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.tx_metadata.txid.memo, 'tx label');
+  assert.strictEqual(Storage2.counterparty_metadata['payment code'].label, 'yegor letov');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
 
@@ -33,6 +45,156 @@ it('Appstorage - loadFromDisk works', async () => {
   const Storage3 = new BlueApp();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
+});
+
+it('AppStorage - getTransactions() work', async () => {
+  const Storage = new BlueApp();
+  const w = new HDSegwitBech32Wallet();
+  w.setLabel('testlabel');
+  await w.generate();
+  w._txs_by_internal_index = {
+    0: [
+      {
+        blockhash: '000000000000000000054fae1935a8e5c3ac29ce04a45cca25d7329af5e5db2e',
+        blocktime: 1678137003,
+        confirmations: 61788,
+        hash: '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d',
+        locktime: 0,
+        size: 192,
+        time: 1678137003,
+        txid: '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d',
+        version: 1,
+        vsize: 110,
+        weight: 438,
+        inputs: [
+          {
+            scriptSig: {
+              asm: '',
+              hex: '',
+            },
+            sequence: 4294967295,
+            txid: '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f',
+            txinwitness: [
+              '3045022100f2dfd9679719a5b10695c5142cb2998c0dde9d84fb3a0f6e2f82c972846da2b10220059c34862231eda0b8b4059859ae55e2fca5739c664f3ff45be71fbcf438a68d01',
+              '034f150e09d0489a047b1299131180ce174769b28c03ca6a96054555211fdd7fd6',
+            ],
+            vout: 3,
+            addresses: ['bc1qtnsyvl8zkteg7ap57j6w8hc7gk5nxk8vj5vrmz'],
+            value: 0.00077308,
+          },
+        ],
+        outputs: [
+          {
+            n: 0,
+            scriptPubKey: {
+              address: 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt',
+              asm: '0 e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              desc: 'addr(bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt)#pl83f4nc',
+              hex: '0014e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              type: 'witness_v0_keyhash',
+              addresses: ['bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt'],
+            },
+            value: 0.00074822,
+          },
+        ],
+        received: 1678137003000,
+        value: -77308,
+        sort_ts: 1678137003000,
+      },
+    ],
+  };
+
+  const w2 = new HDSegwitBech32Wallet();
+  w2.setLabel('testlabel');
+  await w2.generate();
+  w2._txs_by_internal_index = {
+    0: [
+      {
+        blockhash: '000000000000000000054fae1935a8e5c3ac29ce04a45cca25d7329af5e5db2e',
+        blocktime: 1678137003,
+        confirmations: 61788,
+        hash: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        locktime: 0,
+        size: 192,
+        time: 1678137003,
+        txid: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        version: 1,
+        vsize: 110,
+        weight: 438,
+        inputs: [
+          {
+            scriptSig: {
+              asm: '',
+              hex: '',
+            },
+            sequence: 4294967295,
+            txid: '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f',
+            txinwitness: [
+              '3045022100f2dfd9679719a5b10695c5142cb2998c0dde9d84fb3a0f6e2f82c972846da2b10220059c34862231eda0b8b4059859ae55e2fca5739c664f3ff45be71fbcf438a68d01',
+              '034f150e09d0489a047b1299131180ce174769b28c03ca6a96054555211fdd7fd6',
+            ],
+            vout: 3,
+            addresses: ['bc1qtnsyvl8zkteg7ap57j6w8hc7gk5nxk8vj5vrmz'],
+            value: 0.00077308,
+          },
+        ],
+        outputs: [
+          {
+            n: 0,
+            scriptPubKey: {
+              address: 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt',
+              asm: '0 e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              desc: 'addr(bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt)#pl83f4nc',
+              hex: '0014e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              type: 'witness_v0_keyhash',
+              addresses: ['bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt'],
+            },
+            value: 0.00074822,
+          },
+        ],
+        received: 1678137003000,
+        value: -77308,
+        sort_ts: 1678137003000,
+      },
+    ],
+  };
+
+  Storage.wallets.push(w);
+  Storage.wallets.push(w2);
+
+  // setup complete. now we have a storage with 2 wallets, each wallet has
+  // exactly one transaction
+
+  let txs = Storage.getTransactions();
+  assert.strictEqual(txs.length, 2); // getter for _all_ txs works
+
+  for (const tx of txs) {
+    assert.ok([w.getID(), w2.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
+
+  //
+
+  txs = Storage.getTransactions(0, 666, true);
+  assert.strictEqual(txs.length, 1); // getter for a specific wallet works
+
+  for (const tx of txs) {
+    assert.ok([w.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
+
+  //
+
+  txs = Storage.getTransactions(1, 666, true);
+  assert.strictEqual(txs.length, 1); // getter for a specific wallet works
+
+  for (const tx of txs) {
+    assert.ok([w2.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
