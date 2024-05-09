@@ -338,7 +338,15 @@ const DetailViewStackScreensStack = () => {
           <DetailViewRoot.Screen
             name="WalletsList"
             component={WalletsList}
-            options={navigationStyle({ title: '', headerBackTitle: loc.wallets.list_title })(theme)}
+            options={navigationStyle({
+              title: '',
+              headerBackTitle: loc.wallets.list_title,
+              navigationBarColor: theme.colors.navigationBarColor,
+              headerShown: !isDesktop,
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+            })(theme)}
           />
           <DetailViewRoot.Screen
             name="WalletTransactions"

@@ -169,11 +169,6 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     setOptions({
-      navigationBarColor: colors.navigationBarColor,
-      headerShown: !isDesktop,
-      headerStyle: {
-        backgroundColor: colors.customHeader,
-      },
       // eslint-disable-next-line react/no-unstable-nested-components
       headerRight: () =>
         I18nManager.isRTL ? null : (
