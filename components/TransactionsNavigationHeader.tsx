@@ -105,9 +105,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const handleManageFundsPressed = (actionKeyID?: string) => {
     if (onManageFundsPressed) {
-      if (actionKeyID) {
-        onManageFundsPressed(actionKeyID);
-      }
+      onManageFundsPressed(actionKeyID);
     }
   };
 

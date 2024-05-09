@@ -78,6 +78,17 @@ export type TransactionOutput = {
   };
 };
 
+export type LightningTransaction = {
+  memo?: string;
+  type?: 'user_invoice' | 'payment_request' | 'bitcoind_tx' | 'paid_invoice';
+  payment_hash?: string | { data: string };
+  category?: 'receive';
+  timestamp?: number;
+  expire_time?: number;
+  ispaid?: boolean;
+  walletID?: string;
+};
+
 export type Transaction = {
   txid: string;
   hash: string;
@@ -94,6 +105,11 @@ export type Transaction = {
   blocktime: number;
   received?: number;
   value?: number;
+
+  /**
+   * if known, who is on the other end of the transaction (BIP47 payment code)
+   */
+  counterparty?: string;
 };
 
 export type TWallet =

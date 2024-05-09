@@ -424,7 +424,7 @@ const WalletTransactions = ({ navigation }) => {
     navigate('ViewEditMultisigCosignersRoot', {
       screen: 'ViewEditMultisigCosigners',
       params: {
-        walletId: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -441,7 +441,7 @@ const WalletTransactions = ({ navigation }) => {
       navigate('ReceiveDetailsRoot', {
         screen: 'ReceiveDetails',
         params: {
-          walletID: wallet.getID(),
+          walletID,
         },
       });
     }
@@ -459,10 +459,11 @@ const WalletTransactions = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      InteractionManager.runAfterInteractions(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => refreshTransactions);
       });
       return () => {
+        task.cancel();
         setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,16 +2,14 @@ import React, { useContext, useState } from 'react';
 import { View, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-import loc from '../../loc';
 import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 
-const WalletsImportSpeed = () => {
+const WalletsImportWallet = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
@@ -92,6 +90,4 @@ const WalletsImportSpeed = () => {
   );
 };
 
-WalletsImportSpeed.navigationOptions = navigationStyle({}, opts => ({ ...opts, statusBarStyle: 'light', title: loc.wallets.import_title }));
-
-export default WalletsImportSpeed;
+export default WalletsImportWallet;
