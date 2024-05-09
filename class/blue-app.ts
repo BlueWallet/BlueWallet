@@ -1,4 +1,4 @@
-import { Transaction, TWallet } from './wallets/types';
+import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as encryption from '../blue_modules/encryption';
@@ -31,7 +31,18 @@ let savingInProgress = 0; // its both a flag and a counter of attempts to write 
 export type TTXMetadata = {
   [txid: string]: {
     memo?: string;
-    txhex?: string;
+  };
+};
+
+export type TCounterpartyMetadata = {
+  /**
+   * our contact identifier, such as bip47 payment code
+   */
+  [counterparty: string]: {
+    /**
+     * custom human-readable name we assign ourselves
+     */
+    label: string;
   };
 };
 
@@ -44,6 +55,7 @@ type TRealmTransaction = {
 type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
   tx_metadata: TTXMetadata;
+  counterparty_metadata: TCounterpartyMetadata;
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
@@ -61,11 +73,13 @@ export class BlueApp {
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
+  public counterparty_metadata: TCounterpartyMetadata;
   public wallets: TWallet[];
 
   constructor() {
     this.wallets = [];
     this.tx_metadata = {};
+    this.counterparty_metadata = {};
     this.cachedPassword = false;
   }
 
@@ -187,6 +201,7 @@ export class BlueApp {
       await this.saveToDisk();
       this.wallets = [];
       this.tx_metadata = {};
+      this.counterparty_metadata = {};
       return this.loadFromDisk();
     } else {
       throw new Error('Incorrect password. Please, try again.');
@@ -216,10 +231,12 @@ export class BlueApp {
     usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
     this.wallets = [];
     this.tx_metadata = {};
+    this.counterparty_metadata = {};
 
     const data: TBucketStorage = {
       wallets: [],
       tx_metadata: {},
+      counterparty_metadata: {},
     };
 
     let buckets = await this.getItem('data');
@@ -454,6 +471,7 @@ export class BlueApp {
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
           this.tx_metadata = data.tx_metadata;
+          this.counterparty_metadata = data.counterparty_metadata;
         }
       }
       if (realm) realm.close();
@@ -653,6 +671,7 @@ export class BlueApp {
       let data: TBucketStorage | string[] /* either a bucket, or an array of encrypted buckets */ = {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
+        counterparty_metadata: this.counterparty_metadata,
       };
 
       if (this.cachedPassword) {
@@ -797,35 +816,49 @@ export class BlueApp {
    * Getter for all transactions in all wallets.
    * But if index is provided - only for wallet with corresponding index
    *
-   * @param index {Integer|null} Wallet index in this.wallets. Empty (or null) for all wallets.
-   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
-   * @param includeWalletsWithHideTransactionsEnabled {Boolean} Wallets' _hideTransactionsInWalletsList property determines wether the user wants this wallet's txs hidden from the main list view.
+   * @param index {number|undefined} Wallet index in this.wallets. Empty (or undef) for all wallets.
+   * @param limit {number} How many txs return, starting from the earliest. Default: all of them.
+   * @param includeWalletsWithHideTransactionsEnabled {boolean} Wallets' _hideTransactionsInWalletsList property determines wether the user wants this wallet's txs hidden from the main list view.
    */
   getTransactions = (
     index?: number,
     limit: number = Infinity,
     includeWalletsWithHideTransactionsEnabled: boolean = false,
-  ): Transaction[] => {
+  ): ExtendedTransaction[] => {
     if (index || index === 0) {
       let txs: Transaction[] = [];
       let c = 0;
       for (const wallet of this.wallets) {
         if (c++ === index) {
           txs = txs.concat(wallet.getTransactions());
+
+          const txsRet: ExtendedTransaction[] = [];
+          const walletID = wallet.getID();
+          const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
+          txs.map(tx =>
+            txsRet.push({
+              ...tx,
+              walletID,
+              walletPreferredBalanceUnit,
+            }),
+          );
+          return txsRet;
         }
       }
-      return txs;
     }
 
-    let txs: Transaction[] = [];
+    const txs: ExtendedTransaction[] = [];
     for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
-      const walletTransactions = wallet.getTransactions();
+      const walletTransactions: Transaction[] = wallet.getTransactions();
       const walletID = wallet.getID();
+      const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
       for (const t of walletTransactions) {
-        t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-        t.walletID = walletID;
+        txs.push({
+          ...t,
+          walletID,
+          walletPreferredBalanceUnit,
+        });
       }
-      txs = txs.concat(walletTransactions);
     }
 
     return txs

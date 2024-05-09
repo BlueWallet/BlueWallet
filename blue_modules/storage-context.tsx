@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { startAndDecrypt } from './start-and-decrypt';
 import Notifications from '../blue_modules/notifications';
-import { LegacyWallet, TTXMetadata, WatchOnlyWallet, BlueApp as BlueAppClass } from '../class';
+import { LegacyWallet, TTXMetadata, WatchOnlyWallet, BlueApp as BlueAppClass, TCounterpartyMetadata } from '../class';
 import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
@@ -19,6 +19,7 @@ interface BlueStorageContextType {
   wallets: TWallet[];
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
+  counterpartyMetadata: TCounterpartyMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: string | undefined;
   setSelectedWalletID: (walletID: string | undefined) => void;
@@ -87,9 +88,11 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
         return;
       }
       BlueApp.tx_metadata = txMetadata;
+      BlueApp.counterparty_metadata = counterpartyMetadata;
       await BlueApp.saveToDisk();
       setWallets([...BlueApp.getWallets()]);
       txMetadata = BlueApp.tx_metadata;
+      counterpartyMetadata = BlueApp.counterparty_metadata;
     });
   };
 
@@ -195,6 +198,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   };
 
   let txMetadata = BlueApp.tx_metadata;
+  let counterpartyMetadata = BlueApp.counterparty_metadata || {}; // init
   const getTransactions = BlueApp.getTransactions;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
@@ -214,6 +218,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     wallets,
     setWalletsWithNewOrder,
     txMetadata,
+    counterpartyMetadata,
     saveToDisk,
     getTransactions,
     selectedWalletID,
