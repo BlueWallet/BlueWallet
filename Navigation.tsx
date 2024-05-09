@@ -53,7 +53,6 @@ import { useTheme } from './components/themes';
 import loc from './loc';
 import LdkInfo from './screen/lnd/ldkInfo';
 import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
-import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
@@ -71,37 +70,7 @@ import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 import { HeaderRightButton } from './components/HeaderRightButton';
 import WalletExportStack from './navigation/WalletExportStack';
 import SendDetailsStack from './navigation/SendDetailsStack';
-
-const LNDCreateInvoiceStack = createNativeStackNavigator();
-const LNDCreateInvoiceRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <LNDCreateInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <LNDCreateInvoiceStack.Screen
-        name="LNDCreateInvoice"
-        component={LNDCreateInvoice}
-        options={LNDCreateInvoice.navigationOptions(theme)}
-      />
-      <LNDCreateInvoiceStack.Screen
-        name="SelectWallet"
-        component={SelectWallet}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
-      <LNDCreateInvoiceStack.Screen
-        name="LNDViewAdditionalInvoiceInformation"
-        component={LNDViewAdditionalInvoiceInformation}
-        options={LNDViewAdditionalInvoiceInformation.navigationOptions(theme)}
-      />
-      <LNDCreateInvoiceStack.Screen
-        name="LNDViewAdditionalInvoicePreImage"
-        component={LNDViewAdditionalInvoicePreImage}
-        options={LNDViewAdditionalInvoicePreImage.navigationOptions(theme)}
-      />
-    </LNDCreateInvoiceStack.Navigator>
-  );
-};
+import LNDCreateInvoiceRoot from './navigation/LNDCreateInvoiceStack';
 
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createNativeStackNavigator();
@@ -386,16 +355,26 @@ const DetailViewStackScreensStack = () => {
             options={navigationStyle({ headerLargeTitle: true, title: loc.settings.privacy })(theme)}
           />
           <DetailViewRoot.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="LNDViewInvoice"
+            component={LNDViewInvoice}
+            options={navigationStyle({
+              statusBarStyle: 'auto',
+              headerTitle: loc.lndViewInvoice.lightning_invoice,
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+            })(theme)}
+          />
           <DetailViewRoot.Screen
             name="LNDViewAdditionalInvoiceInformation"
             component={LNDViewAdditionalInvoiceInformation}
-            options={LNDViewAdditionalInvoiceInformation.navigationOptions(theme)}
+            options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
           />
           <DetailViewRoot.Screen
             name="LNDViewAdditionalInvoicePreImage"
             component={LNDViewAdditionalInvoicePreImage}
-            options={LNDViewAdditionalInvoicePreImage.navigationOptions(theme)}
+            options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
           />
 
           <DetailViewRoot.Screen
