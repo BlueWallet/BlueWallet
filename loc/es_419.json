@@ -125,7 +125,8 @@
     "maxSats": "La cantidad máxima es {max} sats",
     "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
     "minSats": "La cantidad mínima es {min} sats",
-    "minSatsFull": "La cantidad mínima es {min} sats o {currency}"
+    "minSatsFull": "La cantidad mínima es {min} sats o {currency}",
+    "qrcode_for_the_address": "Código QR para la dirección"
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
@@ -372,6 +373,8 @@
     "status_cancel": "Cancelar Transacción",
     "transactions_count": "Número de Transacciones",
     "txid": "ID de Transacción",
+    "from": "De: {counterparty}",
+    "to": "A: {counterparty}",
     "updating": "Actualizando..."
   },
   "wallets": {
@@ -614,6 +617,7 @@
     "payment_code": "Código de pago",
     "payment_codes_list": "Lista de códigos de pago",
     "who_can_pay_me": "Quién puede pagarme:",
+    "whom_can_i_pay": "¿A quién puedo pagar?",
     "purpose": "Código reutilizable y compartible (BIP47)",
     "not_found": "Código de pago no encontrado"
   }
