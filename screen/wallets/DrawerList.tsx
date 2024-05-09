@@ -115,7 +115,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
           });
         });
       } else {
-        navigation.navigate('Navigation', { screen: 'AddWalletRoot' });
+        navigation.navigate('AddWalletRoot');
       }
     },
     [navigation],
