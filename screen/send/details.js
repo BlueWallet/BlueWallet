@@ -41,7 +41,6 @@ import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import ListItem from '../../components/ListItem';
 import ToolTipMenu from '../../components/TooltipMenu';
-import { navigationStyleTx } from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -1653,11 +1652,3 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
 });
-
-SendDetails.navigationOptions = navigationStyleTx({}, options => ({
-  ...options,
-  title: loc.send.header,
-  statusBarStyle: 'light',
-}));
-
-SendDetails.initialParams = { isEditable: true };

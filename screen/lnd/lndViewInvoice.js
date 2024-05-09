@@ -5,7 +5,6 @@ import { Icon } from 'react-native-elements';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -311,17 +310,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginHorizontal: 16,
   },
-});
-
-LNDViewInvoice.navigationOptions = navigationStyle({}, (options, { theme }) => {
-  return {
-    ...options,
-    statusBarStyle: 'auto',
-    headerTitle: loc.lndViewInvoice.lightning_invoice,
-    headerStyle: {
-      backgroundColor: theme.colors.customHeader,
-    },
-  };
 });
 
 export default LNDViewInvoice;

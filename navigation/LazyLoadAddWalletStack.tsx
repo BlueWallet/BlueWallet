@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 // Define lazy imports
 const WalletsAdd = lazy(() => import('../screen/wallets/Add'));
@@ -15,84 +15,74 @@ const WalletsAddMultisig = lazy(() => import('../screen/wallets/addMultisig'));
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));
 
-const LoadingIndicator = () => (
-  <View style={styles.root}>
-    <ActivityIndicator size="large" />
-  </View>
-);
-
 export const AddComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <WalletsAdd />
   </Suspense>
 );
 
 export const ImportWalletDiscoveryComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <ImportWalletDiscovery />
   </Suspense>
 );
 
 export const ImportCustomDerivationPathComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <ImportCustomDerivationPath />
   </Suspense>
 );
 
 export const ImportWalletComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <ImportWallet />
   </Suspense>
 );
 
 export const ImportSpeedComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <ImportSpeed />
   </Suspense>
 );
 
 export const PleaseBackupComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <PleaseBackup />
   </Suspense>
 );
 
 export const PleaseBackupLNDHubComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <PleaseBackupLNDHub />
   </Suspense>
 );
 
 export const PleaseBackupLdkComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <PleaseBackupLdk />
   </Suspense>
 );
 
 export const ProvideEntropyComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <ProvideEntropy />
   </Suspense>
 );
 
 export const WalletsAddMultisigComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <WalletsAddMultisig />
   </Suspense>
 );
 
 export const WalletsAddMultisigStep2Component = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <WalletsAddMultisigStep2 />
   </Suspense>
 );
 
 export const WalletsAddMultisigHelpComponent = () => (
-  <Suspense fallback={<LoadingIndicator />}>
+  <Suspense fallback={<LazyLoadingIndicator />}>
     <WalletsAddMultisigHelp />
   </Suspense>
 );
-
-const styles = StyleSheet.create({
-  root: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-});

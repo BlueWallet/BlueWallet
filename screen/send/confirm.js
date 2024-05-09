@@ -8,7 +8,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueText, BlueCard } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Biometric from '../../class/biometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
@@ -340,5 +339,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-Confirm.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.confirm_header }));

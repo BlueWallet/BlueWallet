@@ -17,7 +17,6 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import * as NavigationService from '../../NavigationService';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -519,11 +518,3 @@ const styles = StyleSheet.create({
 
 export default LNDCreateInvoice;
 LNDCreateInvoice.routeName = 'LNDCreateInvoice';
-LNDCreateInvoice.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-    statusBarStyle: 'light',
-  },
-  opts => ({ ...opts, title: loc.receive.header }),
-);

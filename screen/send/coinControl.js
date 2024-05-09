@@ -21,7 +21,6 @@ import * as RNLocalize from 'react-native-localize';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { FContainer, FButton } from '../../components/FloatButtons';
 import debounce from '../../blue_modules/debounce';
@@ -474,7 +473,5 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '225deg' }],
   },
 });
-
-CoinControl.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.cc.header }));
 
 export default CoinControl;

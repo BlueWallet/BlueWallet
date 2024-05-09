@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { useTheme } from '../../components/themes';
@@ -48,5 +47,3 @@ const styles = StyleSheet.create({
 });
 
 export default LNDViewAdditionalInvoicePreImage;
-
-LNDViewAdditionalInvoicePreImage.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.lndViewInvoice.additional_info }));

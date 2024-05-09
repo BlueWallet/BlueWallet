@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Share, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import QRCodeComponent from '../../components/QRCodeComponent';
@@ -102,8 +101,3 @@ const styles = StyleSheet.create({
 });
 
 export default LNDViewAdditionalInvoiceInformation;
-
-LNDViewAdditionalInvoiceInformation.navigationOptions = navigationStyle({}, opts => ({
-  ...opts,
-  title: loc.lndViewInvoice.additional_info,
-}));

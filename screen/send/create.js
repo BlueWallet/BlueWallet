@@ -7,9 +7,7 @@ import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-
 import { BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -239,11 +237,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'center',
   },
-});
-
-SendCreate.navigationOptions = navigationStyle({}, (options, { theme, navigation, route }) => {
-  return {
-    ...options,
-    title: loc.send.create_details,
-  };
 });
