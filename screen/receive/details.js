@@ -14,7 +14,6 @@ import { useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { BlueLoading, BlueButtonLink, BlueText, BlueSpacing20, BlueCard, BlueSpacing40 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import BottomModal from '../../components/BottomModal';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -500,13 +499,5 @@ const styles = StyleSheet.create({
     minHeight: 33,
   },
 });
-
-ReceiveDetails.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.receive.header, statusBarStyle: 'light' }),
-);
 
 export default ReceiveDetails;

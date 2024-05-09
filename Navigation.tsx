@@ -39,7 +39,6 @@ import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/TransactionStatus';
 
 import AztecoRedeem from './screen/receive/aztecoRedeem';
-import ReceiveDetails from './screen/receive/details';
 
 import ScanQRCode from './screen/send/ScanQRCode';
 import Broadcast from './screen/send/Broadcast';
@@ -71,6 +70,7 @@ import { HeaderRightButton } from './components/HeaderRightButton';
 import WalletExportStack from './navigation/WalletExportStack';
 import SendDetailsStack from './navigation/SendDetailsStack';
 import LNDCreateInvoiceRoot from './navigation/LNDCreateInvoiceStack';
+import ReceiveDetailsStackRoot from './navigation/ReceiveDetailsStack';
 
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createNativeStackNavigator();
@@ -181,17 +181,6 @@ const DrawerRoot = () => {
         options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
       />
     </Drawer.Navigator>
-  );
-};
-
-const ReceiveDetailsStack = createNativeStackNavigator();
-const ReceiveDetailsStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <ReceiveDetailsStack.Navigator id="ReceiveDetailsRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="ReceiveDetails">
-      <ReceiveDetailsStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions(theme)} />
-    </ReceiveDetailsStack.Navigator>
   );
 };
 
@@ -529,7 +518,11 @@ const PaymentCodeStackRoot = () => {
   );
 };
 
-export const NavigationDefaultOptions: NativeStackNavigationOptions = { headerShown: false, presentation: 'modal' };
+export const NavigationDefaultOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+  presentation: 'modal',
+  headerShadowVisible: false,
+};
 export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
