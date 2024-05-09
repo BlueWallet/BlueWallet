@@ -22,7 +22,6 @@ import ReleaseNotes from './screen/settings/releasenotes';
 import Tools from './screen/settings/tools';
 import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
-import WalletExport from './screen/wallets/export';
 import ExportMultisigCoordinationSetup from './screen/wallets/ExportMultisigCoordinationSetup';
 import GenerateWord from './screen/wallets/generateWord';
 import WalletsList from './screen/wallets/WalletsList';
@@ -77,6 +76,7 @@ import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 import { HeaderRightButton } from './components/HeaderRightButton';
+import WalletExportStack from './navigation/WalletExportStack';
 
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createNativeStackNavigator();
@@ -298,21 +298,6 @@ const SignVerifyStackRoot = () => {
   );
 };
 
-const WalletExportStack = createNativeStackNavigator();
-const WalletExportStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <WalletExportStack.Navigator
-      id="WalletExportRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
-      initialRouteName="WalletExport"
-    >
-      <WalletExportStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions(theme)} />
-    </WalletExportStack.Navigator>
-  );
-};
-
 const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
@@ -475,7 +460,7 @@ const DetailViewStackScreensStack = () => {
           {/* screens */}
           <DetailViewRoot.Screen
             name="WalletExportRoot"
-            component={WalletExportStackRoot}
+            component={WalletExportStack}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
           <DetailViewRoot.Screen
@@ -595,13 +580,13 @@ const PaymentCodeStackRoot = () => {
   );
 };
 
-const NavigationDefaultOptions: NativeStackNavigationOptions = { headerShown: false, presentation: 'modal' };
-const NavigationFormModalOptions: NativeStackNavigationOptions = {
+export const NavigationDefaultOptions: NativeStackNavigationOptions = { headerShown: false, presentation: 'modal' };
+export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
 };
-const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
-const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
+export const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
+export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
 const MainRoot = () => {
   return isHandset ? <DetailViewStackScreensStack /> : <DrawerRoot />;

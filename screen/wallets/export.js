@@ -2,7 +2,6 @@ import React, { useState, useCallback, useContext, useRef, useEffect } from 'rea
 import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
 import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, BlueText, BlueCard } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -154,14 +153,5 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
 });
-
-WalletExport.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-    statusBarStyle: 'light',
-  },
-  opts => ({ ...opts, title: loc.wallets.export_title }),
-);
 
 export default WalletExport;
