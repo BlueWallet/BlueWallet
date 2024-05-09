@@ -43,14 +43,7 @@ import ReceiveDetails from './screen/receive/details';
 
 import ScanQRCode from './screen/send/ScanQRCode';
 import Broadcast from './screen/send/Broadcast';
-import CoinControl from './screen/send/coinControl';
-import Confirm from './screen/send/confirm';
-import SendCreate from './screen/send/create';
-import SendDetails from './screen/send/details';
 import IsItMyAddress from './screen/send/isItMyAddress';
-import PsbtMultisig from './screen/send/psbtMultisig';
-import PsbtMultisigQRCode from './screen/send/psbtMultisigQRCode';
-import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
 import UnlockWith from './screen/UnlockWith';
@@ -77,46 +70,7 @@ import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 import { HeaderRightButton } from './components/HeaderRightButton';
 import WalletExportStack from './navigation/WalletExportStack';
-
-// CreateTransactionStackNavigator === SendDetailsStack
-const SendDetailsStack = createNativeStackNavigator();
-const SendDetailsRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <SendDetailsStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <SendDetailsStack.Screen
-        name="SendDetails"
-        component={SendDetails}
-        options={SendDetails.navigationOptions(theme)}
-        initialParams={SendDetails.initialParams}
-      />
-      <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions(theme)} />
-      <SendDetailsStack.Screen
-        name="PsbtWithHardwareWallet"
-        component={PsbtWithHardwareWallet}
-        options={PsbtWithHardwareWallet.navigationOptions(theme)}
-      />
-      <SendDetailsStack.Screen name="CreateTransaction" component={SendCreate} options={SendCreate.navigationOptions(theme)} />
-      <SendDetailsStack.Screen name="PsbtMultisig" component={PsbtMultisig} options={PsbtMultisig.navigationOptions(theme)} />
-      <SendDetailsStack.Screen
-        name="PsbtMultisigQRCode"
-        component={PsbtMultisigQRCode}
-        options={PsbtMultisigQRCode.navigationOptions(theme)}
-      />
-      <SendDetailsStack.Screen
-        name="Success"
-        component={Success}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
-      <SendDetailsStack.Screen name="CoinControl" component={CoinControl} options={CoinControl.navigationOptions(theme)} />
-    </SendDetailsStack.Navigator>
-  );
-};
+import SendDetailsStack from './navigation/SendDetailsStack';
 
 const LNDCreateInvoiceStack = createNativeStackNavigator();
 const LNDCreateInvoiceRoot = () => {
@@ -129,7 +83,11 @@ const LNDCreateInvoiceRoot = () => {
         component={LNDCreateInvoice}
         options={LNDCreateInvoice.navigationOptions(theme)}
       />
-      <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LNDCreateInvoiceStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <LNDCreateInvoiceStack.Screen name="LNDViewInvoice" component={LNDViewInvoice} options={LNDViewInvoice.navigationOptions(theme)} />
       <LNDCreateInvoiceStack.Screen
         name="LNDViewAdditionalInvoiceInformation"
@@ -158,7 +116,11 @@ const ScanLndInvoiceRoot = () => {
         options={ScanLndInvoice.navigationOptions(theme)}
         initialParams={ScanLndInvoice.initialParams}
       />
-      <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <ScanLndInvoiceStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
       <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
       <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
@@ -172,7 +134,11 @@ const LDKOpenChannelRoot = () => {
 
   return (
     <LDKOpenChannelStack.Navigator id="LDKOpenChannelRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="SelectWallet">
-      <LDKOpenChannelStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+      <LDKOpenChannelStack.Screen
+        name="SelectWallet"
+        component={SelectWallet}
+        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+      />
       <LDKOpenChannelStack.Screen
         name="LDKOpenChannelSetAmount"
         component={LdkOpenChannel}
@@ -374,7 +340,11 @@ const DetailViewStackScreensStack = () => {
               headerLargeTitle: true,
             })(theme)}
           />
-          <DetailViewRoot.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="SelectWallet"
+            component={SelectWallet}
+            options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+          />
           <DetailViewRoot.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
           <DetailViewRoot.Screen name="About" component={About} options={About.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
@@ -451,7 +421,7 @@ const DetailViewStackScreensStack = () => {
           <DetailViewRoot.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
           <DetailViewRoot.Screen
             name="SendDetailsRoot"
-            component={SendDetailsRoot}
+            component={SendDetailsStack}
             options={isDesktop ? NavigationDefaultOptionsForDesktop : NavigationDefaultOptions}
           />
           <DetailViewRoot.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />

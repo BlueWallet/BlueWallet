@@ -2,9 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, I18nManager, FlatList, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRoute, useNavigation, useNavigationState } from '@react-navigation/native';
-
 import { BlueText, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import WalletGradient from '../../class/wallet-gradient';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { LightningLdkWallet, MultisigHDWallet, LightningCustodianWallet } from '../../class';
@@ -211,7 +209,5 @@ const SelectWallet = () => {
     );
   }
 };
-
-SelectWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.wallets.select_wallet }));
 
 export default SelectWallet;

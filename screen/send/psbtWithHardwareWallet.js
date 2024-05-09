@@ -15,7 +15,6 @@ import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { SecondButton } from '../../components/SecondButton';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
@@ -299,13 +298,6 @@ const PsbtWithHardwareWallet = () => {
 };
 
 export default PsbtWithHardwareWallet;
-
-PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({
-  ...opts,
-  title: loc.send.header,
-  gestureEnabled: false,
-  fullScreenGestureEnabled: false,
-}));
 
 const styles = StyleSheet.create({
   scrollViewContent: {

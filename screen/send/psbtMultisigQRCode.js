@@ -7,7 +7,6 @@ import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
 import { SquareButton } from '../../components/SquareButton';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
@@ -128,7 +127,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 });
-
-PsbtMultisigQRCode.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.multisig.header }));
 
 export default PsbtMultisigQRCode;
