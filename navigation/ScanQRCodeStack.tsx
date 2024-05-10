@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 import { useTheme } from '../components/themes';
 import navigationStyle from '../components/navigationStyle';
-import loc from '../loc';
 
 const Stack = createNativeStackNavigator();
 
