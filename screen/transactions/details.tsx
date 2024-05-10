@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import dayjs from 'dayjs';
@@ -16,6 +16,7 @@ import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import assert from 'assert';
+import HeaderRightButton from '../../components/HeaderRightButton';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
@@ -61,12 +62,6 @@ const TransactionDetails = () => {
     Link: {
       color: colors.buttonTextColor,
     },
-    save: {
-      backgroundColor: colors.lightButton,
-    },
-    saveText: {
-      color: colors.buttonTextColor,
-    },
   });
 
   const handleOnSaveButtonTapped = useCallback(() => {
@@ -82,23 +77,16 @@ const TransactionDetails = () => {
     });
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
-  const HeaderRightButton = useMemo(() => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        disabled={isLoading}
-        style={[styles.save, stylesHooks.save]}
-        onPress={handleOnSaveButtonTapped}
-      >
-        <Text style={[styles.saveText, stylesHooks.saveText]}>{loc.wallets.details_save}</Text>
-      </TouchableOpacity>
-    );
-  }, [isLoading, stylesHooks.save, stylesHooks.saveText, handleOnSaveButtonTapped]);
+  const HeaderRight = useMemo(
+    () => <HeaderRightButton disabled={isLoading} onPress={handleOnSaveButtonTapped} title={loc.wallets.details_save} />,
+
+    [isLoading, handleOnSaveButtonTapped],
+  );
 
   useEffect(() => {
     // This effect only handles changes in `colors`
-    setOptions({ headerRight: () => HeaderRightButton });
-  }, [colors, HeaderRightButton, setOptions]);
+    setOptions({ headerRight: () => HeaderRight });
+  }, [colors, HeaderRight, setOptions]);
 
   useFocusEffect(
     useCallback(() => {
@@ -200,6 +188,17 @@ const TransactionDetails = () => {
     });
   };
 
+  const onPressMenuItem = (key: string) => {
+    if (key === TransactionDetails.actionKeys.CopyToClipboard) {
+      handleCopyPress(key);
+    } else if (key === TransactionDetails.actionKeys.GoToWallet) {
+      const wallet = weOwnAddress(key);
+      if (wallet) {
+        navigateToWallet(wallet);
+      }
+    }
+  };
+
   const renderSection = (array: any[]) => {
     const fromArray = [];
 
@@ -220,20 +219,7 @@ const TransactionDetails = () => {
       }
 
       fromArray.push(
-        <ToolTipMenu
-          key={address}
-          isButton
-          title={address}
-          isMenuPrimaryAction
-          actions={actions}
-          onPressMenuItem={(id: string) => {
-            if (id === TransactionDetails.actionKeys.CopyToClipboard) {
-              handleCopyPress(address);
-            } else if (id === TransactionDetails.actionKeys.GoToWallet) {
-              isWeOwnAddress && navigateToWallet(isWeOwnAddress);
-            }
-          }}
-        >
+        <ToolTipMenu key={address} isButton title={address} isMenuPrimaryAction actions={actions} onPressMenuItem={onPressMenuItem}>
           <BlueText style={isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue}>
             {address}
             {index === array.length - 1 ? null : ','}
@@ -399,17 +385,6 @@ const styles = StyleSheet.create({
   },
   weOwnAddress: {
     fontWeight: '700',
-  },
-  save: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 34,
-  },
-  saveText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
   memoTextInput: {
     flexDirection: 'row',
