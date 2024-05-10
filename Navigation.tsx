@@ -30,7 +30,6 @@ import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
 import ViewEditMultisigCosigners from './screen/wallets/ViewEditMultisigCosigners';
-import WalletXpub from './screen/wallets/xpub';
 
 import CPFP from './screen/transactions/CPFP';
 import RBFBumpFee from './screen/transactions/RBFBumpFee';
@@ -73,6 +72,7 @@ import ReceiveDetailsStackRoot from './navigation/ReceiveDetailsStack';
 import ScanLndInvoiceRoot from './navigation/ScanLndInvoiceStack';
 import { useExtendedNavigation } from './hooks/useExtendedNavigation';
 import ReorderWalletsStackRoot from './navigation/ReorderWalletsStack';
+import WalletXpubStackRoot from './navigation/WalletXpubStack';
 
 const LDKOpenChannelStack = createNativeStackNavigator();
 const LDKOpenChannelRoot = () => {
@@ -143,29 +143,6 @@ const DrawerRoot = () => {
         options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
       />
     </Drawer.Navigator>
-  );
-};
-
-const WalletXpubStack = createNativeStackNavigator();
-const WalletXpubStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <WalletXpubStack.Navigator
-      id="WalletXpubRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
-      initialRouteName="WalletXpub"
-    >
-      <WalletXpubStack.Screen
-        name="WalletXpub"
-        component={WalletXpub}
-        options={navigationStyle({
-          closeButton: true,
-          headerBackVisible: false,
-          headerTitle: loc.wallets.xpub_title,
-        })(theme)}
-      />
-    </WalletXpubStack.Navigator>
   );
 };
 
