@@ -39,7 +39,6 @@ import TransactionStatus from './screen/transactions/TransactionStatus';
 
 import AztecoRedeem from './screen/receive/aztecoRedeem';
 
-import ScanQRCode from './screen/send/ScanQRCode';
 import Broadcast from './screen/send/Broadcast';
 import IsItMyAddress from './screen/send/isItMyAddress';
 import Success from './screen/send/success';
@@ -73,6 +72,7 @@ import ScanLndInvoiceRoot from './navigation/ScanLndInvoiceStack';
 import { useExtendedNavigation } from './hooks/useExtendedNavigation';
 import ReorderWalletsStackRoot from './navigation/ReorderWalletsStack';
 import WalletXpubStackRoot from './navigation/WalletXpubStack';
+import ScanQRCodeStackRoot from './navigation/ScanQRCodeStack';
 
 const LDKOpenChannelStack = createNativeStackNavigator();
 const LDKOpenChannelRoot = () => {
@@ -106,17 +106,6 @@ const AztecoRedeemRoot = () => {
     </AztecoRedeemStack.Navigator>
   );
 };
-
-const ScanQRCodeStack = createNativeStackNavigator();
-const ScanQRCodeRoot = () => (
-  <ScanQRCodeStack.Navigator
-    initialRouteName="ScanQRCode"
-    id="ScanQRCodeRoot"
-    screenOptions={{ headerShown: false, presentation: 'fullScreenModal' }}
-  >
-    <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} initialParams={ScanQRCode.initialParams} />
-  </ScanQRCodeStack.Navigator>
-);
 
 const DrawerListContent = (props: any) => {
   return <DrawerList {...props} />;
@@ -396,13 +385,25 @@ const DetailViewStackScreensStack = () => {
 
           <DetailViewRoot.Screen
             name="ScanQRCodeRoot"
-            component={ScanQRCodeRoot}
+            component={ScanQRCodeStackRoot}
             options={{
               headerShown: false,
               presentation: 'fullScreenModal',
               statusBarHidden: true,
             }}
-            initialParams={ScanQRCode.initialParams}
+            initialParams={{
+              isLoading: false,
+              cameraStatusGranted: undefined,
+              backdoorPressed: undefined,
+              launchedBy: undefined,
+              urTotal: undefined,
+              urHave: undefined,
+              backdoorText: '',
+              onDismiss: undefined,
+              showFileImportButton: true,
+              backdoorVisible: false,
+              animatedQRCodeData: {},
+            }}
           />
 
           <DetailViewRoot.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
