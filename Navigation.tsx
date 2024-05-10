@@ -3,6 +3,7 @@ import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react
 import React, { useContext, useMemo } from 'react';
 import { I18nManager, Platform } from 'react-native';
 import AddWalletStack from './navigation/AddWalletStack';
+import { StackActions } from '@react-navigation/native';
 
 import PlausibleDeniability from './screen/PlausibleDeniability';
 import Selftest from './screen/selftest';
@@ -58,7 +59,6 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LnurlAuth from './screen/lnd/lnurlAuth';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
-import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import DrawerList from './screen/wallets/DrawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
@@ -71,31 +71,8 @@ import WalletExportStack from './navigation/WalletExportStack';
 import SendDetailsStack from './navigation/SendDetailsStack';
 import LNDCreateInvoiceRoot from './navigation/LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './navigation/ReceiveDetailsStack';
-
-// LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
-const ScanLndInvoiceStack = createNativeStackNavigator();
-const ScanLndInvoiceRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <ScanLndInvoiceStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <ScanLndInvoiceStack.Screen
-        name="ScanLndInvoice"
-        component={ScanLndInvoice}
-        options={ScanLndInvoice.navigationOptions(theme)}
-        initialParams={ScanLndInvoice.initialParams}
-      />
-      <ScanLndInvoiceStack.Screen
-        name="SelectWallet"
-        component={SelectWallet}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <ScanLndInvoiceStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
-      <ScanLndInvoiceStack.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
-      <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
-    </ScanLndInvoiceStack.Navigator>
-  );
-};
+import ScanLndInvoiceRoot from './navigation/ScanLndInvoiceStack';
+import { useExtendedNavigation } from './hooks/useExtendedNavigation';
 
 const LDKOpenChannelStack = createNativeStackNavigator();
 const LDKOpenChannelRoot = () => {
@@ -226,6 +203,11 @@ const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
   const { walletsInitialized } = useContext(BlueStorageContext);
   const theme = useTheme();
+  const navigation = useExtendedNavigation();
+
+  const popToTop = () => {
+    navigation.dispatch(StackActions.popToTop());
+  };
 
   const SaveButton = useMemo(() => {
     return <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />;
@@ -381,8 +363,26 @@ const DetailViewStackScreensStack = () => {
           />
           <DetailViewRoot.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="LnurlPay" component={LnurlPay} options={LnurlPay.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="LnurlPay"
+            component={LnurlPay}
+            options={navigationStyle({
+              title: '',
+              closeButton: true,
+              closeButtonFunc: popToTop,
+            })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="LnurlPaySuccess"
+            component={LnurlPaySuccess}
+            options={navigationStyle({
+              title: '',
+              closeButton: true,
+              headerBackVisible: false,
+              gestureEnabled: false,
+              closeButtonFunc: popToTop,
+            })(theme)}
+          />
           <DetailViewRoot.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
           <DetailViewRoot.Screen
             name="Success"

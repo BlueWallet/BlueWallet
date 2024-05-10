@@ -14,7 +14,6 @@ import { Icon } from 'react-native-elements';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
@@ -367,19 +366,6 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-ScanLndInvoice.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
-);
-
-ScanLndInvoice.initialParams = {
-  uri: undefined,
-  walletID: undefined,
-  invoice: undefined,
-};
 
 const styles = StyleSheet.create({
   walletSelectRoot: {
