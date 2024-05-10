@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useContext, useState, useLayoutEffect } from 'react';
 import { StyleSheet, useColorScheme, Platform } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -66,7 +65,8 @@ const ReorderWallets = () => {
         placeholder: loc.wallets.search_wallets,
       },
     });
-  }, [setSearchQuery, setIsSearchFocused, setOptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const navigateToWallet = wallet => {
     const walletID = wallet.getID();
@@ -131,14 +131,5 @@ const ReorderWallets = () => {
     </GestureHandlerRootView>
   );
 };
-
-ReorderWallets.navigationOptions = navigationStyle(
-  {
-    headerBackVisible: false,
-    headerLargeTitle: true,
-    closeButton: true,
-  },
-  opts => ({ ...opts, headerTitle: loc.wallets.reorder_title }),
-);
 
 export default ReorderWallets;

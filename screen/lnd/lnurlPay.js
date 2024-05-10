@@ -3,9 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
-
 import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -291,10 +289,4 @@ const styles = StyleSheet.create({
     textAlignVertical: 'bottom',
     marginTop: 2,
   },
-});
-
-LnurlPay.navigationOptions = navigationStyle({
-  title: '',
-  closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

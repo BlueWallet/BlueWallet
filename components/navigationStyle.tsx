@@ -27,7 +27,7 @@ const navigationStyle = (
     ...opts
   }: NativeStackNavigationOptions & {
     closeButton?: boolean;
-    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
+    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement | void;
   },
   formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {
