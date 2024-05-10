@@ -26,7 +26,6 @@ import WalletDetails from './screen/wallets/details';
 import ExportMultisigCoordinationSetup from './screen/wallets/ExportMultisigCoordinationSetup';
 import GenerateWord from './screen/wallets/generateWord';
 import WalletsList from './screen/wallets/WalletsList';
-import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
@@ -73,6 +72,7 @@ import LNDCreateInvoiceRoot from './navigation/LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './navigation/ReceiveDetailsStack';
 import ScanLndInvoiceRoot from './navigation/ScanLndInvoiceStack';
 import { useExtendedNavigation } from './hooks/useExtendedNavigation';
+import ReorderWalletsStackRoot from './navigation/ReorderWalletsStack';
 
 const LDKOpenChannelStack = createNativeStackNavigator();
 const LDKOpenChannelRoot = () => {
@@ -117,21 +117,6 @@ const ScanQRCodeRoot = () => (
     <ScanQRCodeStack.Screen name="ScanQRCode" component={ScanQRCode} initialParams={ScanQRCode.initialParams} />
   </ScanQRCodeStack.Navigator>
 );
-
-const ReorderWalletsStack = createNativeStackNavigator();
-const ReorderWalletsStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <ReorderWalletsStack.Navigator id="ReorderWalletsRoot" screenOptions={{ headerShadowVisible: false }}>
-      <ReorderWalletsStack.Screen
-        name="ReorderWalletsScreen"
-        component={ReorderWallets}
-        options={ReorderWallets.navigationOptions(theme)}
-      />
-    </ReorderWalletsStack.Navigator>
-  );
-};
 
 const DrawerListContent = (props: any) => {
   return <DrawerList {...props} />;
