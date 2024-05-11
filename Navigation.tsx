@@ -23,13 +23,11 @@ import ReleaseNotes from './screen/settings/releasenotes';
 import Tools from './screen/settings/tools';
 import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
-import ExportMultisigCoordinationSetup from './screen/wallets/ExportMultisigCoordinationSetup';
 import GenerateWord from './screen/wallets/generateWord';
 import WalletsList from './screen/wallets/WalletsList';
 import SelectWallet from './screen/wallets/selectWallet';
 import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
-import ViewEditMultisigCosigners from './screen/wallets/ViewEditMultisigCosigners';
 
 import CPFP from './screen/transactions/CPFP';
 import RBFBumpFee from './screen/transactions/RBFBumpFee';
@@ -73,6 +71,8 @@ import { useExtendedNavigation } from './hooks/useExtendedNavigation';
 import ReorderWalletsStackRoot from './navigation/ReorderWalletsStack';
 import WalletXpubStackRoot from './navigation/WalletXpubStack';
 import ScanQRCodeStackRoot from './navigation/ScanQRCodeStack';
+import ExportMultisigCoordinationSetupStackRoot from './navigation/ExportMultisigCoordinationSetupStack';
+import ViewEditMultisigCosignersStackRoot from './navigation/ViewEditMultisigCosignersStack';
 
 const LDKOpenChannelStack = createNativeStackNavigator();
 const LDKOpenChannelRoot = () => {
@@ -361,13 +361,14 @@ const DetailViewStackScreensStack = () => {
           />
           <DetailViewRoot.Screen
             name="ExportMultisigCoordinationSetupRoot"
-            component={ExportMultisigCoordinationSetupRoot}
+            component={ExportMultisigCoordinationSetupStackRoot}
             options={NavigationDefaultOptions}
           />
           <DetailViewRoot.Screen
             name="ViewEditMultisigCosignersRoot"
-            component={ViewEditMultisigCosignersRoot}
+            component={ViewEditMultisigCosignersStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
+            initialParams={{ walletID: undefined, cosigners: undefined }}
           />
           <DetailViewRoot.Screen
             name="WalletXpubRoot"
@@ -418,53 +419,6 @@ const DetailViewStackScreensStack = () => {
         </DetailViewRoot.Group>
       )}
     </DetailViewRoot.Navigator>
-  );
-};
-
-export type ViewEditMultisigCosignersStackParamsList = {
-  ViewEditMultisigCosigners: { walletID: string };
-};
-
-const ViewEditMultisigCosignersStack = createNativeStackNavigator<ViewEditMultisigCosignersStackParamsList>();
-const ViewEditMultisigCosignersRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <ViewEditMultisigCosignersStack.Navigator
-      id="ViewEditMultisigCosignersRoot"
-      initialRouteName="ViewEditMultisigCosigners"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
-    >
-      <ViewEditMultisigCosignersStack.Screen
-        name="ViewEditMultisigCosigners"
-        component={ViewEditMultisigCosigners}
-        options={ViewEditMultisigCosigners.navigationOptions(theme)}
-      />
-    </ViewEditMultisigCosignersStack.Navigator>
-  );
-};
-
-const ExportMultisigCoordinationSetupStack = createNativeStackNavigator();
-const ExportMultisigCoordinationSetupRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <ExportMultisigCoordinationSetupStack.Navigator
-      id="ExportMultisigCoordinationSetupRoot"
-      initialRouteName="ExportMultisigCoordinationSetup"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
-    >
-      <ExportMultisigCoordinationSetupStack.Screen
-        name="ExportMultisigCoordinationSetup"
-        component={ExportMultisigCoordinationSetup}
-        options={navigationStyle({
-          closeButton: true,
-          headerBackVisible: false,
-          statusBarStyle: 'light',
-          title: loc.multisig.export_coordination_setup,
-        })(theme)}
-      />
-    </ExportMultisigCoordinationSetupStack.Navigator>
   );
 };
 

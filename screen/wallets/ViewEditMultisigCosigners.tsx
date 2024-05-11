@@ -1,6 +1,4 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,8 +15,8 @@ import {
   View,
   findNodeHandle,
 } from 'react-native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Badge, Icon } from 'react-native-elements';
-
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -29,9 +27,8 @@ import {
   BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
 import * as NavigationService from '../../NavigationService';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import Biometric from '../../class/biometrics';
@@ -45,7 +42,6 @@ import MultipleStepsListItem, {
 import QRCodeComponent from '../../components/QRCodeComponent';
 import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
@@ -57,16 +53,15 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../components/Context/SettingsContext';
 
-type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
-
-const ViewEditMultisigCosigners = ({ route }: Props) => {
+const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
-  const { walletID } = route.params;
+  const route = useRoute();
+  const { walletID } = route.params as { walletID: string };
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
@@ -122,7 +117,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   });
   useFocusEffect(
     useCallback(() => {
-      const unsubscribe = addListener('beforeRemove', e => {
+      const unsubscribe = addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
         // Check if there are unsaved changes
         if (isSaveButtonDisabled) {
           // If there are no unsaved changes, let the user leave the screen
@@ -728,13 +723,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-
-ViewEditMultisigCosigners.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
-);
 
 export default ViewEditMultisigCosigners;
