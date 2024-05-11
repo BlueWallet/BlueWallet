@@ -277,7 +277,7 @@ const ListHeaderComponent = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef((props, ref) => {
   const { preferredFiatCurrency, language } = useSettings();
-  const { horizontal, data, handleLongPress, onPress, selectedWallet } = props;
+  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled } = props;
   const renderItem = useCallback(
     ({ item, index }) =>
       item ? (
@@ -338,6 +338,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
       directionalLockEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={10}
+      scrollEnabled={scrollEnabled}
       ListHeaderComponent={ListHeaderComponent}
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
