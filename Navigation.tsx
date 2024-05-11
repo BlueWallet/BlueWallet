@@ -63,7 +63,7 @@ import PaymentCode from './screen/wallets/paymentCode';
 import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
-import { HeaderRightButton } from './components/HeaderRightButton';
+import HeaderRightButton from './components/HeaderRightButton';
 import WalletExportStack from './navigation/WalletExportStack';
 import SendDetailsStack from './navigation/SendDetailsStack';
 import LNDCreateInvoiceRoot from './navigation/LNDCreateInvoiceStack';
@@ -160,9 +160,7 @@ const DetailViewStackScreensStack = () => {
     navigation.dispatch(StackActions.popToTop());
   };
 
-  const SaveButton = useMemo(() => {
-    return <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />;
-  }, []);
+  const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
 
   return (
     <DetailViewRoot.Navigator
@@ -225,6 +223,7 @@ const DetailViewStackScreensStack = () => {
               headerStyle: {
                 backgroundColor: theme.colors.customHeader,
               },
+              headerRight: () => SaveButton,
             })(theme)}
           />
           <DetailViewRoot.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />

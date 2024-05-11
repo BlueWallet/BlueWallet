@@ -45,7 +45,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import SaveFileButton from '../../components/SaveFileButton';
 import { useSettings } from '../../components/Context/SettingsContext';
-import { HeaderRightButton } from '../../components/HeaderRightButton';
+import HeaderRightButton from '../../components/HeaderRightButton';
 import { writeFileAndExport } from '../../blue_modules/fs';
 
 const styles = StyleSheet.create({
