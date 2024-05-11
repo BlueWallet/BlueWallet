@@ -403,16 +403,3 @@ const ScanQRCode = () => {
 };
 
 export default ScanQRCode;
-ScanQRCode.initialParams = {
-  isLoading: false,
-  cameraStatusGranted: undefined,
-  backdoorPressed: undefined,
-  launchedBy: undefined,
-  urTotal: undefined,
-  urHave: undefined,
-  backdoorText: '',
-  onDismiss: undefined,
-  showFileImportButton: true,
-  backdoorVisible: false,
-  animatedQRCodeData: {},
-};
