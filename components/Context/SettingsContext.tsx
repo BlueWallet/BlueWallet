@@ -1,4 +1,4 @@
--import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
@@ -89,44 +89,60 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
-    advancedModeStorage.getItem().then(advMode => {
-      console.debug('SettingsContext advMode:', advMode);
-      setIsAdvancedModeEnabled(advMode ? JSON.parse(advMode) : false);
-    }).catch(error => console.error('Error fetching advanced mode settings:', error));
-  
-    getIsHandOffUseEnabled().then(handOff => {
-      console.debug('SettingsContext handOff:', handOff);
-      setHandOffUseEnabled(handOff);
-    }).catch(error => console.error('Error fetching hand-off usage:', error));
-  
-    languageStorage.getItem().then(lang => {
-      lang = lang ?? 'en';
-      console.debug('SettingsContext lang:', lang);
-      setLanguage(lang);
-    }).catch(error => console.error('Error fetching language setting:', error));
-  
-    isBalanceDisplayAllowed().then(isBalanceDisplayAllowedStorage => {
-      console.debug('SettingsContext isBalanceDisplayAllowed:', isBalanceDisplayAllowedStorage);
-      setIsWidgetBalanceDisplayAllowed(isBalanceDisplayAllowedStorage);
-    }).catch(error => console.error('Error fetching balance display allowance:', error));
-  
-    isURv1Enabled().then(isURv1EnabledStorage => {
-      console.debug('SettingsContext isURv1Enabled:', isURv1EnabledStorage);
-      setIsLegacyURv1EnabledStorage(isURv1EnabledStorage);
-    }).catch(error => console.error('Error fetching UR v1 enabled status:', error));
-  
-    BlueClipboard().isReadClipboardAllowed().then(isClipboardGetContentEnabledStorage => {
-      console.debug('SettingsContext isClipboardGetContentEnabled:', isClipboardGetContentEnabledStorage);
-      setIsClipboardGetContentEnabledStorage(isClipboardGetContentEnabledStorage);
-    }).catch(error => console.error('Error fetching clipboard content allowance:', error));
-  
-    getIsDeviceQuickActionsEnabled().then(isQuickActionsEnabledStorage => {
-      console.debug('SettingsContext isQuickActionsEnabled:', isQuickActionsEnabledStorage);
-      setIsQuickActionsEnabledStorage(isQuickActionsEnabledStorage);
-    }).catch(error => console.error('Error fetching device quick actions enabled status:', error));
-  
+    advancedModeStorage
+      .getItem()
+      .then(advMode => {
+        console.debug('SettingsContext advMode:', advMode);
+        setIsAdvancedModeEnabled(advMode ? JSON.parse(advMode) : false);
+      })
+      .catch(error => console.error('Error fetching advanced mode settings:', error));
+
+    getIsHandOffUseEnabled()
+      .then(handOff => {
+        console.debug('SettingsContext handOff:', handOff);
+        setHandOffUseEnabled(handOff);
+      })
+      .catch(error => console.error('Error fetching hand-off usage:', error));
+
+    languageStorage
+      .getItem()
+      .then(lang => {
+        lang = lang ?? 'en';
+        console.debug('SettingsContext lang:', lang);
+        setLanguage(lang);
+      })
+      .catch(error => console.error('Error fetching language setting:', error));
+
+    isBalanceDisplayAllowed()
+      .then(isBalanceDisplayAllowedStorage => {
+        console.debug('SettingsContext isBalanceDisplayAllowed:', isBalanceDisplayAllowedStorage);
+        setIsWidgetBalanceDisplayAllowed(isBalanceDisplayAllowedStorage);
+      })
+      .catch(error => console.error('Error fetching balance display allowance:', error));
+
+    isURv1Enabled()
+      .then(isURv1EnabledStorage => {
+        console.debug('SettingsContext isURv1Enabled:', isURv1EnabledStorage);
+        setIsLegacyURv1EnabledStorage(isURv1EnabledStorage);
+      })
+      .catch(error => console.error('Error fetching UR v1 enabled status:', error));
+
+    BlueClipboard()
+      .isReadClipboardAllowed()
+      .then(isClipboardGetContentEnabledStorage => {
+        console.debug('SettingsContext isClipboardGetContentEnabled:', isClipboardGetContentEnabledStorage);
+        setIsClipboardGetContentEnabledStorage(isClipboardGetContentEnabledStorage);
+      })
+      .catch(error => console.error('Error fetching clipboard content allowance:', error));
+
+    getIsDeviceQuickActionsEnabled()
+      .then(isQuickActionsEnabledStorage => {
+        console.debug('SettingsContext isQuickActionsEnabled:', isQuickActionsEnabledStorage);
+        setIsQuickActionsEnabledStorage(isQuickActionsEnabledStorage);
+      })
+      .catch(error => console.error('Error fetching device quick actions enabled status:', error));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
 
   useEffect(() => {
     if (walletsInitialized) {
