@@ -26,7 +26,6 @@ import WalletDetails from './screen/wallets/details';
 import GenerateWord from './screen/wallets/generateWord';
 import WalletsList from './screen/wallets/WalletsList';
 import SelectWallet from './screen/wallets/selectWallet';
-import SignVerify from './screen/wallets/signVerify';
 import WalletTransactions from './screen/wallets/transactions';
 
 import CPFP from './screen/transactions/CPFP';
@@ -34,8 +33,6 @@ import RBFBumpFee from './screen/transactions/RBFBumpFee';
 import RBFCancel from './screen/transactions/RBFCancel';
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/TransactionStatus';
-
-import AztecoRedeem from './screen/receive/aztecoRedeem';
 
 import Broadcast from './screen/send/Broadcast';
 import IsItMyAddress from './screen/send/isItMyAddress';
@@ -47,7 +44,6 @@ import navigationStyle from './components/navigationStyle';
 import { useTheme } from './components/themes';
 import loc from './loc';
 import LdkInfo from './screen/lnd/ldkInfo';
-import LdkOpenChannel from './screen/lnd/ldkOpenChannel';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from './screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
@@ -73,39 +69,9 @@ import WalletXpubStackRoot from './navigation/WalletXpubStack';
 import ScanQRCodeStackRoot from './navigation/ScanQRCodeStack';
 import ExportMultisigCoordinationSetupStackRoot from './navigation/ExportMultisigCoordinationSetupStack';
 import ViewEditMultisigCosignersStackRoot from './navigation/ViewEditMultisigCosignersStack';
-
-const LDKOpenChannelStack = createNativeStackNavigator();
-const LDKOpenChannelRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <LDKOpenChannelStack.Navigator id="LDKOpenChannelRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="SelectWallet">
-      <LDKOpenChannelStack.Screen
-        name="SelectWallet"
-        component={SelectWallet}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <LDKOpenChannelStack.Screen
-        name="LDKOpenChannelSetAmount"
-        component={LdkOpenChannel}
-        options={LdkOpenChannel.navigationOptions(theme)}
-      />
-      <LDKOpenChannelStack.Screen name="Success" component={Success} options={{ headerShown: false, gestureEnabled: false }} />
-    </LDKOpenChannelStack.Navigator>
-  );
-};
-
-const AztecoRedeemStack = createNativeStackNavigator();
-const AztecoRedeemRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <AztecoRedeemStack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <AztecoRedeemStack.Screen name="AztecoRedeem" component={AztecoRedeem} options={AztecoRedeem.navigationOptions(theme)} />
-      <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} />
-    </AztecoRedeemStack.Navigator>
-  );
-};
+import SignVerifyStackRoot from './navigation/SignVerifyStack';
+import AztecoRedeemStackRoot from './navigation/AztecoRedeemStack';
+import LDKOpenChannelRoot from './navigation/LDKOpenChannelStack';
 
 const DrawerListContent = (props: any) => {
   return <DrawerList {...props} />;
@@ -132,21 +98,6 @@ const DrawerRoot = () => {
         options={{ headerShown: false, gestureHandlerProps: { enableTrackpadTwoFingerGesture: false } }}
       />
     </Drawer.Navigator>
-  );
-};
-
-const SignVerifyStack = createNativeStackNavigator();
-const SignVerifyStackRoot = () => {
-  const theme = useTheme();
-
-  return (
-    <SignVerifyStack.Navigator
-      id="SignVerifyRoot"
-      screenOptions={{ headerShadowVisible: false, statusBarStyle: 'light' }}
-      initialRouteName="SignVerify"
-    >
-      <SignVerifyStack.Screen name="SignVerify" component={SignVerify} options={SignVerify.navigationOptions(theme)} />
-    </SignVerifyStack.Navigator>
   );
 };
 
@@ -193,7 +144,19 @@ const DetailViewStackScreensStack = () => {
             component={WalletTransactions}
             options={WalletTransactions.navigationOptions(theme)}
           />
-          <DetailViewRoot.Screen name="LdkOpenChannel" component={LdkOpenChannel} options={LdkOpenChannel.navigationOptions(theme)} />
+          <DetailViewRoot.Screen
+            name="LdkOpenChannel"
+            component={LDKOpenChannelRoot}
+            options={navigationStyle({
+              title: loc.lnd.new_channel,
+              headerLargeTitle: true,
+              statusBarStyle: 'auto',
+              closeButton: true,
+              headerBackVisible: false,
+              gestureEnabled: false,
+              closeButtonFunc: popToTop,
+            })(theme)}
+          />
           <DetailViewRoot.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
           <DetailViewRoot.Screen
             name="WalletDetails"
@@ -352,7 +315,7 @@ const DetailViewStackScreensStack = () => {
           />
           <DetailViewRoot.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewRoot.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewRoot.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
           {/* screens */}
           <DetailViewRoot.Screen
             name="WalletExportRoot"
@@ -381,7 +344,19 @@ const DetailViewStackScreensStack = () => {
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
           <DetailViewRoot.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-          <DetailViewRoot.Screen name="LDKOpenChannelRoot" component={LDKOpenChannelRoot} options={NavigationDefaultOptions} />
+          <DetailViewRoot.Screen
+            name="LDKOpenChannelRoot"
+            component={LDKOpenChannelRoot}
+            options={navigationStyle({
+              title: loc.lnd.new_channel,
+              headerLargeTitle: true,
+              statusBarStyle: 'auto',
+              closeButton: true,
+              headerBackVisible: false,
+              gestureEnabled: false,
+              closeButtonFunc: popToTop,
+            })(theme)}
+          />
 
           <DetailViewRoot.Screen
             name="ScanQRCodeRoot"
