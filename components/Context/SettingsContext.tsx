@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
-import { getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
+import { GROUP_IO_BLUEWALLET, getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
 import { BlueApp } from '../../class';
 import presentAlert from '../Alert';
 import { STORAGE_KEY, saveLanguage } from '../../loc';
@@ -11,6 +11,7 @@ import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '..//DeviceQuickActions';
+import DefaultPreference from 'react-native-default-preference';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
@@ -83,7 +84,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
-  const doNotTrackStorage = useAsyncStorage(BlueApp.DO_NOT_TRACK);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
 
   const { walletsInitialized } = useStorage();
@@ -141,6 +141,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setIsQuickActionsEnabledStorage(isQuickActionsEnabledStorage);
       })
       .catch(error => console.error('Error fetching device quick actions enabled status:', error));
+
+    getDoNotTrackStorage()
+      .then(value => {
+        console.debug('SettingsContext doNotTrack:', value);
+        setDoNotTrackStorage(value ?? false);
+      })
+      .catch(error => console.error('Error fetching do not track settings:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -173,13 +180,21 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [advancedModeStorage],
   );
 
-  const setDoNotTrackStorage = useCallback(
-    async (value: boolean) => {
-      await doNotTrackStorage.setItem(JSON.stringify(value));
-      setIsDoNotTrackEnabled(value);
-    },
-    [doNotTrackStorage],
-  );
+  const setDoNotTrackStorage = useCallback(async (value: boolean) => {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    if (value) {
+      await DefaultPreference.set(BlueApp.DO_NOT_TRACK, '1');
+    } else {
+      await DefaultPreference.clear(BlueApp.DO_NOT_TRACK);
+    }
+    setIsDoNotTrackEnabled(value);
+  }, []);
+
+  const getDoNotTrackStorage = useCallback(async () => {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const doNotTrack = await DefaultPreference.get(BlueApp.DO_NOT_TRACK);
+    return doNotTrack === '1';
+  }, []);
 
   const setIsHandOffUseEnabledAsyncStorage = useCallback(async (value: boolean) => {
     console.debug('setIsHandOffUseEnabledAsyncStorage', value);
