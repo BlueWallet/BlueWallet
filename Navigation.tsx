@@ -53,8 +53,6 @@ import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import DrawerList from './screen/wallets/DrawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
-import PaymentCode from './screen/wallets/paymentCode';
-import PaymentCodesList from './screen/wallets/paymentCodesList';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import { useIsLargeScreen } from './hooks/useIsLargeScreen';
 import HeaderRightButton from './components/HeaderRightButton';
@@ -72,6 +70,7 @@ import ViewEditMultisigCosignersStackRoot from './navigation/ViewEditMultisigCos
 import SignVerifyStackRoot from './navigation/SignVerifyStack';
 import AztecoRedeemStackRoot from './navigation/AztecoRedeemStack';
 import LDKOpenChannelRoot from './navigation/LDKOpenChannelStack';
+import PaymentCodeStackRoot from './navigation/PaymentCodeStack';
 
 const DrawerListContent = (props: any) => {
   return <DrawerList {...props} />;
@@ -394,26 +393,6 @@ const DetailViewStackScreensStack = () => {
         </DetailViewRoot.Group>
       )}
     </DetailViewRoot.Navigator>
-  );
-};
-
-export type PaymentCodeStackParamList = {
-  PaymentCode: { paymentCode: string };
-  PaymentCodesList: { walletID: string };
-};
-
-const PaymentCodeStack = createNativeStackNavigator<PaymentCodeStackParamList>();
-
-const PaymentCodeStackRoot = () => {
-  return (
-    <PaymentCodeStack.Navigator id="PaymentCodeRoot" screenOptions={{ headerShadowVisible: false }} initialRouteName="PaymentCode">
-      <PaymentCodeStack.Screen name="PaymentCode" component={PaymentCode} options={{ headerTitle: loc.bip47.payment_code }} />
-      <PaymentCodeStack.Screen
-        name="PaymentCodesList"
-        component={PaymentCodesList}
-        options={{ headerTitle: loc.bip47.payment_codes_list }}
-      />
-    </PaymentCodeStack.Navigator>
   );
 };
 
