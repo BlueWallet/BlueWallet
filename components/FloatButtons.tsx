@@ -38,7 +38,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
   const bottomInsets = { bottom: insets.bottom ? insets.bottom + 10 : 30 };
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const slideAnimation = useRef(new Animated.Value(height)).current;
 
   useEffect(() => {
@@ -53,9 +53,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
-    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 20;
-    const { width } = event.nativeEvent.layout;
-    const withPaddings = Math.ceil(width + PADDINGS * 2);
+    const maxWidth = width - BORDER_RADIUS - 140;
+    const layoutWidth = event.nativeEvent.layout.width;
+    const withPaddings = Math.ceil(layoutWidth + PADDINGS * 2);
     const len = React.Children.toArray(props.children).filter(Boolean).length;
     let newW = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
     if (len === 1 && newW < 90) newW = 90;
@@ -82,7 +82,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               if (typeof child === 'string') {
                 return (
                   <View key={index} style={{ width: newWidth }}>
-                    <Text>{child}</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={1}>
+                      {child}
+                    </Text>
                   </View>
                 );
               }
@@ -165,7 +167,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
       {...props}
     >
       <View style={bStyles.icon}>{icon}</View>
-      <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}
       </Text>
     </TouchableOpacity>
