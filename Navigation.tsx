@@ -128,16 +128,7 @@ const DetailViewStackScreensStack = () => {
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
 
   const useWalletListScreenOptions = useMemo(() => {
-    const SettingsButton = !I18nManager.isRTL ? (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.more}
-        testID="SettingsButton"
-        onPress={() => navigation.navigate('Settings')}
-      >
-        <Icon size={22} name="more-horiz" type="material" color={theme.colors.foregroundColor} />
-      </TouchableOpacity>
-    ) : (
+    const SettingsButton = (
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc._.more}
@@ -147,6 +138,7 @@ const DetailViewStackScreensStack = () => {
         <Icon size={22} name="more-horiz" type="material" color={theme.colors.foregroundColor} />
       </TouchableOpacity>
     );
+
     return {
       title: '',
       headerBackTitle: loc.wallets.list_title,
@@ -155,8 +147,8 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: !I18nManager.isRTL ? () => SettingsButton : undefined,
-      headerLeft: !I18nManager.isRTL ? undefined : () => SettingsButton,
+      headerRight: I18nManager.isRTL ? undefined : () => SettingsButton,
+      headerLeft: I18nManager.isRTL ? () => SettingsButton : undefined,
     };
   }, [navigation, theme.colors.customHeader, theme.colors.foregroundColor, theme.colors.navigationBarColor]);
 
