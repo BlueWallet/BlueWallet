@@ -3,7 +3,6 @@ import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking,
 
 import { Button as ButtonRNElements } from 'react-native-elements';
 
-import navigationStyle from '../../components/navigationStyle';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
@@ -158,8 +157,6 @@ const NotificationSettings = () => {
     </ScrollView>
   );
 };
-
-NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
 
 const styles = StyleSheet.create({
   root: {
