@@ -1,26 +1,10 @@
 import { DrawerNavigationOptions, createDrawerNavigator } from '@react-navigation/drawer';
 import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useContext, useMemo } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { I18nManager, Platform, TouchableOpacity } from 'react-native';
 import AddWalletStack from './navigation/AddWalletStack';
 import { StackActions } from '@react-navigation/native';
 
-import PlausibleDeniability from './screen/PlausibleDeniability';
-import Selftest from './screen/selftest';
-import Currency from './screen/settings/Currency';
-import GeneralSettings from './screen/settings/GeneralSettings';
-import Licensing from './screen/settings/Licensing';
-import NetworkSettings from './screen/settings/NetworkSettings';
-import Settings from './screen/settings/Settings';
-import About from './screen/settings/about';
-import DefaultView from './screen/settings/DefaultView';
-import ElectrumSettings from './screen/settings/electrumSettings';
-import EncryptStorage from './screen/settings/encryptStorage';
-import Language from './screen/settings/Language';
-import LightningSettings from './screen/settings/lightningSettings';
-import NotificationSettings from './screen/settings/notificationSettings';
-import ReleaseNotes from './screen/settings/releasenotes';
-import Tools from './screen/settings/tools';
 import WalletAddresses from './screen/wallets/addresses';
 import WalletDetails from './screen/wallets/details';
 import GenerateWord from './screen/wallets/generateWord';
@@ -50,7 +34,6 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LnurlAuth from './screen/lnd/lnurlAuth';
 import LnurlPay from './screen/lnd/lnurlPay';
 import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
-import SettingsPrivacy from './screen/settings/SettingsPrivacy';
 import DrawerList from './screen/wallets/DrawerList';
 import LdkViewLogs from './screen/wallets/ldkViewLogs';
 import { BlueStorageContext } from './blue_modules/storage-context';
@@ -71,6 +54,38 @@ import SignVerifyStackRoot from './navigation/SignVerifyStack';
 import AztecoRedeemStackRoot from './navigation/AztecoRedeemStack';
 import LDKOpenChannelRoot from './navigation/LDKOpenChannelStack';
 import PaymentCodeStackRoot from './navigation/PaymentCodeStack';
+import {
+  AboutComponent,
+  CurrencyComponent,
+  DefaultViewComponent,
+  ElectrumSettingsComponent,
+  EncryptStorageComponent,
+  GeneralSettingsComponent,
+  LanguageComponent,
+  LicensingComponent,
+  LightningSettingsComponent,
+  NetworkSettingsComponent,
+  NotificationSettingsComponent,
+  PlausibleDeniabilityComponent,
+  ReleaseNotesComponent,
+  SelftestComponent,
+  SettingsComponent,
+  SettingsPrivacyComponent,
+  ToolsComponent,
+} from './navigation/LazyLoadSettingsStack';
+import { Icon } from 'react-native-elements';
+
+export const NavigationDefaultOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+  presentation: 'modal',
+  headerShadowVisible: false,
+};
+export const NavigationFormModalOptions: NativeStackNavigationOptions = {
+  headerShown: false,
+  presentation: 'formSheet',
+};
+export const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
+export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
 const DrawerListContent = (props: any) => {
   return <DrawerList {...props} />;
@@ -112,6 +127,40 @@ const DetailViewStackScreensStack = () => {
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
 
+  const useWalletListScreenOptions = useMemo(() => {
+    const SettingsButton = !I18nManager.isRTL ? (
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.more}
+        testID="SettingsButton"
+        onPress={() => navigation.navigate('Settings')}
+      >
+        <Icon size={22} name="more-horiz" type="material" color={theme.colors.foregroundColor} />
+      </TouchableOpacity>
+    ) : (
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityLabel={loc._.more}
+        testID="SettingsButton"
+        onPress={() => navigation.navigate('Settings')}
+      >
+        <Icon size={22} name="more-horiz" type="material" color={theme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+    return {
+      title: '',
+      headerBackTitle: loc.wallets.list_title,
+      navigationBarColor: theme.colors.navigationBarColor,
+      headerShown: true,
+      headerStyle: {
+        backgroundColor: theme.colors.customHeader,
+      },
+      headerRight: !I18nManager.isRTL ? () => SettingsButton : undefined,
+      headerLeft: !I18nManager.isRTL ? undefined : () => SettingsButton,
+    };
+  }, [navigation, theme.colors.customHeader, theme.colors.foregroundColor, theme.colors.navigationBarColor]);
+
+  const walletListScreenOptions = useWalletListScreenOptions;
   return (
     <DetailViewRoot.Navigator
       initialRouteName="UnlockWithScreen"
@@ -125,19 +174,7 @@ const DetailViewStackScreensStack = () => {
         />
       ) : (
         <DetailViewRoot.Group>
-          <DetailViewRoot.Screen
-            name="WalletsList"
-            component={WalletsList}
-            options={navigationStyle({
-              title: '',
-              headerBackTitle: loc.wallets.list_title,
-              navigationBarColor: theme.colors.navigationBarColor,
-              headerShown: !isDesktop,
-              headerStyle: {
-                backgroundColor: theme.colors.customHeader,
-              },
-            })(theme)}
-          />
+          <DetailViewRoot.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
           <DetailViewRoot.Screen
             name="WalletTransactions"
             component={WalletTransactions}
@@ -191,61 +228,12 @@ const DetailViewStackScreensStack = () => {
           <DetailViewRoot.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
           <DetailViewRoot.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
-          <DetailViewRoot.Screen
-            name="Settings"
-            component={Settings}
-            options={navigationStyle({
-              headerTransparent: true,
-              title: Platform.select({ ios: loc.settings.header, default: '' }),
-              headerLargeTitle: true,
-            })(theme)}
-          />
+
           <DetailViewRoot.Screen
             name="SelectWallet"
             component={SelectWallet}
             options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
           />
-          <DetailViewRoot.Screen name="Currency" component={Currency} options={navigationStyle({ title: loc.settings.currency })(theme)} />
-          <DetailViewRoot.Screen name="About" component={About} options={About.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="ReleaseNotes" component={ReleaseNotes} options={ReleaseNotes.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="Selftest" component={Selftest} options={Selftest.navigationOptions(theme)} />
-          <DetailViewRoot.Screen name="Licensing" component={Licensing} options={Licensing.navigationOptions(theme)} />
-          <DetailViewRoot.Screen
-            name="DefaultView"
-            component={DefaultView}
-            options={navigationStyle({ title: loc.settings.default_title })(theme)}
-          />
-
-          <DetailViewRoot.Screen name="Language" component={Language} options={navigationStyle({ title: loc.settings.language })(theme)} />
-          <DetailViewRoot.Screen name="EncryptStorage" component={EncryptStorage} options={EncryptStorage.navigationOptions(theme)} />
-          <DetailViewRoot.Screen
-            name="GeneralSettings"
-            component={GeneralSettings}
-            options={navigationStyle({ title: loc.settings.general })(theme)}
-          />
-          <DetailViewRoot.Screen name="NetworkSettings" component={NetworkSettings} options={NetworkSettings.navigationOptions(theme)} />
-          <DetailViewRoot.Screen
-            name="NotificationSettings"
-            component={NotificationSettings}
-            options={NotificationSettings.navigationOptions(theme)}
-          />
-          <DetailViewRoot.Screen
-            name="PlausibleDeniability"
-            component={PlausibleDeniability}
-            options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
-          />
-          <DetailViewRoot.Screen
-            name="LightningSettings"
-            component={LightningSettings}
-            options={LightningSettings.navigationOptions(theme)}
-          />
-          <DetailViewRoot.Screen name="ElectrumSettings" component={ElectrumSettings} options={ElectrumSettings.navigationOptions(theme)} />
-          <DetailViewRoot.Screen
-            name="SettingsPrivacy"
-            component={SettingsPrivacy}
-            options={navigationStyle({ headerLargeTitle: true, title: loc.settings.privacy })(theme)}
-          />
-          <DetailViewRoot.Screen name="Tools" component={Tools} options={Tools.navigationOptions(theme)} />
           <DetailViewRoot.Screen
             name="LNDViewInvoice"
             component={LNDViewInvoice}
@@ -327,6 +315,89 @@ const DetailViewStackScreensStack = () => {
             options={NavigationDefaultOptions}
           />
           <DetailViewRoot.Screen
+            name="Settings"
+            component={SettingsComponent}
+            options={navigationStyle({
+              headerTransparent: true,
+              title: Platform.select({ ios: loc.settings.header, default: '' }),
+              headerLargeTitle: true,
+              headerShadowVisible: false,
+              animationTypeForReplace: 'push',
+            })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="Currency"
+            component={CurrencyComponent}
+            options={navigationStyle({ title: loc.settings.currency })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="GeneralSettings"
+            component={GeneralSettingsComponent}
+            options={navigationStyle({ title: loc.settings.general })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="PlausibleDeniability"
+            component={PlausibleDeniabilityComponent}
+            options={navigationStyle({ title: loc.plausibledeniability.title })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="Licensing"
+            component={LicensingComponent}
+            options={navigationStyle({ title: loc.settings.license })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="NetworkSettings"
+            component={NetworkSettingsComponent}
+            options={navigationStyle({ title: loc.settings.network })(theme)}
+          />
+          <DetailViewRoot.Screen name="About" component={AboutComponent} options={navigationStyle({ title: loc.settings.about })(theme)} />
+          <DetailViewRoot.Screen
+            name="DefaultView"
+            component={DefaultViewComponent}
+            options={navigationStyle({ title: loc.settings.default_title })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="ElectrumSettings"
+            component={ElectrumSettingsComponent}
+            options={navigationStyle({ title: loc.settings.electrum_settings_server })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="EncryptStorage"
+            component={EncryptStorageComponent}
+            options={navigationStyle({ title: loc.settings.encrypt_title })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="Language"
+            component={LanguageComponent}
+            options={navigationStyle({ title: loc.settings.language })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="LightningSettings"
+            component={LightningSettingsComponent}
+            options={navigationStyle({ title: loc.settings.lightning_settings })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="NotificationSettings"
+            component={NotificationSettingsComponent}
+            options={navigationStyle({ title: loc.settings.notifications })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="Selftest"
+            component={SelftestComponent}
+            options={navigationStyle({ title: loc.settings.selfTest })(theme)}
+          />
+          <DetailViewRoot.Screen
+            name="ReleaseNotes"
+            component={ReleaseNotesComponent}
+            options={navigationStyle({ title: loc.settings.about_release_notes })(theme)}
+          />
+          <DetailViewRoot.Screen name="Tools" component={ToolsComponent} options={navigationStyle({ title: loc.settings.tools })(theme)} />
+          <DetailViewRoot.Screen
+            name="SettingsPrivacy"
+            component={SettingsPrivacyComponent}
+            options={navigationStyle({ headerLargeTitle: true, title: loc.settings.privacy })(theme)}
+          />
+          <DetailViewRoot.Screen
             name="ViewEditMultisigCosignersRoot"
             component={ViewEditMultisigCosignersStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions, gestureEnabled: false, fullScreenGestureEnabled: false }}
@@ -395,18 +466,6 @@ const DetailViewStackScreensStack = () => {
     </DetailViewRoot.Navigator>
   );
 };
-
-export const NavigationDefaultOptions: NativeStackNavigationOptions = {
-  headerShown: false,
-  presentation: 'modal',
-  headerShadowVisible: false,
-};
-export const NavigationFormModalOptions: NativeStackNavigationOptions = {
-  headerShown: false,
-  presentation: 'formSheet',
-};
-export const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
-export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
 const MainRoot = () => {
   return isHandset ? <DetailViewStackScreensStack /> : <DrawerRoot />;

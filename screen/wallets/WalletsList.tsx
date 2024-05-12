@@ -1,18 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  SectionList,
-  Image,
-  useWindowDimensions,
-  findNodeHandle,
-  I18nManager,
-  InteractionManager,
-} from 'react-native';
-import { Icon } from 'react-native-elements';
-
+import { View, Text, StyleSheet, SectionList, Image, useWindowDimensions, findNodeHandle, InteractionManager } from 'react-native';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ActionSheet from '../ActionSheet';
@@ -116,7 +103,7 @@ const WalletsList: React.FC = () => {
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate, setOptions } = useExtendedNavigation();
+  const { navigate } = useExtendedNavigation();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const dataSource = getTransactions(undefined, 10);
@@ -165,30 +152,6 @@ const WalletsList: React.FC = () => {
     } else {
       A(A.ENUM.GOT_ZERO_BALANCE);
     }
-  };
-
-  useEffect(() => {
-    setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () =>
-        I18nManager.isRTL ? null : (
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" onPress={navigateToSettings}>
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ),
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerLeft: () =>
-        I18nManager.isRTL ? (
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" onPress={navigateToSettings}>
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ) : null,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
-
-  const navigateToSettings = () => {
-    navigate('Settings');
   };
 
   /**

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { FlatList, NativeSyntheticEvent, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
@@ -12,11 +12,20 @@ const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
   const { colors } = useTheme();
+  const [search, setSearch] = useState('');
   const stylesHook = StyleSheet.create({
     content: {
       backgroundColor: colors.background,
     },
   });
+
+  useLayoutEffect(() => {
+    setOptions({
+      headerSearchBarOptions: {
+        onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
+      },
+    });
+  }, [setOptions]);
 
   useEffect(() => {
     setOptions({ title: loc.settings.language });
@@ -49,7 +58,7 @@ const Language = () => {
       style={styles.flex}
       contentContainerStyle={stylesHook.content}
       keyExtractor={(_item, index) => `${index}`}
-      data={AvailableLanguages}
+      data={AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()))}
       renderItem={renderItem}
       initialNumToRender={25}
       contentInsetAdjustmentBehavior="automatic"

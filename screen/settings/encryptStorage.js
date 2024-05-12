@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useContext } from 'react';
 import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import navigationStyle from '../../components/navigationStyle';
 import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
 import Biometric from '../../class/biometrics';
 import loc from '../../loc';
@@ -201,4 +200,3 @@ const styles = StyleSheet.create({
 });
 
 export default EncryptStorage;
-EncryptStorage.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.settings.encrypt_title }));

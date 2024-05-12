@@ -13,7 +13,6 @@ import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
@@ -267,5 +266,4 @@ const About = () => {
   );
 };
 
-About.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.about }));
 export default About;

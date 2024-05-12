@@ -18,7 +18,6 @@ import DefaultPreference from 'react-native-default-preference';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loc from '../../loc';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import navigationStyle from '../../components/navigationStyle';
 import {
   BlueButtonLink,
   BlueCard,
@@ -451,8 +450,6 @@ ElectrumSettings.propTypes = {
     }),
   }),
 };
-
-ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
 const styles = StyleSheet.create({
   status: {

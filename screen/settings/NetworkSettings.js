@@ -2,7 +2,6 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Notifications from '../../blue_modules/notifications';
-import navigationStyle from '../../components/navigationStyle';
 import loc from '../../loc';
 import ListItem from '../../components/ListItem';
 
@@ -32,7 +31,5 @@ const NetworkSettings = () => {
     </ScrollView>
   );
 };
-
-NetworkSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, headerTitle: loc.settings.network }));
 
 export default NetworkSettings;
