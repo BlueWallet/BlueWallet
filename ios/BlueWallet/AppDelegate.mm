@@ -37,6 +37,8 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
   [self copyDeviceUID];
 
 #endif
+  } else {
+    [NSUserDefaults.standardUserDefaults setValue:@"" forKey:@"deviceUIDCopy"];
   }
 
   [self addSplashScreenView];
