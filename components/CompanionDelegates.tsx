@@ -1,43 +1,25 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useContext, useEffect, useRef } from 'react';
-import {
-  AppState,
-  NativeModules,
-  NativeEventEmitter,
-  Linking,
-  Platform,
-  StyleSheet,
-  UIManager,
-  useColorScheme,
-  View,
-  LogBox,
-} from 'react-native';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { navigationRef } from './NavigationService';
-import * as NavigationService from './NavigationService';
-import { Chain } from './models/bitcoinUnits';
-import DeeplinkSchemaMatch from './class/deeplink-schema-match';
-import loc from './loc';
-import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
-import BlueClipboard from './blue_modules/clipboard';
-import { BlueStorageContext } from './blue_modules/storage-context';
-import WatchConnectivity from './WatchConnectivity';
-import Notifications from './blue_modules/notifications';
-import Biometric from './class/biometrics';
-import WidgetCommunication from './components/WidgetCommunication';
-import ActionSheet from './screen/ActionSheet';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './blue_modules/hapticFeedback';
-import MenuElements from './components/MenuElements';
-import { updateExchangeRate } from './blue_modules/currency';
-import { NavigationProvider } from './components/NavigationProvider';
-import A from './blue_modules/analytics';
-import HandOffComponentListener from './components/HandOffComponentListener';
-import DeviceQuickActions from './components/DeviceQuickActions';
-import MainRoot from './Navigation';
+import React, { useEffect, useRef } from 'react';
+import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, LogBox } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
+import * as NavigationService from '../NavigationService';
+import { Chain } from '../models/bitcoinUnits';
+import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import loc from '../loc';
+import BlueClipboard from '../blue_modules/clipboard';
+import WatchConnectivity from '../WatchConnectivity';
+import Notifications from '../blue_modules/notifications';
+import WidgetCommunication from '../components/WidgetCommunication';
+import ActionSheet from '../screen/ActionSheet';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import MenuElements from '../components/MenuElements';
+import { updateExchangeRate } from '../blue_modules/currency';
+import A from '../blue_modules/analytics';
+import HandOffComponentListener from '../components/HandOffComponentListener';
+import DeviceQuickActions from '../components/DeviceQuickActions';
+import { useStorage } from '../blue_modules/storage-context';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
-const { SplashScreen } = NativeModules;
 
 LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
@@ -52,19 +34,10 @@ if (Platform.OS === 'android') {
   }
 }
 
-const App = () => {
-  const {
-    walletsInitialized,
-    wallets,
-    addWallet,
-    saveToDisk,
-    fetchAndSaveWalletTransactions,
-    refreshAllWalletTransactions,
-    setSharedCosigner,
-  } = useContext(BlueStorageContext);
+const CompanionDelegates = () => {
+  const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef(AppState.currentState);
   const clipboardContent = useRef();
-  const colorScheme = useColorScheme();
 
   const onNotificationReceived = async notification => {
     const payload = Object.assign({}, notification, notification.data);
@@ -258,37 +231,16 @@ const App = () => {
       });
   };
 
-  useEffect(() => {
-    if (Platform.OS === 'ios') {
-      // Call hide to setup the listener on the native side
-      SplashScreen?.addObserver();
-    }
-  }, []);
-
   return (
-    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-      <NavigationProvider>
-        <SafeAreaProvider>
-          <View style={styles.root}>
-            <MainRoot />
-            <Notifications onProcessNotifications={processPushNotifications} />
-            <MenuElements />
-            <DeviceQuickActions />
-            <Biometric />
-            <HandOffComponentListener />
-          </View>
-          <WatchConnectivity />
-          <WidgetCommunication />
-        </SafeAreaProvider>
-      </NavigationProvider>
-    </NavigationContainer>
+    <>
+      <Notifications onProcessNotifications={processPushNotifications} />
+      <MenuElements />
+      <DeviceQuickActions />
+      <HandOffComponentListener />
+      <WidgetCommunication />
+      <WatchConnectivity />
+    </>
   );
 };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
-
-export default App;
+export default CompanionDelegates;

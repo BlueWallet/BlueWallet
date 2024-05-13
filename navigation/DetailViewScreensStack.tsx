@@ -75,7 +75,7 @@ import {
   NavigationDefaultOptionsForDesktop,
   NavigationFormModalOptions,
   StatusBarLightOptions,
-} from '../Navigation';
+} from './';
 
 const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
