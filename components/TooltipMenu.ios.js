@@ -70,8 +70,8 @@ const BaseToolTipMenu = (props, ref) => {
       ref={ref}
       lazyPreview
       shouldEnableAggressiveCleanup
-      shouldCleanupOnComponent
-      internalCleanupMode="viewController"
+      shouldCleanupOnComponentWillUnmountForMenuPreview
+      internalCleanupMode="automatic"
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
@@ -101,6 +101,8 @@ const BaseToolTipMenu = (props, ref) => {
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
+      lazyPreview
+      shouldEnableAggressiveCleanup
       useActionSheetFallback={false}
       menuConfig={{
         menuTitle,
