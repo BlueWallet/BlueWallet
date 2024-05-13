@@ -20,7 +20,6 @@ import { Chain } from './models/bitcoinUnits';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import loc from './loc';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
-import InitRoot from './Navigation';
 import BlueClipboard from './blue_modules/clipboard';
 import { BlueStorageContext } from './blue_modules/storage-context';
 import WatchConnectivity from './WatchConnectivity';
@@ -35,6 +34,7 @@ import { NavigationProvider } from './components/NavigationProvider';
 import A from './blue_modules/analytics';
 import HandOffComponentListener from './components/HandOffComponentListener';
 import DeviceQuickActions from './components/DeviceQuickActions';
+import MainRoot from './Navigation';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const { SplashScreen } = NativeModules;
@@ -270,7 +270,7 @@ const App = () => {
       <NavigationProvider>
         <SafeAreaProvider>
           <View style={styles.root}>
-            <InitRoot />
+            <MainRoot />
             <Notifications onProcessNotifications={processPushNotifications} />
             <MenuElements />
             <DeviceQuickActions />
