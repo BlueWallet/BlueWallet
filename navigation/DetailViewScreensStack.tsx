@@ -104,7 +104,7 @@ const DetailViewStackScreensStack = () => {
       title: '',
       headerBackTitle: loc.wallets.list_title,
       navigationBarColor: theme.colors.navigationBarColor,
-      headerShown: true,
+      headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
