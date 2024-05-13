@@ -19,7 +19,7 @@ import Broadcast from '../screen/send/Broadcast';
 import IsItMyAddress from '../screen/send/isItMyAddress';
 import Success from '../screen/send/success';
 
-import { isDesktop } from '../blue_modules/environment';
+import { isDesktop, isHandset } from '../blue_modules/environment';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -104,7 +104,7 @@ const DetailViewStackScreensStack = () => {
       title: '',
       headerBackTitle: loc.wallets.list_title,
       navigationBarColor: theme.colors.navigationBarColor,
-      headerShown: true,
+      headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
