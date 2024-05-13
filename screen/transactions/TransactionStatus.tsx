@@ -432,12 +432,12 @@ const TransactionStatus = () => {
   };
 
   const renderTXMetadata = () => {
-    if (txMetadata.current[tx.hash]) {
-      if (txMetadata.current[tx.hash].memo) {
+    if (txMetadata[tx.hash]) {
+      if (txMetadata[tx.hash].memo) {
         return (
           <View style={styles.memo}>
             <Text selectable style={styles.memoText}>
-              {txMetadata.current[tx.hash].memo}
+              {txMetadata[tx.hash].memo}
             </Text>
           </View>
         );
@@ -449,7 +449,7 @@ const TransactionStatus = () => {
     if (!tx.counterparty) return; // no BIP47 counterparty for this tx, return early
 
     // theres a counterparty. lets lookup if theres an alias for him
-    let counterparty = counterpartyMetadata.current?.[tx.counterparty]?.label ?? tx.counterparty;
+    let counterparty = counterpartyMetadata?.[tx.counterparty]?.label ?? tx.counterparty;
     counterparty = shortenCounterpartyName(counterparty);
 
     return (

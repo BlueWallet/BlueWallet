@@ -18,8 +18,8 @@ const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 interface BlueStorageContextType {
   wallets: TWallet[];
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
-  txMetadata: React.MutableRefObject<TTXMetadata>;
-  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>;
+  txMetadata: TTXMetadata;
+  counterpartyMetadata: TCounterpartyMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: string | undefined;
   setSelectedWalletID: (walletID: string | undefined) => void;
@@ -233,8 +233,8 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     () => ({
       wallets,
       setWalletsWithNewOrder,
-      txMetadata,
-      counterpartyMetadata,
+      txMetadata: txMetadata.current,
+      counterpartyMetadata: counterpartyMetadata.current,
       saveToDisk,
       getTransactions,
       selectedWalletID,

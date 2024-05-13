@@ -67,9 +67,9 @@ const TransactionDetails = () => {
   const handleOnSaveButtonTapped = useCallback(() => {
     Keyboard.dismiss();
     if (!tx) return;
-    txMetadata.current[tx.hash] = { memo };
+    txMetadata[tx.hash] = { memo };
     if (counterpartyLabel && paymentCode) {
-      counterpartyMetadata.current[paymentCode] = { label: counterpartyLabel };
+      counterpartyMetadata[paymentCode] = { label: counterpartyLabel };
     }
     saveToDisk().then(_success => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -117,13 +117,13 @@ const TransactionDetails = () => {
             // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
             // and load user-defined alias for the pc if any
 
-            setCounterpartyLabel(counterpartyMetadata ? counterpartyMetadata.current[foundPaymentCode]?.label ?? '' : '');
+            setCounterpartyLabel(counterpartyMetadata ? counterpartyMetadata[foundPaymentCode]?.label ?? '' : '');
             setIsCounterpartyLabelVisible(true);
             setPaymentCode(foundPaymentCode);
           }
         }
 
-        setMemo(txMetadata.current[foundTx.hash]?.memo ?? '');
+        setMemo(txMetadata[foundTx.hash]?.memo ?? '');
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
