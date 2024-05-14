@@ -1,27 +1,17 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { Suspense, lazy, useEffect } from 'react';
-import { NativeModules, Platform, UIManager, useColorScheme, LogBox } from 'react-native';
+import React, { useEffect } from 'react';
+import { NativeModules, Platform, useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
 import { NavigationProvider } from './components/NavigationProvider';
-import MainRoot from './navigation';
-import { useStorage } from './blue_modules/storage-context';
-import Biometric from './class/biometrics';
-const CompanionDelegates = lazy(() => import('./components/CompanionDelegates'));
+import { BlueStorageProvider } from './blue_modules/storage-context';
+import MasterView from './MasterView';
+import { SettingsProvider } from './components/Context/SettingsContext';
 const { SplashScreen } = NativeModules;
 
-LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
-
 const App = () => {
-  const { walletsInitialized } = useStorage();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -35,13 +25,11 @@ const App = () => {
     <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
       <NavigationProvider>
         <SafeAreaProvider>
-          <Biometric />
-          <MainRoot />
-          {walletsInitialized && (
-            <Suspense>
-              <CompanionDelegates />
-            </Suspense>
-          )}
+          <BlueStorageProvider>
+            <SettingsProvider>
+              <MasterView />
+            </SettingsProvider>
+          </BlueStorageProvider>
         </SafeAreaProvider>
       </NavigationProvider>
     </NavigationContainer>

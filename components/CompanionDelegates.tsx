@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, LogBox, AppStateStatus } from 'react-native';
+import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, AppStateStatus } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import { navigationRef } from '../NavigationService';
 import { Chain } from '../models/bitcoinUnits';
@@ -23,8 +23,6 @@ const WatchConnectivity = lazy(() => import('../WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
-
-LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
