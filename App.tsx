@@ -37,12 +37,11 @@ const App = () => {
         <SafeAreaProvider>
           <Biometric />
           <MainRoot />
-
-          {/* {walletsInitialized && (
+          {walletsInitialized && (
             <Suspense>
               <CompanionDelegates />
             </Suspense>
-          )} */}
+          )}
         </SafeAreaProvider>
       </NavigationProvider>
     </NavigationContainer>

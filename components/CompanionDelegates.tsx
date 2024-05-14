@@ -1,8 +1,8 @@
 import 'react-native-gesture-handler'; // should be on top
 import React, { useEffect, useRef } from 'react';
-import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, LogBox } from 'react-native';
+import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, LogBox, AppStateStatus } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
-import * as NavigationService from '../NavigationService';
+import { navigationRef } from '../NavigationService';
 import { Chain } from '../models/bitcoinUnits';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
@@ -18,6 +18,7 @@ import A from '../blue_modules/analytics';
 import HandOffComponentListener from '../components/HandOffComponentListener';
 import DeviceQuickActions from '../components/DeviceQuickActions';
 import { useStorage } from '../blue_modules/storage-context';
+import { LightningCustodianWallet } from '../class';
 
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 
@@ -36,17 +37,20 @@ if (Platform.OS === 'android') {
 
 const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
-  const appState = useRef(AppState.currentState);
-  const clipboardContent = useRef();
+  const appState = useRef<AppStateStatus>(AppState.currentState);
+  const clipboardContent = useRef<undefined | string>();
 
-  const onNotificationReceived = async notification => {
+  const onNotificationReceived = async (notification: { data: { data: any } }) => {
     const payload = Object.assign({}, notification, notification.data);
     if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
+    // @ts-ignore: Notfication type is not defined;
     payload.foreground = true;
 
+    // @ts-ignore: Notfication type is not defined
     await Notifications.addNotification(payload);
     // if user is staring at the app when he receives the notification we process it instantly
     // so app refetches related wallet
+    // @ts-ignore: Notfication type is not defined
     if (payload.foreground) await processPushNotifications();
   };
 
@@ -65,18 +69,16 @@ const CompanionDelegates = () => {
   };
 
   useEffect(() => {
-    if (walletsInitialized) {
-      const subscriptions = addListeners();
+    const subscriptions = addListeners();
 
-      // Cleanup function
-      return () => {
-        subscriptions.urlSubscription?.remove();
-        subscriptions.appStateSubscription?.remove();
-        subscriptions.notificationSubscription?.remove();
-      };
-    }
+    // Cleanup function
+    return () => {
+      subscriptions.urlSubscription?.remove();
+      subscriptions.appStateSubscription?.remove();
+      subscriptions.notificationSubscription?.remove();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletsInitialized]); // Re-run when walletsInitialized changes
+  }, []); // Re-run when walletsInitialized changes
 
   /**
    * Processes push notifications stored in AsyncStorage. Might navigate to some screen.
@@ -85,17 +87,19 @@ const CompanionDelegates = () => {
    * @private
    */
   const processPushNotifications = async () => {
-    if (!walletsInitialized) {
-      console.log('not processing push notifications because wallets are not initialized');
-      return;
-    }
     await new Promise(resolve => setTimeout(resolve, 200));
     // sleep needed as sometimes unsuspend is faster than notification module actually saves notifications to async storage
+    // @ts-ignore: Notfication type is not defined
+
     const notifications2process = await Notifications.getStoredNotifications();
 
+    // @ts-ignore: Notfication type is not defined
     await Notifications.clearStoredNotifications();
+    // @ts-ignore: Notfication type is not defined
     Notifications.setApplicationIconBadgeNumber(0);
+    // @ts-ignore: Notfication type is not defined
     const deliveredNotifications = await Notifications.getDeliveredNotifications();
+    // @ts-ignore: Notfication type is not defined
     setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000); // so notification bubble wont disappear too fast
 
     for (const payload of notifications2process) {
@@ -119,7 +123,7 @@ const CompanionDelegates = () => {
         fetchAndSaveWalletTransactions(walletID);
         if (wasTapped) {
           if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-            NavigationService.dispatch(
+            navigationRef.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 params: {
@@ -129,7 +133,7 @@ const CompanionDelegates = () => {
               }),
             );
           } else {
-            NavigationService.navigate('ReceiveDetailsRoot', {
+            navigationRef.navigate('ReceiveDetailsRoot', {
               screen: 'ReceiveDetails',
               params: {
                 walletID,
@@ -155,7 +159,7 @@ const CompanionDelegates = () => {
     return false;
   };
 
-  const handleAppStateChange = async nextAppState => {
+  const handleAppStateChange = async (nextAppState: AppStateStatus | undefined) => {
     if (wallets.length === 0) return;
     if ((appState.current.match(/background/) && nextAppState === 'active') || nextAppState === undefined) {
       setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
@@ -168,7 +172,7 @@ const CompanionDelegates = () => {
           // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
           return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
         } else {
-          return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+          return (wallet as LightningCustodianWallet).isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
         }
       });
       const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
@@ -197,8 +201,8 @@ const CompanionDelegates = () => {
     }
   };
 
-  const handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value), {
+  const handleOpenURL = (event: { url: string }) => {
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
       wallets,
       addWallet,
       saveToDisk,
@@ -206,7 +210,7 @@ const CompanionDelegates = () => {
     });
   };
 
-  const showClipboardAlert = ({ contentType }) => {
+  const showClipboardAlert = ({ contentType }: { contentType: undefined | string }) => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     BlueClipboard()
       .getClipboardContent()
