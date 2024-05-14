@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Dimensions } from 'react-native';
-import { isTablet } from 'react-native-device-info';
-import { isDesktop } from '../../blue_modules/environment';
+import { isDesktop, isTabletDevice } from '../../blue_modules/environment';
 
 interface ILargeScreenContext {
   isLargeScreen: boolean;
@@ -30,11 +29,10 @@ export const LargeScreenProvider: React.FC<LargeScreenProviderProps> = ({ childr
   }, [windowWidth]);
 
   const isLargeScreen: boolean = useMemo(() => {
-    const isRunningOnTablet = isTablet();
     const halfScreenWidth = windowWidth >= screenWidth / 2;
-    const condition = (isRunningOnTablet && halfScreenWidth) || isDesktop;
+    const condition = (isTabletDevice && halfScreenWidth) || isDesktop;
     console.debug(
-      `LargeScreenProvider.isLargeScreen: width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTablet()}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
+      `LargeScreenProvider.isLargeScreen: width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTabletDevice}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
     );
     return condition;
   }, [windowWidth, screenWidth]);
