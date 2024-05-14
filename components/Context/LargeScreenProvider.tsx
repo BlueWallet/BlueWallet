@@ -1,10 +1,13 @@
 import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { Dimensions } from 'react-native';
-import { isDesktop, isTabletDevice } from '../../blue_modules/environment';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 
 interface ILargeScreenContext {
   isLargeScreen: boolean;
 }
+
+
+const isTabletDevice: boolean = isTablet()
 
 export const LargeScreenContext = createContext<ILargeScreenContext | undefined>(undefined);
 

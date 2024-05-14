@@ -21,8 +21,9 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { isTabletDevice } from '../../blue_modules/environment';
+import { isTablet } from '../../blue_modules/environment';
 
+const isTabletDevice = isTablet();
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
   pending: 'pending',
@@ -33,7 +34,6 @@ const BROADCAST_RESULT = Object.freeze({
 interface SuccessScreenProps {
   tx: string;
 }
-
 
 const Broadcast: React.FC = () => {
   const { name } = useRoute();
