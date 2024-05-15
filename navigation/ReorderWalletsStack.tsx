@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ReorderWalletsComponent } from './LazyLoadReorderWalletsStack';
 import { useTheme } from '../components/themes';
 import navigationStyle from '../components/navigationStyle';
 import loc from '../loc';
+import ReorderWallets from '../screen/wallets/reorderWallets';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +14,7 @@ const ReorderWalletsStackRoot = () => {
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
         name="ReorderWalletsScreen"
-        component={ReorderWalletsComponent}
+        component={ReorderWallets}
         options={navigationStyle({
           headerBackVisible: false,
           headerLargeTitle: true,
