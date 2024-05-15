@@ -74,11 +74,13 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setWallets(BlueApp.getWallets());
-
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
-    if (walletsInitialized) {
-      BlueElectrum.connectMain();
-    }
+    (async () => {
+      const isElectrumDisabledValue = await BlueElectrum.isDisabled();
+      setIsElectrumDisabled(isElectrumDisabledValue);
+      if (walletsInitialized && !isElectrumDisabledValue) {
+        BlueElectrum.connectMain();
+      }
+    })();
   }, [walletsInitialized]);
 
   const saveToDisk = async (force: boolean = false) => {
