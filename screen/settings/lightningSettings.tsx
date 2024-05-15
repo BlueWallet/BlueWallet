@@ -3,7 +3,6 @@ import { View, TextInput, Linking, StyleSheet, Alert, I18nManager, ScrollView } 
 import { Button as ButtonRNElements } from 'react-native-elements';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import loc from '../../loc';
@@ -46,7 +45,7 @@ type LightingSettingsRouteProps = RouteProp<
   'params'
 >;
 
-const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter } = () => {
+const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
@@ -172,7 +171,5 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
     </ScrollView>
   );
 };
-
-LightningSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.lightning_settings }));
 
 export default LightningSettings;

@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueLoading, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
 import AddressInput from '../../components/AddressInput';
@@ -301,20 +300,5 @@ const styles = StyleSheet.create({
     padding: 16,
   },
 });
-
-LdkOpenChannel.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    closeButtonFunc: ({ navigation }) => navigation.getParent().pop(),
-  },
-  (options, { theme, navigation, route }) => {
-    return {
-      ...options,
-      headerTitle: loc.lnd.new_channel,
-      headerLargeTitle: true,
-      statusBarStyle: 'auto',
-    };
-  },
-);
 
 export default LdkOpenChannel;

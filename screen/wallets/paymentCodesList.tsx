@@ -1,7 +1,7 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import { PaymentCodeStackParamList } from '../../Navigation';
+import { useRoute } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import loc, { formatBalance } from '../../loc';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -19,6 +19,7 @@ import confirm from '../../helpers/confirm';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueLoading } from '../../BlueComponents';
+import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 
 interface DataSection {
   title: string;
@@ -84,8 +85,9 @@ function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-export default function PaymentCodesList({ route }: Props) {
-  const { walletID } = route.params;
+export default function PaymentCodesList() {
+  const route = useRoute();
+  const { walletID } = route.params as Props['route']['params'];
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useContext(BlueStorageContext);
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);

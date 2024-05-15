@@ -1,15 +1,17 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PaymentCodeStackParamList } from '../../Navigation';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRoute } from '@react-navigation/native';
 import loc from '../../loc';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 
 type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCode'>;
 
-export default function PaymentCode({ route }: Props) {
-  const { paymentCode } = route.params;
+export default function PaymentCode() {
+  const route = useRoute();
+  const { paymentCode } = route.params as Props['route']['params'];
 
   return (
     <View style={styles.container}>

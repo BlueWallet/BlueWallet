@@ -115,7 +115,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet]),
+    }, [walletID]),
   );
 
   const exportTxtFileBeforeOnPress = async () => {

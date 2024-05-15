@@ -4,7 +4,6 @@ import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View, Style
 import { Icon } from 'react-native-elements';
 
 import { BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
-import { navigationStyleTx } from '../../components/navigationStyle';
 import loc from '../../loc';
 import Azteco from '../../class/azteco';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
@@ -184,5 +183,3 @@ AztecoRedeem.propTypes = {
     }),
   }),
 };
-
-AztecoRedeem.navigationOptions = navigationStyleTx({}, opts => ({ ...opts, title: loc.azteco.title, statusBarStyle: 'auto' }));
