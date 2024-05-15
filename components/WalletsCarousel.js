@@ -154,7 +154,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
+export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
   const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
@@ -251,7 +251,7 @@ export const WalletCarouselItem = ({ item, _, onPress, handleLongPress, isSelect
       </Pressable>
     </Animated.View>
   );
-};
+});
 
 WalletCarouselItem.propTypes = {
   item: PropTypes.any,
@@ -292,7 +292,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
         <NewWalletPanel onPress={onPress} />
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [horizontal, selectedWallet, handleLongPress, onPress, preferredFiatCurrency, language],
+    [horizontal, selectedWallet, preferredFiatCurrency, language],
   );
   const flatListRef = useRef();
 
