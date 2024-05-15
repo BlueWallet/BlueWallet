@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
-import { View, Image, ActivityIndicator, NativeModules, StyleSheet } from 'react-native';
+import { View, Image, ActivityIndicator, StyleSheet } from 'react-native';
 import Biometric, { BiometricType } from '../class/biometrics';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -49,8 +49,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const { SplashScreen } = NativeModules;
-
 const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
@@ -91,8 +89,6 @@ const UnlockWith: React.FC = () => {
   }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
 
   useEffect(() => {
-    SplashScreen?.dismissSplashScreen();
-
     const startUnlock = async () => {
       const storageIsEncrypted = await isStorageEncrypted();
       const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
