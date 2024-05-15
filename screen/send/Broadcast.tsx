@@ -23,7 +23,6 @@ import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { isTablet } from '../../blue_modules/environment';
 
-const isTabletDevice = isTablet();
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
   pending: 'pending',
@@ -118,7 +117,7 @@ const Broadcast: React.FC = () => {
 
   return (
     <SafeArea>
-      <KeyboardAvoidingView enabled={!isTabletDevice} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
         <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>

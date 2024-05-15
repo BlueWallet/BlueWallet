@@ -6,9 +6,6 @@ interface ILargeScreenContext {
   isLargeScreen: boolean;
 }
 
-
-const isTabletDevice: boolean = isTablet()
-
 export const LargeScreenContext = createContext<ILargeScreenContext | undefined>(undefined);
 
 interface LargeScreenProviderProps {
@@ -33,9 +30,9 @@ export const LargeScreenProvider: React.FC<LargeScreenProviderProps> = ({ childr
 
   const isLargeScreen: boolean = useMemo(() => {
     const halfScreenWidth = windowWidth >= screenWidth / 2;
-    const condition = (isTabletDevice && halfScreenWidth) || isDesktop;
+    const condition = (isTablet && halfScreenWidth) || isDesktop;
     console.debug(
-      `LargeScreenProvider.isLargeScreen: width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTabletDevice}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
+      `LargeScreenProvider.isLargeScreen: width: ${windowWidth}, Screen width: ${screenWidth}, Is tablet: ${isTablet}, Is large screen: ${condition}, isDesktkop: ${isDesktop}`,
     );
     return condition;
   }, [windowWidth, screenWidth]);
