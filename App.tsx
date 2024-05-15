@@ -9,6 +9,7 @@ import { NavigationProvider } from './components/NavigationProvider';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 import MasterView from './MasterView';
 import { SettingsProvider } from './components/Context/SettingsContext';
+import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
 const { SplashScreen } = NativeModules;
 
 const App = () => {
@@ -22,17 +23,19 @@ const App = () => {
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-      <NavigationProvider>
-        <SafeAreaProvider>
-          <BlueStorageProvider>
-            <SettingsProvider>
-              <MasterView />
-            </SettingsProvider>
-          </BlueStorageProvider>
-        </SafeAreaProvider>
-      </NavigationProvider>
-    </NavigationContainer>
+    <LargeScreenProvider>
+      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+        <NavigationProvider>
+          <SafeAreaProvider>
+            <BlueStorageProvider>
+              <SettingsProvider>
+                <MasterView />
+              </SettingsProvider>
+            </BlueStorageProvider>
+          </SafeAreaProvider>
+        </NavigationProvider>
+      </NavigationContainer>
+    </LargeScreenProvider>
   );
 };
 
