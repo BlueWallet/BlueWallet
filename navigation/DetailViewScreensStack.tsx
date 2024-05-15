@@ -70,12 +70,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { I18nManager, Platform, TouchableOpacity } from 'react-native';
-import {
-  NavigationDefaultOptions,
-  NavigationDefaultOptionsForDesktop,
-  NavigationFormModalOptions,
-  StatusBarLightOptions,
-} from '../Navigation';
+import { NavigationDefaultOptions, NavigationDefaultOptionsForDesktop, NavigationFormModalOptions, StatusBarLightOptions } from './';
 
 const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
