@@ -73,15 +73,14 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   useEffect(() => {
+    setWallets(BlueApp.getWallets());
     (async () => {
       const isElectrumDisabledValue = await BlueElectrum.isDisabled();
       setIsElectrumDisabled(isElectrumDisabledValue);
-      if (walletsInitialized && wallets.length > 0 && !isElectrumDisabledValue) {
-        setWallets(BlueApp.getWallets());
+      if (walletsInitialized && !isElectrumDisabledValue) {
         BlueElectrum.connectMain();
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
   const saveToDisk = async (force: boolean = false) => {
