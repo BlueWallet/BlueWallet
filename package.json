@@ -178,7 +178,7 @@
     "react-native-screens": "3.31.1",
     "react-native-secure-key-store": "https://github.com/BlueWallet/react-native-secure-key-store#2076b48",
     "react-native-share": "10.2.0",
-    "react-native-svg": "13.14.0",
+    "react-native-svg": "13.14.1",
     "react-native-tcp-socket": "6.0.6",
     "react-native-vector-icons": "10.1.0",
     "react-native-watch-connectivity": "1.1.0",
