@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useEffect } from 'react';
-import { NativeModules, Platform, useColorScheme } from 'react-native';
+import React from 'react';
+import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './NavigationService';
@@ -10,17 +10,9 @@ import { BlueStorageProvider } from './blue_modules/storage-context';
 import MasterView from './MasterView';
 import { SettingsProvider } from './components/Context/SettingsContext';
 import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
-const { SplashScreen } = NativeModules;
 
 const App = () => {
   const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    if (Platform.OS === 'ios') {
-      // Call hide to setup the listener on the native side
-      SplashScreen?.addObserver();
-    }
-  }, []);
 
   return (
     <LargeScreenProvider>
