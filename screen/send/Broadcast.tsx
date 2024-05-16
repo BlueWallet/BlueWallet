@@ -21,7 +21,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { isTablet } from 'react-native-device-info';
+import { isTablet } from '../../blue_modules/environment';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -117,7 +117,7 @@ const Broadcast: React.FC = () => {
 
   return (
     <SafeArea>
-      <KeyboardAvoidingView enabled={!isTablet()} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+      <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
         <View style={styles.wrapper} testID="BroadcastView">
           {BROADCAST_RESULT.success !== broadcastResult && (
             <BlueCard style={styles.mainCard}>
