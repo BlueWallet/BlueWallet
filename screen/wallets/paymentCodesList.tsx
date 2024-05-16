@@ -20,34 +20,12 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueLoading } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
+import presentAlert from '../../components/Alert';
 
 interface DataSection {
   title: string;
   data: string[];
 }
-
-const actionIcons = {
-  Eye: {
-    iconType: 'SYSTEM',
-    iconValue: 'eye',
-  },
-  EyeSlash: {
-    iconType: 'SYSTEM',
-    iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
-  },
-  Link: {
-    iconType: 'SYSTEM',
-    iconValue: 'link',
-  },
-  Note: {
-    iconType: 'SYSTEM',
-    iconValue: 'note.text',
-  },
-};
 
 interface IActionKey {
   id: Actions;
@@ -64,18 +42,27 @@ enum Actions {
 const actionKeys: IActionKey[] = [
   {
     id: Actions.pay,
-    text: 'Pay this contact',
-    icon: actionIcons.Clipboard,
+    text: loc.bip47.pay_this_contact,
+    icon: {
+      iconType: 'SYSTEM',
+      iconValue: 'square.and.arrow.up',
+    },
   },
   {
     id: Actions.rename,
-    text: 'Rename contact',
-    icon: actionIcons.Clipboard,
+    text: loc.bip47.rename_contact,
+    icon: {
+      iconType: 'SYSTEM',
+      iconValue: 'note.text',
+    },
   },
   {
     id: Actions.copyToClipboard,
-    text: 'Copy PaymentCode',
-    icon: actionIcons.Clipboard,
+    text: loc.bip47.copy_payment_code,
+    icon: {
+      iconType: 'SYSTEM',
+      iconValue: 'doc.on.doc',
+    },
   },
 ];
 
@@ -123,15 +110,19 @@ export default function PaymentCodesList() {
   const onToolTipPress = async (id: any, pc: string) => {
     if (id === Actions.copyToClipboard) {
       Clipboard.setString(pc);
-      alert('Copied');
+      presentAlert({ message: loc.bip47.copied });
     }
 
     if (id === Actions.rename) {
-      const newName = await prompt('Rename', 'Provide new name for this contact', false, 'plain-text');
+      const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, false, 'plain-text');
       if (!newName) return;
 
       counterpartyMetadata[pc] = { label: newName };
       setReload(Math.random());
+    }
+
+    if (id === Actions.pay) {
+      presentAlert({ message: 'Not implemented yet' });
     }
   };
 
@@ -170,15 +161,14 @@ export default function PaymentCodesList() {
   const onAddContactPress = async () => {
     try {
       const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-      // foundWallet._send_payment_codes = []; // fixme debug
       assert(foundWallet);
 
-      const newPc = await prompt('Add Contact', 'Contact Payment Code', false, 'plain-text');
+      const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, false, 'plain-text');
       if (!newPc) return;
       const cl = new ContactList(foundWallet);
 
       if (!cl.isPaymentCodeValid(newPc)) {
-        alert('Invalid Payment Code');
+        presentAlert({ message: loc.bip47.invalid_pc });
         return;
       }
 
@@ -198,7 +188,7 @@ export default function PaymentCodesList() {
 
       if (notificationTx && notificationTx.confirmations === 0) {
         // for a rare case when we just sent the confirmation tx and it havent confirmed yet
-        alert('Notification transaction is not confirmed yet, please wait');
+        presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
         return;
       }
 
@@ -214,14 +204,14 @@ export default function PaymentCodesList() {
       const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
 
       if (!tx) {
-        alert('Failed to create on-chain transaction');
+        presentAlert({ message: loc.bip47.failed_create_notif_tx });
         return;
       }
 
       setLoadingText('');
       if (
         await confirm(
-          'On-chain transaction needed',
+          loc.bip47.onchain_tx_needed,
           `${loc.send.create_fee}: ${formatBalance(fee, BitcoinUnit.BTC)} (${satoshiToLocalCurrency(fee)}). `,
         )
       ) {
@@ -229,8 +219,8 @@ export default function PaymentCodesList() {
         try {
           await foundWallet.broadcastTx(tx.toHex());
           foundWallet.addBIP47Receiver(newPc);
-          alert('Notification transaction sent. Please wait for it to confirm');
-          txMetadata[tx.getId()] = { memo: 'Notification transaction' };
+          presentAlert({ message: loc.bip47.notif_tx_sent });
+          txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
           setReload(Math.random());
           await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
         } catch (_) {}
@@ -238,7 +228,7 @@ export default function PaymentCodesList() {
         await foundWallet.fetchTransactions();
       }
     } catch (error: any) {
-      alert(error.message);
+      presentAlert({ message: error.message });
     } finally {
       setIsLoading(false);
     }
@@ -263,7 +253,7 @@ export default function PaymentCodesList() {
         </View>
       )}
 
-      <Button title="Add Contact" onPress={onAddContactPress} />
+      <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />
     </View>
   );
 }
