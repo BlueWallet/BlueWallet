@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.22.7):
+  - BugsnagReactNative (7.23.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -466,7 +466,7 @@ PODS:
     - React-perflogger (= 0.72.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.8.0):
+  - RealmJS (12.8.1):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -478,7 +478,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (10.13.2):
+  - RNDeviceInfo (10.14.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -511,7 +511,7 @@ PODS:
     - React-RCTImage
   - RNShare (10.2.0):
     - React-Core
-  - RNSVG (13.14.0):
+  - RNSVG (13.14.1):
     - React-Core
   - RNVectorIcons (10.1.0):
     - RCT-Folly (= 2021.07.22.00)
@@ -777,7 +777,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BugsnagReactNative: 7cc5c927f6a0b00a8e3cc7157dab4cc94a4bc575
+  BugsnagReactNative: 079e8ede687b76bd8b661acd55bc5c888af56dc7
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -836,13 +836,13 @@ SPEC CHECKSUMS:
   React-utils: 22a77b05da25ce49c744faa82e73856dcae1734e
   ReactCommon: ff94462e007c568d8cdebc32e3c97af86ec93bb5
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 3e6010ae878227830e947f40f996e13ccab4c8ba
+  RealmJS: 2c7fdb3991d7655fba5f88eb288f75eaf5cb9980
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: 42aadf1282ffa0a88dc38a504a7be145eb010dfa
+  RNDeviceInfo: 59344c19152c4b2b32283005f9737c5c64b42fba
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 982741f345785f2927e7b28f67dc83679cf3bfc8
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -856,7 +856,7 @@ SPEC CHECKSUMS:
   RNReanimated: d4f25b2a931c4f0b2bb12173a3096f02ea4cfb05
   RNScreens: b8d370282cdeae9df85dd5eab20c88eb5181243b
   RNShare: 554a91f5cfbe4adac4cfe3654826ee8b299fe365
-  RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
+  RNSVG: af3907ac5d4fa26a862b75a16d8f15bc74f2ceda
   RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
