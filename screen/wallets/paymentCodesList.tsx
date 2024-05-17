@@ -131,22 +131,20 @@ export default function PaymentCodesList() {
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
 
     return (
-      <View style={styles.itemContainer}>
-        <ToolTipMenu
-          actions={toolTipActions}
-          onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
-          isButton={true}
-          isMenuPrimaryAction={true}
-        >
-          <View style={styles.contactRowContainer}>
-            <View style={[styles.circle, { backgroundColor: '#' + color }]} />
-            <View style={styles.contactRowBody}>
-              <Text style={[styles.contactRowNameText, { color: colors.shadowColor }]}>{displayName}</Text>
-            </View>
+      <ToolTipMenu
+        actions={toolTipActions}
+        onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
+        isButton={true}
+        isMenuPrimaryAction={true}
+      >
+        <View style={styles.contactRowContainer}>
+          <View style={[styles.circle, { backgroundColor: '#' + color }]} />
+          <View style={styles.contactRowBody}>
+            <Text style={[styles.contactRowNameText, { color: colors.shadowColor }]}>{displayName}</Text>
           </View>
-        </ToolTipMenu>
+        </View>
         <View style={styles.stick} />
-      </View>
+      </ToolTipMenu>
     );
   };
 
@@ -257,14 +255,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sectionListContainer: { flex: 1, width: '100%' },
-  itemContainer: { flex: 1, paddingLeft: 10, paddingTop: 15, paddingBottom: 15, borderStyle: 'solid', borderWidth: 0, borderColor: 'red' },
   circle: {
     width: 42,
     height: 42,
     borderRadius: 25,
   },
-  contactRowBody: { flex: 6 /* borderStyle: 'solid', borderWidth: 1, borderColor: 'red' */, justifyContent: 'center', top: -3 },
+  contactRowBody: { flex: 6, justifyContent: 'center', top: -3 },
   contactRowNameText: { marginLeft: 10, fontSize: 20, fontWeight: 'bold' },
-  contactRowContainer: { flexDirection: 'row' },
-  stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 15, left: -10, width: '110%' },
+  contactRowContainer: { flexDirection: 'row', padding: 15 },
+  stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
 });
