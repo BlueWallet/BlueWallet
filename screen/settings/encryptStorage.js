@@ -16,6 +16,7 @@ const EncryptStorage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType, unlockWithBiometrics } = useBiometrics();
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
+  const [deviceBiometricCapable, setDeviceBiometricCapable] = useState(false);
   const { navigate, popToTop } = useNavigation();
   const { colors } = useTheme();
   const styleHooks = StyleSheet.create({
@@ -29,7 +30,9 @@ const EncryptStorage = () => {
 
   const initialState = useCallback(async () => {
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
+    const isDeviceBiometricCapableSync = await isDeviceBiometricCapable();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
+    setDeviceBiometricCapable(isDeviceBiometricCapableSync);
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -136,7 +139,7 @@ const EncryptStorage = () => {
   ) : (
     <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <View style={styles.paddingTop} />
-      {isDeviceBiometricCapable && (
+      {deviceBiometricCapable && (
         <>
           <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
             {loc.settings.biometrics}
