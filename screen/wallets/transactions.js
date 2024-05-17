@@ -1,6 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -24,9 +24,8 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
+import { WalletTransactionsStatus, useStorage } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import Biometric from '../../class/biometrics';
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -41,6 +40,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -55,7 +55,8 @@ const WalletTransactions = ({ navigation }) => {
     walletTransactionUpdateStatus,
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
-  } = useContext(BlueStorageContext);
+  } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -485,10 +486,10 @@ const WalletTransactions = ({ navigation }) => {
           })
         }
         onWalletBalanceVisibilityChange={async isShouldBeVisible => {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+          const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
           if (wallet.hideBalance && isBiometricsEnabled) {
-            const unlocked = await Biometric.unlockWithBiometrics();
+            const unlocked = await unlockWithBiometrics();
             if (!unlocked) {
               throw new Error('Biometrics failed');
             }
