@@ -101,7 +101,7 @@ export type Transaction = {
   inputs: TransactionInput[];
   outputs: TransactionOutput[];
   blockhash: string;
-  confirmations?: number;
+  confirmations: number;
   time: number;
   blocktime: number;
   received?: number;

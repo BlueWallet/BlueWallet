@@ -164,12 +164,11 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.ok(walletSender.getTransactions().length >= 3);
     assert.ok(walletSender._receive_payment_codes.length === 1);
 
-    assert.strictEqual(walletSender.needToNotifyBIP47(bip47instanceReceiver.getSerializedPaymentCode()), false); // already notified in the past
-    assert.strictEqual(
-      walletSender.needToNotifyBIP47(
+    assert.ok(walletSender.getBIP47NotificationTransaction(bip47instanceReceiver.getSerializedPaymentCode())); // already notified in the past
+    assert.ok(
+      !walletSender.getBIP47NotificationTransaction(
         'PM8TJdfXvRasx4WNpxky25ZKxhvfEiGYW9mka92tfiqDRSL7LQdxnC8uAk9k3okXctZowVwY2PUndjCQR6DHyuVVwqmy2aodmZNHgfFZcJRNTuBAXJCp',
       ),
-      true,
     ); // random PC from interwebz. never interacted with him, so need to notify
   });
 
@@ -201,7 +200,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     ); // sparrow paid us after sparrow made a notification tx
 
     assert.ok(
-      !w.needToNotifyBIP47(
+      w.getBIP47NotificationTransaction(
         'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
       ),
     );
@@ -216,7 +215,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
       'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
     );
     assert.ok(
-      !w.needToNotifyBIP47(
+      w.getBIP47NotificationTransaction(
         'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
       ),
     ); // dont need to notify
@@ -257,5 +256,52 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
       txWithCounterparty.counterparty,
       'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
     );
+  });
+
+  it('can tell with which counterparty PC transaction is (sparrow)', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    const w = new HDSegwitBech32Wallet();
+    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    w.switchBIP47(true);
+
+    await w.fetchBIP47SenderPaymentCodes();
+    await w.fetchBalance();
+    await w.fetchTransactions();
+
+    assert.strictEqual(
+      w.getTransactions().find(tx => tx.txid === '64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f')?.value,
+      -102308,
+    ); // we paid samurai
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), [
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    ]); // samurai can pay us
+
+    assert.deepStrictEqual(w.getBIP47ReceiverPaymentCodes(), []); // we can pay no-one
+
+    assert.ok(!w.getBip47CounterpartyByTxid('64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f')); // dont know whom we paid
+
+    w.addBIP47Receiver(
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    );
+    assert.deepStrictEqual(w.getBIP47ReceiverPaymentCodes(), [
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    ]); // we can now  pay samurai
+
+    // await w.fetchBIP47SenderPaymentCodes();
+    // await w.fetchBalance();
+    // await w.fetchTransactions();
+    await w.syncBip47ReceiversAddresses(
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    );
+
+    assert.strictEqual(
+      w.getBip47CounterpartyByTxid('64058a49bb75481fc0bebbb0d84a4aceebe319f9d32929e73cefb21d83342e9f'),
+      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
+    ); // we paid samurai, and now we can seethat
   });
 });

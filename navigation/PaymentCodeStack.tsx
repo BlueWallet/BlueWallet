@@ -14,7 +14,7 @@ const PaymentCodeStackRoot = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }} initialRouteName="PaymentCode">
       <Stack.Screen name="PaymentCode" component={PaymentCodeComponent} options={{ headerTitle: loc.bip47.payment_code }} />
-      <Stack.Screen name="PaymentCodesList" component={PaymentCodesListComponent} options={{ headerTitle: loc.bip47.payment_codes_list }} />
+      <Stack.Screen name="PaymentCodesList" component={PaymentCodesListComponent} options={{ headerTitle: loc.bip47.contacts }} />
     </Stack.Navigator>
   );
 };

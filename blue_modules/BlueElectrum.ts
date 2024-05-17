@@ -52,7 +52,7 @@ type ElectrumTransaction = {
     };
   }[];
   blockhash: string;
-  confirmations?: number;
+  confirmations: number;
   time: number;
   blocktime: number;
 };
