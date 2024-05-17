@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -78,7 +78,6 @@ export default function PaymentCodesList() {
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useContext(BlueStorageContext);
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
-  const menuRef = useRef();
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading...');
@@ -126,11 +125,6 @@ export default function PaymentCodesList() {
     }
   };
 
-  const onPress = useCallback(async () => {
-    // @ts-ignore: idk how to fix
-    menuRef?.current?.dismissMenu?.();
-  }, []);
-
   const renderItem = (pc: string) => {
     const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
 
@@ -139,10 +133,8 @@ export default function PaymentCodesList() {
     return (
       <View style={styles.itemContainer}>
         <ToolTipMenu
-          ref={menuRef}
           actions={toolTipActions}
           onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
-          onPress={onPress}
           isButton={true}
           isMenuPrimaryAction={true}
         >
