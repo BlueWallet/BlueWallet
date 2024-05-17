@@ -1,20 +1,20 @@
-import React, { useEffect, useState, useCallback, useContext } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
-import Biometric from '../../class/biometrics';
 import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 const EncryptStorage = () => {
-  const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useContext(BlueStorageContext);
+  const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
   const [isLoading, setIsLoading] = useState(true);
-  const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
+  const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType, unlockWithBiometrics } = useBiometrics();
   const [storageIsEncryptedSwitchEnabled, setStorageIsEncryptedSwitchEnabled] = useState(false);
   const { navigate, popToTop } = useNavigation();
   const { colors } = useTheme();
@@ -28,12 +28,8 @@ const EncryptStorage = () => {
   });
 
   const initialState = useCallback(async () => {
-    const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
-    const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    const biometricsType = (await Biometric.biometricType()) || loc.settings.biometrics;
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     setStorageIsEncryptedSwitchEnabled(isStorageEncryptedSwitchEnabled);
-    setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,15 +103,8 @@ const EncryptStorage = () => {
   };
 
   const onUseBiometricSwitch = async value => {
-    const isBiometricsEnabled = {
-      isDeviceBiometricCapable: biometrics.isDeviceBiometricCapable,
-      isBiometricsEnabled: biometrics.isBiometricsEnabled,
-      biometricsType: biometrics.biometricsType,
-    };
-    if (await Biometric.unlockWithBiometrics()) {
-      isBiometricsEnabled.isBiometricsEnabled = value;
-      await Biometric.setBiometricUseEnabled(value);
-      setBiometrics(isBiometricsEnabled);
+    if (await unlockWithBiometrics()) {
+      setBiometricUseEnabled(value);
     }
   };
 
@@ -135,7 +124,7 @@ const EncryptStorage = () => {
     return isCapable ? (
       <>
         <BlueText />
-        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: biometrics.biometricsType })}</BlueText>
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType })}</BlueText>
       </>
     ) : null;
   };
@@ -147,18 +136,18 @@ const EncryptStorage = () => {
   ) : (
     <ScrollView contentContainerStyle={styles.root} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <View style={styles.paddingTop} />
-      {biometrics.isDeviceBiometricCapable && (
+      {isDeviceBiometricCapable && (
         <>
           <Text adjustsFontSizeToFit style={[styles.headerText, styleHooks.headerText]}>
             {loc.settings.biometrics}
           </Text>
           <ListItem
-            title={loc.formatString(loc.settings.encrypt_use, { type: biometrics.biometricsType })}
+            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType })}
             Component={TouchableWithoutFeedback}
-            switch={{ value: biometrics.isBiometricsEnabled, onValueChange: onUseBiometricSwitch }}
+            switch={{ value: biometricEnabled, onValueChange: onUseBiometricSwitch }}
           />
           <BlueCard>
-            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: biometrics.biometricsType })}</BlueText>
+            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType })}</BlueText>
             {renderPasscodeExplanation()}
           </BlueCard>
           <BlueSpacing20 />
