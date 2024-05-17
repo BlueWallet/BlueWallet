@@ -509,7 +509,7 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTImage
-  - RNShare (10.2.0):
+  - RNShare (10.2.1):
     - React-Core
   - RNSVG (13.14.1):
     - React-Core
@@ -855,7 +855,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: d4f25b2a931c4f0b2bb12173a3096f02ea4cfb05
   RNScreens: b8d370282cdeae9df85dd5eab20c88eb5181243b
-  RNShare: 554a91f5cfbe4adac4cfe3654826ee8b299fe365
+  RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: af3907ac5d4fa26a862b75a16d8f15bc74f2ceda
   RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
