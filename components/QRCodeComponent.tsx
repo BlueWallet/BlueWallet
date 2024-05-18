@@ -30,16 +30,21 @@ const actionIcons: { [key: string]: ActionIcons } = {
   },
 };
 
+const actionKeys = {
+  Share: 'share',
+  Copy: 'copy',
+};
+
 const menuActions: Action[] =
   Platform.OS === 'ios' || Platform.OS === 'macos'
     ? [
         {
-          id: 'copy',
+          id: actionKeys.Copy,
           text: loc.transactions.details_copy,
           icon: actionIcons.Copy,
         },
       ]
-    : [{ id: 'share', text: loc.receive.details_share, icon: actionIcons.Share }];
+    : [{ id: actionKeys.Share, text: loc.receive.details_share, icon: actionIcons.Share }];
 
 const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   value = '',
@@ -64,9 +69,9 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   };
 
   const onPressMenuItem = (id: string) => {
-    if (id === 'share') {
+    if (id === actionKeys.Share) {
       handleShareQRCode();
-    } else if (id === 'copy') {
+    } else if (id === actionKeys.Copy) {
       qrCode.current.toDataURL(Clipboard.setImage);
     }
   };
