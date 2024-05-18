@@ -20,6 +20,7 @@ import { useTheme } from './themes';
 import ListItem from './ListItem';
 import { useSettings } from './Context/SettingsContext';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
+import { Action } from './types';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -287,9 +288,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       handleOnViewOnBlockExplorer,
     ],
   );
+  const toolTipActions = useMemo((): Action[] | Action[][] => {
+    const actions: (Action | Action[])[] = [];
 
-  const toolTipActions = useMemo(() => {
-    const actions = [];
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
         id: actionKeys.CopyAmount,
@@ -305,6 +306,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         icon: actionIcons.Clipboard,
       });
     }
+
     if (item.hash) {
       actions.push(
         {
@@ -337,10 +339,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       ]);
     }
 
-    return actions;
+    return actions as Action[] | Action[][];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
-
   return (
     <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>

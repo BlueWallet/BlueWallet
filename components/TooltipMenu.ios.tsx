@@ -1,11 +1,12 @@
-import React, { forwardRef } from 'react';
-import { ContextMenuView, ContextMenuButton } from 'react-native-ios-context-menu';
-import PropTypes from 'prop-types';
+// ToolTipMenu.ios.tsx
+import React, { forwardRef, Ref } from 'react';
+import { ContextMenuView, ContextMenuButton, RenderItem } from 'react-native-ios-context-menu';
 import { TouchableOpacity } from 'react-native';
+import { ToolTipMenuProps, Action } from './types';
 
-const BaseToolTipMenu = (props, ref) => {
-  const menuItemMapped = ({ action, menuOptions }) => {
-    const item = {
+const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
+  const menuItemMapped = ({ action, menuOptions }: { action: Action; menuOptions?: string[] }) => {
+    const item: any = {
       actionKey: action.id.toString(),
       actionTitle: action.text,
       icon: action.icon,
@@ -22,30 +23,29 @@ const BaseToolTipMenu = (props, ref) => {
 
   const menuItems = props.actions.map(action => {
     if (Array.isArray(action)) {
-      const mapped = [];
-      for (const actionToMap of action) {
-        mapped.push(menuItemMapped({ action: actionToMap }));
-      }
-      const submenu = {
+      const mapped = action.map(actionToMap => menuItemMapped({ action: actionToMap }));
+      return {
         menuOptions: ['displayInline'],
         menuItems: mapped,
         menuTitle: '',
       };
-      return submenu;
     } else {
       return menuItemMapped({ action });
     }
   });
-  const menuTitle = props.title ?? '';
-  const isButton = !!props.isButton;
-  const isMenuPrimaryAction = props.isMenuPrimaryAction ? props.isMenuPrimaryAction : false;
-  const renderPreview = props.renderPreview ?? undefined;
-  const disabled = props.disabled ?? false;
-  const onPress = props.onPress ?? undefined;
-  const onMenuWillShow = props.onMenuWillShow ?? undefined;
-  const onMenuWillHide = props.onMenuWillHide ?? undefined;
 
-  const buttonStyle = props.buttonStyle;
+  const {
+    title = '',
+    isButton = false,
+    isMenuPrimaryAction = false,
+    renderPreview,
+    disabled = false,
+    onPress,
+    onMenuWillShow,
+    onMenuWillHide,
+    buttonStyle,
+  } = props;
+
   return isButton ? (
     <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
       <ContextMenuButton
@@ -58,7 +58,7 @@ const BaseToolTipMenu = (props, ref) => {
         }}
         isMenuPrimaryAction={isMenuPrimaryAction}
         menuConfig={{
-          menuTitle,
+          menuTitle: title,
           menuItems,
         }}
       >
@@ -70,14 +70,13 @@ const BaseToolTipMenu = (props, ref) => {
       ref={ref}
       lazyPreview
       shouldEnableAggressiveCleanup
-      shouldCleanupOnComponentWillUnmountForMenuPreview
       internalCleanupMode="automatic"
       onPressMenuItem={({ nativeEvent }) => {
         props.onPressMenuItem(nativeEvent.actionKey);
       }}
       useActionSheetFallback={false}
       menuConfig={{
-        menuTitle,
+        menuTitle: title,
         menuItems,
       }}
       {...(renderPreview
@@ -86,7 +85,7 @@ const BaseToolTipMenu = (props, ref) => {
               previewType: 'CUSTOM',
               backgroundColor: 'white',
             },
-            renderPreview,
+            renderPreview: renderPreview as RenderItem,
           }
         : {})}
     >
@@ -105,7 +104,7 @@ const BaseToolTipMenu = (props, ref) => {
       shouldEnableAggressiveCleanup
       useActionSheetFallback={false}
       menuConfig={{
-        menuTitle,
+        menuTitle: title,
         menuItems,
       }}
       {...(renderPreview
@@ -114,7 +113,7 @@ const BaseToolTipMenu = (props, ref) => {
               previewType: 'CUSTOM',
               backgroundColor: 'white',
             },
-            renderPreview,
+            renderPreview: renderPreview as RenderItem,
           }
         : {})}
     >
@@ -126,15 +125,3 @@ const BaseToolTipMenu = (props, ref) => {
 const ToolTipMenu = forwardRef(BaseToolTipMenu);
 
 export default ToolTipMenu;
-ToolTipMenu.propTypes = {
-  actions: PropTypes.oneOfType([PropTypes.array, PropTypes.object]).isRequired,
-  title: PropTypes.string,
-  children: PropTypes.node,
-  onPressMenuItem: PropTypes.func.isRequired,
-  isMenuPrimaryAction: PropTypes.bool,
-  isButton: PropTypes.bool,
-  renderPreview: PropTypes.func,
-  onPress: PropTypes.func,
-  previewValue: PropTypes.string,
-  disabled: PropTypes.bool,
-};

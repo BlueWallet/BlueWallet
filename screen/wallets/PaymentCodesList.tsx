@@ -21,25 +21,19 @@ import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueLoading } from '../../BlueComponents';
 import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 import presentAlert from '../../components/Alert';
+import { Action } from '../../components/types';
 
 interface DataSection {
   title: string;
   data: string[];
 }
-
-interface IActionKey {
-  id: Actions;
-  text: string;
-  icon: any;
-}
-
 enum Actions {
   pay,
   rename,
   copyToClipboard,
 }
 
-const actionKeys: IActionKey[] = [
+const actionKeys: Action[] = [
   {
     id: Actions.pay,
     text: loc.bip47.pay_this_contact,
@@ -97,9 +91,7 @@ export default function PaymentCodesList() {
     setData(newData);
   }, [walletID, wallets, reload]);
 
-  const toolTipActions = useMemo(() => {
-    return actionKeys;
-  }, []);
+  const toolTipActions = useMemo(() => actionKeys, []);
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;

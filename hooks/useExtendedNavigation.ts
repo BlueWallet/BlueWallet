@@ -47,7 +47,7 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
           const isAuthenticated = await Biometric.unlockWithBiometrics();
           if (isAuthenticated) {
             proceedWithNavigation();
-            return; // Ensure the function exits if this path is taken
+            return;
           } else {
             console.error('Biometric authentication failed');
             // Decide if navigation should proceed or not after failed authentication
