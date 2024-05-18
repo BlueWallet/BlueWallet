@@ -112,7 +112,7 @@ export default function PaymentCodesList() {
       presentAlert({ message: loc.bip47.copied });
     }
 
-    if (id === Actions.rename) {
+    if (String(id) === String(Actions.rename)) {
       const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, false, 'plain-text');
       if (!newName) return;
 
@@ -120,7 +120,7 @@ export default function PaymentCodesList() {
       setReload(Math.random());
     }
 
-    if (id === Actions.pay) {
+    if (String(id) === String(Actions.pay)) {
       presentAlert({ message: 'Not implemented yet' });
     }
   };
