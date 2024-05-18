@@ -1,10 +1,7 @@
-import { forwardRef, Ref } from 'react';
 import { ToolTipMenuProps } from './types';
 
-const BaseToolTipMenu = (props: ToolTipMenuProps, _ref: Ref<any>) => {
+const ToolTipMenu = (props: ToolTipMenuProps, _ref: any) => {
   return props.children;
 };
-
-const ToolTipMenu = forwardRef(BaseToolTipMenu);
 
 export default ToolTipMenu;
