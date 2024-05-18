@@ -6,7 +6,6 @@
     "isolatedModules": true,
     "jsx": "react",
     "lib": ["es2020"],
-    "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
     "target": "esnext",
