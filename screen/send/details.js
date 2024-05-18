@@ -334,7 +334,7 @@ const SendDetails = () => {
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
     useCallback(() => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setIsLoading(false);
       setDumb(v => !v);
     }, []),
   );

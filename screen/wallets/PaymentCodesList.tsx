@@ -107,7 +107,7 @@ export default function PaymentCodesList() {
   };
 
   const onToolTipPress = async (id: any, pc: string) => {
-    if (id === Actions.copyToClipboard) {
+    if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
       presentAlert({ message: loc.bip47.copied });
     }
@@ -256,12 +256,12 @@ const styles = StyleSheet.create({
   },
   sectionListContainer: { flex: 1, width: '100%' },
   circle: {
-    width: 42,
-    height: 42,
+    width: 35,
+    height: 35,
     borderRadius: 25,
   },
   contactRowBody: { flex: 6, justifyContent: 'center', top: -3 },
-  contactRowNameText: { marginLeft: 10, fontSize: 20, fontWeight: 'bold' },
+  contactRowNameText: { marginLeft: 10, fontSize: 16 },
   contactRowContainer: { flexDirection: 'row', padding: 15 },
   stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
 });

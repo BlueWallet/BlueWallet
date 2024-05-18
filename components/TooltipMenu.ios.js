@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native';
 const BaseToolTipMenu = (props, ref) => {
   const menuItemMapped = ({ action, menuOptions }) => {
     const item = {
-      actionKey: action.id,
+      actionKey: action.id.toString(),
       actionTitle: action.text,
       icon: action.icon,
       menuOptions,
