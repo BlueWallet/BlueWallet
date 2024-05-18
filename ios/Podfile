@@ -44,13 +44,9 @@ end
 def configure_target()
   config = use_native_modules!
 
-  flags = get_default_flags()
-
   use_react_native!(
     # Specify the path directly if use_native_modules! does not provide it
     :path => config[:reactNativePath],
-    :hermes_enabled => true,
-    :fabric_enabled => flags[:fabric_enabled],
     :app_path => "#{Pod::Config.instance.installation_root}/.."
 
   )
@@ -86,6 +82,5 @@ post_install do |installer|
         config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
       end
     end
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end
