@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -20,7 +20,7 @@ import {
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
@@ -31,7 +31,6 @@ import {
   SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '../../class';
-import Biometric from '../../class/biometrics';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
@@ -47,6 +46,7 @@ import SaveFileButton from '../../components/SaveFileButton';
 import { useSettings } from '../../components/Context/SettingsContext';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { writeFileAndExport } from '../../blue_modules/fs';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -107,7 +107,8 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -402,10 +403,10 @@ const WalletDetails = () => {
         {
           text: loc.wallets.details_yes_delete,
           onPress: async () => {
-            const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
             if (isBiometricsEnabled) {
-              if (!(await Biometric.unlockWithBiometrics())) {
+              if (!(await unlockWithBiometrics())) {
                 return;
               }
             }

@@ -31,7 +31,6 @@ import * as NavigationService from '../../NavigationService';
 import { useStorage } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
@@ -52,11 +51,13 @@ import SaveFileButton from '../../components/SaveFileButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../components/Context/SettingsContext';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
@@ -173,10 +174,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }
     setIsLoading(true);
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }

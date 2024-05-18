@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { BlueLoading, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
 import AddressInput from '../../components/AddressInput';
 import AmountInput from '../../components/AmountInput';
@@ -11,13 +11,13 @@ import loc from '../../loc';
 import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
-import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 type LdkOpenChannelProps = RouteProp<
   {
@@ -33,8 +33,8 @@ type LdkOpenChannelProps = RouteProp<
 >;
 
 const LdkOpenChannel = (props: any) => {
-  const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
-  const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { colors }: { colors: any } = useTheme();
   const { navigate, setParams } = useNavigation();
   const {
@@ -75,14 +75,10 @@ const LdkOpenChannel = (props: any) => {
     })();
   }, [psbt]);
 
-  useEffect(() => {
-    Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
-  }, []);
-
   const finalizeOpenChannel = async () => {
     setIsLoading(true);
-    if (isBiometricUseCapableAndEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+    if (await isBiometricUseCapableAndEnabled()) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }

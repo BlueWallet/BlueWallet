@@ -10,11 +10,11 @@ import Share from 'react-native-share';
 import { useTheme } from '../themes';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../blue_modules/storage-context';
-import Biometric from '../../class/biometrics';
 import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import QRCodeComponent from '../QRCodeComponent';
 import confirm from '../../helpers/confirm';
+import { useBiometrics } from '../../hooks/useBiometrics';
 import { Action } from '../types';
 
 interface AddressItemProps {
@@ -28,6 +28,7 @@ interface AddressItemProps {
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
 
   const hasTransactions = item.transactions > 0;
 
@@ -120,8 +121,8 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       navigateToSignVerify();
     } else if (id === AddressItem.actionKeys.ExportPrivateKey) {
       if (await confirm(loc.addresses.sensitive_private_key)) {
-        if (await Biometric.isBiometricUseCapableAndEnabled()) {
-          if (!(await Biometric.unlockWithBiometrics())) {
+        if (await isBiometricUseCapableAndEnabled()) {
+          if (!(await unlockWithBiometrics())) {
             return;
           }
         }
