@@ -31,11 +31,12 @@ import { BlueCurrentTheme } from '../../components/themes';
 import { reloadAllTimelines } from '../../components/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { navigationRef } from '../../NavigationService';
 
 export default class ElectrumSettings extends Component {
   static contextType = BlueStorageContext;
@@ -225,17 +226,9 @@ export default class ElectrumSettings extends Component {
     });
   };
 
-  importScan = () => {
-    requestCameraAuthorization().then(() =>
-      this.props.navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: this.props.route.name,
-          onBarScanned: this.onBarScanned,
-          showFileImportButton: true,
-        },
-      }),
-    );
+  importScan = async () => {
+    const scanned = await scanQrHelper(navigationRef.navigate, 'ElectrumSettings', true);
+    this.onBarScanned(scanned);
   };
 
   useSSLPortToggled = value => {
