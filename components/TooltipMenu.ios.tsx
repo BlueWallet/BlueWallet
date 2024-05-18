@@ -109,7 +109,7 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
   ) : props.onPress ? (
     renderContextMenuView()
   ) : (
-    renderContextMenuView()
+    renderContextMenuButton()
   );
 };
 
