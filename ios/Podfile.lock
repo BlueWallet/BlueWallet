@@ -334,7 +334,7 @@ PODS:
     - React-Core
   - react-native-document-picker (9.1.1):
     - React-Core
-  - react-native-idle-timer (2.1.6):
+  - react-native-idle-timer (2.2.2):
     - React-Core
   - react-native-image-picker (7.1.2):
     - RCT-Folly (= 2021.07.22.00)
@@ -809,7 +809,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
   react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
-  react-native-idle-timer: f7f651542b39dce9b9473e4578cb64a255075f17
+  react-native-idle-timer: ee2053f2cd458f6fef1db7bebe5098ca281cce07
   react-native-image-picker: 1889c342e6a4ba089ff11ae0c3bf5cc30a3134d0
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
