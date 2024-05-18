@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, forwardRef, Ref } from 'react';
+import React, { useRef, useEffect, forwardRef, Ref, useMemo, useCallback } from 'react';
 import { Pressable, View } from 'react-native';
 import showPopupMenu, { OnPopupMenuItemSelect, PopupMenuItem } from '../blue_modules/showPopupMenu.android';
 import { ToolTipMenuProps } from './types';
@@ -17,23 +17,27 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () =>
     ...restProps
   } = props;
 
-  const handleToolTipSelection: OnPopupMenuItemSelect = (selection: PopupMenuItem) => {
-    if (selection.id) {
-      onPressMenuItem(selection.id);
-    }
-  };
+  const handleToolTipSelection = useCallback<OnPopupMenuItemSelect>(
+    (selection: PopupMenuItem) => {
+      if (selection.id) {
+        onPressMenuItem(selection.id);
+      }
+    },
+    [onPressMenuItem],
+  );
 
   useEffect(() => {
     if (ref && menuRef.current) {
       (ref as React.MutableRefObject<{ dismissMenu?: () => void }>).current.dismissMenu = dismissMenu;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const dismissMenu = () => {
+  const dismissMenu = useCallback(() => {
     console.log('dismissMenu Not implemented');
-  };
+  }, []);
 
-  const showMenu = () => {
+  const menuItems = useMemo(() => {
     const menu: { id: string; label: string }[] = [];
     actions.forEach(action => {
       if (Array.isArray(action)) {
@@ -44,9 +48,12 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () =>
         menu.push({ id: action.id.toString(), label: action.text });
       }
     });
+    return menu;
+  }, [actions]);
 
-    showPopupMenu(menu, handleToolTipSelection, menuRef.current);
-  };
+  const showMenu = useCallback(() => {
+    showPopupMenu(menuItems, handleToolTipSelection, menuRef.current);
+  }, [menuItems, handleToolTipSelection]);
 
   return (
     <Pressable
