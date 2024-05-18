@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import * as NavigationService from '../NavigationService';
 import { CommonActions } from '@react-navigation/native';
