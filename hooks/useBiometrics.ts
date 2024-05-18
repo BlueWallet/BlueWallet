@@ -188,9 +188,8 @@ const useBiometrics = () => {
     unlockWithBiometrics,
     clearKeychain,
     requestDevicePasscode,
-    showKeychainWipeAlert,
     biometricEnabled,
   };
 };
 
-export { FaceID, TouchID, Biometrics, RNBiometryTypes as BiometricType, useBiometrics };
+export { FaceID, TouchID, Biometrics, RNBiometryTypes as BiometricType, useBiometrics, showKeychainWipeAlert };
