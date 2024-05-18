@@ -20,7 +20,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-
+  [self clearFilesIfNeeded];
 NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
   if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
@@ -229,5 +229,66 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
 }
+
+// Clear cache on app launch
+
+- (void)clearFilesIfNeeded {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL shouldClearFiles = [defaults boolForKey:@"clearFilesOnLaunch"];
+
+    if (shouldClearFiles) {
+        [self clearDocumentDirectory];
+        [self clearCacheDirectory];
+        [self clearTempDirectory];
+
+        // Reset the switch
+        [defaults setBool:NO forKey:@"clearFilesOnLaunch"];
+        [defaults synchronize];
+
+        // Show an alert
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Cache Cleared"
+                                                                       message:@"The document, cache, and temp directories have been cleared."
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:okAction];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+        });
+    }
+}
+
+- (void)clearDocumentDirectory {
+    NSURL *documentsDirectory = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject];
+    [self clearDirectoryAtURL:documentsDirectory];
+}
+
+- (void)clearCacheDirectory {
+    NSURL *cacheDirectory = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] lastObject];
+    [self clearDirectoryAtURL:cacheDirectory];
+}
+
+- (void)clearTempDirectory {
+    NSURL *tempDirectory = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
+    [self clearDirectoryAtURL:tempDirectory];
+}
+
+- (void)clearDirectoryAtURL:(NSURL *)directoryURL {
+    NSError *error;
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:directoryURL includingPropertiesForKeys:nil options:0 error:&error];
+
+    if (error) {
+        NSLog(@"Error reading contents of directory: %@", error.localizedDescription);
+        return;
+    }
+
+    for (NSURL *fileURL in contents) {
+        [[NSFileManager defaultManager] removeItemAtURL:fileURL error:&error];
+        if (error) {
+            NSLog(@"Error removing file: %@", error.localizedDescription);
+        }
+    }
+}
+
 
 @end
