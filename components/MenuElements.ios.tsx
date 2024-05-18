@@ -65,7 +65,7 @@ const MenuElements = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
-  return <></>;
+  return null;
 };
 
 export default MenuElements;
