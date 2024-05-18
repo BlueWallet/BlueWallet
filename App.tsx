@@ -7,9 +7,9 @@ import { navigationRef } from './NavigationService';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
 import { NavigationProvider } from './components/NavigationProvider';
 import { BlueStorageProvider } from './blue_modules/storage-context';
-import MasterView from './MasterView';
 import { SettingsProvider } from './components/Context/SettingsContext';
 import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
+import MasterView from './navigation/MasterView';
 
 const App = () => {
   const colorScheme = useColorScheme();
