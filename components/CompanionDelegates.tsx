@@ -19,7 +19,7 @@ const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
-const WatchConnectivity = lazy(() => import('../WatchConnectivity'));
+const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
