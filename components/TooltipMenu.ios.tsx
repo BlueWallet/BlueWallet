@@ -96,9 +96,13 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
           }
         : {})}
     >
-      <TouchableOpacity accessibilityRole="button" onPress={onPress}>
-        {props.children}
-      </TouchableOpacity>
+      {onPress ? (
+        <TouchableOpacity accessibilityRole="button" onPress={onPress}>
+          {props.children}
+        </TouchableOpacity>
+      ) : (
+        props.children
+      )}
     </ContextMenuView>
   );
 
@@ -109,7 +113,7 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
   ) : props.onPress ? (
     renderContextMenuView()
   ) : (
-    renderContextMenuButton()
+    renderContextMenuView()
   );
 };
 
