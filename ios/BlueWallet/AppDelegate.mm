@@ -9,12 +9,11 @@
 #import "EventEmitter.h"
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
-
 #import "BlueWallet-Swift.h"
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
-@property (nonatomic, strong) UIView *launchScreenView;
+@property (nonatomic, strong) NSUserDefaults *userDefaultsGroup;
 
 @end
 
@@ -23,8 +22,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [self clearFilesIfNeeded];
-  NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
-  NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
+  self.userDefaultsGroup = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  
+  NSString *isDoNotTrackEnabled = [self.userDefaultsGroup stringForKey:@"donottrack"];
   if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
       // Set the appType based on the current platform
 #if TARGET_OS_MACCATALYST
@@ -67,14 +67,13 @@
 #endif
 }
 
-- (void)observeValueForKeyPath:(NSString *) keyPath ofObject:(id) object change:(NSDictionary *) change context:(void *) context
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
 {
-    if([keyPath isEqual:@"deviceUID"] || [keyPath isEqual:@"deviceUIDCopy"])
-    {
-      [self copyDeviceUID];
+    if ([keyPath isEqualToString:@"deviceUID"] || [keyPath isEqualToString:@"deviceUIDCopy"]) {
+        [self copyDeviceUID];
     }
 
-  NSArray *keys = @[
+    NSArray *keys = @[
         @"WidgetCommunicationAllWalletsSatoshiBalance",
         @"WidgetCommunicationAllWalletsLatestTransactionTime",
         @"WidgetCommunicationDisplayBalanceAllowed",
@@ -92,43 +91,42 @@
 }
 
 - (void)copyDeviceUID {
-  [[NSUserDefaults standardUserDefaults] addObserver:self
+    [NSUserDefaults.standardUserDefaults addObserver:self
                                            forKeyPath:@"deviceUID"
                                               options:NSKeyValueObservingOptionNew
                                               context:NULL];
-  [[NSUserDefaults standardUserDefaults] addObserver:self
+    [NSUserDefaults.standardUserDefaults addObserver:self
                                            forKeyPath:@"deviceUIDCopy"
                                               options:NSKeyValueObservingOptionNew
                                               context:NULL];
-  NSString *deviceUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"deviceUID"];
-  if (deviceUID && deviceUID.length > 0) {
-    [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
-  }
+    NSString *deviceUID = [NSUserDefaults.standardUserDefaults stringForKey:@"deviceUID"];
+    if (deviceUID && deviceUID.length > 0) {
+        [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
+    }
 }
 
 - (void)setupUserDefaultsListener {
-    NSString *appGroup = @"group.io.bluewallet.bluewallet";
-    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroup];
-    
     NSArray *keys = @[
         @"WidgetCommunicationAllWalletsSatoshiBalance",
         @"WidgetCommunicationAllWalletsLatestTransactionTime",
         @"WidgetCommunicationDisplayBalanceAllowed",
         @"WidgetCommunicationLatestTransactionIsUnconfirmed",
         @"preferredCurrency",
-        @"preferredCurrencyLocale"
+        @"preferredCurrencyLocale",
+        @"electrum_host",
+        @"electrum_tcp_port",
+        @"electrum_ssl_port"
     ];
     
     for (NSString *key in keys) {
-        [userDefaults addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:NULL];
+        [self.userDefaultsGroup addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:NULL];
     }
 }
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
  restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler
 {
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
-  [defaults setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
+  [self.userDefaultsGroup setValue:@{@"activityType": userActivity.activityType, @"userInfo": userActivity.userInfo} forKey:@"onUserActivityOpen"];
   if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
     return [RCTLinkingManager application:application
                      continueUserActivity:userActivity
@@ -149,8 +147,7 @@
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-  NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
-  [defaults removeObjectForKey:@"onUserActivityOpen"];
+  [self.userDefaultsGroup removeObjectForKey:@"onUserActivityOpen"];
 }
 
 - (void)application:(UIApplication *)application performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded)) completionHandler {
@@ -204,35 +201,29 @@
   [builder insertSiblingMenu:settings afterMenuForIdentifier:UIMenuAbout];
 }
 
-
 - (void)openSettings:(UIKeyCommand *)keyCommand {
   [EventEmitter.sharedInstance openSettings];
 }
 
 - (void)addWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-      [EventEmitter.sharedInstance addWalletMenuAction];
-
+    [EventEmitter.sharedInstance addWalletMenuAction];
     NSLog(@"Add Wallet action performed");
 }
 
 - (void)importWalletAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-      [EventEmitter.sharedInstance importWalletMenuAction];
-
+    [EventEmitter.sharedInstance importWalletMenuAction];
     NSLog(@"Import Wallet action performed");
 }
 
 - (void)reloadTransactionsAction:(UIKeyCommand *)keyCommand {
     // Implement the functionality for adding a wallet
-      [EventEmitter.sharedInstance reloadTransactionsMenuAction];
-
+    [EventEmitter.sharedInstance reloadTransactionsMenuAction];
     NSLog(@"Reload Transactions action performed");
 }
 
-
-
--(void)showHelp:(id)sender {
+- (void)showHelp:(id)sender {
   [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://bluewallet.io/docs"] options:@{} completionHandler:nil];
 }
 
@@ -269,7 +260,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 }
 
 // Clear cache on app launch
-
 - (void)clearFilesIfNeeded {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL shouldClearFiles = [defaults boolForKey:@"clearFilesOnLaunch"];
