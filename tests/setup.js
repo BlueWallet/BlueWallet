@@ -206,6 +206,6 @@ jest.mock('react-native-keychain', () => mockKeychain);
 
 jest.mock('react-native-tcp-socket', () => mockKeychain);
 
-jest.mock('../components/TooltipMenu.ios.js', () => require('../components/TooltipMenu.js'));
+jest.mock('../components/TooltipMenu.ios.tsx', () => require('../components/TooltipMenu.tsx'));
 
 global.alert = () => {};
