@@ -106,12 +106,12 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
     </ContextMenuView>
   );
 
-  return isButton ? (
+  return isMenuPrimaryAction && onPress ? (
     <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
       {renderContextMenuButton()}
     </TouchableOpacity>
-  ) : props.onPress ? (
-    renderContextMenuView()
+  ) : isButton ? (
+    renderContextMenuButton()
   ) : (
     renderContextMenuView()
   );

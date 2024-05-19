@@ -3,6 +3,9 @@ import { Pressable, View } from 'react-native';
 import showPopupMenu, { OnPopupMenuItemSelect, PopupMenuItem } from '../blue_modules/showPopupMenu.android';
 import { ToolTipMenuProps } from './types';
 
+const dismissMenu = () => {
+  console.log('dismissMenu Not implemented');
+};
 const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () => void }>) => {
   const menuRef = useRef<View>(null);
   const {
@@ -27,15 +30,12 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () =>
   );
 
   useEffect(() => {
-    if (ref && menuRef.current) {
-      (ref as React.MutableRefObject<{ dismissMenu?: () => void }>).current.dismissMenu = dismissMenu;
+    // @ts-ignore: fix later
+    if (ref && ref.current) {
+      // @ts-ignore: fix later
+      ref.current.dismissMenu = dismissMenu;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
-
-  const dismissMenu = useCallback(() => {
-    console.log('dismissMenu Not implemented');
-  }, []);
 
   const menuItems = useMemo(() => {
     const menu: { id: string; label: string }[] = [];
@@ -52,7 +52,9 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () =>
   }, [actions]);
 
   const showMenu = useCallback(() => {
-    showPopupMenu(menuItems, handleToolTipSelection, menuRef.current);
+    if (menuRef.current) {
+      showPopupMenu(menuItems, handleToolTipSelection, menuRef.current);
+    }
   }, [menuItems, handleToolTipSelection]);
 
   return (
