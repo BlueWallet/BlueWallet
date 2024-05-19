@@ -1,4 +1,4 @@
-package com.bluewallet.widget
+package io.bluewallet.bluewallet.widget
 
 import kotlinx.serialization.Serializable
 

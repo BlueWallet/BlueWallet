@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:installLocation="auto">
-
+    android:installLocation="auto"
+    package="io.bluewallet.bluewallet">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -49,8 +49,9 @@
         <meta-data
             android:name="com.dieam.reactnativepushnotification.notification_color"
             android:resource="@color/white" />
-  <receiver
-            android:name=".widget.PriceWidgetProvider"
+
+        <receiver
+            android:name="io.bluewallet.bluewallet.widget.PriceWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

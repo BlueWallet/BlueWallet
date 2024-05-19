@@ -2,6 +2,6 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="180dp"
     android:minHeight="110dp"
-    android:updatePeriodMillis="1800000"
-    android:initialLayout="@layout/price_widget"
+    android:updatePeriodMillis="86400000"
+    android:initialLayout="@layout/price_widget_placeholder"
     android:widgetCategory="home_screen" />
