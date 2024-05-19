@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -48,6 +49,16 @@
         <meta-data
             android:name="com.dieam.reactnativepushnotification.notification_color"
             android:resource="@color/white" />
+  <receiver
+            android:name=".widget.PriceWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/price_widget_info" />
+        </receiver>
 
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />

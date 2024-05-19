@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/widget_background"
+    android:padding="8dp">
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/last_updated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:text="Last Updated"
+        android:textColor="@color/text_secondary"
+        android:textSize="10sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/last_updated_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/last_updated"
+        android:layout_alignEnd="@id/last_updated"
+        android:text="10:17 PM"
+        android:textColor="@color/text_secondary"
+        android:textSize="10sp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="$66,958"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/price_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/price"
+        android:layout_centerHorizontal="true"
+        android:text="from $66,958"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/change_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/price_change"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_arrow_up"
+        android:tint="@color/text_secondary"
+        android:visibility="gone" />
+</RelativeLayout>
