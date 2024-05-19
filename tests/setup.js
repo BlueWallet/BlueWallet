@@ -188,12 +188,6 @@ jest.mock('react-native-share', () => {
   };
 });
 
-jest.mock('../components/WidgetCommunication', () => {
-  return {
-    reloadAllTimelines: jest.fn(),
-  };
-});
-
 const mockKeychain = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
   SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',

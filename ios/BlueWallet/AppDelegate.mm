@@ -10,6 +10,8 @@
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
 
+#import "BlueWallet-Swift.h"
+
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
 @property (nonatomic, strong) UIView *launchScreenView;
@@ -21,7 +23,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   [self clearFilesIfNeeded];
-NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
+  NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.bluewallet.bluewallet"];
   NSString *isDoNotTrackEnabled = [group stringForKey:@"donottrack"];
   if (![isDoNotTrackEnabled isEqualToString:@"1"]) {
       // Set the appType based on the current platform
@@ -50,7 +52,9 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
 
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
-  
+
+  [self setupUserDefaultsListener];
+
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -69,6 +73,22 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
     {
       [self copyDeviceUID];
     }
+
+  NSArray *keys = @[
+        @"WidgetCommunicationAllWalletsSatoshiBalance",
+        @"WidgetCommunicationAllWalletsLatestTransactionTime",
+        @"WidgetCommunicationDisplayBalanceAllowed",
+        @"WidgetCommunicationLatestTransactionIsUnconfirmed",
+        @"preferredCurrency",
+        @"preferredCurrencyLocale",
+        @"electrum_host",
+        @"electrum_tcp_port",
+        @"electrum_ssl_port"
+    ];
+
+    if ([keys containsObject:keyPath]) {
+        [WidgetHelper reloadAllWidgets];
+    }
 }
 
 - (void)copyDeviceUID {
@@ -84,6 +104,24 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
   if (deviceUID && deviceUID.length > 0) {
     [NSUserDefaults.standardUserDefaults setValue:deviceUID forKey:@"deviceUIDCopy"];
   }
+}
+
+- (void)setupUserDefaultsListener {
+    NSString *appGroup = @"group.io.bluewallet.bluewallet";
+    NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroup];
+    
+    NSArray *keys = @[
+        @"WidgetCommunicationAllWalletsSatoshiBalance",
+        @"WidgetCommunicationAllWalletsLatestTransactionTime",
+        @"WidgetCommunicationDisplayBalanceAllowed",
+        @"WidgetCommunicationLatestTransactionIsUnconfirmed",
+        @"preferredCurrency",
+        @"preferredCurrencyLocale"
+    ];
+    
+    for (NSString *key in keys) {
+        [userDefaults addObserver:self forKeyPath:key options:NSKeyValueObservingOptionNew context:NULL];
+    }
 }
 
 - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity
@@ -134,8 +172,8 @@ NSUserDefaults *group = [[NSUserDefaults alloc] initWithSuiteName:@"group.io.blu
   [builder removeMenuForIdentifier:UIMenuToolbar];
   
   // File -> Add Wallet (Command + A)
- UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A" 
-                                                      modifierFlags:UIKeyModifierCommand | UIKeyModifierShift 
+ UIKeyCommand *addWalletCommand = [UIKeyCommand keyCommandWithInput:@"A"
+                                                      modifierFlags:UIKeyModifierCommand | UIKeyModifierShift
                                                             action:@selector(addWalletAction:)];
 [addWalletCommand setTitle:@"Add Wallet"];
   
@@ -289,6 +327,5 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
         }
     }
 }
-
 
 @end
