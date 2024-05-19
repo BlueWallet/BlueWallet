@@ -7,8 +7,6 @@ export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
 
 export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> => {};
 
-export const reloadAllTimelines = (): void => {};
-
 export const syncWidgetBalanceWithWallets = async (_wallets: TWallet[], _walletsInitialized: boolean): Promise<void> => {};
 
 const WidgetCommunication: React.FC = () => {

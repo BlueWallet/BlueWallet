@@ -28,7 +28,6 @@ import {
   BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
 import { BlueCurrentTheme } from '../../components/themes';
-import { reloadAllTimelines } from '../../components/WidgetCommunication';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
@@ -170,7 +169,6 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-            reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -199,7 +197,6 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
-            reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
