@@ -1,7 +1,5 @@
 import React, { useContext, useEffect } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-// @ts-ignore: no type definitions
-import RNWidgetCenter from 'react-native-widget-center';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { TWallet } from '../class/wallets/types';
 import { useSettings } from './Context/SettingsContext';
@@ -12,10 +10,6 @@ enum WidgetCommunicationKeys {
   DisplayBalanceAllowed = 'WidgetCommunicationDisplayBalanceAllowed',
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
 }
-
-export const reloadAllTimelines = (): void => {
-  RNWidgetCenter.reloadAllTimelines();
-};
 
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
@@ -34,7 +28,6 @@ export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> =>
   } else {
     await DefaultPreference.clear(WidgetCommunicationKeys.DisplayBalanceAllowed);
   }
-  reloadAllTimelines();
 };
 
 export const syncWidgetBalanceWithWallets = async (wallets: TWallet[], walletsInitialized: boolean): Promise<void> => {
@@ -42,7 +35,6 @@ export const syncWidgetBalanceWithWallets = async (wallets: TWallet[], walletsIn
   const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime(wallets, walletsInitialized);
   await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance));
   await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime));
-  reloadAllTimelines();
 };
 
 const allWalletsBalanceAndTransactionTime = async (

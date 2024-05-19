@@ -352,8 +352,6 @@ PODS:
   - react-native-tcp-socket (6.0.6):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-widget-center (0.0.9):
-    - React
   - React-NativeModulesApple (0.72.14):
     - hermes-engine
     - React-callinvoker
@@ -561,7 +559,6 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
-  - react-native-widget-center (from `../node_modules/react-native-widget-center`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -688,8 +685,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
-  react-native-widget-center:
-    :path: "../node_modules/react-native-widget-center"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -817,7 +812,6 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
-  react-native-widget-center: 12dfba20a4fa995850b52cf0afecf734397f4b9c
   React-NativeModulesApple: 3107f777453f953906d9ba9dc5f8cbd91a6ef913
   React-perflogger: daabc494c6328efc1784a4b49b8b74fca305d11c
   React-RCTActionSheet: 0e0e64a7cf6c07f1de73d1f0a92d26a70262b256
