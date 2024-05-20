@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -8,8 +8,7 @@ import AmountInput from '../../components/AmountInput';
 import Lnurl from '../../class/lnurl';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
-import Biometric from '../../class/biometrics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -17,6 +16,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import prompt from '../../helpers/prompt';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
@@ -26,7 +26,8 @@ import prompt from '../../helpers/prompt';
 const _cacheFiatToSat = {};
 
 const LnurlPay = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { walletID, lnurl } = useRoute().params;
   /** @type {LightningCustodianWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -105,9 +106,9 @@ const LnurlPay = () => {
     /** @type {Lnurl} */
     const LN = _LN;
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         return;
       }
     }

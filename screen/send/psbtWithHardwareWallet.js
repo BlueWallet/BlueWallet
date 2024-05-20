@@ -1,16 +1,14 @@
+import React, { useEffect, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Biometric from '../../class/biometrics';
+import { useStorage } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -20,9 +18,12 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import SaveFileButton from '../../components/SaveFileButton';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { useBiometrics } from '../../hooks/useBiometrics';
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+
   const navigation = useNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
@@ -116,10 +117,10 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }

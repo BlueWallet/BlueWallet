@@ -70,12 +70,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { I18nManager, Platform, TouchableOpacity } from 'react-native';
-import {
-  NavigationDefaultOptions,
-  NavigationDefaultOptionsForDesktop,
-  NavigationFormModalOptions,
-  StatusBarLightOptions,
-} from '../Navigation';
+import { NavigationDefaultOptions, NavigationDefaultOptionsForDesktop, NavigationFormModalOptions, StatusBarLightOptions } from './';
 
 const DetailViewRoot = createNativeStackNavigator();
 const DetailViewStackScreensStack = () => {
@@ -104,7 +99,7 @@ const DetailViewStackScreensStack = () => {
       title: '',
       headerBackTitle: loc.wallets.list_title,
       navigationBarColor: theme.colors.navigationBarColor,
-      headerShown: true,
+      headerShown: !isDesktop,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },

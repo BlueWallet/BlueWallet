@@ -1,12 +1,12 @@
-import React, { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
-import { View, Image, ActivityIndicator, NativeModules, StyleSheet } from 'react-native';
-import Biometric, { BiometricType } from '../class/biometrics';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { View, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import { useStorage } from '../blue_modules/storage-context';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import SafeArea from '../components/SafeArea';
 import { BlueTextCentered } from '../BlueComponents';
 import loc from '../loc';
 import Button from '../components/Button';
+import { BiometricType, useBiometrics } from '../hooks/useBiometrics';
 
 enum AuthType {
   Encrypted,
@@ -49,12 +49,11 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const { SplashScreen } = NativeModules;
-
 const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
-  const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useContext(BlueStorageContext);
+  const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
+  const { deviceBiometricType, unlockWithBiometrics, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
 
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
@@ -62,19 +61,20 @@ const UnlockWith: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const unlockWithBiometrics = useCallback(async () => {
+  const unlockUsingBiometrics = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
     isUnlockingWallets.current = true;
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
 
-    if (await Biometric.unlockWithBiometrics()) {
+    if (await unlockWithBiometrics()) {
       await startAndDecrypt();
       successfullyAuthenticated();
     }
 
     dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
     isUnlockingWallets.current = false;
-  }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.isAuthenticating]);
 
   const unlockWithKey = useCallback(async () => {
     if (isUnlockingWallets.current || state.isAuthenticating) return;
@@ -91,18 +91,16 @@ const UnlockWith: React.FC = () => {
   }, [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated]);
 
   useEffect(() => {
-    SplashScreen?.dismissSplashScreen();
-
     const startUnlock = async () => {
       const storageIsEncrypted = await isStorageEncrypted();
-      const isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-      const biometricType = isBiometricUseCapableAndEnabled ? await Biometric.biometricType() : undefined;
-      const biometricsUseEnabled = await Biometric.isBiometricUseEnabled();
+      const biometricUseCapableAndEnabled = await isBiometricUseCapableAndEnabled();
+      const biometricsUseEnabled = await isBiometricUseEnabled();
+      const biometricType = biometricUseCapableAndEnabled ? deviceBiometricType : undefined;
 
       if (storageIsEncrypted) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Encrypted, detail: undefined } });
         unlockWithKey();
-      } else if (isBiometricUseCapableAndEnabled) {
+      } else if (biometricUseCapableAndEnabled) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
         unlockWithBiometrics();
       } else if (biometricsUseEnabled && biometricType === undefined) {
@@ -120,7 +118,7 @@ const UnlockWith: React.FC = () => {
 
   const onUnlockPressed = () => {
     if (state.auth.type === AuthType.Biometrics) {
-      unlockWithBiometrics();
+      unlockUsingBiometrics();
     } else {
       unlockWithKey();
     }

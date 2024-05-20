@@ -125,7 +125,8 @@
     "maxSats": "La cantidad máxima es {max} sats",
     "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
     "minSats": "La cantidad mínima es {min} sats",
-    "minSatsFull": "La cantidad mínima es {min} sats o {currency}"
+    "minSatsFull": "La cantidad mínima es {min} sats o {currency}",
+    "qrcode_for_the_address": "Código QR para la dirección"
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
@@ -166,6 +167,7 @@
     "details_next": "Siguiente",
     "details_no_signed_tx": "El archivo seleccionado no contiene una transacción que se pueda importar.",
     "details_note_placeholder": "Nota personal",
+    "counterparty_label_placeholder": "Editar nombre de contacto",
     "details_scan": "Escanear",
     "details_scan_hint": "Toca dos veces para escanear o importar un destino",
     "details_total_exceeds_balance": "La cantidad de envío excede el saldo disponible.",
@@ -275,6 +277,7 @@
     "encrypt_title": "Seguridad",
     "encrypt_tstorage": "Almacenamiento",
     "encrypt_use": "Usar {type}",
+    "encrypted_feature_disabled": "Esta función no se puede utilizar con el almacenamiento cifrado habilitado.",
     "encrypt_use_expl": "{type} se utilizará para confirmar tu identidad antes de realizar una transacción, desbloquear, exportar o eliminar una billetera. {type} no se utilizará para desbloquear el almacenamiento encriptado.",
     "biometrics_fail": "Si {type} no está activado o no se desbloquea, puedes utilizar el código de acceso de tu dispositivo como alternativa.",
     "general": "General",
@@ -340,7 +343,6 @@
     "cpfp_title": "Aumentar Comisión (CPFP)",
     "details_balance_hide": "Ocultar Balance",
     "details_balance_show": "Mostrar Balance",
-    "details_block": "Altura del Bloque",
     "details_copy": "Copiar",
     "details_copy_amount": "Importe de la copia",
     "details_copy_block_explorer_link": "Copiar el enlace del explorador de bloques",
@@ -351,7 +353,7 @@
     "details_outputs": "Salidas",
     "date": "Fecha",
     "details_received": "Recibido",
-    "transaction_note_saved": "La nota de transacción se ha guardado correctamente.",
+    "transaction_saved": "Guardado",
     "details_show_in_block_explorer": "Ver en el Explorador de Bloques",
     "details_title": "Transacción",
     "details_to": "Salida",
@@ -372,6 +374,8 @@
     "status_cancel": "Cancelar Transacción",
     "transactions_count": "Número de Transacciones",
     "txid": "ID de Transacción",
+    "from": "De: {counterparty}",
+    "to": "A: {counterparty}",
     "updating": "Actualizando..."
   },
   "wallets": {
@@ -612,9 +616,22 @@
   },
   "bip47": {
     "payment_code": "Código de pago",
-    "payment_codes_list": "Lista de códigos de pago",
-    "who_can_pay_me": "Quién puede pagarme:",
+    "contacts": "Contactos",
     "purpose": "Código reutilizable y compartible (BIP47)",
+    "pay_this_contact": "Paga a este contacto",
+    "rename_contact": "Renombrar contacto",
+    "copy_payment_code": "Copiar código de pago",
+    "copied": "Copiado",
+    "rename": "Cambiar nombre",
+    "provide_name": "Proporciona un nuevo nombre para este contacto",
+    "add_contact": "Agregar contacto",
+    "provide_payment_code": "Proporciona código de pago",
+    "invalid_pc": "Código de pago no válido",
+    "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
+    "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
+    "onchain_tx_needed": "Se necesita transacción en cadena",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
 }

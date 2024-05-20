@@ -23,6 +23,22 @@ interface TransactionDetailsProps {
   navigation: NativeStackNavigationProp<any>;
 }
 
+const actionKeys = {
+  CopyToClipboard: 'copyToClipboard',
+  GoToWallet: 'goToWallet',
+};
+
+const actionIcons = {
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'doc.on.doc',
+  },
+  GoToWallet: {
+    iconType: 'SYSTEM',
+    iconValue: 'wallet.pass',
+  },
+};
+
 function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
@@ -36,6 +52,14 @@ function arrDiff(a1: any[], a2: any[]) {
   }
   return ret;
 }
+
+const toolTipMenuActions = [
+  {
+    id: actionKeys.CopyToClipboard,
+    text: loc.transactions.copy_link,
+    icon: actionIcons.Clipboard,
+  },
+];
 
 const TransactionDetails = () => {
   const { setOptions, navigate } = useNavigation();
@@ -162,9 +186,7 @@ const TransactionDetails = () => {
   };
 
   const handleCopyPress = (stringToCopy: string) => {
-    Clipboard.setString(
-      stringToCopy !== TransactionDetails.actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx?.hash}`,
-    );
+    Clipboard.setString(stringToCopy !== actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx?.hash}`);
   };
 
   if (isLoading || !tx) {
@@ -189,9 +211,9 @@ const TransactionDetails = () => {
   };
 
   const onPressMenuItem = (key: string) => {
-    if (key === TransactionDetails.actionKeys.CopyToClipboard) {
+    if (key === actionKeys.CopyToClipboard) {
       handleCopyPress(key);
-    } else if (key === TransactionDetails.actionKeys.GoToWallet) {
+    } else if (key === actionKeys.GoToWallet) {
       const wallet = weOwnAddress(key);
       if (wallet) {
         navigateToWallet(wallet);
@@ -205,16 +227,16 @@ const TransactionDetails = () => {
     for (const [index, address] of array.entries()) {
       const actions = [];
       actions.push({
-        id: TransactionDetails.actionKeys.CopyToClipboard,
+        id: actionKeys.CopyToClipboard,
         text: loc.transactions.details_copy,
-        icon: TransactionDetails.actionIcons.Clipboard,
+        icon: actionIcons.Clipboard,
       });
       const isWeOwnAddress = weOwnAddress(address);
       if (isWeOwnAddress) {
         actions.push({
-          id: TransactionDetails.actionKeys.GoToWallet,
+          id: actionKeys.GoToWallet,
           text: loc.formatString(loc.transactions.view_wallet, { walletLabel: isWeOwnAddress.getLabel() }),
-          icon: TransactionDetails.actionIcons.GoToWallet,
+          icon: actionIcons.GoToWallet,
         });
       }
 
@@ -320,38 +342,16 @@ const TransactionDetails = () => {
         )}
         <ToolTipMenu
           isButton
-          actions={[
-            {
-              id: TransactionDetails.actionKeys.CopyToClipboard,
-              text: loc.transactions.copy_link,
-              icon: TransactionDetails.actionIcons.Clipboard,
-            },
-          ]}
+          actions={toolTipMenuActions}
           onPressMenuItem={handleCopyPress}
           onPress={handleOnOpenTransactionOnBlockExplorerTapped}
-          buttonStyle={[styles.greyButton, stylesHooks.greyButton]}
+          buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
           <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
         </ToolTipMenu>
       </BlueCard>
     </ScrollView>
   );
-};
-
-TransactionDetails.actionKeys = {
-  CopyToClipboard: 'copyToClipboard',
-  GoToWallet: 'goToWallet',
-};
-
-TransactionDetails.actionIcons = {
-  Clipboard: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
-  },
-  GoToWallet: {
-    iconType: 'SYSTEM',
-    iconValue: 'wallet.pass',
-  },
 };
 
 const styles = StyleSheet.create({

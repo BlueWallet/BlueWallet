@@ -277,6 +277,7 @@
     "encrypt_title": "Security",
     "encrypt_tstorage": "Storage",
     "encrypt_use": "Use {type}",
+    "encrypted_feature_disabled": "This feature cannot be used with encrypted storage enabled.",
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet. {type} will not be used to unlock encrypted storage.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
@@ -615,10 +616,22 @@
   },
   "bip47": {
     "payment_code": "Payment Code",
-    "payment_codes_list": "Payment Codes List",
-    "who_can_pay_me": "Who can pay me:",
-    "whom_can_i_pay": "Whom can I pay:",
+    "contacts": "Contacts",
     "purpose": "Reusable and shareable code (BIP47)",
+    "pay_this_contact": "Pay this contact",
+    "rename_contact": "Rename contact",
+    "copy_payment_code": "Copy Payment Code",
+    "copied": "Copied",
+    "rename": "Rename",
+    "provide_name": "Provide new name for this contact",
+    "add_contact": "Add Contact",
+    "provide_payment_code": "Provide Payment Code",
+    "invalid_pc": "Invalid Payment Code",
+    "notification_tx_unconfirmed": "Notification transaction is not confirmed yet, please wait",
+    "failed_create_notif_tx": "Failed to create on-chain transaction",
+    "onchain_tx_needed": "On-chain transaction needed",
+    "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
+    "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
   }
 }

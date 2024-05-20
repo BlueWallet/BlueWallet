@@ -3,7 +3,6 @@ import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
-import { reloadAllTimelines } from '../components/WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -32,8 +31,6 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
-  // @ts-ignore: Convert to TSX later
-  reloadAllTimelines();
 }
 
 async function getPreferredCurrency(): Promise<FiatUnitType> {

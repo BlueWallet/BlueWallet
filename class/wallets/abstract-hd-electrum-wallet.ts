@@ -1542,22 +1542,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * this method goes over all our txs and checks if we sent a notification tx in the past to the given PC
+   * find and return _existing_ notification transaction for the given payment code
+   * (i.e. if it exists - we notified in the past and dont need to notify again)
    */
-  needToNotifyBIP47(receiverPaymentCode: string): boolean {
+  getBIP47NotificationTransaction(receiverPaymentCode: string): Transaction | undefined {
     const publicBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
     const remoteNotificationAddress = publicBip47.getNotificationAddress();
 
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
-        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return false;
+        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return tx;
         // ^^^ if in the past we sent a tx to his notification address - most likely that was a proper notification
         // transaction with OP_RETURN.
         // but not gona verify it here, will just trust it
       }
     }
-
-    return true;
   }
 
   /**
@@ -1694,6 +1693,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return bip47Local.getNotificationAddress();
   }
 
+  /**
+   * check our notification address, and decypher all payment codes people notified us
+   * about (so they can pay us)
+   */
   async fetchBIP47SenderPaymentCodes(): Promise<void> {
     const bip47_instance = this.getBIP47FromSeed();
     const address = bip47_instance.getNotificationAddress();
@@ -1748,10 +1751,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
   }
 
+  /**
+   * payment codes of people who can pay us
+   */
   getBIP47SenderPaymentCodes(): string[] {
     return this._receive_payment_codes;
   }
 
+  /**
+   * payment codes of people whom we can pay
+   */
   getBIP47ReceiverPaymentCodes(): string[] {
     return this._send_payment_codes;
   }
