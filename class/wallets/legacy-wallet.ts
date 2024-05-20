@@ -1,16 +1,16 @@
 import BigNumber from 'bignumber.js';
-import bitcoinMessage from 'bitcoinjs-message';
-import { randomBytes } from '../rng';
-import { AbstractWallet } from './abstract-wallet';
-import { HDSegwitBech32Wallet } from '..';
 import * as bitcoin from 'bitcoinjs-lib';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import bitcoinMessage from 'bitcoinjs-message';
 import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
-import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
+import { HDSegwitBech32Wallet } from '..';
+import { randomBytes } from '../rng';
+import { AbstractWallet } from './abstract-wallet';
+import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 

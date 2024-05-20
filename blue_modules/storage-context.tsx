@@ -1,14 +1,15 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { startAndDecrypt } from './start-and-decrypt';
+import { InteractionManager } from 'react-native';
+
+import A from '../blue_modules/analytics';
 import Notifications from '../blue_modules/notifications';
-import { LegacyWallet, TTXMetadata, WatchOnlyWallet, BlueApp as BlueAppClass, TCounterpartyMetadata } from '../class';
+import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../class';
 import type { TWallet } from '../class/wallets/types';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
-import A from '../blue_modules/analytics';
-import { InteractionManager } from 'react-native';
+import { startAndDecrypt } from './start-and-decrypt';
 
 const BlueApp = BlueAppClass.getInstance();
 

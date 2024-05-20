@@ -1,16 +1,11 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import BigNumber from 'bignumber.js';
-import { Badge, Icon, Text } from 'react-native-elements';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Badge, Icon, Text } from 'react-native-elements';
 
-import confirm from '../helpers/confirm';
-import { BitcoinUnit } from '../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalancePlain, removeTrailingZeros } from '../loc';
-import { BlueText } from '../BlueComponents';
-import { useTheme } from './themes';
 import {
   fiatToBTC,
   getCurrencySymbol,
@@ -19,6 +14,11 @@ import {
   satoshiToBTC,
   updateExchangeRate,
 } from '../blue_modules/currency';
+import { BlueText } from '../BlueComponents';
+import confirm from '../helpers/confirm';
+import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import { useTheme } from './themes';
 
 dayjs.extend(localizedFormat);
 

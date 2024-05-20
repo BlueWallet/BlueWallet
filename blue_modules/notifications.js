@@ -1,11 +1,12 @@
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
-import { Platform, findNodeHandle } from 'react-native';
-import Frisbee from 'frisbee';
-import { getApplicationName, getVersion, getSystemName, getSystemVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import loc from '../loc';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import Frisbee from 'frisbee';
+import { findNodeHandle, Platform } from 'react-native';
+import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import { requestNotifications } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
+
+import loc from '../loc';
 import ActionSheet from '../screen/ActionSheet';
 import { groundControlUri } from './constants';
 

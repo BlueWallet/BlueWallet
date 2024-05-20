@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { useTheme } from './themes';
-import PlusIcon from './icons/PlusIcon';
+import { StyleSheet, Text, View } from 'react-native';
+
 import loc from '../loc';
+import PlusIcon from './icons/PlusIcon';
+import { useTheme } from './themes';
 
 interface HeaderProps {
   leftText: string;

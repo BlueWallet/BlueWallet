@@ -1,17 +1,17 @@
-import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import LottieView from 'lottie-react-native';
-import { View, StyleSheet } from 'react-native';
-import { Text } from 'react-native-elements';
-import BigNumber from 'bignumber.js';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import BigNumber from 'bignumber.js';
+import LottieView from 'lottie-react-native';
+import PropTypes from 'prop-types';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-elements';
 
 import { BlueCard } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const Success = () => {
   const pop = () => {

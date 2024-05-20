@@ -1,17 +1,18 @@
-import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
-import { GROUP_IO_BLUEWALLET, getPreferredCurrency, initCurrencyDaemon } from '../../blue_modules/currency';
-import { BlueApp } from '../../class';
-import presentAlert from '../Alert';
-import { STORAGE_KEY, saveLanguage } from '../../loc';
-import { useStorage } from '../../blue_modules/storage-context';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
-import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
-import BlueClipboard from '../../blue_modules/clipboard';
-import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
-import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '..//DeviceQuickActions';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
+
+import BlueClipboard from '../../blue_modules/clipboard';
+import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon } from '../../blue_modules/currency';
+import { useStorage } from '../../blue_modules/storage-context';
+import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
+import { BlueApp } from '../../class';
+import { saveLanguage, STORAGE_KEY } from '../../loc';
+import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
+import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '..//DeviceQuickActions';
+import presentAlert from '../Alert';
+import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
+import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;

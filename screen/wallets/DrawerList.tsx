@@ -1,14 +1,15 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useReducer } from 'react';
-import { StyleSheet, LayoutAnimation, FlatList, ViewStyle, InteractionManager } from 'react-native';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
-import { useIsFocused, NavigationProp, ParamListBase } from '@react-navigation/native';
-import WalletsCarousel from '../../components/WalletsCarousel';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
+import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import { FlatList, InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
+import { useTheme } from '../../components/themes';
+import WalletsCarousel from '../../components/WalletsCarousel';
+import loc from '../../loc';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',

@@ -1,7 +1,8 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import { StyleSheet, Pressable, View, Keyboard } from 'react-native';
-import { Text, Icon } from 'react-native-elements';
 import React, { useState } from 'react';
+import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
+import { Icon, Text } from 'react-native-elements';
+
 import loc from '../loc';
 import { useTheme } from './themes';
 

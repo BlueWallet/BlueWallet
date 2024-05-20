@@ -1,29 +1,29 @@
-import React, { useRef, useCallback, useImperativeHandle, forwardRef, useContext } from 'react';
 import PropTypes from 'prop-types';
+import React, { forwardRef, useCallback, useContext, useImperativeHandle, useRef } from 'react';
 import {
   Animated,
-  Image,
+  FlatList,
   I18nManager,
+  Image,
   Platform,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
-  FlatList,
-  Pressable,
 } from 'react-native';
-
 import LinearGradient from 'react-native-linear-gradient';
-import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+
+import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
+import { BlueSpacing10 } from '../BlueComponents';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import { BlueSpacing10 } from '../BlueComponents';
-import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
-import { useTheme } from './themes';
-import { BlurredBalanceView } from './BlurredBalanceView';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
+import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from './Context/SettingsContext';
+import { useTheme } from './themes';
 
 const nStyles = StyleSheet.create({
   container: {

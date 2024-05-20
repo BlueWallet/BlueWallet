@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
 import { useTheme } from '@react-navigation/native';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
+import React, { useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 
-import loc from '../../loc';
-import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-
-import { randomBytes } from '../../class/rng';
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
+import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import loc from '../../loc';
 
 const GenerateWord = () => {
   const { colors } = useTheme();

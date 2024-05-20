@@ -1,7 +1,8 @@
 import React from 'react';
-import { Image, View, Text, ScrollView, StyleSheet } from 'react-native';
-import loc from '../../loc';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+
 import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const WalletsAddMultisigHelp: React.FC = () => {
   const { colors } = useTheme();

@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet, LayoutAnimation } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+
 import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 import WalletGradient from '../class/wallet-gradient';
-import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
-import ToolTipMenu from './TooltipMenu';
-import { FiatUnit } from '../models/fiatUnit';
 import { TWallet } from '../class/wallets/types';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from './Context/SettingsContext';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;

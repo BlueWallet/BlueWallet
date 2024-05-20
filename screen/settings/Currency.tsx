@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
-import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
+
 import {
   CurrencyRate,
   getPreferredCurrency,
@@ -10,13 +10,14 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
+import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
+import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../components/Context/SettingsContext';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 dayjs.extend(calendar);
 

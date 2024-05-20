@@ -2,15 +2,16 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+
 import { BlueSpacing20 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SafeArea from '../../components/SafeArea';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import SaveFileButton from '../../components/SaveFileButton';
 
 const PsbtMultisigQRCode = () => {
   const { navigate } = useNavigation();

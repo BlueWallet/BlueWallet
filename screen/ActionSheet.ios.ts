@@ -1,5 +1,6 @@
 // ActionSheet.ios.ts
 import { ActionSheetIOS, InteractionManager } from 'react-native';
+
 import { ActionSheetOptions, CompletionCallback } from './ActionSheet.common';
 
 export default class ActionSheet {

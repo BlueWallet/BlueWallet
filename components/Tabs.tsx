@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+
 import { useTheme } from './themes';
 
 const tabsStyles = StyleSheet.create({

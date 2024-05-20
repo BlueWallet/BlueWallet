@@ -2,6 +2,7 @@ import './shim.js';
 
 import React, { useEffect } from 'react';
 import { AppRegistry, LogBox, Platform, UIManager } from 'react-native';
+
 import App from './App';
 import A from './blue_modules/analytics';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';

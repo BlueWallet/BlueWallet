@@ -1,25 +1,26 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { View, Text, StyleSheet, SectionList, Image, useWindowDimensions, findNodeHandle, InteractionManager } from 'react-native';
-import WalletsCarousel from '../../components/WalletsCarousel';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { useStorage } from '../../blue_modules/storage-context';
-import { isDesktop } from '../../blue_modules/environment';
-import BlueClipboard from '../../blue_modules/clipboard';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
 import A from '../../blue_modules/analytics';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
-import { TWallet, Transaction, ExtendedTransaction } from '../../class/wallets/types';
-import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useStorage } from '../../blue_modules/storage-context';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
 import { Header } from '../../components/Header';
+import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import WalletsCarousel from '../../components/WalletsCarousel';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import loc from '../../loc';
+import ActionSheet from '../ActionSheet';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 

@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import ToolTipMenu from './TooltipMenu';
-import Share from 'react-native-share';
-import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useTheme } from './themes';
+import React, { useRef } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
+
+import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
+import { useTheme } from './themes';
+import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
 
 interface QRCodeComponentProps {

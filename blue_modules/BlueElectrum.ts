@@ -3,11 +3,12 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Alert } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
+import RNFS from 'react-native-fs';
 import Realm from 'realm';
+
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
-import RNFS from 'react-native-fs';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
