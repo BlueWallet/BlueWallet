@@ -1,56 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/widget_background"
-    android:padding="8dp">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/last_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:text="Last Updated"
-        android:textColor="@color/text_secondary"
-        android:textSize="10sp"
-        android:visibility="gone"/>
+    <data>
+        <variable
+            name="price"
+            type="String" />
+        <variable
+            name="lastUpdatedTime"
+            type="String" />
+        <variable
+            name="isLoading"
+            type="Boolean" />
+        <variable
+            name="priceChange"
+            type="String" />
+        <variable
+            name="showChangeArrow"
+            type="Boolean" />
+        <variable
+            name="showLastUpdated"
+            type="Boolean" />
+    </data>
 
-    <TextView
-        android:id="@+id/last_updated_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/last_updated"
-        android:layout_alignEnd="@id/last_updated"
-        android:textColor="@color/text_secondary"
-        android:textSize="10sp"
-        android:visibility="gone"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:background="@android:color/white">
 
-    <TextView
-        android:id="@+id/price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:textColor="@color/text_primary"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:text="@{price}"
+            android:textSize="24sp"
+            android:textColor="@android:color/black" />
 
-    <TextView
-        android:id="@+id/price_change"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/price"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/last_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/price"
+            android:layout_centerHorizontal="true"
+            android:text="Last updated:"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:visibility="@{showLastUpdated ? View.VISIBLE : View.GONE}" />
 
-    <ImageView
-        android:id="@+id/change_arrow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/price_change"
-        android:layout_centerHorizontal="true"
-        android:tint="@color/text_secondary"
-        android:visibility="gone" />
-</RelativeLayout>
+        <TextView
+            android:id="@+id/last_updated_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/last_updated"
+            android:layout_centerHorizontal="true"
+            android:text="@{lastUpdatedTime}"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:visibility="@{showLastUpdated ? View.VISIBLE : View.GONE}" />
+
+        <ImageView
+            android:id="@+id/change_arrow"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_below="@id/last_updated_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/ic_arrow_up"
+            android:visibility="@{showChangeArrow ? View.VISIBLE : View.GONE}" />
+
+        <TextView
+            android:id="@+id/price_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/change_arrow"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:text="@{priceChange}"
+            android:textSize="12sp"
+            android:textColor="@android:color/black"
+            android:visibility="@{showChangeArrow ? View.VISIBLE : View.GONE}" />
+
+        <ProgressBar
+            android:id="@+id/loading_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="@{isLoading ? View.VISIBLE : View.GONE}" />
+
+    </RelativeLayout>
+</layout>

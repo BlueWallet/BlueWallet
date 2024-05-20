@@ -7,21 +7,34 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.edit
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import io.bluewallet.bluewallet.R
+import io.bluewallet.bluewallet.databinding.PriceWidgetBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.io.BufferedReader
 import java.io.IOException
-import java.nio.charset.Charset
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.*
+
+@Serializable
+data class FiatInfo(
+    val endPointKey: String,
+    val locale: String,
+    val source: String,
+    val symbol: String
+)
 
 class PriceWidgetProvider : AppWidgetProvider() {
 
@@ -55,6 +68,8 @@ class PriceWidgetProvider : AppWidgetProvider() {
                 onUpdate(context, AppWidgetManager.getInstance(context), appWidgetIds)
             }
         }
+
+        loadFiatUnits(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -69,34 +84,39 @@ class PriceWidgetProvider : AppWidgetProvider() {
     }
 
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        val views = RemoteViews(context.packageName, R.layout.price_widget)
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-        val lastUpdatedTime = prefs.getString(KEY_LAST_UPDATED_TIME, "N/A")
-        views.setTextViewText(R.id.last_updated_time, lastUpdatedTime)
-        views.setViewVisibility(R.id.last_updated, View.VISIBLE)
-        views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
-        Log.d(TAG, "Last updated time set to: $lastUpdatedTime")
-
-        // Show loading indicator if there's no previously fetched price
-        val previousPrice = prefs.getString(KEY_PREVIOUS_PRICE, null)
-        if (previousPrice == null) {
-            Log.d(TAG, "No previous price found. Showing loading indicator.")
-            views.setViewVisibility(R.id.price, View.GONE)
-            views.setViewVisibility(R.id.price_change, View.GONE)
-            views.setViewVisibility(R.id.change_arrow, View.GONE)
-        } else {
-            Log.d(TAG, "Previous price found: $previousPrice")
-            views.setViewVisibility(R.id.price, View.VISIBLE)
-            views.setViewVisibility(R.id.price_change, View.VISIBLE)
-            views.setViewVisibility(R.id.change_arrow, View.VISIBLE)
+        val binding = PriceWidgetBinding.inflate(LayoutInflater.from(context)).apply {
+            lifecycleOwner = null
         }
 
+        val lastUpdatedTime = prefs.getString(KEY_LAST_UPDATED_TIME, "N/A") ?: "N/A"
+        val previousPrice = prefs.getString(KEY_PREVIOUS_PRICE, null)
+
+        binding.price = previousPrice ?: "Loading..."
+        binding.lastUpdatedTime = lastUpdatedTime
+        binding.isLoading = previousPrice == null
+        binding.priceChange = ""
+        binding.showChangeArrow = false
+        binding.showLastUpdated = previousPrice != null
+
+        if (previousPrice == null) {
+            Log.d(TAG, "No previous price found. Showing loading indicator.")
+            fetchAndUpdatePrice(context, appWidgetManager, appWidgetId, binding)
+        } else {
+            Log.d(TAG, "Previous price found: $previousPrice")
+        }
+
+        appWidgetManager.updateAppWidget(appWidgetId, binding.root)
+    }
+
+    private fun fetchAndUpdatePrice(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, binding: PriceWidgetBinding) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
         // Fetch the preferred currency
-        val preferredCurrency = prefs.getString(KEY_PREFERRED_CURRENCY, DEFAULT_CURRENCY)
+        val preferredCurrency = prefs.getString(KEY_PREFERRED_CURRENCY, DEFAULT_CURRENCY) ?: DEFAULT_CURRENCY
         Log.d(TAG, "Preferred currency: $preferredCurrency")
 
-        // Load fiat information from JSON file
+        // Load fiat information from SharedPreferences
         val fiatInfo = loadFiatInfo(context, preferredCurrency)
         if (fiatInfo == null) {
             Log.e(TAG, "Fiat info not found for currency: $preferredCurrency")
@@ -108,67 +128,85 @@ class PriceWidgetProvider : AppWidgetProvider() {
             if (error != null) {
                 Log.e(TAG, "Error fetching price: ${error.message}")
                 // Handle the error
-                views.setTextViewText(R.id.price, previousPrice)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
+                binding.price = prefs.getString(KEY_PREVIOUS_PRICE, "N/A") ?: "N/A"
+                appWidgetManager.updateAppWidget(appWidgetId, binding.root)
             } else if (data != null) {
                 Log.d(TAG, "Fetched new price: ${data.rate}")
                 val currentPrice = fiatInfo.symbol + data.rate
                 val previousPrice = prefs.getString(KEY_PREVIOUS_PRICE, currentPrice) ?: currentPrice
 
-                views.setTextViewText(R.id.price, currentPrice)
+                binding.price = currentPrice
+                binding.isLoading = false
 
                 // Format the last updated time
                 val dateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
                 val newLastUpdatedTime = dateFormat.format(Date())
-                views.setTextViewText(R.id.last_updated_time, newLastUpdatedTime)
-                views.setViewVisibility(R.id.last_updated, View.VISIBLE)
-                views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+                binding.lastUpdatedTime = newLastUpdatedTime
+                binding.showLastUpdated = true
 
                 // Update the price change and arrow direction
                 if (previousPrice != currentPrice) {
                     val previousPriceDouble = previousPrice.replace(fiatInfo.symbol, "").replace(",", "").toDouble()
                     val currentPriceDouble = currentPrice.replace(fiatInfo.symbol, "").replace(",", "").toDouble()
                     if (currentPriceDouble > previousPriceDouble) {
-                        views.setImageViewResource(R.id.change_arrow, R.drawable.ic_arrow_up)
+                        binding.showChangeArrow = true
+                        binding.changeArrow.setImageResource(R.drawable.ic_arrow_up)
                         Log.d(TAG, "Price increased. Showing up arrow.")
                     } else {
-                        views.setImageViewResource(R.id.change_arrow, R.drawable.ic_arrow_down)
+                        binding.showChangeArrow = true
+                        binding.changeArrow.setImageResource(R.drawable.ic_arrow_down)
                         Log.d(TAG, "Price decreased. Showing down arrow.")
                     }
-                    views.setTextViewText(R.id.price_change, "from $previousPrice")
-                    views.setViewVisibility(R.id.change_arrow, View.VISIBLE)
-                    views.setViewVisibility(R.id.price_change, View.VISIBLE)
+                    binding.priceChange = "from $previousPrice"
                 } else {
-                    views.setViewVisibility(R.id.change_arrow, View.GONE)
-                    views.setViewVisibility(R.id.price_change, View.GONE)
+                    binding.showChangeArrow = false
+                    binding.priceChange = ""
                 }
 
                 // Save the current price and last updated time in SharedPreferences
-                prefs.edit().apply {
+                prefs.edit {
                     putString(KEY_PREVIOUS_PRICE, currentPrice)
                     putString(KEY_LAST_UPDATED_TIME, newLastUpdatedTime)
-                    apply()
                 }
 
                 Log.d(TAG, "Saved new price: $currentPrice and last updated time: $newLastUpdatedTime")
-                appWidgetManager.updateAppWidget(appWidgetId, views)
+                appWidgetManager.updateAppWidget(appWidgetId, binding.root)
             }
         }
     }
 
     private fun loadFiatInfo(context: Context, currency: String?): FiatInfo? {
         return try {
-            val inputStream = context.assets.open("fiatUnits.json")
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            inputStream.read(buffer)
-            inputStream.close()
-            val json = String(buffer, Charset.forName("UTF-8"))
-            val fiatUnits = Json.decodeFromString<Map<String, FiatInfo>>(json)
-            fiatUnits[currency ?: DEFAULT_CURRENCY]
+            val sharedPreferences = context.getSharedPreferences("fiat_units", Context.MODE_PRIVATE)
+            val fiatUnitsJson = sharedPreferences.getString("fiatUnits", null)
+            val fiatUnits = fiatUnitsJson?.let { Json.decodeFromString<Map<String, FiatInfo>>(it) }
+            fiatUnits?.get(currency ?: DEFAULT_CURRENCY)
         } catch (ex: IOException) {
             Log.e(TAG, "Error reading fiatUnits.json", ex)
             null
+        }
+    }
+
+    private fun loadFiatUnits(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("fiat_units", Context.MODE_PRIVATE)
+        if (sharedPreferences.contains("fiatUnits")) {
+            Log.d(TAG, "Fiat units already loaded.")
+            return
+        }
+
+        try {
+            val inputStream = context.assets.open("fiatUnits.json")
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val content = reader.readText()
+            reader.close()
+
+            sharedPreferences.edit {
+                putString("fiatUnits", content)
+            }
+
+            Log.d(TAG, "Fiat units loaded from assets.")
+        } catch (ex: IOException) {
+            Log.e(TAG, "Error loading fiatUnits.json", ex)
         }
     }
 
@@ -187,11 +225,3 @@ class PriceWidgetProvider : AppWidgetProvider() {
         Log.d(TAG, "Alarm set to update widget every 5 minutes.")
     }
 }
-
-@Serializable
-data class FiatInfo(
-    val endPointKey: String,
-    val locale: String,
-    val source: String,
-    val symbol: String
-)

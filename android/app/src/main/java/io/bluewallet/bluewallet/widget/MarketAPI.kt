@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.*
 
 object MarketAPI {
 
@@ -45,8 +47,8 @@ object MarketAPI {
                 val rateDouble = rateDict?.get("price") as? Double
                 val lastUpdated = rateDict?.get("timestamp") as? Int
                 if (rateDouble != null && lastUpdated != null) {
-                    val unix = lastUpdated / 1_000.toDouble()
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date(unix))
+                    val unix = lastUpdated * 1000L
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date(unix))
                     latestRateDataStore = MarketData(rateDouble.toString(), lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -57,8 +59,8 @@ object MarketAPI {
                 val rateDouble = json["rate"] as? Double
                 val lastUpdated = json["timestamp"] as? Int
                 if (rateDouble != null && lastUpdated != null) {
-                    val unix = lastUpdated / 1_000.toDouble()
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date(unix))
+                    val unix = lastUpdated * 1000L
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date(unix))
                     latestRateDataStore = MarketData(rateDouble.toString(), lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -69,7 +71,7 @@ object MarketAPI {
                 val bitcoinDict = json["bitcoin"] as? Map<String, Any>
                 val rateDouble = bitcoinDict?.get(endPointKey.lowercase()) as? Double
                 if (rateDouble != null) {
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date())
                     latestRateDataStore = MarketData(rateDouble.toString(), lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -79,7 +81,7 @@ object MarketAPI {
             "Exir" -> {
                 val rateDouble = json["last"] as? Double
                 if (rateDouble != null) {
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date())
                     latestRateDataStore = MarketData(rateDouble.toString(), lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -90,7 +92,7 @@ object MarketAPI {
                 val rateString = json["last"] as? String
                 val rateDouble = rateString?.toDoubleOrNull()
                 if (rateDouble != null) {
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date())
                     latestRateDataStore = MarketData(rateString, lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -102,7 +104,7 @@ object MarketAPI {
                 val rateString = tickerDict?.get("buy") as? String
                 val rateDouble = rateString?.toDoubleOrNull()
                 if (rateDouble != null) {
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date())
                     latestRateDataStore = MarketData(rateString, lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -114,7 +116,7 @@ object MarketAPI {
                 val rateString = data?.get("amount") as? String
                 val rateDouble = rateString?.toDoubleOrNull()
                 if (rateDouble != null) {
-                    val lastUpdatedString = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault()).format(java.util.Date())
+                    val lastUpdatedString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(Date())
                     latestRateDataStore = MarketData(rateString, lastUpdatedString)
                     completion(latestRateDataStore, null)
                 } else {
@@ -148,9 +150,3 @@ object MarketAPI {
         }
     }
 }
-
-@Serializable
-data class MarketData(
-    val rate: String,
-    val lastUpdate: String
-)

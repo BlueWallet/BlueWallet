@@ -1,4 +1,10 @@
 import untypedFiatUnit from './fiatUnits.json';
+import { NativeModules } from 'react-native';
+
+
+// This is so the Android widget can access the fiat units 
+const { FiatUnitsModule } = NativeModules;
+FiatUnitsModule?.setFiatUnits(JSON.stringify(untypedFiatUnit));
 
 export const FiatUnitSource = {
   Coinbase: 'Coinbase',
@@ -11,6 +17,8 @@ export const FiatUnitSource = {
   Bitstamp: 'Bitstamp',
   BNR: 'BNR',
 } as const;
+
+
 
 const RateExtractors = {
   Coinbase: async (ticker: string): Promise<number> => {
