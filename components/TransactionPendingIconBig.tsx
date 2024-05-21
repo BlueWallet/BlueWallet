@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+
 import { useTheme } from './themes';
 
 export const TransactionPendingIconBig: React.FC = () => {

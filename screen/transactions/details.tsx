@@ -1,22 +1,23 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import assert from 'assert';
+import dayjs from 'dayjs';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import dayjs from 'dayjs';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import HandOffComponent from '../../components/HandOffComponent';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import ToolTipMenu from '../../components/TooltipMenu';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
-import assert from 'assert';
+import presentAlert from '../../components/Alert';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import HandOffComponent from '../../components/HandOffComponent';
 import HeaderRightButton from '../../components/HeaderRightButton';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
+import loc from '../../loc';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;

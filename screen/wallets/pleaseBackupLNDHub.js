@@ -1,16 +1,16 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 
-import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import loc from '../../loc';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
-import usePrivacy from '../../hooks/usePrivacy';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useContext(BlueStorageContext);

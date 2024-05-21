@@ -1,23 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import { BlueLoading, BlueDismissKeyboardInputAccessory, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { useStorage } from '../../blue_modules/storage-context';
 import BigNumber from 'bignumber.js';
-import AddressInput from '../../components/AddressInput';
-import AmountInput from '../../components/AmountInput';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
-import { ArrowPicker } from '../../components/ArrowPicker';
 import { Psbt } from 'bitcoinjs-lib';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useStorage } from '../../blue_modules/storage-context';
+import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
+import AddressInput from '../../components/AddressInput';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import { ArrowPicker } from '../../components/ArrowPicker';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import { useBiometrics } from '../../hooks/useBiometrics';
+import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 type LdkOpenChannelProps = RouteProp<
   {

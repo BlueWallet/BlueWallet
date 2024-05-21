@@ -1,5 +1,5 @@
-import React, { useState, useRef, forwardRef, ReactNode, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio, Animated, useWindowDimensions } from 'react-native';
+import React, { forwardRef, ReactNode, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';

@@ -1,9 +1,10 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SelectWalletComponent, LdkOpenChannelComponent, SuccessComponent } from './LazyLoadLDKOpenChannelStack';
-import { useTheme } from '../components/themes';
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
+import { LdkOpenChannelComponent, SelectWalletComponent, SuccessComponent } from './LazyLoadLDKOpenChannelStack';
 
 const Stack = createNativeStackNavigator();
 

@@ -1,23 +1,24 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import {
-  AddComponent,
-  ImportCustomDerivationPathComponent,
-  ImportWalletComponent,
-  PleaseBackupComponent,
-  PleaseBackupLNDHubComponent,
-  PleaseBackupLdkComponent,
-  ProvideEntropyComponent,
-  WalletsAddMultisigComponent,
-  WalletsAddMultisigStep2Component,
-  WalletsAddMultisigHelpComponent,
-  ImportWalletDiscoveryComponent,
-  ImportSpeedComponent,
-} from './LazyLoadAddWalletStack';
-import { AddWalletStackParamList } from '../typings/NavigationTypes';
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
+import { AddWalletStackParamList } from '../typings/NavigationTypes';
+import {
+  AddComponent,
+  ImportCustomDerivationPathComponent,
+  ImportSpeedComponent,
+  ImportWalletComponent,
+  ImportWalletDiscoveryComponent,
+  PleaseBackupComponent,
+  PleaseBackupLdkComponent,
+  PleaseBackupLNDHubComponent,
+  ProvideEntropyComponent,
+  WalletsAddMultisigComponent,
+  WalletsAddMultisigHelpComponent,
+  WalletsAddMultisigStep2Component,
+} from './LazyLoadAddWalletStack';
 
 const Stack = createNativeStackNavigator<AddWalletStackParamList>();
 

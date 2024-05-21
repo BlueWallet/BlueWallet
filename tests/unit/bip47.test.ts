@@ -1,10 +1,10 @@
 import BIP47Factory from '@spsina/bip47';
-import ecc from '../../blue_modules/noble_ecc';
 import assert from 'assert';
-
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-import { ECPairFactory } from 'ecpair';
 import * as bitcoin from 'bitcoinjs-lib';
+import { ECPairFactory } from 'ecpair';
+
+import ecc from '../../blue_modules/noble_ecc';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import { CreateTransactionUtxo } from '../../class/wallets/types';
 
 const ECPair = ECPairFactory(ecc);

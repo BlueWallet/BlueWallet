@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import Lnurl from '../../class/lnurl';
 
 describe('LNURL', function () {

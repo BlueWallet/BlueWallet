@@ -1,12 +1,13 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet } from 'react-native';
+
 import presentAlert from '../../components/Alert';
+import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
-import { useSettings } from '../../components/Context/SettingsContext';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();

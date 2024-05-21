@@ -1,9 +1,10 @@
-import React, { Suspense, lazy } from 'react';
-import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import React, { lazy, Suspense } from 'react';
+
+import { isHandset } from '../blue_modules/environment';
 import { useStorage } from '../blue_modules/storage-context';
 import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
-import { isHandset } from '../blue_modules/environment';
 
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
 const DrawerRoot = lazy(() => import('./DrawerRoot'));

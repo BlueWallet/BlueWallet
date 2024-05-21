@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 const SendDetails = lazy(() => import('../screen/send/details'));

@@ -5,12 +5,12 @@
  * @see https://github.com/bitcoinjs/tiny-secp256k1/issues/84#issuecomment-1185682315
  * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/1781
  */
-import createHash from 'create-hash';
-import { createHmac } from 'crypto';
 import * as necc from '@noble/secp256k1';
-import { TinySecp256k1Interface } from 'ecpair/src/ecpair';
 import { TinySecp256k1Interface as TinySecp256k1InterfaceBIP32 } from 'bip32/types/bip32';
 import { XOnlyPointAddTweakResult } from 'bitcoinjs-lib/src/types';
+import createHash from 'create-hash';
+import { createHmac } from 'crypto';
+import { TinySecp256k1Interface } from 'ecpair/src/ecpair';
 
 export interface TinySecp256k1InterfaceExtended {
   pointMultiply(p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null;

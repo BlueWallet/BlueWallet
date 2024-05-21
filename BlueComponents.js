@@ -1,10 +1,12 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, forwardRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
-import { Icon, Text } from 'react-native-elements';
+import React, { Component, forwardRef } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  I18nManager,
   InputAccessoryView,
   Keyboard,
   KeyboardAvoidingView,
@@ -13,13 +15,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  I18nManager,
 } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Icon, Text } from 'react-native-elements';
+
 import { BlueCurrentTheme, useTheme } from './components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from './loc';
+import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from './models/networkTransactionFees';
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;

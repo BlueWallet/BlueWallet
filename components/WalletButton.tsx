@@ -1,7 +1,8 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, Image, I18nManager, StyleSheet, ImageSourcePropType, DimensionValue } from 'react-native';
-import { Theme, useTheme } from './themes';
+import { DimensionValue, I18nManager, Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 import loc from '../loc';
+import { Theme, useTheme } from './themes';
 
 interface ButtonDetails {
   image: ImageSourcePropType;

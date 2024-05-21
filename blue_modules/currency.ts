@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BigNumber from 'bignumber.js';
 import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
-import BigNumber from 'bignumber.js';
+
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
@@ -219,23 +220,23 @@ function _setSkipUpdateExchangeRate(): void {
 }
 
 export {
-  updateExchangeRate,
-  initCurrencyDaemon,
-  satoshiToLocalCurrency,
-  fiatToBTC,
-  satoshiToBTC,
-  BTCToLocalCurrency,
-  setPreferredCurrency,
-  getPreferredCurrency,
-  btcToSatoshi,
-  getCurrencySymbol,
-  _setPreferredFiatCurrency,
   _setExchangeRate,
+  _setPreferredFiatCurrency,
   _setSkipUpdateExchangeRate,
-  PREFERRED_CURRENCY_STORAGE_KEY,
+  BTCToLocalCurrency,
+  btcToSatoshi,
   EXCHANGE_RATES_STORAGE_KEY,
+  fiatToBTC,
+  getCurrencySymbol,
+  getPreferredCurrency,
+  initCurrencyDaemon,
+  isRateOutdated,
   LAST_UPDATED,
   mostRecentFetchedRate,
-  isRateOutdated,
+  PREFERRED_CURRENCY_STORAGE_KEY,
   restoreSavedPreferredFiatCurrencyAndExchangeFromStorage,
+  satoshiToBTC,
+  satoshiToLocalCurrency,
+  setPreferredCurrency,
+  updateExchangeRate,
 };

@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { TouchableOpacity, View, Text, StyleProp, ViewStyle, StyleSheet } from 'react-native';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+
 import { useTheme } from './themes';
 
 interface SquareButtonProps {

@@ -1,37 +1,37 @@
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  I18nManager,
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
-  Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-  I18nManager,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-
-import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
-import AmountInput from '../../components/AmountInput';
-import * as NavigationService from '../../NavigationService';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import loc, { formatBalance, formatBalanceWithoutSuffix, formatBalancePlain } from '../../loc';
-import Lnurl from '../../class/lnurl';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import presentAlert from '../../components/Alert';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import Lnurl from '../../class/lnurl';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import Button from '../../components/Button';
+import { useTheme } from '../../components/themes';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import * as NavigationService from '../../NavigationService';
 
 const LNDCreateInvoice = () => {
   const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);

@@ -1,16 +1,16 @@
-import React, { useReducer, useState } from 'react';
-import PropTypes from 'prop-types';
-import BN from 'bignumber.js';
-import { Dimensions, PixelRatio, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import BN from 'bignumber.js';
+import PropTypes from 'prop-types';
+import React, { useReducer, useState } from 'react';
+import { Dimensions, Image, PixelRatio, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 
-import loc from '../../loc';
-import { BlueCurrentTheme, useTheme } from '../../components/themes';
-import { FContainer, FButton } from '../../components/FloatButtons';
 import { BlueSpacing20 } from '../../BlueComponents';
+import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
 import { Tabs } from '../../components/Tabs';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const ENTROPY_LIMIT = 256;
 

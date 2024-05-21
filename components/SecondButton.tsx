@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
-import { useTheme } from './themes';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+
+import { useTheme } from './themes';
 
 type IconProps = {
   name: string;

@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import React, { useContext } from 'react';
+import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from 'react-native-elements';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
-import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import A from '../../blue_modules/analytics';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
