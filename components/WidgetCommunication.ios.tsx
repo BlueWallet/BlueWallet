@@ -18,7 +18,7 @@ export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
     const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
     return displayBalance === '1';
   } catch {
-    return false;
+    return true;
   }
 };
 
