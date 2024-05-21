@@ -25,21 +25,26 @@ interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentPro
 export const setIsHandOffUseEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
-  console.log('setIsHandOffUseEnabledAsyncStorage', value);
+  console.debug('setIsHandOffUseEnabledAsyncStorage', value);
 };
 
 export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  const isEnabledValue = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
-  console.log('getIsHandOffUseEnabledV', isEnabledValue);
-  return isEnabledValue === 'true';
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const isEnabledValue = (await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY)) ?? false;
+    console.debug('getIsHandOffUseEnabled', isEnabledValue);
+    return isEnabledValue === 'true';
+  } catch (e) {
+    console.debug('getIsHandOffUseEnabled error', e);
+  }
+  return false;
 };
 
 const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   const { isHandOffUseEnabled } = useSettings();
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('HandOffComponent: props', props);
+    console.debug('HandOffComponent: props', props);
   }
   if (isHandOffUseEnabled) {
     return <Handoff {...props} />;

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { useStorage } from '../blue_modules/storage-context';
 import { BlueTextCentered } from '../BlueComponents';
@@ -103,7 +102,7 @@ const UnlockWith: React.FC = () => {
         unlockWithKey();
       } else if (biometricUseCapableAndEnabled) {
         dispatch({ type: SET_AUTH, payload: { type: AuthType.Biometrics, detail: biometricType } });
-        unlockWithBiometrics();
+        unlockUsingBiometrics();
       } else if (biometricsUseEnabled && biometricType === undefined) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         dispatch({ type: SET_AUTH, payload: { type: AuthType.BiometricsUnavailable, detail: undefined } });
