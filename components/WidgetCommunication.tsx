@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { TWallet } from '../class/wallets/types';
 
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {

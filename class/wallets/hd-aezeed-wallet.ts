@@ -2,6 +2,7 @@ import { CipherSeed } from 'aezeed';
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 

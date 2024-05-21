@@ -1,3 +1,4 @@
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
@@ -10,27 +11,27 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { useRoute, useFocusEffect } from '@react-navigation/native';
 import Share from 'react-native-share';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import { BlueLoading, BlueButtonLink, BlueText, BlueSpacing20, BlueCard, BlueSpacing40 } from '../../BlueComponents';
-import BottomModal from '../../components/BottomModal';
-import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
-import HandOffComponent from '../../components/HandOffComponent';
-import AmountInput from '../../components/AmountInput';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import loc, { formatBalance } from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { SuccessView } from '../send/success';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import AmountInput from '../../components/AmountInput';
+import BottomModal from '../../components/BottomModal';
+import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOffComponent from '../../components/HandOffComponent';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import { useTheme } from '../../components/themes';
+import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { SuccessView } from '../send/success';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;

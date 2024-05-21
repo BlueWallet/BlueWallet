@@ -1,12 +1,13 @@
+import assert from 'assert';
+
 import {
-  BTCToLocalCurrency,
   _setExchangeRate,
   _setPreferredFiatCurrency,
+  BTCToLocalCurrency,
   satoshiToBTC,
   satoshiToLocalCurrency,
 } from '../../blue_modules/currency';
 import { FiatUnit } from '../../models/fiatUnit';
-import assert from 'assert';
 
 describe('currency', () => {
   it('formats everything correctly', async () => {

@@ -1,15 +1,16 @@
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
-import { BlueSpacing20, BlueText } from '../../BlueComponents';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
+import { TWallet } from '../../class/wallets/types';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import SaveFileButton from '../../components/SaveFileButton';
+import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
-import { TWallet } from '../../class/wallets/types';
-import SaveFileButton from '../../components/SaveFileButton';
+import loc from '../../loc';
 
 type RootStackParamList = {
   ExportMultisigCoordinationSetup: {

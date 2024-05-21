@@ -1,6 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View, Text } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useTheme } from '../themes';
 

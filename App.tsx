@@ -1,15 +1,17 @@
 import 'react-native-gesture-handler'; // should be on top
+
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { navigationRef } from './NavigationService';
-import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
-import { NavigationProvider } from './components/NavigationProvider';
+
 import { BlueStorageProvider } from './blue_modules/storage-context';
-import { SettingsProvider } from './components/Context/SettingsContext';
 import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
+import { SettingsProvider } from './components/Context/SettingsContext';
+import { NavigationProvider } from './components/NavigationProvider';
+import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
+import { navigationRef } from './NavigationService';
 
 const App = () => {
   const colorScheme = useColorScheme();

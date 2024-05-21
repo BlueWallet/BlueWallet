@@ -1,17 +1,17 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
+import * as fs from '../../blue_modules/fs';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc from '../../loc';
+import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LightningLdkWallet } from '../../class';
 import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
-import * as fs from '../../blue_modules/fs';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();

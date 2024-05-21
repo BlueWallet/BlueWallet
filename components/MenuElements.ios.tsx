@@ -1,8 +1,9 @@
+import { CommonActions } from '@react-navigation/native';
 import { useCallback, useContext, useEffect } from 'react';
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
-import * as NavigationService from '../NavigationService';
-import { CommonActions } from '@react-navigation/native';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
+import * as NavigationService from '../NavigationService';
 
 /* 
 Component for iPadOS and macOS menu items with keyboard shortcuts. 

@@ -1,13 +1,14 @@
-import React, { useEffect, useRef, useContext, useState, useLayoutEffect } from 'react';
-import { StyleSheet, useColorScheme, Platform } from 'react-native';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Platform, StyleSheet, useColorScheme } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useTheme } from '../../components/themes';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useTheme } from '../../components/themes';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

@@ -2,7 +2,7 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
-    "react-native" // for no-inline-styles rule
+    "react-native", // for no-inline-styles rule
   ],
   "extends": [
     "standard",
@@ -49,7 +49,7 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-this-alias": "off",
-    "@typescript-eslint/no-use-before-define": "off"
+    "@typescript-eslint/no-use-before-define": "off",
   },
   "overrides": [
     {

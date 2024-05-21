@@ -1,10 +1,11 @@
 // DrawerRoot.tsx
-import React, { useMemo } from 'react';
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer';
+import React, { useMemo } from 'react';
 import { I18nManager } from 'react-native';
+
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
-import DetailViewStackScreensStack from './DetailViewScreensStack';
 import DrawerList from '../screen/wallets/DrawerList';
+import DetailViewStackScreensStack from './DetailViewScreensStack';
 
 const Drawer = createDrawerNavigator();
 

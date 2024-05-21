@@ -1,6 +1,7 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect } from 'react';
 import { BackHandler, I18nManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+
 import { useStorage } from '../../blue_modules/storage-context';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';

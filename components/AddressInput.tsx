@@ -1,9 +1,10 @@
-import React from 'react';
-import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import loc from '../loc';
-import { scanQrHelper } from '../helpers/scan-qr';
-import { useTheme } from './themes';
 import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+import { scanQrHelper } from '../helpers/scan-qr';
+import loc from '../loc';
+import { useTheme } from './themes';
 
 interface AddressInputProps {
   isLoading?: boolean;

@@ -1,16 +1,17 @@
-import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
-import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
-import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-import { BlueSpacing20, BlueText, BlueCard } from '../../BlueComponents';
-import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
-import loc from '../../loc';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import HandOffComponent from '../../components/HandOffComponent';
-import { useTheme } from '../../components/themes';
-import SafeArea from '../../components/SafeArea';
-import usePrivacy from '../../hooks/usePrivacy';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOffComponent from '../../components/HandOffComponent';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useContext(BlueStorageContext);

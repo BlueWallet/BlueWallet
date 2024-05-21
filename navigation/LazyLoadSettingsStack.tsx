@@ -1,7 +1,8 @@
 import React, { lazy, Suspense } from 'react';
-import { LazyLoadingIndicator } from './LazyLoadingIndicator'; // Assume you have this component for loading indication
+
 import Currency from '../screen/settings/Currency';
 import Language from '../screen/settings/Language';
+import { LazyLoadingIndicator } from './LazyLoadingIndicator'; // Assume you have this component for loading indication
 
 const Settings = lazy(() => import('../screen/settings/Settings'));
 const GeneralSettings = lazy(() => import('../screen/settings/GeneralSettings'));

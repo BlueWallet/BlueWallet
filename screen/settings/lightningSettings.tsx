@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert, I18nManager, ScrollView } from 'react-native';
-import { Button as ButtonRNElements } from 'react-native-elements';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Button as ButtonRNElements } from 'react-native-elements';
+
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import loc from '../../loc';
-import { useTheme } from '../../components/themes';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { Button } from '../../components/Button';
 import { BlueApp } from '../../class';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import presentAlert from '../../components/Alert';
+import { Button } from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   uri: {

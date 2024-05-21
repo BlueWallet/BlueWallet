@@ -1,15 +1,16 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, ScrollView, Alert, TouchableOpacity, TouchableWithoutFeedback, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { BlueLoading, BlueSpacing20, BlueCard, BlueText } from '../../BlueComponents';
-import loc from '../../loc';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useBiometrics } from '../../hooks/useBiometrics';
+import loc from '../../loc';
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();

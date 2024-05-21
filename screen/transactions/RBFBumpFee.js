@@ -1,14 +1,15 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
-import navigationStyle from '../../components/navigationStyle';
+import React from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import CPFP from './CPFP';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import loc from '../../loc';
+import CPFP from './CPFP';
 
 const styles = StyleSheet.create({
   root: {

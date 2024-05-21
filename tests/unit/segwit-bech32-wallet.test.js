@@ -1,5 +1,6 @@
-import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { SegwitBech32Wallet } from '../../class';
 
 describe('Segwit P2SH wallet', () => {

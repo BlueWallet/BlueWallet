@@ -1,9 +1,10 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
-import { useTheme } from '../components/themes';
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
+import { ViewEditMultisigCosignersComponent } from './LazyLoadViewEditMultisigCosignersStack';
 
 export type ViewEditMultisigCosignersStackParamList = {
   ViewEditMultisigCosigners: {

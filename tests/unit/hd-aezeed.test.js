@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import { HDAezeedWallet, WatchOnlyWallet } from '../../class';
 
 describe('HDAezeedWallet', () => {

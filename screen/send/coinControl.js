@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -16,19 +16,20 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
 import * as RNLocalize from 'react-native-localize';
-import loc, { formatBalance } from '../../loc';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import BottomModal from '../../components/BottomModal';
-import { FContainer, FButton } from '../../components/FloatButtons';
+
 import debounce from '../../blue_modules/debounce';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
+import { FButton, FContainer } from '../../components/FloatButtons';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();

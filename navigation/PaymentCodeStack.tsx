@@ -1,9 +1,10 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { PaymentCodeComponent, PaymentCodesListComponent } from './LazyLoadPaymentCodeStack';
-import loc from '../loc'; // Assuming 'loc' is used for localization
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import loc from '../loc'; // Assuming 'loc' is used for localization
+import { PaymentCodeComponent, PaymentCodesListComponent } from './LazyLoadPaymentCodeStack';
 
 export type PaymentCodeStackParamList = {
   PaymentCode: { paymentCode: string };

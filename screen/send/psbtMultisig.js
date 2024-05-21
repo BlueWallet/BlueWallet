@@ -1,18 +1,19 @@
+import { useNavigation, useRoute } from '@react-navigation/native';
+import BigNumber from 'bignumber.js';
+import * as bitcoin from 'bitcoinjs-lib';
 import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import * as bitcoin from 'bitcoinjs-lib';
-import BigNumber from 'bignumber.js';
-import { BlueCard, BlueText } from '../../BlueComponents';
-import loc from '../../loc';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+
+import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
-import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);

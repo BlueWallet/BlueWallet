@@ -1,19 +1,20 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
+
+import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
+import loc from '../loc';
 import {
-  SendDetailsComponent,
+  CoinControlComponent,
   ConfirmComponent,
-  PsbtWithHardwareWalletComponent,
   CreateTransactionComponent,
   PsbtMultisigComponent,
   PsbtMultisigQRCodeComponent,
-  SuccessComponent,
+  PsbtWithHardwareWalletComponent,
   SelectWalletComponent,
-  CoinControlComponent,
+  SendDetailsComponent,
+  SuccessComponent,
 } from './LazyLoadSendDetailsStack';
-import { useTheme } from '../components/themes';
-import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
-import loc from '../loc';
 
 export type SendDetailsStackParamList = {
   SendDetails: { isEditable: boolean }; // Now expects an isEditable boolean

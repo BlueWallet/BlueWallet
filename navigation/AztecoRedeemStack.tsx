@@ -1,9 +1,10 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AztecoRedeemComponent, SelectWalletComponent } from './LazyLoadAztecoRedeemStack';
-import { useTheme } from '../components/themes';
+import React from 'react';
+
 import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
+import { AztecoRedeemComponent, SelectWalletComponent } from './LazyLoadAztecoRedeemStack';
 
 const Stack = createNativeStackNavigator();
 

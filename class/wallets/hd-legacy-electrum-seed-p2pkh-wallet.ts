@@ -1,6 +1,7 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import * as mn from 'electrum-mnemonic';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 

@@ -1,10 +1,10 @@
 import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
-import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
-import { createHmac } from 'crypto';
-import secp256k1 from 'secp256k1';
-import CryptoJS from 'crypto-js';
 import createHash from 'create-hash';
+import { createHmac } from 'crypto';
+import CryptoJS from 'crypto-js';
+import secp256k1 from 'secp256k1';
+import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 
 const ONION_REGEX = /^(http:\/\/[^/:@]+\.onion(?::\d{1,5})?)(\/.*)?$/; // regex for onion URL
 

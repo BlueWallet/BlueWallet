@@ -1,4 +1,5 @@
-import React, { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,30 +16,30 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+
+import A from '../../blue_modules/analytics';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 import { BlueButtonLink, BlueFormMultiInput, BlueSpacing10, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import loc from '../../loc';
-import { SquareButton } from '../../components/SquareButton';
+import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
+import Button from '../../components/Button';
+import { useSettings } from '../../components/Context/SettingsContext';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import presentAlert from '../../components/Alert';
-import confirm from '../../helpers/confirm';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import usePrivacy from '../../hooks/usePrivacy';
-import prompt from '../../helpers/prompt';
-import A from '../../blue_modules/analytics';
 import SaveFileButton from '../../components/SaveFileButton';
-import { useSettings } from '../../components/Context/SettingsContext';
+import { SquareButton } from '../../components/SquareButton';
+import { useTheme } from '../../components/themes';
+import confirm from '../../helpers/confirm';
+import prompt from '../../helpers/prompt';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const staticCache = {};
 

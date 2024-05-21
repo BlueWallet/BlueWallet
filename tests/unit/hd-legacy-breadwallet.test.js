@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import { HDLegacyBreadwalletWallet } from '../../class';
 
 describe('HDLegacyBreadwalletWallet', () => {
