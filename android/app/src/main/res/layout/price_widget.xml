@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="io.bluewallet.bluewallet.widget.PriceWidgetViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/widget_btc_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.price}"
+            android:textSize="24sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/widget_last_updated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/widget_btc_price"
+            android:text="@{viewModel.lastUpdated}"
+            android:textSize="12sp"
+            android:textColor="@android:color/black" />
+    </RelativeLayout>
+</layout>
