@@ -1,4 +1,5 @@
 import React, { lazy, Suspense } from 'react';
+
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 const AztecoRedeem = lazy(() => import('../screen/receive/aztecoRedeem'));

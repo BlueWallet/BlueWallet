@@ -1,40 +1,41 @@
-import React, { Component } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   Alert,
-  View,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Text,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Switch,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import loc from '../../loc';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import {
   BlueButtonLink,
   BlueCard,
+  BlueDismissKeyboardInputAccessory,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueLoading,
   BlueSpacing20,
   BlueText,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { BlueCurrentTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
 import { navigationRef } from '../../NavigationService';
 
 export default class ElectrumSettings extends Component {

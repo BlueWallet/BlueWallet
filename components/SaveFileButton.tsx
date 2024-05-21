@@ -1,10 +1,11 @@
 import React, { ReactNode } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
+
+import * as fs from '../blue_modules/fs';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
-import * as fs from '../blue_modules/fs';
-import { Action } from './types';
 import ToolTipMenu from './TooltipMenu';
+import { Action } from './types';
 
 interface SaveFileButtonProps {
   fileName: string;

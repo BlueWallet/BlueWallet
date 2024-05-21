@@ -17,10 +17,12 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+
+import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
@@ -35,18 +37,17 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import { useSettings } from '../../components/Context/SettingsContext';
+import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
+import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import SaveFileButton from '../../components/SaveFileButton';
-import { useSettings } from '../../components/Context/SettingsContext';
-import HeaderRightButton from '../../components/HeaderRightButton';
-import { writeFileAndExport } from '../../blue_modules/fs';
-import { useBiometrics } from '../../hooks/useBiometrics';
 
 const styles = StyleSheet.create({
   scrollViewContent: {

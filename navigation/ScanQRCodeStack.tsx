@@ -1,8 +1,9 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
-import { useTheme } from '../components/themes';
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
+import { ScanQRCodeComponent } from './LazyLoadScanQRCodeStack';
 
 const Stack = createNativeStackNavigator();
 

@@ -1,4 +1,4 @@
-import { DefaultTheme, DarkTheme, useTheme as useThemeBase } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, useTheme as useThemeBase } from '@react-navigation/native';
 import { Appearance } from 'react-native';
 
 export const BlueDefaultTheme = {

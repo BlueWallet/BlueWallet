@@ -1,31 +1,31 @@
-import React, { Component } from 'react';
+import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   ActivityIndicator,
-  Platform,
-  View,
-  TextInput,
-  TouchableOpacity,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
   ScrollView,
   StyleSheet,
-  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { Text } from 'react-native-elements';
 
-import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueCurrentTheme } from '../../components/themes';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   root: {

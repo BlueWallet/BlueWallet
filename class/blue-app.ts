@@ -1,29 +1,30 @@
-import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as encryption from '../blue_modules/encryption';
 import createHash from 'create-hash';
+import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
-import Realm from 'realm';
 import Keychain from 'react-native-keychain';
-import { randomBytes } from './rng';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import Realm from 'realm';
+
+import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
-import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
-import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
-import { WatchOnlyWallet } from './wallets/watch-only-wallet';
-import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
-import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
-import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { randomBytes } from './rng';
+import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
-import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
-import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
-import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
-import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
-import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
 import { LegacyWallet } from './wallets/legacy-wallet';
-import DefaultPreference from 'react-native-default-preference';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
+import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
+import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
+import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk

@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
-import prompt from '../helpers/prompt';
-import loc from '../loc';
+
 import { BlueApp as BlueAppClass } from '../class/';
+import prompt from '../helpers/prompt';
 import { showKeychainWipeAlert } from '../hooks/useBiometrics';
+import loc from '../loc';
 
 const BlueApp = BlueAppClass.getInstance();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.

@@ -1,15 +1,16 @@
-import React, { useCallback, useContext, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { View, useWindowDimensions, StyleSheet, BackHandler, ScrollView } from 'react-native';
+import React, { useCallback, useContext, useEffect } from 'react';
+import { BackHandler, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import loc from '../../loc';
+
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
-import usePrivacy from '../../hooks/usePrivacy';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const PleaseBackupLdk = () => {
   const { wallets } = useContext(BlueStorageContext);

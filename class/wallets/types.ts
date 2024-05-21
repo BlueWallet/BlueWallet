@@ -1,5 +1,7 @@
 import bitcoin from 'bitcoinjs-lib';
 import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectUtxo } from 'coinselect';
+
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDAezeedWallet } from './hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
@@ -15,7 +17,6 @@ import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './slip39-wallets';
 import { WatchOnlyWallet } from './watch-only-wallet';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 export type Utxo = {
   // Returned by BlueElectrum

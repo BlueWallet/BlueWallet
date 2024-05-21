@@ -1,24 +1,25 @@
-import React, { useEffect, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import loc from '../../loc';
-import SaveFileButton from '../../components/SaveFileButton';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { useBiometrics } from '../../hooks/useBiometrics';
+import loc from '../../loc';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();

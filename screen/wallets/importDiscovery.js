@@ -1,19 +1,20 @@
-import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
-import { useNavigation, useRoute } from '@react-navigation/native';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import WalletToImport from '../../components/WalletToImport';
-import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import prompt from '../../helpers/prompt';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import WalletToImport from '../../components/WalletToImport';
+import prompt from '../../helpers/prompt';
+import loc from '../../loc';
 
 const ImportWalletDiscovery = () => {
   const navigation = useNavigation();

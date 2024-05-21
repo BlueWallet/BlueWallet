@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, Switch, TouchableWithoutFeedback, View } from 'react-native';
+
 import {
   BlueButtonLink,
   BlueDoneAndDismissKeyboardInputAccessory,
@@ -9,13 +10,13 @@ import {
   BlueSpacing20,
   BlueText,
 } from '../../BlueComponents';
-import loc from '../../loc';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
-import usePrivacy from '../../hooks/usePrivacy';
 import { useSettings } from '../../components/Context/SettingsContext';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
 
 const WalletsImport = () => {
   const navigation = useNavigation();

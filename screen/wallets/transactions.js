@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  findNodeHandle,
   FlatList,
   I18nManager,
   InteractionManager,
@@ -15,7 +16,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -24,23 +24,23 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { WalletTransactionsStatus, useStorage } from '../../blue_modules/storage-context';
+import { useStorage, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import LNNodeBar from '../../components/LNNodeBar';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
-import { useBiometrics } from '../../hooks/useBiometrics';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22

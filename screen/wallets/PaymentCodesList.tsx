@@ -1,27 +1,28 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { useRoute } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc, { formatBalance } from '../../loc';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { useTheme } from '../../components/themes';
-import createHash from 'create-hash';
-import Button from '../../components/Button';
-import prompt from '../../helpers/prompt';
-import { ContactList } from '../../class/contact-list';
 import assert from 'assert';
-import { HDSegwitBech32Wallet } from '../../class';
-import Clipboard from '@react-native-clipboard/clipboard';
+import createHash from 'create-hash';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import confirm from '../../helpers/confirm';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueLoading } from '../../BlueComponents';
-import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
+import { HDSegwitBech32Wallet } from '../../class';
+import { ContactList } from '../../class/contact-list';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
 import { Action } from '../../components/types';
+import confirm from '../../helpers/confirm';
+import prompt from '../../helpers/prompt';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 
 interface DataSection {
   title: string;

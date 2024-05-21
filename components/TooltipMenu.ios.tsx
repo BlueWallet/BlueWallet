@@ -1,7 +1,8 @@
-import React, { forwardRef, Ref, useMemo, useCallback } from 'react';
-import { ContextMenuView, ContextMenuButton, RenderItem } from 'react-native-ios-context-menu';
+import React, { forwardRef, Ref, useCallback, useMemo } from 'react';
 import { TouchableOpacity } from 'react-native';
-import { ToolTipMenuProps, Action } from './types';
+import { ContextMenuButton, ContextMenuView, RenderItem } from 'react-native-ios-context-menu';
+
+import { Action, ToolTipMenuProps } from './types';
 
 const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
   const {

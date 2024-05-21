@@ -1,13 +1,14 @@
-import React, { useEffect, useReducer } from 'react';
-import { View, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { BlueCard, BlueText } from '../../BlueComponents';
-import loc from '../../loc';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useEffect, useReducer } from 'react';
+import { ScrollView, TouchableWithoutFeedback, View } from 'react-native';
+
 import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueText } from '../../BlueComponents';
+import { TWallet } from '../../class/wallets/types';
 import ListItem from '../../components/ListItem';
 import useOnAppLaunch from '../../hooks/useOnAppLaunch';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { TWallet } from '../../class/wallets/types';
+import loc from '../../loc';
 
 type RootStackParamList = {
   SelectWallet: { onWalletSelect: (wallet: TWallet) => void; onChainRequireSend: boolean };

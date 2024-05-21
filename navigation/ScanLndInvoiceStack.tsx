@@ -1,15 +1,16 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
+
+import navigationStyle from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
+import loc from '../loc';
 import {
+  LnurlPayComponent,
+  LnurlPaySuccessComponent,
   ScanLndInvoiceComponent,
   SelectWalletComponent,
   SuccessComponent,
-  LnurlPayComponent,
-  LnurlPaySuccessComponent,
 } from './LazyLoadScanLndInvoiceStack';
-import { useTheme } from '../components/themes';
-import navigationStyle from '../components/navigationStyle';
-import loc from '../loc';
 
 const Stack = createNativeStackNavigator();
 
