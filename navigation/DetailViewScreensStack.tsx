@@ -352,20 +352,6 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewRoot.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
       <DetailViewRoot.Screen
-        name="LDKOpenChannelRoot"
-        component={LDKOpenChannelRoot}
-        options={navigationStyle({
-          title: loc.lnd.new_channel,
-          headerLargeTitle: true,
-          statusBarStyle: 'auto',
-          closeButton: true,
-          headerBackVisible: false,
-          gestureEnabled: false,
-          closeButtonFunc: popToTop,
-        })(theme)}
-      />
-
-      <DetailViewRoot.Screen
         name="ScanQRCodeRoot"
         component={ScanQRCodeStackRoot}
         options={{
