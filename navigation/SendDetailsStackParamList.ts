@@ -31,7 +31,7 @@ export type SendDetailsStackParamList = {
     showAnimatedQr?: boolean;
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
-    feeSatoshi: number;
+    feeSatoshi?: number;
   };
   PsbtMultisig: {
     memo?: string;
