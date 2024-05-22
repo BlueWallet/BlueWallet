@@ -74,7 +74,7 @@ interface IParams {
 
 interface IPaymentDestinations {
   address: string;
-  amountSats: number | string;
+  amountSats?: number | string;
   amount?: string | number | 'MAX';
   key: string; // random id to look up this record
 }
@@ -778,7 +778,7 @@ const SendDetails = () => {
         navigation.navigate('PsbtMultisig', {
           memo: transactionMemo,
           psbtBase64: psbt.toBase64(),
-          walletID: wallet?.getID(),
+          walletID: wallet.getID(),
         });
       }
     } catch (error: any) {
@@ -839,8 +839,7 @@ const SendDetails = () => {
     setOptionsVisible(false);
     if (addresses.length === 0) return;
     await sleep(200); // wait for animation
-    // @ts-ignore idk how to fix
-    scrollView.current.flashScrollIndicators();
+    scrollView.current?.flashScrollIndicators();
     if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
   };
 
