@@ -1,4 +1,4 @@
-import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -22,6 +22,7 @@ import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -107,7 +108,7 @@ const WalletsList: React.FC = () => {
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate } = useNavigation<NavigationProps>();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const dataSource = getTransactions(undefined, 10);
