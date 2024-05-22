@@ -8,7 +8,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BlueStorageProvider } from './blue_modules/storage-context';
 import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
 import { SettingsProvider } from './components/Context/SettingsContext';
-import { NavigationProvider } from './components/NavigationProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
@@ -19,15 +18,13 @@ const App = () => {
   return (
     <LargeScreenProvider>
       <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-        <NavigationProvider>
-          <SafeAreaProvider>
-            <BlueStorageProvider>
-              <SettingsProvider>
-                <MasterView />
-              </SettingsProvider>
-            </BlueStorageProvider>
-          </SafeAreaProvider>
-        </NavigationProvider>
+        <SafeAreaProvider>
+          <BlueStorageProvider>
+            <SettingsProvider>
+              <MasterView />
+            </SettingsProvider>
+          </BlueStorageProvider>
+        </SafeAreaProvider>
       </NavigationContainer>
     </LargeScreenProvider>
   );
