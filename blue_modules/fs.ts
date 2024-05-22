@@ -90,7 +90,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
 /**
  * Opens & reads *.psbt files, and returns base64 psbt. FALSE if something went wrong (wont throw).
  */
-export const openSignedTransaction = async function (): Promise<string | boolean> {
+export const openSignedTransaction = async function (): Promise<string | false> {
   try {
     const res = await DocumentPicker.pickSingle({
       type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],

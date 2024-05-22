@@ -15,18 +15,7 @@ import {
   SendDetailsComponent,
   SuccessComponent,
 } from './LazyLoadSendDetailsStack';
-
-export type SendDetailsStackParamList = {
-  SendDetails: { isEditable: boolean }; // Now expects an isEditable boolean
-  Confirm: undefined;
-  PsbtWithHardwareWallet: undefined;
-  CreateTransaction: undefined;
-  PsbtMultisig: undefined;
-  PsbtMultisigQRCode: undefined;
-  Success: undefined;
-  SelectWallet: undefined;
-  CoinControl: undefined;
-};
+import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
