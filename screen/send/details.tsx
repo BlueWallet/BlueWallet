@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StackActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -55,6 +55,7 @@ import assert from 'assert';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { isTablet } from '../../blue_modules/environment';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -88,7 +89,7 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
-  const navigation = useNavigation<NavigationProps>();
+  const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute();
   const name = route.name;
   const routeParams = route.params as IParams;
