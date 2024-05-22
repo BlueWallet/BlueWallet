@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -52,6 +52,9 @@ import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/netw
 import { CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import { TOptions } from 'bip21';
 import assert from 'assert';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { isTablet } from '../../blue_modules/environment';
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -81,16 +84,18 @@ interface IFee {
   mediumFee: number | null;
   fastestFee: number | null;
 }
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProps>();
   const route = useRoute();
   const name = route.name;
   const routeParams = route.params as IParams;
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
+  const popAction = StackActions.pop(1);
 
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
@@ -525,6 +530,7 @@ const SendDetails = () => {
   };
 
   const createPsbtTransaction = async () => {
+    if (!wallet) return;
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
@@ -569,7 +575,6 @@ const SendDetails = () => {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
-      // @ts-ignore idk how to fix FIXME?
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
         fromWallet: wallet,
@@ -581,7 +586,6 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === MultisigHDWallet.type) {
-      // @ts-ignore idk how to fix FIXME?
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -607,11 +611,10 @@ const SendDetails = () => {
       recipients = outputs;
     }
 
-    // @ts-ignore idk how to fix FIXME?
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
       memo: transactionMemo,
-      walletID: wallet?.getID(),
+      walletID: wallet.getID(),
       tx: tx.toHex(),
       recipients,
       satoshiPerByte: requestedSatPerByte,
@@ -623,8 +626,7 @@ const SendDetails = () => {
 
   const onWalletSelect = (w: TWallet) => {
     setWallet(w);
-    // @ts-ignore idk how to fix
-    navigation.pop();
+    navigation.dispatch(popAction);
   };
 
   /**
@@ -639,7 +641,6 @@ const SendDetails = () => {
 
     setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
-      // @ts-ignore idk how to fix FIXME?
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -651,8 +652,8 @@ const SendDetails = () => {
   };
 
   const importQrTransactionOnBarScanned = (ret: any) => {
-    // @ts-ignore idk how to fix
-    navigation.getParent().pop();
+    navigation.getParent()?.getParent()?.dispatch(popAction);
+    if (!wallet) return;
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
@@ -665,7 +666,6 @@ const SendDetails = () => {
       // we construct PSBT object and pass to next screen
       // so user can do smth with it:
       const psbt = bitcoin.Psbt.fromBase64(ret.data);
-      // @ts-ignore idk how to fix FIXME?
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
         fromWallet: wallet,
@@ -703,7 +703,6 @@ const SendDetails = () => {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
         const txhex = psbt.extractTransaction().toHex();
-        // @ts-ignore idk how to fix FIXME?
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex });
         setIsLoading(false);
         setOptionsVisible(false);
@@ -715,7 +714,6 @@ const SendDetails = () => {
         // so user can do smth with it:
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
-        // @ts-ignore idk how to fix FIXME?
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, psbt });
         setIsLoading(false);
         setOptionsVisible(false);
@@ -725,7 +723,6 @@ const SendDetails = () => {
       if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        // @ts-ignore idk how to fix FIXME?
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex: file });
         setIsLoading(false);
         setOptionsVisible(false);
@@ -776,12 +773,13 @@ const SendDetails = () => {
         await sleep(100);
       }
 
-      // @ts-ignore idk how to fix FIXME?
-      navigation.navigate('PsbtMultisig', {
-        memo: transactionMemo,
-        psbtBase64: psbt.toBase64(),
-        walletID: wallet?.getID(),
-      });
+      if (wallet) {
+        navigation.navigate('PsbtMultisig', {
+          memo: transactionMemo,
+          psbtBase64: psbt.toBase64(),
+          walletID: wallet?.getID(),
+        });
+      }
     } catch (error: any) {
       presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
     }
@@ -794,8 +792,7 @@ const SendDetails = () => {
   };
 
   const onBarScanned = (ret: any) => {
-    // @ts-ignore idk how to fix
-    navigation.getParent().pop();
+    navigation.getParent()?.dispatch(popAction);
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
@@ -811,7 +808,6 @@ const SendDetails = () => {
   const importTransactionMultisigScanQr = () => {
     setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
-      // @ts-ignore idk how to fix FIXME?
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -848,8 +844,8 @@ const SendDetails = () => {
   };
 
   const handleCoinControl = () => {
+    if (!wallet) return;
     setOptionsVisible(false);
-    // @ts-ignore idk how to fix FIXME?
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
@@ -875,7 +871,7 @@ const SendDetails = () => {
       setIsLoading(false);
     }
 
-    if (!tx) return setIsLoading(false);
+    if (!tx || !wallet) return setIsLoading(false);
 
     // we need to remove change address from recipients, so that Confirm screen show more accurate info
     const changeAddresses: string[] = [];
@@ -886,7 +882,6 @@ const SendDetails = () => {
     }
     const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
 
-    // @ts-ignore idk how to fix FIXME?
     navigation.navigate('CreateTransaction', {
       fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
       feeSatoshi: psbt.getFee(),
@@ -1093,13 +1088,11 @@ const SendDetails = () => {
     modalContent: {
       backgroundColor: colors.modal,
       borderTopColor: colors.borderTopColor,
-      // @ts-ignore marcos fixme
       borderWidth: colors.borderWidth,
     },
     optionsContent: {
       backgroundColor: colors.modal,
       borderTopColor: colors.borderTopColor,
-      // @ts-ignore marcos fixme
       borderWidth: colors.borderWidth,
     },
     feeModalItemActive: {
@@ -1178,8 +1171,7 @@ const SendDetails = () => {
 
     return (
       <BottomModal isVisible={isFeeSelectionModalVisible} onClose={() => setIsFeeSelectionModalVisible(false)}>
-        {/* @ts-ignore `isPad` doesnt exist but is in docs..? */}
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             {options.map(({ label, time, fee, rate, active, disabled }, index) => (
               <TouchableOpacity
@@ -1250,8 +1242,7 @@ const SendDetails = () => {
 
     return (
       <BottomModal isVisible={optionsVisible} onClose={hideOptions}>
-        {/* @ts-ignore `isPad` doesnt exist but is in docs..? */}
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
             {isEditable && (
               <ListItem
@@ -1343,7 +1334,6 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            /* @ts-ignore idk how to fix fixme? */
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -1354,7 +1344,6 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            /* @ts-ignore idk how to fix fixme? */
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
             disabled={!isEditable || isLoading}
           >
@@ -1469,8 +1458,7 @@ const SendDetails = () => {
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
-        {/* @ts-ignore `isPad` doesnt exist but is in docs..? */}
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
+        <KeyboardAvoidingView enabled={!isTablet} behavior="position">
           <FlatList
             keyboardShouldPersistTaps="always"
             scrollEnabled={addresses.length > 1}

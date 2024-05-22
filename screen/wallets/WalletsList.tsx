@@ -1,4 +1,4 @@
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -17,10 +17,11 @@ import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -87,6 +88,8 @@ function reducer(state: WalletListState, action: WalletListAction) {
   }
 }
 
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
@@ -104,7 +107,7 @@ const WalletsList: React.FC = () => {
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate } = useExtendedNavigation();
+  const { navigate } = useNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const dataSource = getTransactions(undefined, 10);
@@ -321,6 +324,7 @@ const WalletsList: React.FC = () => {
     if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      // @ts-ignore: Fix later
       navigate(...completionValue);
     });
   };
