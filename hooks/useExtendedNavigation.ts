@@ -5,15 +5,13 @@ import { presentWalletExportReminder } from '../helpers/presentWalletExportRemin
 import { useBiometrics } from './useBiometrics';
 
 // List of screens that require biometrics
-
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
 
 // List of screens that require wallet export to be saved
-
 const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
 
-export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
-  const originalNavigation = useNavigation<NavigationProp<ParamListBase>>();
+export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T => {
+  const originalNavigation = useNavigation<T>();
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled, unlockWithBiometrics } = useBiometrics();
 
@@ -95,3 +93,7 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
     navigate: enhancedNavigate,
   };
 };
+
+// Usage example:
+// type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
+// const navigation = useExtendedNavigation<NavigationProps>();
