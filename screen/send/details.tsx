@@ -88,7 +88,7 @@ const SendDetails = () => {
   const route = useRoute();
   const name = route.name;
   const routeParams = route.params as IParams;
-  const scrollView = useRef();
+  const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
 
@@ -451,7 +451,7 @@ const SendDetails = () => {
     if (btcAddressRx.test(address) || address.startsWith('bc1') || address.startsWith('BC1')) {
       setAddresses(addrs => {
         addrs[scrollIndex.current].address = address;
-        addrs[scrollIndex.current].amount = options.amount;
+        addrs[scrollIndex.current].amount = options?.amount ?? 0;
         addrs[scrollIndex.current].amountSats = new BigNumber(options?.amount ?? 0).multipliedBy(100000000).toNumber();
         return [...addrs];
       });
@@ -463,8 +463,7 @@ const SendDetails = () => {
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-      // @ts-ignore idk how to fix
-      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
+      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
     }
 
     setIsLoading(false);
@@ -508,8 +507,7 @@ const SendDetails = () => {
       }
 
       if (error) {
-        // @ts-ignore idk how to fix
-        scrollView.current.scrollToIndex({ index });
+        scrollView.current?.scrollToIndex({ index });
         setIsLoading(false);
         presentAlert({ title: loc.errors.error, message: error });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -551,7 +549,7 @@ const SendDetails = () => {
     }
 
     // without forcing `HDSegwitBech32Wallet` i had a weird ts error, complaining about last argument (fp)
-    const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet).createTransaction(
+    const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet)?.createTransaction(
       lutxo,
       targets,
       requestedSatPerByte,
@@ -769,7 +767,7 @@ const SendDetails = () => {
       if (!base64) return;
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-      if ((wallet as MultisigHDWallet).howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+      if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
         hideOptions();
         setIsLoading(true);
         await sleep(100);
@@ -825,14 +823,13 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = async () => {
+    console.log('handleAddRecipient');
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
     setOptionsVisible(false);
     await sleep(200); // wait for animation
-    // @ts-ignore idk how to fix
-    scrollView.current.scrollToEnd();
+    scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
-    // @ts-ignore idk how to fix
-    scrollView.current.flashScrollIndicators();
+    scrollView.current?.flashScrollIndicators();
   };
 
   const handleRemoveRecipient = async () => {
@@ -847,8 +844,7 @@ const SendDetails = () => {
     await sleep(200); // wait for animation
     // @ts-ignore idk how to fix
     scrollView.current.flashScrollIndicators();
-    // @ts-ignore idk how to fix
-    if (last && Platform.OS === 'android') scrollView.current.scrollToEnd(); // fix white screen on android
+    if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
   };
 
   const handleCoinControl = () => {
@@ -972,7 +968,7 @@ const SendDetails = () => {
           icon: SendDetails.actionIcons.SignPSBT,
         });
       }
-      if ((wallet as MultisigHDWallet).allowCosignPsbt()) {
+      if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
         transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
       }
       actions.push(transactionActions, [
@@ -1303,7 +1299,7 @@ const SendDetails = () => {
               </>
             )}
             <ListItem testID="CoinControl" title={loc.cc.header} hideChevron onPress={handleCoinControl} />
-            {(wallet as MultisigHDWallet).allowCosignPsbt() && isEditable && (
+            {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
               <ListItem testID="PsbtSign" title={loc.send.psbt_sign} hideChevron onPress={handlePsbtSign} />
             )}
           </View>
