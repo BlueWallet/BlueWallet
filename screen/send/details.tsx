@@ -1465,6 +1465,7 @@ const SendDetails = () => {
             data={addresses}
             renderItem={renderBitcoinTransactionInfoFields}
             horizontal
+            ref={scrollView}
             pagingEnabled
             removeClippedSubviews={false}
             onMomentumScrollBegin={Keyboard.dismiss}
