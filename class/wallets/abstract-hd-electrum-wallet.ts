@@ -1,10 +1,11 @@
 /* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
 import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
+import assert from 'assert';
 import BigNumber from 'bignumber.js';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
+import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
@@ -16,7 +17,6 @@ import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import assert from 'assert';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);

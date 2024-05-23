@@ -1,7 +1,9 @@
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  findNodeHandle,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -13,10 +15,12 @@ import {
   Switch,
   Text,
   View,
-  findNodeHandle,
 } from 'react-native';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { Badge, Icon } from 'react-native-elements';
+
+import { isDesktop } from '../../blue_modules/environment';
+import { useStorage } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -27,36 +31,34 @@ import {
   BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
-import * as NavigationService from '../../NavigationService';
-import { useStorage } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
+import { useSettings } from '../../components/Context/SettingsContext';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
+import prompt from '../../helpers/prompt';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useBiometrics } from '../../hooks/useBiometrics';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import { isDesktop } from '../../blue_modules/environment';
+import * as NavigationService from '../../NavigationService';
 import ActionSheet from '../ActionSheet';
-import SaveFileButton from '../../components/SaveFileButton';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import prompt from '../../helpers/prompt';
-import { useSettings } from '../../components/Context/SettingsContext';
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
@@ -173,10 +175,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }
     setIsLoading(true);
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }

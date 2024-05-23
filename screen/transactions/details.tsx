@@ -1,27 +1,44 @@
+import Clipboard from '@react-native-clipboard/clipboard';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import assert from 'assert';
+import dayjs from 'dayjs';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import dayjs from 'dayjs';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import HandOffComponent from '../../components/HandOffComponent';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import ToolTipMenu from '../../components/TooltipMenu';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
+
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
-import assert from 'assert';
+import presentAlert from '../../components/Alert';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import HandOffComponent from '../../components/HandOffComponent';
 import HeaderRightButton from '../../components/HeaderRightButton';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
+import loc from '../../loc';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
   navigation: NativeStackNavigationProp<any>;
 }
+
+const actionKeys = {
+  CopyToClipboard: 'copyToClipboard',
+  GoToWallet: 'goToWallet',
+};
+
+const actionIcons = {
+  Clipboard: {
+    iconType: 'SYSTEM',
+    iconValue: 'doc.on.doc',
+  },
+  GoToWallet: {
+    iconType: 'SYSTEM',
+    iconValue: 'wallet.pass',
+  },
+};
 
 function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
@@ -36,6 +53,14 @@ function arrDiff(a1: any[], a2: any[]) {
   }
   return ret;
 }
+
+const toolTipMenuActions = [
+  {
+    id: actionKeys.CopyToClipboard,
+    text: loc.transactions.copy_link,
+    icon: actionIcons.Clipboard,
+  },
+];
 
 const TransactionDetails = () => {
   const { setOptions, navigate } = useNavigation();
@@ -162,9 +187,7 @@ const TransactionDetails = () => {
   };
 
   const handleCopyPress = (stringToCopy: string) => {
-    Clipboard.setString(
-      stringToCopy !== TransactionDetails.actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx?.hash}`,
-    );
+    Clipboard.setString(stringToCopy !== actionKeys.CopyToClipboard ? stringToCopy : `https://mempool.space/tx/${tx?.hash}`);
   };
 
   if (isLoading || !tx) {
@@ -189,9 +212,9 @@ const TransactionDetails = () => {
   };
 
   const onPressMenuItem = (key: string) => {
-    if (key === TransactionDetails.actionKeys.CopyToClipboard) {
+    if (key === actionKeys.CopyToClipboard) {
       handleCopyPress(key);
-    } else if (key === TransactionDetails.actionKeys.GoToWallet) {
+    } else if (key === actionKeys.GoToWallet) {
       const wallet = weOwnAddress(key);
       if (wallet) {
         navigateToWallet(wallet);
@@ -205,16 +228,16 @@ const TransactionDetails = () => {
     for (const [index, address] of array.entries()) {
       const actions = [];
       actions.push({
-        id: TransactionDetails.actionKeys.CopyToClipboard,
+        id: actionKeys.CopyToClipboard,
         text: loc.transactions.details_copy,
-        icon: TransactionDetails.actionIcons.Clipboard,
+        icon: actionIcons.Clipboard,
       });
       const isWeOwnAddress = weOwnAddress(address);
       if (isWeOwnAddress) {
         actions.push({
-          id: TransactionDetails.actionKeys.GoToWallet,
+          id: actionKeys.GoToWallet,
           text: loc.formatString(loc.transactions.view_wallet, { walletLabel: isWeOwnAddress.getLabel() }),
-          icon: TransactionDetails.actionIcons.GoToWallet,
+          icon: actionIcons.GoToWallet,
         });
       }
 
@@ -320,38 +343,16 @@ const TransactionDetails = () => {
         )}
         <ToolTipMenu
           isButton
-          actions={[
-            {
-              id: TransactionDetails.actionKeys.CopyToClipboard,
-              text: loc.transactions.copy_link,
-              icon: TransactionDetails.actionIcons.Clipboard,
-            },
-          ]}
+          actions={toolTipMenuActions}
           onPressMenuItem={handleCopyPress}
           onPress={handleOnOpenTransactionOnBlockExplorerTapped}
-          buttonStyle={[styles.greyButton, stylesHooks.greyButton]}
+          buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
           <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_show_in_block_explorer}</Text>
         </ToolTipMenu>
       </BlueCard>
     </ScrollView>
   );
-};
-
-TransactionDetails.actionKeys = {
-  CopyToClipboard: 'copyToClipboard',
-  GoToWallet: 'goToWallet',
-};
-
-TransactionDetails.actionIcons = {
-  Clipboard: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
-  },
-  GoToWallet: {
-    iconType: 'SYSTEM',
-    iconValue: 'wallet.pass',
-  },
 };
 
 const styles = StyleSheet.create({

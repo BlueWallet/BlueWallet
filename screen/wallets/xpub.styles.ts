@@ -1,6 +1,7 @@
-import { StyleSheet } from 'react-native';
-import { useTheme } from '../../components/themes';
 import { useMemo } from 'react';
+import { StyleSheet } from 'react-native';
+
+import { useTheme } from '../../components/themes';
 
 export const styles = StyleSheet.create({
   root: {

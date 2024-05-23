@@ -1,9 +1,10 @@
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { WalletXpubComponent } from './LazyLoadWalletXpubStack';
-import { useTheme } from '../components/themes';
+import React from 'react';
+
 import navigationStyle from '../components/navigationStyle';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
+import { WalletXpubComponent } from './LazyLoadWalletXpubStack';
 
 const Stack = createNativeStackNavigator();
 

@@ -1,23 +1,24 @@
-import React, { useEffect, useLayoutEffect, useReducer, useRef } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, BackHandler } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useEffect, useLayoutEffect, useReducer, useRef } from 'react';
+import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { Transaction } from '../../class/wallets/types';
+import Button from '../../components/Button';
+import HandOffComponent from '../../components/HandOffComponent';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
-import HandOffComponent from '../../components/HandOffComponent';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { useStorage } from '../../blue_modules/storage-context';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Transaction } from '../../class/wallets/types';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 enum ButtonStatus {
   Possible,

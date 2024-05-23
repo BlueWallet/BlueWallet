@@ -1,5 +1,6 @@
-import React, { createContext, useState, useEffect, useMemo, ReactNode } from 'react';
+import React, { createContext, ReactNode, useEffect, useMemo, useState } from 'react';
 import { Dimensions } from 'react-native';
+
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 
 interface ILargeScreenContext {

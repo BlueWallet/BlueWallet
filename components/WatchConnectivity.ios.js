@@ -1,19 +1,20 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import {
-  updateApplicationContext,
-  watchEvents,
-  useReachability,
-  useInstalled,
   transferCurrentComplicationUserInfo,
   transferUserInfo,
+  updateApplicationContext,
+  useInstalled,
+  useReachability,
+  watchEvents,
 } from 'react-native-watch-connectivity';
-import { Chain } from './models/bitcoinUnits';
-import loc, { formatBalance, transactionTimeToReadable } from './loc';
-import { BlueStorageContext } from './blue_modules/storage-context';
-import Notifications from './blue_modules/notifications';
-import { FiatUnit } from './models/fiatUnit';
-import { MultisigHDWallet } from './class';
-import { useSettings } from './components/Context/SettingsContext';
+
+import Notifications from '../blue_modules/notifications';
+import { BlueStorageContext } from '../blue_modules/storage-context';
+import { MultisigHDWallet } from '../class';
+import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+import { Chain } from '../models/bitcoinUnits';
+import { FiatUnit } from '../models/fiatUnit';
+import { useSettings } from './Context/SettingsContext';
 
 function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);

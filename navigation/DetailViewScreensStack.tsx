@@ -1,27 +1,14 @@
-import React, { useMemo } from 'react';
-import AddWalletStack from './AddWalletStack';
 import { StackActions } from '@react-navigation/native';
-
-import WalletAddresses from '../screen/wallets/addresses';
-import WalletDetails from '../screen/wallets/details';
-import GenerateWord from '../screen/wallets/generateWord';
-import WalletsList from '../screen/wallets/WalletsList';
-import SelectWallet from '../screen/wallets/selectWallet';
-import WalletTransactions from '../screen/wallets/transactions';
-
-import CPFP from '../screen/transactions/CPFP';
-import RBFBumpFee from '../screen/transactions/RBFBumpFee';
-import RBFCancel from '../screen/transactions/RBFCancel';
-import TransactionDetails from '../screen/transactions/details';
-import TransactionStatus from '../screen/transactions/TransactionStatus';
-
-import Broadcast from '../screen/send/Broadcast';
-import IsItMyAddress from '../screen/send/isItMyAddress';
-import Success from '../screen/send/success';
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useMemo } from 'react';
+import { I18nManager, Platform, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
 
 import { isDesktop } from '../blue_modules/environment';
+import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import LdkInfo from '../screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from '../screen/lnd/lndViewAdditionalInvoiceInformation';
@@ -30,24 +17,25 @@ import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
 import LnurlAuth from '../screen/lnd/lnurlAuth';
 import LnurlPay from '../screen/lnd/lnurlPay';
 import LnurlPaySuccess from '../screen/lnd/lnurlPaySuccess';
+import Broadcast from '../screen/send/Broadcast';
+import IsItMyAddress from '../screen/send/isItMyAddress';
+import Success from '../screen/send/success';
+import CPFP from '../screen/transactions/CPFP';
+import TransactionDetails from '../screen/transactions/details';
+import RBFBumpFee from '../screen/transactions/RBFBumpFee';
+import RBFCancel from '../screen/transactions/RBFCancel';
+import TransactionStatus from '../screen/transactions/TransactionStatus';
+import WalletAddresses from '../screen/wallets/addresses';
+import WalletDetails from '../screen/wallets/details';
+import GenerateWord from '../screen/wallets/generateWord';
 import LdkViewLogs from '../screen/wallets/ldkViewLogs';
-
-import HeaderRightButton from '../components/HeaderRightButton';
-import WalletExportStack from './WalletExportStack';
-import SendDetailsStack from './SendDetailsStack';
-import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
-import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import ReorderWalletsStackRoot from './ReorderWalletsStack';
-import WalletXpubStackRoot from './WalletXpubStack';
-import ScanQRCodeStackRoot from './ScanQRCodeStack';
-import ExportMultisigCoordinationSetupStackRoot from './ExportMultisigCoordinationSetupStack';
-import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
-import SignVerifyStackRoot from './SignVerifyStack';
+import SelectWallet from '../screen/wallets/selectWallet';
+import WalletTransactions from '../screen/wallets/transactions';
+import WalletsList from '../screen/wallets/WalletsList';
+import { NavigationDefaultOptions, NavigationDefaultOptionsForDesktop, NavigationFormModalOptions, StatusBarLightOptions } from './';
+import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
-import LDKOpenChannelRoot from './LDKOpenChannelStack';
-import PaymentCodeStackRoot from './PaymentCodeStack';
+import ExportMultisigCoordinationSetupStackRoot from './ExportMultisigCoordinationSetupStack';
 import {
   AboutComponent,
   CurrencyComponent,
@@ -67,12 +55,21 @@ import {
   SettingsPrivacyComponent,
   ToolsComponent,
 } from './LazyLoadSettingsStack';
-import { Icon } from 'react-native-elements';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { I18nManager, Platform, TouchableOpacity } from 'react-native';
-import { NavigationDefaultOptions, NavigationDefaultOptionsForDesktop, NavigationFormModalOptions, StatusBarLightOptions } from './';
+import LDKOpenChannelRoot from './LDKOpenChannelStack';
+import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
+import PaymentCodeStackRoot from './PaymentCodeStack';
+import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
+import ReorderWalletsStackRoot from './ReorderWalletsStack';
+import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
+import ScanQRCodeStackRoot from './ScanQRCodeStack';
+import SendDetailsStack from './SendDetailsStack';
+import SignVerifyStackRoot from './SignVerifyStack';
+import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
+import WalletExportStack from './WalletExportStack';
+import WalletXpubStackRoot from './WalletXpubStack';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
 
-const DetailViewRoot = createNativeStackNavigator();
+const DetailViewRoot = createNativeStackNavigator<DetailViewStackParamList>();
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -83,7 +80,7 @@ const DetailViewStackScreensStack = () => {
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
 
-  const useWalletListScreenOptions = useMemo(() => {
+  const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const SettingsButton = (
       <TouchableOpacity
         accessibilityRole="button"
@@ -121,7 +118,7 @@ const DetailViewStackScreensStack = () => {
         options={WalletTransactions.navigationOptions(theme)}
       />
       <DetailViewRoot.Screen
-        name="LdkOpenChannel"
+        name="LDKOpenChannelRoot"
         component={LDKOpenChannelRoot}
         options={navigationStyle({
           title: loc.lnd.new_channel,
@@ -354,20 +351,6 @@ const DetailViewStackScreensStack = () => {
         options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <DetailViewRoot.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-      <DetailViewRoot.Screen
-        name="LDKOpenChannelRoot"
-        component={LDKOpenChannelRoot}
-        options={navigationStyle({
-          title: loc.lnd.new_channel,
-          headerLargeTitle: true,
-          statusBarStyle: 'auto',
-          closeButton: true,
-          headerBackVisible: false,
-          gestureEnabled: false,
-          closeButtonFunc: popToTop,
-        })(theme)}
-      />
-
       <DetailViewRoot.Screen
         name="ScanQRCodeRoot"
         component={ScanQRCodeStackRoot}

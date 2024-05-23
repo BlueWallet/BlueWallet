@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
-import Biometric from '../class/biometrics';
-import prompt from '../helpers/prompt';
-import loc from '../loc';
+
 import { BlueApp as BlueAppClass } from '../class/';
+import prompt from '../helpers/prompt';
+import { showKeychainWipeAlert } from '../hooks/useBiometrics';
+import loc from '../loc';
 
 const BlueApp = BlueAppClass.getInstance();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
@@ -55,7 +56,7 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
       return startAndDecrypt(true);
     } else {
       unlockAttempt = 0;
-      Biometric.showKeychainWipeAlert();
+      showKeychainWipeAlert();
       // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
       return false;
     }

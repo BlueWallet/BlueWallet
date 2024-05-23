@@ -1,30 +1,30 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
-import { Text } from 'react-native-elements';
-import { PayjoinClient } from 'payjoin-client';
-import PropTypes from 'prop-types';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
+import { PayjoinClient } from 'payjoin-client';
+import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
+import { Text } from 'react-native-elements';
 
-import PayjoinTransaction from '../../class/payjoin-transaction';
-import { BlueText, BlueCard } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import Biometric from '../../class/biometrics';
-import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { BlueCard, BlueText } from '../../BlueComponents';
+import PayjoinTransaction from '../../class/payjoin-transaction';
 import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import SafeArea from '../../components/SafeArea';
-import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { useTheme } from '../../components/themes';
+import { useBiometrics } from '../../hooks/useBiometrics';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const Confirm = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
-  const [isBiometricUseCapableAndEnabled, setIsBiometricUseCapableAndEnabled] = useState(false);
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { params } = useRoute();
   const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt } = params;
   const [isLoading, setIsLoading] = useState(false);
@@ -64,7 +64,6 @@ const Confirm = () => {
   useEffect(() => {
     console.log('send/confirm - useEffect');
     console.log('address = ', recipients);
-    Biometric.isBiometricUseCapableAndEnabled().then(setIsBiometricUseCapableAndEnabled);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -77,8 +76,8 @@ const Confirm = () => {
           testID="TransactionDetailsButton"
           style={[styles.txDetails, stylesHook.txDetails]}
           onPress={async () => {
-            if (isBiometricUseCapableAndEnabled) {
-              if (!(await Biometric.unlockWithBiometrics())) {
+            if (await isBiometricUseCapableAndEnabled()) {
+              if (!(await unlockWithBiometrics())) {
                 return;
               }
             }
@@ -99,7 +98,7 @@ const Confirm = () => {
       ),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, fee, feeSatoshi, isBiometricUseCapableAndEnabled, memo, recipients, satoshiPerByte, tx, wallet]);
+  }, [colors, fee, feeSatoshi, memo, recipients, satoshiPerByte, tx, wallet]);
 
   /**
    * we need to look into `recipients`, find destination address and return its outputScript
@@ -163,8 +162,8 @@ const Confirm = () => {
     await BlueElectrum.ping();
     await BlueElectrum.waitTillConnected();
 
-    if (isBiometricUseCapableAndEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+    if (await isBiometricUseCapableAndEnabled()) {
+      if (!(await unlockWithBiometrics())) {
         return;
       }
     }

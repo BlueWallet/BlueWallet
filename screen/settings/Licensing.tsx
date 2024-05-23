@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import { BlueCard, BlueText, BlueSpacing20 } from '../../BlueComponents';
+
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 
 const Licensing = () => {
   return (

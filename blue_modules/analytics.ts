@@ -1,5 +1,6 @@
-import { getUniqueId } from 'react-native-device-info';
 import Bugsnag from '@bugsnag/react-native';
+import { getUniqueId } from 'react-native-device-info';
+
 import { BlueApp as BlueAppClass } from '../class';
 
 const BlueApp = BlueAppClass.getInstance();

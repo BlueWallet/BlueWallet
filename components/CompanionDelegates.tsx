@@ -1,25 +1,27 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { AppState, NativeModules, NativeEventEmitter, Linking, Platform, UIManager, AppStateStatus } from 'react-native';
+
 import { CommonActions } from '@react-navigation/native';
-import { navigationRef } from '../NavigationService';
-import { Chain } from '../models/bitcoinUnits';
-import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import loc from '../loc';
-import BlueClipboard from '../blue_modules/clipboard';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { updateExchangeRate } from '../blue_modules/currency';
+import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
+import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform, UIManager } from 'react-native';
+
 import A from '../blue_modules/analytics';
+import BlueClipboard from '../blue_modules/clipboard';
+import { updateExchangeRate } from '../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import Notifications from '../blue_modules/notifications';
 import { useStorage } from '../blue_modules/storage-context';
 import { LightningCustodianWallet } from '../class';
+import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
+import loc from '../loc';
+import { Chain } from '../models/bitcoinUnits';
+import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
-import Notifications from '../blue_modules/notifications';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
 const HandOffComponentListener = lazy(() => import('../components/HandOffComponentListener'));
 const WidgetCommunication = lazy(() => import('../components/WidgetCommunication'));
-const WatchConnectivity = lazy(() => import('../WatchConnectivity'));
+const WatchConnectivity = lazy(() => import('./WatchConnectivity'));
 
 // @ts-ignore: NativeModules.EventEmitter is not typed
 const eventEmitter = Platform.OS === 'ios' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;

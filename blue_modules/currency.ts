@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BigNumber from 'bignumber.js';
 import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
-import BigNumber from 'bignumber.js';
+
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
-import { reloadAllTimelines } from '../components/WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -32,8 +32,6 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
   await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
-  // @ts-ignore: Convert to TSX later
-  reloadAllTimelines();
 }
 
 async function getPreferredCurrency(): Promise<FiatUnitType> {
@@ -222,23 +220,23 @@ function _setSkipUpdateExchangeRate(): void {
 }
 
 export {
-  updateExchangeRate,
-  initCurrencyDaemon,
-  satoshiToLocalCurrency,
-  fiatToBTC,
-  satoshiToBTC,
-  BTCToLocalCurrency,
-  setPreferredCurrency,
-  getPreferredCurrency,
-  btcToSatoshi,
-  getCurrencySymbol,
-  _setPreferredFiatCurrency,
   _setExchangeRate,
+  _setPreferredFiatCurrency,
   _setSkipUpdateExchangeRate,
-  PREFERRED_CURRENCY_STORAGE_KEY,
+  BTCToLocalCurrency,
+  btcToSatoshi,
   EXCHANGE_RATES_STORAGE_KEY,
+  fiatToBTC,
+  getCurrencySymbol,
+  getPreferredCurrency,
+  initCurrencyDaemon,
+  isRateOutdated,
   LAST_UPDATED,
   mostRecentFetchedRate,
-  isRateOutdated,
+  PREFERRED_CURRENCY_STORAGE_KEY,
   restoreSavedPreferredFiatCurrencyAndExchangeFromStorage,
+  satoshiToBTC,
+  satoshiToLocalCurrency,
+  setPreferredCurrency,
+  updateExchangeRate,
 };

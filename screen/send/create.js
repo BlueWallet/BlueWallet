@@ -1,23 +1,24 @@
-import React, { useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { TextInput, FlatList, Linking, TouchableOpacity, StyleSheet, Text, View, Platform, Alert } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Icon } from 'react-native-elements';
-import Share from 'react-native-share';
-import RNFS from 'react-native-fs';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import { BlueText } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import { isDesktop } from '../../blue_modules/environment';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import presentAlert from '../../components/Alert';
-import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
-import { useTheme } from '../../components/themes';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
+import { Alert, FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+import RNFS from 'react-native-fs';
+import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import Share from 'react-native-share';
+
 import { satoshiToBTC } from '../../blue_modules/currency';
+import { isDesktop } from '../../blue_modules/environment';
+import { BlueText } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const SendCreate = () => {
   const { fee, recipients, memo = '', satoshiPerByte, psbt, showAnimatedQr, tx } = useRoute().params;

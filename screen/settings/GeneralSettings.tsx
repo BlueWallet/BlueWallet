@@ -1,13 +1,13 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useSettings } from '../../components/Context/SettingsContext';
 
 const styles = StyleSheet.create({
   root: {

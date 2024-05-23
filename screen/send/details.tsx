@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,6 +12,8 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Platform,
   StyleSheet,
   Text,
@@ -24,11 +26,11 @@ import DocumentPicker from 'react-native-document-picker';
 import { Icon } from 'react-native-elements';
 import RNFS from 'react-native-fs';
 
-import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -40,50 +42,88 @@ import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import ListItem from '../../components/ListItem';
-import ToolTipMenu from '../../components/TooltipMenu';
 import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
 import prompt from '../../helpers/prompt';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import { CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
+import { TOptions } from 'bip21';
+import assert from 'assert';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { isTablet } from '../../blue_modules/environment';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
+interface IParams {
+  memo: string;
+  address: string;
+  walletID: string;
+  amount: number;
+  amountSats: number;
+  unit: BitcoinUnit;
+  noRbf: boolean;
+  launchedBy: string;
+  isEditable: boolean;
+  uri: string; // payjoin uri
+}
+
+interface IPaymentDestinations {
+  address: string;
+  amountSats?: number | string;
+  amount?: string | number | 'MAX';
+  key: string; // random id to look up this record
+}
+
+interface IFee {
+  current: number | null;
+  slowFee: number | null;
+  mediumFee: number | null;
+  fastestFee: number | null;
+}
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
+
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
-  const { name, params: routeParams } = useRoute();
-  const scrollView = useRef();
+  const navigation = useExtendedNavigation<NavigationProps>();
+  const route = useRoute();
+  const name = route.name;
+  const routeParams = route.params as IParams;
+  const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
+  const popAction = StackActions.pop(1);
 
   // state
   const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
-  const [wallet, setWallet] = useState(null);
+  const [wallet, setWallet] = useState<TWallet | null>(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
   const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
   const [optionsVisible, setOptionsVisible] = useState(false);
-  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState(false);
-  const [addresses, setAddresses] = useState([]);
-  const [units, setUnits] = useState([]);
-  const [transactionMemo, setTransactionMemo] = useState('');
+  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean>(false);
+  const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
+  const [units, setUnits] = useState<BitcoinUnit[]>([]);
+  const [transactionMemo, setTransactionMemo] = useState<string>('');
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
-  const [customFee, setCustomFee] = useState(null);
-  const [feePrecalc, setFeePrecalc] = useState({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
-  const [feeUnit, setFeeUnit] = useState();
-  const [amountUnit, setAmountUnit] = useState();
-  const [utxo, setUtxo] = useState(null);
-  const [frozenBalance, setFrozenBlance] = useState(false);
-  const [payjoinUrl, setPayjoinUrl] = useState(null);
-  const [changeAddress, setChangeAddress] = useState();
+  const [customFee, setCustomFee] = useState<string | null>(null);
+  const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
+  const [feeUnit, setFeeUnit] = useState<BitcoinUnit>();
+  const [amountUnit, setAmountUnit] = useState<BitcoinUnit>();
+  const [utxo, setUtxo] = useState<CreateTransactionUtxo[] | null>(null);
+  const [frozenBalance, setFrozenBlance] = useState<number>(0);
+  const [payjoinUrl, setPayjoinUrl] = useState<string | null>(null);
+  const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance();
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
@@ -103,6 +143,7 @@ const SendDetails = () => {
   }, [customFee, feePrecalc, networkTransactionFees]);
 
   useEffect(() => {
+    console.log('send/details - useEffect');
     if (wallet) {
       setHeaderRightOptions();
     }
@@ -145,13 +186,13 @@ const SendDetails = () => {
           if (currentAddress) {
             currentAddress.address = address;
             if (Number(amount) > 0) {
-              currentAddress.amount = amount;
-              currentAddress.amountSats = btcToSatoshi(amount);
+              currentAddress.amount = amount!;
+              currentAddress.amountSats = btcToSatoshi(amount!);
             }
             addrs[scrollIndex.current] = currentAddress;
             return [...addrs];
           } else {
-            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount), key: String(Math.random()) }];
+            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount!), key: String(Math.random()) } as IPaymentDestinations];
           }
         });
 
@@ -183,7 +224,7 @@ const SendDetails = () => {
         return [...u];
       });
     } else {
-      setAddresses([{ address: '', key: String(Math.random()) }]); // key is for the FlatList
+      setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.uri, routeParams.address]);
@@ -207,6 +248,7 @@ const SendDetails = () => {
     // load cached fees
     AsyncStorage.getItem(NetworkTransactionFee.StorageKey)
       .then(res => {
+        if (!res) return;
         const fees = JSON.parse(res);
         if (!fees?.fastestFee) return;
         setNetworkTransactionFees(fees);
@@ -253,7 +295,6 @@ const SendDetails = () => {
   useEffect(() => {
     if (!wallet) return; // wait for it
     const fees = networkTransactionFees;
-    const change = getChangeAddressFast();
     const requestedSatPerByte = Number(feeRate);
     const lutxo = utxo || wallet.getUtxo();
     let frozen = 0;
@@ -272,7 +313,7 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ];
 
-    const newFeePrecalc = { ...feePrecalc };
+    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
     for (const opt of options) {
       let targets = [];
@@ -282,8 +323,8 @@ const SendDetails = () => {
           targets = [{ address: transaction.address }];
           break;
         }
-        const value = parseInt(transaction.amountSats, 10);
-        if (value > 0) {
+        const value = transaction.amountSats;
+        if (Number(value) > 0) {
           targets.push({ address: transaction.address, value });
         } else if (transaction.amount) {
           if (btcToSatoshi(transaction.amount) > 0) {
@@ -309,11 +350,12 @@ const SendDetails = () => {
       let flag = false;
       while (true) {
         try {
-          const { fee } = wallet.coinselect(lutxo, targets, opt.fee, change);
+          const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
 
+          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = fee;
           break;
-        } catch (e) {
+        } catch (e: any) {
           if (e.message.includes('Not enough') && !flag) {
             flag = true;
             // if we don't have enough funds, construct maximum possible transaction
@@ -321,6 +363,7 @@ const SendDetails = () => {
             continue;
           }
 
+          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
           newFeePrecalc[opt.key] = null;
           break;
         }
@@ -339,34 +382,17 @@ const SendDetails = () => {
     }, []),
   );
 
-  const getChangeAddressFast = () => {
-    if (changeAddress) return changeAddress; // cache
-
-    let change;
-    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
-      // plain watchonly - just get the address
-      change = wallet.getAddress();
-    } else if (WatchOnlyWallet.type === wallet.type || wallet instanceof AbstractHDElectrumWallet) {
-      change = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
-    } else {
-      // legacy wallets
-      change = wallet.getAddress();
-    }
-
-    return change;
-  };
-
   const getChangeAddressAsync = async () => {
     if (changeAddress) return changeAddress; // cache
 
     let change;
-    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+    if (WatchOnlyWallet.type === wallet?.type && !wallet.isHd()) {
       // plain watchonly - just get the address
       change = wallet.getAddress();
     } else {
       // otherwise, lets call widely-used getChangeAddressAsync()
       try {
-        change = await Promise.race([sleep(2000), wallet.getChangeAddressAsync()]);
+        change = await Promise.race([sleep(2000), wallet?.getChangeAddressAsync()]);
       } catch (_) {}
 
       if (!change) {
@@ -375,7 +401,7 @@ const SendDetails = () => {
           change = wallet._getInternalAddressByIndex(wallet.getNextFreeChangeAddressIndex());
         } else {
           // legacy wallets
-          change = wallet.getAddress();
+          change = wallet?.getAddress();
         }
       }
     }
@@ -390,7 +416,10 @@ const SendDetails = () => {
    *
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
-  const processAddressData = data => {
+  const processAddressData = (data: string | { data?: any }) => {
+    if (typeof data !== 'string') {
+      data = String(data.data);
+    }
     const currentIndex = scrollIndex.current;
     setIsLoading(true);
     if (!data.replace) {
@@ -400,7 +429,7 @@ const SendDetails = () => {
     }
 
     const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
-    if (wallet.isAddressValid(dataWithoutSchema)) {
+    if (wallet?.isAddressValid(dataWithoutSchema)) {
       setAddresses(addrs => {
         addrs[scrollIndex.current].address = dataWithoutSchema;
         return [...addrs];
@@ -410,7 +439,7 @@ const SendDetails = () => {
     }
 
     let address = '';
-    let options;
+    let options: TOptions;
     try {
       if (!data.toLowerCase().startsWith('bitcoin:')) data = `bitcoin:${data}`;
       const decoded = DeeplinkSchemaMatch.bip21decode(data);
@@ -428,19 +457,19 @@ const SendDetails = () => {
     if (btcAddressRx.test(address) || address.startsWith('bc1') || address.startsWith('BC1')) {
       setAddresses(addrs => {
         addrs[scrollIndex.current].address = address;
-        addrs[scrollIndex.current].amount = options.amount;
-        addrs[scrollIndex.current].amountSats = new BigNumber(options.amount).multipliedBy(100000000).toNumber();
+        addrs[scrollIndex.current].amount = options?.amount ?? 0;
+        addrs[scrollIndex.current].amountSats = new BigNumber(options?.amount ?? 0).multipliedBy(100000000).toNumber();
         return [...addrs];
       });
       setUnits(u => {
         u[scrollIndex.current] = BitcoinUnit.BTC; // also resetting current unit to BTC
         return [...u];
       });
-      setTransactionMemo(options.label || options.message);
+      setTransactionMemo(options.label || ''); // there used to be `options.message` here as well. bug?
       setAmountUnit(BitcoinUnit.BTC);
       setPayjoinUrl(options.pj || '');
       // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-      setTimeout(() => scrollView.current.scrollToIndex({ index: currentIndex, animated: false }), 50);
+      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
     }
 
     setIsLoading(false);
@@ -452,10 +481,10 @@ const SendDetails = () => {
     const requestedSatPerByte = feeRate;
     for (const [index, transaction] of addresses.entries()) {
       let error;
-      if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
+      if (!transaction.amount || Number(transaction.amount) < 0 || parseFloat(String(transaction.amount)) === 0) {
         error = loc.send.details_amount_field_is_not_valid;
         console.log('validation error');
-      } else if (parseFloat(transaction.amountSats) <= 500) {
+      } else if (parseFloat(String(transaction.amountSats)) <= 500) {
         error = loc.send.details_amount_field_is_less_than_minimum_amount_sat;
         console.log('validation error');
       } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
@@ -464,7 +493,7 @@ const SendDetails = () => {
       } else if (!transaction.address) {
         error = loc.send.details_address_field_is_not_valid;
         console.log('validation error');
-      } else if (balance - transaction.amountSats < 0) {
+      } else if (balance - Number(transaction.amountSats) < 0) {
         // first sanity check is that sending amount is not bigger than available balance
         error = frozenBalance > 0 ? loc.send.details_total_exceeds_balance_frozen : loc.send.details_total_exceeds_balance;
         console.log('validation error');
@@ -477,14 +506,14 @@ const SendDetails = () => {
       }
 
       if (!error) {
-        if (!wallet.isAddressValid(transaction.address)) {
+        if (!wallet?.isAddressValid(transaction.address)) {
           console.log('validation error');
           error = loc.send.details_address_field_is_not_valid;
         }
       }
 
       if (error) {
-        scrollView.current.scrollToIndex({ index });
+        scrollView.current?.scrollToIndex({ index });
         setIsLoading(false);
         presentAlert({ title: loc.errors.error, message: error });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -494,7 +523,7 @@ const SendDetails = () => {
 
     try {
       await createPsbtTransaction();
-    } catch (Err) {
+    } catch (Err: any) {
       setIsLoading(false);
       presentAlert({ title: loc.errors.error, message: Err.message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -502,9 +531,11 @@ const SendDetails = () => {
   };
 
   const createPsbtTransaction = async () => {
+    if (!wallet) return;
     const change = await getChangeAddressAsync();
+    assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
-    const lutxo = utxo || wallet.getUtxo();
+    const lutxo: CreateTransactionUtxo[] = utxo || (wallet?.getUtxo() ?? []);
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets = [];
@@ -514,7 +545,7 @@ const SendDetails = () => {
         targets.push({ address: transaction.address });
         continue;
       }
-      const value = parseInt(transaction.amountSats, 10);
+      const value = parseInt(String(transaction.amountSats), 10);
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
@@ -524,20 +555,24 @@ const SendDetails = () => {
       }
     }
 
-    const { tx, outputs, psbt, fee } = wallet.createTransaction(
+    // without forcing `HDSegwitBech32Wallet` i had a weird ts error, complaining about last argument (fp)
+    const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet)?.createTransaction(
       lutxo,
       targets,
       requestedSatPerByte,
       change,
       isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
+      false,
+      0,
     );
 
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
+      // @ts-ignore idk how to fix FIXME?
       navigation.navigate(routeParams.launchedBy, { psbt });
     }
 
-    if (wallet.type === WatchOnlyWallet.type) {
+    if (wallet?.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -551,7 +586,7 @@ const SendDetails = () => {
       return;
     }
 
-    if (wallet.type === MultisigHDWallet.type) {
+    if (wallet?.type === MultisigHDWallet.type) {
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -562,8 +597,9 @@ const SendDetails = () => {
       return;
     }
 
+    assert(tx, 'createTRansaction failed');
+
     txMetadata[tx.getId()] = {
-      txhex: tx.toHex(),
       memo: transactionMemo,
     };
     await saveToDisk();
@@ -589,9 +625,9 @@ const SendDetails = () => {
     setIsLoading(false);
   };
 
-  const onWalletSelect = w => {
+  const onWalletSelect = (w: TWallet) => {
     setWallet(w);
-    navigation.pop();
+    navigation.dispatch(popAction);
   };
 
   /**
@@ -600,7 +636,7 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importQrTransaction = () => {
-    if (wallet.type !== WatchOnlyWallet.type) {
+    if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
@@ -616,8 +652,9 @@ const SendDetails = () => {
     });
   };
 
-  const importQrTransactionOnBarScanned = ret => {
-    navigation.getParent().pop();
+  const importQrTransactionOnBarScanned = (ret: any) => {
+    navigation.getParent()?.getParent()?.dispatch(popAction);
+    if (!wallet) return;
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
@@ -649,7 +686,7 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importTransaction = async () => {
-    if (wallet.type !== WatchOnlyWallet.type) {
+    if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
@@ -722,27 +759,29 @@ const SendDetails = () => {
     });
   };
 
-  const _importTransactionMultisig = async base64arg => {
+  const _importTransactionMultisig = async (base64arg: string | false) => {
     try {
       const base64 = base64arg || (await fs.openSignedTransaction());
       if (!base64) return;
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-      if (wallet.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+      if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
         hideOptions();
         setIsLoading(true);
         await sleep(100);
-        wallet.cosignPsbt(psbt);
+        (wallet as MultisigHDWallet).cosignPsbt(psbt);
         setIsLoading(false);
         await sleep(100);
       }
 
-      navigation.navigate('PsbtMultisig', {
-        memo: transactionMemo,
-        psbtBase64: psbt.toBase64(),
-        walletID: wallet.getID(),
-      });
-    } catch (error) {
+      if (wallet) {
+        navigation.navigate('PsbtMultisig', {
+          memo: transactionMemo,
+          psbtBase64: psbt.toBase64(),
+          walletID: wallet.getID(),
+        });
+      }
+    } catch (error: any) {
       presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
     }
     setIsLoading(false);
@@ -750,11 +789,11 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisig = () => {
-    return _importTransactionMultisig();
+    return _importTransactionMultisig(false);
   };
 
-  const onBarScanned = ret => {
-    navigation.getParent().pop();
+  const onBarScanned = (ret: any) => {
+    navigation.getParent()?.dispatch(popAction);
     if (!ret.data) ret = { data: ret };
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
@@ -781,12 +820,13 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = async () => {
-    setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) }]);
+    console.log('handleAddRecipient');
+    setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
     setOptionsVisible(false);
     await sleep(200); // wait for animation
-    scrollView.current.scrollToEnd();
+    scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
-    scrollView.current.flashScrollIndicators();
+    scrollView.current?.flashScrollIndicators();
   };
 
   const handleRemoveRecipient = async () => {
@@ -799,15 +839,16 @@ const SendDetails = () => {
     setOptionsVisible(false);
     if (addresses.length === 0) return;
     await sleep(200); // wait for animation
-    scrollView.current.flashScrollIndicators();
-    if (last && Platform.OS === 'android') scrollView.current.scrollToEnd(); // fix white screen on android
+    scrollView.current?.flashScrollIndicators();
+    if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
   };
 
   const handleCoinControl = () => {
+    if (!wallet) return;
     setOptionsVisible(false);
     navigation.navigate('CoinControl', {
-      walletID: wallet.getID(),
-      onUTXOChoose: u => setUtxo(u),
+      walletID: wallet?.getID(),
+      onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
     });
   };
 
@@ -822,22 +863,24 @@ const SendDetails = () => {
     let psbt;
     try {
       psbt = bitcoin.Psbt.fromBase64(scannedData);
-      tx = wallet.cosignPsbt(psbt).tx;
-    } catch (e) {
+      tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
+    } catch (e: any) {
       presentAlert({ title: loc.errors.error, message: e.message });
       return;
     } finally {
       setIsLoading(false);
     }
 
-    if (!tx) return setIsLoading(false);
+    if (!tx || !wallet) return setIsLoading(false);
 
     // we need to remove change address from recipients, so that Confirm screen show more accurate info
-    const changeAddresses = [];
+    const changeAddresses: string[] = [];
+    // @ts-ignore hacky
     for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+      // @ts-ignore hacky
       changeAddresses.push(wallet._getInternalAddressByIndex(c));
     }
-    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(address));
+    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
 
     navigation.navigate('CreateTransaction', {
       fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
@@ -858,7 +901,7 @@ const SendDetails = () => {
 
   // Header Right Button
 
-  const headerRightOnPress = id => {
+  const headerRightOnPress = (id: string) => {
     if (id === SendDetails.actionKeys.AddRecipient) {
       handleAddRecipient();
     } else if (id === SendDetails.actionKeys.RemoveRecipient) {
@@ -888,11 +931,11 @@ const SendDetails = () => {
       const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
       actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
-      if (wallet.type === HDSegwitBech32Wallet.type) {
+      if (wallet?.type === HDSegwitBech32Wallet.type) {
         actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
       }
       const transactionActions = [];
-      if (wallet.type === WatchOnlyWallet.type && wallet.isHd()) {
+      if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
         transactionActions.push(
           {
             id: SendDetails.actionKeys.ImportTransaction,
@@ -906,21 +949,21 @@ const SendDetails = () => {
           },
         );
       }
-      if (wallet.type === MultisigHDWallet.type) {
+      if (wallet?.type === MultisigHDWallet.type) {
         transactionActions.push({
           id: SendDetails.actionKeys.ImportTransactionMultsig,
           text: loc.send.details_adv_import,
           icon: SendDetails.actionIcons.ImportTransactionMultsig,
         });
       }
-      if (wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
+      if (wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
         transactionActions.push({
           id: SendDetails.actionKeys.CoSignTransaction,
           text: loc.multisig.co_sign_transaction,
           icon: SendDetails.actionIcons.SignPSBT,
         });
       }
-      if (wallet.allowCosignPsbt()) {
+      if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
         transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
       }
       actions.push(transactionActions, [
@@ -952,6 +995,7 @@ const SendDetails = () => {
             isButton
             isMenuPrimaryAction
             onPressMenuItem={headerRightOnPress}
+            // @ts-ignore idk how to fix
             actions={headerRightActions()}
           >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
@@ -977,7 +1021,7 @@ const SendDetails = () => {
     });
   };
 
-  const onReplaceableFeeSwitchValueChanged = value => {
+  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
     setIsTransactionReplaceable(value);
   };
 
@@ -985,7 +1029,7 @@ const SendDetails = () => {
 
   // because of https://github.com/facebook/react-native/issues/21718 we use
   // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = e => {
+  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
@@ -993,7 +1037,7 @@ const SendDetails = () => {
     scrollIndex.current = index;
   };
 
-  const handleRecipientsScroll = e => {
+  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
@@ -1032,7 +1076,7 @@ const SendDetails = () => {
     );
   };
 
-  const formatFee = fee => formatBalance(fee, feeUnit, true);
+  const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
     loading: {
@@ -1126,12 +1170,8 @@ const SendDetails = () => {
     ];
 
     return (
-      <BottomModal
-        deviceWidth={width + width / 2}
-        isVisible={isFeeSelectionModalVisible}
-        onClose={() => setIsFeeSelectionModalVisible(false)}
-      >
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
+      <BottomModal isVisible={isFeeSelectionModalVisible} onClose={() => setIsFeeSelectionModalVisible(false)}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             {options.map(({ label, time, fee, rate, active, disabled }, index) => (
               <TouchableOpacity
@@ -1168,7 +1208,7 @@ const SendDetails = () => {
               onPress={async () => {
                 let error = loc.send.fee_satvbyte;
                 while (true) {
-                  let fee;
+                  let fee: number | string;
 
                   try {
                     fee = await prompt(loc.send.create_fee, error, true, 'numeric');
@@ -1181,7 +1221,7 @@ const SendDetails = () => {
                     continue;
                   }
 
-                  if (fee < 1) fee = '1';
+                  if (Number(fee) < 1) fee = '1';
                   fee = Number(fee).toString(); // this will remove leading zeros if any
                   setCustomFee(fee);
                   setIsFeeSelectionModalVisible(false);
@@ -1201,8 +1241,8 @@ const SendDetails = () => {
     const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
     return (
-      <BottomModal deviceWidth={width + width / 2} isVisible={optionsVisible} onClose={hideOptions}>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
+      <BottomModal isVisible={optionsVisible} onClose={hideOptions}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
             {isEditable && (
               <ListItem
@@ -1213,17 +1253,17 @@ const SendDetails = () => {
                 onPress={onUseAllPressed}
               />
             )}
-            {wallet.type === HDSegwitBech32Wallet.type && isEditable && (
+            {wallet?.type === HDSegwitBech32Wallet.type && isEditable && (
               <ListItem
                 title={loc.send.details_adv_fee_bump}
                 Component={TouchableWithoutFeedback}
                 switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
               />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem title={loc.send.details_adv_import} hideChevron component={TouchableOpacity} onPress={importTransaction} />
+            {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
+              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransaction} />
             )}
-            {wallet.type === WatchOnlyWallet.type && wallet.isHd() && (
+            {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
               <ListItem
                 testID="ImportQrTransactionButton"
                 title={loc.send.details_adv_import_qr}
@@ -1231,10 +1271,10 @@ const SendDetails = () => {
                 onPress={importQrTransaction}
               />
             )}
-            {wallet.type === MultisigHDWallet.type && isEditable && (
+            {wallet?.type === MultisigHDWallet.type && isEditable && (
               <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransactionMultisig} />
             )}
-            {wallet.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
+            {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
               <ListItem title={loc.multisig.co_sign_transaction} hideChevron onPress={importTransactionMultisigScanQr} />
             )}
             {isEditable && (
@@ -1250,7 +1290,7 @@ const SendDetails = () => {
               </>
             )}
             <ListItem testID="CoinControl" title={loc.cc.header} hideChevron onPress={handleCoinControl} />
-            {wallet.allowCosignPsbt() && isEditable && (
+            {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
               <ListItem testID="PsbtSign" title={loc.send.psbt_sign} hideChevron onPress={handlePsbtSign} />
             )}
           </View>
@@ -1307,34 +1347,34 @@ const SendDetails = () => {
             onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
             disabled={!isEditable || isLoading}
           >
-            <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet.getLabel()}</Text>
+            <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
-  const renderBitcoinTransactionInfoFields = params => {
+  const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
       <View style={{ width }} testID={'Transaction' + index}>
         <AmountInput
           isLoading={isLoading}
           amount={item.amount ? item.amount.toString() : null}
-          onAmountUnitChange={unit => {
+          onAmountUnitChange={(unit: BitcoinUnit) => {
             setAddresses(addrs => {
               const addr = addrs[index];
 
               switch (unit) {
                 case BitcoinUnit.SATS:
-                  addr.amountSats = parseInt(addr.amount, 10);
+                  addr.amountSats = parseInt(String(addr.amount), 10);
                   break;
                 case BitcoinUnit.BTC:
-                  addr.amountSats = btcToSatoshi(addr.amount);
+                  addr.amountSats = btcToSatoshi(String(addr.amount));
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
                   // also accounting for cached fiat->sat conversion to avoid rounding error
-                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(addr.amount));
+                  addr.amountSats = AmountInput.getCachedSatoshis(addr.amount) || btcToSatoshi(fiatToBTC(Number(addr.amount)));
                   break;
               }
 
@@ -1346,7 +1386,7 @@ const SendDetails = () => {
               return [...u];
             });
           }}
-          onChangeText={text => {
+          onChangeText={(text: string) => {
             setAddresses(addrs => {
               item.amount = text;
               switch (units[index] || amountUnit) {
@@ -1354,7 +1394,7 @@ const SendDetails = () => {
                   item.amountSats = btcToSatoshi(item.amount);
                   break;
                 case BitcoinUnit.LOCAL_CURRENCY:
-                  item.amountSats = btcToSatoshi(fiatToBTC(item.amount));
+                  item.amountSats = btcToSatoshi(fiatToBTC(Number(item.amount)));
                   break;
                 case BitcoinUnit.SATS:
                 default:
@@ -1396,6 +1436,7 @@ const SendDetails = () => {
           onBarScanned={processAddressData}
           address={item.address}
           isLoading={isLoading}
+          /* @ts-ignore marcos fixme */
           inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
           launchedBy={name}
           editable={isEditable}
@@ -1417,14 +1458,14 @@ const SendDetails = () => {
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
+        <KeyboardAvoidingView enabled={!isTablet} behavior="position">
           <FlatList
             keyboardShouldPersistTaps="always"
             scrollEnabled={addresses.length > 1}
             data={addresses}
             renderItem={renderBitcoinTransactionInfoFields}
-            ref={scrollView}
             horizontal
+            ref={scrollView}
             pagingEnabled
             removeClippedSubviews={false}
             onMomentumScrollBegin={Keyboard.dismiss}
@@ -1444,6 +1485,7 @@ const SendDetails = () => {
               style={styles.memoText}
               editable={!isLoading}
               onSubmitEditing={Keyboard.dismiss}
+              /* @ts-ignore marcos fixme */
               inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
             />
           </View>
@@ -1473,9 +1515,9 @@ const SendDetails = () => {
       </View>
       <BlueDismissKeyboardInputAccessory />
       {Platform.select({
-        ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />,
+        ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
         android: isAmountToolbarVisibleForAndroid && (
-          <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={allBalance} />
+          <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />
         ),
       })}
 

@@ -1,6 +1,7 @@
 import BIP47Factory from '@spsina/bip47';
-import { TWallet } from './wallets/types';
+
 import ecc from '../blue_modules/noble_ecc';
+import { TWallet } from './wallets/types';
 
 export class ContactList {
   private _wallet: TWallet;

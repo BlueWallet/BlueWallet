@@ -1,8 +1,9 @@
 import 'react-native-gesture-handler'; // should be on top
-import React, { Suspense, lazy } from 'react';
-import MainRoot from './navigation';
+
+import React, { lazy, Suspense } from 'react';
+
 import { useStorage } from './blue_modules/storage-context';
-import Biometric from './class/biometrics';
+import MainRoot from './navigation';
 const CompanionDelegates = lazy(() => import('./components/CompanionDelegates'));
 
 const MasterView = () => {
@@ -10,7 +11,6 @@ const MasterView = () => {
 
   return (
     <>
-      <Biometric />
       <MainRoot />
       {walletsInitialized && (
         <Suspense>

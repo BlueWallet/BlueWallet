@@ -1,45 +1,40 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { useRoute } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc, { formatBalance } from '../../loc';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { useTheme } from '../../components/themes';
-import createHash from 'create-hash';
-import Button from '../../components/Button';
-import prompt from '../../helpers/prompt';
-import { ContactList } from '../../class/contact-list';
 import assert from 'assert';
-import { HDSegwitBech32Wallet } from '../../class';
-import Clipboard from '@react-native-clipboard/clipboard';
+import createHash from 'create-hash';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import confirm from '../../helpers/confirm';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueLoading } from '../../BlueComponents';
-import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
+import { HDSegwitBech32Wallet } from '../../class';
+import { ContactList } from '../../class/contact-list';
+import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import ToolTipMenu from '../../components/TooltipMenu';
+import { Action } from '../../components/types';
+import confirm from '../../helpers/confirm';
+import prompt from '../../helpers/prompt';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 
 interface DataSection {
   title: string;
   data: string[];
 }
-
-interface IActionKey {
-  id: Actions;
-  text: string;
-  icon: any;
-}
-
 enum Actions {
   pay,
   rename,
   copyToClipboard,
 }
 
-const actionKeys: IActionKey[] = [
+const actionKeys: Action[] = [
   {
     id: Actions.pay,
     text: loc.bip47.pay_this_contact,
@@ -97,9 +92,7 @@ export default function PaymentCodesList() {
     setData(newData);
   }, [walletID, wallets, reload]);
 
-  const toolTipActions = useMemo(() => {
-    return actionKeys;
-  }, []);
+  const toolTipActions = useMemo(() => actionKeys, []);
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;
@@ -112,7 +105,7 @@ export default function PaymentCodesList() {
       presentAlert({ message: loc.bip47.copied });
     }
 
-    if (id === Actions.rename) {
+    if (String(id) === String(Actions.rename)) {
       const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, false, 'plain-text');
       if (!newName) return;
 
@@ -120,7 +113,7 @@ export default function PaymentCodesList() {
       setReload(Math.random());
     }
 
-    if (id === Actions.pay) {
+    if (String(id) === String(Actions.pay)) {
       presentAlert({ message: 'Not implemented yet' });
     }
   };

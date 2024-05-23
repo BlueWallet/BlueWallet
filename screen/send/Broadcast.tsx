@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Linking, StyleSheet, Platform, TextInput, View, Keyboard } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import loc from '../../loc';
-import { HDSegwitBech32Wallet } from '../../class';
+import React, { useState } from 'react';
+import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { isTablet } from '../../blue_modules/environment';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
 import {
   BlueBigCheckmark,
   BlueButtonLink,
@@ -13,15 +16,13 @@ import {
   BlueSpacing20,
   BlueTextCentered,
 } from '../../BlueComponents';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import Notifications from '../../blue_modules/notifications';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
+import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { isTablet } from '../../blue_modules/environment';
+import loc from '../../loc';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',

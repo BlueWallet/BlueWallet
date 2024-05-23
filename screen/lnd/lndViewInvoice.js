@@ -1,20 +1,21 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, I18nManager, Image } from 'react-native';
-import Share from 'react-native-share';
-import { Icon } from 'react-native-elements';
-import QRCodeComponent from '../../components/QRCodeComponent';
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import { BlueLoading, BlueText, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import loc from '../../loc';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { BackHandler, I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
+
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueLoading, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
+import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import LNDCreateInvoice from './lndCreateInvoice';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;

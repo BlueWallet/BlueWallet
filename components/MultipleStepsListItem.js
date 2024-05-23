@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-
-import { View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, findNodeHandle } from 'react-native';
 import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
+import { ActivityIndicator, findNodeHandle, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useTheme } from './themes';
-import ActionSheetOptions from '../screen/ActionSheet.common';
+
 import ActionSheet from '../screen/ActionSheet';
+import ActionSheetOptions from '../screen/ActionSheet.common';
+import { useTheme } from './themes';
 export const MultipleStepsListItemDashType = Object.freeze({ none: 0, top: 1, bottom: 2, topAndBottom: 3 });
 export const MultipleStepsListItemButtohType = Object.freeze({ partial: 0, full: 1 });
 

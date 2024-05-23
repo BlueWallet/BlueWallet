@@ -3,12 +3,12 @@ import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Alert } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
+import RNFS from 'react-native-fs';
 import Realm from 'realm';
+
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
-import { reloadAllTimelines } from '../components/WidgetCommunication';
-import RNFS from 'react-native-fs';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -212,8 +212,6 @@ export async function connectMain(): Promise<void> {
       await DefaultPreference.set(ELECTRUM_TCP_PORT, usingPeer.tcp ?? '');
       await DefaultPreference.set(ELECTRUM_SSL_PORT, usingPeer.ssl ?? '');
     }
-
-    reloadAllTimelines();
   } catch (e) {
     // Must be running on Android
     console.log(e);
@@ -340,7 +338,6 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
                     await DefaultPreference.clear(ELECTRUM_HOST);
                     await DefaultPreference.clear(ELECTRUM_SSL_PORT);
                     await DefaultPreference.clear(ELECTRUM_TCP_PORT);
-                    reloadAllTimelines();
                   } catch (e) {
                     // Must be running on Android
                     console.log(e);

@@ -1,14 +1,12 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-import Clipboard from '@react-native-clipboard/clipboard';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import { BitcoinUnit } from '../models/bitcoinUnits';
-import * as NavigationService from '../NavigationService';
-import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
-import Lnurl from '../class/lnurl';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import ToolTipMenu from './TooltipMenu';
+import Lnurl from '../class/lnurl';
+import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
 import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
 import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
@@ -16,10 +14,14 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
-import { useTheme } from './themes';
-import ListItem from './ListItem';
+import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import * as NavigationService from '../NavigationService';
 import { useSettings } from './Context/SettingsContext';
-import { LightningTransaction, Transaction } from '../class/wallets/types';
+import ListItem from './ListItem';
+import { useTheme } from './themes';
+import ToolTipMenu from './TooltipMenu';
+import { Action } from './types';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -287,9 +289,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       handleOnViewOnBlockExplorer,
     ],
   );
+  const toolTipActions = useMemo((): Action[] | Action[][] => {
+    const actions: (Action | Action[])[] = [];
 
-  const toolTipActions = useMemo(() => {
-    const actions = [];
     if (rowTitle !== loc.lnd.expired) {
       actions.push({
         id: actionKeys.CopyAmount,
@@ -305,6 +307,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         icon: actionIcons.Clipboard,
       });
     }
+
     if (item.hash) {
       actions.push(
         {
@@ -337,10 +340,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       ]);
     }
 
-    return actions;
+    return actions as Action[] | Action[][];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
-
   return (
     <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>

@@ -1,15 +1,16 @@
-import { useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
+import { useContext, useEffect } from 'react';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
-import * as NavigationService from '../NavigationService';
+
 import { BlueStorageContext } from '../blue_modules/storage-context';
-import { formatBalance } from '../loc';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import { TWallet } from '../class/wallets/types';
-import useOnAppLaunch from '../hooks/useOnAppLaunch';
 import { useSettings } from '../components/Context/SettingsContext';
+import useOnAppLaunch from '../hooks/useOnAppLaunch';
+import { formatBalance } from '../loc';
+import * as NavigationService from '../NavigationService';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
