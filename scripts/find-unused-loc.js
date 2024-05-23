@@ -3,7 +3,7 @@ const path = require('path');
 
 const mainLocFile = './loc/en.json';
 const dirsToInterate = ['components', 'screen', 'blue_modules', 'class', 'hooks', 'helpers', 'navigation'];
-const addFiles = ['BlueComponents.js', 'App.js', 'Navigation.tsx'];
+const addFiles = ['BlueComponents.js', 'App.tsx', 'navigation/index.tsx'];
 const allowedLocPrefixes = ['loc.lnurl_auth', 'loc.units'];
 
 const allLocKeysHashmap = {}; // loc key -> used or not
@@ -32,7 +32,7 @@ for (const dir of dirsToInterate) {
 for (const filename of addFiles) {
   allDirFiles.push(path.resolve(filename));
 }
-allDirFiles.push(path.resolve('App.js'));
+allDirFiles.push(path.resolve('App.tsx'));
 
 // got all source files
 

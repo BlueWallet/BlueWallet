@@ -1,7 +1,7 @@
-import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
-
-import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
+import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
 
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it

@@ -1,9 +1,9 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  findNodeHandle,
   FlatList,
   InteractionManager,
   Keyboard,
@@ -15,10 +15,12 @@ import {
   Switch,
   Text,
   View,
-  findNodeHandle,
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
 
+import { isDesktop } from '../../blue_modules/environment';
+import { useStorage } from '../../blue_modules/storage-context';
+import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
   BlueFormMultiInput,
@@ -29,44 +31,39 @@ import {
   BlueText,
   BlueTextCentered,
 } from '../../BlueComponents';
-import { ViewEditMultisigCosignersStackParamsList } from '../../Navigation';
-import * as NavigationService from '../../NavigationService';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
-import Biometric from '../../class/biometrics';
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
+import { useSettings } from '../../components/Context/SettingsContext';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
 import QRCodeComponent from '../../components/QRCodeComponent';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SquareButton } from '../../components/SquareButton';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
+import prompt from '../../helpers/prompt';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useBiometrics } from '../../hooks/useBiometrics';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import { isDesktop } from '../../blue_modules/environment';
+import * as NavigationService from '../../NavigationService';
 import ActionSheet from '../ActionSheet';
-import SaveFileButton from '../../components/SaveFileButton';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import prompt from '../../helpers/prompt';
-import { useSettings } from '../../components/Context/SettingsContext';
 
-type Props = NativeStackScreenProps<ViewEditMultisigCosignersStackParamsList, 'ViewEditMultisigCosigners'>;
-
-const ViewEditMultisigCosigners = ({ route }: Props) => {
+const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
-  const { walletID } = route.params;
+  const route = useRoute();
+  const { walletID } = route.params as { walletID: string };
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
   const tempWallet = useRef(new MultisigHDWallet());
   const [wallet, setWallet] = useState<MultisigHDWallet>();
@@ -122,7 +119,7 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
   });
   useFocusEffect(
     useCallback(() => {
-      const unsubscribe = addListener('beforeRemove', e => {
+      const unsubscribe = addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
         // Check if there are unsaved changes
         if (isSaveButtonDisabled) {
           // If there are no unsaved changes, let the user leave the screen
@@ -178,10 +175,10 @@ const ViewEditMultisigCosigners = ({ route }: Props) => {
     }
     setIsLoading(true);
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }
@@ -728,13 +725,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-
-ViewEditMultisigCosigners.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, headerTitle: loc.multisig.manage_keys }),
-);
 
 export default ViewEditMultisigCosigners;

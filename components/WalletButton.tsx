@@ -1,7 +1,18 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, Image, I18nManager, StyleSheet, ImageSourcePropType, DimensionValue } from 'react-native';
-import { Theme, useTheme } from './themes';
+import {
+  ColorValue,
+  DimensionValue,
+  I18nManager,
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 import loc from '../loc';
+import { Theme, useTheme } from './themes';
 
 interface ButtonDetails {
   image: ImageSourcePropType;
@@ -48,14 +59,14 @@ const WalletButton: React.FC<WalletButtonProps> = ({ buttonType, testID, onPress
   const borderColor = active ? colors[details.borderColorActive] : colors.buttonDisabledBackgroundColor;
   const dynamicStyles = StyleSheet.create({
     buttonContainer: {
-      borderColor,
+      borderColor: borderColor as ColorValue,
       backgroundColor: colors.buttonDisabledBackgroundColor,
       minWidth: size.width,
       minHeight: size.height,
       height: size.height,
     },
     textTitle: {
-      color: colors[details.borderColorActive],
+      color: colors[details.borderColorActive] as ColorValue,
     },
     textExplain: {
       color: colors.alternativeTextColor,

@@ -1,8 +1,9 @@
-import * as bitcoin from 'bitcoinjs-lib';
 import assert from 'assert';
-import { LegacyWallet } from '../../class';
+import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
+
 import ecc from '../../blue_modules/noble_ecc';
+import { LegacyWallet } from '../../class';
 const ECPair = ECPairFactory(ecc);
 
 describe('Legacy wallet', () => {

@@ -1,15 +1,16 @@
-import { StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { useTheme } from './themes';
 import React from 'react';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+
+import { useTheme } from './themes';
 
 interface HeaderRightButtonProps {
-  disabled: boolean;
+  disabled?: boolean;
   onPress?: () => void;
   title: string;
   testID?: string;
 }
 
-export const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, onPress, title, testID }) => {
+const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, onPress, title, testID }) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -37,3 +38,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default HeaderRightButton;

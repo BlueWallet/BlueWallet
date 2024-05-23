@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 import { useTheme } from './themes';
 
 export const StyledButtonType: Record<string, string> = { default: 'default', destroy: 'destroy', grey: 'grey' };

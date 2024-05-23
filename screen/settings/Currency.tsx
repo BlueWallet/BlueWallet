@@ -1,9 +1,8 @@
-import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
-import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
+
 import {
   CurrencyRate,
   getPreferredCurrency,
@@ -11,29 +10,33 @@ import {
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
+import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
+import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import { useSettings } from '../../components/Context/SettingsContext';
 
 dayjs.extend(calendar);
 
-const Currency = () => {
+const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
   const { colors } = useTheme();
-  const { setOptions } = useNavigation<any>();
-
+  const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
-  const data = Object.values(FiatUnit).filter(item => item.endPointKey.toLowerCase().includes(search.toLowerCase()));
 
-  const styles = StyleSheet.create({
+  const data = useMemo(
+    () => Object.values(FiatUnit).filter(item => item.endPointKey.toLowerCase().includes(search.toLowerCase())),
+    [search],
+  );
+
+  const stylesHook = StyleSheet.create({
     flex: {
-      flex: 1,
       backgroundColor: colors.background,
     },
   });
@@ -53,20 +56,23 @@ const Currency = () => {
     setCurrencyRate(mostRecentFetchedRateValue);
   };
 
+  useEffect(() => {
+    fetchCurrency();
+  }, []);
+
   useLayoutEffect(() => {
     setOptions({
       headerSearchBarOptions: {
         onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
       },
     });
-    fetchCurrency();
   }, [setOptions]);
 
   const renderItem = ({ item }: { item: FiatUnitType }) => (
     <ListItem
       disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
-      containerStyle={StyleSheet.flatten([styles.flex, { minHeight: 60 }])}
+      containerStyle={StyleSheet.flatten([styles.flex, stylesHook.flex, { minHeight: 60 }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
       onPress={async () => {
         setIsSavingNewPreferredCurrency(true);
@@ -90,14 +96,13 @@ const Currency = () => {
   );
 
   return (
-    <View style={styles.flex}>
+    <View style={[styles.flex, stylesHook.flex]}>
       <FlatList
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
         keyExtractor={(_item, index) => `${index}`}
         data={data}
         initialNumToRender={30}
-        extraData={data}
         renderItem={renderItem}
       />
       <BlueCard>
@@ -110,7 +115,6 @@ const Currency = () => {
         </BlueText>
         <BlueSpacing10 />
         <BlueText>
-          {/* @ts-ignore TODO: fix typescript error later */}
           {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
         </BlueText>
       </BlueCard>
@@ -119,3 +123,9 @@ const Currency = () => {
 };
 
 export default Currency;
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});

@@ -1,21 +1,19 @@
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
-import Biometric from '../class/biometrics';
 import { navigationRef } from '../NavigationService';
-import { BlueStorageContext } from '../blue_modules/storage-context';
-import { useContext } from 'react';
+import { useStorage } from '../blue_modules/storage-context';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
+import { useBiometrics } from './useBiometrics';
 
 // List of screens that require biometrics
-
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
 
 // List of screens that require wallet export to be saved
-
 const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
 
-export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
-  const originalNavigation = useNavigation<NavigationProp<ParamListBase>>();
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T => {
+  const originalNavigation = useNavigation<T>();
+  const { wallets, saveToDisk } = useStorage();
+  const { isBiometricUseEnabled, unlockWithBiometrics } = useBiometrics();
 
   const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = (screenOrOptions: any, params?: any) => {
     let screenName: string;
@@ -42,12 +40,12 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
 
     (async () => {
       if (isRequiresBiometrics) {
-        const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
+        const isBiometricsEnabled = await isBiometricUseEnabled();
         if (isBiometricsEnabled) {
-          const isAuthenticated = await Biometric.unlockWithBiometrics();
+          const isAuthenticated = await unlockWithBiometrics();
           if (isAuthenticated) {
             proceedWithNavigation();
-            return; // Ensure the function exits if this path is taken
+            return;
           } else {
             console.error('Biometric authentication failed');
             // Decide if navigation should proceed or not after failed authentication
@@ -95,3 +93,7 @@ export const useExtendedNavigation = (): NavigationProp<ParamListBase> => {
     navigate: enhancedNavigate,
   };
 };
+
+// Usage example:
+// type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
+// const navigation = useExtendedNavigation<NavigationProps>();

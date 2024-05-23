@@ -1,5 +1,7 @@
 import bitcoin from 'bitcoinjs-lib';
 import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectUtxo } from 'coinselect';
+
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDAezeedWallet } from './hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
@@ -100,7 +102,7 @@ export type Transaction = {
   inputs: TransactionInput[];
   outputs: TransactionOutput[];
   blockhash: string;
-  confirmations?: number;
+  confirmations: number;
   time: number;
   blocktime: number;
   received?: number;
@@ -110,6 +112,15 @@ export type Transaction = {
    * if known, who is on the other end of the transaction (BIP47 payment code)
    */
   counterparty?: string;
+};
+
+/**
+ * in some cases we add additional data to each tx object so the code that works with that transaction can find the
+ * wallet that owns it etc
+ */
+export type ExtendedTransaction = Transaction & {
+  walletID: string;
+  walletPreferredBalanceUnit: BitcoinUnit;
 };
 
 export type TWallet =

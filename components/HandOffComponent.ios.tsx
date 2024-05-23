@@ -1,10 +1,11 @@
 import React from 'react';
+import DefaultPreference from 'react-native-default-preference';
 // @ts-ignore: react-native-handoff is not in the type definition
 import Handoff from 'react-native-handoff';
-import { useSettings } from './Context/SettingsContext';
-import DefaultPreference from 'react-native-default-preference';
+
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import { BlueApp } from '../class';
+import { useSettings } from './Context/SettingsContext';
 
 interface HandOffComponentProps {
   url?: string;
@@ -24,21 +25,26 @@ interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentPro
 export const setIsHandOffUseEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
-  console.log('setIsHandOffUseEnabledAsyncStorage', value);
+  console.debug('setIsHandOffUseEnabledAsyncStorage', value);
 };
 
 export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
-  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  const isEnabledValue = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
-  console.log('getIsHandOffUseEnabledV', isEnabledValue);
-  return isEnabledValue === 'true';
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const isEnabledValue = (await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY)) ?? false;
+    console.debug('getIsHandOffUseEnabled', isEnabledValue);
+    return isEnabledValue === 'true';
+  } catch (e) {
+    console.debug('getIsHandOffUseEnabled error', e);
+  }
+  return false;
 };
 
 const HandOffComponent: HandOffComponentWithActivityTypes = props => {
   const { isHandOffUseEnabled } = useSettings();
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('HandOffComponent: props', props);
+    console.debug('HandOffComponent: props', props);
   }
   if (isHandOffUseEnabled) {
     return <Handoff {...props} />;

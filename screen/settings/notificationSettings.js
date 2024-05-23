@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, I18nManager, StyleSheet, Linking, View, TextInput } from 'react-native';
-
+import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { Button as ButtonRNElements } from 'react-native-elements';
 
-import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import loc from '../../loc';
-import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import Notifications from '../../blue_modules/notifications';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
-import ListItem from '../../components/ListItem';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import ListItem from '../../components/ListItem';
+import { BlueCurrentTheme, useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const NotificationSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -158,8 +156,6 @@ const NotificationSettings = () => {
     </ScrollView>
   );
 };
-
-NotificationSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.notifications }));
 
 const styles = StyleSheet.create({
   root: {

@@ -1,12 +1,14 @@
-import React, { useRef } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import ToolTipMenu from './TooltipMenu';
-import Share from 'react-native-share';
-import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useTheme } from './themes';
+import React, { useRef } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
+
+import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
+import { useTheme } from './themes';
+import ToolTipMenu from './TooltipMenu';
+import { Action } from './types';
 
 interface QRCodeComponentProps {
   value: string;
@@ -18,22 +20,6 @@ interface QRCodeComponentProps {
   onError?: () => void;
 }
 
-interface ActionType {
-  Share: 'share';
-  Copy: 'copy';
-}
-
-interface Action {
-  id: string;
-  text: string;
-  icon: ActionIcons;
-}
-
-const actionKeys: ActionType = {
-  Share: 'share',
-  Copy: 'copy',
-};
-
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
     iconType: 'SYSTEM',
@@ -44,6 +30,22 @@ const actionIcons: { [key: string]: ActionIcons } = {
     iconValue: 'doc.on.doc',
   },
 };
+
+const actionKeys = {
+  Share: 'share',
+  Copy: 'copy',
+};
+
+const menuActions: Action[] =
+  Platform.OS === 'ios' || Platform.OS === 'macos'
+    ? [
+        {
+          id: actionKeys.Copy,
+          text: loc.transactions.details_copy,
+          icon: actionIcons.Copy,
+        },
+      ]
+    : [{ id: actionKeys.Share, text: loc.receive.details_share, icon: actionIcons.Share }];
 
 const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   value = '',
@@ -75,23 +77,6 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     }
   };
 
-  const menuActions = (): Action[] => {
-    const actions: Action[] = [];
-    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-      actions.push({
-        id: actionKeys.Copy,
-        text: loc.transactions.details_copy,
-        icon: actionIcons.Copy,
-      });
-    }
-    actions.push({
-      id: actionKeys.Share,
-      text: loc.receive.details_share,
-      icon: actionIcons.Share,
-    });
-    return actions;
-  };
-
   const renderQRCode = (
     <QRCode
       value={value}
@@ -115,7 +100,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions()} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
           {renderQRCode}
         </ToolTipMenu>
       ) : (

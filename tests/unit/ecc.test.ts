@@ -1,6 +1,7 @@
-import ecc from '../../blue_modules/noble_ecc';
-import { ECPairFactory } from 'ecpair';
 import assert from 'assert';
+import { ECPairFactory } from 'ecpair';
+
+import ecc from '../../blue_modules/noble_ecc';
 
 const h = (hex: string) => Buffer.from(hex, 'hex');
 

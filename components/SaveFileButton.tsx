@@ -1,9 +1,11 @@
 import React, { ReactNode } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
-import ToolTipMenu from './TooltipMenu';
+
+import * as fs from '../blue_modules/fs';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
-import * as fs from '../blue_modules/fs';
+import ToolTipMenu from './TooltipMenu';
+import { Action } from './types';
 
 interface SaveFileButtonProps {
   fileName: string;
@@ -11,7 +13,7 @@ interface SaveFileButtonProps {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
-  beforeOnPress?: () => Promise<void>; // Changed this line
+  beforeOnPress?: () => Promise<void>;
   onMenuWillHide?: () => void;
   onMenuWillShow?: () => void;
 }
@@ -26,30 +28,24 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
   onMenuWillHide,
   onMenuWillShow,
 }) => {
-  const actions = [
-    { id: 'save', text: loc._.save, icon: actionIcons.Save },
-    { id: 'share', text: loc.receive.details_share, icon: actionIcons.Share },
-  ];
-
   const handlePressMenuItem = async (actionId: string) => {
     if (beforeOnPress) {
-      await beforeOnPress(); // Now properly awaiting a function that returns a promise
+      await beforeOnPress();
     }
     const action = actions.find(a => a.id === actionId);
 
     if (action?.id === 'save') {
       await fs.writeFileAndExport(fileName, fileContent, false).finally(() => {
-        afterOnPress?.(); // Safely call afterOnPress if it exists
+        afterOnPress?.();
       });
     } else if (action?.id === 'share') {
       await fs.writeFileAndExport(fileName, fileContent, true).finally(() => {
-        afterOnPress?.(); // Safely call afterOnPress if it exists
+        afterOnPress?.();
       });
     }
   };
 
   return (
-    // @ts-ignore: Tooltip must be refactored to use TSX}
     <ToolTipMenu
       onMenuWillHide={onMenuWillHide}
       onMenuWillShow={onMenuWillShow}
@@ -57,7 +53,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
       isMenuPrimaryAction
       actions={actions}
       onPressMenuItem={handlePressMenuItem}
-      buttonStyle={style}
+      buttonStyle={style as ViewStyle} // Type assertion to match ViewStyle
     >
       {children}
     </ToolTipMenu>
@@ -76,3 +72,7 @@ const actionIcons: { [key: string]: ActionIcons } = {
     iconValue: 'square.and.arrow.down',
   },
 };
+const actions: Action[] = [
+  { id: 'save', text: loc._.save, icon: actionIcons.Save },
+  { id: 'share', text: loc.receive.details_share, icon: actionIcons.Share },
+];

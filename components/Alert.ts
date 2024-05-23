@@ -1,6 +1,6 @@
 import { Alert as RNAlert, ToastAndroid } from 'react-native';
-import loc from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import loc from '../loc';
 
 export enum AlertType {
   Alert,

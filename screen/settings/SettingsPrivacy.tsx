@@ -1,15 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ScrollView, TouchableWithoutFeedback, StyleSheet, Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
-import { BlueText, BlueSpacing20, BlueCard, BlueSpacing40 } from '../../BlueComponents';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
-import ListItem from '../../components/ListItem';
+
 import A from '../../blue_modules/analytics';
+import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import { useSettings } from '../../components/Context/SettingsContext';
-import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import { Header } from '../../components/Header';
+import ListItem from '../../components/ListItem';
+import { useTheme } from '../../components/themes';
+import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
+import loc from '../../loc';
 
 enum SettingsPrivacySection {
   None,
@@ -123,24 +124,24 @@ const SettingsPrivacy: React.FC = () => {
         </Pressable>
       </BlueCard>
       <BlueSpacing20 />
-      {!storageIsEncrypted && (
-        <>
-          <ListItem
-            hideChevron
-            title={loc.settings.privacy_quickactions}
-            Component={TouchableWithoutFeedback}
-            switch={{
-              onValueChange: onQuickActionsValueChange,
-              value: isQuickActionsEnabled,
-              disabled: isLoading === SettingsPrivacySection.All,
-              testID: 'QuickActionsSwitch',
-            }}
-          />
-          <BlueCard>
-            <BlueText>{loc.settings.privacy_quickactions_explanation}</BlueText>
-          </BlueCard>
-        </>
-      )}
+      <ListItem
+        hideChevron
+        title={loc.settings.privacy_quickactions}
+        Component={TouchableWithoutFeedback}
+        switch={{
+          onValueChange: onQuickActionsValueChange,
+          value: storageIsEncrypted ? false : isQuickActionsEnabled,
+          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+          testID: 'QuickActionsSwitch',
+        }}
+      />
+      {}
+      <BlueCard>
+        <BlueText>{loc.settings.privacy_quickactions_explanation}</BlueText>
+        <BlueSpacing20 />
+        {storageIsEncrypted && <BlueText>{loc.settings.encrypted_feature_disabled}</BlueText>}
+      </BlueCard>
+
       <ListItem
         hideChevron
         title={loc.settings.privacy_do_not_track}
@@ -150,7 +151,7 @@ const SettingsPrivacy: React.FC = () => {
       <BlueCard>
         <BlueText>{loc.settings.privacy_do_not_track_explanation}</BlueText>
       </BlueCard>
-      {Platform.OS === 'ios' && !storageIsEncrypted && (
+      {Platform.OS === 'ios' && (
         <>
           <BlueSpacing40 />
           <Text adjustsFontSizeToFit style={[styles.widgetsHeader, styleHooks.widgetsHeader]}>
@@ -162,12 +163,14 @@ const SettingsPrivacy: React.FC = () => {
             Component={TouchableWithoutFeedback}
             switch={{
               onValueChange: onWidgetsTotalBalanceValueChange,
-              value: isWidgetBalanceDisplayAllowed,
-              disabled: isLoading === SettingsPrivacySection.All,
+              value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
+              disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
             }}
           />
           <BlueCard>
             <BlueText>{loc.settings.total_balance_explanation}</BlueText>
+            <BlueSpacing20 />
+            {storageIsEncrypted && <BlueText>{loc.settings.encrypted_feature_disabled}</BlueText>}
           </BlueCard>
         </>
       )}

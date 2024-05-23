@@ -1,38 +1,28 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  SectionList,
-  Image,
-  useWindowDimensions,
-  findNodeHandle,
-  I18nManager,
-  InteractionManager,
-} from 'react-native';
-import { Icon } from 'react-native-elements';
-
-import WalletsCarousel from '../../components/WalletsCarousel';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { useStorage } from '../../blue_modules/storage-context';
-import { isDesktop } from '../../blue_modules/environment';
-import BlueClipboard from '../../blue_modules/clipboard';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+
 import A from '../../blue_modules/analytics';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
-import { TWallet, Transaction } from '../../class/wallets/types';
-import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { useStorage } from '../../blue_modules/storage-context';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
 import { Header } from '../../components/Header';
+import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import WalletsCarousel from '../../components/WalletsCarousel';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { useIsLargeScreen } from '../../hooks/useIsLargeScreen';
+import loc from '../../loc';
+import ActionSheet from '../ActionSheet';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -99,6 +89,8 @@ function reducer(state: WalletListState, action: WalletListAction) {
   }
 }
 
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
   const { isLoading } = state;
@@ -116,7 +108,7 @@ const WalletsList: React.FC = () => {
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate, setOptions } = useExtendedNavigation();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const dataSource = getTransactions(undefined, 10);
@@ -165,35 +157,6 @@ const WalletsList: React.FC = () => {
     } else {
       A(A.ENUM.GOT_ZERO_BALANCE);
     }
-  };
-
-  useEffect(() => {
-    setOptions({
-      navigationBarColor: colors.navigationBarColor,
-      headerShown: !isDesktop,
-      headerStyle: {
-        backgroundColor: colors.customHeader,
-      },
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () =>
-        I18nManager.isRTL ? null : (
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" onPress={navigateToSettings}>
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ),
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerLeft: () =>
-        I18nManager.isRTL ? (
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.more} testID="SettingsButton" onPress={navigateToSettings}>
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ) : null,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors]);
-
-  const navigateToSettings = () => {
-    navigate('Settings');
   };
 
   /**
@@ -268,11 +231,10 @@ const WalletsList: React.FC = () => {
     }
   };
 
-  const renderTransactionListsRow = (data: { item: Transaction }) => {
+  const renderTransactionListsRow = (item: ExtendedTransaction) => {
     return (
       <View style={styles.transaction}>
-        {/** @ts-ignore: Fix later **/}
-        <TransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} walletID={data.item.walletID} />
+        <TransactionListItem item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
       </View>
     );
   };
@@ -294,13 +256,12 @@ const WalletsList: React.FC = () => {
     );
   };
 
-  const renderSectionItem = (item: { section?: any; item?: Transaction }) => {
+  const renderSectionItem = (item: { section: any; item: ExtendedTransaction }) => {
     switch (item.section.key) {
       case WalletsListSections.CAROUSEL:
         return isLargeScreen ? null : renderWalletsCarousel();
       case WalletsListSections.TRANSACTIONS:
-        /* @ts-ignore: fix later */
-        return renderTransactionListsRow(item);
+        return renderTransactionListsRow(item.item);
       default:
         return null;
     }
@@ -364,6 +325,7 @@ const WalletsList: React.FC = () => {
     if (!value) return;
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      // @ts-ignore: Fix later
       navigate(...completionValue);
     });
   };

@@ -1,10 +1,11 @@
 /* eslint react/prop-types: "off", @typescript-eslint/ban-ts-comment: "off", camelcase: "off"   */
 import BIP47Factory, { BIP47Interface } from '@spsina/bip47';
+import assert from 'assert';
 import BigNumber from 'bignumber.js';
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import { Transaction as BTransaction, Psbt } from 'bitcoinjs-lib';
+import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
@@ -16,7 +17,6 @@ import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import assert from 'assert';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1542,22 +1542,21 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * this method goes over all our txs and checks if we sent a notification tx in the past to the given PC
+   * find and return _existing_ notification transaction for the given payment code
+   * (i.e. if it exists - we notified in the past and dont need to notify again)
    */
-  needToNotifyBIP47(receiverPaymentCode: string): boolean {
+  getBIP47NotificationTransaction(receiverPaymentCode: string): Transaction | undefined {
     const publicBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
     const remoteNotificationAddress = publicBip47.getNotificationAddress();
 
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
-        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return false;
+        if (output.scriptPubKey?.addresses?.includes(remoteNotificationAddress)) return tx;
         // ^^^ if in the past we sent a tx to his notification address - most likely that was a proper notification
         // transaction with OP_RETURN.
         // but not gona verify it here, will just trust it
       }
     }
-
-    return true;
   }
 
   /**
@@ -1694,6 +1693,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return bip47Local.getNotificationAddress();
   }
 
+  /**
+   * check our notification address, and decypher all payment codes people notified us
+   * about (so they can pay us)
+   */
   async fetchBIP47SenderPaymentCodes(): Promise<void> {
     const bip47_instance = this.getBIP47FromSeed();
     const address = bip47_instance.getNotificationAddress();
@@ -1748,10 +1751,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
   }
 
+  /**
+   * payment codes of people who can pay us
+   */
   getBIP47SenderPaymentCodes(): string[] {
     return this._receive_payment_codes;
   }
 
+  /**
+   * payment codes of people whom we can pay
+   */
   getBIP47ReceiverPaymentCodes(): string[] {
     return this._send_payment_codes;
   }

@@ -1,6 +1,7 @@
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -27,7 +28,7 @@ const navigationStyle = (
     ...opts
   }: NativeStackNavigationOptions & {
     closeButton?: boolean;
-    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement;
+    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement | void;
   },
   formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {

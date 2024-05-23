@@ -1,5 +1,5 @@
 import { useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -7,7 +7,6 @@ import {
   InteractionManager,
   Keyboard,
   KeyboardAvoidingView,
-  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -18,14 +17,12 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import RNFS from 'react-native-fs';
-import { PERMISSIONS, RESULTS, request } from 'react-native-permissions';
-import Share from 'react-native-share';
-import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { isDesktop } from '../../blue_modules/environment';
+
+import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
+import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
@@ -36,21 +33,21 @@ import {
   SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '../../class';
-import Biometric from '../../class/biometrics';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
+import { useSettings } from '../../components/Context/SettingsContext';
+import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
+import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import SaveFileButton from '../../components/SaveFileButton';
-import { useSettings } from '../../components/Context/SettingsContext';
-import { HeaderRightButton } from '../../components/HeaderRightButton';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -111,7 +108,8 @@ const styles = StyleSheet.create({
 });
 
 const WalletDetails = () => {
-  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useContext(BlueStorageContext);
+  const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
+  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -334,46 +332,8 @@ const WalletDetails = () => {
       null,
       2,
     );
-    if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
-      await RNFS.writeFile(filePath, contents);
-      Share.open({
-        url: 'file://' + filePath,
-        saveToFiles: isDesktop,
-        failOnCancel: false,
-      })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          RNFS.unlink(filePath);
-        });
-    } else if (Platform.OS === 'android') {
-      const granted = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
-      if (granted === RESULTS.GRANTED) {
-        console.log('Storage Permission: Granted');
-        const filePath = RNFS.DownloadDirectoryPath + `/${fileName}`;
-        try {
-          await RNFS.writeFile(filePath, contents);
-          presentAlert({ message: loc.formatString(loc.send.txSaved, { filePath: fileName }) });
-        } catch (e) {
-          console.log(e);
-          presentAlert({ message: e.message });
-        }
-      } else {
-        console.log('Storage Permission: Denied');
-        Alert.alert(loc.send.permission_storage_title, loc.send.permission_storage_denied_message, [
-          {
-            text: loc.send.open_settings,
-            onPress: () => {
-              Linking.openSettings();
-            },
-            style: 'default',
-          },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ]);
-      }
-    }
+
+    await writeFileAndExport(fileName, contents, false);
   };
 
   const purgeTransactions = async () => {
@@ -446,10 +406,10 @@ const WalletDetails = () => {
         {
           text: loc.wallets.details_yes_delete,
           onPress: async () => {
-            const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
             if (isBiometricsEnabled) {
-              if (!(await Biometric.unlockWithBiometrics())) {
+              if (!(await unlockWithBiometrics())) {
                 return;
               }
             }

@@ -1,32 +1,31 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { ScrollView, View, StyleSheet, Linking } from 'react-native';
-import wif from 'wif';
-import * as bip39 from 'bip39';
-import bip38 from 'bip38';
 import BIP32Factory from 'bip32';
+import bip38 from 'bip38';
+import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import BlueCrypto from 'react-native-blue-crypto';
+import wif from 'wif';
 
-import loc from '../loc';
-import { BlueSpacing20, BlueCard, BlueText, BlueLoading } from '../BlueComponents';
-import navigationStyle from '../components/navigationStyle';
-import {
-  SegwitP2SHWallet,
-  LegacyWallet,
-  HDSegwitP2SHWallet,
-  HDSegwitBech32Wallet,
-  HDAezeedWallet,
-  SLIP39LegacyP2PKHWallet,
-} from '../class';
-import ecc from '../blue_modules/noble_ecc';
-import Button from '../components/Button';
-import SafeArea from '../components/SafeArea';
-import presentAlert from '../components/Alert';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import * as encryption from '../blue_modules/encryption';
 import * as fs from '../blue_modules/fs';
+import ecc from '../blue_modules/noble_ecc';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
+import {
+  HDAezeedWallet,
+  HDSegwitBech32Wallet,
+  HDSegwitP2SHWallet,
+  LegacyWallet,
+  SegwitP2SHWallet,
+  SLIP39LegacyP2PKHWallet,
+} from '../class';
+import presentAlert from '../components/Alert';
+import Button from '../components/Button';
+import SafeArea from '../components/SafeArea';
 import SaveFileButton from '../components/SaveFileButton';
-import * as BlueElectrum from '../blue_modules/BlueElectrum';
+import loc from '../loc';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -342,7 +341,3 @@ Selftest.propTypes = {
     goBack: PropTypes.func,
   }),
 };
-
-Selftest.navigationOptions = navigationStyle({
-  title: loc.settings.selfTest,
-});

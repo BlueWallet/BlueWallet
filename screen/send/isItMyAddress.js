@@ -1,15 +1,15 @@
-import React, { useState, useContext, useRef } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, TextInput, Keyboard } from 'react-native';
+import React, { useContext, useRef, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 
-import loc from '../../loc';
-import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
