@@ -183,7 +183,7 @@
     "react-native-vector-icons": "10.1.0",
     "react-native-watch-connectivity": "1.1.0",
     "readable-stream": "3.6.2",
-    "realm": "12.8.1",
+    "realm": "12.9.0",
     "rn-ldk": "github:BlueWallet/rn-ldk#v0.8.4",
     "rn-nodeify": "10.3.0",
     "scryptsy": "2.1.0",
