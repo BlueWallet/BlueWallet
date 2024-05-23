@@ -8,6 +8,7 @@ import Realm from 'realm';
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
 import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
