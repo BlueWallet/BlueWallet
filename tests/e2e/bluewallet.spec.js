@@ -709,7 +709,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(300 * 1000);
     await element(by.text('Found')).tap();
     await element(by.id('ImportButton')).tap();
-  //  await element(by.text('OK')).tap();
+    //  await element(by.text('OK')).tap();
 
     // go to wallet and check derivation path
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
