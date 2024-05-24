@@ -10,9 +10,9 @@ export const NetworkTransactionFeeType = Object.freeze({
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  private fastestFee: number;
-  private mediumFee: number;
-  private slowFee: number;
+  public fastestFee: number;
+  public mediumFee: number;
+  public slowFee: number;
 
   constructor(fastestFee = 2, mediumFee = 1, slowFee = 1) {
     this.fastestFee = fastestFee;

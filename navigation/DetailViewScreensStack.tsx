@@ -1,5 +1,5 @@
 import { StackActions } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useMemo } from 'react';
 import { I18nManager, Platform, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -67,8 +67,9 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
 
-const DetailViewRoot = createNativeStackNavigator();
+const DetailViewRoot = createNativeStackNavigator<DetailViewStackParamList>();
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -79,7 +80,7 @@ const DetailViewStackScreensStack = () => {
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
 
-  const useWalletListScreenOptions = useMemo(() => {
+  const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const SettingsButton = (
       <TouchableOpacity
         accessibilityRole="button"
@@ -117,7 +118,7 @@ const DetailViewStackScreensStack = () => {
         options={WalletTransactions.navigationOptions(theme)}
       />
       <DetailViewRoot.Screen
-        name="LdkOpenChannel"
+        name="LDKOpenChannelRoot"
         component={LDKOpenChannelRoot}
         options={navigationStyle({
           title: loc.lnd.new_channel,
@@ -350,20 +351,6 @@ const DetailViewStackScreensStack = () => {
         options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
       />
       <DetailViewRoot.Screen name="ReceiveDetailsRoot" component={ReceiveDetailsStackRoot} options={NavigationDefaultOptions} />
-      <DetailViewRoot.Screen
-        name="LDKOpenChannelRoot"
-        component={LDKOpenChannelRoot}
-        options={navigationStyle({
-          title: loc.lnd.new_channel,
-          headerLargeTitle: true,
-          statusBarStyle: 'auto',
-          closeButton: true,
-          headerBackVisible: false,
-          gestureEnabled: false,
-          closeButtonFunc: popToTop,
-        })(theme)}
-      />
-
       <DetailViewRoot.Screen
         name="ScanQRCodeRoot"
         component={ScanQRCodeStackRoot}
