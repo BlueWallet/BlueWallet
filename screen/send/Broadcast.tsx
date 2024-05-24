@@ -1,8 +1,7 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import * as bitcoin from 'bitcoinjs-lib';
 import React, { useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
 import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isTablet } from '../../blue_modules/environment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -37,7 +36,6 @@ interface SuccessScreenProps {
 
 const Broadcast: React.FC = () => {
   const { name } = useRoute();
-  const { navigate } = useNavigation();
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
@@ -83,7 +81,7 @@ const Broadcast: React.FC = () => {
   };
 
   const handleQRScan = async () => {
-    const scannedData = await scanQrHelper(navigate, name);
+    const scannedData = await scanQrHelper({ currentScreenName: name });
     if (!scannedData) return;
 
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
