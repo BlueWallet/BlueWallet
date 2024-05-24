@@ -1,6 +1,5 @@
 //
-//  WidgetAPI.swift
-//  TodayExtension
+//  MarketAPI.swift
 //
 //  Created by Marcos Rodriguez on 11/2/19.
 
@@ -36,6 +35,8 @@ class MarketAPI {
            return "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=\(endPointKey.lowercased())"
        case "BNR":
            return "https://www.bnr.ro/nbrfxrates.xml"
+       case "Kraken":
+           return "https://api.kraken.com/0/public/Ticker?pair=XXBTZ\(endPointKey.uppercased())"
        default:
            return "https://api.coindesk.com/v1/bpi/currentprice/\(endPointKey).json"
        }
@@ -47,7 +48,6 @@ class MarketAPI {
               return
           }
 
-          // Parse the JSON based on the source and format the response
           parseJSONBasedOnSource(json: json, source: source, endPointKey: endPointKey, completion: completion)
     }
   
@@ -125,16 +125,26 @@ class MarketAPI {
           }
 
       case "BNR":
-          // Handle BNR source differently if needed, perhaps requiring XML parsing
-          // Placeholder for potential XML parsing logic or alternative JSON structure
           completion(nil, CurrencyError(errorDescription: "BNR data source is not yet implemented"))
           
+      case "Kraken":
+          if let result = json["result"] as? [String: Any],
+             let tickerData = result["XXBTZ\(endPointKey.uppercased())"] as? [String: Any],
+             let c = tickerData["c"] as? [String],
+             let rateString = c.first,
+             let rateDouble = Double(rateString) {
+              let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+              latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+              completion(latestRateDataStore, nil)
+          } else {
+              completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
+          }
+
       default:
           completion(nil, CurrencyError(errorDescription: "Unsupported data source \(source)"))
       }
   }
   
-  // Handles XML data for BNR source
   private static func handleBNRData(data: Data, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
       let parser = XMLParser(data: data)
       let delegate = BNRXMLParserDelegate()
@@ -195,5 +205,3 @@ class MarketAPI {
      }
 
 }
-
-
