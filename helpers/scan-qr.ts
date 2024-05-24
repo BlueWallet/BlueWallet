@@ -31,7 +31,7 @@ function scanQrHelper({
 
       params.onBarScanned = function (data: any) {
         setTimeout(() => resolve(data.data || data), 1);
-        navigationRef.current?.navigate({ name :currentScreenName, params: {}, merge: true});
+        navigationRef.current?.navigate({ name: currentScreenName, params: {}, merge: true });
       };
 
       navigationRef.current?.navigate('ScanQRCodeRoot', {
