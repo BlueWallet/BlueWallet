@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -16,11 +16,13 @@ import {
   SuccessComponent,
 } from './LazyLoadSendDetailsStack';
 import { SendDetailsStackParamList } from './SendDetailsStackParamList';
+import HeaderRightButton from '../components/HeaderRightButton';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
 const SendDetailsStack = () => {
   const theme = useTheme();
+  const DetailsButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.create_details} />, []);
 
   return (
     <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false }}>
@@ -34,7 +36,11 @@ const SendDetailsStack = () => {
         }))(theme)}
         initialParams={{ isEditable: true }} // Correctly typed now
       />
-      <Stack.Screen name="Confirm" component={ConfirmComponent} options={navigationStyle({ title: loc.send.confirm_header })(theme)} />
+      <Stack.Screen
+        name="Confirm"
+        component={ConfirmComponent}
+        options={navigationStyle({ title: loc.send.confirm_header, headerRight: () => DetailsButton })(theme)}
+      />
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
