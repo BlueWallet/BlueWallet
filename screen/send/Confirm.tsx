@@ -9,7 +9,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -18,20 +18,29 @@ import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { useBiometrics } from '../../hooks/useBiometrics';
-import { TWallet, Utxo } from '../../class/wallets/types';
+import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import debounce from '../../blue_modules/debounce';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+
+enum ActionType {
+  SET_LOADING = 'SET_LOADING',
+  SET_PAYJOIN_ENABLED = 'SET_PAYJOIN_ENABLED',
+  SET_BUTTON_DISABLED = 'SET_BUTTON_DISABLED',
+}
+
+type Action =
+  | { type: ActionType.SET_LOADING; payload: boolean }
+  | { type: ActionType.SET_PAYJOIN_ENABLED; payload: boolean }
+  | { type: ActionType.SET_BUTTON_DISABLED; payload: boolean };
 
 interface State {
   isLoading: boolean;
   isPayjoinEnabled: boolean;
   isButtonDisabled: boolean;
 }
-
-type Action =
-  | { type: 'SET_LOADING'; payload: boolean }
-  | { type: 'SET_PAYJOIN_ENABLED'; payload: boolean }
-  | { type: 'SET_BUTTON_DISABLED'; payload: boolean };
 
 const initialState: State = {
   isLoading: false,
@@ -41,25 +50,29 @@ const initialState: State = {
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'SET_LOADING':
+    case ActionType.SET_LOADING:
       return { ...state, isLoading: action.payload };
-    case 'SET_PAYJOIN_ENABLED':
+    case ActionType.SET_PAYJOIN_ENABLED:
       return { ...state, isPayjoinEnabled: action.payload };
-    case 'SET_BUTTON_DISABLED':
+    case ActionType.SET_BUTTON_DISABLED:
       return { ...state, isButtonDisabled: action.payload };
     default:
       return state;
   }
 };
 
+type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
+type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
+
 const Confirm: React.FC = () => {
   const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
   const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
-  // @ts-ignore: navigation params will be fixed later
-  const { params } = useRoute<RouteProp<{ params: Params }, 'params'>>();
-  const { recipients = [], walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = params;
+  const navigation = useExtendedNavigation<ConfirmNavigationProp>();
+  const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
+  const { recipients, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, setOptions, goBack } = useNavigation();
+  const { navigate, setOptions, goBack } = navigation;
   const wallet = wallets.find((w: TWallet) => w.getID() === walletID) as TWallet;
   const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { colors } = useTheme();
@@ -109,7 +122,6 @@ const Confirm: React.FC = () => {
               return;
             }
           }
-          // @ts-ignore: another PR will fix it
           navigate('CreateTransaction', {
             fee,
             recipients,
@@ -151,13 +163,16 @@ const Confirm: React.FC = () => {
     });
   }, [HeaderRightButton, colors, fee, feeSatoshi, memo, recipients, satoshiPerByte, setOptions, tx, wallet]);
 
-  const getPaymentScript = () => {
-    return bitcoin.address.toOutputScript(recipients[0].address);
+  const getPaymentScript = (): Buffer | undefined => {
+    if (!(recipients.length > 0) || !recipients[0].address) {
+      return undefined;
+    }
+    return bitcoin.address.toOutputScript(recipients[0].address, bitcoin.networks.bitcoin);
   };
 
   const send = async () => {
-    dispatch({ type: 'SET_BUTTON_DISABLED', payload: true });
-    dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });
+    dispatch({ type: ActionType.SET_LOADING, payload: true });
     try {
       const txids2watch = [];
       if (!state.isPayjoinEnabled) {
@@ -165,10 +180,12 @@ const Confirm: React.FC = () => {
       } else {
         const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcast(txHex), wallet);
         const paymentScript = getPaymentScript();
+        if (!paymentScript) {
+          throw new Error('Invalid payment script');
+        }
         const payjoinClient = new PayjoinClient({
           paymentScript,
-          // @ts-ignore: needs fixing
-          wallet: payJoinWallet,
+          wallet: payJoinWallet.getPayjoinPsbt(),
           payjoinUrl: payjoinUrl as string,
         });
         await payjoinClient.run();
@@ -185,25 +202,26 @@ const Confirm: React.FC = () => {
       Notifications.majorTomToGroundControl([], [], txids2watch);
       let amount = 0;
       for (const recipient of recipients) {
-        amount += recipient.value;
+        if (recipient.value) {
+          amount += recipient.value;
+        }
       }
 
       amount = Number(formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false));
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      // @ts-ignore: another PR will fix it
       navigate('Success', {
         fee: Number(fee),
         amount,
       });
 
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: ActionType.SET_LOADING, payload: false });
 
       await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
       fetchAndSaveWalletTransactions(walletID);
     } catch (error: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      dispatch({ type: 'SET_LOADING', payload: false });
-      dispatch({ type: 'SET_BUTTON_DISABLED', payload: false });
+      dispatch({ type: ActionType.SET_LOADING, payload: false });
+      dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: false });
       presentAlert({ message: error.message });
     }
   };
@@ -228,16 +246,18 @@ const Confirm: React.FC = () => {
     return result;
   };
 
-  const renderItem = ({ index, item }: { index: number; item: Utxo }) => {
+  const renderItem = ({ index, item }: { index: number; item: CreateTransactionTarget }) => {
     return (
       <>
         <View style={styles.valueWrap}>
           <Text testID="TransactionValue" style={[styles.valueValue, stylesHook.valueValue]}>
-            {satoshiToBTC(item.value)}
+            {item.value && satoshiToBTC(item.value)}
           </Text>
           <Text style={[styles.valueUnit, stylesHook.valueValue]}>{' ' + loc.units[BitcoinUnit.BTC]}</Text>
         </View>
-        <Text style={[styles.transactionAmountFiat, stylesHook.transactionAmountFiat]}>{satoshiToLocalCurrency(item.value)}</Text>
+        <Text style={[styles.transactionAmountFiat, stylesHook.transactionAmountFiat]}>
+          {item.value && satoshiToLocalCurrency(item.value)}
+        </Text>
         <BlueCard>
           <Text style={[styles.transactionDetailsTitle, stylesHook.transactionDetailsTitle]}>{loc.send.create_to}</Text>
           <Text testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
@@ -258,7 +278,7 @@ const Confirm: React.FC = () => {
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
       <View style={styles.cardTop}>
-        <FlatList
+        <FlatList<CreateTransactionTarget>
           scrollEnabled={recipients.length > 1}
           extraData={recipients}
           data={recipients}
@@ -274,7 +294,7 @@ const Confirm: React.FC = () => {
                 <Switch
                   testID="PayjoinSwitch"
                   value={state.isPayjoinEnabled}
-                  onValueChange={value => dispatch({ type: 'SET_PAYJOIN_ENABLED', payload: value })}
+                  onValueChange={value => dispatch({ type: ActionType.SET_PAYJOIN_ENABLED, payload: value })}
                 />
               </View>
             </BlueCard>
