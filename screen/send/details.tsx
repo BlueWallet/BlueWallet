@@ -435,6 +435,7 @@ const SendDetails = () => {
         return [...addrs];
       });
       setIsLoading(false);
+      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
