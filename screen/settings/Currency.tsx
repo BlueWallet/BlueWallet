@@ -1,6 +1,6 @@
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 
 import {
@@ -18,6 +18,7 @@ import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import useDebounce from '../../hooks/useDebounce';
 
 dayjs.extend(calendar);
 
@@ -26,13 +27,15 @@ const Currency: React.FC = () => {
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { colors } = useTheme();
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
 
   const data = useMemo(
-    () => Object.values(FiatUnit).filter(item => item.endPointKey.toLowerCase().includes(search.toLowerCase())),
-    [search],
+    () => Object.values(FiatUnit).filter(item => item.endPointKey.toLowerCase().includes(debouncedSearch.toLowerCase())),
+    [debouncedSearch],
   );
 
   const stylesHook = StyleSheet.create({
@@ -64,6 +67,8 @@ const Currency: React.FC = () => {
     setOptions({
       headerSearchBarOptions: {
         onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
+        onFocus: () => setIsSearchFocused(true),
+        onBlur: () => setIsSearchFocused(false),
       },
     });
   }, [setOptions]);
@@ -86,13 +91,18 @@ const Currency: React.FC = () => {
         } catch (error: any) {
           console.log(error);
           presentAlert({
-            message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}}` : loc.settings.currency_fetch_error,
+            message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
           });
         } finally {
           setIsSavingNewPreferredCurrency(false);
         }
       }}
     />
+  );
+
+  const selectedCurrencyVisible = useMemo(
+    () => data.some(item => item.endPointKey === selectedCurrency.endPointKey),
+    [data, selectedCurrency],
   );
 
   return (
@@ -105,19 +115,21 @@ const Currency: React.FC = () => {
         initialNumToRender={30}
         renderItem={renderItem}
       />
-      <BlueCard>
-        <BlueText>
-          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
-        </BlueText>
-        <BlueSpacing10 />
-        <BlueText>
-          {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-        </BlueText>
-        <BlueSpacing10 />
-        <BlueText>
-          {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
-        </BlueText>
-      </BlueCard>
+      {!isSearchFocused || selectedCurrencyVisible ? (
+        <BlueCard>
+          <BlueText>
+            {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+          </BlueText>
+          <BlueSpacing10 />
+          <BlueText>
+            {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+          </BlueText>
+          <BlueSpacing10 />
+          <BlueText>
+            {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+          </BlueText>
+        </BlueCard>
+      ) : null}
     </View>
   );
 };
