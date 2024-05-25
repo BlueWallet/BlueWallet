@@ -3,7 +3,7 @@ import React, { lazy, Suspense } from 'react';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 const SendDetails = lazy(() => import('../screen/send/details'));
-const Confirm = lazy(() => import('../screen/send/confirm'));
+const Confirm = lazy(() => import('../screen/send/Confirm'));
 const PsbtWithHardwareWallet = lazy(() => import('../screen/send/psbtWithHardwareWallet'));
 const CreateTransaction = lazy(() => import('../screen/send/create'));
 const PsbtMultisig = lazy(() => import('../screen/send/psbtMultisig'));

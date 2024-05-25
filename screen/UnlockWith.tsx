@@ -55,6 +55,10 @@ const UnlockWith: React.FC = () => {
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, unlockWithBiometrics, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
 
+  useEffect(() => {
+    setWalletsInitialized(false);
+  }, [setWalletsInitialized]);
+
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
     isUnlockingWallets.current = false;
