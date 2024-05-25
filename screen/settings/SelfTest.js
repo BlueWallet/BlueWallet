@@ -2,7 +2,6 @@ import BIP32Factory from 'bip32';
 import bip38 from 'bip38';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import BlueCrypto from 'react-native-blue-crypto';
@@ -336,10 +335,3 @@ function assertStrictEqual(actual, expected, message) {
     throw new Error('Assertion failed that ' + JSON.stringify(expected) + ' equals ' + JSON.stringify(actual));
   }
 }
-
-SelfTest.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
