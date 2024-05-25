@@ -3,7 +3,7 @@ import React from 'react';
 import TestRenderer from 'react-test-renderer';
 
 import { Header } from '../../components/Header';
-import Selftest from '../../screen/selftest';
+import SelfTest from '../../screen/selftest';
 import Settings from '../../screen/settings/Settings';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
@@ -23,8 +23,8 @@ it.skip('Settings work', () => {
   expect(rendered).toBeTruthy();
 });
 
-it('Selftest work', () => {
-  const component = TestRenderer.create(<Selftest />);
+it('SelfTest work', () => {
+  const component = TestRenderer.create(<SelfTest />);
   const root = component.root;
   const rendered = component.toJSON();
   expect(rendered).toBeTruthy();

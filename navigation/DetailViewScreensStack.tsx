@@ -50,7 +50,7 @@ import {
   NotificationSettingsComponent,
   PlausibleDeniabilityComponent,
   ReleaseNotesComponent,
-  SelftestComponent,
+  SelfTestComponent,
   SettingsComponent,
   SettingsPrivacyComponent,
   ToolsComponent,
@@ -319,8 +319,8 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.settings.notifications })(theme)}
       />
       <DetailViewRoot.Screen
-        name="Selftest"
-        component={SelftestComponent}
+        name="SelfTest"
+        component={SelfTestComponent}
         options={navigationStyle({ title: loc.settings.selfTest })(theme)}
       />
       <DetailViewRoot.Screen
