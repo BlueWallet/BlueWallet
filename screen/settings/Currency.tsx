@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 
 import {
@@ -34,7 +34,12 @@ const Currency: React.FC = () => {
   const debouncedSearch = useDebounce(search, 300);
 
   const data = useMemo(
-    () => Object.values(FiatUnit).filter(item => item.endPointKey.toLowerCase().includes(debouncedSearch.toLowerCase())),
+    () =>
+      Object.values(FiatUnit).filter(
+        item =>
+          item.endPointKey.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+          item.country.toLowerCase().includes(debouncedSearch.toLowerCase()),
+      ),
     [debouncedSearch],
   );
 
@@ -79,6 +84,7 @@ const Currency: React.FC = () => {
       title={`${item.endPointKey} (${item.symbol})`}
       containerStyle={StyleSheet.flatten([styles.flex, stylesHook.flex, { minHeight: 60 }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
+      subtitle={item.country}
       onPress={async () => {
         setIsSavingNewPreferredCurrency(true);
         try {
