@@ -121,7 +121,7 @@ const _readPsbtFileIntoBase64 = async function (uri: string): Promise<string> {
   }
 };
 
-export const showImagePickerAndReadImage = () => {
+export const showImagePickerAndReadImage = (): Promise<string | undefined> => {
   return new Promise((resolve, reject) =>
     launchImageLibrary(
       {

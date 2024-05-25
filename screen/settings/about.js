@@ -86,7 +86,7 @@ const About = () => {
     if (isElectrumDisabled) {
       presentAlert({ message: loc.settings.about_selftest_electrum_disabled });
     } else {
-      navigate('Selftest');
+      navigate('SelfTest');
     }
   };
 
