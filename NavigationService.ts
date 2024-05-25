@@ -2,7 +2,7 @@ import { createNavigationContainerRef, NavigationAction, ParamListBase } from '@
 
 export const navigationRef = createNavigationContainerRef<ParamListBase>();
 
-export function navigate(name: string, params?: ParamListBase, merge?: boolean) {
+export function navigate(name: string, params?: ParamListBase, merge: boolean = false) {
   if (navigationRef.isReady()) {
     navigationRef.current?.navigate({ key: name, params, merge });
   }

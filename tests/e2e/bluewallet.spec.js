@@ -222,7 +222,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {
+  it('can encrypt storage, with plausible deniability decrypt fake storage', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t4');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t4'), 'as it previously passed on Travis');
