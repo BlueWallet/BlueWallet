@@ -12,7 +12,15 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "module": "esnext",
+    "moduleResolution": "node"
   },
   "extends": "@react-native/typescript-config/tsconfig.json",
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js",
+    "components/react-native-draggable-flatlist",
+    "scripts/maccatalystpatches"
+  ]
 }

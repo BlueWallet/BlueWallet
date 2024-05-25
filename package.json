@@ -15,6 +15,7 @@
     "@react-native/metro-babel-transformer": "^0.74.83",
     "@react-native/metro-config": "^0.74.83",
     "@tsconfig/react-native": "^3.0.2",
+    "@react-native/typescript-config": "0.73.1",
     "@types/bip38": "^3.1.2",
     "@types/bs58check": "^2.1.0",
     "@types/create-hash": "^1.2.2",
