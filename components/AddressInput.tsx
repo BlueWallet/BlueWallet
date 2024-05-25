@@ -77,7 +77,7 @@ const AddressInput = ({
       case actionKeys.ScanQR:
         scanButtonTapped();
         if (launchedBy) {
-          scanQrHelper(navigate, launchedBy ?? undefined)
+          scanQrHelper(navigate, launchedBy)
             .then(value => onBarScanned({ data: value }))
             .catch(error => {
               presentAlert({ message: error.message });
