@@ -2,17 +2,16 @@ import BIP32Factory from 'bip32';
 import bip38 from 'bip38';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
-import * as BlueElectrum from '../blue_modules/BlueElectrum';
-import * as encryption from '../blue_modules/encryption';
-import * as fs from '../blue_modules/fs';
-import ecc from '../blue_modules/noble_ecc';
-import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import * as encryption from '../../blue_modules/encryption';
+import * as fs from '../../blue_modules/fs';
+import ecc from '../../blue_modules/noble_ecc';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
@@ -20,12 +19,12 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
-} from '../class';
-import presentAlert from '../components/Alert';
-import Button from '../components/Button';
-import SafeArea from '../components/SafeArea';
-import SaveFileButton from '../components/SaveFileButton';
-import loc from '../loc';
+} from '../../class';
+import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import SaveFileButton from '../../components/SaveFileButton';
+import loc from '../../loc';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -58,6 +57,7 @@ export default class SelfTest extends Component {
   };
 
   async componentDidMount() {
+    console.debug('SelfTest - componentDidMount');
     let errorMessage = '';
     let isOk = true;
 
@@ -272,6 +272,7 @@ export default class SelfTest extends Component {
 
       //
     } catch (Err) {
+      console.log(Err);
       errorMessage += Err;
       isOk = false;
     }
@@ -334,10 +335,3 @@ function assertStrictEqual(actual, expected, message) {
     throw new Error('Assertion failed that ' + JSON.stringify(expected) + ' equals ' + JSON.stringify(actual));
   }
 }
-
-SelfTest.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
