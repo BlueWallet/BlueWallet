@@ -63,8 +63,8 @@ export enum WalletTransactionsStatus {
 // @ts-ignore defaut value does not match the type
 export const BlueStorageContext = createContext<BlueStorageContextType>(undefined);
 export const BlueStorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const txMetadata = useRef<TTXMetadata>({});
-  const counterpartyMetadata = useRef<TCounterpartyMetadata>({}); // init
+  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
+  const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
   const getTransactions = BlueApp.getTransactions;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
   const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
@@ -93,9 +93,9 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
-      setWallets(BlueApp.getWallets());
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
+      setWallets(BlueApp.getWallets());
       BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
