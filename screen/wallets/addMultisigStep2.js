@@ -461,7 +461,7 @@ const WalletsAddMultisigStep2 = () => {
   const scanOrOpenFile = () => {
     setIsProvideMnemonicsModalVisible(false);
     InteractionManager.runAfterInteractions(async () => {
-      const scanned = await scanQrHelper(navigation.navigate, name, true);
+      const scanned = await scanQrHelper(name, true);
       onBarScanned({ data: scanned });
     });
   };
