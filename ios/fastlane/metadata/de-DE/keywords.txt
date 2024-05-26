@@ -1,1 +1,1 @@
-Bitcoin,Wallet,Bitcoin Wallet,Blockchain,BTC,Kryptowährung,Bitcoin Kaufen,Samourai,Electrum
+Bitcoin,Wallet,Bitcoin Wallet,Blockchain,BTC,Kryptowährung,Bitcoin,Samourai,Ethereum
