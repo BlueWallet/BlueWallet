@@ -3,336 +3,392 @@
         "endPointKey": "USD",
         "locale": "en-US",
         "source": "Kraken",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "United States (US Dollar)"
     },
     "AED": {
         "endPointKey": "AED",
         "locale": "ar-AE",
         "source": "CoinGecko",
-        "symbol": "د.إ."
+        "symbol": "د.إ.",
+        "country": "United Arab Emirates (UAE Dirham)"
     },
     "ANG": {
         "endPointKey": "ANG",
         "locale": "en-SX",
         "source": "CoinDesk",
-        "symbol": "ƒ"
+        "symbol": "ƒ",
+        "country": "Sint Maarten (Netherlands Antillean Guilder)"
     },
     "ARS": {
         "endPointKey": "ARS",
         "locale": "es-AR",
         "source": "Yadio",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Argentina (Argentine Peso)"
     },
     "AUD": {
         "endPointKey": "AUD",
         "locale": "en-AU",
         "source": "CoinGecko",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Australia (Australian Dollar)"
     },
     "AWG": {
         "endPointKey": "AWG",
         "locale": "nl-AW",
         "source": "CoinDesk",
-        "symbol": "ƒ"
+        "symbol": "ƒ",
+        "country": "Aruba (Aruban Florin)"
     },
     "BHD": {
         "endPointKey": "BHD",
         "locale": "ar-BH",
         "source": "CoinGecko",
-        "symbol": "د.ب."
+        "symbol": "د.ب.",
+        "country": "Bahrain (Bahraini Dinar)"
     },
     "BRL": {
         "endPointKey": "BRL",
         "locale": "pt-BR",
         "source": "CoinGecko",
-        "symbol": "R$"
+        "symbol": "R$",
+        "country": "Brazil (Brazilian Real)"
     },
     "CAD": {
         "endPointKey": "CAD",
         "locale": "en-CA",
         "source": "CoinGecko",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Canada (Canadian Dollar)"
     },
     "CHF": {
         "endPointKey": "CHF",
         "locale": "de-CH",
         "source": "CoinGecko",
-        "symbol": "CHF"
+        "symbol": "CHF",
+        "country": "Switzerland (Swiss Franc)"
     },
     "CLP": {
         "endPointKey": "CLP",
         "locale": "es-CL",
         "source": "Yadio",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Chile (Chilean Peso)"
     },
     "CNY": {
         "endPointKey": "CNY",
         "locale": "zh-CN",
         "source": "Coinbase",
-        "symbol": "¥"
+        "symbol": "¥",
+        "country": "China (Chinese Yuan)"
     },
     "COP": {
         "endPointKey": "COP",
         "locale": "es-CO",
         "source": "CoinDesk",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Colombia (Colombian Peso)"
     },
     "CZK": {
         "endPointKey": "CZK",
         "locale": "cs-CZ",
         "source": "CoinGecko",
-        "symbol": "Kč"
+        "symbol": "Kč",
+        "country": "Czech Republic (Czech Koruna)"
     },
     "DKK": {
         "endPointKey": "DKK",
         "locale": "da-DK",
         "source": "CoinGecko",
-        "symbol": "kr"
+        "symbol": "kr",
+        "country": "Denmark (Danish Krone)"
     },
     "EUR": {
         "endPointKey": "EUR",
         "locale": "en-IE",
         "source": "Kraken",
-        "symbol": "€"
+        "symbol": "€",
+        "country": "European Union (Euro)"
     },
     "GBP": {
         "endPointKey": "GBP",
         "locale": "en-GB",
         "source": "Kraken",
-        "symbol": "£"
+        "symbol": "£",
+        "country": "United Kingdom (British Pound)"
     },
     "HRK": {
         "endPointKey": "HRK",
         "locale": "hr-HR",
         "source": "CoinDesk",
-        "symbol": "HRK"
+        "symbol": "HRK",
+        "country": "Croatia (Croatian Kuna)"
     },
     "HUF": {
         "endPointKey": "HUF",
         "locale": "hu-HU",
         "source": "CoinGecko",
-        "symbol": "Ft"
+        "symbol": "Ft",
+        "country": "Hungary (Hungarian Forint)"
     },
     "IDR": {
         "endPointKey": "IDR",
         "locale": "id-ID",
         "source": "CoinGecko",
-        "symbol": "Rp"
+        "symbol": "Rp",
+        "country": "Indonesia (Indonesian Rupiah)"
     },
     "ILS": {
         "endPointKey": "ILS",
         "locale": "he-IL",
         "source": "CoinGecko",
-        "symbol": "₪"
+        "symbol": "₪",
+        "country": "Israel (Israeli New Shekel)"
     },
     "INR": {
         "endPointKey": "INR",
-        "locale": "hi-HN",
+        "locale": "hi-IN",
         "source": "wazirx",
-        "symbol": "₹"
+        "symbol": "₹",
+        "country": "India (Indian Rupee)"
     },
     "IRR": {
         "endPointKey": "IRR",
         "locale": "fa-IR",
         "source": "Exir",
-        "symbol": "﷼"
+        "symbol": "﷼",
+        "country": "Iran (Iranian Rial)"
     },
     "IRT": {
         "endPointKey": "IRT",
         "locale": "fa-IR",
         "source": "Exir",
-        "symbol": "تومان"
+        "symbol": "تومان",
+        "country": "Iran (Iranian Toman)"
     },
     "ISK": {
         "endPointKey": "ISK",
         "locale": "is-IS",
         "source": "CoinDesk",
-        "symbol": "kr"
+        "symbol": "kr",
+        "country": "Iceland (Icelandic Króna)"
     },
     "JPY": {
         "endPointKey": "JPY",
         "locale": "ja-JP",
         "source": "CoinGecko",
-        "symbol": "¥"
+        "symbol": "¥",
+        "country": "Japan (Japanese Yen)"
     },
     "KES": {
         "endPointKey": "KES",
         "locale": "en-KE",
         "source": "CoinDesk",
-        "symbol": "Ksh"
+        "symbol": "Ksh",
+        "country": "Kenya (Kenyan Shilling)"
     },
     "KRW": {
         "endPointKey": "KRW",
         "locale": "ko-KR",
         "source": "CoinGecko",
-        "symbol": "₩"
+        "symbol": "₩",
+        "country": "South Korea (South Korean Won)"
     },
     "KWD": {
         "endPointKey": "KWD",
         "locale": "ar-KW",
         "source": "CoinGecko",
-        "symbol": "د.ك."
+        "symbol": "د.ك.",
+        "country": "Kuwait (Kuwaiti Dinar)"
     },
     "LBP": {
         "endPointKey": "LBP",
         "locale": "ar-LB",
         "source": "YadioConvert",
-        "symbol": "ل.ل."
+        "symbol": "ل.ل.",
+        "country": "Lebanon (Lebanese Pound)"
     },
     "LKR": {
         "endPointKey": "LKR",
         "locale": "si-LK",
         "source": "CoinGecko",
-        "symbol": "රු."
+        "symbol": "රු.",
+        "country": "Sri Lanka (Sri Lankan Rupee)"
     },
     "MXN": {
         "endPointKey": "MXN",
         "locale": "es-MX",
         "source": "CoinGecko",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Mexico (Mexican Peso)"
     },
     "MYR": {
         "endPointKey": "MYR",
         "locale": "ms-MY",
         "source": "CoinGecko",
-        "symbol": "RM"
+        "symbol": "RM",
+        "country": "Malaysia (Malaysian Ringgit)"
     },
     "MZN": {
         "endPointKey": "MZN",
         "locale": "seh-MZ",
         "source": "CoinDesk",
-        "symbol": "MTn"
+        "symbol": "MTn",
+        "country": "Mozambique (Mozambican Metical)"
     },
     "NGN": {
         "endPointKey": "NGN",
         "locale": "en-NG",
         "source": "CoinGecko",
-        "symbol": "₦"
+        "symbol": "₦",
+        "country": "Nigeria (Nigerian Naira)"
     },
     "NOK": {
         "endPointKey": "NOK",
         "locale": "nb-NO",
         "source": "CoinGecko",
-        "symbol": "kr"
+        "symbol": "kr",
+        "country": "Norway (Norwegian Krone)"
     },
     "NZD": {
         "endPointKey": "NZD",
         "locale": "en-NZ",
         "source": "CoinGecko",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "New Zealand (New Zealand Dollar)"
     },
     "OMR": {
         "endPointKey": "OMR",
         "locale": "ar-OM",
         "source": "CoinDesk",
-        "symbol": "ر.ع."
+        "symbol": "ر.ع.",
+        "country": "Oman (Omani Rial)"
     },
     "PHP": {
         "endPointKey": "PHP",
         "locale": "en-PH",
         "source": "CoinGecko",
-        "symbol": "₱"
+        "symbol": "₱",
+        "country": "Philippines (Philippine Peso)"
     },
     "PLN": {
         "endPointKey": "PLN",
         "locale": "pl-PL",
         "source": "CoinGecko",
-        "symbol": "zł"
+        "symbol": "zł",
+        "country": "Poland (Polish Zloty)"
     },
     "QAR": {
         "endPointKey": "QAR",
         "locale": "ar-QA",
         "source": "CoinDesk",
-        "symbol": "ر.ق."
+        "symbol": "ر.ق.",
+        "country": "Qatar (Qatari Riyal)"
     },
     "RON": {
         "endPointKey": "RON",
         "locale": "ro-RO",
         "source": "BNR",
-        "symbol": "lei"
+        "symbol": "lei",
+        "country": "Romania (Romanian Leu)"
     },
     "RUB": {
         "endPointKey": "RUB",
         "locale": "ru-RU",
         "source": "CoinGecko",
-        "symbol": "₽"
+        "symbol": "₽",
+        "country": "Russia (Russian Ruble)"
     },
     "SAR": {
         "endPointKey": "SAR",
         "locale": "ar-SA",
         "source": "CoinGecko",
-        "symbol": "ر.س."
+        "symbol": "ر.س.",
+        "country": "Saudi Arabia (Saudi Riyal)"
     },
     "SEK": {
         "endPointKey": "SEK",
         "locale": "sv-SE",
         "source": "CoinGecko",
-        "symbol": "kr"
+        "symbol": "kr",
+        "country": "Sweden (Swedish Krona)"
     },
     "SGD": {
         "endPointKey": "SGD",
         "locale": "zh-SG",
         "source": "CoinGecko",
-        "symbol": "S$"
+        "symbol": "S$",
+        "country": "Singapore (Singapore Dollar)"
     },
     "THB": {
         "endPointKey": "THB",
         "locale": "th-TH",
         "source": "CoinGecko",
-        "symbol": "฿"
+        "symbol": "฿",
+        "country": "Thailand (Thai Baht)"
     },
     "TRY": {
         "endPointKey": "TRY",
         "locale": "tr-TR",
         "source": "CoinGecko",
-        "symbol": "₺"
+        "symbol": "₺",
+        "country": "Turkey (Turkish Lira)"
     },
     "TWD": {
         "endPointKey": "TWD",
         "locale": "zh-Hant-TW",
         "source": "CoinGecko",
-        "symbol": "NT$"
+        "symbol": "NT$",
+        "country": "Taiwan (New Taiwan Dollar)"
     },
     "TZS": {
         "endPointKey": "TZS",
         "locale": "en-TZ",
         "source": "CoinDesk",
-        "symbol": "TSh"
+        "symbol": "TSh",
+        "country": "Tanzania (Tanzanian Shilling)"
     },
     "UAH": {
         "endPointKey": "UAH",
         "locale": "uk-UA",
         "source": "CoinGecko",
-        "symbol": "₴"
+        "symbol": "₴",
+        "country": "Ukraine (Ukrainian Hryvnia)"
     },
     "UGX": {
         "endPointKey": "UGX",
         "locale": "en-UG",
         "source": "CoinDesk",
-        "symbol": "USh"
+        "symbol": "USh",
+        "country": "Uganda (Ugandan Shilling)"
     },
     "UYU": {
         "endPointKey": "UYU",
         "locale": "es-UY",
         "source": "CoinDesk",
-        "symbol": "$"
+        "symbol": "$",
+        "country": "Uruguay (Uruguayan Peso)"
     },
     "VEF": {
         "endPointKey": "VEF",
         "locale": "es-VE",
         "source": "CoinGecko",
-        "symbol": "Bs."
+        "symbol": "Bs.",
+        "country": "Venezuela (Venezuelan Bolívar Fuerte)"
     },
     "VES": {
         "endPointKey": "VES",
         "locale": "es-VE",
         "source": "Yadio",
-        "symbol": "Bs."
+        "symbol": "Bs.",
+        "country": "Venezuela (Venezuelan Bolívar Soberano)"
     },
     "ZAR": {
         "endPointKey": "ZAR",
         "locale": "en-ZA",
         "source": "CoinGecko",
-        "symbol": "R"
+        "symbol": "R",
+        "country": "South Africa (South African Rand)"
     }
 }
