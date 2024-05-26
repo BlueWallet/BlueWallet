@@ -318,7 +318,7 @@ const WalletsList: React.FC = () => {
   };
 
   const onScanButtonPressed = () => {
-    scanQrHelper(navigate, routeName).then(onBarScanned);
+    scanQrHelper(routeName).then(onBarScanned);
   };
 
   const onBarScanned = (value: any) => {
@@ -364,7 +364,7 @@ const WalletsList: React.FC = () => {
             });
           break;
         case 2:
-          scanQrHelper(navigate, routeName, true).then(data => onBarScanned(data));
+          scanQrHelper(routeName, true).then(data => onBarScanned(data));
           break;
         case 3:
           if (!isClipboardEmpty) {

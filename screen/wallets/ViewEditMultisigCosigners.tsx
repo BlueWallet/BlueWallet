@@ -51,7 +51,6 @@ import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import * as NavigationService from '../../NavigationService';
 import ActionSheet from '../ActionSheet';
 
 const ViewEditMultisigCosigners: React.FC = () => {
@@ -513,7 +512,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     setIsProvideMnemonicsModalVisible(false);
-    const scanned = await scanQrHelper(NavigationService.navigate, route.name, true);
+    const scanned = await scanQrHelper(route.name, true);
     setImportText(String(scanned));
     setIsProvideMnemonicsModalVisible(true);
   };

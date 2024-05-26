@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -51,7 +50,6 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -77,7 +75,7 @@ const AddressInput = ({
       case actionKeys.ScanQR:
         scanButtonTapped();
         if (launchedBy) {
-          scanQrHelper(navigate, launchedBy)
+          scanQrHelper(launchedBy)
             .then(value => onBarScanned({ data: value }))
             .catch(error => {
               presentAlert({ message: error.message });
