@@ -435,6 +435,7 @@ const SendDetails = () => {
         return [...addrs];
       });
       setIsLoading(false);
+      setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
       return;
     }
 
@@ -856,7 +857,7 @@ const SendDetails = () => {
     setIsLoading(true);
     setOptionsVisible(false);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
-    const scannedData = await scanQrHelper(navigation.navigate, name);
+    const scannedData = await scanQrHelper(name);
     if (!scannedData) return setIsLoading(false);
 
     let tx;

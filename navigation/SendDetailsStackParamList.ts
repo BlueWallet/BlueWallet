@@ -45,7 +45,10 @@ export type SendDetailsStackParamList = {
     fromWallet: string;
     launchedBy?: string;
   };
-  Success: undefined;
+  Success: {
+    fee: number;
+    amount: number;
+  };
   SelectWallet: {
     onWalletSelect: (wallet: TWallet) => void;
     chainType: Chain;

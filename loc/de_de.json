@@ -120,11 +120,13 @@
     "details_create": "Erstelle",
     "details_label": "Beschreibung",
     "details_setAmount": "Zu erhaltender Betrag",
+    "details_share": "Teilen",
     "header": "Erhalten",
     "maxSats": "Der größtmögliche Betrag ist {max} sats",
     "maxSatsFull": "Der größtmögliche Betrag ist {max} sats oder {currency}",
     "minSats": "Der kleinstmögliche Betrag ist {min} sats",
-    "minSatsFull": "Der kleinstmögliche Betrag ist {min} sats oder {currency}"
+    "minSatsFull": "Der kleinstmögliche Betrag ist {min} sats oder {currency}",
+    "qrcode_for_the_address": "QR-Code für die Adresse"
   },
   "send": {
     "provided_address_is_invoice": "Diese Adresse ist für eine Lightning-Rechnung. Um diese Rechnung zu zahlen ist ein Lightning Wallet zu verwenden.",
@@ -165,6 +167,7 @@
     "details_next": "Weiter",
     "details_no_signed_tx": "Die ausgewählte Datei enthält keine importierbare signierte Transaktion.",
     "details_note_placeholder": "Eigene Bezeichnung",
+    "counterparty_label_placeholder": "Kontaktnamen bearbeiten",
     "details_scan": "Scannen",
     "details_scan_hint": "Zum Importieren / Scannen zweimal tippen",
     "details_total_exceeds_balance": "Der zu sendende Betrag ist größer als der verfügbare Betrag.",
@@ -209,6 +212,7 @@
     "reset_amount_confirm": "Möchten Du den Betrag zurücksetzen?",
     "success_done": "Fertig",
     "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",
+    "file_saved_at_path": "Die Datei ({fileName}) wurde im Download-Ordner gespeichert.",
     "problem_with_psbt": "PSBT-Problem"
   },
   "settings": {
@@ -273,7 +277,9 @@
     "encrypt_title": "Sicherheit",
     "encrypt_tstorage": "Speicher",
     "encrypt_use": "Benutze {type}",
+    "encrypted_feature_disabled": "Diese Funktion kann bei verschlüsseltem Speicher nicht genutzt werden.",
     "encrypt_use_expl": "{type} wird zur Transaktionsdurchführung, zum Entsperren, dem Export oder der Löschung einer Wallet benötigt. {type} ersetzt nicht die Passworteingabe bei verschlüsseltem Speicher.",
+    "biometrics_fail": "Wenn {type} nicht aktiviert ist oder entsperrt werden kann, alternativ Ihren Gerätepasscode verwenden.",
     "general": "Allgemein",
     "general_adv_mode": "Erweiterter Modus",
     "general_adv_mode_e": "Erlaubt, wenn aktiviert, verschiedene Wallet-Typen anzulegen, dabei eine benutzerdefinierte Entropie zu verwenden und die LNDHub-Instanz der Lightning Wallet frei zu definieren.",
@@ -284,6 +290,7 @@
     "language": "Sprache",
     "last_updated": "Zuletzt aktualisiert",
     "language_isRTL": "BlueWallet zur Aktivierung der Änderung der Schriftrichtung neu starten.",
+    "license": "Lizenz",
     "lightning_error_lndhub_uri": "Keine gültige LndHub URI",
     "lightning_saved": "Deine Änderungen wurden gespeichert.",
     "lightning_settings": "Lightning-Einstellungen",
@@ -336,7 +343,6 @@
     "cpfp_title": "TRX-Gebühr erhöhen (CPFP)",
     "details_balance_hide": "Guthaben verbergen",
     "details_balance_show": "Guthaben zeigen",
-    "details_block": "Blockhöhe",
     "details_copy": "Kopieren",
     "details_copy_amount": "Betrag kopieren",
     "details_copy_block_explorer_link": "Block-Explorer Link kopieren",
@@ -347,7 +353,7 @@
     "details_outputs": "Ausgänge",
     "date": "Datum",
     "details_received": "Empfangen",
-    "transaction_note_saved": "Transaktionsbezeichnung erfolgreich gespeichert.",
+    "transaction_saved": "Gespeichert",
     "details_show_in_block_explorer": "Im Block-Explorer zeigen",
     "details_title": "Transaktion",
     "details_to": "Ausgang",
@@ -368,6 +374,8 @@
     "status_cancel": "Transaktion abbrechen",
     "transactions_count": "Anzahl Transaktionen",
     "txid": "Transaktions-ID",
+    "from": "Von: {counterparty}",
+    "to": "Zu: {counterparty}",
     "updating": "Aktualisiere...."
   },
   "wallets": {
@@ -398,6 +406,7 @@
     "details_delete": "Löschen",
     "details_delete_wallet": "Wallet löschen",
     "details_derivation_path": "Ableitungspfad",
+    "details_display": "Auf der Startseite anzeigen",
     "details_export_backup": "Exportieren / Backup",
     "details_export_history": "Verlauf als CSV exportieren",
     "details_master_fingerprint": "Fingerabdruckkennung",
@@ -444,9 +453,9 @@
     "list_empty_txs2": "Beginne mit deinem Wallet.",
     "list_empty_txs2_lightning": "\nDrücke zum Starten «Beträge verwalten», um das Wallet aufzuladen.",
     "list_latest_transaction": "Letzte Transaktion",
-    "list_ln_browser": "LApp Browser",
     "list_long_choose": "Foto auswählen",
     "list_long_clipboard": "Aus der Zwischenablage kopieren",
+    "import_file": "Datei importieren",
     "list_long_scan": "QR Code scannen",
     "list_title": "Wallets",
     "list_tryagain": "Nochmal versuchen",
@@ -462,7 +471,8 @@
     "warning_do_not_disclose": "Warnung! Nicht veröffentlichen",
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
     "identity_pubkey": "Pubkey-Identität",
-    "xpub_title": "Wallet xPub"
+    "xpub_title": "Wallet xPub",
+    "search_wallets": "Wallets suchen"
   },
   "multisig": {
     "multisig_vault": "Tresor",
@@ -475,7 +485,10 @@
     "fee_btc": "{number} BTC",
     "confirm": "Bestätigen",
     "header": "Senden",
+    "share": "Teilen",
     "view": "Anzeigen",
+    "shared_key_detected": "Geteilte Mitsignierer",
+    "shared_key_detected_question": "Ein Mitsignierer wurde mit Ihnen geteilt. Diesen jetzt importierten?",
     "manage_keys": "Schlüssel verwalten",
     "how_many_signatures_can_bluewallet_make": "Anzahl Signaturen durch BlueWallet",
     "signatures_required_to_spend": "Benötigte Signaturen {number}",
@@ -510,6 +523,7 @@
     "i_have_mnemonics": "Seed des Schlüssels importieren",
     "type_your_mnemonics": "Seed zum Import deines Tresorschlüssels eingeben",
     "this_is_cosigners_xpub": "Dies ist der xPub für Mitsigierer zum Import in ein anderes Wallet. Er kann sicher mit anderen geteilt werden.",
+    "this_is_cosigners_xpub_airdrop": "Zur AirDrop-Freigabe müssen alle Empfänger auf dem Koordinierungsbildschirm sein.",
     "wallet_key_created": "Dein Tresorschlüssel wurde erstellt. Nimm dir Zeit ein sicheres Backup des mnemonischen Seeds herzustellen. ",
     "are_you_sure_seed_will_be_lost": "Bist du sicher? Dein mnemonischer Seed ist ohne Backup verloren!",
     "forget_this_seed": "Seed vergessen und xPub verwenden.",
@@ -542,6 +556,12 @@
     "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse.",
     "view_qrcode": "QR-Code anzeigen"
   },
+  "autofill_word": {
+    "title": "Das letzte mnemonische Wort generieren",
+    "enter": "Die unvollendete mnemonische Phrase eingeben",
+    "generate_word": "Erzeuge das letzte Word",
+    "error": "Die Eingabe ist keine unvollendete 11- oder 23 Wort Phrase. Bitte erneut versuchen."
+  },
   "cc": {
     "change": "Ändern",
     "coins_selected": "Anz. gewählte Münzen ({number})",
@@ -562,6 +582,8 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "Privaten Schlüssel kopieren",
+    "sensitive_private_key": "Warnung: Private Schlüssel sind gefahrvoll. Weiterfahren?",
     "sign_title": "Meldung signieren/verifizieren",
     "sign_help": "Auf einer Bitcoin-Adresse basierende, kryptografische Signatur erstellen oder verifizieren.",
     "sign_sign": "Signieren",
@@ -594,10 +616,23 @@
     "authenticate": "Authentifizieren"
   },
   "bip47": {
-    "payment_code": "Bezahlcode",
-    "payment_codes_list": "Bezahlcodeliste",
-    "who_can_pay_me": "Wer kann mich bezahlen:",
+    "payment_code": "Zahlungscode",
+    "contacts": "Kontakte",
     "purpose": "Wiederverwendbarer und teilbarer Code (BIP47)",
-    "not_found": "Bezahlcode nicht gefunden"
+    "pay_this_contact": "An diesen Kontakt zahlen",
+    "rename_contact": "Kontakt umbenennen",
+    "copy_payment_code": "Zahlungscode kopieren",
+    "copied": "Kopiert",
+    "rename": "Umbenennen",
+    "provide_name": "Neuer Kontaktnahme eingeben",
+    "add_contact": "Kontakt hinzufügen",
+    "provide_payment_code": "Zahlungscode eingeben",
+    "invalid_pc": "Ungültiger Zahlungscode",
+    "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
+    "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
+    "onchain_tx_needed": "On-Chain Transaktion benötigt.",
+    "notif_tx_sent" : "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx": "Benachrichtigungstransaktion",
+    "not_found": "Zahlungscode nicht gefunden"
   }
 }

@@ -42,7 +42,7 @@ export type DetailViewStackParamList = {
   Language: undefined;
   LightningSettings: undefined;
   NotificationSettings: undefined;
-  Selftest: undefined;
+  SelfTest: undefined;
   ReleaseNotes: undefined;
   Tools: undefined;
   SettingsPrivacy: undefined;
