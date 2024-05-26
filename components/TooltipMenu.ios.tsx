@@ -16,6 +16,7 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
     onMenuWillHide,
     buttonStyle,
     onPressMenuItem,
+    ...restProps
   } = props;
 
   const menuItemMapped = useCallback(({ action, menuOptions }: { action: Action; menuOptions?: string[] }) => {
@@ -70,8 +71,12 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
         menuTitle: title,
         menuItems,
       }}
+      {...restProps}
+      style={buttonStyle}
     >
-      {props.children}
+      <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" {...restProps}>
+        {props.children}
+      </TouchableOpacity>
     </ContextMenuButton>
   );
 
@@ -98,7 +103,7 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
         : {})}
     >
       {onPress ? (
-        <TouchableOpacity accessibilityRole="button" onPress={onPress}>
+        <TouchableOpacity accessibilityRole="button" onPress={onPress} {...restProps}>
           {props.children}
         </TouchableOpacity>
       ) : (
@@ -108,7 +113,7 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
   );
 
   return isMenuPrimaryAction && onPress ? (
-    <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" style={buttonStyle}>
+    <TouchableOpacity onPress={onPress} disabled={disabled} accessibilityRole="button" {...restProps}>
       {renderContextMenuButton()}
     </TouchableOpacity>
   ) : isButton ? (
