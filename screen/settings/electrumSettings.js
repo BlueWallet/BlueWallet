@@ -36,7 +36,6 @@ import ListItem from '../../components/ListItem';
 import { BlueCurrentTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import { navigationRef } from '../../NavigationService';
 
 export default class ElectrumSettings extends Component {
   static contextType = BlueStorageContext;
@@ -225,7 +224,7 @@ export default class ElectrumSettings extends Component {
   };
 
   importScan = async () => {
-    const scanned = await scanQrHelper(navigationRef.navigate, 'ElectrumSettings', true);
+    const scanned = await scanQrHelper('ElectrumSettings', true);
     this.onBarScanned(scanned);
   };
 

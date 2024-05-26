@@ -409,7 +409,7 @@ const WalletTransactions = ({ navigation }) => {
             choosePhoto();
             break;
           case 2:
-            scanQrHelper(navigate, name, true).then(data => onBarCodeRead(data));
+            scanQrHelper(name, true).then(data => onBarCodeRead(data));
             break;
           case 3:
             if (!isClipboardEmpty) {
