@@ -144,8 +144,7 @@ const AddressInput = ({
           onPress={async () => {
             await scanButtonTapped();
             Keyboard.dismiss();
-            // @ts-ignore: Fix later
-            scanQrHelper(navigate, launchedBy).then(onBarScanned);
+            if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
           }}
           style={[styles.scan, stylesHook.scan]}
           accessibilityLabel={loc.send.details_scan}
