@@ -16,6 +16,7 @@ export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
+  dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
   isMenuPrimaryAction?: boolean;

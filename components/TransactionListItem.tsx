@@ -1,9 +1,7 @@
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
@@ -16,12 +14,14 @@ import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import * as NavigationService from '../NavigationService';
 import { useSettings } from './Context/SettingsContext';
 import ListItem from './ListItem';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
-import { Action } from './types';
+import { Action, ToolTipMenuProps } from './types';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -29,11 +29,13 @@ interface TransactionListItemProps {
   item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
 }
 
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
+
 export const TransactionListItem: React.FC<TransactionListItemProps> = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, walletID }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
-  const menuRef = useRef();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const menuRef = useRef<ToolTipMenuProps>();
   const { txMetadata, counterpartyMetadata, wallets } = useContext(BlueStorageContext);
   const { preferredFiatCurrency, language } = useSettings();
   const containerStyle = useMemo(
@@ -200,10 +202,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
   }, [subtitle]);
 
   const onPress = useCallback(async () => {
-    // @ts-ignore: idk how to fix
     menuRef?.current?.dismissMenu?.();
     if (item.hash) {
-      // @ts-ignore: idk how to fix
       navigate('TransactionStatus', { hash: item.hash, walletID });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
@@ -217,8 +217,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           }
           const loaded = await LN.loadSuccessfulPayment(paymentHash);
           if (loaded) {
-            NavigationService.navigate('ScanLndInvoiceRoot', {
-              // @ts-ignore: idk how to fix
+            navigate('ScanLndInvoiceRoot', {
               screen: 'LnurlPaySuccess',
               params: {
                 paymentHash,
@@ -232,7 +231,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           console.log(e);
         }
 
-        // @ts-ignore: idk how to fix
         navigate('LNDViewInvoice', {
           invoice: item,
           walletID: lightningWallet[0].getID(),
@@ -347,7 +345,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <ListItem
-          // @ts-ignore wtf
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}

@@ -1,3 +1,5 @@
+import { LightningTransaction } from '../class/wallets/types';
+
 export type DetailViewStackParamList = {
   WalletsList: undefined;
   WalletTransactions: { walletID: string; walletType: string };
@@ -11,21 +13,32 @@ export type DetailViewStackParamList = {
   RBFBumpFee: { transactionId: string };
   RBFCancel: { transactionId: string };
   SelectWallet: undefined;
-  LNDViewInvoice: { invoiceId: string };
+  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: undefined;
   IsItMyAddress: undefined;
   GenerateWord: undefined;
   LnurlPay: undefined;
-  LnurlPaySuccess: undefined;
+  LnurlPaySuccess: {
+    paymentHash: string;
+    justPaid: boolean;
+    fromWalletID: string;
+  };
   LnurlAuth: undefined;
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
   SendDetailsRoot: undefined;
   LNDCreateInvoiceRoot: undefined;
-  ScanLndInvoiceRoot: undefined;
+  ScanLndInvoiceRoot: {
+    screen: string;
+    params: {
+      paymentHash: string;
+      fromWalletID: string;
+      justPaid: boolean;
+    };
+  };
   AztecoRedeemRoot: undefined;
   WalletExportRoot: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
@@ -40,7 +53,9 @@ export type DetailViewStackParamList = {
   ElectrumSettings: undefined;
   EncryptStorage: undefined;
   Language: undefined;
-  LightningSettings: undefined;
+  LightningSettings: {
+    url?: string;
+  };
   NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
@@ -48,20 +63,35 @@ export type DetailViewStackParamList = {
   SettingsPrivacy: undefined;
   ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
   WalletXpubRoot: undefined;
-  SignVerifyRoot: undefined;
-  ReceiveDetailsRoot: undefined;
+  SignVerifyRoot: {
+    screen: 'SignVerify';
+    params: {
+      walletID: string;
+      address: string;
+    };
+  };
+  ReceiveDetailsRoot: {
+    screen: 'ReceiveDetails';
+    params: {
+      walletID: string;
+      address: string;
+    };
+  };
   ScanQRCodeRoot: {
-    isLoading?: boolean;
-    cameraStatusGranted?: boolean;
-    backdoorPressed?: boolean;
-    launchedBy?: string;
-    urTotal?: number;
-    urHave?: number;
-    backdoorText?: string;
-    onDismiss?: () => void;
-    showFileImportButton?: boolean;
-    backdoorVisible?: boolean;
-    animatedQRCodeData?: Record<string, any>;
+    screen: string;
+    params: {
+      isLoading: false;
+      cameraStatusGranted?: boolean;
+      backdoorPressed?: boolean;
+      launchedBy?: string;
+      urTotal?: number;
+      urHave?: number;
+      backdoorText?: string;
+      onDismiss?: () => void;
+      showFileImportButton: true;
+      backdoorVisible?: boolean;
+      animatedQRCodeData?: Record<string, any>;
+    };
   };
   PaymentCodeRoot: undefined;
   ReorderWallets: undefined;
