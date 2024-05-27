@@ -103,9 +103,9 @@ const TransactionDetails = () => {
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
   const HeaderRight = useMemo(
-    () => <HeaderRightButton disabled={isLoading} onPress={handleOnSaveButtonTapped} title={loc.wallets.details_save} />,
+    () => <HeaderRightButton onPress={handleOnSaveButtonTapped} disabled={false} title={loc.wallets.details_save} />,
 
-    [isLoading, handleOnSaveButtonTapped],
+    [handleOnSaveButtonTapped],
   );
 
   useEffect(() => {
