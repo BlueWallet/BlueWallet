@@ -24,7 +24,7 @@ dayjs.extend(calendar);
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
-  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
+  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -80,13 +80,14 @@ const Currency: React.FC = () => {
 
   const renderItem = ({ item }: { item: FiatUnitType }) => (
     <ListItem
-      disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
+      disabled={isSavingNewPreferredCurrency === item || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
       containerStyle={StyleSheet.flatten([styles.flex, stylesHook.flex, { minHeight: 60 }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
+      isLoading={isSavingNewPreferredCurrency && selectedCurrency.endPointKey === item.endPointKey}
       subtitle={item.country}
       onPress={async () => {
-        setIsSavingNewPreferredCurrency(true);
+        setIsSavingNewPreferredCurrency(item);
         try {
           await getFiatRate(item.endPointKey);
           await setPreferredCurrency(item);
@@ -100,7 +101,7 @@ const Currency: React.FC = () => {
             message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
           });
         } finally {
-          setIsSavingNewPreferredCurrency(false);
+          setIsSavingNewPreferredCurrency(undefined);
         }
       }}
     />
