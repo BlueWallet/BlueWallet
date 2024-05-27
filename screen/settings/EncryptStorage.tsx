@@ -81,9 +81,6 @@ const EncryptStorage = () => {
 
   useEffect(() => {
     initializeState();
-    return () => {
-      // Clean up pending async operations if any
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
