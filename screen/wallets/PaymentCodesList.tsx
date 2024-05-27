@@ -9,7 +9,7 @@ import { SectionList, StyleSheet, Text, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { BlueLoading } from '../../BlueComponents';
+import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -23,6 +23,8 @@ import prompt from '../../helpers/prompt';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
+import SafeArea from '../../components/SafeArea';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 interface DataSection {
   title: string;
@@ -69,6 +71,7 @@ function onlyUnique(value: any, index: number, self: any[]) {
 
 export default function PaymentCodesList() {
   const route = useRoute();
+  const navigation = useExtendedNavigation();
   const { walletID } = route.params as Props['route']['params'];
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useContext(BlueStorageContext);
   const [reload, setReload] = useState<number>(0);
@@ -111,10 +114,19 @@ export default function PaymentCodesList() {
 
       counterpartyMetadata[pc] = { label: newName };
       setReload(Math.random());
+      await saveToDisk();
     }
 
     if (String(id) === String(Actions.pay)) {
-      presentAlert({ message: 'Not implemented yet' });
+      // @ts-ignore idk how to fix
+      navigation.navigate('SendDetailsRoot', {
+        screen: 'SendDetails',
+        params: {
+          memo: '',
+          address: pc,
+          walletID,
+        },
+      });
     }
   };
 
@@ -141,6 +153,16 @@ export default function PaymentCodesList() {
     );
   };
 
+  const navigateToPaymentCodes = () => {
+    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
+
+    // @ts-ignore idk how to fix
+    navigation.navigate('PaymentCodeRoot', {
+      screen: 'PaymentCode',
+      params: { paymentCode: foundWallet.getBIP47PaymentCode() },
+    });
+  };
+
   const onAddContactPress = async () => {
     try {
       const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
@@ -148,7 +170,7 @@ export default function PaymentCodesList() {
 
       const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, false, 'plain-text');
       if (!newPc) return;
-      const cl = new ContactList(foundWallet);
+      const cl = new ContactList();
 
       if (!cl.isPaymentCodeValid(newPc)) {
         presentAlert({ message: loc.bip47.invalid_pc });
@@ -227,7 +249,7 @@ export default function PaymentCodesList() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeArea style={styles.container}>
       {!walletID ? (
         <Text>Internal error</Text>
       ) : (
@@ -236,8 +258,9 @@ export default function PaymentCodesList() {
         </View>
       )}
 
+      <BlueButtonLink title={loc.bip47.my_payment_code} onPress={navigateToPaymentCodes} />
       <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />
-    </View>
+    </SafeArea>
   );
 }
 

@@ -24,6 +24,7 @@ import debounce from '../../blue_modules/debounce';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { ContactList } from '../../class/contact-list';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -65,11 +66,11 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useContext(BlueStorageContext);
   const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
-  const { recipients, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate, setOptions, goBack } = navigation;
@@ -246,7 +247,28 @@ const Confirm: React.FC = () => {
     return result;
   };
 
+  const shortenContactName = (name: string): string => {
+    if (name.length < 20) return name;
+    return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
+  };
+
   const renderItem = ({ index, item }: { index: number; item: CreateTransactionTarget }) => {
+    // first, trying to find if this destination is to a PaymentCode, and if it is - get its local alias
+    let contact: string = '';
+    try {
+      const cl = new ContactList();
+      if (targets?.[index]?.address && cl.isPaymentCodeValid(targets[index].address!)) {
+        // this is why we need `targets` in this screen.
+        // in case address was a payment code, and it got turned into a regular address, we need to display the PC as well
+        contact = targets[index].address!;
+        if (counterpartyMetadata?.[contact].label) {
+          contact = counterpartyMetadata?.[contact].label;
+        }
+
+        contact = shortenContactName(contact);
+      }
+    } catch (_) {}
+
     return (
       <>
         <View style={styles.valueWrap}>
@@ -263,6 +285,7 @@ const Confirm: React.FC = () => {
           <Text testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
             {item.address}
           </Text>
+          {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>
         {recipients.length > 1 && (
           <BlueText style={styles.valueOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>

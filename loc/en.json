@@ -617,6 +617,7 @@
   },
   "bip47": {
     "payment_code": "Payment Code",
+    "my_payment_code": "My Payment Code",
     "contacts": "Contacts",
     "purpose": "Reusable and shareable code (BIP47)",
     "pay_this_contact": "Pay this contact",
