@@ -1,14 +1,14 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useRoute } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
@@ -63,17 +63,18 @@ const actionKeys: Action[] = [
   },
 ];
 
-type Props = NativeStackScreenProps<PaymentCodeStackParamList, 'PaymentCodesList'>;
-
 function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
+type PaymentCodeListRouteProp = RouteProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
+type PaymentCodesListNavigationProp = NativeStackNavigationProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
+
 export default function PaymentCodesList() {
-  const route = useRoute();
-  const navigation = useExtendedNavigation();
-  const { walletID } = route.params as Props['route']['params'];
-  const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const route = useRoute<PaymentCodeListRouteProp>();
+  const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
+  const { walletID } = route.params;
+  const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
   const { colors } = useTheme();
