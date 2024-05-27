@@ -51,7 +51,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
   const shortenContactName = (name: string): string => {
     if (name.length < 16) return name;
-    return name.substr(0, 8) + '...' + name.substr(name.length - 8, 8);
+    return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
   };
 
   const title = useMemo(() => {

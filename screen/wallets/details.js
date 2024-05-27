@@ -297,14 +297,6 @@ const WalletDetails = () => {
       walletID: wallet.getID(),
     });
 
-  const navigateToPaymentCodes = () =>
-    navigate('PaymentCodeRoot', {
-      screen: 'PaymentCodesList',
-      params: {
-        walletID: wallet.getID(),
-      },
-    });
-
   const exportInternals = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
@@ -593,7 +585,6 @@ const WalletDetails = () => {
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />

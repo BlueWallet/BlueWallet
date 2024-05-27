@@ -9,6 +9,7 @@ export type SendDetailsStackParamList = {
     memo?: string;
     walletID: string;
     tx: string;
+    targets?: CreateTransactionTarget[]; // needed to know if there were paymentCodes, which turned into addresses in `recipients`
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     payjoinUrl?: string | null;
