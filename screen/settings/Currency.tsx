@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { FlatList, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import { FlatList, NativeSyntheticEvent, StyleSheet, View, LayoutAnimation, UIManager, Platform } from 'react-native';
 
 import {
   CurrencyRate,
@@ -18,30 +18,30 @@ import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
-import useDebounce from '../../hooks/useDebounce';
 
 dayjs.extend(calendar);
 
+// Enable LayoutAnimation for Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
-  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
+  const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState<FiatUnitType | undefined>();
   const [selectedCurrency, setSelectedCurrency] = useState<FiatUnitType>(FiatUnit.USD);
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({ LastUpdated: null, Rate: null });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { colors } = useTheme();
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search, 300);
 
-  const data = useMemo(
-    () =>
-      Object.values(FiatUnit).filter(
-        item =>
-          item.endPointKey.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          item.country.toLowerCase().includes(debouncedSearch.toLowerCase()),
-      ),
-    [debouncedSearch],
-  );
+  const data = useMemo(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    return Object.values(FiatUnit).filter(
+      item => item.endPointKey.toLowerCase().includes(search.toLowerCase()) || item.country.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [search]);
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -80,13 +80,14 @@ const Currency: React.FC = () => {
 
   const renderItem = ({ item }: { item: FiatUnitType }) => (
     <ListItem
-      disabled={isSavingNewPreferredCurrency || selectedCurrency.endPointKey === item.endPointKey}
+      disabled={isSavingNewPreferredCurrency === item || selectedCurrency.endPointKey === item.endPointKey}
       title={`${item.endPointKey} (${item.symbol})`}
       containerStyle={StyleSheet.flatten([styles.flex, stylesHook.flex, { minHeight: 60 }])}
       checkmark={selectedCurrency.endPointKey === item.endPointKey}
+      isLoading={isSavingNewPreferredCurrency && selectedCurrency.endPointKey === item.endPointKey}
       subtitle={item.country}
       onPress={async () => {
-        setIsSavingNewPreferredCurrency(true);
+        setIsSavingNewPreferredCurrency(item);
         try {
           await getFiatRate(item.endPointKey);
           await setPreferredCurrency(item);
@@ -100,7 +101,7 @@ const Currency: React.FC = () => {
             message: error.message ? `${loc.settings.currency_fetch_error}: ${error.message}` : loc.settings.currency_fetch_error,
           });
         } finally {
-          setIsSavingNewPreferredCurrency(false);
+          setIsSavingNewPreferredCurrency(undefined);
         }
       }}
     />
