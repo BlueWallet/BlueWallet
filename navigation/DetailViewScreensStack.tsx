@@ -21,7 +21,7 @@ import Broadcast from '../screen/send/Broadcast';
 import IsItMyAddress from '../screen/send/isItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
-import TransactionDetails from '../screen/transactions/details';
+import TransactionDetails from '../screen/transactions/TransactionDetails';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';

@@ -93,6 +93,8 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
+      txMetadata.current = BlueApp.tx_metadata;
+      counterpartyMetadata.current = BlueApp.counterparty_metadata;
       setWallets(BlueApp.getWallets());
       BlueElectrum.connectMain();
     }

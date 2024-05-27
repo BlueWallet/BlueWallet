@@ -12,11 +12,12 @@ interface HeaderRightButtonProps {
 
 const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, onPress, title, testID }) => {
   const { colors } = useTheme();
+  const opacity = disabled ? 0.5 : 1;
   return (
     <TouchableOpacity
       accessibilityRole="button"
       disabled={disabled}
-      style={[styles.save, { backgroundColor: colors.lightButton }]}
+      style={[styles.save, { backgroundColor: colors.lightButton }, { opacity }]}
       onPress={onPress}
       testID={testID}
     >
