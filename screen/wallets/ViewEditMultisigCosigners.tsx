@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { Badge, Icon } from 'react-native-elements';
 
-import { isDesktop } from '../../blue_modules/environment';
+import { isDesktop, isTablet } from '../../blue_modules/environment';
 import { useStorage } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import {
@@ -51,7 +51,6 @@ import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
-import * as NavigationService from '../../NavigationService';
 import ActionSheet from '../ActionSheet';
 
 const ViewEditMultisigCosigners: React.FC = () => {
@@ -192,7 +191,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
       await wallet?.fetchBalance();
     }
     newWallets.push(wallet);
-    // @ts-ignore  wtf
     navigate('WalletsList');
     setTimeout(() => {
       setWalletsWithNewOrder(newWallets);
@@ -513,7 +511,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     setIsProvideMnemonicsModalVisible(false);
-    const scanned = await scanQrHelper(NavigationService.navigate, route.name, true);
+    const scanned = await scanQrHelper(route.name, true);
     setImportText(String(scanned));
     setIsProvideMnemonicsModalVisible(true);
   };
@@ -530,11 +528,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const renderProvideMnemonicsModal = () => {
-    // @ts-ignore weird, property exists on type definition. might be some ts bugs
-    const isPad: boolean = Platform.isPad;
     return (
       <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
           <View style={[styles.modalContent, stylesHook.modalContent]}>
             <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
             <BlueSpacing20 />
@@ -562,12 +558,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const renderShareModal = () => {
-    // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
-    const isPad: boolean = Platform.isPad;
-
     return (
       <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isPad} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
           <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
             <Text style={[styles.headerText, stylesHook.textDestination]}>
               {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
@@ -628,13 +621,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
-  // @ts-ignore weird, property exists on typedefinition. might be some ts bugs
-  const isPad: boolean = Platform.isPad;
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
       <KeyboardAvoidingView
-        enabled={!isPad}
+        enabled={!isTablet}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={62}
         style={[styles.mainBlock, styles.root]}

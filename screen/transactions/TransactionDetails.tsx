@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import dayjs from 'dayjs';
@@ -18,6 +18,8 @@ import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import loc from '../../loc';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
@@ -62,8 +64,10 @@ const toolTipMenuActions = [
   },
 ];
 
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionDetails'>;
+
 const TransactionDetails = () => {
-  const { setOptions, navigate } = useNavigation();
+  const { setOptions, navigate } = useExtendedNavigation<NavigationProps>();
   const { hash, walletID } = useRoute<TransactionDetailsProps['route']>().params;
   const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
   const [from, setFrom] = useState<string[]>([]);
@@ -103,9 +107,9 @@ const TransactionDetails = () => {
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
   const HeaderRight = useMemo(
-    () => <HeaderRightButton disabled={isLoading} onPress={handleOnSaveButtonTapped} title={loc.wallets.details_save} />,
+    () => <HeaderRightButton onPress={handleOnSaveButtonTapped} disabled={false} title={loc.wallets.details_save} />,
 
-    [isLoading, handleOnSaveButtonTapped],
+    [handleOnSaveButtonTapped],
   );
 
   useEffect(() => {
@@ -204,7 +208,6 @@ const TransactionDetails = () => {
   };
 
   const navigateToWallet = (wallet: TWallet) => {
-    // @ts-ignore idk how to fix it
     navigate('WalletTransactions', {
       walletID: wallet.getID(),
       walletType: wallet.type,

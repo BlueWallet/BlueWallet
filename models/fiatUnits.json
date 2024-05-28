@@ -384,11 +384,25 @@
         "symbol": "Bs.",
         "country": "Venezuela (Venezuelan Bolívar Soberano)"
     },
+    "XAF": {
+        "endPointKey": "XAF",
+        "locale": "fr-CF",
+        "source": "CoinDesk",
+        "symbol": "Fr",
+        "country": "Central African Republic (Central African Franc)"
+    },
     "ZAR": {
         "endPointKey": "ZAR",
         "locale": "en-ZA",
         "source": "CoinGecko",
         "symbol": "R",
         "country": "South Africa (South African Rand)"
+    },
+    "GHS": {
+        "endPointKey": "GHS",
+        "locale": "en-GH",
+        "source": "CoinDesk",
+        "symbol": "₵",
+        "country": "Ghana (Ghanaian Cedi)"
     }
 }

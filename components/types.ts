@@ -1,4 +1,4 @@
-import { ViewStyle } from 'react-native';
+import { AccessibilityRole, ViewStyle } from 'react-native';
 
 export interface Action {
   id: string | number;
@@ -16,6 +16,7 @@ export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
+  dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
   isMenuPrimaryAction?: boolean;
@@ -23,7 +24,12 @@ export interface ToolTipMenuProps {
   renderPreview?: () => React.ReactNode;
   onPress?: () => void;
   previewValue?: string;
+  accessibilityRole?: AccessibilityRole;
   disabled?: boolean;
+  testID?: string;
+  style?: ViewStyle | ViewStyle[];
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
   buttonStyle?: ViewStyle;
   onMenuWillShow?: () => void;
   onMenuWillHide?: () => void;

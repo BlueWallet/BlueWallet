@@ -1,6 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { Image, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
@@ -51,7 +50,6 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -77,7 +75,7 @@ const AddressInput = ({
       case actionKeys.ScanQR:
         scanButtonTapped();
         if (launchedBy) {
-          scanQrHelper(navigate, launchedBy)
+          scanQrHelper(launchedBy)
             .then(value => onBarScanned({ data: value }))
             .catch(error => {
               presentAlert({ message: error.message });
@@ -137,26 +135,25 @@ const AddressInput = ({
         keyboardType={keyboardType}
       />
       {editable ? (
-        <ToolTipMenu actions={actions} isButton onPressMenuItem={onMenuItemPressed}>
-          <TouchableOpacity
-            testID="BlueAddressInputScanQrButton"
-            disabled={isLoading}
-            onPress={async () => {
-              await scanButtonTapped();
-              Keyboard.dismiss();
-              // @ts-ignore: Fix later
-              scanQrHelper(navigate, launchedBy).then(onBarScanned);
-            }}
-            accessibilityRole="button"
-            style={[styles.scan, stylesHook.scan]}
-            accessibilityLabel={loc.send.details_scan}
-            accessibilityHint={loc.send.details_scan_hint}
-          >
-            <Image source={require('../img/scan-white.png')} accessible={false} />
-            <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-              {loc.send.details_scan}
-            </Text>
-          </TouchableOpacity>
+        <ToolTipMenu
+          actions={actions}
+          isButton
+          onPressMenuItem={onMenuItemPressed}
+          testID="BlueAddressInputScanQrButton"
+          disabled={isLoading}
+          onPress={async () => {
+            await scanButtonTapped();
+            Keyboard.dismiss();
+            if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+          }}
+          style={[styles.scan, stylesHook.scan]}
+          accessibilityLabel={loc.send.details_scan}
+          accessibilityHint={loc.send.details_scan_hint}
+        >
+          <Image source={require('../img/scan-white.png')} accessible={false} />
+          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+            {loc.send.details_scan}
+          </Text>
         </ToolTipMenu>
       ) : null}
     </View>

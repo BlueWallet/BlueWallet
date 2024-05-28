@@ -12,6 +12,7 @@ import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from './Context/SettingsContext';
 import ToolTipMenu from './TooltipMenu';
+import { ToolTipMenuProps } from './types';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -31,22 +32,17 @@ interface TransactionsNavigationHeaderProps {
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
-  // @ts-ignore: Ugh
   wallet: initialWallet,
-  // @ts-ignore: Ugh
   onWalletUnitChange,
-  // @ts-ignore: Ugh
   navigation,
-  // @ts-ignore: Ugh
   onManageFundsPressed,
-  // @ts-ignore: Ugh
   onWalletBalanceVisibilityChange,
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
   const { preferredFiatCurrency } = useSettings();
 
-  const menuRef = useRef(null);
+  const menuRef = useRef<ToolTipMenuProps>(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (wallet.type === LightningCustodianWallet.type) {
@@ -85,8 +81,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   };
 
   const changeWalletBalanceUnit = () => {
-    // @ts-ignore: Ugh
-    menuRef.current?.dismissMenu();
+    if (menuRef.current?.dismissMenu) {
+      menuRef.current.dismissMenu();
+    }
     let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
@@ -140,7 +137,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     <LinearGradient
       colors={WalletGradient.gradientsFor(wallet.type)}
       style={styles.lineaderGradient}
-      // @ts-ignore: Ugh
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
       <Image

@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Button as ButtonRNElements } from 'react-native-elements';
 
@@ -11,7 +11,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
 
 const styles = StyleSheet.create({
@@ -52,7 +52,6 @@ const LightningSettings: React.FC = () => {
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const route = useRoute();
-  const navigation = useNavigation();
   const styleHook = StyleSheet.create({
     uri: {
       borderColor: colors.formBorder,
@@ -114,17 +113,11 @@ const LightningSettings: React.FC = () => {
   }, [URI]);
 
   const importScan = () => {
-    requestCameraAuthorization().then(() =>
-      // @ts-ignore: Address types later
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          onBarScanned: setLndhubURI,
-          showFileImportButton: true,
-        },
-      }),
-    );
+    scanQrHelper(route.name).then(data => {
+      if (data) {
+        setLndhubURI(data);
+      }
+    });
   };
 
   return (
