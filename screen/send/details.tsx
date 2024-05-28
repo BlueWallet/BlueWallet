@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
@@ -58,19 +58,6 @@ import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 
-interface IParams {
-  memo: string;
-  address: string;
-  walletID: string;
-  amount: number;
-  amountSats: number;
-  unit: BitcoinUnit;
-  noRbf: boolean;
-  launchedBy: string;
-  isEditable: boolean;
-  uri: string; // payjoin uri
-}
-
 interface IPaymentDestinations {
   address: string; // btc address or payment code
   amountSats?: number | string;
@@ -85,13 +72,14 @@ interface IFee {
   fastestFee: number | null;
 }
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
+type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
   const navigation = useExtendedNavigation<NavigationProps>();
-  const route = useRoute();
+  const route = useRoute<RouteProps>();
   const name = route.name;
-  const routeParams = route.params as IParams;
+  const routeParams = route.params;
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
