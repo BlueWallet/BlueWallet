@@ -1,9 +1,20 @@
 import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
-import { Chain } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export type SendDetailsStackParamList = {
-  SendDetails: { isEditable: boolean };
+  SendDetails: {
+    memo: string;
+    address: string;
+    walletID: string;
+    amount: number;
+    amountSats: number;
+    unit: BitcoinUnit;
+    noRbf: boolean;
+    launchedBy: string;
+    isEditable: boolean;
+    uri: string;
+  };
   Confirm: {
     fee: number;
     memo?: string;
