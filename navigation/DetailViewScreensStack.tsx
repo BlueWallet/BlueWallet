@@ -363,19 +363,6 @@ const DetailViewStackScreensStack = () => {
           presentation: 'fullScreenModal',
           statusBarHidden: true,
         }}
-        initialParams={{
-          isLoading: false,
-          cameraStatusGranted: undefined,
-          backdoorPressed: undefined,
-          launchedBy: undefined,
-          urTotal: undefined,
-          urHave: undefined,
-          backdoorText: '',
-          onDismiss: undefined,
-          showFileImportButton: true,
-          backdoorVisible: false,
-          animatedQRCodeData: {},
-        }}
       />
 
       <DetailViewStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />

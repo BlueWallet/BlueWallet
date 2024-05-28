@@ -7,7 +7,7 @@ import { useTheme } from './themes';
 // Update the type for the props
 interface ListItemProps {
   rightIcon?: any;
-  leftAvatar?: React.Component;
+  leftAvatar?: React.JSX.Element;
   containerStyle?: object;
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;
@@ -27,6 +27,7 @@ interface ListItemProps {
   isLoading?: boolean;
   chevron?: boolean;
   checkmark?: boolean;
+  subtitleProps?: object;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {

@@ -1,10 +1,9 @@
+import React, { useMemo, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import Share from 'react-native-share';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useStorage } from '../../blue_modules/storage-context';
 import confirm from '../../helpers/confirm';
@@ -15,8 +14,10 @@ import presentAlert from '../Alert';
 import QRCodeComponent from '../QRCodeComponent';
 import { useTheme } from '../themes';
 import TooltipMenu from '../TooltipMenu';
-import { Action } from '../types';
+import { Action, ToolTipMenuProps } from '../types';
 import { AddressTypeBadge } from './AddressTypeBadge';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript
@@ -25,6 +26,8 @@ interface AddressItemProps {
   walletID: string;
   allowSignVerifyMessage: boolean;
 }
+
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
   const { wallets } = useStorage();
@@ -52,13 +55,18 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     },
   });
 
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation<NavigationProps>();
 
-  const menuRef = useRef();
+  const menuRef = useRef<ToolTipMenuProps>();
+
+  const dismissMenu = () => {
+    if (menuRef.current?.dismissMenu) {
+      menuRef.current.dismissMenu();
+    }
+  };
+
   const navigateToReceive = () => {
-    // @ts-ignore wtf
-    menuRef.current?.dismissMenu();
-    // @ts-ignore wtf
+    dismissMenu();
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -69,9 +77,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const navigateToSignVerify = () => {
-    // @ts-ignore wtf
-    menuRef.current?.dismissMenu();
-    // @ts-ignore wtf
+    dismissMenu();
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -114,13 +120,13 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const onToolTipPress = async (id: string) => {
-    if (id === AddressItem.actionKeys.CopyToClipboard) {
+    if (id === actionKeys.CopyToClipboard) {
       handleCopyPress();
-    } else if (id === AddressItem.actionKeys.Share) {
+    } else if (id === actionKeys.Share) {
       handleSharePress();
-    } else if (id === AddressItem.actionKeys.SignVerify) {
+    } else if (id === actionKeys.SignVerify) {
       navigateToSignVerify();
-    } else if (id === AddressItem.actionKeys.ExportPrivateKey) {
+    } else if (id === actionKeys.ExportPrivateKey) {
       if (await confirm(loc.addresses.sensitive_private_key)) {
         if (await isBiometricUseCapableAndEnabled()) {
           if (!(await unlockWithBiometrics())) {
@@ -171,14 +177,14 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   return render();
 };
 
-AddressItem.actionKeys = {
+const actionKeys = {
   Share: 'share',
   CopyToClipboard: 'copyToClipboard',
   SignVerify: 'signVerify',
   ExportPrivateKey: 'exportPrivateKey',
 };
 
-AddressItem.actionIcons = {
+const actionIcons = {
   Signature: {
     iconType: 'SYSTEM',
     iconValue: 'signature',
@@ -220,30 +226,30 @@ const styles = StyleSheet.create({
 const getAvailableActions = ({ allowSignVerifyMessage }: { allowSignVerifyMessage: boolean }): Action[] | Action[][] => {
   const actions = [
     {
-      id: AddressItem.actionKeys.CopyToClipboard,
+      id: actionKeys.CopyToClipboard,
       text: loc.transactions.details_copy,
-      icon: AddressItem.actionIcons.Clipboard,
+      icon: actionIcons.Clipboard,
     },
     {
-      id: AddressItem.actionKeys.Share,
+      id: actionKeys.Share,
       text: loc.receive.details_share,
-      icon: AddressItem.actionIcons.Share,
+      icon: actionIcons.Share,
     },
   ];
 
   if (allowSignVerifyMessage) {
     actions.push({
-      id: AddressItem.actionKeys.SignVerify,
+      id: actionKeys.SignVerify,
       text: loc.addresses.sign_title,
-      icon: AddressItem.actionIcons.Signature,
+      icon: actionIcons.Signature,
     });
   }
 
   if (allowSignVerifyMessage) {
     actions.push({
-      id: AddressItem.actionKeys.ExportPrivateKey,
+      id: actionKeys.ExportPrivateKey,
       text: loc.addresses.copy_private_key,
-      icon: AddressItem.actionIcons.ExportPrivateKey,
+      icon: actionIcons.ExportPrivateKey,
     });
   }
 
