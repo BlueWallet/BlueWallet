@@ -10,6 +10,7 @@
 #import <React/RCTRootView.h>
 #import <Bugsnag/Bugsnag.h>
 #import "BlueWallet-Swift.h"
+#import "OrientationManager.h"
 
 @interface AppDelegate() <UNUserNotificationCenterDelegate>
 
@@ -54,6 +55,9 @@
   center.delegate = self;
 
   [self setupUserDefaultsListener];
+  
+  // Initialize OrientationManager
+   [[OrientationManager alloc] init];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

@@ -6,11 +6,11 @@ import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BlueStorageProvider } from './blue_modules/storage-context';
-import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
 import { SettingsProvider } from './components/Context/SettingsContext';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
+import { LargeScreenProvider } from './components/Context/LargeScreenContext';
 
 const App = () => {
   const colorScheme = useColorScheme();

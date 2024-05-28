@@ -1,10 +1,9 @@
 import { useContext } from 'react';
-import { LargeScreenContext } from '../components/Context/LargeScreenProvider';
-
-export const useIsLargeScreen = (): boolean => {
+import { LargeScreenContext } from '../components/Context/LargeScreenContext';
+export const useIsLargeScreen = () => {
   const context = useContext(LargeScreenContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useIsLargeScreen must be used within a LargeScreenProvider');
   }
-  return context.isLargeScreen;
+  return context;
 };

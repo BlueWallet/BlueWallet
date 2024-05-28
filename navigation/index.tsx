@@ -1,11 +1,11 @@
-import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy, Suspense } from 'react';
-
-import { isHandset } from '../blue_modules/environment';
+import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { useStorage } from '../blue_modules/storage-context';
 import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { isAndroidTablet } from '../blue_modules/environment';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -34,13 +34,15 @@ const UnlockRoot = () => {
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
+  const { initialSizeClass, isLargeScreen } = useIsLargeScreen();
+  const isTablet = isAndroidTablet();
 
   const renderRoot = () => {
     if (!walletsInitialized) {
       return <UnlockRoot />;
     } else {
-      // Conditional rendering based on the environment
-      const Component = isHandset ? DetailViewScreensStack : DrawerRoot;
+      // Use initialSizeClass and isLargeScreen to determine the component
+      const Component = initialSizeClass || (isTablet && isLargeScreen) ? DrawerRoot : DetailViewScreensStack;
       return (
         <Suspense fallback={<LazyLoadingIndicator />}>
           <Component />

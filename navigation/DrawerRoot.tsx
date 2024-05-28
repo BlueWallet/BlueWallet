@@ -1,11 +1,9 @@
-// DrawerRoot.tsx
 import { createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer';
 import React, { useMemo } from 'react';
 import { I18nManager } from 'react-native';
-
-import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
+import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -14,7 +12,7 @@ const DrawerListContent = (props: any) => {
 };
 
 const DrawerRoot = () => {
-  const isLargeScreen = useIsLargeScreen();
+  const { isLargeScreen } = useIsLargeScreen();
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
