@@ -1,4 +1,5 @@
 export type DetailViewStackParamList = {
+  UnlockWithScreen: undefined;
   WalletsList: undefined;
   WalletTransactions: { walletID: string; walletType: string };
   LDKOpenChannelRoot: undefined;
