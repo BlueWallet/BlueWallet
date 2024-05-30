@@ -154,6 +154,10 @@ export class AbstractWallet {
     return true;
   }
 
+  allowSilentPaymentSend(): boolean {
+    return false;
+  }
+
   allowRBF(): boolean {
     return false;
   }
