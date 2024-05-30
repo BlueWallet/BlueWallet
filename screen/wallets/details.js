@@ -35,7 +35,7 @@ import {
 } from '../../class';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import { useSettings } from '../../components/Context/SettingsContext';
 import HeaderRightButton from '../../components/HeaderRightButton';
@@ -185,12 +185,14 @@ const WalletDetails = () => {
     }
     saveToDisk()
       .then(() => {
-        presentAlert({ message: loc.wallets.details_wallet_updated });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        presentAlert({ message: loc.wallets.details_wallet_updated, type: AlertType.Toast });
         goBack();
       })
       .catch(error => {
         console.log(error.message);
         setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       });
   }, [walletName, saveToDisk, wallet, hideTransactionsInWalletsList, useWithHardwareWallet, isBIP47Enabled, goBack]);
 

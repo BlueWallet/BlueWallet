@@ -8,7 +8,7 @@ import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '
 import { BlueApp } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
@@ -104,7 +104,7 @@ const LightningSettings: React.FC = () => {
       } else {
         await AsyncStorage.removeItem(BlueApp.LNDHUB);
       }
-      presentAlert({ message: loc.settings.lightning_saved });
+      presentAlert({ message: loc.settings.lightning_saved, type: AlertType.Toast });
     } catch (error) {
       presentAlert({ message: loc.settings.lightning_error_lndhub_uri });
       console.log(error);

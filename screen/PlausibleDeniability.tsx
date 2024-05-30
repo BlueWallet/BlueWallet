@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../BlueComponents';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import Button from '../components/Button';
 import prompt from '../helpers/prompt';
 import loc from '../loc';
@@ -66,7 +66,7 @@ const PlausibleDeniability: React.FC = () => {
       await createFakeStorage(p1);
       resetWallets();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      presentAlert({ message: loc.plausibledeniability.success });
+      presentAlert({ message: loc.plausibledeniability.success, type: AlertType.Toast });
       navigation.popToTop();
     } catch {
       dispatch({ type: SET_LOADING, payload: false });

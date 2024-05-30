@@ -1,7 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
+import { extractTextFromElementById, hashIt, helperImportWallet, sleep, yo } from './helperz';
 
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
@@ -379,16 +379,16 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // rename test
     await element(by.id('WalletNameInput')).replaceText('testname\n');
     await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
+    // await sup('OK');
+    // await element(by.text('OK')).tap();
     await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
 
     // rename back
     await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)\n');
     await element(by.id('Save')).tap();
-    await sup('OK');
-    await element(by.text('OK')).tap();
+    // await sup('OK');
+    // await element(by.text('OK')).tap();
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 

@@ -5,7 +5,7 @@ import A from '../blue_modules/analytics';
 import Notifications from '../blue_modules/notifications';
 import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../class';
 import type { TWallet } from '../class/wallets/types';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
 import * as BlueElectrum from './BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
@@ -220,6 +220,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
       await saveToDisk();
       A(A.ENUM.CREATED_WALLET);
       presentAlert({
+        type: w.type === WatchOnlyWallet.type ? AlertType.Alert : AlertType.Toast,
         hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });

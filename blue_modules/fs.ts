@@ -4,8 +4,7 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Share from 'react-native-share';
-
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
@@ -64,7 +63,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         if (showShareDialog) {
           await _shareOpen(filePath);
         } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName: sanitizedFileName }) });
+          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { fileName: sanitizedFileName }), type: AlertType.Toast });
         }
       } catch (e: any) {
         console.log(e);

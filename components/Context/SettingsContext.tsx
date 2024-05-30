@@ -10,7 +10,7 @@ import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDeviceQuickActionsEnabled } from '..//DeviceQuickActions';
-import presentAlert from '../Alert';
+import presentAlert, { AlertType } from '../Alert';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 
@@ -228,7 +228,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsPrivacyBlurEnabled(value);
       console.debug(`Privacy blur: ${isPrivacyBlurEnabled}`);
       if (!value) {
-        presentAlert({ message: 'Privacy blur has been disabled.' });
+        presentAlert({ message: 'Privacy blur has been disabled.', type: AlertType.Toast });
       }
     },
     [isPrivacyBlurEnabled],

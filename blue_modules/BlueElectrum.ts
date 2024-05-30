@@ -5,10 +5,10 @@ import { Alert } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import RNFS from 'react-native-fs';
 import Realm from 'realm';
-
 import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
-import presentAlert from '../components/Alert';
+import presentAlert, { AlertType } from '../components/Alert';
 import loc from '../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -342,7 +342,8 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
                     // Must be running on Android
                     console.log(e);
                   }
-                  presentAlert({ message: loc.settings.electrum_saved });
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+                  presentAlert({ message: loc.settings.electrum_saved, type: AlertType.Toast });
                   setTimeout(connectMain, 500);
                 },
               },
