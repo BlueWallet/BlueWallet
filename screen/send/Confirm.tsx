@@ -20,7 +20,6 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { useBiometrics } from '../../hooks/useBiometrics';
 import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import debounce from '../../blue_modules/debounce';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -227,8 +226,6 @@ const Confirm: React.FC = () => {
     }
   };
 
-  const debouncedSend = debounce(send, 3000);
-
   const broadcast = async (transaction: string) => {
     await BlueElectrum.ping();
     await BlueElectrum.waitTillConnected();
@@ -332,7 +329,7 @@ const Confirm: React.FC = () => {
           {state.isLoading ? (
             <ActivityIndicator />
           ) : (
-            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={debouncedSend} title={loc.send.confirm_sendNow} />
+            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={send} title={loc.send.confirm_sendNow} />
           )}
         </BlueCard>
       </View>
