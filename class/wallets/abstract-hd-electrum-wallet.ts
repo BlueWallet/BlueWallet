@@ -7,7 +7,7 @@ import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
-import { CoinSelectReturnInput } from 'coinselect';
+import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 import { ECPairInterface } from 'ecpair/src/ecpair';
 
@@ -17,6 +17,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { SilentPayment } from 'silent-payments';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1182,7 +1183,48 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
+    let { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
+
+    let hasSilentPaymentOutput = false;
+    outputs.map(o => {
+      if (o.address?.startsWith('sp1')) hasSilentPaymentOutput = true;
+      return null; // because map func demands to return at least something
+    });
+
+    if (hasSilentPaymentOutput) {
+      if (!this.allowSilentPaymentSend()) {
+        throw new Error('This wallet can not send to SilentPayment address');
+      }
+
+      // doing a clone of coinselected UTXOs:
+      const spUtxos: any[] = [];
+
+      // for a single wallet all utxos gona be the same type, so we define it only once:
+      let utxoType: string = 'non-eligible';
+      switch (this.segwitType) {
+        case 'p2sh(p2wpkh)':
+          utxoType = 'p2sh-p2wpkh';
+          break;
+        case 'p2wpkh':
+          utxoType = 'p2wpkh';
+          break;
+      }
+
+      // @ts-ignore override
+      if (this.type === 'HDlegacyP2PKH') utxoType = 'p2pkh';
+
+      inputs.map(u =>
+        spUtxos.push({
+          txid: u.txid,
+          vout: u.vout,
+          wif: u.wif,
+          utxoType,
+        }),
+      );
+
+      const sp = new SilentPayment();
+      outputs = sp.createTransaction(spUtxos, outputs) as CoinSelectOutput[];
+    }
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
     let psbt = new bitcoin.Psbt();

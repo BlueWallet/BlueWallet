@@ -177,6 +177,13 @@ export default function PaymentCodesList() {
         return;
       }
 
+      if (cl.isBip352PaymentCodeValid(newPc)) {
+        // ok its a SilentPayments code, notification tx is not needed, just add it to recipients:
+        foundWallet.addBIP47Receiver(newPc);
+        setReload(Math.random());
+        return;
+      }
+
       setIsLoading(true);
 
       const notificationTx = foundWallet.getBIP47NotificationTransaction(newPc);
