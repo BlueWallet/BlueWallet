@@ -6,6 +6,7 @@ import { Header } from '../../components/Header';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import useNotifications from '../../hooks/useNotifications';
 
 const styles = StyleSheet.create({
   root: {
@@ -24,6 +25,7 @@ const Settings = () => {
   // By simply having it here, it'll re-render the UI if language is changed
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { language } = useSettings();
+  const { openAppSettings, isNotificationsCapable } = useNotifications();
 
   return (
     <ScrollView
@@ -34,6 +36,9 @@ const Settings = () => {
     >
       {Platform.OS === 'android' ? <Header leftText={loc.settings.header} /> : <></>}
       <ListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />
+     {isNotificationsCapable && (
+        <ListItem title={loc.settings.notifications} onPress={openAppSettings} testID="NotificationSettings" chevron />
+      )}
       <ListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
       <ListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   transferCurrentComplicationUserInfo,
   transferUserInfo,
@@ -8,17 +8,18 @@ import {
   watchEvents,
 } from 'react-native-watch-connectivity';
 
-import Notifications from '../blue_modules/notifications';
-import { BlueStorageContext } from '../blue_modules/storage-context';
+import { useStorage } from '../blue_modules/storage-context';
 import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from './Context/SettingsContext';
+import useNotifications from '../hooks/useNotifications';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
   const { preferredFiatCurrency } = useSettings();
+  const { isNotificationsEnabled, majorTomToGroundControl } = useNotifications();
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false
   const messagesListenerActive = useRef(false);
@@ -118,9 +119,9 @@ function WatchConnectivity() {
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         try {
           // Let's verify if notifications are already configured. Otherwise the watch app will freeze waiting for user approval in iOS app
-          if (await Notifications.isNotificationsEnabled()) {
+          if (await isNotificationsEnabled()) {
             const decoded = await wallet.decodeInvoice(invoiceRequest);
-            Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+            majorTomToGroundControl([], [decoded.payment_hash], []);
           }
         } catch (e) {
           console.log('WatchConnectivity - Running in Simulator');

@@ -8,7 +8,6 @@ import RNFS from 'react-native-fs';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
@@ -20,11 +19,12 @@ import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import { useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
+import useNotifications from '../../hooks/useNotifications';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();
   const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
-
+  const { majorTomToGroundControl } = useNotifications();
   const navigation = useNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
@@ -134,7 +134,7 @@ const PsbtWithHardwareWallet = () => {
         setIsLoading(false);
         const txDecoded = bitcoin.Transaction.fromHex(txHex);
         const txid = txDecoded.getId();
-        Notifications.majorTomToGroundControl([], [], [txid]);
+        majorTomToGroundControl([], [], [txid]);
         if (memo) {
           txMetadata[txid] = { memo };
         }

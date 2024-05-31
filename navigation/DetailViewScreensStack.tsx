@@ -52,7 +52,6 @@ import {
   LicensingComponent,
   LightningSettingsComponent,
   NetworkSettingsComponent,
-  NotificationSettingsComponent,
   PlausibleDeniabilityComponent,
   ReleaseNotesComponent,
   SelfTestComponent,
@@ -316,11 +315,6 @@ const DetailViewStackScreensStack = () => {
         name="LightningSettings"
         component={LightningSettingsComponent}
         options={navigationStyle({ title: loc.settings.lightning_settings })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="NotificationSettings"
-        component={NotificationSettingsComponent}
-        options={navigationStyle({ title: loc.settings.notifications })(theme)}
       />
       <DetailViewStack.Screen
         name="SelfTest"

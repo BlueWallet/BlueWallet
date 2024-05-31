@@ -20,7 +20,6 @@ import {
 
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
@@ -48,6 +47,7 @@ import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import useNotifications from '../../hooks/useNotifications';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
 const WalletDetails = () => {
   const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
   const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { unsubscribe } = useNotifications();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -218,7 +219,7 @@ const WalletDetails = () => {
     try {
       externalAddresses = wallet.getAllExternalAddresses();
     } catch (_) {}
-    Notifications.unsubscribe(externalAddresses, [], []);
+    unsubscribe(externalAddresses, [], []);
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);

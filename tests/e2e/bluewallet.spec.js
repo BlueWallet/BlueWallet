@@ -2,7 +2,6 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import {
-  expectToBeVisible,
   extractTextFromElementById,
   hashIt,
   helperCreateWallet,
@@ -145,17 +144,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // turn on notifications if available
     // console.warn('yo');
     // await sleep(300000);
-    if (await expectToBeVisible('NotificationSettings')) {
-      await element(by.id('NotificationSettings')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await sup('OK');
-      await element(by.text('OK')).tap();
-      await element(by.id('NotificationsSwitch')).tap();
-      await device.pressBack();
-      await device.pressBack();
-    } else {
-      await device.pressBack();
-    }
+    // having this UI doesnt make sense due to the private key being unique to the bundle identifier.
+    // send user to the system settings for notifications targeted for bluewallet.
+    // if (await expectToBeVisible('NotificationSettings')) {
+    //   await element(by.id('NotificationSettings')).tap();
+    //   await element(by.id('NotificationsSwitch')).tap();
+    //   await sup('OK');
+    //   await element(by.text('OK')).tap();
+    //   await element(by.id('NotificationsSwitch')).tap();
+    //   await device.pressBack();
+    //   await device.pressBack();
+    // } else {
+    //   await device.pressBack();
+    // }
 
     // tools
     await element(by.id('Tools')).tap();

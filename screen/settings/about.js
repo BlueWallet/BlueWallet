@@ -1,13 +1,25 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext } from 'react';
-import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from 'react-native-elements';
 import Rate, { AndroidMarket } from 'react-native-rate';
 
 import A from '../../blue_modules/analytics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -15,6 +27,8 @@ import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import useNotifications from '../../hooks/useNotifications';
 
 const branch = require('../../current-branch.json');
 
@@ -22,7 +36,10 @@ const About = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useContext(BlueStorageContext);
+  const { isElectrumDisabled } = useStorage();
+  const [isShowTokenInfo, setIsShowTokenInfo] = useState(0);
+  const [tokenInfo, setTokenInfo] = useState('');
+  const { checkPermissions, getPushToken, getDeliveredNotifications } = useNotifications();
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -76,6 +93,9 @@ const About = () => {
       marginLeft: 8,
       fontWeight: '600',
     },
+    centered: {
+      textAlign: 'center',
+    },
   });
 
   const handleOnReleaseNotesPress = () => {
@@ -124,11 +144,36 @@ const About = () => {
     });
   };
 
+  const handleShowTokenInfo = async () => {
+    console.log('token: ' + (await getPushToken()));
+    console.warn(
+      'token: ' +
+        JSON.stringify(await getPushToken()) +
+        ' permissions: ' +
+        JSON.stringify(await checkPermissions()) +
+        ' stored notifications: ' +
+        JSON.stringify(await getDeliveredNotifications()))
+    setTokenInfo(
+      'token: ' +
+        JSON.stringify(await getPushToken()) +
+        ' permissions: ' +
+        JSON.stringify(await checkPermissions()) +
+        ' stored notifications: ' +
+        JSON.stringify(await getDeliveredNotifications()),
+    );
+  };
+
+  const showTokenInfoPressed = () => {
+    setIsShowTokenInfo(isShowTokenInfo + 1);
+  };
+
   return (
     <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <BlueCard>
         <View style={styles.center}>
-          <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+          <Pressable onPress={showTokenInfoPressed}>
+            <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+          </Pressable>
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
@@ -261,7 +306,18 @@ const About = () => {
         </TouchableOpacity>
       </View>
       <BlueSpacing20 />
-      <BlueSpacing20 />
+      {isShowTokenInfo >= 9 && (
+        <>
+          <BlueSpacing20 />
+          <TouchableOpacity onPress={handleShowTokenInfo} >
+          <Text style={styles.centered}>♪ Ground Control to Major Tom ♪</Text>
+          <Text style={styles.centered}>♪ Commencing countdown, engines on ♪</Text>
+</TouchableOpacity>
+          <View>
+            <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+          </View>
+        </>
+      )}
     </ScrollView>
   );
 };
