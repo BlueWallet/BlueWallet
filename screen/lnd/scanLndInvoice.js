@@ -15,7 +15,6 @@ import { Icon } from 'react-native-elements';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import AddressInput from '../../components/AddressInput';
@@ -27,6 +26,7 @@ import { useTheme } from '../../components/themes';
 import { useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
