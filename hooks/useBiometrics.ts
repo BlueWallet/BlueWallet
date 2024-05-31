@@ -5,8 +5,8 @@ import PasscodeAuth from 'react-native-passcode-auth';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import loc from '../loc';
 import * as NavigationService from '../NavigationService';
-import { useStorage } from '../blue_modules/storage-context';
 import presentAlert from '../components/Alert';
+import { useStorage } from './context/useStorage';
 
 const STORAGEKEY = 'Biometrics';
 const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });

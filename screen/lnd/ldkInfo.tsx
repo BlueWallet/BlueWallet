@@ -1,9 +1,7 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { Psbt } from 'bitcoinjs-lib';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Keyboard, SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueLoading, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { LightningLdkWallet } from '../../class';
 import { TWallet } from '../../class/wallets/types';
@@ -19,6 +17,7 @@ import confirm from '../../helpers/confirm';
 import selectWallet from '../../helpers/select-wallet';
 import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 

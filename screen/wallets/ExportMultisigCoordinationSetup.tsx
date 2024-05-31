@@ -1,8 +1,6 @@
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useMemo, useReducer, useRef } from 'react';
+import React, { useCallback, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -11,6 +9,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 type RootStackParamList = {
   ExportMultisigCoordinationSetup: {

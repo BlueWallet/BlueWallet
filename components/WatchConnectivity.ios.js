@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   transferCurrentComplicationUserInfo,
   transferUserInfo,
@@ -7,14 +7,13 @@ import {
   useReachability,
   watchEvents,
 } from 'react-native-watch-connectivity';
-
 import Notifications from '../blue_modules/notifications';
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
 
 function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();

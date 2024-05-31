@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 // @ts-ignore: react-native-obscure is not in the type definition
 import Obscure from 'react-native-obscure';
-import { useSettings } from '../components/Context/SettingsContext';
+import { useSettings } from './context/useSettings';
 
 export const usePrivacy = () => {
   const { isPrivacyBlurEnabled } = useSettings();

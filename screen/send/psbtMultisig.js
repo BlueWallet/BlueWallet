@@ -1,12 +1,11 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -14,6 +13,8 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const shortenAddress = addr => {
   return addr.substr(0, Math.floor(addr.length / 2) - 1) + '\n' + addr.substr(Math.floor(addr.length / 2) - 1, addr.length);
@@ -21,7 +22,7 @@ const shortenAddress = addr => {
 
 const PsbtMultisig = () => {
   const { wallets } = useStorage();
-  const { navigate, setParams } = useNavigation();
+  const { navigate, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
   const { walletID, psbtBase64, memo, receivedPSBTBase64, launchedBy } = useRoute().params;

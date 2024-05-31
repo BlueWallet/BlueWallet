@@ -13,7 +13,7 @@ import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
 import ListItem from './ListItem';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';

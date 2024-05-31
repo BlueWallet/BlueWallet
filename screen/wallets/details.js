@@ -37,7 +37,6 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
@@ -48,6 +47,7 @@ import { useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const styles = StyleSheet.create({
   scrollViewContent: {

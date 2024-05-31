@@ -1,8 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -11,6 +9,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const PleaseBackupLNDHub = () => {
   const { wallets } = useStorage();

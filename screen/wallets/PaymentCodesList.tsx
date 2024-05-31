@@ -1,14 +1,12 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
-import React, { useEffect, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
@@ -25,6 +23,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface DataSection {
   title: string;

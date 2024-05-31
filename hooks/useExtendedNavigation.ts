@@ -1,8 +1,8 @@
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { navigationRef } from '../NavigationService';
-import { useStorage } from '../blue_modules/storage-context';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
 import { useBiometrics } from './useBiometrics';
+import { useStorage } from './context/useStorage';
 
 // List of screens that require biometrics
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];

@@ -1,10 +1,8 @@
 import { useNavigation, useNavigationState, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
@@ -13,6 +11,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc, { formatBalance, transactionTimeToReadable } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = useRoute().params;

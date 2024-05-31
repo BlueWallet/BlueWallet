@@ -1,8 +1,6 @@
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -12,6 +10,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useStorage();

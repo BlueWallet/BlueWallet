@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
@@ -13,15 +13,14 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const SignVerify = () => {
   const { colors } = useTheme();

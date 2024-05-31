@@ -1,11 +1,10 @@
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-
-import { useSettings } from '../../components/Context/SettingsContext';
 import { Header } from '../../components/Header';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const styles = StyleSheet.create({
   root: {

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { forwardRef, useCallback, useContext, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import {
   Animated,
   FlatList,
@@ -14,16 +14,16 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
-import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
 import { BlueSpacing10 } from '../BlueComponents';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../../hooks/context/useSettings';
 import { useTheme } from './themes';
+import { useStorage } from '../hooks/context/useStorage';
+import { WalletTransactionsStatus } from './Context/StorageProvider';
 
 const nStyles = StyleSheet.create({
   container: {

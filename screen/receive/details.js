@@ -1,5 +1,5 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BackHandler,
   InteractionManager,
@@ -17,7 +17,6 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AmountInput from '../../components/AmountInput';
@@ -32,6 +31,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;

@@ -1,14 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueFormLabel, BlueFormMultiInput, BlueSpacing20 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const WalletsImportWallet = () => {
   const navigation = useNavigation();

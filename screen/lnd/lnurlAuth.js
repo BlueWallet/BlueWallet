@@ -1,10 +1,8 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import URL from 'url';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
@@ -15,6 +13,7 @@ import selectWallet from '../../helpers/select-wallet';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const AuthState = {
   USER_PROMPT: 0,

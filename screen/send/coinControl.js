@@ -1,6 +1,6 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -18,9 +18,7 @@ import {
 } from 'react-native';
 import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
 import * as RNLocalize from 'react-native-localize';
-
 import debounce from '../../blue_modules/debounce';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
@@ -30,6 +28,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();

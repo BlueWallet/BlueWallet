@@ -8,11 +8,11 @@ import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();

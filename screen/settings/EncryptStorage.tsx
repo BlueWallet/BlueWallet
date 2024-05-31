@@ -3,7 +3,6 @@ import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Toucha
 import { StackActions } from '@react-navigation/native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
@@ -12,6 +11,7 @@ import prompt from '../../helpers/prompt';
 import { useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useStorage } from '../../hooks/context/useStorage';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
