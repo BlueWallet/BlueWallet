@@ -152,7 +152,7 @@ function Notifications(props) {
           message: loc.notifications.would_you_like_to_receive_notifications,
           options,
           cancelButtonIndex: 0, // Assuming 'no and don't ask' is still treated as the cancel action
-          anchor: findNodeHandle(anchor.current),
+          anchor: anchor ? findNodeHandle(anchor.current) : undefined,
         },
         buttonIndex => {
           switch (buttonIndex) {
