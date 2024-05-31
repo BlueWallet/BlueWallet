@@ -20,7 +20,7 @@ import WalletGradient from '../class/wallet-gradient';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
-import { useSettings } from '../../hooks/context/useSettings';
+import { useSettings } from '../hooks/context/useSettings';
 import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
