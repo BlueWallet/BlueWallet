@@ -1,4 +1,4 @@
 import { useContext } from 'react';
-import { BlueStorageContext } from '../../components/Context/BlueStorageContext';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
-export const useStorage = () => useStorage();
+export const useStorage = () => useContext(StorageContext);

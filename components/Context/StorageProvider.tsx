@@ -15,7 +15,7 @@ const BlueApp = BlueAppClass.getInstance();
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
-interface BlueStorageContextType {
+interface StorageContextType {
   wallets: TWallet[];
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
@@ -60,8 +60,8 @@ export enum WalletTransactionsStatus {
   ALL = 'ALL',
 }
 // @ts-ignore defaut value does not match the type
-export const BlueStorageContext = createContext<BlueStorageContextType>(undefined);
-export const BlueStorageProvider = ({ children }: { children: React.ReactNode }) => {
+export const StorageContext = createContext<StorageContextType>(undefined);
+export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
   const getTransactions = BlueApp.getTransactions;
@@ -231,7 +231,7 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     [addWallet, saveToDisk, wallets],
   );
 
-  const value: BlueStorageContextType = useMemo(
+  const value: StorageContextType = useMemo(
     () => ({
       wallets,
       setWalletsWithNewOrder,
@@ -302,5 +302,5 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     ],
   );
 
-  return <BlueStorageContext.Provider value={value}>{children}</BlueStorageContext.Provider>;
+  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
 };
