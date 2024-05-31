@@ -15,7 +15,7 @@ import loc from '../../loc';
 
 const LdkViewLogs = () => {
   const { colors } = useTheme();
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { walletID } = useRoute().params;
   /** @type {LightningLdkWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);

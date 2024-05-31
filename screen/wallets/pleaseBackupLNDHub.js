@@ -13,7 +13,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 
 const PleaseBackupLNDHub = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { walletID } = useRoute().params;
   const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();

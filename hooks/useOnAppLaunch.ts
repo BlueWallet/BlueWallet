@@ -5,7 +5,7 @@ import { TWallet } from '../class/wallets/types';
 
 const useOnAppLaunch = () => {
   const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
 
   const getSelectedDefaultWallet = useCallback(async (): Promise<string | undefined> => {
     let selectedWallet: TWallet | undefined;

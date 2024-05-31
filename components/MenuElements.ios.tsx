@@ -1,7 +1,6 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useContext, useEffect } from 'react';
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
-
 import { BlueStorageContext } from '../blue_modules/storage-context';
 import * as NavigationService from '../NavigationService';
 
@@ -12,7 +11,7 @@ EventEmitter on the native side should receive a payload and rebuild menus.
 
 const eventEmitter = Platform.OS === 'ios' || Platform.OS === 'macos' ? new NativeEventEmitter(NativeModules.EventEmitter) : undefined;
 const MenuElements = () => {
-  const { walletsInitialized, reloadTransactionsMenuActionFunction } = useContext(BlueStorageContext);
+  const { walletsInitialized, reloadTransactionsMenuActionFunction } = useStorage();
 
   // BlueWallet -> Settings
   const openSettings = useCallback(() => {

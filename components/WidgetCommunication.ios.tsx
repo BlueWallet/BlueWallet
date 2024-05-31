@@ -62,7 +62,7 @@ const allWalletsBalanceAndTransactionTime = async (
 };
 
 const WidgetCommunication: React.FC = () => {
-  const { wallets, walletsInitialized } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized } = useStorage();
   const { isWidgetBalanceDisplayAllowed } = useSettings();
 
   useEffect(() => {

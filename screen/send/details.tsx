@@ -75,7 +75,7 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const name = route.name;

@@ -18,7 +18,7 @@ const SelectWallet = () => {
   const { chainType, onWalletSelect, availableWallets, noWalletExplanationText, onChainRequireSend = false } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { pop, navigate, setOptions, getParent } = useNavigation();
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { colors, closeImage } = useTheme();
   const isModal = useNavigationState(state => state.routes.length) === 1;
   let data = !onChainRequireSend

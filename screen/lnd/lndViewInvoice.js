@@ -19,7 +19,7 @@ import LNDCreateInvoice from './lndCreateInvoice';
 
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute().params;
-  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, fetchAndSaveWalletTransactions } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
   const { colors, closeImage } = useTheme();
   const { goBack, navigate, setParams, setOptions, getParent } = useNavigation();

@@ -5,7 +5,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import confirm from '../../helpers/confirm';
 import { useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
@@ -18,6 +17,7 @@ import { Action, ToolTipMenuProps } from '../types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript

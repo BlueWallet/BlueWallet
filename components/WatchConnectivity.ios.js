@@ -17,7 +17,7 @@ import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from './Context/SettingsContext';
 
 function WatchConnectivity() {
-  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useContext(BlueStorageContext);
+  const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
   const { preferredFiatCurrency } = useSettings();
   const isReachable = useReachability();
   const isInstalled = useInstalled(); // true | false

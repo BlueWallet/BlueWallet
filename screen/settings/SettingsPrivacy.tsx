@@ -22,7 +22,7 @@ enum SettingsPrivacySection {
 
 const SettingsPrivacy: React.FC = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted } = useContext(BlueStorageContext);
+  const { isStorageEncrypted } = useStorage();
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,

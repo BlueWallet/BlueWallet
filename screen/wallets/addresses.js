@@ -59,7 +59,7 @@ const WalletAddresses = () => {
 
   const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
 
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
 
   const { walletID } = useRoute().params;
 

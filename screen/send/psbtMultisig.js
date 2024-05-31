@@ -20,7 +20,7 @@ const shortenAddress = addr => {
 };
 
 const PsbtMultisig = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { navigate, setParams } = useNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);

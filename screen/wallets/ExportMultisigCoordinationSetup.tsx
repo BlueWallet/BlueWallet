@@ -65,7 +65,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { isLoading, isShareButtonTapped, qrCodeContents } = state;
   const { params } = useRoute<RouteProp<RootStackParamList, 'ExportMultisigCoordinationSetup'>>();
   const walletID = params.walletID;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();

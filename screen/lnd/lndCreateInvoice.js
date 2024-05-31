@@ -34,7 +34,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const createInvoiceRef = useRef();

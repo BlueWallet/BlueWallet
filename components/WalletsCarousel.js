@@ -157,7 +157,7 @@ const iStyles = StyleSheet.create({
 export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
-  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
+  const { walletTransactionUpdateStatus } = useStorage();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
   const isLargeScreen = useIsLargeScreen();

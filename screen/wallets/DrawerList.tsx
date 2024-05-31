@@ -84,7 +84,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
   const walletsCarousel = useRef<FlatList<TWallet>>(null);
-  const { wallets, selectedWalletID } = useContext(BlueStorageContext);
+  const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
 

@@ -17,7 +17,7 @@ const WalletsImportWallet = () => {
   const [importText, setImportText] = useState();
   const [walletType, setWalletType] = useState();
   const [passphrase, setPassphrase] = useState();
-  const { addAndSaveWallet } = useContext(BlueStorageContext);
+  const { addAndSaveWallet } = useStorage();
 
   const styles = StyleSheet.create({
     root: {

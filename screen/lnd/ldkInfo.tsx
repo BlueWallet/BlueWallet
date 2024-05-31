@@ -34,7 +34,7 @@ type LdkInfoRouteProps = RouteProp<
 
 const LdkInfo = () => {
   const { walletID } = useRoute<LdkInfoRouteProps>().params;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const refreshDataInterval = useRef<NodeJS.Timer>();
   const sectionList = useRef<SectionList | null>();
   const wallet = wallets.find(w => w.getID() === walletID) as LightningLdkWallet;

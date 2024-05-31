@@ -14,7 +14,7 @@ import loc from '../../loc';
 
 const LNDViewAdditionalInvoiceInformation = () => {
   const { walletID } = useRoute().params;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
   const [walletInfo, setWalletInfo] = useState();
   const { colors } = useTheme();

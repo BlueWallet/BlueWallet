@@ -22,7 +22,7 @@ const About = () => {
   const { navigate } = useNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useContext(BlueStorageContext);
+  const { isElectrumDisabled } = useStorage();
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',

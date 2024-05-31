@@ -22,7 +22,7 @@ const ImportWalletDiscovery = () => {
   const route = useRoute();
   const { importText, askPassphrase, searchAccounts } = route.params;
   const task = useRef();
-  const { addAndSaveWallet } = useContext(BlueStorageContext);
+  const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState(true);
   const [wallets, setWallets] = useState([]);
   const [password, setPassword] = useState();

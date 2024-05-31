@@ -38,7 +38,7 @@ function reducer(state: State, action: Action): State {
 
 // Component
 const PlausibleDeniability: React.FC = () => {
-  const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useContext(BlueStorageContext);
+  const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
 

@@ -69,7 +69,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Tran
 const TransactionDetails = () => {
   const { setOptions, navigate } = useExtendedNavigation<NavigationProps>();
   const { hash, walletID } = useRoute<TransactionDetailsProps['route']>().params;
-  const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
+  const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useStorage();
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);

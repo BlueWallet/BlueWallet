@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 const ReorderWallets = () => {
   const sortableList = useRef();
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder } = useStorage();
   const colorScheme = useColorScheme();
   const { navigate, setOptions } = useExtendedNavigation();
   const [searchQuery, setSearchQuery] = useState('');

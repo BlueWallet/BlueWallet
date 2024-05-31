@@ -1,10 +1,8 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-
 import BlueClipboard from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon } from '../../blue_modules/currency';
-import { useStorage } from '../../blue_modules/storage-context';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
 import { saveLanguage, STORAGE_KEY } from '../../loc';
@@ -13,6 +11,7 @@ import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDevice
 import presentAlert from '../Alert';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
@@ -86,7 +85,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
-
   const { walletsInitialized } = useStorage();
 
   useEffect(() => {
@@ -283,5 +281,3 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 };
-
-export const useSettings = () => useContext(SettingsContext);

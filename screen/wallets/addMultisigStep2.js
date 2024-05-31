@@ -44,7 +44,7 @@ import loc from '../../loc';
 const staticCache = {};
 
 const WalletsAddMultisigStep2 = () => {
-  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, isElectrumDisabled, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 

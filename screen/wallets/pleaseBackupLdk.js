@@ -13,7 +13,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 
 const PleaseBackupLdk = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { walletID } = useRoute().params;
   /** @type {LightningLdkWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);

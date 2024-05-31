@@ -25,7 +25,7 @@ import loc from '../../loc';
 
 const SignVerify = () => {
   const { colors } = useTheme();
-  const { wallets, sleep } = useContext(BlueStorageContext);
+  const { wallets, sleep } = useStorage();
   const { params } = useRoute();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [address, setAddress] = useState(params.address ?? '');

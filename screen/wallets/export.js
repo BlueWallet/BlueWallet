@@ -14,7 +14,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 
 const WalletExport = () => {
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk } = useStorage();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
