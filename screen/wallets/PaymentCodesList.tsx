@@ -41,7 +41,7 @@ const actionKeys: Action[] = [
     text: loc.bip47.pay_this_contact,
     icon: {
       iconType: 'SYSTEM',
-      iconValue: 'square.and.arrow.up',
+      iconValue: 'paperplane',
     },
   },
   {
@@ -57,7 +57,7 @@ const actionKeys: Action[] = [
     text: loc.bip47.copy_payment_code,
     icon: {
       iconType: 'SYSTEM',
-      iconValue: 'doc.on.doc',
+      iconValue: 'pencil',
     },
   },
 ];
