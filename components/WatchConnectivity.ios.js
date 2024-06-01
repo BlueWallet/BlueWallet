@@ -7,13 +7,13 @@ import {
   useReachability,
   watchEvents,
 } from 'react-native-watch-connectivity';
-import Notifications from '../blue_modules/notifications';
 import { MultisigHDWallet } from '../class';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { isNotificationsEnabled, majorTomToGroundControl } from '../blue_modules/notifications';
 
 function WatchConnectivity() {
   const { walletsInitialized, wallets, fetchWalletTransactions, saveToDisk, txMetadata } = useStorage();
