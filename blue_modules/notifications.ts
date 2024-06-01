@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { findNodeHandle, Platform } from 'react-native';
 import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
-import { requestNotifications } from 'react-native-permissions';
+import {  requestNotifications } from 'react-native-permissions';
 import PushNotification, { PushNotificationPermissions } from 'react-native-push-notification';
 
 import loc from '../loc';
@@ -419,28 +418,3 @@ export {
   setApplicationIconBadgeNumber,
   removeAllDeliveredNotifications,
 };
-
-// Custom hook to listen to notifications
-export function useNotifications() {
-  const [notifications, setNotifications] = useState<any[]>([]);
-
-  useEffect(() => {
-    const handleNotification = (notification: any) => {
-      setNotifications(prevNotifications => [...prevNotifications, notification]);
-      console.debug(`{notification: ${JSON.stringify(notification)}, function: useNotifications}`);
-    };
-
-    PushNotification.configure({
-      onNotification: handleNotification,
-      requestPermissions: false,
-    });
-
-    return () => {
-      PushNotification.configure({
-        onNotification: () => {},
-      });
-    };
-  }, []);
-
-  return notifications;
-}

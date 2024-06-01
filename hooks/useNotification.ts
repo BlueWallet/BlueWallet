@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import PushNotification from 'react-native-push-notification';
-import { clearStoredNotifications, getStoredNotifications } from '../blue_modules/notifications';
+import { clearStoredNotifications } from '../blue_modules/notifications';
 
-// Custom hook to listen to notifications
-export function useNotification() {
+// Custom hook to listen to notifications and handle permission changes
+export function useNotifications() {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
@@ -17,23 +19,31 @@ export function useNotification() {
       requestPermissions: false,
     });
 
+    const checkNotificationPermissions = async () => {
+      if (Platform.OS === 'ios') {
+        const status = await check(PERMISSIONS.IOS.NOTIFICATIONS);
+        handlePermissionStatus(status);
+      } else if (Platform.OS === 'android') {
+        const status = await check(PERMISSIONS.ANDROID.NOTIFICATIONS);
+        handlePermissionStatus(status);
+      }
+    };
+
+    const handlePermissionStatus = async (status: (typeof RESULTS)[keyof typeof RESULTS]) => {
+      if (status === RESULTS.DENIED || status === RESULTS.BLOCKED) {
+        await clearStoredNotifications();
+        await PushNotification.abandonPermissions();
+        console.debug(`{function: handlePermissionStatus, status: ${status}, action: permissions abandoned and notifications cleared}`);
+      }
+    };
+
+    checkNotificationPermissions();
+
     return () => {
       PushNotification.configure({
         onNotification: () => {},
       });
     };
-  }, []);
-
-  useEffect(() => {
-    const handleInitialNotifications = async () => {
-      const storedNotifications = await getStoredNotifications();
-      await clearStoredNotifications();
-      if (storedNotifications.length > 0) {
-        setNotifications(storedNotifications);
-      }
-    };
-
-    handleInitialNotifications();
   }, []);
 
   return notifications;
