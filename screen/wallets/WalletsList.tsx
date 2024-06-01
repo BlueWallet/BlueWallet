@@ -421,6 +421,7 @@ const WalletsList: React.FC = () => {
           contentInset={styles.scrollContent}
           renderSectionFooter={renderSectionFooter}
           sections={sections}
+          testID="SectionList"
           windowSize={21}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
