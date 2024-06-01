@@ -8,7 +8,6 @@ import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import Notifications from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
@@ -16,6 +15,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import { useNotification } from '../hooks/useNotification';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -41,21 +41,10 @@ const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
+  const notifications = useNotification();
 
   const processPushNotifications = useCallback(async () => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    // @ts-ignore: Notifications type is not defined
-    const notifications2process = await Notifications.getStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    await Notifications.clearStoredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    Notifications.setApplicationIconBadgeNumber(0);
-    // @ts-ignore: Notifications type is not defined
-    const deliveredNotifications = await Notifications.getDeliveredNotifications();
-    // @ts-ignore: Notifications type is not defined
-    setTimeout(() => Notifications.removeAllDeliveredNotifications(), 5000);
-
-    for (const payload of notifications2process) {
+    for (const payload of notifications) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
       console.log('processing push notification:', payload);
@@ -102,12 +91,12 @@ const CompanionDelegates = () => {
       }
     }
 
-    if (deliveredNotifications.length > 0) {
+    if (notifications.length > 0) {
       refreshAllWalletTransactions();
     }
 
     return false;
-  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
+  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets, notifications]);
 
   const handleOpenURL = useCallback(
     (event: { url: string }) => {
@@ -193,32 +182,15 @@ const CompanionDelegates = () => {
     [processPushNotifications, showClipboardAlert, wallets],
   );
 
-  const onNotificationReceived = useCallback(
-    async (notification: { data: { data: any } }) => {
-      const payload = Object.assign({}, notification, notification.data);
-      if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-      // @ts-ignore: Notifications type is not defined
-      payload.foreground = true;
-
-      // @ts-ignore: Notifications type is not defined
-      await Notifications.addNotification(payload);
-      // @ts-ignore: Notifications type is not defined
-      if (payload.foreground) await processPushNotifications();
-    },
-    [processPushNotifications],
-  );
-
   const addListeners = useCallback(() => {
     const urlSubscription = Linking.addEventListener('url', handleOpenURL);
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-    const notificationSubscription = eventEmitter?.addListener('onNotificationReceived', onNotificationReceived);
 
     return {
       urlSubscription,
       appStateSubscription,
-      notificationSubscription,
     };
-  }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
+  }, [handleOpenURL, handleAppStateChange]);
 
   useEffect(() => {
     const subscriptions = addListeners();
@@ -226,21 +198,17 @@ const CompanionDelegates = () => {
     return () => {
       subscriptions.urlSubscription?.remove();
       subscriptions.appStateSubscription?.remove();
-      subscriptions.notificationSubscription?.remove();
     };
   }, [addListeners]);
 
   return (
-    <>
-      <Notifications onProcessNotifications={processPushNotifications} />
-      <Suspense fallback={null}>
-        <MenuElements />
-        <DeviceQuickActions />
-        <HandOffComponentListener />
-        <WidgetCommunication />
-        <WatchConnectivity />
-      </Suspense>
-    </>
+    <Suspense fallback={null}>
+      <MenuElements />
+      <DeviceQuickActions />
+      <HandOffComponentListener />
+      <WidgetCommunication />
+      <WatchConnectivity />
+    </Suspense>
   );
 };
 

@@ -5,6 +5,8 @@ import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import { isNotificationsCapable } from '../../blue_modules/notifications';
+import { openSettings } from 'react-native-permissions';
 
 const styles = StyleSheet.create({
   root: {
@@ -36,6 +38,9 @@ const Settings = () => {
       <ListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
       <ListItem title={loc.settings.encrypt_title} onPress={() => navigate('EncryptStorage')} testID="SecurityButton" chevron />
+      {isNotificationsCapable && (
+        <ListItem title={loc.settings.notifications} onPress={openSettings} testID="NotificationSettings" chevron />
+      )}
       <ListItem title={loc.settings.network} onPress={() => navigate('NetworkSettings')} testID="NetworkSettings" chevron />
       <ListItem title={loc.settings.tools} onPress={() => navigate('Tools')} testID="Tools" chevron />
       <ListItem title={loc.settings.about} onPress={() => navigate('About')} testID="AboutButton" chevron />

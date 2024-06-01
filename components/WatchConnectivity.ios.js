@@ -117,9 +117,9 @@ function WatchConnectivity() {
         // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
         try {
           // Let's verify if notifications are already configured. Otherwise the watch app will freeze waiting for user approval in iOS app
-          if (await Notifications.isNotificationsEnabled()) {
+          if (await isNotificationsEnabled()) {
             const decoded = await wallet.decodeInvoice(invoiceRequest);
-            Notifications.majorTomToGroundControl([], [decoded.payment_hash], []);
+            majorTomToGroundControl([], [decoded.payment_hash], []);
           }
         } catch (e) {
           console.log('WatchConnectivity - Running in Simulator');

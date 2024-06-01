@@ -57,7 +57,6 @@ export type DetailViewStackParamList = {
   LightningSettings: {
     url?: string;
   };
-  NotificationSettings: undefined;
   SelfTest: undefined;
   ReleaseNotes: undefined;
   Tools: undefined;

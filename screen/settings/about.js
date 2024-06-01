@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import {
+  Alert,
+  Image,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import { Icon } from 'react-native-elements';
 import Rate, { AndroidMarket } from 'react-native-rate';
 import A from '../../blue_modules/analytics';
-import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard, BlueSpacing20, BlueText, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -14,6 +26,8 @@ import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import { checkPermissions, getPushToken, getStoredNotifications } from '../../blue_modules/notifications';
 
 const branch = require('../../current-branch.json');
 
@@ -22,6 +36,8 @@ const About = () => {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useStorage();
+  const [isShowNotificationsDebugView, setIsShowNotificationsDebugView] = useState(0);
+  const [tokenInfo, setTokenInfo] = useState('');
   const styles = StyleSheet.create({
     copyToClipboard: {
       justifyContent: 'center',
@@ -123,11 +139,27 @@ const About = () => {
     });
   };
 
+  const showNotificationsDebugView = async () => {
+    setIsShowNotificationsDebugView(isShowNotificationsDebugView + 1);
+    if (isShowNotificationsDebugView === 10) {
+      setTokenInfo(
+        'token: ' +
+          JSON.stringify(await getPushToken()) +
+          ' permissions: ' +
+          JSON.stringify(await checkPermissions()) +
+          ' stored notifications: ' +
+          JSON.stringify(await getStoredNotifications()),
+      );
+    }
+  };
+
   return (
     <ScrollView testID="AboutScrollView" contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       <BlueCard>
         <View style={styles.center}>
-          <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+          <Pressable onPress={showNotificationsDebugView}>
+            <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+          </Pressable>
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
           <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
@@ -135,6 +167,16 @@ const About = () => {
           )}
         </View>
       </BlueCard>
+      {isShowNotificationsDebugView > 10 && (
+        <>
+          <BlueText style={styles.centered}>♪ Ground Control to Major Tom ♪</BlueText>
+          <BlueText style={styles.centered}>♪ Commencing countdown, engines on ♪</BlueText>
+
+          <View>
+            <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
+          </View>
+        </>
+      )}
       <ListItem
         leftIcon={{
           name: 'twitter',

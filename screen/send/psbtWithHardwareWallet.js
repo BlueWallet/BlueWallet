@@ -133,7 +133,7 @@ const PsbtWithHardwareWallet = () => {
         setIsLoading(false);
         const txDecoded = bitcoin.Transaction.fromHex(txHex);
         const txid = txDecoded.getId();
-        Notifications.majorTomToGroundControl([], [], [txid]);
+        majorTomToGroundControl([], [], [txid]);
         if (memo) {
           txMetadata[txid] = { memo };
         }

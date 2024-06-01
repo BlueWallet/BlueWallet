@@ -20,6 +20,7 @@
     "@types/jest": "^29.4.0",
     "@types/react": "^18.2.16",
     "@types/react-native": "^0.72.0",
+    "@types/react-native-push-notification": "^8.1.4",
     "@types/react-test-renderer": "^18.0.0",
     "@types/wif": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^6.2.0",

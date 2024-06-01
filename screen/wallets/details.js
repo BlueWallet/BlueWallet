@@ -217,7 +217,7 @@ const WalletDetails = () => {
     try {
       externalAddresses = wallet.getAllExternalAddresses();
     } catch (_) {}
-    Notifications.unsubscribe(externalAddresses, [], []);
+    unsubscribe(externalAddresses, [], []);
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);
