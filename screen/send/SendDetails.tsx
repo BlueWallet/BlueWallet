@@ -280,85 +280,90 @@ const SendDetails = () => {
 
   // recalc fees in effect so we don't block render
   useEffect(() => {
-    if (!wallet) return; // wait for it
-    const fees = networkTransactionFees;
-    const requestedSatPerByte = Number(feeRate);
-    const lutxo = utxo || wallet.getUtxo();
-    let frozen = 0;
-    if (!utxo) {
-      // if utxo is not limited search for frozen outputs and calc it's balance
-      frozen = wallet
-        .getUtxo(true)
-        .filter(o => !lutxo.some(i => i.txid === o.txid && i.vout === o.vout))
-        .reduce((prev, curr) => prev + curr.value, 0);
-    }
+    const recalculateFees = async () => {
+      if (!wallet) return; // wait for it
+      const fees = networkTransactionFees;
+      const requestedSatPerByte = Number(feeRate);
+      const lutxo = utxo || wallet.getUtxo();
+      let frozen = 0;
+      if (!utxo) {
+        // if utxo is not limited search for frozen outputs and calc it's balance
+        frozen = wallet
+          .getUtxo(true)
+          .filter(o => !lutxo.some(i => i.txid === o.txid && i.vout === o.vout))
+          .reduce((prev, curr) => prev + curr.value, 0);
+      }
 
-    const options = [
-      { key: 'current', fee: requestedSatPerByte },
-      { key: 'slowFee', fee: fees.slowFee },
-      { key: 'mediumFee', fee: fees.mediumFee },
-      { key: 'fastestFee', fee: fees.fastestFee },
-    ];
+      const options = [
+        { key: 'current', fee: requestedSatPerByte },
+        { key: 'slowFee', fee: fees.slowFee },
+        { key: 'mediumFee', fee: fees.mediumFee },
+        { key: 'fastestFee', fee: fees.fastestFee },
+      ];
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+      const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
 
-    for (const opt of options) {
-      let targets = [];
-      for (const transaction of addresses) {
-        if (transaction.amount === BitcoinUnit.MAX) {
-          // single output with MAX
-          targets = [{ address: transaction.address }];
-          break;
+      for (const opt of options) {
+        let targets = [];
+        for (const transaction of addresses) {
+          if (transaction.amount === BitcoinUnit.MAX) {
+            // single output with MAX
+            targets = [{ address: transaction.address }];
+            break;
+          }
+          const value = transaction.amountSats;
+          if (Number(value) > 0) {
+            targets.push({ address: transaction.address, value });
+          } else if (transaction.amount) {
+            if (btcToSatoshi(transaction.amount) > 0) {
+              targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+            }
+          }
         }
-        const value = transaction.amountSats;
-        if (Number(value) > 0) {
-          targets.push({ address: transaction.address, value });
-        } else if (transaction.amount) {
-          if (btcToSatoshi(transaction.amount) > 0) {
-            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+
+        // if targets is empty, insert dust
+        if (targets.length === 0) {
+          targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+        }
+
+        // replace wrong addresses with dump
+        targets = targets.map(t => {
+          if (!wallet.isAddressValid(t.address)) {
+            return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+          } else {
+            return t;
+          }
+        });
+
+        let flag = false;
+        while (true) {
+          try {
+            const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
+
+            // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
+            newFeePrecalc[opt.key] = fee;
+            break;
+          } catch (e: any) {
+            if (e.message.includes('Not enough') && !flag) {
+              flag = true;
+              // if we don't have enough funds, construct maximum possible transaction
+              targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
+              continue;
+            }
+
+            // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
+            newFeePrecalc[opt.key] = null;
+            break;
           }
         }
       }
 
-      // if targets is empty, insert dust
-      if (targets.length === 0) {
-        targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
-      }
+      setFeePrecalc(newFeePrecalc);
+      setFrozenBlance(frozen);
+    };
 
-      // replace wrong addresses with dump
-      targets = targets.map(t => {
-        if (!wallet.isAddressValid(t.address)) {
-          return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
-        } else {
-          return t;
-        }
-      });
-
-      let flag = false;
-      while (true) {
-        try {
-          const { fee } = wallet.coinselect(lutxo, targets, opt.fee);
-
-          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
-          newFeePrecalc[opt.key] = fee;
-          break;
-        } catch (e: any) {
-          if (e.message.includes('Not enough') && !flag) {
-            flag = true;
-            // if we don't have enough funds, construct maximum possible transaction
-            targets = targets.map((t, index) => (index > 0 ? { ...t, value: 546 } : { address: t.address }));
-            continue;
-          }
-
-          // @ts-ignore options& opt are used only to iterate keys we predefined and we know exist
-          newFeePrecalc[opt.key] = null;
-          break;
-        }
-      }
-    }
-
-    setFeePrecalc(newFeePrecalc);
-    setFrozenBlance(frozen);
+    setIsLoading(true);
+    recalculateFees().finally(() => setIsLoading(false));
   }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // we need to re-calculate fees if user opens-closes coin control
