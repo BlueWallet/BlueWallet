@@ -17,7 +17,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
-import { SilentPayment } from 'silent-payments';
+import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1185,22 +1185,14 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     let { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
 
-    let hasSilentPaymentOutput = false;
-    outputs.map(o => {
-      if (o.address?.startsWith('sp1')) hasSilentPaymentOutput = true;
-      return null; // because map func demands to return at least something
-    });
-
+    const hasSilentPaymentOutput: boolean = !!outputs.find(o => o.address?.startsWith('sp1'));
     if (hasSilentPaymentOutput) {
       if (!this.allowSilentPaymentSend()) {
         throw new Error('This wallet can not send to SilentPayment address');
       }
 
-      // doing a clone of coinselected UTXOs:
-      const spUtxos: any[] = [];
-
       // for a single wallet all utxos gona be the same type, so we define it only once:
-      let utxoType: string = 'non-eligible';
+      let utxoType: SPUTXOType = 'non-eligible';
       switch (this.segwitType) {
         case 'p2sh(p2wpkh)':
           utxoType = 'p2sh-p2wpkh';
@@ -1208,20 +1200,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         case 'p2wpkh':
           utxoType = 'p2wpkh';
           break;
+        default:
+          // @ts-ignore override
+          if (this.type === 'HDlegacyP2PKH') utxoType = 'p2pkh';
       }
 
-      // @ts-ignore override
-      if (this.type === 'HDlegacyP2PKH') utxoType = 'p2pkh';
-
-      inputs.map(u =>
-        spUtxos.push({
-          txid: u.txid,
-          vout: u.vout,
-          wif: u.wif,
-          utxoType,
-        }),
-      );
-
+      const spUtxos: SPUTXO[] = inputs.map(u => ({ ...u, utxoType, wif: u.wif! }));
       const sp = new SilentPayment();
       outputs = sp.createTransaction(spUtxos, outputs) as CoinSelectOutput[];
     }
@@ -1289,6 +1273,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (output.address?.startsWith('PM')) {
         // ok its BIP47 payment code, so we need to unwrap a joint address for the receiver and use it instead:
         output.address = this._getNextFreePaymentCodeAddressSend(output.address);
+        // ^^^ trusting that notification transaction is in place
       }
 
       psbt.addOutput({
