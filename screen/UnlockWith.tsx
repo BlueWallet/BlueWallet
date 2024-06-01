@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { useStorage } from '../blue_modules/storage-context';
 import { BlueTextCentered } from '../BlueComponents';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
 import { BiometricType, useBiometrics } from '../hooks/useBiometrics';
 import loc from '../loc';
+import { useStorage } from '../hooks/context/useStorage';
 
 enum AuthType {
   Encrypted,

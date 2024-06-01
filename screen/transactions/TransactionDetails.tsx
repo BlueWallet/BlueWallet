@@ -1,13 +1,11 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import dayjs from 'dayjs';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { InteractionManager, Keyboard, Linking, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
@@ -20,6 +18,7 @@ import ToolTipMenu from '../../components/TooltipMenu';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
@@ -69,7 +68,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Tran
 const TransactionDetails = () => {
   const { setOptions, navigate } = useExtendedNavigation<NavigationProps>();
   const { hash, walletID } = useRoute<TransactionDetailsProps['route']>().params;
-  const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useContext(BlueStorageContext);
+  const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useStorage();
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);

@@ -1,11 +1,11 @@
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import { TWallet } from '../class/wallets/types';
+import { useStorage } from './context/useStorage';
 
 const useOnAppLaunch = () => {
   const STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
 
   const getSelectedDefaultWallet = useCallback(async (): Promise<string | undefined> => {
     let selectedWallet: TWallet | undefined;

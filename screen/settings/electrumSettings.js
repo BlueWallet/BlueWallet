@@ -16,10 +16,8 @@ import {
   View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import {
   BlueButtonLink,
   BlueCard,
@@ -36,9 +34,10 @@ import ListItem from '../../components/ListItem';
 import { BlueCurrentTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 export default class ElectrumSettings extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   constructor(props) {
     super(props);
     const server = props?.route?.params?.server;

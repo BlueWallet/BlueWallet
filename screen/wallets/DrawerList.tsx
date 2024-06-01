@@ -1,15 +1,15 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
-import React, { memo, useCallback, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { FlatList, InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -84,7 +84,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
   const walletsCarousel = useRef<FlatList<TWallet>>(null);
-  const { wallets, selectedWalletID } = useContext(BlueStorageContext);
+  const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
 

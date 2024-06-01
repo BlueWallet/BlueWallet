@@ -24,7 +24,6 @@ import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert from '../../components/Alert';
@@ -41,6 +40,8 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
+import { useStorage } from '../../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22

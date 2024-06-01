@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import { TWallet } from '../class/wallets/types';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -62,7 +61,7 @@ const allWalletsBalanceAndTransactionTime = async (
 };
 
 const WidgetCommunication: React.FC = () => {
-  const { wallets, walletsInitialized } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized } = useStorage();
   const { isWidgetBalanceDisplayAllowed } = useSettings();
 
   useEffect(() => {

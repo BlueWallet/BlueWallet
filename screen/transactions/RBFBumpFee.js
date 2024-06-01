@@ -1,8 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -10,6 +8,7 @@ import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import CPFP from './CPFP';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 const styles = StyleSheet.create({
   root: {
@@ -19,7 +18,7 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFBumpFee extends CPFP {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
 
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');

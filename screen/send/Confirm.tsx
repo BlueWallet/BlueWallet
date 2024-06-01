@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
@@ -8,7 +8,6 @@ import { BlueText, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
@@ -24,6 +23,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
+import { useStorage } from '../../hooks/context/useStorage';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -65,7 +65,7 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useStorage();
   const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params

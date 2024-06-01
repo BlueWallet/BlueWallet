@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
@@ -17,7 +17,6 @@ import {
 
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import {
   BlueApp,
@@ -29,13 +28,14 @@ import {
 } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -123,7 +123,7 @@ const WalletsAdd: React.FC = () => {
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, wallets } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, wallets } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {

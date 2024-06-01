@@ -1,9 +1,7 @@
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -13,6 +11,7 @@ import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
+import { useStorage } from '../../hooks/context/useStorage';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -23,7 +22,7 @@ export type RootStackParamList = {
 };
 
 const WalletXpub: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID);
