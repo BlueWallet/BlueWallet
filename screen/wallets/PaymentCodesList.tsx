@@ -49,7 +49,7 @@ const actionKeys: Action[] = [
     text: loc.bip47.rename_contact,
     icon: {
       iconType: 'SYSTEM',
-      iconValue: 'note.text',
+      iconValue: 'pencil',
     },
   },
   {
@@ -57,7 +57,7 @@ const actionKeys: Action[] = [
     text: loc.bip47.copy_payment_code,
     icon: {
       iconType: 'SYSTEM',
-      iconValue: 'pencil',
+      iconValue: 'doc.on.doc',
     },
   },
 ];
