@@ -269,8 +269,10 @@ const TransactionDetails = () => {
             placeholder={loc.send.details_note_placeholder}
             value={memo}
             placeholderTextColor="#81868e"
+            clearButtonMode="while-editing"
             style={[styles.memoTextInput, stylesHooks.memoTextInput]}
             onChangeText={setMemo}
+            testID="TransactionDetailsMemoInput"
           />
           {isCounterpartyLabelVisible ? (
             <View>
