@@ -259,7 +259,7 @@ function Notifications(props) {
   };
 
   Notifications.saveUri = async function (uri) {
-    baseURI = uri || groundControlUri; // settign the url to use currently. if not set - use default
+    baseURI = uri || groundControlUri; // setting the url to use currently. if not set - use default
     return AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, uri);
   };
 
