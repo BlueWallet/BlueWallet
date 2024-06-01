@@ -82,7 +82,7 @@ const configureNotifications = async function (): Promise<boolean> {
           onNotification: async function (notification) {
             const payload = Object.assign({}, notification, notification.data);
             if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
-            if ('data' in payload) delete (payload as any).data;  // Ensuring the operand is optional
+            if ('data' in payload) delete (payload as any).data; // Ensuring the operand is optional
             console.debug(`{notification: ${JSON.stringify(payload)}, function: configureNotifications}`);
 
             await addNotification(payload);

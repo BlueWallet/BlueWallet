@@ -2,7 +2,6 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import {
-  expectToBeVisible,
   extractTextFromElementById,
   hashIt,
   helperCreateWallet,
