@@ -168,7 +168,7 @@ export default function PaymentCodesList() {
       const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
       assert(foundWallet);
 
-      const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, false, 'plain-text');
+      const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, true, 'plain-text');
       if (!newPc) return;
       const cl = new ContactList();
 
