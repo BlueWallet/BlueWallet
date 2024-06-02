@@ -12,7 +12,6 @@ import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderRightButton from '../../components/HeaderRightButton';
-import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import loc from '../../loc';
@@ -106,7 +105,14 @@ const TransactionDetails = () => {
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
   const HeaderRight = useMemo(
-    () => <HeaderRightButton onPress={handleOnSaveButtonTapped} disabled={false} title={loc.wallets.details_save} />,
+    () => (
+      <HeaderRightButton
+        onPress={handleOnSaveButtonTapped}
+        testID="TransactionDetailsButton"
+        disabled={false}
+        title={loc.wallets.details_save}
+      />
+    ),
 
     [handleOnSaveButtonTapped],
   );
@@ -417,13 +423,3 @@ const styles = StyleSheet.create({
 });
 
 export default TransactionDetails;
-
-TransactionDetails.navigationOptions = navigationStyle({ headerTitle: loc.transactions.details_title }, (options, { theme }) => {
-  return {
-    ...options,
-    statusBarStyle: 'auto',
-    headerStyle: {
-      backgroundColor: theme.colors.customHeader,
-    },
-  };
-});
