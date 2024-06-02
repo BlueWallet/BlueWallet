@@ -22,7 +22,7 @@ const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
 const SendDetailsStack = () => {
   const theme = useTheme();
-  const DetailsButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.create_details} />, []);
+  const DetailsButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.send.create_details} />, []);
 
   return (
     <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false }}>

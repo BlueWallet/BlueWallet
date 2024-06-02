@@ -195,7 +195,7 @@ const EncryptStorage = () => {
     return isCapable ? (
       <>
         <BlueText />
-        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType })}</BlueText>
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
       </>
     ) : null;
   };
@@ -213,14 +213,14 @@ const EncryptStorage = () => {
             {loc.settings.biometrics}
           </Text>
           <ListItem
-            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType })}
+            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
             Component={TouchableWithoutFeedback}
             switch={{ value: biometricEnabled, onValueChange: onUseBiometricSwitch, disabled: state.currentLoadingSwitch !== null }}
             isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
             containerStyle={[styles.row, styleHooks.root]}
           />
           <BlueCard>
-            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType })}</BlueText>
+            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</BlueText>
             {renderPasscodeExplanation()}
           </BlueCard>
           <BlueSpacing20 />
