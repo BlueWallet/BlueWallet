@@ -367,7 +367,7 @@ const WalletsList: React.FC = () => {
     const anchor = findNodeHandle(walletActionButtonsRef.current);
 
     if (anchor) {
-      options.push(anchor);
+      options.push(String(anchor));
     }
 
     ActionSheet.showActionSheetWithOptions(props, buttonIndex => {
