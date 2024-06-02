@@ -213,6 +213,9 @@
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
     "file_saved_at_path": "The file ({fileName}) has been saved in your Downloads folder.",
+    "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
+    "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
+    "cant_find_bip47_notification": "Add this Payment Code to contacts first",
     "problem_with_psbt": "Problem with PSBT"
   },
   "settings": {
