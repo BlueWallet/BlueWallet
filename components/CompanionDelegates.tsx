@@ -16,6 +16,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from '../hooks/context/useStorage';
+import { fetchAndSaveWalletTransactions, refreshAllWalletTransactions } from './Context/StorageProvider';
 
 const MenuElements = lazy(() => import('../components/MenuElements'));
 const DeviceQuickActions = lazy(() => import('../components/DeviceQuickActions'));
@@ -38,7 +39,16 @@ if (Platform.OS === 'android') {
 }
 
 const CompanionDelegates = () => {
-  const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
+  const {
+    wallets,
+    addWallet,
+    saveToDisk,
+    setSharedCosigner,
+    setWallets,
+    txMetadata,
+    counterpartyMetadata,
+    setWalletTransactionUpdateStatus,
+  } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>();
 
@@ -58,7 +68,7 @@ const CompanionDelegates = () => {
     for (const payload of notifications2process) {
       const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
-      console.log('processing push notification:', payload);
+      console.debug('processing push notification:', payload);
       let wallet;
       switch (+payload.type) {
         case 2:
@@ -73,7 +83,7 @@ const CompanionDelegates = () => {
 
       if (wallet) {
         const walletID = wallet.getID();
-        fetchAndSaveWalletTransactions(walletID);
+        fetchAndSaveWalletTransactions(walletID, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata, wallets);
         if (wasTapped) {
           if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
             navigationRef.dispatch(
@@ -98,16 +108,16 @@ const CompanionDelegates = () => {
           return true;
         }
       } else {
-        console.log('could not find wallet while processing push notification, NOP');
+        console.debug('could not find wallet while processing push notification, NOP');
       }
     }
 
     if (deliveredNotifications.length > 0) {
-      refreshAllWalletTransactions();
+      refreshAllWalletTransactions(undefined, true, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata);
     }
 
     return false;
-  }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
+  }, [wallets, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata]);
 
   const handleOpenURL = useCallback(
     (event: { url: string }) => {

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useEffect, useMemo, useRef, useState, useContext, Dispatch, SetStateAction } from 'react';
 import { InteractionManager } from 'react-native';
 import A from '../../blue_modules/analytics';
 import Notifications from '../../blue_modules/notifications';
@@ -12,14 +12,153 @@ import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 
 const BlueApp = BlueAppClass.getInstance();
 
-// hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
+
+export enum WalletTransactionsStatus {
+  NONE = 'NONE',
+  ALL = 'ALL',
+}
+
+export const getTransactions = BlueApp.getTransactions;
+export const fetchWalletBalances = BlueApp.fetchWalletBalances;
+export const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
+export const getBalance = BlueApp.getBalance;
+export const isStorageEncrypted = BlueApp.storageIsEncrypted;
+export const encryptStorage = BlueApp.encryptStorage;
+export const sleep = BlueApp.sleep;
+export const createFakeStorage = BlueApp.createFakeStorage;
+export const decryptStorage = BlueApp.decryptStorage;
+export const isPasswordInUse = BlueApp.isPasswordInUse;
+export const cachedPassword = BlueApp.cachedPassword;
+export const getItem = BlueApp.getItem;
+export const setItem = BlueApp.setItem;
+
+export const saveToDisk = async (
+  force: boolean = false,
+  setWallets: Dispatch<SetStateAction<TWallet[]>>,
+  txMetadata: React.MutableRefObject<TTXMetadata>,
+  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>
+) => {
+  return new Promise<void>((resolve) => {
+    InteractionManager.runAfterInteractions(async () => {
+      if (BlueApp.getWallets().length === 0 && !force) {
+        console.debug('not saving empty wallets array');
+        resolve();
+        return;
+      }
+      BlueApp.tx_metadata = txMetadata.current;
+      BlueApp.counterparty_metadata = counterpartyMetadata.current;
+      await BlueApp.saveToDisk();
+      setWallets([...BlueApp.getWallets()]);
+      txMetadata.current = BlueApp.tx_metadata;
+      counterpartyMetadata.current = BlueApp.counterparty_metadata;
+      resolve();
+    });
+  });
+};
+
+export const resetWallets = (setWallets: Dispatch<SetStateAction<TWallet[]>>) => {
+  setWallets(BlueApp.getWallets());
+};
+
+export const setWalletsWithNewOrder = async (
+  wlts: TWallet[],
+  setWallets: Dispatch<SetStateAction<TWallet[]>>,
+  txMetadata: React.MutableRefObject<TTXMetadata>,
+  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>
+) => {
+  BlueApp.wallets = wlts;
+  await saveToDisk(false, setWallets, txMetadata, counterpartyMetadata);
+};
+
+export const refreshAllWalletTransactions = async (
+  lastSnappedTo: number | undefined,
+  showUpdateStatusIndicator: boolean,
+  setWalletTransactionUpdateStatus: Dispatch<SetStateAction<WalletTransactionsStatus | string>>,
+  setWallets: Dispatch<SetStateAction<TWallet[]>>,
+  txMetadata: React.MutableRefObject<TTXMetadata>,
+  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>
+) => {
+  return new Promise<void>((resolve) => {
+    InteractionManager.runAfterInteractions(async () => {
+      let noErr = true;
+      try {
+        await BlueElectrum.waitTillConnected();
+        if (showUpdateStatusIndicator) {
+          setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
+        }
+        const paymentCodesStart = Date.now();
+        await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+        const paymentCodesEnd = Date.now();
+        console.debug('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
+        const balanceStart = +new Date();
+        await fetchWalletBalances(lastSnappedTo);
+        const balanceEnd = +new Date();
+        console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await fetchWalletTransactions(lastSnappedTo);
+        const end = +new Date();
+        console.debug('fetch tx took', (end - start) / 1000, 'sec');
+      } catch (err) {
+        noErr = false;
+        console.warn(err);
+      } finally {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      }
+      if (noErr) await saveToDisk(false, setWallets, txMetadata, counterpartyMetadata);
+      resolve();
+    });
+  });
+};
+
+export const fetchAndSaveWalletTransactions = async (
+  walletID: string,
+  setWalletTransactionUpdateStatus: Dispatch<SetStateAction<WalletTransactionsStatus | string>>,
+  setWallets: Dispatch<SetStateAction<TWallet[]>>,
+  txMetadata: React.MutableRefObject<TTXMetadata>,
+  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>,
+  wallets: TWallet[]
+) => {
+  return new Promise<void>((resolve) => {
+    InteractionManager.runAfterInteractions(async () => {
+      const index = wallets.findIndex(wallet => wallet.getID() === walletID);
+      let noErr = true;
+      try {
+        if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
+          console.debug('re-fetch wallet happens too fast; NOP');
+          resolve();
+          return;
+        }
+        _lastTimeTriedToRefetchWallet[walletID] = +new Date();
+
+        await BlueElectrum.waitTillConnected();
+        setWalletTransactionUpdateStatus(walletID);
+        const balanceStart = +new Date();
+        await fetchWalletBalances(index);
+        const balanceEnd = +new Date();
+        console.debug('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+        const start = +new Date();
+        await fetchWalletTransactions(index);
+        const end = +new Date();
+        console.debug('fetch tx took', (end - start) / 1000, 'sec');
+      } catch (err) {
+        noErr = false;
+        console.warn(err);
+      } finally {
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
+      }
+      if (noErr) await saveToDisk(false, setWallets, txMetadata, counterpartyMetadata);
+      resolve();
+    });
+  });
+};
 
 interface StorageContextType {
   wallets: TWallet[];
+  setWallets: Dispatch<SetStateAction<TWallet[]>>;
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
-  txMetadata: TTXMetadata;
-  counterpartyMetadata: TCounterpartyMetadata;
+  txMetadata: React.MutableRefObject<TTXMetadata>;
+  counterpartyMetadata: React.MutableRefObject<TCounterpartyMetadata>;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: string | undefined;
   setSelectedWalletID: (walletID: string | undefined) => void;
@@ -28,13 +167,11 @@ interface StorageContextType {
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
-  fetchAndSaveWalletTransactions: (walletID: string) => Promise<void>;
   walletsInitialized: boolean;
   setWalletsInitialized: (initialized: boolean) => void;
-  refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
-  setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
+  setWalletTransactionUpdateStatus: Dispatch<SetStateAction<WalletTransactionsStatus | string>>;
   isElectrumDisabled: boolean;
   setIsElectrumDisabled: (value: boolean) => void;
   reloadTransactionsMenuActionFunction: () => void;
@@ -55,30 +192,48 @@ interface StorageContextType {
   setItem: typeof BlueApp.setItem;
 }
 
-export enum WalletTransactionsStatus {
-  NONE = 'NONE',
-  ALL = 'ALL',
-}
-// @ts-ignore defaut value does not match the type
-export const StorageContext = createContext<StorageContextType>(undefined);
+const defaultValues: StorageContextType = {
+  wallets: [],
+  setWallets: () => {},
+  setWalletsWithNewOrder: () => {},
+  txMetadata: { current: {} as TTXMetadata } as React.MutableRefObject<TTXMetadata>,
+  counterpartyMetadata: { current: {} as TCounterpartyMetadata } as React.MutableRefObject<TCounterpartyMetadata>,
+  saveToDisk: async () => {},
+  selectedWalletID: undefined,
+  setSelectedWalletID: () => {},
+  addWallet: () => {},
+  deleteWallet: () => {},
+  currentSharedCosigner: '',
+  setSharedCosigner: () => {},
+  addAndSaveWallet: async () => {},
+  walletsInitialized: false,
+  setWalletsInitialized: () => {},
+  resetWallets: () => {},
+  walletTransactionUpdateStatus: WalletTransactionsStatus.NONE,
+  setWalletTransactionUpdateStatus: () => {},
+  isElectrumDisabled: true,
+  setIsElectrumDisabled: () => {},
+  reloadTransactionsMenuActionFunction: () => {},
+  setReloadTransactionsMenuActionFunction: () => {},
+  getTransactions,
+  fetchWalletBalances,
+  fetchWalletTransactions,
+  getBalance,
+  isStorageEncrypted,
+  startAndDecrypt,
+  encryptStorage,
+  sleep,
+  createFakeStorage,
+  decryptStorage,
+  isPasswordInUse,
+  cachedPassword,
+  getItem,
+  setItem,
+};
+
+export const StorageContext = createContext<StorageContextType>(defaultValues);
+
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
-  const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
-  const getTransactions = BlueApp.getTransactions;
-  const fetchWalletBalances = BlueApp.fetchWalletBalances;
-  const fetchWalletTransactions = BlueApp.fetchWalletTransactions;
-  const getBalance = BlueApp.getBalance;
-  const isStorageEncrypted = BlueApp.storageIsEncrypted;
-  const encryptStorage = BlueApp.encryptStorage;
-  const sleep = BlueApp.sleep;
-  const createFakeStorage = BlueApp.createFakeStorage;
-  const decryptStorage = BlueApp.decryptStorage;
-  const isPasswordInUse = BlueApp.isPasswordInUse;
-  const cachedPassword = BlueApp.cachedPassword;
-
-  const getItem = BlueApp.getItem;
-  const setItem = BlueApp.setItem;
-
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [selectedWalletID, setSelectedWalletID] = useState<undefined | string>();
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
@@ -88,6 +243,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
+
+  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
+  const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {});
 
   useEffect(() => {
     BlueElectrum.isDisabled().then(setIsElectrumDisabled);
@@ -99,205 +257,78 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [walletsInitialized]);
 
-  const saveToDisk = useCallback(async (force: boolean = false) => {
-    InteractionManager.runAfterInteractions(async () => {
-      if (BlueApp.getWallets().length === 0 && !force) {
-        console.log('not saving empty wallets array');
-        return;
-      }
-      BlueApp.tx_metadata = txMetadata.current;
-      BlueApp.counterparty_metadata = counterpartyMetadata.current;
-      await BlueApp.saveToDisk();
-      setWallets([...BlueApp.getWallets()]);
-      txMetadata.current = BlueApp.tx_metadata;
-      counterpartyMetadata.current = BlueApp.counterparty_metadata;
-    });
-  }, []);
-
-  const resetWallets = () => {
-    setWallets(BlueApp.getWallets());
-  };
-
-  const setWalletsWithNewOrder = useCallback(
-    (wlts: TWallet[]) => {
-      BlueApp.wallets = wlts;
-      saveToDisk();
-    },
-    [saveToDisk],
-  );
-
-  const refreshAllWalletTransactions = useCallback(
-    async (lastSnappedTo?: number, showUpdateStatusIndicator: boolean = true) => {
-      InteractionManager.runAfterInteractions(async () => {
-        let noErr = true;
-        try {
-          await BlueElectrum.waitTillConnected();
-          if (showUpdateStatusIndicator) {
-            setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
-          }
-          const paymentCodesStart = Date.now();
-          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-          const paymentCodesEnd = Date.now();
-          console.log('fetch payment codes took', (paymentCodesEnd - paymentCodesStart) / 1000, 'sec');
-          const balanceStart = +new Date();
-          await fetchWalletBalances(lastSnappedTo);
-          const balanceEnd = +new Date();
-          console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          const start = +new Date();
-          await fetchWalletTransactions(lastSnappedTo);
-          const end = +new Date();
-          console.log('fetch tx took', (end - start) / 1000, 'sec');
-        } catch (err) {
-          noErr = false;
-          console.warn(err);
-        } finally {
-          setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
-        }
-        if (noErr) await saveToDisk(); // caching
-      });
-    },
-    [fetchWalletBalances, fetchWalletTransactions, saveToDisk],
-  );
-
-  const fetchAndSaveWalletTransactions = useCallback(
-    async (walletID: string) => {
-      InteractionManager.runAfterInteractions(async () => {
-        const index = wallets.findIndex(wallet => wallet.getID() === walletID);
-        let noErr = true;
-        try {
-          // 5sec debounce:
-          if (+new Date() - _lastTimeTriedToRefetchWallet[walletID] < 5000) {
-            console.log('re-fetch wallet happens too fast; NOP');
-            return;
-          }
-          _lastTimeTriedToRefetchWallet[walletID] = +new Date();
-
-          await BlueElectrum.waitTillConnected();
-          setWalletTransactionUpdateStatus(walletID);
-          const balanceStart = +new Date();
-          await fetchWalletBalances(index);
-          const balanceEnd = +new Date();
-          console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          const start = +new Date();
-          await fetchWalletTransactions(index);
-          const end = +new Date();
-          console.log('fetch tx took', (end - start) / 1000, 'sec');
-        } catch (err) {
-          noErr = false;
-          console.warn(err);
-        } finally {
-          setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
-        }
-        if (noErr) await saveToDisk(); // caching
-      });
-    },
-    [fetchWalletBalances, fetchWalletTransactions, saveToDisk, wallets],
-  );
-
-  const addWallet = useCallback((wallet: TWallet) => {
-    BlueApp.wallets.push(wallet);
-    setWallets([...BlueApp.getWallets()]);
-  }, []);
-
-  const deleteWallet = useCallback((wallet: TWallet) => {
-    BlueApp.deleteWallet(wallet);
-    setWallets([...BlueApp.getWallets()]);
-  }, []);
-
-  const addAndSaveWallet = useCallback(
-    async (w: TWallet) => {
-      if (wallets.some(i => i.getID() === w.getID())) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: 'This wallet has been previously imported.' });
-        return;
-      }
-      const emptyWalletLabel = new LegacyWallet().getLabel();
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
-      w.setUserHasSavedExport(true);
-      addWallet(w);
-      await saveToDisk();
-      A(A.ENUM.CREATED_WALLET);
-      presentAlert({
-        hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
-        message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
-      });
-      // @ts-ignore need to type notifications first
-      Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-      // start balance fetching at the background
-      await w.fetchBalance();
-      setWallets([...BlueApp.getWallets()]);
-    },
-    [addWallet, saveToDisk, wallets],
-  );
-
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
-      setWalletsWithNewOrder,
-      txMetadata: txMetadata.current,
-      counterpartyMetadata: counterpartyMetadata.current,
-      saveToDisk,
+      setWallets,
+      setWalletsWithNewOrder: (wallets: TWallet[]) => setWalletsWithNewOrder(wallets, setWallets, txMetadata, counterpartyMetadata),
+      txMetadata,
+      counterpartyMetadata,
+      saveToDisk: (force?: boolean) => saveToDisk(force, setWallets, txMetadata, counterpartyMetadata),
       getTransactions,
       selectedWalletID,
       setSelectedWalletID,
-      addWallet,
-      deleteWallet,
+      addWallet: (wallet: TWallet) => {
+        BlueApp.wallets.push(wallet);
+        setWallets([...BlueApp.getWallets()]);
+      },
+      deleteWallet: (wallet: TWallet) => {
+        BlueApp.deleteWallet(wallet);
+        setWallets([...BlueApp.getWallets()]);
+      },
       currentSharedCosigner,
       setSharedCosigner: setCurrentSharedCosigner,
-      addAndSaveWallet,
-      setItem,
-      getItem,
-      fetchWalletBalances,
-      fetchWalletTransactions,
-      fetchAndSaveWalletTransactions,
-      isStorageEncrypted,
-      encryptStorage,
-      startAndDecrypt,
-      cachedPassword,
-      getBalance,
+      addAndSaveWallet: async (wallet: TWallet) => {
+        if (wallets.some(i => i.getID() === wallet.getID())) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          presentAlert({ message: 'This wallet has been previously imported.' });
+          return;
+        }
+        const emptyWalletLabel = new LegacyWallet().getLabel();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        if (wallet.getLabel() === emptyWalletLabel) wallet.setLabel(loc.wallets.import_imported + ' ' + wallet.typeReadable);
+        wallet.setUserHasSavedExport(true);
+        BlueApp.wallets.push(wallet);
+        await saveToDisk(false, setWallets, txMetadata, counterpartyMetadata);
+        A(A.ENUM.CREATED_WALLET);
+        presentAlert({
+          hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
+          message: wallet.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
+        });
+        Notifications.majorTomToGroundControl(wallet.getAllExternalAddresses(), [], []);
+        await wallet.fetchBalance();
+        setWallets([...BlueApp.getWallets()]);
+      },
       walletsInitialized,
       setWalletsInitialized,
-      refreshAllWalletTransactions,
-      sleep,
-      createFakeStorage,
-      resetWallets,
-      decryptStorage,
-      isPasswordInUse,
+      resetWallets: () => resetWallets(setWallets),
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
       isElectrumDisabled,
       setIsElectrumDisabled,
       reloadTransactionsMenuActionFunction,
       setReloadTransactionsMenuActionFunction,
-    }),
-    [
-      wallets,
-      setWalletsWithNewOrder,
-      saveToDisk,
-      getTransactions,
-      selectedWalletID,
-      addWallet,
-      deleteWallet,
-      currentSharedCosigner,
-      addAndSaveWallet,
-      setItem,
-      getItem,
       fetchWalletBalances,
       fetchWalletTransactions,
-      fetchAndSaveWalletTransactions,
-      isStorageEncrypted,
-      encryptStorage,
-      cachedPassword,
       getBalance,
-      walletsInitialized,
-      refreshAllWalletTransactions,
+      isStorageEncrypted,
+      startAndDecrypt,
+      encryptStorage,
       sleep,
       createFakeStorage,
       decryptStorage,
       isPasswordInUse,
+      cachedPassword,
+      getItem,
+      setItem,
+    }),
+    [
+      wallets,
+      selectedWalletID,
       walletTransactionUpdateStatus,
+      walletsInitialized,
       isElectrumDisabled,
+      currentSharedCosigner,
       reloadTransactionsMenuActionFunction,
     ],
   );

@@ -22,6 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { refreshAllWalletTransactions } from '../../components/Context/StorageProvider';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -98,12 +99,15 @@ const WalletsList: React.FC = () => {
   const currentWalletIndex = useRef<number>(0);
   const {
     wallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
     setSelectedWalletID,
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
+    getTransactions,
+    getBalance,
+    setWalletTransactionUpdateStatus,
+    setWallets,
+    txMetadata,
+    counterpartyMetadata,
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -169,11 +173,18 @@ const WalletsList: React.FC = () => {
         return;
       }
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+      refreshAllWalletTransactions(
+        undefined,
+        showUpdateStatusIndicator,
+        setWalletTransactionUpdateStatus,
+        setWallets,
+        txMetadata,
+        counterpartyMetadata,
+      ).finally(() => {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
       });
     },
-    [isElectrumDisabled, refreshAllWalletTransactions],
+    [isElectrumDisabled, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata],
   );
 
   useEffect(() => {
@@ -210,12 +221,19 @@ const WalletsList: React.FC = () => {
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshAllWalletTransactions(index, false).finally(() => setIsLoading(false));
+          refreshAllWalletTransactions(
+            index,
+            false,
+            setWalletTransactionUpdateStatus,
+            setWallets,
+            txMetadata,
+            counterpartyMetadata,
+          ).finally(() => setIsLoading(false));
         }
         currentWalletIndex.current = index;
       }
     },
-    [isFocused, refreshAllWalletTransactions, setIsLoading, wallets, width],
+    [isFocused, setIsLoading, wallets, width, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata],
   );
 
   const renderListHeaderComponent = useCallback(() => {
