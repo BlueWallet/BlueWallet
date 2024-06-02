@@ -145,7 +145,7 @@ export default function PaymentCodesList() {
         <View style={styles.contactRowContainer}>
           <View style={[styles.circle, { backgroundColor: '#' + color }]} />
           <View style={styles.contactRowBody}>
-            <Text style={[styles.contactRowNameText, { color: colors.shadowColor }]}>{displayName}</Text>
+            <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
           </View>
         </View>
         <View style={styles.stick} />
