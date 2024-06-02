@@ -153,7 +153,7 @@ const TransactionStatus = () => {
       headerRight: () => (
         <TouchableOpacity
           accessibilityRole="button"
-          testID="TransactionDetailsButton"
+          testID="DetailsButton"
           style={[styles.details, stylesHook.details]}
           onPress={navigateToTransactionDetials}
         >

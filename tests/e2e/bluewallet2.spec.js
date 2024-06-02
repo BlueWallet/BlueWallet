@@ -190,11 +190,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // navigate to the transaction details
     await element(by.text('0.0001')).atIndex(0).tap();
-    await element(by.text('Details')).tap();
+    await element(by.text('DetailsButton')).tap();
 
     await element(by.type('android.widget.EditText')).typeText('Test note');
     // save note
-    await element(by.text('Save')).tap();
+    await element(by.text('SaveButton')).tap();
     await element(by.text('OK')).tap();
 
     // close and reopen app
@@ -204,7 +204,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // go back inside the wallet and transaction details
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.text('0.0001')).atIndex(0).tap();
-    await element(by.text('Details')).tap();
+    await element(by.text('DetailsButton')).tap();
 
     // verify note is saved
     let noteText = await extractTextFromElementById('TransactionDetailsMemoInput');
@@ -212,7 +212,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // clear the note
     await element(by.id('TransactionDetailsMemoInput')).replaceText('');
-    await element(by.text('Save')).tap();
+    await element(by.text('SaveButton')).tap();
     await element(by.text('OK')).tap();
 
     // close and reopen app
@@ -222,7 +222,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // go back inside the wallet and transaction details
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.text('0.0001')).atIndex(0).tap();
-    await element(by.text('Details')).tap();
+    await element(by.text('DetailsButton')).tap();
 
     // verify note is cleared
     noteText = await extractTextFromElementById('TransactionDetailsMemoInput');
