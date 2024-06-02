@@ -192,8 +192,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('0.0001')).atIndex(0).tap();
     await element(by.text('Details')).tap();
 
+    await element(by.type('android.widget.EditText')).typeText('Test note');
     // save note
-    await element(by.id('TransactionDetailsMemoInput')).replaceText('Test note');
     await element(by.text('Save')).tap();
     await element(by.text('OK')).tap();
 
