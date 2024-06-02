@@ -505,6 +505,29 @@ const SendDetails = () => {
         }
       }
 
+      // validating payment codes, if any
+      if (!error) {
+        if (transaction.address.startsWith('sp1')) {
+          if (!wallet.allowSilentPaymentSend()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_silentpayment_adress;
+          }
+        }
+
+        if (transaction.address.startsWith('PM')) {
+          if (!wallet.allowBIP47()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_bip47;
+          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+            console.log('validation error');
+            error = loc.send.cant_find_bip47_notification;
+          } else {
+            // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
+            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+          }
+        }
+      }
+
       if (error) {
         scrollView.current?.scrollToIndex({ index });
         setIsLoading(false);
