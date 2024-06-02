@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useLayoutEffect, useReducer, useRef, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useReducer, useRef, useCallback, useMemo } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -19,6 +20,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { fetchAndSaveWalletTransactions } from '../../components/Context/StorageProvider';
+import HeaderRightButton from '../../components/HeaderRightButton';
 
 enum ButtonStatus {
   Possible,
@@ -88,7 +90,7 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
 const TransactionStatus = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs } = state;
-  const { setSelectedWalletID, wallets, txMetadata, counterpartyMetadata } = useStorage();
+  const { setSelectedWalletID, wallets, txMetadata, counterpartyMetadata, setWalletTransactionUpdateStatus, setWallets } = useStorage();
   const { hash, walletID } = useRoute<TransactionStatusProps['route']>().params;
   const { navigate, setOptions, goBack } = useNavigation<TransactionStatusProps['navigation']>();
   const { colors } = useTheme();
@@ -104,12 +106,6 @@ const TransactionStatus = () => {
     },
     iconRoot: {
       backgroundColor: colors.success,
-    },
-    detailsText: {
-      color: colors.buttonTextColor,
-    },
-    details: {
-      backgroundColor: colors.lightButton,
     },
   });
 
@@ -150,20 +146,24 @@ const TransactionStatus = () => {
     navigate('TransactionDetails', { hash: tx.hash, walletID });
   }, [navigate, tx, walletID]);
 
-  useLayoutEffect(() => {
+  const HeaderRight = useMemo(
+    () => (
+      <HeaderRightButton
+        testID="TransactionDetailsButton"
+        onPress={navigateToTransactionDetails}
+        disabled={false}
+        title={loc.send.create_details}
+      />
+    ),
+
+    [tx, walletID, navigateToTransactionDetails],
+  );
+
+  useEffect(() => {
     setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          testID="TransactionDetailsButton"
-          style={[styles.details, stylesHook.details]}
-          onPress={navigateToTransactionDetails}
-        >
-          <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: () => HeaderRight,
     });
-  }, [colors, navigateToTransactionDetails, setOptions, styles.details, styles.detailsText, stylesHook.details, stylesHook.detailsText]);
+  },    [tx, walletID, navigateToTransactionDetails]);
 
   useEffect(() => {
     if (wallet.current) {
@@ -245,12 +245,12 @@ const TransactionStatus = () => {
     }, intervalMs);
   }, [hash, intervalMs, tx, setWalletTransactionUpdateStatus, setWallets, txMetadata, counterpartyMetadata, wallets]);
 
-  const handleBackButton = () => {
-    goBack();
-    return true;
-  };
-
   useEffect(() => {
+    const handleBackButton = () => {
+      goBack();
+      return true;
+    };
+
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
     return () => {
@@ -353,63 +353,6 @@ const TransactionStatus = () => {
       txid: tx.hash,
       wallet: wallet.current,
     });
-  };
-
-  const renderCPFP = () => {
-    if (isCPFPPossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-          <BlueSpacing20 />
-        </>
-      );
-    } else if (isCPFPPossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
-  const renderRBFCancel = () => {
-    if (isRBFCancelPossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-        </>
-      );
-    } else if (isRBFCancelPossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
-            <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
-              {loc.transactions.status_cancel}
-            </Text>
-          </TouchableOpacity>
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
-  const renderRBFBumpFee = () => {
-    if (isRBFBumpFeePossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-          <BlueSpacing20 />
-        </>
-      );
-    } else if (isRBFBumpFeePossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
-          <BlueSpacing10 />
-        </>
-      );
-    }
   };
 
   const shortenCounterpartyName = (addr: string): string => {
@@ -537,9 +480,45 @@ const TransactionStatus = () => {
         </BlueCard>
 
         <View style={styles.actions}>
-          {renderCPFP()}
-          {renderRBFBumpFee()}
-          {renderRBFCancel()}
+          {isCPFPPossible === ButtonStatus.Unknown && (
+            <>
+              <ActivityIndicator />
+              <BlueSpacing20 />
+            </>
+          )}
+          {isCPFPPossible === ButtonStatus.Possible && (
+            <>
+              <Button onPress={navigateToCPFP} title={loc.transactions.status_bump} />
+              <BlueSpacing10 />
+            </>
+          )}
+          {isRBFBumpFeePossible === ButtonStatus.Unknown && (
+            <>
+              <ActivityIndicator />
+              <BlueSpacing20 />
+            </>
+          )}
+          {isRBFBumpFeePossible === ButtonStatus.Possible && (
+            <>
+              <Button onPress={navigateToRBFBumpFee} title={loc.transactions.status_bump} />
+              <BlueSpacing10 />
+            </>
+          )}
+          {isRBFCancelPossible === ButtonStatus.Unknown && (
+            <>
+              <ActivityIndicator />
+            </>
+          )}
+          {isRBFCancelPossible === ButtonStatus.Possible && (
+            <>
+              <TouchableOpacity accessibilityRole="button" style={styles.cancel}>
+                <Text onPress={navigateToRBFCancel} style={styles.cancelText}>
+                  {loc.transactions.status_cancel}
+                </Text>
+              </TouchableOpacity>
+              <BlueSpacing10 />
+            </>
+          )}
         </View>
       </View>
     </SafeArea>
