@@ -311,7 +311,6 @@
     "cpfp_title": "Phí tăng (CPFP)",
     "details_balance_hide": "Giấu số dư",
     "details_balance_show": "Hiển thị số dư ",
-    "details_block": "Chiều cao khối",
     "details_copy": "Sao chép",
     "details_copy_amount": "Sao chép số tiền",
     "details_copy_block_explorer_link": "Sao chép liên kết Block Explorer",
@@ -322,7 +321,7 @@
     "details_outputs": "Các đầu ra",
     "date": "Ngày",
     "details_received": "Đã nhận",
-    "transaction_note_saved": "Ghi chú giao dịch đã được lưu thành công.",
+    "transaction_saved": "Đã lưu",
     "details_show_in_block_explorer": "Xem trong Block Explorer",
     "details_title": "Giao dịch",
     "details_to": "Đầu ra",
@@ -411,7 +410,6 @@
     "list_empty_txs2": "Bắt đầu với ví của bạn.",
     "list_empty_txs2_lightning": "\nĐể bắt đầu sử dụng nó, chạm vào Quản lý tiền, và nạp tiền vào số dư của bạn. ",
     "list_latest_transaction": "Giao dịch mới nhất",
-    "list_ln_browser": "Trình duyệt LApp",
     "list_long_choose": "Chọn hình",
     "list_long_clipboard": "Sao chép từ bảng tạm",
     "list_long_scan": "Quét mã QR",
@@ -554,8 +552,6 @@
   },
   "bip47": {
     "payment_code": "Mã thanh toán",
-    "payment_codes_list": "Danh sách mã thanh toán",
-    "who_can_pay_me": "Ai có thể trả cho tôi:",
     "purpose": "Mã có thể sử dụng lại và có thể chia sẻ (BIP47)",
     "not_found": "Không tìm thấy mã thanh toán"
   }

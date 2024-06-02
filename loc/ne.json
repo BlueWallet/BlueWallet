@@ -273,6 +273,7 @@
     "details_copy_note": "नोट कापी",
     "date": "मिति",
     "details_received": "प्राप्त भयो",
+    "transaction_saved": "बचत गरियो",
     "details_title": "लेनदेन",
     "pending": "पेनदिंग",
     "list_title": "लेनदेन",
@@ -403,8 +404,6 @@
   },
   "bip47": {
     "payment_code": "भुक्तानी कोड",
-    "payment_codes_list": "भुक्तानी कोड सूची",
-    "who_can_pay_me": "कसले मलाई तिर्न सक्छ:",
     "not_found": "भुक्तानी कोड फेला परेन"
   }
 }
