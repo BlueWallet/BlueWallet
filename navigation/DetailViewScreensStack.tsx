@@ -25,7 +25,7 @@ import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/addresses';
-import WalletDetails from '../screen/wallets/details';
+import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import LdkViewLogs from '../screen/wallets/ldkViewLogs';
 import SelectWallet from '../screen/wallets/selectWallet';
@@ -72,15 +72,10 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import { StackActions } from '@react-navigation/native';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-
-  const popToTop = () => {
-    navigation.dispatch(StackActions.popToTop());
-  };
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);

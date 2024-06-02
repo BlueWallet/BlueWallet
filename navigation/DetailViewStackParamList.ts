@@ -7,7 +7,9 @@ export type DetailViewStackParamList = {
   LDKOpenChannelRoot: undefined;
   LdkInfo: undefined;
   WalletDetails: { walletID: string };
-  LdkViewLogs: undefined;
+  LdkViewLogs: {
+    walletID: string;
+  };
   TransactionDetails: { transactionId: string };
   TransactionStatus: { hash?: string; walletID?: string };
   CPFP: { transactionId: string };
@@ -41,8 +43,18 @@ export type DetailViewStackParamList = {
     };
   };
   AztecoRedeemRoot: undefined;
-  WalletExportRoot: undefined;
-  ExportMultisigCoordinationSetupRoot: undefined;
+  WalletExportRoot: {
+    screen: string;
+    params: {
+      walletID: string;
+    };
+  };
+  ExportMultisigCoordinationSetupRoot: {
+    screen: string;
+    params: {
+      walletID: string;
+    };
+  };
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
@@ -62,8 +74,17 @@ export type DetailViewStackParamList = {
   ReleaseNotes: undefined;
   Tools: undefined;
   SettingsPrivacy: undefined;
-  ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
-  WalletXpubRoot: undefined;
+  ViewEditMultisigCosignersRoot: { 
+    screen: string, 
+    params: 
+    { walletID: string }
+  };
+  WalletXpubRoot: {
+    screen: string;
+    params: {
+      walletID: string;
+    };
+  };
   SignVerifyRoot: {
     screen: 'SignVerify';
     params: {

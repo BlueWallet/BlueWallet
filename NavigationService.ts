@@ -1,4 +1,4 @@
-import { createNavigationContainerRef, NavigationAction, ParamListBase } from '@react-navigation/native';
+import { createNavigationContainerRef, NavigationAction, ParamListBase, StackActions } from '@react-navigation/native';
 
 export const navigationRef = createNavigationContainerRef<ParamListBase>();
 
@@ -20,5 +20,11 @@ export function reset() {
       index: 0,
       routes: [{ name: 'UnlockWithScreenRoot' }],
     });
+  }
+}
+
+export function popToTop() {
+  if (navigationRef.isReady()) {
+    navigationRef.current?.dispatch(StackActions.popToTop());
   }
 }
