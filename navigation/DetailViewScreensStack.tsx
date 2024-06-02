@@ -83,6 +83,7 @@ const DetailViewStackScreensStack = () => {
   };
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.details_save} />, []);
+  const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const SettingsButton = (
@@ -148,7 +149,14 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="TransactionDetails"
         component={TransactionDetails}
-        options={TransactionDetails.navigationOptions(theme)}
+        options={navigationStyle({
+          statusBarStyle: 'auto',
+          headerStyle: {
+            backgroundColor: theme.colors.customHeader,
+          },
+          headerTitle: loc.transactions.details_title,
+          headerRight: () => DetailButton,
+        })(theme)}
       />
       <DetailViewStack.Screen
         name="TransactionStatus"
@@ -163,7 +171,7 @@ const DetailViewStackScreensStack = () => {
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
-          headerRight: () => SaveButton,
+          headerRight: () => DetailButton,
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
