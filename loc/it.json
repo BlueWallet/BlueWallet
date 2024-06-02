@@ -316,7 +316,6 @@
     "cpfp_title": "Aumenta la commissione (CPFP)",
     "details_balance_hide": "Nascondi il saldo",
     "details_balance_show": "Mostra il saldo",
-    "details_block": "Altezza del blocco",
     "details_copy": "Copia",
     "details_copy_amount": "Copia importo",
     "details_copy_block_explorer_link": "Copia link del Block Explorer",
@@ -327,7 +326,7 @@
     "details_outputs": "Output",
     "date": "Data",
     "details_received": "Ricevuto",
-    "transaction_note_saved": "La transazione è stata registrata con successo.",
+    "transaction_saved": "Salvato",
     "details_show_in_block_explorer": "Mostra sul block explorer",
     "details_title": "Transazione",
     "details_to": "A",
@@ -416,7 +415,6 @@
     "list_empty_txs2": "Inizia con il tuo wallet.",
     "list_empty_txs2_lightning": "\nPer iniziare ad usarlo, seleziona Gestisci Fondi e ricarica il tuo saldo.",
     "list_latest_transaction": "Transazioni recenti",
-    "list_ln_browser": "Browser LApp",
     "list_long_choose": "Scegli foto",
     "list_long_clipboard": "Copia dagli appunti",
     "list_long_scan": "Scansiona un codice QR",
@@ -559,8 +557,6 @@
   },
   "bip47": {
     "payment_code": "Codice di pagamento",
-    "payment_codes_list": "Lista dei codici di pagamento",
-    "who_can_pay_me": "Chi può pagarmi:",
     "purpose": "Codice (BIP47) riutilizzabile e condivisibile",
     "not_found": "Codice di pagamento non trovato"
   }

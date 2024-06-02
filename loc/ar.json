@@ -318,7 +318,6 @@
     "cpfp_title": "تسريع المعاملة (CPFP)",
     "details_balance_hide": "إخفاء الرصيد",
     "details_balance_show": "عرض الرصيد",
-    "details_block": "ارتفاع الكتلة",
     "details_copy": "نسخ",
     "details_copy_amount": "نسخ المبلغ",
     "details_copy_block_explorer_link": "نسخ رابط متصفح الكتل",
@@ -329,7 +328,7 @@
     "details_outputs": "المخرجات",
     "date": "التاريخ",
     "details_received": "التاريخ",
-    "transaction_note_saved": "تم حفظ مذكرة المعاملة بنجاح.",
+    "transaction_saved": "تم الحفظ",
     "details_show_in_block_explorer": "العرض في مستكشف الكتل",
     "details_title": "العملية",
     "details_to": "إلى",
@@ -418,9 +417,9 @@
     "list_empty_txs2": "ابدأ بمحفظتك",
     "list_empty_txs2_lightning": "\nللبدء في استخدامها، اضغط على \"إدارة الأموال\" واشحن رصيدك.",
     "list_latest_transaction": "آخر عملية",
-    "list_ln_browser": "متصفح LApp",
     "list_long_choose": "اختيار صورة",
     "list_long_clipboard": "النسخ من الحافظة",
+    "import_file": "استيراد ملف",
     "list_long_scan": "مسح رمز الاستجابة (QR) ضوئيًا",
     "list_title": "المحافظ",
     "list_tryagain": "إعادة المحاولة",
@@ -561,8 +560,6 @@
   },
   "bip47": {
     "payment_code": "كود الدفع",
-    "payment_codes_list": "قائمة أكواد الدفع",
-    "who_can_pay_me": "من يستطيع الدفع لي:",
     "purpose": "أكواد المشاركة التي يمكن أعادة استخدامها (BIP47)",
     "not_found": "لم يتم العثور على كود الدفع"
   }

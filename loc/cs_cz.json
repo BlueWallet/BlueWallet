@@ -125,7 +125,8 @@
     "maxSats": "Maximální množství je {max} sats",
     "maxSatsFull": "Maximální částka je {max} sats nebo {currency} ",
     "minSats": "Minimální množství je {min} sats",
-    "minSatsFull": "Minimální částka je {min} sats nebo {currency} "
+    "minSatsFull": "Minimální částka je {min} sats nebo {currency} ",
+    "qrcode_for_the_address": "QR kód pro adresu"
   },
   "send": {
     "provided_address_is_invoice": "Zdá se, že tato adresa je určena pro Lightning fakturu. Přejděte prosím do své Lightning peněženky, abyste mohli provést platbu této faktury.",
@@ -166,6 +167,7 @@
     "details_next": "Další",
     "details_no_signed_tx": "Vybraný soubor neobsahuje transakci, kterou lze importovat.",
     "details_note_placeholder": "Poznámka pro sebe",
+    "counterparty_label_placeholder": "Upravit jméno kontaktu",
     "details_scan": "Skenovat",
     "details_scan_hint": "Dvojitým klepnutím naskenujete nebo importujete cíl",
     "details_total_exceeds_balance": "Částka, kterou se snažíte odeslat, přesahuje dostupný zůstatek.",
@@ -275,6 +277,7 @@
     "encrypt_title": "Zabezpečení",
     "encrypt_tstorage": "Úložiště",
     "encrypt_use": "Použít {type}",
+    "encrypted_feature_disabled": "Tato funkce nemůže být použita, pokud je povoleno zašifrované úložiště.",
     "encrypt_use_expl": "{type} bude použit k potvrzení vaší identity před provedením transakce, odemknutím, exportem nebo smazáním peněženky. {type} nebude použit k odemknutí zašifrovaného úložiště.",
     "biometrics_fail": "Pokud {type} není povolen, nebo selže při odemykání, můžete jako alternativu použít přístupový kód vašeho zařízení.",
     "general": "Obecné",
@@ -340,7 +343,6 @@
     "cpfp_title": "Poplatek za popostrčení (CPFP)",
     "details_balance_hide": "Skrýt zůstatek",
     "details_balance_show": "Zobrazit zůstatek",
-    "details_block": "Výška bloku",
     "details_copy": "Zkopírovat",
     "details_copy_amount": "Zkopírovat částku",
     "details_copy_block_explorer_link": "Zkopírovat odkaz na průzkumník bloků",
@@ -351,7 +353,7 @@
     "details_outputs": "Výstupy",
     "date": "Datum",
     "details_received": "Přijato",
-    "transaction_note_saved": "Poznámka k transakci byla úspěšně uložena.",
+    "transaction_saved": "Uloženo",
     "details_show_in_block_explorer": "Zobrazit v průzkumníku bloků",
     "details_title": "Transakce",
     "details_to": "Výstup",
@@ -372,6 +374,8 @@
     "status_cancel": "Zrušit transakci",
     "transactions_count": "Počet transakcí",
     "txid": "ID transakce",
+    "from": "Od: {counterparty}",
+    "to": "Pro: {counterparty}",
     "updating": "Aktualizování…"
   },
   "wallets": {
@@ -449,9 +453,9 @@
     "list_empty_txs2": "Začněte s peněženkou.",
     "list_empty_txs2_lightning": "\nChcete-li ji začít používat, klepněte na „Správa prostředků“ a doplňte zůstatek.",
     "list_latest_transaction": "Poslední transakce",
-    "list_ln_browser": "Prohlížeč LApp",
     "list_long_choose": "Vybrat fotku",
     "list_long_clipboard": "Kopírovat ze schránky",
+    "import_file": "Importovat soubor",
     "list_long_scan": "Naskenovat QR kód",
     "list_title": "Peněženky",
     "list_tryagain": "Zkuste to znovu",
@@ -613,9 +617,23 @@
   },
   "bip47": {
     "payment_code": "Platební kód",
-    "payment_codes_list": "Seznam platebních kódů",
-    "who_can_pay_me": "Kdo mi může zaplatit:",
+    "my_payment_code": "Můj platební kód",
+    "contacts": "Kontakty",
     "purpose": "Opakovaně použitelný kód, který je možné sdílet (BIP47)",
+    "pay_this_contact": "Zaplatit tomuto kontaktu",
+    "rename_contact": "Přejmenovat kontakt",
+    "copy_payment_code": "Zkopírovat platební kód",
+    "copied": "Zkopírováno",
+    "rename": "Přejmenovat",
+    "provide_name": "Poskytněte nové jméno pro tento kontakt",
+    "add_contact": "Přidat kontakt",
+    "provide_payment_code": "Poskytnout platební kód",
+    "invalid_pc": "Neplatný platební kód",
+    "notification_tx_unconfirmed": "Oznamovací transakce ještě není potvrzena, počkejte prosím",
+    "failed_create_notif_tx": "Vytvoření on-chain transakce selhalo",
+    "onchain_tx_needed": "Je vyžadována on-chain transakce",
+    "notif_tx_sent": "Oznamovací transakce byla odeslána. Počkejte prosím, než bude potvrzena",
+    "notif_tx": "Oznamovací transakce",
     "not_found": "Platební kód nebyl nalezen"
   }
 }

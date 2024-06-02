@@ -336,7 +336,6 @@
     "cpfp_title": "הקפץ עמלה (CPFP)",
     "details_balance_hide": "הסתרת מאזן",
     "details_balance_show": "הצגת מאזן",
-    "details_block": "גובה הבלוק",
     "details_copy": "העתקה",
     "details_copy_amount": "העתקת סכום",
     "details_copy_block_explorer_link": "העתקת קישור סייר בלוקים",
@@ -347,7 +346,7 @@
     "details_outputs": "פלטים",
     "date": "תאריך",
     "details_received": "התקבל",
-    "transaction_note_saved": "הערת פעולה נשמרה בהצלחה.",
+    "transaction_saved": "נשמר",
     "details_show_in_block_explorer": "צפייה בסייר בלוקים",
     "details_title": "פעולה",
     "details_to": "פלט",
@@ -446,6 +445,7 @@
     "list_latest_transaction": "פעולה אחרונה",
     "list_long_choose": "בחר תמונה",
     "list_long_clipboard": "העתקה מלוח",
+    "import_file": "יבוא קובץ",
     "list_long_scan": "סריקת קוד QR",
     "list_title": "ארנקים",
     "list_tryagain": "נסו שוב",
@@ -599,8 +599,6 @@
   },
   "bip47": {
     "payment_code": "קוד תשלום",
-    "payment_codes_list": "רשימת קודי תשלום",
-    "who_can_pay_me": "מי יכול לשלם לי:",
     "purpose": "קוד רב-פעמי ובר-שיתוף (BIP47)",
     "not_found": "קוד תשלום לא נמצא"
   }
