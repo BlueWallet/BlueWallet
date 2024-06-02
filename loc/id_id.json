@@ -292,7 +292,7 @@
     "details_inputs": "Input",
     "date": "Tanggal",
     "details_received": "Diterima",
-    "transaction_note_saved": "Catatan transaksi telah berhasil tersimpan.",
+    "transaction_saved": "Tersimpan",
     "details_show_in_block_explorer": "Tampilkan di block explorer",
     "details_title": "Transaksi",
     "pending": "tertunda",

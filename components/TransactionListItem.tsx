@@ -73,7 +73,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     if (sub !== '') sub += ' ';
     sub += txMemo;
     if (item.memo) sub += item.memo;
-    return sub || null;
+    return sub || undefined;
   }, [txMemo, item.confirmations, item.memo]);
 
   const rowTitle = useMemo(() => {
@@ -87,7 +87,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
       if (invoiceExpiration > now) {
         return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
-      } else if (invoiceExpiration < now) {
+      } else {
         if (item.ispaid) {
           return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
         } else {
@@ -249,7 +249,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
-  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle ?? ''), [subtitle]);
   const handleOnViewOnBlockExplorer = useCallback(() => {
     const url = `https://mempool.space/tx/${item.hash}`;
     Linking.canOpenURL(url).then(supported => {
