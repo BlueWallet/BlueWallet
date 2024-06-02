@@ -105,7 +105,14 @@ const TransactionDetails = () => {
   }, [tx, txMetadata, memo, counterpartyLabel, paymentCode, saveToDisk, counterpartyMetadata]);
 
   const HeaderRight = useMemo(
-    () => <HeaderRightButton onPress={handleOnSaveButtonTapped} disabled={false} title={loc.wallets.details_save} />,
+    () => (
+      <HeaderRightButton
+        onPress={handleOnSaveButtonTapped}
+        testID="TransactionDetailsButton"
+        disabled={false}
+        title={loc.wallets.details_save}
+      />
+    ),
 
     [handleOnSaveButtonTapped],
   );
