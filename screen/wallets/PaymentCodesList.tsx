@@ -118,16 +118,42 @@ export default function PaymentCodesList() {
     }
 
     if (String(id) === String(Actions.pay)) {
-      // @ts-ignore idk how to fix
-      navigation.navigate('SendDetailsRoot', {
-        screen: 'SendDetails',
-        params: {
-          memo: '',
-          address: pc,
-          walletID,
-        },
-      });
+      const cl = new ContactList();
+      if (cl.isBip352PaymentCodeValid(pc)) {
+        // ok its a SilentPayments code, ok to just send
+        _navigateToSend(pc);
+        return;
+      }
+
+      // check if notif tx is in place and has confirmations
+      const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
+      assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+      const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
+      if (!notifTx) {
+        await _addContact(pc);
+        return;
+      }
+
+      if (!notifTx.confirmations) {
+        // when we just sent the confirmation tx and it havent confirmed yet
+        presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+        return;
+      }
+
+      _navigateToSend(pc);
     }
+  };
+
+  const _navigateToSend = (pc: string) => {
+    // @ts-ignore idk how to fix
+    navigation.navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: {
+        memo: '',
+        address: pc,
+        walletID,
+      },
+    });
   };
 
   const renderItem = (pc: string) => {
@@ -165,84 +191,89 @@ export default function PaymentCodesList() {
 
   const onAddContactPress = async () => {
     try {
-      const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-      assert(foundWallet);
-
       const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, true, 'plain-text');
       if (!newPc) return;
-      const cl = new ContactList();
 
-      if (!cl.isPaymentCodeValid(newPc)) {
-        presentAlert({ message: loc.bip47.invalid_pc });
-        return;
-      }
-
-      if (cl.isBip352PaymentCodeValid(newPc)) {
-        // ok its a SilentPayments code, notification tx is not needed, just add it to recipients:
-        foundWallet.addBIP47Receiver(newPc);
-        setReload(Math.random());
-        return;
-      }
-
-      setIsLoading(true);
-
-      const notificationTx = foundWallet.getBIP47NotificationTransaction(newPc);
-
-      if (notificationTx && notificationTx.confirmations > 0) {
-        // we previously sent notification transaction to him, so just need to add him to internals
-        foundWallet.addBIP47Receiver(newPc);
-        await foundWallet.syncBip47ReceiversAddresses(newPc); // so we can unwrap and save all his possible addresses
-        // (for a case if already have txs with him, we will now be able to label them on tx list)
-        await saveToDisk();
-        setReload(Math.random());
-        return;
-      }
-
-      if (notificationTx && notificationTx.confirmations === 0) {
-        // for a rare case when we just sent the confirmation tx and it havent confirmed yet
-        presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
-        return;
-      }
-
-      // need to send notif tx:
-
-      setLoadingText('Fetching UTXO...');
-      await foundWallet.fetchUtxo();
-      setLoadingText('Fetching fees...');
-      const fees = await BlueElectrum.estimateFees();
-      setLoadingText('Fetching change address...');
-      const changeAddress = await foundWallet.getChangeAddressAsync();
-      setLoadingText('Crafting notification transaction...');
-      const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
-
-      if (!tx) {
-        presentAlert({ message: loc.bip47.failed_create_notif_tx });
-        return;
-      }
-
-      setLoadingText('');
-      if (
-        await confirm(
-          loc.bip47.onchain_tx_needed,
-          `${loc.send.create_fee}: ${formatBalance(fee, BitcoinUnit.BTC)} (${satoshiToLocalCurrency(fee)}). `,
-        )
-      ) {
-        setLoadingText('Broadcasting...');
-        try {
-          await foundWallet.broadcastTx(tx.toHex());
-          foundWallet.addBIP47Receiver(newPc);
-          presentAlert({ message: loc.bip47.notif_tx_sent });
-          txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
-          setReload(Math.random());
-          await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
-        } catch (_) {}
-        setLoadingText('Fetching transactions...');
-        await foundWallet.fetchTransactions();
-      }
+      await _addContact(newPc);
     } catch (error: any) {
       presentAlert({ message: error.message });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const _addContact = async (newPc: string) => {
+    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
+    assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+
+    const cl = new ContactList();
+
+    if (!cl.isPaymentCodeValid(newPc)) {
+      presentAlert({ message: loc.bip47.invalid_pc });
+      return;
+    }
+
+    if (cl.isBip352PaymentCodeValid(newPc)) {
+      // ok its a SilentPayments code, notification tx is not needed, just add it to recipients:
+      foundWallet.addBIP47Receiver(newPc);
+      setReload(Math.random());
+      return;
+    }
+
+    setIsLoading(true);
+
+    const notificationTx = foundWallet.getBIP47NotificationTransaction(newPc);
+
+    if (notificationTx && notificationTx.confirmations > 0) {
+      // we previously sent notification transaction to him, so just need to add him to internals
+      foundWallet.addBIP47Receiver(newPc);
+      await foundWallet.syncBip47ReceiversAddresses(newPc); // so we can unwrap and save all his possible addresses
+      // (for a case if already have txs with him, we will now be able to label them on tx list)
+      await saveToDisk();
+      setReload(Math.random());
+      return;
+    }
+
+    if (notificationTx && notificationTx.confirmations === 0) {
+      // for a rare case when we just sent the confirmation tx and it havent confirmed yet
+      presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+      return;
+    }
+
+    // need to send notif tx:
+
+    setLoadingText('Fetching UTXO...');
+    await foundWallet.fetchUtxo();
+    setLoadingText('Fetching fees...');
+    const fees = await BlueElectrum.estimateFees();
+    setLoadingText('Fetching change address...');
+    const changeAddress = await foundWallet.getChangeAddressAsync();
+    setLoadingText('Crafting notification transaction...');
+    const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
+
+    if (!tx) {
+      presentAlert({ message: loc.bip47.failed_create_notif_tx });
+      return;
+    }
+
+    setLoadingText('');
+    if (
+      await confirm(
+        loc.bip47.onchain_tx_needed,
+        `${loc.send.create_fee}: ${formatBalance(fee, BitcoinUnit.BTC)} (${satoshiToLocalCurrency(fee)}). `,
+      )
+    ) {
+      setLoadingText('Broadcasting...');
+      try {
+        await foundWallet.broadcastTx(tx.toHex());
+        foundWallet.addBIP47Receiver(newPc);
+        presentAlert({ message: loc.bip47.notif_tx_sent });
+        txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
+        setReload(Math.random());
+        await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
+      } catch (_) {}
+      setLoadingText('Fetching transactions...');
+      await foundWallet.fetchTransactions();
     }
   };
 
