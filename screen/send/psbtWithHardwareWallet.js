@@ -16,14 +16,14 @@ import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;

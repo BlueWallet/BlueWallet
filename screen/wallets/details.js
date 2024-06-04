@@ -41,7 +41,7 @@ import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
 
 const WalletDetails = () => {
   const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);

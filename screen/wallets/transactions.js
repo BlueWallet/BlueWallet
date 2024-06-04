@@ -35,7 +35,7 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
@@ -57,7 +57,7 @@ const WalletTransactions = ({ navigation }) => {
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
