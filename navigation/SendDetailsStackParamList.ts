@@ -60,6 +60,7 @@ export type SendDetailsStackParamList = {
   Success: {
     fee: number;
     amount: number;
+    txid?: string;
   };
   SelectWallet: {
     onWalletSelect: (wallet: TWallet) => void;
