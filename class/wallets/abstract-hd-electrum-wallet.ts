@@ -1634,8 +1634,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   createBip47NotificationTransaction(utxos: CreateTransactionUtxo[], receiverPaymentCode: string, feeRate: number, changeAddress: string) {
     const aliceBip47 = BIP47Factory(ecc).fromBip39Seed(this.getSecret(), undefined, this.getPassphrase());
     const bobBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
-    assert(utxos[0]);
-    assert(utxos[0].wif);
+    assert(utxos[0], 'No UTXO');
+    assert(utxos[0].wif, 'No UTXO WIF');
 
     // constructing targets: notification address, _dummy_ payload (+potential change might be added later)
 
@@ -1662,7 +1662,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       false,
       0,
     );
-    assert(inputsTemp?.[0]?.wif);
+    assert(inputsTemp?.[0]?.wif, 'inputsTemp?.[0]?.wif assert failed');
 
     // utxo selected. lets create op_return payload using the correct (first!) utxo and correct targets with that payload
 
@@ -1701,8 +1701,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       false,
       0,
     );
-    assert(inputs && inputs[0] && inputs[0].wif);
-    assert(inputs[0].txid === inputsTemp[0].txid); // making sure that no funky business happened under the hood (its supposed to stay the same)
+    assert(inputs && inputs[0] && inputs[0].wif, 'inputs && inputs[0] && inputs[0].wif assert failed');
+    assert(inputs[0].txid === inputsTemp[0].txid, 'inputs[0].txid === inputsTemp[0].txid assert failed'); // making sure that no funky business happened under the hood (its supposed to stay the same)
 
     return { tx, inputs, outputs, fee, psbt };
   }

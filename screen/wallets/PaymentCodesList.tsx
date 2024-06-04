@@ -249,6 +249,11 @@ export default function PaymentCodesList() {
     setLoadingText('Fetching change address...');
     const changeAddress = await foundWallet.getChangeAddressAsync();
     setLoadingText('Crafting notification transaction...');
+    if (foundWallet.getUtxo().length === 0) {
+      // no balance..?
+      presentAlert({ message: loc.send.details_total_exceeds_balance });
+      return;
+    }
     const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
 
     if (!tx) {
