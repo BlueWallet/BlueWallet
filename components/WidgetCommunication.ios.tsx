@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-import { TWallet } from '../class/wallets/types';
+import { TWallet, Transaction } from '../class/wallets/types';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -13,7 +14,7 @@ enum WidgetCommunicationKeys {
 
 export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
   try {
-    await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     const displayBalance = await DefaultPreference.get(WidgetCommunicationKeys.DisplayBalanceAllowed);
     return displayBalance === '1';
   } catch {
@@ -23,19 +24,12 @@ export const isBalanceDisplayAllowed = async (): Promise<boolean> => {
 };
 
 export const setBalanceDisplayAllowed = async (value: boolean): Promise<void> => {
-  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   if (value) {
     await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, '1');
   } else {
     await DefaultPreference.clear(WidgetCommunicationKeys.DisplayBalanceAllowed);
   }
-};
-
-export const syncWidgetBalanceWithWallets = async (wallets: TWallet[], walletsInitialized: boolean): Promise<void> => {
-  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
-  const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime(wallets, walletsInitialized);
-  await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance));
-  await DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime));
 };
 
 const allWalletsBalanceAndTransactionTime = async (
@@ -47,15 +41,23 @@ const allWalletsBalanceAndTransactionTime = async (
   }
   let balance = 0;
   let latestTransactionTime: number | string = 0;
-  wallets.forEach((wallet: TWallet) => {
-    if (wallet.hideBalance) return;
-    balance += wallet.getBalance();
-    const walletLatestTime = wallet.getLatestTransactionTimeEpoch();
-    if (typeof latestTransactionTime === 'number' && walletLatestTime > latestTransactionTime) {
-      latestTransactionTime =
-        wallet.getTransactions()[0]?.confirmations === 0 ? WidgetCommunicationKeys.LatestTransactionIsUnconfirmed : walletLatestTime;
+
+  for (const wallet of wallets) {
+    if (wallet.hideBalance) continue;
+    balance += await wallet.getBalance();
+
+    const transactions: Transaction[] = await wallet.getTransactions();
+    for (const transaction of transactions) {
+      const transactionTime = await wallet.getLatestTransactionTimeEpoch();
+      if (transaction.confirmations > 0 && transactionTime > Number(latestTransactionTime)) {
+        latestTransactionTime = transactionTime;
+      }
     }
-  });
+
+    if (latestTransactionTime === 0 && transactions[0]?.confirmations === 0) {
+      latestTransactionTime = WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
+    }
+  }
 
   return { allWalletsBalance: balance, latestTransactionTime };
 };
@@ -64,11 +66,24 @@ const WidgetCommunication: React.FC = () => {
   const { wallets, walletsInitialized } = useStorage();
   const { isWidgetBalanceDisplayAllowed } = useSettings();
 
+  const syncWidgetBalanceWithWallets = useCallback(async (): Promise<void> => {
+    try {
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+      const { allWalletsBalance, latestTransactionTime } = await allWalletsBalanceAndTransactionTime(wallets, walletsInitialized);
+      await Promise.all([
+        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
+        DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime)),
+      ]);
+    } catch (error) {
+      console.error('Failed to sync widget balance with wallets:', error);
+    }
+  }, [wallets, walletsInitialized]);
+
   useEffect(() => {
     if (walletsInitialized) {
-      syncWidgetBalanceWithWallets(wallets, walletsInitialized);
+      syncWidgetBalanceWithWallets();
     }
-  }, [wallets, walletsInitialized, isWidgetBalanceDisplayAllowed]);
+  }, [wallets, walletsInitialized, isWidgetBalanceDisplayAllowed, syncWidgetBalanceWithWallets]);
 
   return null;
 };
