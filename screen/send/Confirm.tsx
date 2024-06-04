@@ -211,6 +211,7 @@ const Confirm: React.FC = () => {
       navigate('Success', {
         fee: Number(fee),
         amount,
+        txid,
       });
 
       dispatch({ type: ActionType.SET_LOADING, payload: false });
