@@ -23,14 +23,14 @@ import AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 
 const ScanLndInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { unlockWithBiometrics, isBiometricUseCapableAndEnabled } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { walletID, uri, invoice } = useRoute().params;
   const name = useRoute().name;

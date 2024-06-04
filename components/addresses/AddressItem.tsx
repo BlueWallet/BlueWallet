@@ -6,7 +6,7 @@ import { ListItem } from 'react-native-elements';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import confirm from '../../helpers/confirm';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
@@ -32,7 +32,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
 
   const hasTransactions = item.transactions > 0;
 

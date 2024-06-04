@@ -4,7 +4,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapt
 import { BlueTextCentered } from '../BlueComponents';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
-import { BiometricType, useBiometrics } from '../hooks/useBiometrics';
+import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
 
@@ -53,7 +53,7 @@ const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
-  const { deviceBiometricType, unlockWithBiometrics, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
+  const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
 
   useEffect(() => {
     setWalletsInitialized(false);

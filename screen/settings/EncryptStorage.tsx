@@ -8,7 +8,7 @@ import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -56,7 +56,7 @@ const reducer = (state: State, action: Action): State => {
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
-  const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType, unlockWithBiometrics } = useBiometrics();
+  const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate, dispatch: navigationDispatch } = useExtendedNavigation();
   const { colors } = useTheme();

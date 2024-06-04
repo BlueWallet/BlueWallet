@@ -13,7 +13,7 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -28,7 +28,7 @@ const _cacheFiatToSat = {};
 
 const LnurlPay = () => {
   const { wallets } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID, lnurl } = useRoute().params;
   /** @type {LightningCustodianWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);

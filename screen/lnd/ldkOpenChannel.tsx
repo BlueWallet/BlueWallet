@@ -14,7 +14,7 @@ import { ArrowPicker } from '../../components/ArrowPicker';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -34,7 +34,7 @@ type LdkOpenChannelProps = RouteProp<
 
 const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors }: { colors: any } = useTheme();
   const { navigate, setParams } = useNavigation();
   const {
