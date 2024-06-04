@@ -12,6 +12,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -94,7 +95,7 @@ const WalletXpub: React.FC = () => {
             <BlueSpacing20 />
             {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
-          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>
