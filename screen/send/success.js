@@ -12,6 +12,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import HandOffComponent from '../../components/HandOffComponent';
 
 const Success = () => {
   const pop = () => {
@@ -19,7 +20,7 @@ const Success = () => {
   };
   const { colors } = useTheme();
   const { getParent } = useNavigation();
-  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
+  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop, txid } = useRoute().params;
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -47,6 +48,13 @@ const Success = () => {
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
+      {txid && (
+        <HandOffComponent
+          title={loc.transactions.details_title}
+          type={HandOffComponent.activityTypes.ViewInBlockExplorer}
+          url={`https://mempool.space/tx/${txid}`}
+        />
+      )}
     </SafeArea>
   );
 };
