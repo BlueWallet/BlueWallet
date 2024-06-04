@@ -44,7 +44,7 @@ import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
@@ -56,7 +56,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();
