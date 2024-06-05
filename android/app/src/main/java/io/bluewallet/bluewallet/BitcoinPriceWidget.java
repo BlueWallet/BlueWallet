@@ -16,13 +16,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,20 +44,19 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
             Log.d(TAG, "Updating widget ID: " + appWidgetId);
-
+    
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
-            Intent intent = new Intent(context, BitcoinPriceWidget.class);
-            intent.setAction(ACTION_UPDATE);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-            views.setOnClickPendingIntent(R.id.price_value, pendingIntent);
-
+    
+            // Set up the pending intent to open the app when the widget is clicked
+            Intent launchAppIntent = new Intent(context, MainActivity.class);
+            PendingIntent launchAppPendingIntent = PendingIntent.getActivity(context, 0, launchAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            views.setOnClickPendingIntent(R.id.widget_layout, launchAppPendingIntent);
+    
             appWidgetManager.updateAppWidget(appWidgetId, views);
-
+    
             fetchBitcoinPrice(context, appWidgetManager, appWidgetId);
         }
-
+    
         scheduleNextUpdate(context);
     }
 
@@ -110,58 +102,24 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
                 super.onPreExecute();
                 Log.d(TAG, "Starting to fetch Bitcoin price...");
             }
-
+    
             @Override
             protected String doInBackground(Void... voids) {
-                try {
-                    Log.d(TAG, "Creating URI...");
-                    URI uri = new URI("https://api.kraken.com/0/public/Ticker?pair=XBTUSD");
-                    URL url = uri.toURL();
-                    Log.d(TAG, "Opening connection to URL: " + url);
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-
-                    int responseCode = urlConnection.getResponseCode();
-                    Log.d(TAG, "Response code: " + responseCode);
-                    if (responseCode != 200) {
-                        Log.e(TAG, "Failed to fetch Bitcoin price. Response code: " + responseCode);
-                        return null;
-                    }
-
-                    InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
-                    StringBuilder json = new StringBuilder();
-                    int read;
-                    char[] buffer = new char[1024];
-                    while ((read = reader.read(buffer)) != -1) {
-                        json.append(buffer, 0, read);
-                    }
-
-                    Log.d(TAG, "JSON response: " + json.toString());
-                    JSONObject jsonObject = new JSONObject(json.toString());
-                    JSONObject resultObject = jsonObject.getJSONObject("result");
-                    JSONObject xbtusdObject = resultObject.getJSONObject("XXBTZUSD");
-                    JSONArray priceArray = xbtusdObject.getJSONArray("c");
-                    String price = priceArray.getString(0);
-                    return price;
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception while fetching Bitcoin price", e);
-                    return null;
-                }
+                return MarketAPI.fetchPrice("USD"); // Using hardcoded "USD" for now
             }
-
+    
             @Override
             protected void onPostExecute(String price) {
                 RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
                 SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
                 String prevPrice = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null);
                 SharedPreferences.Editor editor = prefs.edit();
-
+    
                 if (price != null) {
                     Log.d(TAG, "Fetch completed with price: " + price);
                     NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
                     views.setTextViewText(R.id.price_value, currencyFormat.format(Double.parseDouble(price)));
-
+    
                     if (prevPrice != null) {
                         double previousPrice = Double.parseDouble(prevPrice);
                         double currentPrice = Double.parseDouble(price);
@@ -172,23 +130,30 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
                         } else {
                             views.setImageViewResource(R.id.price_arrow, 0);
                         }
-                        views.setTextViewText(R.id.previous_price, "from " + currencyFormat.format(previousPrice));
-                        views.setViewVisibility(R.id.price_arrow, View.VISIBLE);
-                        views.setViewVisibility(R.id.previous_price, View.VISIBLE);
+    
+                        if (currentPrice != previousPrice) {
+                            views.setTextViewText(R.id.previous_price, "from " + currencyFormat.format(previousPrice));
+                            views.setViewVisibility(R.id.price_arrow, View.VISIBLE);
+                            views.setViewVisibility(R.id.previous_price, View.VISIBLE);
+                        } else {
+                            views.setTextViewText(R.id.previous_price, "");
+                            views.setViewVisibility(R.id.price_arrow, View.GONE);
+                            views.setViewVisibility(R.id.previous_price, View.GONE);
+                        }
                     } else {
                         views.setImageViewResource(R.id.price_arrow, 0);
                         views.setTextViewText(R.id.previous_price, "");
                         views.setViewVisibility(R.id.price_arrow, View.GONE);
                         views.setViewVisibility(R.id.previous_price, View.GONE);
                     }
-
+    
                     editor.putString(PREF_PREFIX_KEY + appWidgetId, price);
                     editor.apply();
-
+    
                     String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
                     views.setTextViewText(R.id.last_updated, "Last Updated");
                     views.setTextViewText(R.id.last_updated_time, currentTime);
-
+    
                     if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
                         views.setTextColor(R.id.last_updated, context.getResources().getColor(android.R.color.white));
                         views.setTextColor(R.id.last_updated_time, context.getResources().getColor(android.R.color.white));
