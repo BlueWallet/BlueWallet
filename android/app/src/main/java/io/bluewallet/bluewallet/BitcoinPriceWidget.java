@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -172,9 +173,13 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
                             views.setImageViewResource(R.id.price_arrow, 0);
                         }
                         views.setTextViewText(R.id.previous_price, "from " + currencyFormat.format(previousPrice));
+                        views.setViewVisibility(R.id.price_arrow, View.VISIBLE);
+                        views.setViewVisibility(R.id.previous_price, View.VISIBLE);
                     } else {
                         views.setImageViewResource(R.id.price_arrow, 0);
                         views.setTextViewText(R.id.previous_price, "");
+                        views.setViewVisibility(R.id.price_arrow, View.GONE);
+                        views.setViewVisibility(R.id.previous_price, View.GONE);
                     }
 
                     editor.putString(PREF_PREFIX_KEY + appWidgetId, price);
@@ -205,6 +210,8 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
                     views.setTextViewText(R.id.last_updated_time, "");
                     views.setImageViewResource(R.id.price_arrow, 0);
                     views.setTextViewText(R.id.previous_price, "");
+                    views.setViewVisibility(R.id.price_arrow, View.GONE);
+                    views.setViewVisibility(R.id.previous_price, View.GONE);
                     Toast.makeText(context, "Failed to fetch Bitcoin price", Toast.LENGTH_SHORT).show();
                 }
                 appWidgetManager.updateAppWidget(appWidgetId, views);
