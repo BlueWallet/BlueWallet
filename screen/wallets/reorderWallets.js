@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, useColorScheme } from 'react-native';
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useTheme } from '../../components/themes';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const styles = StyleSheet.create({
   root: {
@@ -22,7 +21,7 @@ const styles = StyleSheet.create({
 const ReorderWallets = () => {
   const sortableList = useRef();
   const { colors } = useTheme();
-  const { wallets, setWalletsWithNewOrder } = useContext(BlueStorageContext);
+  const { wallets, setWalletsWithNewOrder } = useStorage();
   const colorScheme = useColorScheme();
   const { navigate, setOptions } = useExtendedNavigation();
   const [searchQuery, setSearchQuery] = useState('');

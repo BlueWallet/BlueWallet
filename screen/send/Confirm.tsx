@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
@@ -8,7 +8,6 @@ import { BlueText, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
@@ -17,14 +16,14 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import debounce from '../../blue_modules/debounce';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
+import { useStorage } from '../../hooks/context/useStorage';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -66,8 +65,8 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useContext(BlueStorageContext);
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
@@ -149,7 +148,6 @@ const Confirm: React.FC = () => {
       satoshiPerByte,
       wallet,
       feeSatoshi,
-      unlockWithBiometrics,
     ],
   );
 
@@ -213,6 +211,7 @@ const Confirm: React.FC = () => {
       navigate('Success', {
         fee: Number(fee),
         amount,
+        txid,
       });
 
       dispatch({ type: ActionType.SET_LOADING, payload: false });
@@ -226,8 +225,6 @@ const Confirm: React.FC = () => {
       presentAlert({ message: error.message });
     }
   };
-
-  const debouncedSend = debounce(send, 3000);
 
   const broadcast = async (transaction: string) => {
     await BlueElectrum.ping();
@@ -332,7 +329,7 @@ const Confirm: React.FC = () => {
           {state.isLoading ? (
             <ActivityIndicator />
           ) : (
-            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={debouncedSend} title={loc.send.confirm_sendNow} />
+            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={send} title={loc.send.confirm_sendNow} />
           )}
         </BlueCard>
       </View>

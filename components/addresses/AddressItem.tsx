@@ -5,9 +5,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ListItem } from 'react-native-elements';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import confirm from '../../helpers/confirm';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
@@ -18,6 +17,7 @@ import { Action, ToolTipMenuProps } from '../types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript
@@ -32,7 +32,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
 
   const hasTransactions = item.transactions > 0;
 

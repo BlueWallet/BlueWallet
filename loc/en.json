@@ -213,6 +213,9 @@
     "success_done": "Done",
     "txSaved": "The transaction file ({filePath}) has been saved in your Downloads folder.",
     "file_saved_at_path": "The file ({fileName}) has been saved in your Downloads folder.",
+    "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
+    "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
+    "cant_find_bip47_notification": "Add this Payment Code to contacts first",
     "problem_with_psbt": "Problem with PSBT"
   },
   "settings": {
@@ -237,7 +240,7 @@
     "biometrics_no_longer_available": "Your device settings have changed and no longer match the selected security settings in the app. Please re-enable biometrics or passcode, then restart the app to apply these changes.",
     "biom_10times": "You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.",
     "biom_conf_identity": "Please confirm your identity.",
-    "biom_no_passcode": "Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.",
+    "biom_no_passcode": "Your device does not have a passcode or biometrics enabled. In order to proceed, please configure a passcode or biometric in the Settings app.",
     "biom_remove_decrypt": "All your wallets will be removed and your storage will be decrypted. Are you sure you want to proceed?",
     "currency": "Currency",
     "currency_source": "Price is obtained from",

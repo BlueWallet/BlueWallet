@@ -1,22 +1,21 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { InteractionManager } from 'react-native';
-
-import A from '../blue_modules/analytics';
-import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../class';
-import type { TWallet } from '../class/wallets/types';
-import presentAlert from '../components/Alert';
-import loc from '../loc';
-import * as BlueElectrum from './BlueElectrum';
-import triggerHapticFeedback, { HapticFeedbackTypes } from './hapticFeedback';
-import { startAndDecrypt } from './start-and-decrypt';
-import useNotifications from '../hooks/useNotifications';
+import A from '../../blue_modules/analytics';
+import Notifications from '../../blue_modules/notifications';
+import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
+import type { TWallet } from '../../class/wallets/types';
+import presentAlert from '../../components/Alert';
+import loc from '../../loc';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 
 const BlueApp = BlueAppClass.getInstance();
 
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
-interface BlueStorageContextType {
+interface StorageContextType {
   wallets: TWallet[];
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
@@ -60,49 +59,9 @@ export enum WalletTransactionsStatus {
   NONE = 'NONE',
   ALL = 'ALL',
 }
-
-const defaultState: BlueStorageContextType = {
-  wallets: [],
-  setWalletsWithNewOrder: () => {},
-  txMetadata: {},
-  counterpartyMetadata: {},
-  saveToDisk: async () => {},
-  selectedWalletID: undefined,
-  setSelectedWalletID: () => {},
-  addWallet: () => {},
-  deleteWallet: () => {},
-  currentSharedCosigner: '',
-  setSharedCosigner: () => {},
-  addAndSaveWallet: async () => {},
-  fetchAndSaveWalletTransactions: async () => {},
-  walletsInitialized: false,
-  setWalletsInitialized: () => {},
-  refreshAllWalletTransactions: async () => {},
-  resetWallets: () => {},
-  walletTransactionUpdateStatus: WalletTransactionsStatus.NONE,
-  setWalletTransactionUpdateStatus: () => {},
-  isElectrumDisabled: true,
-  setIsElectrumDisabled: () => {},
-  reloadTransactionsMenuActionFunction: () => {},
-  setReloadTransactionsMenuActionFunction: () => {},
-  getTransactions: () => [],
-  fetchWalletBalances: async () => {},
-  fetchWalletTransactions: async () => {},
-  getBalance: () => 0,
-  isStorageEncrypted: async () => false,
-  startAndDecrypt: async () => false,
-  encryptStorage: async () => {},
-  sleep: async () => {},
-  createFakeStorage: async _password => false,
-  decryptStorage: async (_password: string) => false,
-  isPasswordInUse: async () => false,
-  cachedPassword: '',
-  getItem: async () => '',
-  setItem: async () => {},
-};
-
-export const BlueStorageContext = createContext<BlueStorageContextType>(defaultState);
-export const BlueStorageProvider = ({ children }: { children: React.ReactNode }) => {
+// @ts-ignore defaut value does not match the type
+export const StorageContext = createContext<StorageContextType>(undefined);
+export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
   const getTransactions = BlueApp.getTransactions;
@@ -119,7 +78,6 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
 
   const getItem = BlueApp.getItem;
   const setItem = BlueApp.setItem;
-  const { majorTomToGroundControl } = useNotifications();
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [selectedWalletID, setSelectedWalletID] = useState<undefined | string>();
@@ -265,16 +223,15 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
       // @ts-ignore need to type notifications first
-      majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+      Notifications.majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       // start balance fetching at the background
       await w.fetchBalance();
       setWallets([...BlueApp.getWallets()]);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [addWallet, saveToDisk, wallets],
   );
 
-  const value: BlueStorageContextType = useMemo(
+  const value: StorageContextType = useMemo(
     () => ({
       wallets,
       setWalletsWithNewOrder,
@@ -345,7 +302,5 @@ export const BlueStorageProvider = ({ children }: { children: React.ReactNode })
     ],
   );
 
-  return <BlueStorageContext.Provider value={value}>{children}</BlueStorageContext.Provider>;
+  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
 };
-
-export const useStorage = () => useContext(BlueStorageContext);

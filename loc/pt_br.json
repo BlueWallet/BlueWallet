@@ -125,7 +125,8 @@
     "maxSats": "O Valor máximo é de {max} sats",
     "maxSatsFull": "O valor máximo é de {max} sats ou {currency}",
     "minSats": "O valor mínimo é de {min} sats",
-    "minSatsFull": "O valor mínimo é de {min} sats ou {currency}"
+    "minSatsFull": "O valor mínimo é de {min} sats ou {currency}",
+    "qrcode_for_the_address": "QR Code para o Endereço"
   },
   "send": {
     "provided_address_is_invoice": "Esse tipo de endereço se parece com uma fatura da Lightning. Por favor, acesse a sua carteira Lightning para realizar o pagamento dessa fatura.",
@@ -340,7 +341,6 @@
     "cpfp_title": "Aumento de taxa (CPFP)",
     "details_balance_hide": "Esconder Saldo",
     "details_balance_show": "Mostrar Saldo",
-    "details_block": "Altura dos Blocos",
     "details_copy": "Copiar",
     "details_copy_amount": "Copiar Quantia",
     "details_copy_block_explorer_link": "Copiar Link do Explorador de Blocos",
@@ -351,7 +351,7 @@
     "details_outputs": "Saídas",
     "date": "Data",
     "details_received": "Recebido",
-    "transaction_note_saved": "A anotação da transação foi salva com sucesso.",
+    "transaction_saved": "Salvo",
     "details_show_in_block_explorer": "Ver no Explorador de Blocos",
     "details_title": "Transação",
     "details_to": "Saída",
@@ -451,6 +451,7 @@
     "list_latest_transaction": "Transação mais recente",
     "list_long_choose": "Escolher foto",
     "list_long_clipboard": "Copiar da área de transferência",
+    "import_file": "Importar arquivo",
     "list_long_scan": "Leia o código QR",
     "list_title": "Carteiras",
     "list_tryagain": "Tente novamente",
@@ -612,8 +613,6 @@
   },
   "bip47": {
     "payment_code": "Código de pagamento",
-    "payment_codes_list": "Lista de códigos de pagamento",
-    "who_can_pay_me": "Quem pode me pagar:",
     "purpose": "Código para compartilhar (BIP47)",
     "not_found": "Código de pagamento não encontrado"
   }

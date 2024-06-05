@@ -1,5 +1,5 @@
-import { useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -17,11 +17,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -37,17 +35,18 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -109,7 +108,7 @@ const styles = StyleSheet.create({
 
 const WalletDetails = () => {
   const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);

@@ -1,5 +1,3 @@
-import Clipboard from '@react-native-clipboard/clipboard';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
@@ -12,12 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import PropTypes from 'prop-types';
 import { Text } from 'react-native-elements';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -26,6 +24,7 @@ import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 const styles = StyleSheet.create({
   root: {
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   constructor(props) {
     super(props);
     let txid;

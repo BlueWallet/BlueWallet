@@ -332,7 +332,6 @@
     "cpfp_title": "Повысить комиссию (CPFP)",
     "details_balance_hide": "Скрыть баланс",
     "details_balance_show": "Показать баланс",
-    "details_block": "Номер Блока",
     "details_copy": "Копировать",
     "details_copy_amount": "Копировать Сумму",
     "details_copy_block_explorer_link": "Копировать ссылку на обозреватель блоков",
@@ -343,7 +342,7 @@
     "details_outputs": "Выходы",
     "date": "Дата",
     "details_received": "Получена",
-    "transaction_note_saved": "Заметка о транзакции успешно сохранена.",
+    "transaction_saved": "Сохранено",
     "details_show_in_block_explorer": "Показать транзакцию в блокчейне",
     "details_title": "Детали транзакции",
     "details_to": "Кому",
@@ -440,9 +439,9 @@
     "list_empty_txs2": "Добавьте кошелёк.",
     "list_empty_txs2_lightning": "\nДля начала использования нажмите \"Мои средства\" и пополните баланс.",
     "list_latest_transaction": "Последняя транзакция",
-    "list_ln_browser": "Лайтнинг браузер",
     "list_long_choose": "Выбрать фото",
     "list_long_clipboard": "Вставить из буфера обмена",
+    "import_file": "Импортировать файл",
     "list_long_scan": "Сканировать QR-код",
     "list_title": "Кошельки",
     "list_tryagain": "Попробовать еще раз",
@@ -598,8 +597,6 @@
   },
   "bip47": {
     "payment_code": "Код Оплаты",
-    "payment_codes_list": "Список Кодов Оплаты",
-    "who_can_pay_me": "Кто может мне заплатить:",
     "purpose": "Многоразовый и общий код (BIP47)",
     "not_found": "Код оплаты не найден"
   }

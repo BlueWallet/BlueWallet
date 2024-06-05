@@ -340,7 +340,6 @@
     "cpfp_title": "Zwiększ opłatę (CPFP)",
     "details_balance_hide": "Ukryj Saldo",
     "details_balance_show": "Pokaż Saldo",
-    "details_block": "Number bloku",
     "details_copy": "Kopiuj",
     "details_copy_amount": "Kopiuj kwotę",
     "details_copy_block_explorer_link": "Kopiuj link do eksploratora bloków",
@@ -351,7 +350,7 @@
     "details_outputs": "Wyjścia",
     "date": "Data",
     "details_received": "Otrzymano",
-    "transaction_note_saved": "Transakcja została pomyślnie zapisana.",
+    "transaction_saved": "Zapisano",
     "details_show_in_block_explorer": "Zobacz w eksploratorze bloków",
     "details_title": "Transakcja",
     "details_to": "Wyjście",
@@ -451,6 +450,7 @@
     "list_latest_transaction": "Ostatnia transakcja",
     "list_long_choose": "Wybierz zdjęcie",
     "list_long_clipboard": "Kopiuj ze schowka",
+    "import_file": "Importuj plik",
     "list_long_scan": "Zeskanuj kod QR",
     "list_title": "Portfele",
     "list_tryagain": "Spróbuj ponownie",
@@ -612,8 +612,6 @@
   },
   "bip47": {
     "payment_code": "Kod płatności",
-    "payment_codes_list": "Lista kodów płatności",
-    "who_can_pay_me": "Kto może mi płacić:",
     "purpose": "Kod wielokrotnego użytku możliwy do udostępnienia (BIP47)",
     "not_found": "Kod płatności nie znaleziony"
   }

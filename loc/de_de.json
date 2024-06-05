@@ -213,6 +213,9 @@
     "success_done": "Fertig",
     "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",
     "file_saved_at_path": "Die Datei ({fileName}) wurde im Download-Ordner gespeichert.",
+    "cant_send_to_silentpayment_adress": "Diese Wallet kann nicht an Stille Zahlung Adressen senden",
+    "cant_send_to_bip47": "Dieses Wallet kann nicht an BIP47 Zahlungscodes senden",
+    "cant_find_bip47_notification": "Diesen Zahlungscode zuerst zu den Kontakten hinzufügen ",
     "problem_with_psbt": "PSBT-Problem"
   },
   "settings": {
@@ -617,6 +620,7 @@
   },
   "bip47": {
     "payment_code": "Zahlungscode",
+    "my_payment_code": "Mein Zahlungscode",
     "contacts": "Kontakte",
     "purpose": "Wiederverwendbarer und teilbarer Code (BIP47)",
     "pay_this_contact": "An diesen Kontakt zahlen",

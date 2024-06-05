@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -29,7 +29,6 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -57,6 +56,7 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
+import { useStorage } from '../../hooks/context/useStorage';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -75,7 +75,7 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const name = route.name;
@@ -502,6 +502,29 @@ const SendDetails = () => {
         if (!wallet.isAddressValid(transaction.address) && !cl.isPaymentCodeValid(transaction.address)) {
           console.log('validation error');
           error = loc.send.details_address_field_is_not_valid;
+        }
+      }
+
+      // validating payment codes, if any
+      if (!error) {
+        if (transaction.address.startsWith('sp1')) {
+          if (!wallet.allowSilentPaymentSend()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_silentpayment_adress;
+          }
+        }
+
+        if (transaction.address.startsWith('PM')) {
+          if (!wallet.allowBIP47()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_bip47;
+          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+            console.log('validation error');
+            error = loc.send.cant_find_bip47_notification;
+          } else {
+            // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
+            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+          }
         }
       }
 
