@@ -51,6 +51,7 @@ import {
   LanguageComponent,
   LicensingComponent,
   LightningSettingsComponent,
+  TorSettingsComponent,
   NetworkSettingsComponent,
   NotificationSettingsComponent,
   PlausibleDeniabilityComponent,
@@ -324,6 +325,11 @@ const DetailViewStackScreensStack = () => {
         name="LightningSettings"
         component={LightningSettingsComponent}
         options={navigationStyle({ title: loc.settings.lightning_settings })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="TorSettings"
+        component={TorSettingsComponent}
+        options={navigationStyle({ title: loc.settings.tor_settings })(theme)}
       />
       <DetailViewStack.Screen
         name="NotificationSettings"

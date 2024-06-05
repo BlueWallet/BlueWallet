@@ -1,8 +1,12 @@
 import bolt11 from 'bolt11';
 import Frisbee from 'frisbee';
+import DefaultPreference from 'react-native-default-preference';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { LegacyWallet } from './legacy-wallet';
+import Torsbee from '../../blue_modules/torrific';
+import { BlueApp } from '../blue-app';
+import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
@@ -82,9 +86,16 @@ export class LightningCustodianWallet extends LegacyWallet {
     // is turned off permanently, so users cant pull refill address from cache and send money to a black hole
     this.refill_addressess = [];
 
-    this._api = new Frisbee({
-      baseURI: this.baseURI,
-    });
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const isTorEnabled = await DefaultPreference.get(BlueApp.TOR_ENABLED);
+    this._api =
+      isTorEnabled === '1'
+        ? new Torsbee({
+            baseURI: this.baseURI,
+          })
+        : new Frisbee({
+            baseURI: this.baseURI,
+          });
   }
 
   accessTokenExpired() {
@@ -596,9 +607,16 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static async isValidNodeAddress(address: string) {
-    const apiCall = new Frisbee({
-      baseURI: address,
-    });
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const isTorEnabled = await DefaultPreference.get(BlueApp.TOR_ENABLED);
+    const apiCall =
+      isTorEnabled === '1'
+        ? new Torsbee({
+            baseURI: address,
+          })
+        : new Frisbee({
+            baseURI: address,
+          });
     const response = await apiCall.get('/getinfo', {
       headers: {
         'Access-Control-Allow-Origin': '*',

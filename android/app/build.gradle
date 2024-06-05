@@ -93,12 +93,20 @@ android {
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
+
+    packagingOptions {
+        jniLibs.useLegacyPackaging = true
+    }
 }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
+
+    implementation "io.matthewnelson.kotlin-components:kmp-tor:4.8.10-0-1.4.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -112,3 +120,5 @@ dependencies {
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
+apply plugin: 'kotlin-android'

@@ -66,6 +66,7 @@ export class BlueApp {
   static LNDHUB = 'lndhub';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DO_NOT_TRACK = 'donottrack';
+  static TOR_ENABLED = '1';
   static HANDOFF_STORAGE_KEY = 'HandOff';
 
   private static _instance: BlueApp | null = null;
