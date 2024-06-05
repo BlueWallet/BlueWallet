@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueText } from '../../BlueComponents';
 import loc from '../../loc';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useSettings } from '../../hooks/context/useSettings';
