@@ -33,12 +33,12 @@ const PaymentCodeStackRoot = () => {
       <Stack.Screen
         name="PaymentCode"
         component={PaymentCodeComponent}
-        options={navigationStyle({ title: loc.bip47.payment_code, closeButton: true })(theme)}
+        options={navigationStyle({ title: loc.bip47.payment_code })(theme)}
       />
       <Stack.Screen
         name="PaymentCodesList"
         component={PaymentCodesListComponent}
-        options={navigationStyle({ title: loc.bip47.contacts, closeButton: true })(theme)}
+        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
       />
     </Stack.Navigator>
   );

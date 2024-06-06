@@ -14,6 +14,12 @@ const styles = StyleSheet.create({
   },
 });
 
+enum CloseButtonPosition {
+  None = 'None',
+  Left = 'Left',
+  Right = 'Right',
+}
+
 type OptionsFormatter = (
   options: NativeStackNavigationOptions,
   deps: { theme: Theme; navigation: any; route: any },
@@ -23,33 +29,57 @@ export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any
 
 const navigationStyle = (
   {
-    closeButtonFunc,
+    closeButtonPosition,
+    onCloseButtonPressed,
     headerBackVisible = true,
     ...opts
   }: NativeStackNavigationOptions & {
-    closeButton?: boolean;
-    closeButtonFunc?: (deps: { navigation: any; route: any }) => React.ReactElement | void;
+    closeButtonPosition?: CloseButtonPosition;
+    onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
   },
   formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {
   return theme =>
     ({ navigation, route }) => {
-      // Determine if the current screen is the first one in the stack using the updated method
       const isFirstRouteInStack = navigation.getState().index === 0;
+      const isModal = route.params?.presentation !== 'card';
 
-      // Default closeButton to true if the current screen is the first one in the stack
-      const closeButton = opts.closeButton !== undefined ? opts.closeButton : isFirstRouteInStack;
+      const closeButton =
+        closeButtonPosition !== undefined
+          ? closeButtonPosition
+          : isFirstRouteInStack && isModal
+            ? CloseButtonPosition.Right
+            : CloseButtonPosition.None;
+
+      const handleClose = onCloseButtonPressed
+        ? () => onCloseButtonPressed({ navigation, route })
+        : () => {
+            Keyboard.dismiss();
+            navigation.goBack(null);
+          };
 
       let headerRight;
       let headerLeft;
-      if (closeButton) {
-        const handleClose = closeButtonFunc
-          ? () => closeButtonFunc({ navigation, route })
-          : () => {
-              Keyboard.dismiss();
-              navigation.goBack(null);
-            };
+
+      if (!headerBackVisible) {
+        headerLeft = () => <></>;
+        opts.headerLeft = headerLeft;
+      }
+
+      if (closeButton === CloseButtonPosition.Right) {
         headerRight = () => (
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={styles.button}
+            onPress={handleClose}
+            testID="NavigationCloseButton"
+          >
+            <Image source={theme.closeImage} />
+          </TouchableOpacity>
+        );
+      } else if (closeButton === CloseButtonPosition.Left) {
+        headerLeft = () => (
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={loc._.close}
@@ -62,20 +92,16 @@ const navigationStyle = (
         );
       }
 
-      if (!headerBackVisible) {
-        headerLeft = () => <></>;
-        opts.headerLeft = headerLeft;
-      }
-
       let options: NativeStackNavigationOptions = {
         headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: '600',
           color: theme.colors.foregroundColor,
         },
-        headerRight,
         headerBackTitleVisible: false,
         headerTintColor: theme.colors.foregroundColor,
+        headerRight,
+        headerLeft,
         ...opts,
       };
 
@@ -88,38 +114,4 @@ const navigationStyle = (
 };
 
 export default navigationStyle;
-
-export const navigationStyleTx = (opts: NativeStackNavigationOptions, formatter: OptionsFormatter): NavigationOptionsGetter => {
-  return theme =>
-    ({ navigation, route }) => {
-      let options: NativeStackNavigationOptions = {
-        headerTitleStyle: {
-          fontWeight: '600',
-          color: theme.colors.foregroundColor,
-        },
-        // headerBackTitle: null,
-        headerBackTitleVisible: false,
-        headerTintColor: theme.colors.foregroundColor,
-        headerLeft: () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={styles.button}
-            onPress={() => {
-              Keyboard.dismiss();
-              navigation.goBack(null);
-            }}
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        ),
-        ...opts,
-      };
-
-      if (formatter) {
-        options = formatter(options, { theme, navigation, route });
-      }
-
-      return options;
-    };
-};
+export { CloseButtonPosition };

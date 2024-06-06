@@ -16,9 +16,7 @@ const SignVerifyStackRoot = () => {
       <Stack.Screen
         name="SignVerify"
         component={SignVerifyComponent}
-        options={navigationStyle({ closeButton: true, headerBackVisible: false, statusBarStyle: 'light', title: loc.addresses.sign_title })(
-          theme,
-        )}
+        options={navigationStyle({ headerBackVisible: false, statusBarStyle: 'light', title: loc.addresses.sign_title })(theme)}
       />
     </Stack.Navigator>
   );
