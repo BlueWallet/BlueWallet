@@ -117,4 +117,8 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   isSegwit() {
     return true;
   }
+
+  allowSilentPaymentSend(): boolean {
+    return true;
+  }
 }

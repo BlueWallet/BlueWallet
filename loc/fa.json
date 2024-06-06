@@ -271,6 +271,7 @@
     "language": "زبان",
     "last_updated": "آخرین به‌روزرسانی",
     "language_isRTL": "راه‌اندازی مجدد BlueWallet جهت اعمال تغییرات چینش زبان ضروری است.",
+    "license": "پروانه",
     "lightning_error_lndhub_uri": "یوآرآی LNDHub غیرمعتبر",
     "lightning_saved": "تغییرات شما با موفقیت ذخیره شدند.",
     "lightning_settings": "تنظیمات لایتنینگ",
@@ -320,7 +321,6 @@
     "cpfp_title": "افزایش کارمزد (CPFP)",
     "details_balance_hide": "پنهان‌کردن موجودی",
     "details_balance_show": "نمایش موجودی",
-    "details_block": "ارتفاع بلاک",
     "details_copy": "کپی",
     "details_copy_amount": "کپی مقدار",
     "details_copy_block_explorer_link": "کپی لینک مرورگر بلاک",
@@ -331,7 +331,7 @@
     "details_outputs": "خروجی‌ها",
     "date": "تاریخ",
     "details_received": "دریافت‌شده",
-    "transaction_note_saved": "یادداشت تراکنش با موفقیت ذخیره شد.",
+    "transaction_saved": "ذخیره شد",
     "details_show_in_block_explorer": "مشاهده در مرورگر بلاک",
     "details_title": "تراکنش",
     "details_to": "خروجی",
@@ -412,7 +412,11 @@
     "import_discovery_subtitle": "کیف پول پیداشده را انتخاب کنید",
     "import_discovery_derivation": "استفاده از مسیر اشتقاق دلخواه",
     "import_discovery_no_wallets": "کیف پولی یافت نشد.",
+    "import_derivation_found": "پیدا شد",
+    "import_derivation_found_not": "پیدا نشد",
+    "import_derivation_loading": "درحال‌بارگذاری…",
     "import_derivation_title": "مسیر اشتقاق",
+    "import_derivation_unknown": "نامشخص",
     "list_create_a_button": "هم‌اکنون اضافه کن",
     "list_create_a_wallet": "افزودن کیف پول",
     "list_empty_txs1": "تراکنش‌های شما در اینجا نمایش داده خواهند شد.",
@@ -420,9 +424,9 @@
     "list_empty_txs2": "با کیف پول خود شروع کنید.",
     "list_empty_txs2_lightning": "\nبرای شروع استفاده، روی «مدیریت دارایی» بزنید و موجودی خود را شارژ کنید.",
     "list_latest_transaction": "آخرین تراکنش",
-    "list_ln_browser": "مرورگر LApp",
     "list_long_choose": "انتخاب عکس",
     "list_long_clipboard": "کپی از کلیپ‌بورد",
+    "import_file": "واردکردن فایل",
     "list_long_scan": "اسکن کد QR",
     "list_title": "کیف پول‌ها",
     "list_tryagain": "دوباره امتحان کنید",
@@ -438,7 +442,8 @@
     "warning_do_not_disclose": "هشدار! فاش نکنید.",
     "add_ln_wallet_first": "ابتدا باید یک کیف پول لایتنینگ اضافه کنید.",
     "identity_pubkey": "هویت/کلید عمومی",
-    "xpub_title": "کلید XPUB کیف پول"
+    "xpub_title": "کلید XPUB کیف پول",
+    "search_wallets": "جستجوی کیف‌پول‌ها"
   },
   "multisig": {
     "multisig_vault": "گاوصندوق",
@@ -563,9 +568,13 @@
   },
   "bip47": {
     "payment_code": "کد پرداخت",
-    "payment_codes_list": "فهرست کدهای پرداخت",
-    "who_can_pay_me": "چه کسی می‌تواند به من پرداخت کند:",
+    "contacts": "مخاطبان",
     "purpose": "کد بازکاربردپذیر و قابل همرسانی (بیپ47)",
+    "pay_this_contact": "پرداخت به این مخاطب",
+    "copy_payment_code": "رونویسی کد پرداخت",
+    "copied": "رونویسی شد",
+    "rename": "ویرایش نام",
+    "add_contact": "افزودن مخاطب",
     "not_found": "کد پرداخت یافت نشد"
   }
 }

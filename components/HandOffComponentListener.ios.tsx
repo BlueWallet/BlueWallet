@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { NativeEventEmitter, NativeModules } from 'react-native';
-
-import { useStorage } from '../blue_modules/storage-context';
 import * as NavigationService from '../NavigationService';
 import HandOffComponent from './HandOffComponent.ios';
+import { useStorage } from '../hooks/context/useStorage';
 
 interface UserActivityData {
   activityType: keyof typeof HandOffComponent.activityTypes;

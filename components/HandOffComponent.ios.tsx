@@ -2,10 +2,9 @@ import React from 'react';
 import DefaultPreference from 'react-native-default-preference';
 // @ts-ignore: react-native-handoff is not in the type definition
 import Handoff from 'react-native-handoff';
-
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import { BlueApp } from '../class';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
 
 interface HandOffComponentProps {
   url?: string;

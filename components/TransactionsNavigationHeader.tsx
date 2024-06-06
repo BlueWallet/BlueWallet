@@ -3,14 +3,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-import { HDSegwitBech32Wallet, LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { TWallet } from '../class/wallets/types';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
 import { ToolTipMenuProps } from './types';
 
@@ -109,8 +109,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const handleOnPaymentCodeButtonPressed = () => {
     navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCode',
-      params: { paymentCode: (wallet as HDSegwitBech32Wallet).getBIP47PaymentCode() },
+      screen: 'PaymentCodesList',
+      params: { walletID: wallet.getID() },
     });
   };
 
@@ -249,7 +249,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       )}
       {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
-          <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
+          <Text style={styles.manageFundsButtonText}>{loc.bip47.contacts}</Text>
         </TouchableOpacity>
       )}
       {wallet.type === LightningLdkWallet.type && (

@@ -1,14 +1,26 @@
 import { Psbt } from 'bitcoinjs-lib';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
-import { Chain } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export type SendDetailsStackParamList = {
-  SendDetails: { isEditable: boolean };
+  SendDetails: {
+    memo: string;
+    address: string;
+    walletID: string;
+    amount: number;
+    amountSats: number;
+    unit: BitcoinUnit;
+    noRbf: boolean;
+    launchedBy: string;
+    isEditable: boolean;
+    uri: string;
+  };
   Confirm: {
     fee: number;
     memo?: string;
     walletID: string;
     tx: string;
+    targets?: CreateTransactionTarget[]; // needed to know if there were paymentCodes, which turned into addresses in `recipients`
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     payjoinUrl?: string | null;
@@ -48,6 +60,7 @@ export type SendDetailsStackParamList = {
   Success: {
     fee: number;
     amount: number;
+    txid?: string;
   };
   SelectWallet: {
     onWalletSelect: (wallet: TWallet) => void;

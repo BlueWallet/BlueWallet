@@ -248,7 +248,7 @@
     "details_from": "Εισερχόμενες διευθύνσεις",
     "date": "Ημερομηνία",
     "details_received": "Ελήφθη",
-    "transaction_note_saved": "Η σημείωση συναλλαγής δημιουργήθηκε με επιτυχία",
+    "transaction_saved": "Αποθηκεύτηκε",
     "details_show_in_block_explorer": "Προβολή στον block explorer",
     "details_title": "Συναλλαγή",
     "details_to": "Εξερχόμενες διευθύνσεις",
@@ -368,8 +368,6 @@
   },
   "bip47": {
     "payment_code": "Κωδικός πληρωμής",
-    "payment_codes_list": "Λίστα κωδικών πληρωμής",
-    "who_can_pay_me": "Ποιος μπορεί να με πληρώσει:",
     "not_found": "Ο κωδικός πληρωμής δεν βρέθηκε"
   }
 }

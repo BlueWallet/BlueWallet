@@ -1,6 +1,6 @@
 import createHash from 'create-hash';
 import slip39 from 'slip39';
-import { WORD_LIST } from 'slip39/dist/slip39_helper';
+import { WORD_LIST } from 'slip39/src/slip39_helper';
 
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';

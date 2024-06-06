@@ -3,6 +3,6 @@ declare module 'slip39' {
   export function validateMnemonic(mnemonic: string): boolean;
 }
 
-declare module 'slip39/dist/slip39_helper' {
+declare module 'slip39/src/slip39_helper' {
   export const WORD_LIST: string[];
 }

@@ -317,7 +317,6 @@
     "cpfp_title": "Höj avgift (CPFP)",
     "details_balance_hide": "Göm saldo",
     "details_balance_show": "Visa saldo",
-    "details_block": "Block höjd",
     "details_copy": "Kopiera",
     "details_copy_amount": "Kopiera belopp",
     "details_copy_block_explorer_link": "Kopiera Block Explorer Länk",
@@ -328,7 +327,7 @@
     "details_outputs": "Outputs",
     "date": "Datum",
     "details_received": "Mottaget",
-    "transaction_note_saved": "Transaktions anteckningen har sparats.",
+    "transaction_saved": "Sparad",
     "details_show_in_block_explorer": "Visa i block explorer",
     "details_title": "Transaktion",
     "details_to": "Output",
@@ -417,9 +416,9 @@
     "list_empty_txs2": "Börja med din plånbok.",
     "list_empty_txs2_lightning": "\nFör att komma igång klicka på \"sätt in / ta ut\" ovan och sätt in dina första bitcoin.",
     "list_latest_transaction": "Senaste transaktion",
-    "list_ln_browser": "LApp webbläsare",
     "list_long_choose": "Välj Foto",
     "list_long_clipboard": "Kopiera från Urklipp",
+    "import_file": "Importera fil",
     "list_long_scan": "Skanna QR kod",
     "list_title": "Plånböcker",
     "list_tryagain": "Försök igen",
@@ -560,8 +559,6 @@
   },
   "bip47": {
     "payment_code": "Betalningskod",
-    "payment_codes_list": "Lista över betalningskoder",
-    "who_can_pay_me": "Vem kan betala mig:",
     "purpose": "Återanvändbar och delbar kod (BIP47)",
     "not_found": "Betalningskoden hittades inte"
   }
