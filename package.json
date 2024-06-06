@@ -39,7 +39,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-native": "^4.1.0",
-    "jest": "^29.5.2",
+    "jest": "^29.6.3",
     "node-fetch": "^2.6.7",
     "prettier": "^3.2.5",
     "react-test-renderer": "18.2.0",
@@ -73,30 +73,6 @@
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest -b -i tests/unit/*"
-  },
-  "jest": {
-    "preset": "react-native",
-    "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts",
-      "tsx"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|silent-payments/)"
-    ],
-    "setupFiles": [
-      "./tests/setup.js"
-    ],
-    "watchPathIgnorePatterns": [
-      "<rootDir>/node_modules"
-    ],
-    "setupFilesAfterEnv": [
-      "./tests/setupAfterEnv.js"
-    ]
   },
   "dependencies": {
     "@babel/preset-env": "^7.20.0",
