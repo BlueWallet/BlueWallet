@@ -26,8 +26,6 @@ PODS:
     - lottie-ios (= 4.4.1)
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - PasscodeAuth (1.0.0):
-    - React
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -919,7 +917,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.10.1):
+  - react-native-safe-area-context (4.10.4):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -1165,7 +1163,6 @@ DEPENDENCIES:
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
-  - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -1275,8 +1272,6 @@ EXTERNAL SOURCES:
     :tag: hermes-2024-04-29-RNv0.73.8-644c8be78af1eae7c138fa4093fb87f0f4f8db85
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
-  PasscodeAuth:
-    :path: "../node_modules/react-native-passcode-auth"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -1448,7 +1443,6 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   lottie-ios: e047b1d2e6239b787cc5e9755b988869cf190494
   lottie-react-native: 2d9efc8a5ffabe688b55a1a1ac1fb94b9d971995
-  PasscodeAuth: 3e88093ff46c31a952d8b36c488240de980517be
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: 0c7f03a41ee32dec802c74c341e317a4165973d5
   RCTTypeSafety: 57698bb7fcde424922e201dab377f496a08a63e3
@@ -1479,7 +1473,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: dcab599c527c2d7de2d76507a523d20a0b83823d
+  react-native-safe-area-context: 399a5859f6acbdf67f671c69b53113f535f3b5b0
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
   React-nativeconfig: 2e44d0d2dd222b12a5183f4bcaa4a91881497acb
