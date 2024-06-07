@@ -27,6 +27,34 @@ type OptionsFormatter = (
 
 export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
 
+const getCloseButtonPosition = (
+  closeButtonPosition: CloseButtonPosition | undefined,
+  isFirstRouteInStack: boolean,
+  isModal: boolean,
+): CloseButtonPosition => {
+  if (closeButtonPosition !== undefined) {
+    return closeButtonPosition;
+  }
+  if (isFirstRouteInStack && isModal) {
+    return CloseButtonPosition.Right;
+  }
+  return CloseButtonPosition.None;
+};
+
+const getHandleCloseAction = (
+  onCloseButtonPressed: ((args: { navigation: any; route: any }) => void) | undefined,
+  navigation: any,
+  route: any,
+) => {
+  if (onCloseButtonPressed) {
+    return () => onCloseButtonPressed({ navigation, route });
+  }
+  return () => {
+    Keyboard.dismiss();
+    navigation.goBack(null);
+  };
+};
+
 const navigationStyle = (
   {
     closeButtonPosition,
@@ -44,19 +72,8 @@ const navigationStyle = (
       const isFirstRouteInStack = navigation.getState().index === 0;
       const isModal = route.params?.presentation !== 'card';
 
-      const closeButton =
-        closeButtonPosition !== undefined
-          ? closeButtonPosition
-          : isFirstRouteInStack && isModal
-            ? CloseButtonPosition.Right
-            : CloseButtonPosition.None;
-
-      const handleClose = onCloseButtonPressed
-        ? () => onCloseButtonPressed({ navigation, route })
-        : () => {
-            Keyboard.dismiss();
-            navigation.goBack(null);
-          };
+      const closeButton = getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
+      const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
       let headerRight;
       let headerLeft;
