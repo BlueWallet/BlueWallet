@@ -226,6 +226,16 @@ const ReceiveDetails = () => {
     return true;
   };
 
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
+
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
@@ -312,16 +322,6 @@ const ReceiveDetails = () => {
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
-
-  const setAddressBIP21Encoded = useCallback(
-    addr => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-      setParams({ address: addr });
-      setBip21encoded(newBip21encoded);
-      setShowAddress(true);
-    },
-    [setParams],
-  );
 
   useFocusEffect(
     useCallback(() => {
@@ -458,13 +458,15 @@ const ReceiveDetails = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      <View style={styles.tabsContainer}>
-        <AddressTypeTabs
-          currentTab={currentTab}
-          setCurrentTab={setCurrentTab}
-          customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
-        />
-      </View>
+      {wallet.isBIP47Enabled() && wallet.allowBIP47() && (
+        <View style={styles.tabsContainer}>
+          <AddressTypeTabs
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
+          />
+        </View>
+      )}
       {renderTabContent()}
       <View style={styles.share}>
         <BlueCard>
