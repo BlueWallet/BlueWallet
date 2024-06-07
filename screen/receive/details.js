@@ -458,7 +458,7 @@ const ReceiveDetails = () => {
 
   return (
     <View style={[styles.root, stylesHook.root]}>
-      {wallet.isBIP47Enabled() && wallet.allowBIP47() && (
+      {wallet.isBIP47Enabled() && (
         <View style={styles.tabsContainer}>
           <AddressTypeTabs
             currentTab={currentTab}

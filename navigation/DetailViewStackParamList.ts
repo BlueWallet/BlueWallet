@@ -1,4 +1,5 @@
 import { LightningTransaction } from '../class/wallets/types';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
@@ -37,7 +38,7 @@ export type DetailViewStackParamList = {
       address?: string;
       amount?: number;
       amountSats?: number;
-      uni?: string;
+      unit?: BitcoinUnit;
       noRbf?: boolean;
       launchedBy?: string;
       isEditable?: boolean;
