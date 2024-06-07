@@ -4,7 +4,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueLoading } from '../../BlueComponents';
@@ -23,12 +23,14 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
 interface DataSection {
   title: string;
   data: string[];
 }
+
 enum Actions {
   pay,
   rename,
@@ -66,13 +68,16 @@ function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-type PaymentCodeListRouteProp = RouteProp<SendDetailsStackParamList, 'PaymentCodesList'>;
-type PaymentCodesListNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'PaymentCodesList'>;
+type PaymentCodeListModalProp = RouteProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
+type PaymentCodesListModalNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
+
+type PaymentCodeListRouteProp = RouteProp<SendDetailsStackParamList, 'PaymentCodeList'>;
+type PaymentCodesListNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'PaymentCodeList'>;
 
 export default function PaymentCodesList() {
-  const route = useRoute<PaymentCodeListRouteProp>();
-  const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
-  const { walletID } = route.params;
+  const { params } = useRoute<PaymentCodeListModalProp & PaymentCodeListRouteProp>();
+  const navigation = useExtendedNavigation<PaymentCodesListModalNavigationProp & PaymentCodesListNavigationProp>();
+  const { walletID } = params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
@@ -105,7 +110,6 @@ export default function PaymentCodesList() {
   const onToolTipPress = async (id: any, pc: string) => {
     if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
-      presentAlert({ message: loc.bip47.copied });
     }
 
     if (String(id) === String(Actions.rename)) {
@@ -160,6 +164,22 @@ export default function PaymentCodesList() {
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
 
+    const isFirstRouteInStack = navigation.getState().index === 0;
+
+    if (isFirstRouteInStack) {
+      return (
+        <TouchableOpacity onPress={() => _navigateToSend(pc)}>
+          <View style={styles.contactRowContainer}>
+            <View style={[styles.circle, { backgroundColor: '#' + color }]} />
+            <View style={styles.contactRowBody}>
+              <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
+            </View>
+          </View>
+          <View style={styles.stick} />
+        </TouchableOpacity>
+      );
+    }
+
     return (
       <ToolTipMenu
         actions={toolTipActions}
@@ -185,7 +205,7 @@ export default function PaymentCodesList() {
 
       await _addContact(newPc);
     } catch (error: any) {
-      presentAlert({ message: error.message });
+      console.debug(error.message);
     } finally {
       setIsLoading(false);
     }

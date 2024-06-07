@@ -3,27 +3,6 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../clas
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export type SendDetailsStackParamList = {
-  SendDetailsRoot: {
-    screen: string;
-    params: {
-      memo?: string;
-      address?: string;
-      walletID: string;
-      amount?: number;
-      amountSats?: number;
-      unit?: BitcoinUnit;
-      noRbf?: boolean;
-      launchedBy?: string;
-      isEditable?: boolean;
-      uri?: string;
-      addRecipientParams?: {
-        address: string;
-        amount?: number;
-        memo?: string;
-      };
-    };
-    merge: boolean;
-  };
   SendDetails: {
     memo: string;
     address: string;
@@ -96,7 +75,7 @@ export type SendDetailsStackParamList = {
     walletID: string;
     onUTXOChoose: (u: CreateTransactionUtxo[]) => void;
   };
-  PaymentCodesList: {
+  PaymentCodeList: {
     walletID: string;
   };
   ScanQRCodeRoot: {

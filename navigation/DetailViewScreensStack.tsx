@@ -72,6 +72,7 @@ import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import { StackActions } from '@react-navigation/native';
+import PaymentCodeStackRoot from './PaymentCodeStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -220,6 +221,8 @@ const DetailViewStackScreensStack = () => {
           closeButtonFunc: popToTop,
         })(theme)}
       />
+      <DetailViewStack.Screen name="PaymentCodeListRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+
       <DetailViewStack.Screen
         name="LnurlPaySuccess"
         component={LnurlPaySuccess}

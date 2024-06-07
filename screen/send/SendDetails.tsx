@@ -77,6 +77,7 @@ type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
   const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
+  const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const name = route.name;
   const routeParams = route.params;
@@ -171,6 +172,8 @@ const SendDetails = () => {
         return [...addrs];
       });
     }
+    setParams({ addRecipientParams: undefined });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.addRecipientParams]);
 
   useEffect(() => {
@@ -891,7 +894,7 @@ const SendDetails = () => {
   const handleInsertContact = () => {
     if (!wallet) return;
     setOptionsVisible(false);
-    navigation.navigate('PaymentCodesList', { walletID: wallet.getID() });
+    navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
   const handlePsbtSign = async () => {

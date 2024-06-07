@@ -113,6 +113,12 @@ export type DetailViewStackParamList = {
       animatedQRCodeData?: Record<string, any>;
     };
   };
-  PaymentCodeRoot: undefined;
+  PaymentCodeListRoot: {
+    screen: 'PaymentCodeList';
+    params: {
+      paymentCode: string;
+      walletID: string;
+    };
+  };
   ReorderWallets: undefined;
 };

@@ -77,7 +77,7 @@ const SendDetailsStack = () => {
       />
       <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
       <Stack.Screen
-        name="PaymentCodesList"
+        name="PaymentCodeList"
         component={PaymentCodesListComponent}
         options={navigationStyle({ title: loc.bip47.contacts })(theme)}
       />
