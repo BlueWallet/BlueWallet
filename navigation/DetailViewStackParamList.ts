@@ -30,7 +30,26 @@ export type DetailViewStackParamList = {
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
-  SendDetailsRoot: undefined;
+  SendDetailsRoot: {
+    screen: string;
+    params: {
+      walletID: string;
+      address?: string;
+      amount?: number;
+      amountSats?: number;
+      uni?: string;
+      noRbf?: boolean;
+      launchedBy?: string;
+      isEditable?: boolean;
+      uri?: string;
+      addRecipientParams?: {
+        address?: string;
+        amount?: number;
+        memo?: string;
+      };
+    };
+    merge: boolean;
+  };
   LNDCreateInvoiceRoot: undefined;
   ScanLndInvoiceRoot: {
     screen: string;

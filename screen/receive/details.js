@@ -87,6 +87,9 @@ const ReceiveDetails = () => {
     modalButton: {
       backgroundColor: colors.modalButton,
     },
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
+    },
   });
 
   useEffect(() => {
@@ -264,9 +267,6 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <View style={styles.share}>
-              <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-            </View>
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -277,7 +277,6 @@ const ReceiveDetails = () => {
   const obtainWalletAddress = useCallback(async () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
-    await saveToDisk();
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
@@ -445,13 +444,11 @@ const ReceiveDetails = () => {
           {!qrValue && <Text>{loc.bip47.not_found}</Text>}
           {qrValue && (
             <>
+              <View style={[styles.tip, stylesHook.tip]}>
+                <Text style={{ color: colors.foregroundColor }}>{loc.receive.bip47_explanation}</Text>
+              </View>
               <QRCodeComponent value={qrValue} />
               <CopyTextToClipboard text={qrValue} truncated={false} />
-              <View style={styles.share}>
-                <BlueCard>
-                  <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-                </BlueCard>
-              </View>
             </>
           )}
         </View>
@@ -469,6 +466,11 @@ const ReceiveDetails = () => {
         />
       </View>
       {renderTabContent()}
+      <View style={styles.share}>
+        <BlueCard>
+          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </BlueCard>
+      </View>
       {address !== undefined && showAddress && (
         <HandOffComponent title={loc.send.details_address} type={HandOffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
@@ -549,6 +551,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
   },
 });
 

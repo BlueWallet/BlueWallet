@@ -157,6 +157,22 @@ const SendDetails = () => {
     };
   }, []);
 
+  // handle selecting a contact (payment code list)
+  useEffect(() => {
+    if (routeParams.addRecipientParams) {
+      setAddresses(addrs => {
+        if (routeParams.addRecipientParams?.amount) {
+          addrs[scrollIndex.current].amount = routeParams.addRecipientParams?.amount;
+          addrs[scrollIndex.current].amountSats = btcToSatoshi(routeParams.addRecipientParams?.amount);
+        }
+        if (routeParams.addRecipientParams?.address) {
+          addrs[scrollIndex.current].address = routeParams.addRecipientParams?.address;
+        }
+        return [...addrs];
+      });
+    }
+  }, [routeParams.addRecipientParams]);
+
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
@@ -195,7 +211,7 @@ const SendDetails = () => {
     } else if (routeParams.address) {
       const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
       setAddresses(addrs => {
-        if (currentAddress) {
+        if (currentAddress && currentAddress.address && routeParams.address) {
           currentAddress.address = routeParams.address;
           addrs[scrollIndex.current] = currentAddress;
           return [...addrs];
@@ -872,6 +888,12 @@ const SendDetails = () => {
     });
   };
 
+  const handleInsertContact = () => {
+    if (!wallet) return;
+    setOptionsVisible(false);
+    navigation.navigate('PaymentCodesList', { walletID: wallet.getID() });
+  };
+
   const handlePsbtSign = async () => {
     setIsLoading(true);
     setOptionsVisible(false);
@@ -942,15 +964,25 @@ const SendDetails = () => {
       importTransactionMultisigScanQr();
     } else if (id === SendDetails.actionKeys.CoinControl) {
       handleCoinControl();
+    } else if (id === SendDetails.actionKeys.InsertContact) {
+      handleInsertContact();
     }
   };
 
   const headerRightActions = () => {
     const actions = [];
     if (isEditable) {
-      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+      if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
+        actions.push([
+          { id: SendDetails.actionKeys.InsertContact, text: loc.send.details_insert_contact, icon: SendDetails.actionIcons.InsertContact },
+        ]);
+      }
 
-      actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      if (Number(wallet?.getBalance()) > 0) {
+        const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
+        actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      }
       if (wallet?.type === HDSegwitBech32Wallet.type) {
         actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
       }
@@ -1549,6 +1581,7 @@ const SendDetails = () => {
 export default SendDetails;
 
 SendDetails.actionKeys = {
+  InsertContact: 'InsertContact',
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
   AddRecipient: 'AddRecipient',
@@ -1562,6 +1595,7 @@ SendDetails.actionKeys = {
 };
 
 SendDetails.actionIcons = {
+  InsertContact: { iconType: 'SYSTEM', iconValue: 'at.badge.plus' },
   SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
   SendMax: 'SendMax',
   AddRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.plus' },

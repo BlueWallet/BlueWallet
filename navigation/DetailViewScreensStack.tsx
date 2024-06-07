@@ -62,7 +62,6 @@ import {
 } from './LazyLoadSettingsStack';
 import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
-import PaymentCodeStackRoot from './PaymentCodeStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
 import ReorderWalletsStackRoot from './ReorderWalletsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
@@ -376,8 +375,6 @@ const DetailViewStackScreensStack = () => {
           statusBarHidden: true,
         }}
       />
-
-      <DetailViewStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen
         name="ReorderWallets"
         component={ReorderWalletsStackRoot}
