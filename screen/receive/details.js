@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -32,6 +33,7 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
+import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -46,6 +48,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
+  const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
   const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -173,7 +176,7 @@ const ReceiveDetails = () => {
 
   const renderConfirmedBalance = () => {
     return (
-      <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
+      <ScrollView style={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -261,7 +264,9 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            <View style={styles.share}>
+              <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+            </View>
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -307,15 +312,17 @@ const ReceiveDetails = () => {
       await Notifications.tryToObtainPermissions(receiveAddressButton);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const setAddressBIP21Encoded = addr => {
-    const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-    setParams({ address: addr });
-    setBip21encoded(newBip21encoded);
-    setShowAddress(true);
-  };
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -329,8 +336,7 @@ const ReceiveDetails = () => {
       return () => {
         task.cancel();
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
 
   const dismissCustomAmountModal = () => {
@@ -423,14 +429,51 @@ const ReceiveDetails = () => {
     }
   };
 
+  const renderTabContent = () => {
+    const qrValue = currentTab === TABS.EXTERNAL ? address : wallet.getBIP47PaymentCode();
+
+    if (currentTab === TABS.EXTERNAL) {
+      return (
+        <View style={styles.container}>
+          {!address && <Text>{loc.bip47.not_found}</Text>}
+          {address && renderReceiveDetails()}
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
+          {qrValue && (
+            <>
+              <QRCodeComponent value={qrValue} />
+              <CopyTextToClipboard text={qrValue} truncated={false} />
+              <View style={styles.share}>
+                <BlueCard>
+                  <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+                </BlueCard>
+              </View>
+            </>
+          )}
+        </View>
+      );
+    }
+  };
+
   return (
     <View style={[styles.root, stylesHook.root]}>
+      <View style={styles.tabsContainer}>
+        <AddressTypeTabs
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
+        />
+      </View>
+      {renderTabContent()}
       {address !== undefined && showAddress && (
         <HandOffComponent title={loc.send.details_address} type={HandOffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}
-      {showAddress ? renderReceiveDetails() : null}
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
     </View>
   );
@@ -460,6 +503,9 @@ const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
     justifyContent: 'space-between',
+  },
+  tabsContainer: {
+    height: 65,
   },
   scrollBody: {
     marginTop: 32,
@@ -498,6 +544,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
