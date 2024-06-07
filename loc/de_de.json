@@ -240,7 +240,7 @@
     "biometrics_no_longer_available": "Die Geräteeinstellungen stimmen nicht mehr mit den App Sicherheitseinstellungen überein. Um die Änderungen zu übernehmen, die Biometrie oder den Passcode einrichten, dann die App neu starten.",
     "biom_10times": "Sie haben 10 Mal versucht, Ihr Passwort einzugeben. Möchten Sie Ihren Speicher zurücksetzen? Dadurch werden alle Wallets entfernt und Ihr Speicher entschlüsselt.",
     "biom_conf_identity": "Bitte deine Identität bestätigen.",
-    "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren, diesen in den Geräteeinstellungen zuerst konfigurieren.",
+    "biom_no_passcode": "Um fortzufahren müssen auf dem Gerät entweder ein Sicherheitscode oder biometrische Daten aktiviert sein. Dies lässt sich in der App \"Einstellungen\" vornehmen.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",
     "currency": "Währung",
     "currency_source": "Die Preisangaben stammen von",

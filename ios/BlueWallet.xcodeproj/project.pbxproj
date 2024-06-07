@@ -136,6 +136,11 @@
 		B44034102BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B44034112BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B44034122BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
+		B45010982C0FCB7700619044 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */; };
+		B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B450109E2C0FCDA000619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
 		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
 		B47B21EC2B2128B8001F6690 /* BlueWalletUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */; };
@@ -438,6 +443,7 @@
 		B44033F82BCC379200162242 /* WidgetDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataStore.swift; sourceTree = "<group>"; };
 		B44033FF2BCC37F800162242 /* Bundle+decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+decode.swift"; sourceTree = "<group>"; };
 		B440340E2BCC40A400162242 /* fiatUnits.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnits.json; path = ../../../models/fiatUnits.json; sourceTree = "<group>"; };
+		B450109B2C0FCD8A00619044 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		B4549F352B82B10D002E3153 /* ci_post_clone.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
@@ -825,6 +831,7 @@
 		B44033C82BCC34AC00162242 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B450109A2C0FCD7E00619044 /* Utilities */,
 				6D2AA8062568B8E50090B089 /* Fiat */,
 				6D9A2E6A254BAB1B007B5B82 /* MarketAPI.swift */,
 				6D6CA5142558EBA3009312A5 /* MarketAPI+Electrum.swift */,
@@ -845,6 +852,14 @@
 				B44033C32BCC332400162242 /* Balance.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		B450109A2C0FCD7E00619044 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B450109B2C0FCD8A00619044 /* Utilities.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		B4549F2E2B80FEA1002E3153 /* ci_scripts */ = {
@@ -1505,6 +1520,7 @@
 				B44033DD2BCC36C300162242 /* LatestTransaction.swift in Sources */,
 				6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
+				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
@@ -1533,6 +1549,7 @@
 				6DD410B4266CAF5C0087DE03 /* MarketAPI.swift in Sources */,
 				B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */,
 				6DD410A1266CADF10087DE03 /* Widgets.swift in Sources */,
+				B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */,
 				6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */,
 				B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
@@ -1572,6 +1589,7 @@
 				32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */,
 				B40D4E602258425500428FCC /* SpecifyInterfaceController.swift in Sources */,
 				B43D0379225847C500FBAA95 /* WatchDataSource.swift in Sources */,
+				B450109F2C0FCDA500619044 /* Utilities.swift in Sources */,
 				B44033D42BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
 				B44034012BCC37F800162242 /* Bundle+decode.swift in Sources */,
 				849047CA2702A32A008EE567 /* Handoff.swift in Sources */,
@@ -1627,6 +1645,7 @@
 				B44033D62BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
 				B44033FD2BCC37D600162242 /* MarketAPI.swift in Sources */,
 				B4A29A2D2B55C990002A67DF /* main.m in Sources */,
+				B45010982C0FCB7700619044 /* MarketAPI+Electrum.swift in Sources */,
 				B4A29A2E2B55C990002A67DF /* AppDelegate.mm in Sources */,
 				B44033C72BCC332400162242 /* Balance.swift in Sources */,
 				B44033FC2BCC379200162242 /* WidgetDataStore.swift in Sources */,
@@ -1639,6 +1658,7 @@
 				B44033CF2BCC352C00162242 /* UserDefaultsGroup.swift in Sources */,
 				B4A29A2F2B55C990002A67DF /* Bridge.swift in Sources */,
 				B44034042BCC389100162242 /* XMLParserDelegate.swift in Sources */,
+				B450109E2C0FCDA000619044 /* Utilities.swift in Sources */,
 				B44033EC2BCC371A00162242 /* MarketData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
