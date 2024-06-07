@@ -12,6 +12,7 @@ import presentAlert from '../Alert';
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
+import TorModule from '../../blue_modules/kmpTor';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
@@ -34,6 +35,9 @@ interface SettingsContextType {
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
   isQuickActionsEnabled: boolean;
   setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
+  isTorEnabled: boolean;
+  setIsTorEnabledStorage: (value: boolean) => Promise<void>;
+  getIsTorEnabledStorage: () => Promise<boolean>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -57,6 +61,9 @@ const defaultSettingsContext: SettingsContextType = {
   setIsClipboardGetContentEnabledStorage: async () => {},
   isQuickActionsEnabled: true,
   setIsQuickActionsEnabledStorage: async () => {},
+  isTorEnabled: false,
+  setIsTorEnabledStorage: async () => {},
+  getIsTorEnabledStorage: async () => false,
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -82,6 +89,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(false);
   // Quick Actions
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
+  // Tor engine
+  const [isTorEnabled, setIsTorEnabled] = useState<boolean>(false);
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
@@ -147,6 +156,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setDoNotTrackStorage(value ?? false);
       })
       .catch(error => console.error('Error fetching do not track settings:', error));
+
+    getIsTorEnabledStorage()
+      .then(value => {
+        console.debug('SettingsContext isTorEnabled:', value);
+        if (value === true) TorModule.start();
+        setIsTorEnabled(value ?? false);
+      })
+      .catch(error => console.error('Error fetching tor settings:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -216,6 +233,25 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setIsClipboardGetContentEnabled(value);
   }, []);
 
+  const getIsTorEnabledStorage = useCallback(async () => {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const doNotTrack = await DefaultPreference.get(BlueApp.TOR_ENABLED);
+    return doNotTrack === '1';
+  }, []);
+
+  const setIsTorEnabledStorage = useCallback(async (value: boolean) => {
+    const promise = value ? TorModule.start() : TorModule.stop();
+    promise.then(async () => {
+      await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+      if (value) {
+        await DefaultPreference.set(BlueApp.TOR_ENABLED, '1');
+      } else {
+        await DefaultPreference.clear(BlueApp.TOR_ENABLED);
+      }
+      setIsTorEnabled(value);
+    });
+  }, []);
+
   const setIsQuickActionsEnabledStorage = useCallback(async (value: boolean) => {
     await setIsDeviceQuickActionsEnabled(value);
     setIsQuickActionsEnabled(value);
@@ -254,6 +290,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isTorEnabled,
+      setIsTorEnabledStorage,
+      getIsTorEnabledStorage,
     }),
     [
       preferredFiatCurrency,
@@ -276,6 +315,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isTorEnabled,
+      setIsTorEnabledStorage,
+      getIsTorEnabledStorage,
     ],
   );
 
