@@ -4,7 +4,7 @@ import React from 'react';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import ReorderWallets from '../screen/wallets/reorderWallets';
+import ReorderWallets from '../screen/wallets/ReorderWallets';
 
 const Stack = createNativeStackNavigator();
 
