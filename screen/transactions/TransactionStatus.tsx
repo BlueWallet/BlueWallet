@@ -18,6 +18,7 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 import HeaderRightButton from '../../components/HeaderRightButton';
 
 enum ButtonStatus {
@@ -476,7 +477,7 @@ const TransactionStatus = () => {
     <SafeArea>
       <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffActivityType.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 

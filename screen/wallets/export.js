@@ -11,6 +11,7 @@ import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 const WalletExport = () => {
   const { wallets, saveToDisk } = useStorage();
@@ -115,11 +116,7 @@ const WalletExport = () => {
               </BlueText>
             )}
             {wallet.type === WatchOnlyWallet.type && (
-              <HandOffComponent
-                title={loc.wallets.xpub_title}
-                type={HandOffComponent.activityTypes.Xpub}
-                userInfo={{ xpub: wallet.getSecret() }}
-              />
+              <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: wallet.getSecret() }} />
             )}
           </React.Fragment>
         ))}

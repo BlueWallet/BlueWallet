@@ -2,24 +2,24 @@ import React from 'react';
 import DefaultPreference from 'react-native-default-preference';
 // @ts-ignore: react-native-handoff is not in the type definition
 import Handoff from 'react-native-handoff';
+import { useSettings } from '../hooks/context/useSettings';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import { BlueApp } from '../class';
-import { useSettings } from '../hooks/context/useSettings';
+import { HandOffComponentProps } from './types';
 
-interface HandOffComponentProps {
-  url?: string;
-  title?: string;
-  type: (typeof HandOffComponent.activityTypes)[keyof typeof HandOffComponent.activityTypes];
-  userInfo?: object;
-}
+const HandOffComponent: React.FC<HandOffComponentProps> = props => {
+  const { isHandOffUseEnabled } = useSettings();
 
-interface HandOffComponentWithActivityTypes extends React.FC<HandOffComponentProps> {
-  activityTypes: {
-    ReceiveOnchain: string;
-    Xpub: string;
-    ViewInBlockExplorer: string;
-  };
-}
+  if (process.env.NODE_ENV === 'development') {
+    console.debug('HandOffComponent: props', props);
+  }
+  if (isHandOffUseEnabled) {
+    return <Handoff {...props} />;
+  }
+  return null;
+};
+
+const MemoizedHandOffComponent = React.memo(HandOffComponent);
 
 export const setIsHandOffUseEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -39,24 +39,4 @@ export const getIsHandOffUseEnabled = async (): Promise<boolean> => {
   return false;
 };
 
-const HandOffComponent: HandOffComponentWithActivityTypes = props => {
-  const { isHandOffUseEnabled } = useSettings();
-
-  if (process.env.NODE_ENV === 'development') {
-    console.debug('HandOffComponent: props', props);
-  }
-  if (isHandOffUseEnabled) {
-    return <Handoff {...props} />;
-  }
-  return null;
-};
-
-const activityTypes = {
-  ReceiveOnchain: 'io.bluewallet.bluewallet.receiveonchain',
-  Xpub: 'io.bluewallet.bluewallet.xpub',
-  ViewInBlockExplorer: 'io.bluewallet.bluewallet.blockexplorer',
-};
-
-HandOffComponent.activityTypes = activityTypes;
-
-export default HandOffComponent;
+export default MemoizedHandOffComponent;
