@@ -1161,6 +1161,12 @@ const SendDetails = () => {
     },
   });
 
+  const calculateTotalAmount = () => {
+    const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
+    const totalWithFee = totalAmount + (feePrecalc.current || 0);
+    return totalWithFee;
+  };
+
   const renderFeeSelectionModal = () => {
     const nf = networkTransactionFees;
     const options = [
@@ -1320,12 +1326,15 @@ const SendDetails = () => {
   };
 
   const renderCreateButton = () => {
+    const totalWithFee = calculateTotalAmount();
+    const isDisabled = totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0;
+
     return (
       <View style={styles.createButton}>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Button onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <Button onPress={createTransaction} disabled={isDisabled} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
