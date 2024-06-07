@@ -18,6 +18,7 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 interface TransactionDetailsProps {
   route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
@@ -259,7 +260,7 @@ const TransactionDetails = () => {
     <ScrollView style={styles.scroll} automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffActivityType.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
       <BlueCard>

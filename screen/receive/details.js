@@ -34,6 +34,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
 import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
+import { HandOffActivityType } from '../../components/types';
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -474,7 +475,7 @@ const ReceiveDetails = () => {
         </BlueCard>
       </View>
       {address !== undefined && showAddress && (
-        <HandOffComponent title={loc.send.details_address} type={HandOffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
+        <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}
