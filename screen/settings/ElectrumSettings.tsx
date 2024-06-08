@@ -34,8 +34,7 @@ import loc from '../../loc';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useRoute } from '@react-navigation/native';
 
 interface Server {
   host: string;
@@ -113,11 +112,9 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
-
 const ElectrumSettings: React.FC = () => {
   const { setIsElectrumDisabled } = useStorage();
-  const route = useRoute<RouteProps>();
+  const route = useRoute() as any;
   const server = route?.params?.server;
   const [state, dispatch] = useReducer(reducer, { ...initialState, server });
   const { colors } = useTheme();
@@ -350,7 +347,7 @@ const ElectrumSettings: React.FC = () => {
           style={[styles.serverRow, stylesHook.serverRow]}
           numberOfLines={1}
           ellipsizeMode="middle"
-        >{`${value.host}:${value.port ?? value.sslPort}`}</Text>
+        >{`${value.host}:${value.sslPort ?? value.port}`}</Text>
 
         <TouchableOpacity accessibilityRole="button" style={styles.selectButton} onPress={() => selectServer(value)}>
           <BlueText>{loc.settings.electrum_select}</BlueText>
