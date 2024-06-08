@@ -433,12 +433,7 @@ const ReceiveDetails = () => {
     const qrValue = currentTab === TABS.EXTERNAL ? address : wallet.getBIP47PaymentCode();
 
     if (currentTab === TABS.EXTERNAL) {
-      return (
-        <View style={styles.container}>
-          {!address && <Text>{loc.bip47.not_found}</Text>}
-          {address && renderReceiveDetails()}
-        </View>
-      );
+      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
     } else {
       return (
         <View style={styles.container}>
