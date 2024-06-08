@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -32,6 +33,7 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
+import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { HandOffActivityType } from '../../components/types';
 
 const ReceiveDetails = () => {
@@ -47,6 +49,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
+  const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
   const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -84,6 +87,9 @@ const ReceiveDetails = () => {
     },
     modalButton: {
       backgroundColor: colors.modalButton,
+    },
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
     },
   });
 
@@ -174,7 +180,7 @@ const ReceiveDetails = () => {
 
   const renderConfirmedBalance = () => {
     return (
-      <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
+      <ScrollView style={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -221,6 +227,16 @@ const ReceiveDetails = () => {
     return true;
   };
 
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
+
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
@@ -262,7 +278,6 @@ const ReceiveDetails = () => {
               title={loc.receive.details_setAmount}
               onPress={showCustomAmountModal}
             />
-            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
         {renderCustomAmountModal()}
@@ -273,7 +288,6 @@ const ReceiveDetails = () => {
   const obtainWalletAddress = useCallback(async () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
-    await saveToDisk();
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
@@ -308,15 +322,7 @@ const ReceiveDetails = () => {
       await Notifications.tryToObtainPermissions(receiveAddressButton);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const setAddressBIP21Encoded = addr => {
-    const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-    setParams({ address: addr });
-    setBip21encoded(newBip21encoded);
-    setShowAddress(true);
-  };
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   useFocusEffect(
     useCallback(() => {
@@ -330,8 +336,7 @@ const ReceiveDetails = () => {
       return () => {
         task.cancel();
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
 
   const dismissCustomAmountModal = () => {
@@ -424,14 +429,56 @@ const ReceiveDetails = () => {
     }
   };
 
+  const renderTabContent = () => {
+    const qrValue = currentTab === TABS.EXTERNAL ? address : wallet.getBIP47PaymentCode();
+
+    if (currentTab === TABS.EXTERNAL) {
+      return (
+        <View style={styles.container}>
+          {!address && <Text>{loc.bip47.not_found}</Text>}
+          {address && renderReceiveDetails()}
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
+          {qrValue && (
+            <>
+              <View style={[styles.tip, stylesHook.tip]}>
+                <Text style={{ color: colors.foregroundColor }}>{loc.receive.bip47_explanation}</Text>
+              </View>
+              <QRCodeComponent value={qrValue} />
+              <CopyTextToClipboard text={qrValue} truncated={false} />
+            </>
+          )}
+        </View>
+      );
+    }
+  };
+
   return (
     <View style={[styles.root, stylesHook.root]}>
+      {wallet.isBIP47Enabled() && (
+        <View style={styles.tabsContainer}>
+          <AddressTypeTabs
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
+          />
+        </View>
+      )}
+      {renderTabContent()}
+      <View style={styles.share}>
+        <BlueCard>
+          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </BlueCard>
+      </View>
       {address !== undefined && showAddress && (
         <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}
-      {showAddress ? renderReceiveDetails() : null}
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
     </View>
   );
@@ -461,6 +508,9 @@ const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
     justifyContent: 'space-between',
+  },
+  tabsContainer: {
+    height: 65,
   },
   scrollBody: {
     marginTop: 32,
@@ -499,6 +549,17 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
   },
 });
 
