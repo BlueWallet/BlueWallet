@@ -1,5 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useReducer } from 'react';
 import { ScrollView } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -9,6 +7,7 @@ import Button from '../components/Button';
 import prompt from '../helpers/prompt';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
+import { popToTop } from '../NavigationService';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -39,7 +38,6 @@ function reducer(state: State, action: Action): State {
 const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useNavigation<NativeStackNavigationProp<Record<string, object | undefined>>>();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
@@ -66,7 +64,7 @@ const PlausibleDeniability: React.FC = () => {
       resetWallets();
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       presentAlert({ message: loc.plausibledeniability.success });
-      navigation.popToTop();
+      popToTop();
     } catch {
       dispatch({ type: SET_LOADING, payload: false });
     }

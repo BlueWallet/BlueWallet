@@ -21,7 +21,6 @@ const WalletExportStack = () => {
         name="WalletExport"
         component={WalletExportComponent}
         options={navigationStyle({
-          closeButton: true,
           headerBackVisible: false,
           title: loc.wallets.export_title,
         })(theme)}

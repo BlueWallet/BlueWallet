@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements';
 
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
@@ -31,13 +31,7 @@ import LdkViewLogs from '../screen/wallets/ldkViewLogs';
 import SelectWallet from '../screen/wallets/selectWallet';
 import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
-import {
-  NavigationDefaultOptions,
-  NavigationDefaultOptionsForDesktop,
-  NavigationFormModalOptions,
-  StatusBarLightOptions,
-  DetailViewStack,
-} from './index'; // Importing the navigator
+import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
 import ExportMultisigCoordinationSetupStackRoot from './ExportMultisigCoordinationSetupStack';
@@ -72,15 +66,10 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import { StackActions } from '@react-navigation/native';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-
-  const popToTop = () => {
-    navigation.dispatch(StackActions.popToTop());
-  };
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
@@ -129,10 +118,9 @@ const DetailViewStackScreensStack = () => {
           title: loc.lnd.new_channel,
           headerLargeTitle: true,
           statusBarStyle: 'auto',
-          closeButton: true,
+          closeButtonPosition: CloseButtonPosition.Right,
           headerBackVisible: false,
           gestureEnabled: false,
-          closeButtonFunc: popToTop,
         })(theme)}
       />
       <DetailViewStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
@@ -217,8 +205,7 @@ const DetailViewStackScreensStack = () => {
         component={LnurlPay}
         options={navigationStyle({
           title: '',
-          closeButton: true,
-          closeButtonFunc: popToTop,
+          closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -226,10 +213,9 @@ const DetailViewStackScreensStack = () => {
         component={LnurlPaySuccess}
         options={navigationStyle({
           title: '',
-          closeButton: true,
+          closeButtonPosition: CloseButtonPosition.Right,
           headerBackVisible: false,
           gestureEnabled: false,
-          closeButtonFunc: popToTop,
         })(theme)}
       />
       <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
@@ -251,7 +237,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="SendDetailsRoot"
         component={SendDetailsStack}
-        options={isDesktop ? NavigationDefaultOptionsForDesktop : NavigationDefaultOptions}
+        options={navigationStyle({ headerShown: false, presentation: isDesktop ? 'fullScreenModal' : 'modal' })(theme)}
       />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />

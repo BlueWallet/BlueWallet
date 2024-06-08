@@ -30,7 +30,6 @@ const AddWalletStack = () => {
         name="AddWallet"
         component={AddComponent}
         options={navigationStyle({
-          closeButton: true,
           headerBackVisible: false,
           title: loc.wallets.add_title,
         })(theme)}

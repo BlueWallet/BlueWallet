@@ -1,7 +1,6 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useMemo } from 'react';
-
-import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import {
@@ -32,11 +31,11 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}
-        options={navigationStyleTx({}, options => ({
-          ...options,
+        options={navigationStyle({
           title: loc.send.header,
           statusBarStyle: 'light',
-        }))(theme)}
+          closeButtonPosition: CloseButtonPosition.Left,
+        })(theme)}
         initialParams={{ isEditable: true }} // Correctly typed now
       />
       <Stack.Screen

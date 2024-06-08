@@ -19,7 +19,6 @@ const ReorderWalletsStackRoot = () => {
         options={navigationStyle({
           headerBackVisible: false,
           headerLargeTitle: true,
-          closeButton: true,
 
           headerTitle: loc.wallets.reorder_title,
         })(theme)}

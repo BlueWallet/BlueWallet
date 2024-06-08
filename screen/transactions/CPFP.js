@@ -25,6 +25,7 @@ import SafeArea from '../../components/SafeArea';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
+import { popToTop } from '../../NavigationService';
 
 const styles = StyleSheet.create({
   root: {
@@ -108,7 +109,7 @@ export default class CPFP extends Component {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
+    this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
   }
 
   async componentDidMount() {
