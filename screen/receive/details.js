@@ -430,7 +430,7 @@ const ReceiveDetails = () => {
   };
 
   const renderTabContent = () => {
-    const qrValue = currentTab === TABS.EXTERNAL ? address : wallet.getBIP47PaymentCode();
+    const qrValue = currentTab === TABS.EXTERNAL ? bip21encoded : wallet.getBIP47PaymentCode();
 
     if (currentTab === TABS.EXTERNAL) {
       return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
