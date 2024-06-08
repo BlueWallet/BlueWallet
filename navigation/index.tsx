@@ -18,7 +18,6 @@ export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
 };
-export const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
 export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
 const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();

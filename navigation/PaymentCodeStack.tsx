@@ -16,7 +16,7 @@ const PaymentCodeStackRoot = () => {
       <Stack.Screen
         name="PaymentCodesList"
         component={PaymentCodesListComponent}
-        options={navigationStyle({ title: loc.bip47.contacts, closeButton: true })(theme)}
+        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
       />
     </Stack.Navigator>
   );
