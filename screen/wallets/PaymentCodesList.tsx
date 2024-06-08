@@ -7,7 +7,7 @@ import createHash from 'create-hash';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
+import { BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -105,7 +105,6 @@ export default function PaymentCodesList() {
   const onToolTipPress = async (id: any, pc: string) => {
     if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
-      presentAlert({ message: loc.bip47.copied });
     }
 
     if (String(id) === String(Actions.rename)) {
@@ -177,16 +176,6 @@ export default function PaymentCodesList() {
         <View style={styles.stick} />
       </ToolTipMenu>
     );
-  };
-
-  const navigateToPaymentCodes = () => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
-
-    // @ts-ignore idk how to fix
-    navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCode',
-      params: { paymentCode: foundWallet.getBIP47PaymentCode() },
-    });
   };
 
   const onAddContactPress = async () => {
@@ -301,7 +290,6 @@ export default function PaymentCodesList() {
         </View>
       )}
 
-      <BlueButtonLink title={loc.bip47.my_payment_code} onPress={navigateToPaymentCodes} />
       <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />
     </SafeArea>
   );
