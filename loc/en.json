@@ -127,7 +127,8 @@
     "maxSatsFull": "Maximum amount is {max} sats or {currency}",
     "minSats": "Minimal amount is {min} sats",
     "minSatsFull": "Minimal amount is {min} sats or {currency}",
-    "qrcode_for_the_address": "QR Code for the address"
+    "qrcode_for_the_address": "QR Code for the address",
+    "bip47_explanation": "Payment codes are an universal address that avoids disclosing your wallet addresses. Not all services will support them."
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
@@ -149,6 +150,7 @@
     "create_to": "To",
     "create_tx_size": "Transaction Size",
     "create_verify": "Verify on coinb.in",
+    "details_insert_contact": "Insert Contact",
     "details_add_rec_add": "Add Recipient",
     "details_add_rec_rem": "Remove Recipient",
     "details_address": "Address",
@@ -627,13 +629,11 @@
   },
   "bip47": {
     "payment_code": "Payment Code",
-    "my_payment_code": "My Payment Code",
     "contacts": "Contacts",
     "purpose": "Reusable and shareable code (BIP47)",
     "pay_this_contact": "Pay this contact",
     "rename_contact": "Rename contact",
     "copy_payment_code": "Copy Payment Code",
-    "copied": "Copied",
     "rename": "Rename",
     "provide_name": "Provide new name for this contact",
     "add_contact": "Add Contact",
