@@ -287,7 +287,6 @@ const ReceiveDetails = () => {
 
   const obtainWalletAddress = useCallback(async () => {
     console.log('receive/details - componentDidMount');
-    wallet.setUserHasSavedExport(true);
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
