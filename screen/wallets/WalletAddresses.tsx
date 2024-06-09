@@ -18,7 +18,6 @@ export const TABS = {
 } as const;
 
 type TabKey = keyof typeof TABS;
-type TABS_VALUES = (typeof TABS)[keyof typeof TABS];
 
 interface Address {
   key: string;
