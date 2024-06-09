@@ -10,7 +10,6 @@ const useDebounce = <T>(value: T, delay: number): T => {
     }, delay);
 
     handler(value);
-    
 
     return () => {
       handler.cancel();

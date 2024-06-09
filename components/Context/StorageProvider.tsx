@@ -9,6 +9,7 @@ import loc from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
+import useDebounce from '../../hooks/useDebounce';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -99,7 +100,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }, [walletsInitialized]);
 
-  const saveToDisk = useCallback(async (force: boolean = false) => {
+  const _saveToDisk = useCallback(async (force: boolean = false) => {
     InteractionManager.runAfterInteractions(async () => {
       if (BlueApp.getWallets().length === 0 && !force) {
         console.log('not saving empty wallets array');
@@ -113,6 +114,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
     });
   }, []);
+
+  const saveToDisk = useDebounce(_saveToDisk, 300);
 
   const resetWallets = () => {
     setWallets(BlueApp.getWallets());
@@ -153,7 +156,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
-        if (noErr) await saveToDisk(); // caching
+        if (noErr) saveToDisk(); // caching
       });
     },
     [fetchWalletBalances, fetchWalletTransactions, saveToDisk],
@@ -188,7 +191,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         } finally {
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         }
-        if (noErr) await saveToDisk(); // caching
+        if (noErr) saveToDisk(); // caching
       });
     },
     [fetchWalletBalances, fetchWalletTransactions, saveToDisk, wallets],
