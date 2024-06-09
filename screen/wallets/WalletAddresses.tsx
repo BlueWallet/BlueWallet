@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
@@ -200,6 +200,8 @@ const WalletAddresses: React.FC = () => {
     );
   }
 
+  const segmentControlMargin = { marginHorizontal: Platform.OS === 'ios' ? 40 : 0 };
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <FlatList
@@ -213,7 +215,7 @@ const WalletAddresses: React.FC = () => {
         centerContent={!showAddresses}
         contentInsetAdjustmentBehavior="automatic"
         ListHeaderComponent={
-          <View style={styles.segmentController}>
+          <View style={[styles.segmentController, segmentControlMargin]}>
             <SegmentedControl
               values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
               selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
@@ -236,8 +238,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   segmentController: {
-    margin: 40,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },

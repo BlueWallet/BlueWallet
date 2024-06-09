@@ -20,14 +20,22 @@
 }
 
 - (void)setValues:(NSArray<NSString *> *)values {
-  [self removeAllSegments];
-  for (NSUInteger i = 0; i < values.count; i++) {
-    [self insertSegmentWithTitle:values[i] atIndex:i animated:NO];
+  @try {
+    [self removeAllSegments];
+    for (NSUInteger i = 0; i < values.count; i++) {
+      [self insertSegmentWithTitle:values[i] atIndex:i animated:NO];
+    }
+  } @catch (NSException *exception) {
+    NSLog(@"Error setting property 'values': %@", exception.reason);
   }
 }
 
 - (void)setSelectedIndex:(NSNumber *)selectedIndex {
-  self.selectedSegmentIndex = selectedIndex.integerValue;
+  @try {
+    self.selectedSegmentIndex = selectedIndex.integerValue;
+  } @catch (NSException *exception) {
+    NSLog(@"Error setting property 'selectedIndex': %@", exception.reason);
+  }
 }
 
 - (void)onChange:(UISegmentedControl *)sender {

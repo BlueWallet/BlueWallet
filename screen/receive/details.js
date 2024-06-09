@@ -33,8 +33,10 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
-import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { HandOffActivityType } from '../../components/types';
+import SegmentedControl from '../../components/SegmentControl';
+
+const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -49,7 +51,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
+  const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -431,9 +433,9 @@ const ReceiveDetails = () => {
   };
 
   const renderTabContent = () => {
-    const qrValue = currentTab === TABS.EXTERNAL ? bip21encoded : wallet.getBIP47PaymentCode();
+    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
 
-    if (currentTab === TABS.EXTERNAL) {
+    if (currentTab === segmentControlValues[0]) {
       return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
     } else {
       return (
@@ -457,14 +459,17 @@ const ReceiveDetails = () => {
     <View style={[styles.root, stylesHook.root]}>
       {wallet.isBIP47Enabled() && (
         <View style={styles.tabsContainer}>
-          <AddressTypeTabs
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
+          <SegmentedControl
+            values={Object.values(segmentControlValues).map(tab => tab)}
+            selectedIndex={Object.values(segmentControlValues).findIndex(tab => tab === currentTab)}
+            onChange={index => {
+              const tabKey = Object.keys(segmentControlValues)[index];
+              setCurrentTab(segmentControlValues[tabKey]);
+            }}
           />
         </View>
       )}
-      {renderTabContent()}
+      {showAddress && renderTabContent()}
       <View style={styles.share}>
         <BlueCard>
           <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
@@ -506,7 +511,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   tabsContainer: {
-    height: 65,
+    margin: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollBody: {
     marginTop: 32,
