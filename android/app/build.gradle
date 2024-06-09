@@ -83,6 +83,12 @@ android {
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+    
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets', '../../models']
+        }
+    }
 
     buildTypes {
         release {

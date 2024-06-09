@@ -36,11 +36,6 @@ allprojects {
         maven {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
-        jcenter() {
-            content {
-                includeModule("com.wei.android.lib", "fingerprintidentify")
-            }
-        }
             mavenCentral {
 	            // We don't want to fetch react-native from Maven Central as there are
 	            // older versions over there.
