@@ -131,7 +131,7 @@ interface FButtonProps {
   last?: boolean;
   disabled?: boolean;
   onPress: () => void;
-  onLongPress: () => void;
+  onLongPress?: () => void;
 }
 
 export const FButton = ({ text, icon, width, first, last, ...props }: FButtonProps) => {

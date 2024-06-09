@@ -645,10 +645,13 @@ const SendDetails = () => {
     setIsLoading(false);
   };
 
-  const onWalletSelect = (w: TWallet) => {
-    setWallet(w);
-    navigation.dispatch(popAction);
-  };
+  useEffect(() => {
+    const newWallet = wallets.find(w => w.getID() === routeParams.walletID);
+    if (newWallet) {
+      setWallet(newWallet);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.walletID]);
 
   /**
    * same as `importTransaction`, but opens camera instead.
@@ -1354,7 +1357,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -1364,7 +1367,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>

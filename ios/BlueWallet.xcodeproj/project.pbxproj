@@ -141,8 +141,10 @@
 		B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109E2C0FCDA000619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
+		B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B4549F362B82B10D002E3153 /* ci_post_clone.sh in Resources */ = {isa = PBXBuildFile; fileRef = B4549F352B82B10D002E3153 /* ci_post_clone.sh */; };
 		B461B852299599F800E431AA /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.mm */; };
+		B47462D02C1538D800100825 /* CustomSegmentedControlManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */; };
 		B47B21EC2B2128B8001F6690 /* BlueWalletUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */; };
 		B49038D92B8FBAD300A8164A /* BlueWalletUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */; };
 		B4A29A2C2B55C990002A67DF /* EventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32C5C52596CE3A008C077C /* EventEmitter.m */; };
@@ -444,6 +446,8 @@
 		B44033FF2BCC37F800162242 /* Bundle+decode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+decode.swift"; sourceTree = "<group>"; };
 		B440340E2BCC40A400162242 /* fiatUnits.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fiatUnits.json; path = ../../../models/fiatUnits.json; sourceTree = "<group>"; };
 		B450109B2C0FCD8A00619044 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomSegmentedControlManager.m; sourceTree = "<group>"; };
+		B45010A92C15080500619044 /* CustomSegmentedControlManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomSegmentedControlManager.h; sourceTree = "<group>"; };
 		B4549F352B82B10D002E3153 /* ci_post_clone.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = ci_post_clone.sh; sourceTree = "<group>"; };
 		B461B850299599F800E431AA /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		B461B851299599F800E431AA /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = BlueWallet/AppDelegate.mm; sourceTree = "<group>"; };
@@ -715,7 +719,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
+				B45010A12C1504E900619044 /* Components */,
 				B44033C82BCC34AC00162242 /* Shared */,
 				B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */,
 				B4549F2E2B80FEA1002E3153 /* ci_scripts */,
@@ -860,6 +864,24 @@
 				B450109B2C0FCD8A00619044 /* Utilities.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		B45010A12C1504E900619044 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
+				B45010A82C1507F000619044 /* SegmentedControl */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		B45010A82C1507F000619044 /* SegmentedControl */ = {
+			isa = PBXGroup;
+			children = (
+				B45010A52C1507DE00619044 /* CustomSegmentedControlManager.m */,
+				B45010A92C15080500619044 /* CustomSegmentedControlManager.h */,
+			);
+			path = SegmentedControl;
 			sourceTree = "<group>";
 		};
 		B4549F2E2B80FEA1002E3153 /* ci_scripts */ = {
@@ -1521,6 +1543,7 @@
 				6D32C5C62596CE3A008C077C /* EventEmitter.m in Sources */,
 				B44033FE2BCC37D700162242 /* MarketAPI.swift in Sources */,
 				B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */,
+				B45010A62C1507DE00619044 /* CustomSegmentedControlManager.m in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.mm in Sources */,
@@ -1638,6 +1661,7 @@
 				B44033D72BCC369400162242 /* UserDefaultsExtension.swift in Sources */,
 				B44033F72BCC377F00162242 /* WidgetData.swift in Sources */,
 				B44033E12BCC36CA00162242 /* Placeholders.swift in Sources */,
+				B47462D02C1538D800100825 /* CustomSegmentedControlManager.m in Sources */,
 				B44033E72BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033E02BCC36C300162242 /* LatestTransaction.swift in Sources */,
 				B44033D92BCC369900162242 /* Colors.swift in Sources */,
