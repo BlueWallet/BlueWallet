@@ -1,69 +1,69 @@
 import assert from 'assert';
 
-import { convertToBuffer, entropyToHex, eReducer, getEntropy } from '../../screen/wallets/provideEntropy';
+import { convertToBuffer, EActionType, entropyToHex, eReducer, getEntropy } from '../../screen/wallets/ProvideEntropy';
 
 describe('Entropy reducer and format', () => {
   it('handles push and pop correctly', () => {
-    let state = eReducer(undefined, { type: null });
+    let state = eReducer(undefined, { type: EActionType.noop });
     assert.equal(entropyToHex(state), '0x');
 
-    state = eReducer(state, { type: 'push', value: 0, bits: 1 });
+    state = eReducer(state, { type: EActionType.push, value: 0, bits: 1 });
     assert.equal(entropyToHex(state), '0x0');
 
-    state = eReducer(state, { type: 'push', value: 0, bits: 1 });
+    state = eReducer(state, { type: EActionType.push, value: 0, bits: 1 });
     assert.equal(entropyToHex(state), '0x0');
 
-    state = eReducer(state, { type: 'push', value: 0, bits: 3 });
+    state = eReducer(state, { type: EActionType.push, value: 0, bits: 3 });
     assert.equal(entropyToHex(state), '0x00');
 
-    state = eReducer(state, { type: 'pop' });
+    state = eReducer(state, { type: EActionType.pop });
     assert.equal(entropyToHex(state), '0x0');
 
-    state = eReducer(state, { type: 'pop' });
-    state = eReducer(state, { type: 'pop' });
+    state = eReducer(state, { type: EActionType.pop });
+    state = eReducer(state, { type: EActionType.pop });
     assert.equal(entropyToHex(state), '0x');
 
-    state = eReducer(state, { type: 'push', value: 1, bits: 1 });
+    state = eReducer(state, { type: EActionType.push, value: 1, bits: 1 });
     assert.equal(entropyToHex(state), '0x1'); // 0b1
 
-    state = eReducer(state, { type: 'push', value: 0, bits: 1 });
+    state = eReducer(state, { type: EActionType.push, value: 0, bits: 1 });
     assert.equal(entropyToHex(state), '0x2'); // 0b10
 
-    state = eReducer(state, { type: 'push', value: 0b01, bits: 2 });
+    state = eReducer(state, { type: EActionType.push, value: 0b01, bits: 2 });
     assert.equal(entropyToHex(state), '0x9'); // 0b1001
 
-    state = eReducer(state, { type: 'push', value: 0b10, bits: 2 });
+    state = eReducer(state, { type: EActionType.push, value: 0b10, bits: 2 });
     assert.equal(entropyToHex(state), '0x26'); // 0b100110
   });
 
   it('handles 128 bits correctly', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0, bits: 128 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 128 });
     assert.equal(entropyToHex(state), '0x00000000000000000000000000000000');
   });
 
   it('handles 256 bits correctly', () => {
-    let state = eReducer(undefined, { type: null }); // get init state
+    let state = eReducer(undefined, { type: EActionType.noop }); // get init state
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const i of [...Array(256)]) {
-      state = eReducer(state, { type: 'push', value: 1, bits: 1 });
+      state = eReducer(state, { type: EActionType.push, value: 1, bits: 1 });
     }
     assert.equal(entropyToHex(state), '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
   });
 
   it('handles pop when empty without error', () => {
-    const state = eReducer(undefined, { type: 'pop' });
+    const state = eReducer(undefined, { type: EActionType.pop });
     assert.equal(entropyToHex(state), '0x');
   });
 
   it('handles 256 bits limit', () => {
-    let state = eReducer(undefined, { type: 'push', value: 0, bits: 254 });
-    state = eReducer(state, { type: 'push', value: 0b101, bits: 3 });
+    let state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 254 });
+    state = eReducer(state, { type: EActionType.push, value: 0b101, bits: 3 });
     assert.equal(entropyToHex(state), '0x0000000000000000000000000000000000000000000000000000000000000002');
   });
 
   it('Throws error if you try to push value exceeding size in bits', () => {
-    assert.throws(() => eReducer(undefined, { type: 'push', value: 8, bits: 3 }), {
+    assert.throws(() => eReducer(undefined, { type: EActionType.push, value: 8, bits: 3 }), {
       name: 'TypeError',
       message: "Can't push value exceeding size in bits",
     });
@@ -104,48 +104,48 @@ describe('getEntropy function', () => {
 
 describe('convertToBuffer function', () => {
   it('zero bits', () => {
-    const state = eReducer(undefined, { type: null });
+    const state = eReducer(undefined, { type: EActionType.noop });
     assert.deepEqual(convertToBuffer(state), Buffer.from([]));
   });
 
   it('8 zero bits', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0, bits: 8 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 8 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([0]));
   });
 
   it('8 filled bits', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0b11111111, bits: 8 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0b11111111, bits: 8 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([0b11111111]));
   });
 
   it('9 zero bits', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0, bits: 9 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0, bits: 9 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([0]));
   });
 
   it('9 filled bits', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0b111111111, bits: 9 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0b111111111, bits: 9 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([0b11111111]));
   });
 
   it('9 bits', () => {
-    const state = eReducer(undefined, { type: 'push', value: 0b111100111, bits: 9 });
+    const state = eReducer(undefined, { type: EActionType.push, value: 0b111100111, bits: 9 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([0b11100111]));
   });
 
   it('3 bytes', () => {
-    let state = eReducer(undefined, { type: 'push', value: 1, bits: 8 });
-    state = eReducer(state, { type: 'push', value: 2, bits: 8 });
-    state = eReducer(state, { type: 'push', value: 3, bits: 8 });
+    let state = eReducer(undefined, { type: EActionType.push, value: 1, bits: 8 });
+    state = eReducer(state, { type: EActionType.push, value: 2, bits: 8 });
+    state = eReducer(state, { type: EActionType.push, value: 3, bits: 8 });
     assert.deepEqual(convertToBuffer(state), Buffer.from([1, 2, 3]));
   });
 
   it('256 bits or 32bytes', () => {
-    let state = eReducer(undefined, { type: null }); // get init state
+    let state = eReducer(undefined, { type: EActionType.noop }); // get init state
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const i of [...Array(256)]) {
-      state = eReducer(state, { type: 'push', value: 1, bits: 1 });
+      state = eReducer(state, { type: EActionType.push, value: 1, bits: 1 });
     }
 
     const bytes = [...Array(32)].map(() => 255);

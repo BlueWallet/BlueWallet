@@ -63,7 +63,6 @@ export type SendDetailsStackParamList = {
     txid?: string;
   };
   SelectWallet: {
-    onWalletSelect: (wallet: TWallet) => void;
     chainType: Chain;
   };
   CoinControl: {

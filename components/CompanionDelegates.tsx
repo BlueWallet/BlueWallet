@@ -2,7 +2,7 @@ import 'react-native-gesture-handler'; // should be on top
 
 import { CommonActions } from '@react-navigation/native';
 import React, { lazy, Suspense, useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform, UIManager } from 'react-native';
+import { AppState, AppStateStatus, Linking, NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
 import A from '../blue_modules/analytics';
 import BlueClipboard from '../blue_modules/clipboard';
@@ -30,12 +30,6 @@ const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
 });
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 const CompanionDelegates = () => {
   const { wallets, addWallet, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner } = useStorage();
