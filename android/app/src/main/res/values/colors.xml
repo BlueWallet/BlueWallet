@@ -1,4 +1,7 @@
 <resources>
     <color name="white">#FFF</color>
-    <color name="background_color">#FFFFFF</color> <!-- Light background -->
+    <color name="background_color">#FFFFFF</color>
+    <color name="widget_background">#FFFFFF</color>
+    <color name="text_primary">#0C234F</color>
+    <color name="text_secondary">#D3D3D3</color>
 </resources>
