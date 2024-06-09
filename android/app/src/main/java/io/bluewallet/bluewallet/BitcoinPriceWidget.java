@@ -14,8 +14,6 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatDelegate;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -153,20 +151,6 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
                     String currentTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
                     views.setTextViewText(R.id.last_updated, "Last Updated");
                     views.setTextViewText(R.id.last_updated_time, currentTime);
-    
-                    if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-                        views.setTextColor(R.id.last_updated, context.getResources().getColor(android.R.color.white));
-                        views.setTextColor(R.id.last_updated_time, context.getResources().getColor(android.R.color.white));
-                        views.setTextColor(R.id.price_value, context.getResources().getColor(android.R.color.white));
-                        views.setTextColor(R.id.previous_price, context.getResources().getColor(android.R.color.white));
-                        views.setInt(R.id.widget_layout, "setBackgroundColor", context.getResources().getColor(android.R.color.black));
-                    } else {
-                        views.setTextColor(R.id.last_updated, context.getResources().getColor(android.R.color.black));
-                        views.setTextColor(R.id.last_updated_time, context.getResources().getColor(android.R.color.black));
-                        views.setTextColor(R.id.price_value, context.getResources().getColor(android.R.color.black));
-                        views.setTextColor(R.id.previous_price, context.getResources().getColor(android.R.color.black));
-                        views.setInt(R.id.widget_layout, "setBackgroundColor", context.getResources().getColor(android.R.color.white));
-                    }
                 } else {
                     String errorMessage = "Network Error";
                     Log.e(TAG, errorMessage);

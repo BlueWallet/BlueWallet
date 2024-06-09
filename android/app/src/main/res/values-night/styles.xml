@@ -1,0 +1,9 @@
+<resources>
+    <style name="WidgetTextPrimary">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="WidgetTextSecondary">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+</resources>

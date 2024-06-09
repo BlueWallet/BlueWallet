@@ -1,4 +1,7 @@
 <resources>
-    <color name="background_color">#000000</color> <!-- Dark background -->
+    <color name="background_color">#000000</color>
+    <color name="widget_background">#1B1B1F</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#D3D3D3</color>
 </resources>
 
