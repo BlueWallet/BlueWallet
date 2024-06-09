@@ -3,13 +3,22 @@ import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
-import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import SegmentedControl from '../../components/SegmentControl';
+import loc from '../../loc';
+
+export const TABS = {
+  EXTERNAL: 'receive',
+  INTERNAL: 'change',
+} as const;
+
+type TabKey = keyof typeof TABS;
+type TABS_VALUES = (typeof TABS)[keyof typeof TABS];
 
 interface Address {
   key: string;
@@ -205,10 +214,16 @@ const WalletAddresses: React.FC = () => {
         centerContent={!showAddresses}
         contentInsetAdjustmentBehavior="automatic"
         ListHeaderComponent={
-          <AddressTypeTabs
-            currentTab={currentTab}
-            setCurrentTab={(tab: (typeof TABS)[keyof typeof TABS]) => dispatch({ type: SET_CURRENT_TAB, payload: tab })}
-          />
+          <View style={styles.segmentController}>
+            <SegmentedControl
+              values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
+              selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
+              onChange={(index: number) => {
+                const tabKey = Object.keys(TABS)[index] as TabKey;
+                dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+              }}
+            />
+          </View>
         }
       />
     </View>
@@ -220,5 +235,11 @@ export default WalletAddresses;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  segmentController: {
+    margin: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
