@@ -154,7 +154,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
+export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
   const { walletTransactionUpdateStatus } = useStorage();
@@ -197,7 +197,7 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
   return (
     <Animated.View
       style={[
-        isLargeScreen ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
+        isLargeScreen || !horizontal ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
         { opacity, transform: [{ scale: scaleValue }] },
       ]}
     >
@@ -287,6 +287,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
           index={index}
           handleLongPress={handleLongPress}
           onPress={onPress}
+          horizontal={horizontal}
         />
       ) : (
         <NewWalletPanel onPress={onPress} />

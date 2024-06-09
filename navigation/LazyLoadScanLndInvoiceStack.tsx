@@ -4,7 +4,7 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 // Lazy loading components for the navigation stack
 const ScanLndInvoice = lazy(() => import('../screen/lnd/scanLndInvoice'));
-const SelectWallet = lazy(() => import('../screen/wallets/selectWallet'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 const Success = lazy(() => import('../screen/send/success'));
 const LnurlPay = lazy(() => import('../screen/lnd/lnurlPay'));
 const LnurlPaySuccess = lazy(() => import('../screen/lnd/lnurlPaySuccess'));
