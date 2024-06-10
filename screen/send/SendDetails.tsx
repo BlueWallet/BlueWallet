@@ -1307,8 +1307,11 @@ const SendDetails = () => {
 
     return (
       <BottomModal isVisible={optionsVisible} onClose={hideOptions}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={undefined}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
+            {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+              <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} hideChevron onPress={handleInsertContact} />
+            )}
             {isEditable && (
               <ListItem
                 testID="sendMaxButton"

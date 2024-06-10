@@ -441,7 +441,7 @@ const ReceiveDetails = () => {
 
   return (
     <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
-      {wallet.isBIP47Enabled() && (
+      {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
         <View style={styles.tabsContainer}>
           <SegmentedControl
             values={Object.values(segmentControlValues).map(tab => tab)}
