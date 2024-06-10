@@ -16,7 +16,7 @@ import { Text } from 'react-native-elements';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -26,6 +26,7 @@ import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import { popToTop } from '../../NavigationService';
+import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 
 const styles = StyleSheet.create({
   root: {
@@ -167,7 +168,7 @@ export default class CPFP extends Component {
           <BlueCard style={styles.center}>
             <BlueText>{text}</BlueText>
             <BlueSpacing20 />
-            <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+            <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
             <BlueSpacing />
             <Button
               disabled={this.state.newFeeRate <= this.state.feeRate}

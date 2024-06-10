@@ -1,11 +1,11 @@
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 
-export const NetworkTransactionFeeType = Object.freeze({
-  FAST: 'Fast',
-  MEDIUM: 'MEDIUM',
-  SLOW: 'SLOW',
-  CUSTOM: 'CUSTOM',
-});
+export enum NetworkTransactionFeeType {
+  FAST = 'Fast',
+  MEDIUM = 'MEDIUM',
+  SLOW = 'SLOW',
+  CUSTOM = 'CUSTOM',
+}
 
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
