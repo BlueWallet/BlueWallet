@@ -65,6 +65,7 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
+import PaymentCodeStackRoot from './PaymentCodeStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
