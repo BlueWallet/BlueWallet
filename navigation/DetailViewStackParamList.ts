@@ -1,5 +1,5 @@
 import { LightningTransaction } from '../class/wallets/types';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { SendDetailsParams } from './SendDetailsStackParamList';
 
 export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
@@ -33,24 +33,7 @@ export type DetailViewStackParamList = {
   AddWalletRoot: undefined;
   SendDetailsRoot: {
     screen: string;
-    params: {
-      walletID: string;
-      address?: string;
-      amount?: number;
-      amountSats?: number;
-      unit?: BitcoinUnit;
-      noRbf?: boolean;
-      launchedBy?: string;
-      isEditable?: boolean;
-      uri?: string;
-      addRecipientParams?: {
-        address?: string;
-        amount?: number;
-        memo?: string;
-      };
-    };
-    merge: boolean;
-  };
+    params:SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
   ScanLndInvoiceRoot: {
     screen: string;
@@ -122,4 +105,4 @@ export type DetailViewStackParamList = {
     };
   };
   ReorderWallets: undefined;
-};
+}}
