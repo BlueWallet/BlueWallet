@@ -11,10 +11,12 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+import android.util.Log;
 
 public class CustomSegmentedControlManager extends SimpleViewManager<CustomSegmentedControlManager.CustomSegmentedControlView> {
   public static final String REACT_CLASS = "CustomSegmentedControl";
   private static boolean isRegistered = false;
+  private static final String TAG = "CustomSegmentedControlManager";
 
   public static class CustomSegmentedControlView extends LinearLayout {
     private TabLayout tabLayout;
@@ -46,18 +48,26 @@ public class CustomSegmentedControlManager extends SimpleViewManager<CustomSegme
     }
 
     public void setValues(ReadableArray values) {
-      tabLayout.removeAllTabs();
-      for (int i = 0; i < values.size(); i++) {
-        tabLayout.addTab(tabLayout.newTab().setText(values.getString(i)));
+      try {
+        tabLayout.removeAllTabs();
+        for (int i = 0; i < values.size(); i++) {
+          tabLayout.addTab(tabLayout.newTab().setText(values.getString(i)));
+        }
+      } catch (Exception e) {
+        Log.e(TAG, "Error setting property 'values': " + e.getMessage());
       }
     }
 
     public void setSelectedIndex(int selectedIndex) {
-      if (selectedIndex >= 0 && selectedIndex < tabLayout.getTabCount()) {
-        TabLayout.Tab tab = tabLayout.getTabAt(selectedIndex);
-        if (tab != null) {
-          tab.select();
+      try {
+        if (selectedIndex >= 0 && selectedIndex < tabLayout.getTabCount()) {
+          TabLayout.Tab tab = tabLayout.getTabAt(selectedIndex);
+          if (tab != null) {
+            tab.select();
+          }
         }
+      } catch (Exception e) {
+        Log.e(TAG, "Error setting property 'selectedIndex': " + e.getMessage());
       }
     }
 

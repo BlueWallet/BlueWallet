@@ -33,8 +33,10 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
-import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { HandOffActivityType } from '../../components/types';
+import SegmentedControl from '../../components/SegmentControl';
+
+const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -49,7 +51,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
-  const [currentTab, setCurrentTab] = useState(TABS.EXTERNAL);
+  const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -74,9 +76,6 @@ const ReceiveDetails = () => {
       color: colors.foregroundColor,
     },
     root: {
-      backgroundColor: colors.elevated,
-    },
-    rootBackgroundColor: {
       backgroundColor: colors.elevated,
     },
     amount: {
@@ -180,45 +179,41 @@ const ReceiveDetails = () => {
 
   const renderConfirmedBalance = () => {
     return (
-      <ScrollView style={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
-          {isCustom && (
-            <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
-            </>
-          )}
-          <SuccessView />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {displayBalance}
-          </BlueText>
-        </View>
-      </ScrollView>
+      <View style={styles.scrollBody}>
+        {isCustom && (
+          <>
+            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          </>
+        )}
+        <SuccessView />
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {displayBalance}
+        </BlueText>
+      </View>
     );
   };
 
   const renderPendingBalance = () => {
     return (
-      <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
-          {isCustom && (
-            <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
-            </>
-          )}
-          <TransactionPendingIconBig />
-          <BlueSpacing40 />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {displayBalance}
-          </BlueText>
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {eta}
-          </BlueText>
-        </View>
-      </ScrollView>
+      <View style={styles.scrollBody}>
+        {isCustom && (
+          <>
+            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          </>
+        )}
+        <TransactionPendingIconBig />
+        <BlueSpacing40 />
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {displayBalance}
+        </BlueText>
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {eta}
+        </BlueText>
+      </View>
     );
   };
 
@@ -250,7 +245,7 @@ const ReceiveDetails = () => {
 
   const renderReceiveDetails = () => {
     return (
-      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+      <>
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -270,24 +265,14 @@ const ReceiveDetails = () => {
           <QRCodeComponent value={bip21encoded} />
           <CopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
-        <View style={styles.share}>
-          <BlueCard>
-            <BlueButtonLink
-              style={styles.link}
-              testID="SetCustomAmountButton"
-              title={loc.receive.details_setAmount}
-              onPress={showCustomAmountModal}
-            />
-          </BlueCard>
-        </View>
-        {renderCustomAmountModal()}
-      </ScrollView>
+      </>
     );
   };
 
   const obtainWalletAddress = useCallback(async () => {
     console.log('receive/details - componentDidMount');
     wallet.setUserHasSavedExport(true);
+    await saveToDisk();
     let newAddress;
     if (address) {
       setAddressBIP21Encoded(address);
@@ -407,7 +392,9 @@ const ReceiveDetails = () => {
   };
 
   const handleShareButtonPressed = () => {
-    Share.open({ message: bip21encoded }).catch(error => console.log(error));
+    Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
+      console.log(error),
+    );
   };
 
   /**
@@ -430,15 +417,10 @@ const ReceiveDetails = () => {
   };
 
   const renderTabContent = () => {
-    const qrValue = currentTab === TABS.EXTERNAL ? address : wallet.getBIP47PaymentCode();
+    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
 
-    if (currentTab === TABS.EXTERNAL) {
-      return (
-        <View style={styles.container}>
-          {!address && <Text>{loc.bip47.not_found}</Text>}
-          {address && renderReceiveDetails()}
-        </View>
-      );
+    if (currentTab === segmentControlValues[0]) {
+      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
     } else {
       return (
         <View style={styles.container}>
@@ -458,29 +440,41 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
       {wallet.isBIP47Enabled() && (
         <View style={styles.tabsContainer}>
-          <AddressTypeTabs
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            customTabText={{ EXTERNAL: 'Address', INTERNAL: 'Payment Code' }}
+          <SegmentedControl
+            values={Object.values(segmentControlValues).map(tab => tab)}
+            selectedIndex={Object.values(segmentControlValues).findIndex(tab => tab === currentTab)}
+            onChange={index => {
+              const tabKey = Object.keys(segmentControlValues)[index];
+              setCurrentTab(segmentControlValues[tabKey]);
+            }}
           />
         </View>
       )}
-      {renderTabContent()}
-      <View style={styles.share}>
-        <BlueCard>
-          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-        </BlueCard>
-      </View>
+      {showAddress && renderTabContent()}
+      {renderCustomAmountModal()}
       {address !== undefined && showAddress && (
         <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
-    </View>
+      <View style={styles.share}>
+        <BlueCard>
+          {showAddress && currentTab === loc.wallets.details_address && (
+            <BlueButtonLink
+              style={styles.link}
+              testID="SetCustomAmountButton"
+              title={loc.receive.details_setAmount}
+              onPress={showCustomAmountModal}
+            />
+          )}
+          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </BlueCard>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -510,7 +504,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   tabsContainer: {
-    height: 65,
+    margin: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollBody: {
     marginTop: 32,
@@ -520,12 +516,11 @@ const styles = StyleSheet.create({
   },
   share: {
     justifyContent: 'flex-end',
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 8,
+    paddingHorizontal: 32,
+    marginVertical: 16,
   },
   link: {
-    marginVertical: 16,
+    marginVertical: 32,
     paddingHorizontal: 32,
   },
   amount: {
