@@ -43,7 +43,8 @@
   "entropy": {
     "save": "Save",
     "title": "Entropy",
-    "undo": "Undo"
+    "undo": "Undo",
+    "amountOfEntropy": "{bits} of {limit} bits"
   },
   "errors": {
     "broadcast": "Broadcast failed.",
@@ -387,6 +388,8 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
+    "add_entropy": "Entropy",
+    "add_entropy_bytes": "{bytes} bytes of entropy",
     "add_entropy_generated": "{gen} bytes of generated entropy",
     "add_entropy_provide": "Provide entropy via dice rolls",
     "add_entropy_remain": "{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.",
@@ -400,6 +403,10 @@
     "add_title": "Add Wallet",
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
+    "add_wallet_seed_length": "Seed Length",
+    "add_wallet_seed_length_message": "Choose the length of the seed phrase you wish to use for this wallet.",
+    "add_wallet_seed_length_12": "12 words",
+    "add_wallet_seed_length_24": "24 words",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
     "clipboard_lightning": "You have a Lightning invoice on your clipboard. Would you like to use it for a transaction?",
     "details_address": "Address",

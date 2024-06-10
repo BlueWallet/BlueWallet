@@ -28,7 +28,7 @@ import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/details';
 import GenerateWord from '../screen/wallets/generateWord';
 import LdkViewLogs from '../screen/wallets/ldkViewLogs';
-import SelectWallet from '../screen/wallets/selectWallet';
+import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator

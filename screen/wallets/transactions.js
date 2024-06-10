@@ -666,7 +666,7 @@ const styles = StyleSheet.create({
   },
   listHeaderTextRow: {
     flex: 1,
-    marginHorizontal: 16,
+    margin: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },

@@ -28,3 +28,9 @@ export function popToTop() {
     navigationRef.current?.dispatch(StackActions.popToTop());
   }
 }
+
+export function pop() {
+  if (navigationRef.isReady()) {
+    navigationRef.current?.dispatch(StackActions.pop());
+  }
+}

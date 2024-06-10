@@ -664,10 +664,13 @@ const SendDetails = () => {
     setIsLoading(false);
   };
 
-  const onWalletSelect = (w: TWallet) => {
-    setWallet(w);
-    navigation.dispatch(popAction);
-  };
+  useEffect(() => {
+    const newWallet = wallets.find(w => w.getID() === routeParams.walletID);
+    if (newWallet) {
+      setWallet(newWallet);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.walletID]);
 
   /**
    * same as `importTransaction`, but opens camera instead.
@@ -1196,6 +1199,12 @@ const SendDetails = () => {
     },
   });
 
+  const calculateTotalAmount = () => {
+    const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
+    const totalWithFee = totalAmount + (feePrecalc.current || 0);
+    return totalWithFee;
+  };
+
   const renderFeeSelectionModal = () => {
     const nf = networkTransactionFees;
     const options = [
@@ -1355,12 +1364,15 @@ const SendDetails = () => {
   };
 
   const renderCreateButton = () => {
+    const totalWithFee = calculateTotalAmount();
+    const isDisabled = totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0;
+
     return (
       <View style={styles.createButton}>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Button onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <Button onPress={createTransaction} disabled={isDisabled} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -1389,7 +1401,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -1399,7 +1411,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
