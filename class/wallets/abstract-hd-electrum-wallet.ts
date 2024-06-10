@@ -489,25 +489,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (const pc of this._receive_payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeIndexReceive(pc) + this.gap_limit; c++) {
         for (const tx of Object.values(txdatas)) {
-          for (const vin of tx.vin) {
-            if (vin.addresses && vin.addresses.indexOf(this._getBIP47AddressReceive(pc, c)) !== -1) {
-              // this TX is related to our address
-              this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
-              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-              const { vin: txVin, vout: txVout, ...txRest } = tx;
-              const clonedTx = { ...txRest, inputs: txVin.slice(0), outputs: txVout.slice(0) };
-
-              // trying to replace tx if it exists already (because it has lower confirmations, for example)
-              let replaced = false;
-              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
-                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
-                  replaced = true;
-                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
-                }
-              }
-              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
-            }
-          }
+          // since we are iterating PCs who can pay us, we can completely ignore `tx.vin` and only iterate `tx.vout`
           for (const vout of tx.vout) {
             if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getBIP47AddressReceive(pc, c)) !== -1) {
               // this TX is related to our address
