@@ -33,7 +33,9 @@ export type DetailViewStackParamList = {
   AddWalletRoot: undefined;
   SendDetailsRoot: {
     screen: string;
-    params:SendDetailsParams;
+    params: SendDetailsParams;
+    merge: boolean;
+  };
   LNDCreateInvoiceRoot: undefined;
   ScanLndInvoiceRoot: {
     screen: string;
@@ -105,4 +107,4 @@ export type DetailViewStackParamList = {
     };
   };
   ReorderWallets: undefined;
-}}
+};

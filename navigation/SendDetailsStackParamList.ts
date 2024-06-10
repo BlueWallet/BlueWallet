@@ -3,23 +3,22 @@ import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, LightningTrans
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export type SendDetailsParams = {
-  memo: string;
-  address: string;
+  memo?: string;
+  address?: string;
+  amount?: number;
+  amountSats?: number;
+  unit?: BitcoinUnit;
+  noRbf?: boolean;
   walletID: string;
-  amount: number;
-  amountSats: number;
-  unit: BitcoinUnit;
-  noRbf: boolean;
-  launchedBy: string;
-  isEditable: boolean;
-  uri: string;
+  launchedBy?: string;
+  isEditable?: boolean;
+  uri?: string;
   addRecipientParams?: {
     address: string;
     amount?: number;
     memo?: string;
   };
 };
-
 
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;

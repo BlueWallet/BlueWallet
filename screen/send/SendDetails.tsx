@@ -213,16 +213,17 @@ const SendDetails = () => {
       }
     } else if (routeParams.address) {
       const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
-      setAddresses(addrs => {
+      // @ts-ignore: needs fix
+      setAddresses(value => {
         if (currentAddress && currentAddress.address && routeParams.address) {
           currentAddress.address = routeParams.address;
-          addrs[scrollIndex.current] = currentAddress;
-          return [...addrs];
+          value[scrollIndex.current] = currentAddress;
+          return [...value];
         } else {
-          return [...addrs, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
+          return [...value, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
         }
       });
-      if (routeParams.memo?.trim().length > 0) {
+      if (routeParams.memo && routeParams.memo?.trim().length > 0) {
         setTransactionMemo(routeParams.memo);
       }
       setUnits(u => {
