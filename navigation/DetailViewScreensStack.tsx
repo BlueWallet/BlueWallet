@@ -56,7 +56,6 @@ import {
 } from './LazyLoadSettingsStack';
 import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
-import PaymentCodeStackRoot from './PaymentCodeStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
 import ReorderWalletsStackRoot from './ReorderWalletsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
@@ -66,6 +65,7 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
+import PaymentCodeStackRoot from './PaymentCodeStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -208,6 +208,8 @@ const DetailViewStackScreensStack = () => {
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
+      <DetailViewStack.Screen name="PaymentCodeListRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+
       <DetailViewStack.Screen
         name="LnurlPaySuccess"
         component={LnurlPaySuccess}
@@ -362,8 +364,6 @@ const DetailViewStackScreensStack = () => {
           statusBarHidden: true,
         }}
       />
-
-      <DetailViewStack.Screen name="PaymentCodeRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen
         name="ReorderWallets"
         component={ReorderWalletsStackRoot}
