@@ -140,31 +140,26 @@ describe('P2SH Segwit HD (BIP49)', () => {
   });
 
   it('can consume user generated entropy', async () => {
-    const hd = new HDSegwitP2SHWallet();
-    const zeroes = [...Array(32)].map(() => 0);
-    await hd.generateFromEntropy(Buffer.from(zeroes));
+    const hd1 = new HDSegwitP2SHWallet();
+    const zeroes16 = [...Array(16)].map(() => 0);
+    await hd1.generateFromEntropy(Buffer.from(zeroes16));
+    assert.strictEqual(hd1.getSecret(), 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+
+    const hd2 = new HDSegwitP2SHWallet();
+    const zeroes32 = [...Array(32)].map(() => 0);
+    await hd2.generateFromEntropy(Buffer.from(zeroes32));
     assert.strictEqual(
-      hd.getSecret(),
+      hd2.getSecret(),
       'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art',
     );
   });
 
-  it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
+  it('throws an error if not 32 bytes provided', async () => {
     const hd = new HDSegwitP2SHWallet();
-    const zeroes = [...Array(16)].map(() => 0);
-    await hd.generateFromEntropy(Buffer.from(zeroes));
-    const secret = hd.getSecret();
-    assert.strictEqual(secret.startsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'), true);
-
-    const secretWithoutChecksum = secret.split(' ');
-    secretWithoutChecksum.pop();
-    const secretWithoutChecksumString = secretWithoutChecksum.join(' ');
-    assert.strictEqual(
-      secretWithoutChecksumString.endsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
-      false,
-    );
-
-    assert.ok(secret.split(' ').length === 12 || secret.split(' ').length === 24);
+    const values = [...Array(31)].map(() => 1);
+    await assert.rejects(async () => await hd.generateFromEntropy(Buffer.from(values)), {
+      message: 'Entropy has to be 16 or 32 bytes long',
+    });
   });
 
   it('can sign and verify messages', async () => {

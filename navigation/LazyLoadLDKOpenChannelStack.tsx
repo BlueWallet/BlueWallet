@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
-const SelectWallet = lazy(() => import('../screen/wallets/selectWallet'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 const LdkOpenChannel = lazy(() => import('../screen/lnd/ldkOpenChannel'));
 const Success = lazy(() => import('../screen/send/success'));
 

@@ -1,7 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import {
@@ -24,7 +23,7 @@ const LNDCreateInvoiceRoot = () => {
         component={LNDCreateInvoiceComponent}
         options={navigationStyle({
           title: loc.receive.header,
-          closeButton: true,
+          closeButtonPosition: CloseButtonPosition.Right,
           headerBackVisible: false,
           statusBarStyle: 'light',
         })(theme)}

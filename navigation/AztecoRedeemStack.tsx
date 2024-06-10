@@ -1,7 +1,6 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-
-import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { AztecoRedeemComponent, SelectWalletComponent } from './LazyLoadAztecoRedeemStack';
@@ -16,11 +15,10 @@ const AztecoRedeemStackRoot = () => {
       <Stack.Screen
         name="AztecoRedeem"
         component={AztecoRedeemComponent}
-        options={navigationStyleTx({}, options => ({
-          ...options,
+        options={navigationStyle({
           title: loc.azteco.title,
           statusBarStyle: 'auto',
-        }))(theme)}
+        })(theme)}
       />
       <Stack.Screen
         name="SelectWallet"

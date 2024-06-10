@@ -47,6 +47,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
+import { popToTop } from '../../NavigationService';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -119,7 +120,7 @@ const WalletDetails = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
+  const { goBack, setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
   const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);

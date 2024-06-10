@@ -21,7 +21,7 @@ const ScanLndInvoiceRoot = () => {
       <Stack.Screen
         name="ScanLndInvoice"
         component={ScanLndInvoiceComponent}
-        options={navigationStyle({ closeButton: true, headerBackVisible: false, title: loc.send.header, statusBarStyle: 'light' })(theme)}
+        options={navigationStyle({ headerBackVisible: false, title: loc.send.header, statusBarStyle: 'light' })(theme)}
         initialParams={{ uri: undefined, walletID: undefined, invoice: undefined }}
       />
       <Stack.Screen
@@ -39,7 +39,6 @@ const ScanLndInvoiceRoot = () => {
         component={LnurlPayComponent}
         options={navigationStyle({
           title: '',
-          closeButton: true,
         })(theme)}
       />
       <Stack.Screen
@@ -47,7 +46,6 @@ const ScanLndInvoiceRoot = () => {
         component={LnurlPaySuccessComponent}
         options={navigationStyle({
           title: '',
-          closeButton: true,
           headerBackVisible: false,
           gestureEnabled: false,
         })(theme)}
