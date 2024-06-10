@@ -6,9 +6,9 @@ import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetada
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc from '../../loc';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
+import { useElectrum } from '../../hooks/context/useElectrum';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -28,21 +28,13 @@ interface StorageContextType {
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
-  fetchAndSaveWalletTransactions: (walletID: string) => Promise<void>;
   walletsInitialized: boolean;
   setWalletsInitialized: (initialized: boolean) => void;
-  refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
-  isElectrumDisabled: boolean;
-  setIsElectrumDisabled: (value: boolean) => void;
   reloadTransactionsMenuActionFunction: () => void;
   setReloadTransactionsMenuActionFunction: (func: () => void) => void;
-  getTransactions: typeof BlueApp.getTransactions;
-  fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
-  fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
-  getBalance: typeof BlueApp.getBalance;
   isStorageEncrypted: typeof BlueApp.storageIsEncrypted;
   startAndDecrypt: typeof startAndDecrypt;
   encryptStorage: typeof BlueApp.encryptStorage;
@@ -63,6 +55,7 @@ export enum WalletTransactionsStatus {
 export const StorageContext = createContext<StorageContextType>(undefined);
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
+  const { waitTillConnected, connect } = useElectrum();
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
   const getTransactions = BlueApp.getTransactions;
   const fetchWalletBalances = BlueApp.fetchWalletBalances;
@@ -90,14 +83,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const [reloadTransactionsMenuActionFunction, setReloadTransactionsMenuActionFunction] = useState<() => void>(() => {});
 
   useEffect(() => {
-    BlueElectrum.isDisabled().then(setIsElectrumDisabled);
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       setWallets(BlueApp.getWallets());
-      BlueElectrum.connectMain();
+      connect();
     }
-  }, [walletsInitialized]);
+  }, [connect, walletsInitialized]);
 
   const saveToDisk = useCallback(async (force: boolean = false) => {
     InteractionManager.runAfterInteractions(async () => {
@@ -131,7 +123,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       InteractionManager.runAfterInteractions(async () => {
         let noErr = true;
         try {
-          await BlueElectrum.waitTillConnected();
+          await waitTillConnected();
           if (showUpdateStatusIndicator) {
             setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
           }
@@ -156,7 +148,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (noErr) await saveToDisk(); // caching
       });
     },
-    [fetchWalletBalances, fetchWalletTransactions, saveToDisk],
+    [fetchWalletBalances, fetchWalletTransactions, saveToDisk, waitTillConnected],
   );
 
   const fetchAndSaveWalletTransactions = useCallback(
@@ -172,7 +164,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           }
           _lastTimeTriedToRefetchWallet[walletID] = +new Date();
 
-          await BlueElectrum.waitTillConnected();
+          await waitTillConnected();
           setWalletTransactionUpdateStatus(walletID);
           const balanceStart = +new Date();
           await fetchWalletBalances(index);
@@ -191,7 +183,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         if (noErr) await saveToDisk(); // caching
       });
     },
-    [fetchWalletBalances, fetchWalletTransactions, saveToDisk, wallets],
+    [fetchWalletBalances, fetchWalletTransactions, saveToDisk, waitTillConnected, wallets],
   );
 
   const addWallet = useCallback((wallet: TWallet) => {

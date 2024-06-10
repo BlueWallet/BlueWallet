@@ -10,6 +10,7 @@ import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { StorageProvider } from './components/Context/StorageProvider';
+import { ElectrumProvider } from './components/Context/ElectrumProvider';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -18,11 +19,13 @@ const App = () => {
     <LargeScreenProvider>
       <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
         <SafeAreaProvider>
-          <StorageProvider>
-            <SettingsProvider>
-              <MasterView />
-            </SettingsProvider>
-          </StorageProvider>
+          <ElectrumProvider>
+            <StorageProvider>
+              <SettingsProvider>
+                <MasterView />
+              </SettingsProvider>
+            </StorageProvider>
+          </ElectrumProvider>
         </SafeAreaProvider>
       </NavigationContainer>
     </LargeScreenProvider>

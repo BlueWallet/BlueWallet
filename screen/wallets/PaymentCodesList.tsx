@@ -5,7 +5,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
@@ -24,6 +23,7 @@ import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useElectrum } from '../../hooks/context/useElectrum';
 
 interface DataSection {
   title: string;
@@ -74,6 +74,7 @@ export default function PaymentCodesList() {
   const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
   const { walletID } = route.params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
+  const { estimateFees} = useElectrum();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
   const { colors } = useTheme();
@@ -245,7 +246,7 @@ export default function PaymentCodesList() {
     setLoadingText('Fetching UTXO...');
     await foundWallet.fetchUtxo();
     setLoadingText('Fetching fees...');
-    const fees = await BlueElectrum.estimateFees();
+    const fees = await estimateFees();
     setLoadingText('Fetching change address...');
     const changeAddress = await foundWallet.getChangeAddressAsync();
     setLoadingText('Crafting notification transaction...');

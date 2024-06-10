@@ -22,6 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useElectrum } from '../../hooks/context/useElectrum';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -96,15 +97,8 @@ const WalletsList: React.FC = () => {
   const isLargeScreen = useIsLargeScreen();
   const walletsCarousel = useRef<any>();
   const currentWalletIndex = useRef<number>(0);
-  const {
-    wallets,
-    getTransactions,
-    getBalance,
-    refreshAllWalletTransactions,
-    setSelectedWalletID,
-    isElectrumDisabled,
-    setReloadTransactionsMenuActionFunction,
-  } = useStorage();
+  const { wallets, setSelectedWalletID, setReloadTransactionsMenuActionFunction } = useStorage();
+  const { isElectrumDisabled, waitTillConnected, getTransactions, refreshAllWalletTransactions, getBalance } = useElectrum();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
@@ -169,11 +163,14 @@ const WalletsList: React.FC = () => {
         return;
       }
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
-      refreshAllWalletTransactions(undefined, showUpdateStatusIndicator).finally(() => {
+      try {
+        await waitTillConnected();
+        await refreshAllWalletTransactions(undefined, showUpdateStatusIndicator);
+      } finally {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
-      });
+      }
     },
-    [isElectrumDisabled, refreshAllWalletTransactions],
+    [isElectrumDisabled, refreshAllWalletTransactions, waitTillConnected],
   );
 
   useEffect(() => {

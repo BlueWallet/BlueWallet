@@ -18,8 +18,6 @@ import {
   View,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -42,6 +40,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
+import { useElectrum } from '../../hooks/context/useElectrum';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -57,6 +56,7 @@ const WalletTransactions = ({ navigation }) => {
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
+  const { waitTillConnected } = useElectrum();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
@@ -200,7 +200,7 @@ const WalletTransactions = ({ navigation }) => {
     try {
       refreshLnNodeInfo();
       // await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
+      await waitTillConnected();
       if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
         const pcStart = +new Date();
         await wallet.fetchBIP47SenderPaymentCodes();
