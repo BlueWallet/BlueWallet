@@ -156,7 +156,9 @@ export default function PaymentCodesList() {
       screen: 'SendDetails',
       params: {
         walletID,
-        address: pc,
+        addRecipientParams: {
+          address: pc,
+        },
       },
       merge: true,
     });
