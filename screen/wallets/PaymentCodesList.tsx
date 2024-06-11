@@ -34,6 +34,7 @@ enum Actions {
   pay,
   rename,
   copyToClipboard,
+  hide,
 }
 
 const actionKeys: Action[] = [
@@ -59,6 +60,14 @@ const actionKeys: Action[] = [
     icon: {
       iconType: 'SYSTEM',
       iconValue: 'doc.on.doc',
+    },
+  },
+  {
+    id: Actions.hide,
+    text: loc.bip47.hide_contact,
+    icon: {
+      iconType: 'SYSTEM',
+      iconValue: 'eye.slash',
     },
   },
 ];
@@ -111,6 +120,17 @@ export default function PaymentCodesList() {
   };
 
   const onToolTipPress = async (id: any, pc: string) => {
+    try {
+      setIsLoading(true);
+      await _onToolTipPress(id, pc);
+    } catch (error: any) {
+      presentAlert({ message: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const _onToolTipPress = async (id: any, pc: string) => {
     if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
     }
@@ -149,6 +169,17 @@ export default function PaymentCodesList() {
 
       _navigateToSend(pc);
     }
+
+    if (String(id) === String(Actions.hide)) {
+      if (!(await confirm(loc.wallets.details_are_you_sure))) {
+        return;
+      }
+
+      counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
+
+      setReload(Math.random());
+      await saveToDisk();
+    }
   };
 
   const _navigateToSend = (pc: string) => {
@@ -165,13 +196,15 @@ export default function PaymentCodesList() {
   };
 
   const renderItem = (pc: string) => {
+    if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
+
     const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
 
     if (previousRouteName === 'SendDetails') {
       return (
-        <TouchableOpacity onPress={() => _navigateToSend(pc)}>
+        <TouchableOpacity onPress={() => onToolTipPress(Actions.pay, pc)}>
           <View style={styles.contactRowContainer}>
             <View style={[styles.circle, { backgroundColor: '#' + color }]} />
             <View style={styles.contactRowBody}>
@@ -217,6 +250,14 @@ export default function PaymentCodesList() {
   const _addContact = async (newPc: string) => {
     const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
     assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+
+    if (counterpartyMetadata[newPc]?.hidden) {
+      // contact already present, just need to unhide it
+      counterpartyMetadata[newPc].hidden = false;
+      await saveToDisk();
+      setReload(Math.random());
+      return;
+    }
 
     const cl = new ContactList();
 
@@ -291,6 +332,7 @@ export default function PaymentCodesList() {
       } catch (_) {}
       setLoadingText('Fetching transactions...');
       await foundWallet.fetchTransactions();
+      setLoadingText('');
     }
   };
 
