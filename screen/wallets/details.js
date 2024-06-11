@@ -297,6 +297,8 @@ const WalletDetails = () => {
       walletID: wallet.getID(),
     });
 
+  const navigateToContacts = () => navigate('PaymentCodeList', { walletID });
+
   const exportInternals = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
@@ -584,6 +586,9 @@ const WalletDetails = () => {
             </BlueCard>
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
+            )}
+            {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
+              <ListItem disabled={isToolTipMenuVisible} onPress={navigateToContacts} title={loc.bip47.contacts} chevron />
             )}
             <BlueCard style={styles.address}>
               <View>
