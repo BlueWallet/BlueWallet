@@ -111,6 +111,17 @@ export default function PaymentCodesList() {
   };
 
   const onToolTipPress = async (id: any, pc: string) => {
+    try {
+      setIsLoading(true);
+      await _onToolTipPress(id, pc);
+    } catch (error: any) {
+      presentAlert({ message: error.message });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const _onToolTipPress = async (id: any, pc: string) => {
     if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
     }
@@ -171,7 +182,7 @@ export default function PaymentCodesList() {
 
     if (previousRouteName === 'SendDetails') {
       return (
-        <TouchableOpacity onPress={() => _navigateToSend(pc)}>
+        <TouchableOpacity onPress={() => onToolTipPress(Actions.pay, pc)}>
           <View style={styles.contactRowContainer}>
             <View style={[styles.circle, { backgroundColor: '#' + color }]} />
             <View style={styles.contactRowBody}>

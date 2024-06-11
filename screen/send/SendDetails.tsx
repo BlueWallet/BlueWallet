@@ -160,7 +160,6 @@ const SendDetails = () => {
 
   useEffect(() => {
     // decode route params
-    console.warn('routeParams', routeParams);
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
       try {
@@ -217,7 +216,6 @@ const SendDetails = () => {
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
       const isEmptyArray = addresses.length > 0 || addresses.length < 2;
       const addRecipientParams = routeParams.addRecipientParams;
-      console.warn('isEmptyArray', isEmptyArray);
 
       if (isEmptyArray) {
         if (Number(addRecipientParams.amount) > 0) {
