@@ -24,7 +24,6 @@ import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
 interface DataSection {
   title: string;
@@ -68,22 +67,26 @@ function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-type PaymentCodeListModalProp = RouteProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
-type PaymentCodesListModalNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
-
-type PaymentCodeListRouteProp = RouteProp<SendDetailsStackParamList, 'PaymentCodeList'>;
-type PaymentCodesListNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'PaymentCodeList'>;
+type PaymentCodeListRouteProp = RouteProp<DetailViewStackParamList, 'PaymentCodeList'>;
+type PaymentCodesListNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeList'>;
 
 export default function PaymentCodesList() {
-  const { params } = useRoute<PaymentCodeListModalProp & PaymentCodeListRouteProp>();
-  const navigation = useExtendedNavigation<PaymentCodesListModalNavigationProp & PaymentCodesListNavigationProp>();
-  const { walletID } = params;
+  const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
+  const route = useRoute<PaymentCodeListRouteProp>();
+  const { walletID } = route.params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading...');
+  const state = navigation.getState();
+  const previousRouteIndex = state.index - 1;
+
+  let previousRouteName: string | null;
+  if (previousRouteIndex >= 0) {
+    previousRouteName = state.routes[previousRouteIndex].name;
+  }
 
   useEffect(() => {
     if (!walletID) return;
@@ -164,9 +167,7 @@ export default function PaymentCodesList() {
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
 
-    const isFirstRouteInStack = navigation.getState().index === 0;
-
-    if (isFirstRouteInStack) {
+    if (previousRouteName === 'SendDetails') {
       return (
         <TouchableOpacity onPress={() => _navigateToSend(pc)}>
           <View style={styles.contactRowContainer}>
