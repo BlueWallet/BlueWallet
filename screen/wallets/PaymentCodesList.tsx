@@ -4,10 +4,10 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
+import { BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -20,15 +20,17 @@ import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
 interface DataSection {
   title: string;
   data: string[];
 }
+
 enum Actions {
   pay,
   rename,
@@ -66,13 +68,16 @@ function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-type PaymentCodeListRouteProp = RouteProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
-type PaymentCodesListNavigationProp = NativeStackNavigationProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
+type PaymentCodeListModalProp = RouteProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
+type PaymentCodesListModalNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeListRoot'>;
+
+type PaymentCodeListRouteProp = RouteProp<SendDetailsStackParamList, 'PaymentCodeList'>;
+type PaymentCodesListNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'PaymentCodeList'>;
 
 export default function PaymentCodesList() {
-  const route = useRoute<PaymentCodeListRouteProp>();
-  const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
-  const { walletID } = route.params;
+  const { params } = useRoute<PaymentCodeListModalProp & PaymentCodeListRouteProp>();
+  const navigation = useExtendedNavigation<PaymentCodesListModalNavigationProp & PaymentCodesListNavigationProp>();
+  const { walletID } = params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
@@ -105,7 +110,6 @@ export default function PaymentCodesList() {
   const onToolTipPress = async (id: any, pc: string) => {
     if (String(id) === String(Actions.copyToClipboard)) {
       Clipboard.setString(pc);
-      presentAlert({ message: loc.bip47.copied });
     }
 
     if (String(id) === String(Actions.rename)) {
@@ -145,14 +149,13 @@ export default function PaymentCodesList() {
   };
 
   const _navigateToSend = (pc: string) => {
-    // @ts-ignore idk how to fix
     navigation.navigate('SendDetailsRoot', {
       screen: 'SendDetails',
       params: {
-        memo: '',
-        address: pc,
         walletID,
+        address: pc,
       },
+      merge: true,
     });
   };
 
@@ -160,6 +163,22 @@ export default function PaymentCodesList() {
     const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
+
+    const isFirstRouteInStack = navigation.getState().index === 0;
+
+    if (isFirstRouteInStack) {
+      return (
+        <TouchableOpacity onPress={() => _navigateToSend(pc)}>
+          <View style={styles.contactRowContainer}>
+            <View style={[styles.circle, { backgroundColor: '#' + color }]} />
+            <View style={styles.contactRowBody}>
+              <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
+            </View>
+          </View>
+          <View style={styles.stick} />
+        </TouchableOpacity>
+      );
+    }
 
     return (
       <ToolTipMenu
@@ -179,16 +198,6 @@ export default function PaymentCodesList() {
     );
   };
 
-  const navigateToPaymentCodes = () => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
-
-    // @ts-ignore idk how to fix
-    navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCode',
-      params: { paymentCode: foundWallet.getBIP47PaymentCode() },
-    });
-  };
-
   const onAddContactPress = async () => {
     try {
       const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, true, 'plain-text');
@@ -196,7 +205,7 @@ export default function PaymentCodesList() {
 
       await _addContact(newPc);
     } catch (error: any) {
-      presentAlert({ message: error.message });
+      console.debug(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -301,7 +310,6 @@ export default function PaymentCodesList() {
         </View>
       )}
 
-      <BlueButtonLink title={loc.bip47.my_payment_code} onPress={navigateToPaymentCodes} />
       <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />
     </SafeArea>
   );

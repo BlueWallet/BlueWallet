@@ -7,6 +7,7 @@ import {
   CoinControlComponent,
   ConfirmComponent,
   CreateTransactionComponent,
+  PaymentCodesListComponent,
   PsbtMultisigComponent,
   PsbtMultisigQRCodeComponent,
   PsbtWithHardwareWalletComponent,
@@ -74,6 +75,11 @@ const SendDetailsStack = () => {
         options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
       />
       <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
+      <Stack.Screen
+        name="PaymentCodeList"
+        component={PaymentCodesListComponent}
+        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
+      />
     </Stack.Navigator>
   );
 };

@@ -107,13 +107,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   };
 
-  const handleOnPaymentCodeButtonPressed = () => {
-    navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCodesList',
-      params: { walletID: wallet.getID() },
-    });
-  };
-
   const onPressMenuItem = (id: string) => {
     if (id === 'walletBalanceVisibility') {
       handleBalanceVisibility();
@@ -246,11 +239,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
-      )}
-      {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
-          <Text style={styles.manageFundsButtonText}>{loc.bip47.contacts}</Text>
-        </TouchableOpacity>
       )}
       {wallet.type === LightningLdkWallet.type && (
         <TouchableOpacity
