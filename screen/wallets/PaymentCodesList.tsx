@@ -175,7 +175,7 @@ export default function PaymentCodesList() {
         return;
       }
 
-      counterpartyMetadata[pc] = { label: counterpartyMetadata?.[pc]?.label ?? '', hidden: true };
+      counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
 
       setReload(Math.random());
       await saveToDisk();
