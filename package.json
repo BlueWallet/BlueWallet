@@ -82,7 +82,7 @@
       "tsx"
     ],
     "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|silent-payments/)"
+      "node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|@rneui|silent-payments/)"
     ],
     "setupFiles": [
       "./tests/setup.js"
