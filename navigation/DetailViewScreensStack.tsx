@@ -1,8 +1,7 @@
+import React, { useMemo } from 'react';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import React, { useCallback, useMemo } from 'react';
 import { I18nManager, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
-
+import { Icon } from '@rneui/themed';
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
