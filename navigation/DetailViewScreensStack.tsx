@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { I18nManager, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
