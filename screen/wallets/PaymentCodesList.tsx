@@ -131,54 +131,54 @@ export default function PaymentCodesList() {
   };
 
   const _onToolTipPress = async (id: any, pc: string) => {
-    if (String(id) === String(Actions.copyToClipboard)) {
-      Clipboard.setString(pc);
-    }
+    switch (String(id)) {
+      case String(Actions.copyToClipboard): {
+        Clipboard.setString(pc);
+        break;
+      }
+      case String(Actions.rename): {
+        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, true, 'plain-text');
+        if (!newName) return;
 
-    if (String(id) === String(Actions.rename)) {
-      const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, false, 'plain-text');
-      if (!newName) return;
-
-      counterpartyMetadata[pc] = { label: newName };
-      setReload(Math.random());
-      await saveToDisk();
-    }
-
-    if (String(id) === String(Actions.pay)) {
-      const cl = new ContactList();
-      if (cl.isBip352PaymentCodeValid(pc)) {
+        counterpartyMetadata[pc] = { label: newName };
+        setReload(Math.random());
+        await saveToDisk();
+        break;
+      }
+      case String(Actions.pay): {
+        const cl = new ContactList();
         // ok its a SilentPayments code, ok to just send
+        if (cl.isBip352PaymentCodeValid(pc)) {
+          _navigateToSend(pc);
+          return;
+        }
+        // check if notif tx is in place and has confirmations
+        const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
+        assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+        const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
+        if (!notifTx) {
+          await _addContact(pc);
+          return;
+        }
+        if (!notifTx.confirmations) {
+          // when we just sent the confirmation tx and it havent confirmed yet
+          presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+          return;
+        }
         _navigateToSend(pc);
-        return;
+        break;
       }
-
-      // check if notif tx is in place and has confirmations
-      const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-      assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
-      const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
-      if (!notifTx) {
-        await _addContact(pc);
-        return;
+      case String(Actions.hide): {
+        if (!(await confirm(loc.wallets.details_are_you_sure))) {
+          return;
+        }
+        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
+        setReload(Math.random());
+        await saveToDisk();
+        break;
       }
-
-      if (!notifTx.confirmations) {
-        // when we just sent the confirmation tx and it havent confirmed yet
-        presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
-        return;
-      }
-
-      _navigateToSend(pc);
-    }
-
-    if (String(id) === String(Actions.hide)) {
-      if (!(await confirm(loc.wallets.details_are_you_sure))) {
-        return;
-      }
-
-      counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
-
-      setReload(Math.random());
-      await saveToDisk();
+      default:
+        break;
     }
   };
 
