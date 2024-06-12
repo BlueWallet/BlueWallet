@@ -4,8 +4,10 @@ import { LazyLoadingIndicator } from './LazyLoadingIndicator';
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 
-export const PaymentCodesListComponent = () => (
+const PaymentCodesListComponent = () => (
   <Suspense fallback={<LazyLoadingIndicator />}>
     <PaymentCodesList />
   </Suspense>
 );
+
+export default PaymentCodesListComponent;

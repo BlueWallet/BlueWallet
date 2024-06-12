@@ -54,6 +54,7 @@ import {
   SettingsPrivacyComponent,
   ToolsComponent,
 } from './LazyLoadSettingsStack';
+import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
 import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
@@ -65,7 +66,6 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import PaymentCodeStackRoot from './PaymentCodeStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -208,7 +208,11 @@ const DetailViewStackScreensStack = () => {
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
-      <DetailViewStack.Screen name="PaymentCodeListRoot" component={PaymentCodeStackRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen
+        name="PaymentCodeList"
+        component={PaymentCodesListComponent}
+        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
+      />
 
       <DetailViewStack.Screen
         name="LnurlPaySuccess"

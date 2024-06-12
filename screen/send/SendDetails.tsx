@@ -158,24 +158,6 @@ const SendDetails = () => {
     };
   }, []);
 
-  // handle selecting a contact (payment code list)
-  useEffect(() => {
-    if (routeParams.addRecipientParams) {
-      setAddresses(addrs => {
-        if (routeParams.addRecipientParams?.amount) {
-          addrs[scrollIndex.current].amount = routeParams.addRecipientParams?.amount;
-          addrs[scrollIndex.current].amountSats = btcToSatoshi(routeParams.addRecipientParams?.amount);
-        }
-        if (routeParams.addRecipientParams?.address) {
-          addrs[scrollIndex.current].address = routeParams.addRecipientParams?.address;
-        }
-        return [...addrs];
-      });
-    }
-    setParams({ addRecipientParams: undefined });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.addRecipientParams]);
-
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
@@ -230,11 +212,42 @@ const SendDetails = () => {
         u[scrollIndex.current] = unit;
         return [...u];
       });
+    } else if (routeParams.addRecipientParams) {
+      const index = addresses.length === 0 ? 0 : scrollIndex.current;
+      const isEmptyArray = addresses.length > 0 || addresses.length < 2;
+      const addRecipientParams = routeParams.addRecipientParams;
+
+      if (isEmptyArray) {
+        if (Number(addRecipientParams.amount) > 0) {
+          setAddresses([
+            {
+              address: addRecipientParams.address,
+              amount: addRecipientParams.amount,
+              amountSats: btcToSatoshi(addRecipientParams.amount!),
+              key: String(Math.random()),
+            } as IPaymentDestinations,
+          ]);
+        } else {
+          setAddresses([{ address: addRecipientParams.address, key: String(Math.random()) } as IPaymentDestinations]);
+        }
+      } else {
+        setAddresses(addrs => {
+          if (routeParams.addRecipientParams?.amount) {
+            addrs[index].amount = routeParams.addRecipientParams?.amount;
+            addrs[index].amountSats = btcToSatoshi(routeParams.addRecipientParams?.amount);
+          }
+          if (routeParams.addRecipientParams?.address) {
+            addrs[index].address = routeParams.addRecipientParams?.address;
+          }
+          return [...addrs];
+        });
+        setParams({ addRecipientParams: undefined });
+      }
     } else {
       setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address]);
+  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
     // check if we have a suitable wallet
