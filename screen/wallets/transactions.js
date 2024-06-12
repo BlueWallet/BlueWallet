@@ -113,7 +113,6 @@ const WalletTransactions = ({ navigation }) => {
       setOptions({ headerTitle: loc.transactions.updating });
       setIsRefreshing(true);
     } else {
-      setOptions({ headerTitle: '' });
     }
 
     if (isRefreshing && walletTransactionUpdateStatus === WalletTransactionsStatus.NONE) {
@@ -138,6 +137,8 @@ const WalletTransactions = ({ navigation }) => {
     setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
+      headerBackTitle: wallet.getLabel(),
+      headerBackTitleVisible: true,
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.type),
         borderBottomWidth: 0,
@@ -625,6 +626,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       </TouchableOpacity>
     ),
     title: '',
+    headerBackTitleStyle: { fontSize: 0 },
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,
@@ -633,7 +635,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       shadowOffset: { height: 0, width: 0 },
     },
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: false,
+    headerBackTitleVisible: true,
   };
 });
 
