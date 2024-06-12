@@ -16,7 +16,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Badge, Icon } from 'react-native-elements';
+import { Badge, Icon } from '@rneui/themed';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import {

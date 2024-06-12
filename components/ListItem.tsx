@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity } from 'react-native';
-import { Avatar, ListItem as RNElementsListItem } from 'react-native-elements'; // Replace with actual import paths
+import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed'; // Replace with actual import paths
 
 import { useTheme } from './themes';
 

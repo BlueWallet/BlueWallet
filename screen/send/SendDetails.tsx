@@ -23,7 +23,7 @@ import {
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
