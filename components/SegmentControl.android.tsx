@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { StyleSheet, Text, View, Pressable, LayoutAnimation, Platform, UIManager, ViewStyle, TextStyle, Animated } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Platform, UIManager, ViewStyle, TextStyle, Animated } from 'react-native';
 import { useTheme } from './themes';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -43,8 +43,13 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
   });
 
   const handleTabPress = (index: number) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    onChange(index);
+    Animated.timing(animatedValue, {
+      toValue: index,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      onChange(index);
+    });
   };
 
   const tabWidth = animatedValue.interpolate({
