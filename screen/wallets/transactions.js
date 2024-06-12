@@ -113,6 +113,7 @@ const WalletTransactions = ({ navigation }) => {
       setOptions({ headerTitle: loc.transactions.updating });
       setIsRefreshing(true);
     } else {
+      setOptions({ headerTitle: '' });
     }
 
     if (isRefreshing && walletTransactionUpdateStatus === WalletTransactionsStatus.NONE) {
