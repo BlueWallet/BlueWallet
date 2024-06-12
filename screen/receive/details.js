@@ -444,11 +444,10 @@ const ReceiveDetails = () => {
       {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
         <View style={styles.tabsContainer}>
           <SegmentedControl
-            values={Object.values(segmentControlValues).map(tab => tab)}
-            selectedIndex={Object.values(segmentControlValues).findIndex(tab => tab === currentTab)}
+            values={segmentControlValues}
+            selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
             onChange={index => {
-              const tabKey = Object.keys(segmentControlValues)[index];
-              setCurrentTab(segmentControlValues[tabKey]);
+              setCurrentTab(segmentControlValues[index]);
             }}
           />
         </View>
@@ -504,7 +503,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   tabsContainer: {
-    margin: 40,
+    marginTop: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
