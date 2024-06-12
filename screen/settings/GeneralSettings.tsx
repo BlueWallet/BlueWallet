@@ -54,7 +54,6 @@ const GeneralSettings: React.FC = () => {
       {Platform.OS === 'ios' ? (
         <>
           <ListItem
-            hideChevron
             title={loc.settings.general_continuity}
             Component={PressableWrapper}
             switch={{ onValueChange: onHandOffUseEnabledChange, value: isHandOffUseEnabled }}
