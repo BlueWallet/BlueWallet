@@ -1,6 +1,5 @@
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-import { Header } from '../../components/Header';
 import ListItem from '../../components/ListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -31,7 +30,6 @@ const Settings = () => {
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
     >
-      {Platform.OS === 'android' ? <Header leftText={loc.settings.header} /> : <></>}
       <ListItem title={loc.settings.general} onPress={() => navigate('GeneralSettings')} testID="GeneralSettings" chevron />
       <ListItem title={loc.settings.currency} onPress={() => navigate('Currency')} testID="Currency" chevron />
       <ListItem title={loc.settings.language} onPress={() => navigate('Language')} testID="Language" chevron />
