@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Button as ButtonRNElements } from 'react-native-elements';
+import { Button as ButtonRNElements } from '@rneui/themed';
 
 import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { BlueApp } from '../../class';

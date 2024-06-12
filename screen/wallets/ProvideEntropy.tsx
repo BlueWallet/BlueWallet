@@ -13,7 +13,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 
 import { BlueSpacing20 } from '../../BlueComponents';
 import { FButton, FContainer } from '../../components/FloatButtons';

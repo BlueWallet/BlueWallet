@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BlueClipboard from '../../blue_modules/clipboard';

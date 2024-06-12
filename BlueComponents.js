@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon, Text } from 'react-native-elements';
+import { Icon, Text } from '@rneui/themed';
 
 import { useTheme } from './components/themes';
 import loc from './loc';

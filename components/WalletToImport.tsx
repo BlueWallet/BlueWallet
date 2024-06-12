@@ -1,6 +1,6 @@
 import React from 'react';
 import { I18nManager, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Text } from '@rneui/themed';
 
 import { useTheme } from './themes';
 

@@ -226,7 +226,6 @@ const EncryptStorage = () => {
       </Text>
       <ListItem
         testID="EncyptedAndPasswordProtected"
-        hideChevron
         title={loc.settings.encrypt_enc_and_pass}
         Component={TouchableWithoutFeedback}
         switch={{
