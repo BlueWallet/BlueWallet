@@ -17,10 +17,10 @@ const SettingsButton = () => {
       accessibilityRole="button"
       accessibilityLabel={loc.settings.default_title}
       testID="SettingsButton"
-      style={[style.buttonStyle, { backgroundColor: colors.buttonGrayBackgroundColor }]}
+      style={[style.buttonStyle, { backgroundColor: colors.buttonBackgroundColor }]}
       onPress={onPress}
     >
-      <Icon size={22} name="more-horiz" type="material" color={colors.shadowColor} />
+      <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
     </TouchableOpacity>
   );
 };

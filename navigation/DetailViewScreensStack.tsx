@@ -82,7 +82,7 @@ const DetailViewStackScreensStack = () => {
     const RightBarButtons = (
       <>
         <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
-        <View style={styles.width28} />
+        <View style={styles.width24} />
         <SettingsButton />
       </>
     );
@@ -387,7 +387,7 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = {
-  width28: {
-    width: 28,
+  width24: {
+    width: 24,
   },
 };
