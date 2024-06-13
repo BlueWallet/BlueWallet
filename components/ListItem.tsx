@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity } from 'react-native';
-import { Avatar, ListItem as RNElementsListItem } from 'react-native-elements'; // Replace with actual import paths
+import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
 
 import { useTheme } from './themes';
 
 // Update the type for the props
 interface ListItemProps {
+  swipeable?: boolean;
   rightIcon?: any;
   leftAvatar?: React.JSX.Element;
   containerStyle?: object;
@@ -15,7 +16,7 @@ interface ListItemProps {
   testID?: string;
   onPress?: () => void;
   onLongPress?: () => void;
-  hideChevron?: boolean;
+  onDeletePressed?: () => void;
   disabled?: boolean;
   switch?: object; // Define more specific type if needed
   leftIcon?: any; // Define more specific type if needed
@@ -28,6 +29,8 @@ interface ListItemProps {
   chevron?: boolean;
   checkmark?: boolean;
   subtitleProps?: object;
+  swipeableLeftContent?: React.ReactNode;
+  swipeableRightContent?: React.ReactNode;
 }
 
 export class PressableWrapper extends React.Component<PressableProps> {
@@ -42,81 +45,155 @@ export class TouchableOpacityWrapper extends React.Component {
   }
 }
 
-const ListItem: React.FC<ListItemProps> = React.memo(props => {
-  const { colors } = useTheme();
-  const stylesHook = StyleSheet.create({
-    title: {
-      color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
-      fontSize: 16,
-      fontWeight: '500',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-    },
-    subtitle: {
-      flexWrap: 'wrap',
-      writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-      color: colors.alternativeTextColor,
-      fontWeight: '400',
-      fontSize: 14,
-    },
-    rightTitleContainer: {
-      flex: 1,
-    },
-    containerStyle: {
-      backgroundColor: colors.background,
-    },
-  });
+// Define Swipeable Button Components
+const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () => void }> = ({ reset, onDeletePressed }) => (
+  <Button
+    title="Delete"
+    onPress={() => {
+      reset();
+      onDeletePressed?.();
+    }}
+    icon={{ name: 'delete', color: 'white' }}
+    buttonStyle={styles.rightButton}
+  />
+);
 
-  const memoizedSwitchProps = useMemo(() => {
-    return props.switch ? { ...props.switch } : undefined;
-  }, [props.switch]);
-
-  return (
-    <RNElementsListItem
-      containerStyle={props.containerStyle ?? stylesHook.containerStyle}
-      Component={props.Component ?? TouchableOpacityWrapper}
-      bottomDivider={props.bottomDivider !== undefined ? props.bottomDivider : true}
-      topDivider={props.topDivider !== undefined ? props.topDivider : false}
-      testID={props.testID}
-      onPress={props.onPress}
-      onLongPress={props.onLongPress}
-      disabled={props.disabled}
-      accessible={props.switch === undefined}
-    >
-      {props.leftIcon && <Avatar icon={props.leftIcon} />}
-      {props.leftAvatar && props.leftAvatar}
-      <RNElementsListItem.Content>
-        <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={props.switch === undefined}>
-          {props.title}
-        </RNElementsListItem.Title>
-        {props.subtitle && (
-          <RNElementsListItem.Subtitle
-            numberOfLines={props.subtitleNumberOfLines ?? 1}
-            accessible={props.switch === undefined}
-            style={stylesHook.subtitle}
-          >
-            {props.subtitle}
-          </RNElementsListItem.Subtitle>
-        )}
-      </RNElementsListItem.Content>
-      {props.rightTitle && (
-        <RNElementsListItem.Content right style={stylesHook.rightTitleContainer}>
-          <RNElementsListItem.Title style={props.rightTitleStyle} numberOfLines={0} right>
-            {props.rightTitle}
-          </RNElementsListItem.Title>
-        </RNElementsListItem.Content>
-      )}
-      {props.isLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <>
-          {props.chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
-          {props.rightIcon && <Avatar icon={props.rightIcon} />}
-          {props.switch && <Switch {...memoizedSwitchProps} accessibilityLabel={props.title} accessible accessibilityRole="switch" />}
-          {props.checkmark && <RNElementsListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
-        </>
-      )}
-    </RNElementsListItem>
-  );
+const styles = StyleSheet.create({
+  rightButton: {
+    minHeight: '100%',
+    backgroundColor: 'red',
+  },
 });
+
+const ListItem: React.FC<ListItemProps> = React.memo(
+  ({
+    swipeable = false,
+    Component = TouchableOpacityWrapper,
+    rightIcon,
+    leftAvatar,
+    containerStyle,
+    bottomDivider = true,
+    topDivider = false,
+    testID,
+    onPress,
+    onLongPress,
+    onDeletePressed,
+    disabled,
+    switch: switchProps,
+    leftIcon,
+    title,
+    subtitle,
+    subtitleNumberOfLines,
+    rightTitle,
+    rightTitleStyle,
+    isLoading,
+    chevron,
+    checkmark,
+    swipeableLeftContent,
+    swipeableRightContent,
+  }: ListItemProps) => {
+    const { colors } = useTheme();
+    const stylesHook = StyleSheet.create({
+      title: {
+        color: disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
+        fontSize: 16,
+        fontWeight: '500',
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+      },
+      subtitle: {
+        flexWrap: 'wrap',
+        writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+        color: colors.alternativeTextColor,
+        fontWeight: '400',
+        fontSize: 14,
+      },
+      rightTitleContainer: {
+        flex: 1,
+      },
+      containerStyle: {
+        backgroundColor: colors.background,
+      },
+    });
+
+    const memoizedSwitchProps = useMemo(() => {
+      return switchProps ? { ...switchProps } : undefined;
+    }, [switchProps]);
+
+    const renderContent = () => (
+      <>
+        {leftIcon && <Avatar icon={leftIcon} />}
+        {leftAvatar && leftAvatar}
+        <RNElementsListItem.Content>
+          <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={switchProps === undefined}>
+            {title}
+          </RNElementsListItem.Title>
+          {subtitle && (
+            <RNElementsListItem.Subtitle
+              numberOfLines={subtitleNumberOfLines ?? 1}
+              accessible={switchProps === undefined}
+              style={stylesHook.subtitle}
+            >
+              {subtitle}
+            </RNElementsListItem.Subtitle>
+          )}
+        </RNElementsListItem.Content>
+        {rightTitle && (
+          <RNElementsListItem.Content right style={stylesHook.rightTitleContainer}>
+            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0} right>
+              {rightTitle}
+            </RNElementsListItem.Title>
+          </RNElementsListItem.Content>
+        )}
+        {isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <>
+            {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
+            {rightIcon && <Avatar icon={rightIcon} />}
+            {switchProps && <Switch {...memoizedSwitchProps} accessibilityLabel={title} accessible accessibilityRole="switch" />}
+            {checkmark && <RNElementsListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
+          </>
+        )}
+      </>
+    );
+
+    if (swipeable && !Component) {
+      console.warn('Component prop is required when swipeable is true.');
+      return null;
+    }
+
+    return swipeable ? (
+      <RNElementsListItem.Swipeable
+        containerStyle={containerStyle ?? stylesHook.containerStyle}
+        Component={Component}
+        bottomDivider={bottomDivider}
+        topDivider={topDivider}
+        testID={testID}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        disabled={disabled}
+        leftContent={swipeableLeftContent}
+        rightContent={swipeableRightContent ?? <DefaultRightContent reset={() => {}} onDeletePressed={onDeletePressed} />}
+        accessible={switchProps === undefined}
+      >
+        {renderContent()}
+      </RNElementsListItem.Swipeable>
+    ) : (
+      <RNElementsListItem
+        containerStyle={containerStyle ?? stylesHook.containerStyle}
+        Component={Component}
+        bottomDivider={bottomDivider}
+        topDivider={topDivider}
+        testID={testID}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        disabled={disabled}
+        accessible={switchProps === undefined}
+      >
+        {renderContent()}
+      </RNElementsListItem>
+    );
+  },
+);
 
 export default ListItem;

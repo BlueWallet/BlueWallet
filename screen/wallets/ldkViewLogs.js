@@ -1,7 +1,7 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import * as fs from '../../blue_modules/fs';
 import { BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LightningLdkWallet } from '../../class';

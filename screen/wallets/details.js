@@ -202,6 +202,7 @@ const WalletDetails = () => {
   useEffect(() => {
     setOptions({
       headerRight: () => SaveButton,
+      headerBackTitleVisible: true,
     });
   }, [SaveButton, setOptions]);
 

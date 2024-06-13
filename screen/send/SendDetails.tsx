@@ -23,7 +23,7 @@ import {
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
@@ -1323,14 +1323,13 @@ const SendDetails = () => {
         <KeyboardAvoidingView enabled={!isTablet} behavior={undefined}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
             {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
-              <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} hideChevron onPress={handleInsertContact} />
+              <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
             )}
             {isEditable && (
               <ListItem
                 testID="sendMaxButton"
                 disabled={balance === 0 || isSendMaxUsed}
                 title={loc.send.details_adv_full}
-                hideChevron
                 onPress={onUseAllPressed}
               />
             )}
@@ -1342,37 +1341,31 @@ const SendDetails = () => {
               />
             )}
             {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransaction} />
+              <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
             )}
             {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem
-                testID="ImportQrTransactionButton"
-                title={loc.send.details_adv_import_qr}
-                hideChevron
-                onPress={importQrTransaction}
-              />
+              <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
             )}
             {wallet?.type === MultisigHDWallet.type && isEditable && (
-              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransactionMultisig} />
+              <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
             )}
             {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-              <ListItem title={loc.multisig.co_sign_transaction} hideChevron onPress={importTransactionMultisigScanQr} />
+              <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
             )}
             {isEditable && (
               <>
-                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} hideChevron onPress={handleAddRecipient} />
+                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
                 <ListItem
                   testID="RemoveRecipient"
                   title={loc.send.details_add_rec_rem}
-                  hideChevron
                   disabled={addresses.length < 2}
                   onPress={handleRemoveRecipient}
                 />
               </>
             )}
-            <ListItem testID="CoinControl" title={loc.cc.header} hideChevron onPress={handleCoinControl} />
+            <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
             {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
-              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} hideChevron onPress={handlePsbtSign} />
+              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
             )}
           </View>
         </KeyboardAvoidingView>
