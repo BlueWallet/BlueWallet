@@ -171,4 +171,30 @@ jobs:
                 issue_number: prNumber,
                 body: message,
               });
-  
+  testflight-macos:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'testflight-macOS'
+    steps:
+      - name: Add testflight-macOS tag to PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+
+            // Add the tag
+            await github.rest.issues.addLabels({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: prNumber,
+              labels: ['testflight-macOS']
+            });
+
+            // Optionally, you can post a comment indicating that the tag has been added
+            await github.rest.issues.createComment({
+              owner: repo.owner,
+              repo: repo.repo,
+              issue_number: prNumber,
+              body: 'The `testflight-macOS` tag has been added to this pull request and will trigger a macOS build to be generated and pushed to TestFlight.'
+            });
