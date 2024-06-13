@@ -101,7 +101,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   }, [walletsInitialized]);
 
   const _saveToDisk = useCallback(async (force: boolean = false) => {
-    InteractionManager.runAfterInteractions(async () => {
+    return InteractionManager.runAfterInteractions(async () => {
       if (BlueApp.getWallets().length === 0 && !force) {
         console.log('not saving empty wallets array');
         return;
