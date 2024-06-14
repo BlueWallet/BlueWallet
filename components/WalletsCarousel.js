@@ -197,7 +197,7 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
   return (
     <Animated.View
       style={[
-        isLargeScreen || !horizontal ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
+        isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
         { opacity, transform: [{ scale: scaleValue }] },
       ]}
     >
@@ -206,7 +206,9 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
         testID={item.getLabel()}
         onPressIn={onPressedIn}
         onPressOut={onPressedOut}
-        onLongPress={handleLongPress}
+        onLongPress={() => {
+          handleLongPress();
+        }}
         onPress={() => {
           onPressedOut();
           setTimeout(() => {

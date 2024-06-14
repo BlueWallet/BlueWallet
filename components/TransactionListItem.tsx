@@ -42,9 +42,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     () => ({
       backgroundColor: 'transparent',
       borderBottomColor: colors.lightBorder,
-      paddingTop: 16,
-      paddingBottom: 16,
-      paddingRight: 0,
     }),
     [colors.lightBorder],
   );
@@ -342,7 +339,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
   return (
-    <View style={styles.container}>
       <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
         <ListItem
           leftAvatar={avatar}
@@ -357,7 +353,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           containerStyle={containerStyle}
         />
       </ToolTipMenu>
-    </View>
   );
 });
 
@@ -395,5 +390,4 @@ const actionIcons = {
 
 const styles = StyleSheet.create({
   iconWidth: { width: 25 },
-  container: { marginHorizontal: 4 },
 });
