@@ -10,7 +10,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -279,15 +278,13 @@ const WalletsList: React.FC = () => {
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
       switch (section.section.key) {
-        case WalletsListSections.CAROUSEL:
-          return isLargeScreen ? null : <Header leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />;
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         default:
           return null;
       }
     },
-    [isLargeScreen, navigate, renderListHeaderComponent],
+    [renderListHeaderComponent],
   );
 
   const renderSectionFooter = useCallback(
