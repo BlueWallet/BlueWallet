@@ -339,20 +339,20 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
   return (
-      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
-        <ListItem
-          leftAvatar={avatar}
-          title={title}
-          subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={subtitle}
-          Component={View}
-          subtitleProps={subtitleProps}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          containerStyle={containerStyle}
-        />
-      </ToolTipMenu>
+    <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
+      <ListItem
+        leftAvatar={avatar}
+        title={title}
+        subtitleNumberOfLines={subtitleNumberOfLines}
+        subtitle={subtitle}
+        Component={View}
+        subtitleProps={subtitleProps}
+        chevron={false}
+        rightTitle={rowTitle}
+        rightTitleStyle={rowTitleStyle}
+        containerStyle={containerStyle}
+      />
+    </ToolTipMenu>
   );
 });
 

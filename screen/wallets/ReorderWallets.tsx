@@ -109,7 +109,7 @@ const ReorderWallets: React.FC = () => {
   const navigateToWallet = useCallback(
     (wallet: any) => {
       const walletID = wallet.getID();
-      goBack()
+      goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
