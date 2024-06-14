@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { I18nManager, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { I18nManager, View } from 'react-native';
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -66,6 +65,7 @@ import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
+import SettingsButton from '../components/icons/SettingsButton';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -79,18 +79,11 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const SettingsButton = (
+    const RightBarButtons = (
       <>
         <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
-        <View style={styles.width28} />
-        <TouchableOpacity
-          accessibilityRole="button"
-          accessibilityLabel={loc._.more}
-          testID="SettingsButton"
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Icon size={22} name="more-horiz" type="material" color={theme.colors.foregroundColor} />
-        </TouchableOpacity>
+        <View style={styles.width24} />
+        <SettingsButton />
       </>
     );
 
@@ -102,10 +95,10 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: I18nManager.isRTL ? undefined : () => SettingsButton,
-      headerLeft: I18nManager.isRTL ? () => SettingsButton : undefined,
+      headerRight: I18nManager.isRTL ? undefined : () => RightBarButtons,
+      headerLeft: I18nManager.isRTL ? () => RightBarButtons : undefined,
     };
-  }, [navigateToAddWallet, navigation, theme.colors.customHeader, theme.colors.foregroundColor, theme.colors.navigationBarColor]);
+  }, [navigateToAddWallet, theme.colors.customHeader, theme.colors.navigationBarColor]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   return (
@@ -394,7 +387,7 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = {
-  width28: {
-    width: 28,
+  width24: {
+    width: 24,
   },
 };
