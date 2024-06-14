@@ -115,7 +115,7 @@ const ReorderWallets: React.FC = () => {
         walletType: wallet.type,
       });
     },
-    [navigate],
+    [goBack, navigate],
   );
 
   const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused;
