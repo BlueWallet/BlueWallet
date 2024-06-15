@@ -237,7 +237,7 @@ GEM
     os (1.1.4)
     patron (0.13.3)
     plist (3.7.1)
-    public_suffix (4.0.0)
+    public_suffix (4.0.7)
     rake (13.2.1)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -300,7 +300,7 @@ DEPENDENCIES
   cocoapods (>= 1.13, < 1.15)
   domain_name (= 0.5.20190701)
   fastlane
-  public_suffix (= 4.0)
+  public_suffix (= 4.0.7)
   rubyzip (= 2.3.0)
 
 RUBY VERSION
