@@ -13,7 +13,7 @@ GEM
       zeitwerk (~> 2.3)
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
-    algolia (2.3.0)
+    algolia (2.3.4)
       faraday (>= 0.15, < 3)
       faraday-net_http_persistent (>= 0.15, < 3)
       multi_json (~> 1.0)
@@ -296,7 +296,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport (>= 6.1.7.3, < 7.1.0)
-  algolia (= 2.3.0)
+  algolia (= 2.3.4)
   cocoapods (>= 1.13, < 1.15)
   domain_name (= 0.5.20190701)
   fastlane
