@@ -161,6 +161,8 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerRight: () => DetailButton,
+          headerBackTitleStyle: { fontSize: 0 },
+          headerBackTitleVisible: true,
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
