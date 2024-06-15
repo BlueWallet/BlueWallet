@@ -66,7 +66,7 @@ const ReorderWallets: React.FC = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const colorScheme = useColorScheme();
-  const { navigate, setOptions } = useExtendedNavigation();
+  const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const stylesHook = {
@@ -109,12 +109,13 @@ const ReorderWallets: React.FC = () => {
   const navigateToWallet = useCallback(
     (wallet: any) => {
       const walletID = wallet.getID();
+      goBack();
       navigate('WalletTransactions', {
         walletID,
         walletType: wallet.type,
       });
     },
-    [navigate],
+    [goBack, navigate],
   );
 
   const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused;
