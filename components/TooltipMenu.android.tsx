@@ -1,14 +1,11 @@
-import React, { forwardRef, Ref, useCallback, useEffect, useMemo, useRef } from 'react';
-import { Pressable, View } from 'react-native';
-
-import showPopupMenu, { OnPopupMenuItemSelect, PopupMenuItem } from '../blue_modules/showPopupMenu.android';
+import React, { forwardRef, Ref, useCallback, useMemo } from 'react';
+import { Pressable } from 'react-native';
+import { MenuView, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps } from './types';
 
-const dismissMenu = () => {
-  console.log('dismissMenu Not implemented');
-};
+// Define a custom type for the nativeEvent parameter
+
 const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () => void }>) => {
-  const menuRef = useRef<View>(null);
   const {
     actions,
     children,
@@ -18,57 +15,54 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () =>
     enableAndroidRipple = true,
     disabled = false,
     onPress,
+    title = 'Menu',
     ...restProps
   } = props;
 
-  const handleToolTipSelection = useCallback<OnPopupMenuItemSelect>(
-    (selection: PopupMenuItem) => {
-      if (selection.id) {
-        onPressMenuItem(selection.id);
+  const menuItems = useMemo(() => {
+    return actions.flatMap(action => {
+      if (Array.isArray(action)) {
+        return action.map(actionToMap => ({
+          id: actionToMap.id.toString(),
+          title: actionToMap.text,
+          titleColor: actionToMap.disabled ? 'gray' : 'black',
+          image: actionToMap.icon.iconValue,
+          imageColor: actionToMap.disabled ? 'gray' : 'black',
+          attributes: { disabled: actionToMap.disabled },
+        }));
+      }
+      return {
+        id: action.id.toString(),
+        title: action.text,
+        titleColor: action.disabled ? 'gray' : 'black',
+        image: action.icon.iconValue,
+        imageColor: action.disabled ? 'gray' : 'black',
+        attributes: { disabled: action.disabled },
+      };
+    });
+  }, [actions]);
+
+  const handleToolTipSelection = useCallback(
+    ({ nativeEvent }: NativeActionEvent) => {
+      if (nativeEvent) {
+        onPressMenuItem(nativeEvent.event);
       }
     },
     [onPressMenuItem],
   );
 
-  useEffect(() => {
-    // @ts-ignore: fix later
-    if (ref && ref.current) {
-      // @ts-ignore: fix later
-      ref.current.dismissMenu = dismissMenu;
-    }
-  }, [ref]);
-
-  const menuItems = useMemo(() => {
-    const menu: { id: string; label: string }[] = [];
-    actions.forEach(action => {
-      if (Array.isArray(action)) {
-        action.forEach(actionToMap => {
-          menu.push({ id: actionToMap.id.toString(), label: actionToMap.text });
-        });
-      } else {
-        menu.push({ id: action.id.toString(), label: action.text });
-      }
-    });
-    return menu;
-  }, [actions]);
-
-  const showMenu = useCallback(() => {
-    if (menuRef.current) {
-      showPopupMenu(menuItems, handleToolTipSelection, menuRef.current);
-    }
-  }, [menuItems, handleToolTipSelection]);
-
   return (
-    <Pressable
-      {...(enableAndroidRipple ? { android_ripple: { color: 'lightgrey' } } : {})}
-      ref={menuRef}
-      disabled={disabled}
-      style={buttonStyle}
-      {...(isMenuPrimaryAction ? { onPress: showMenu } : { onPress, onLongPress: showMenu })}
-      {...restProps}
-    >
-      {children}
-    </Pressable>
+    <MenuView title={title} onPressAction={handleToolTipSelection} actions={menuItems} shouldOpenOnLongPress={!isMenuPrimaryAction}>
+      <Pressable
+        {...(enableAndroidRipple ? { android_ripple: { color: 'lightgrey' } } : {})}
+        disabled={disabled}
+        style={buttonStyle}
+        {...(isMenuPrimaryAction ? { onPress: () => {} } : { onPress })}
+        {...restProps}
+      >
+        {children}
+      </Pressable>
+    </MenuView>
   );
 };
 
