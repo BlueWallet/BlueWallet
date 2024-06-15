@@ -1,11 +1,11 @@
-import React, { forwardRef, Ref, useCallback, useMemo } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 import { Pressable } from 'react-native';
 import { MenuView, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps } from './types';
 
 // Define a custom type for the nativeEvent parameter
 
-const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<{ dismissMenu?: () => void }>) => {
+const BaseToolTipMenu = (props: ToolTipMenuProps) => {
   const {
     actions,
     children,
