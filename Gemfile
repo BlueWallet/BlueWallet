@@ -5,4 +5,5 @@ ruby '>= 2.6.10'
 
 gem 'cocoapods', '>= 1.13', '< 1.15'
 gem 'activesupport', '>= 6.1.7.3', '< 7.1.0'
+gem "public_suffix", ">= 2.0.2", "< 5.0.5"
 gem "fastlane"
