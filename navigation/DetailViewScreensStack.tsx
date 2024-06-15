@@ -272,6 +272,7 @@ const DetailViewStackScreensStack = () => {
           headerBackTitleStyle: { fontSize: 0 },
           headerBackTitleVisible: true,
           headerShadowVisible: false,
+          headerLargeTitle: true,
           animationTypeForReplace: 'push',
         })(theme)}
       />
@@ -345,7 +346,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="SettingsPrivacy"
         component={SettingsPrivacyComponent}
-        options={navigationStyle({ headerLargeTitle: true, title: loc.settings.privacy })(theme)}
+        options={navigationStyle({ title: loc.settings.privacy })(theme)}
       />
       <DetailViewStack.Screen
         name="ViewEditMultisigCosignersRoot"
