@@ -57,11 +57,13 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
     setNetworkFees(fees);
     onFeeSelected(fees.fastestFee);
     setSelectedFeeType(NetworkTransactionFeeType.FAST);
-  }, [onFeeSelected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     fetchNetworkFees();
-  }, [fetchNetworkFees]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFeeSelection = (feeType: NetworkTransactionFeeType) => {
     if (feeType !== NetworkTransactionFeeType.CUSTOM) {

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, I18nManager, Pressable, PressableProps, StyleSheet, Switch, TouchableOpacity, View } from 'react-native';
 import { Avatar, ListItem as RNElementsListItem, Button } from '@rneui/themed'; // Replace with actual import paths
 
 import { useTheme } from './themes';
@@ -58,13 +58,6 @@ const DefaultRightContent: React.FC<{ reset: () => void; onDeletePressed?: () =>
   />
 );
 
-const styles = StyleSheet.create({
-  rightButton: {
-    minHeight: '100%',
-    backgroundColor: 'red',
-  },
-});
-
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
     swipeable = false,
@@ -107,9 +100,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         fontWeight: '400',
         fontSize: 14,
       },
-      rightTitleContainer: {
-        flex: 1,
-      },
+
       containerStyle: {
         backgroundColor: colors.background,
       },
@@ -121,8 +112,18 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     const renderContent = () => (
       <>
-        {leftIcon && <Avatar icon={leftIcon} />}
-        {leftAvatar && leftAvatar}
+        {leftIcon && (
+          <>
+            <View style={styles.width16} />
+            <Avatar icon={leftIcon} />
+          </>
+        )}
+        {leftAvatar && (
+          <>
+            {leftAvatar}
+            <View style={styles.width16} />
+          </>
+        )}
         <RNElementsListItem.Content>
           <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={switchProps === undefined}>
             {title}
@@ -137,12 +138,13 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             </RNElementsListItem.Subtitle>
           )}
         </RNElementsListItem.Content>
+
         {rightTitle && (
-          <RNElementsListItem.Content right style={stylesHook.rightTitleContainer}>
-            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0} right>
+          <View style={styles.margin8}>
+            <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={0}>
               {rightTitle}
             </RNElementsListItem.Title>
-          </RNElementsListItem.Content>
+          </View>
         )}
         {isLoading ? (
           <ActivityIndicator />
@@ -197,3 +199,14 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 );
 
 export default ListItem;
+
+const styles = StyleSheet.create({
+  rightButton: {
+    minHeight: '100%',
+    backgroundColor: 'red',
+  },
+  margin8: {
+    margin: 8,
+  },
+  width16: { width: 16 },
+});
