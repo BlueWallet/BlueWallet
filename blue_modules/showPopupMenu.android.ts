@@ -13,6 +13,7 @@ function showPopupMenu(
   anchor: PopupAnchor,
   { onCancel }: PopupMenuOptions = {},
 ): void {
+  // @ts-ignore: Ignore
   UIManager.showPopupMenu(
     // @ts-ignore: Ignore
     findNodeHandle(anchor),
