@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -32,6 +33,10 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
+import SegmentedControl from '../../components/SegmentControl';
+
+const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
 const ReceiveDetails = () => {
   const { walletID, address } = useRoute().params;
@@ -46,6 +51,7 @@ const ReceiveDetails = () => {
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
+  const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
@@ -72,9 +78,6 @@ const ReceiveDetails = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    rootBackgroundColor: {
-      backgroundColor: colors.elevated,
-    },
     amount: {
       color: colors.foregroundColor,
     },
@@ -83,6 +86,9 @@ const ReceiveDetails = () => {
     },
     modalButton: {
       backgroundColor: colors.modalButton,
+    },
+    tip: {
+      backgroundColor: colors.ballOutgoingExpired,
     },
   });
 
@@ -173,45 +179,41 @@ const ReceiveDetails = () => {
 
   const renderConfirmedBalance = () => {
     return (
-      <ScrollView style={stylesHook.rootBackgroundColors} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
-          {isCustom && (
-            <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
-            </>
-          )}
-          <SuccessView />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {displayBalance}
-          </BlueText>
-        </View>
-      </ScrollView>
+      <View style={styles.scrollBody}>
+        {isCustom && (
+          <>
+            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          </>
+        )}
+        <SuccessView />
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {displayBalance}
+        </BlueText>
+      </View>
     );
   };
 
   const renderPendingBalance = () => {
     return (
-      <ScrollView contentContainerStyle={stylesHook.rootBackgroundColor} centerContent keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
-          {isCustom && (
-            <>
-              <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-                {customLabel}
-              </BlueText>
-            </>
-          )}
-          <TransactionPendingIconBig />
-          <BlueSpacing40 />
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {displayBalance}
-          </BlueText>
-          <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-            {eta}
-          </BlueText>
-        </View>
-      </ScrollView>
+      <View style={styles.scrollBody}>
+        {isCustom && (
+          <>
+            <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+              {customLabel}
+            </BlueText>
+          </>
+        )}
+        <TransactionPendingIconBig />
+        <BlueSpacing40 />
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {displayBalance}
+        </BlueText>
+        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
+          {eta}
+        </BlueText>
+      </View>
     );
   };
 
@@ -219,6 +221,16 @@ const ReceiveDetails = () => {
     goBack(null);
     return true;
   };
+
+  const setAddressBIP21Encoded = useCallback(
+    addr => {
+      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      setParams({ address: addr });
+      setBip21encoded(newBip21encoded);
+      setShowAddress(true);
+    },
+    [setParams],
+  );
 
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButton);
@@ -233,7 +245,7 @@ const ReceiveDetails = () => {
 
   const renderReceiveDetails = () => {
     return (
-      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+      <>
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
@@ -253,19 +265,7 @@ const ReceiveDetails = () => {
           <QRCodeComponent value={bip21encoded} />
           <CopyTextToClipboard text={isCustom ? bip21encoded : address} ref={receiveAddressButton} />
         </View>
-        <View style={styles.share}>
-          <BlueCard>
-            <BlueButtonLink
-              style={styles.link}
-              testID="SetCustomAmountButton"
-              title={loc.receive.details_setAmount}
-              onPress={showCustomAmountModal}
-            />
-            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-          </BlueCard>
-        </View>
-        {renderCustomAmountModal()}
-      </ScrollView>
+      </>
     );
   };
 
@@ -307,15 +307,7 @@ const ReceiveDetails = () => {
       await Notifications.tryToObtainPermissions(receiveAddressButton);
       Notifications.majorTomToGroundControl([newAddress], [], []);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const setAddressBIP21Encoded = addr => {
-    const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
-    setParams({ address: addr });
-    setBip21encoded(newBip21encoded);
-    setShowAddress(true);
-  };
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   useFocusEffect(
     useCallback(() => {
@@ -329,8 +321,7 @@ const ReceiveDetails = () => {
       return () => {
         task.cancel();
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [wallet]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
 
   const dismissCustomAmountModal = () => {
@@ -401,7 +392,9 @@ const ReceiveDetails = () => {
   };
 
   const handleShareButtonPressed = () => {
-    Share.open({ message: bip21encoded }).catch(error => console.log(error));
+    Share.open({ message: currentTab === loc.wallets.details_address ? bip21encoded : wallet.getBIP47PaymentCode() }).catch(error =>
+      console.log(error),
+    );
   };
 
   /**
@@ -423,16 +416,64 @@ const ReceiveDetails = () => {
     }
   };
 
+  const renderTabContent = () => {
+    const qrValue = currentTab === segmentControlValues[0] ? bip21encoded : wallet.getBIP47PaymentCode();
+
+    if (currentTab === segmentControlValues[0]) {
+      return <View style={styles.container}>{address && renderReceiveDetails()}</View>;
+    } else {
+      return (
+        <View style={styles.container}>
+          {!qrValue && <Text>{loc.bip47.not_found}</Text>}
+          {qrValue && (
+            <>
+              <View style={[styles.tip, stylesHook.tip]}>
+                <Text style={{ color: colors.foregroundColor }}>{loc.receive.bip47_explanation}</Text>
+              </View>
+              <QRCodeComponent value={qrValue} />
+              <CopyTextToClipboard text={qrValue} truncated={false} />
+            </>
+          )}
+        </View>
+      );
+    }
+  };
+
   return (
-    <View style={[styles.root, stylesHook.root]}>
+    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+      {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+        <View style={styles.tabsContainer}>
+          <SegmentedControl
+            values={segmentControlValues}
+            selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
+            onChange={index => {
+              setCurrentTab(segmentControlValues[index]);
+            }}
+          />
+        </View>
+      )}
+      {showAddress && renderTabContent()}
+      {renderCustomAmountModal()}
       {address !== undefined && showAddress && (
-        <HandOffComponent title={loc.send.details_address} type={HandOffComponent.activityTypes.ReceiveOnchain} userInfo={{ address }} />
+        <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
       )}
       {showConfirmedBalance ? renderConfirmedBalance() : null}
       {showPendingBalance ? renderPendingBalance() : null}
-      {showAddress ? renderReceiveDetails() : null}
       {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
-    </View>
+      <View style={styles.share}>
+        <BlueCard>
+          {showAddress && currentTab === loc.wallets.details_address && (
+            <BlueButtonLink
+              style={styles.link}
+              testID="SetCustomAmountButton"
+              title={loc.receive.details_setAmount}
+              onPress={showCustomAmountModal}
+            />
+          )}
+          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+        </BlueCard>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -461,6 +502,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'space-between',
   },
+  tabsContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   scrollBody: {
     marginTop: 32,
     flexGrow: 1,
@@ -469,12 +515,11 @@ const styles = StyleSheet.create({
   },
   share: {
     justifyContent: 'flex-end',
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginBottom: 8,
+    paddingHorizontal: 32,
+    marginVertical: 16,
   },
   link: {
-    marginVertical: 16,
+    marginVertical: 32,
     paddingHorizontal: 32,
   },
   amount: {
@@ -498,6 +543,17 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tip: {
+    marginHorizontal: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 24,
   },
 });
 

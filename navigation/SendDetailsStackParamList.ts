@@ -1,20 +1,27 @@
 import { Psbt } from 'bitcoinjs-lib';
-import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../class/wallets/types';
+import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, LightningTransaction } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
-export type SendDetailsStackParamList = {
-  SendDetails: {
-    memo: string;
+export type SendDetailsParams = {
+  memo?: string;
+  address?: string;
+  amount?: number;
+  amountSats?: number;
+  unit?: BitcoinUnit;
+  noRbf?: boolean;
+  walletID: string;
+  launchedBy?: string;
+  isEditable?: boolean;
+  uri?: string;
+  addRecipientParams?: {
     address: string;
-    walletID: string;
-    amount: number;
-    amountSats: number;
-    unit: BitcoinUnit;
-    noRbf: boolean;
-    launchedBy: string;
-    isEditable: boolean;
-    uri: string;
+    amount?: number;
+    memo?: string;
   };
+};
+
+export type SendDetailsStackParamList = {
+  SendDetails: SendDetailsParams;
   Confirm: {
     fee: number;
     memo?: string;
@@ -63,12 +70,14 @@ export type SendDetailsStackParamList = {
     txid?: string;
   };
   SelectWallet: {
-    onWalletSelect: (wallet: TWallet) => void;
     chainType: Chain;
   };
   CoinControl: {
     walletID: string;
     onUTXOChoose: (u: CreateTransactionUtxo[]) => void;
+  };
+  PaymentCodeList: {
+    walletID: string;
   };
   ScanQRCodeRoot: {
     screen: string;
@@ -84,4 +93,125 @@ export type SendDetailsStackParamList = {
       onBarScanned: (data: string) => void;
     };
   };
+};
+
+export type DetailViewStackParamList = {
+  UnlockWithScreen: undefined;
+  WalletsList: undefined;
+  WalletTransactions: { walletID: string; walletType: string };
+  LDKOpenChannelRoot: undefined;
+  LdkInfo: undefined;
+  WalletDetails: { walletID: string };
+  LdkViewLogs: undefined;
+  TransactionDetails: { transactionId: string };
+  TransactionStatus: { hash?: string; walletID?: string };
+  CPFP: { transactionId: string };
+  RBFBumpFee: { transactionId: string };
+  RBFCancel: { transactionId: string };
+  SelectWallet: undefined;
+  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
+  LNDViewAdditionalInvoiceInformation: { invoiceId: string };
+  LNDViewAdditionalInvoicePreImage: { invoiceId: string };
+  Broadcast: undefined;
+  IsItMyAddress: undefined;
+  GenerateWord: undefined;
+  LnurlPay: undefined;
+  LnurlPaySuccess: {
+    paymentHash: string;
+    justPaid: boolean;
+    fromWalletID: string;
+  };
+  LnurlAuth: undefined;
+  Success: undefined;
+  WalletAddresses: { walletID: string };
+  AddWalletRoot: undefined;
+  SendDetailsRoot: {
+    screen: string;
+    params: {
+      walletID: string;
+      address?: string;
+      amount?: number;
+      amountSats?: number;
+      unit?: BitcoinUnit;
+      noRbf?: boolean;
+      launchedBy?: string;
+      isEditable?: boolean;
+      uri?: string;
+      addRecipientParams?: {
+        address?: string;
+        amount?: number;
+        memo?: string;
+      };
+      memo?: string;
+    };
+    merge: boolean;
+  };
+  LNDCreateInvoiceRoot: undefined;
+  ScanLndInvoiceRoot: {
+    screen: string;
+    params: {
+      paymentHash: string;
+      fromWalletID: string;
+      justPaid: boolean;
+    };
+  };
+  AztecoRedeemRoot: undefined;
+  WalletExportRoot: undefined;
+  ExportMultisigCoordinationSetupRoot: undefined;
+  Settings: undefined;
+  Currency: undefined;
+  GeneralSettings: undefined;
+  PlausibleDeniability: undefined;
+  Licensing: undefined;
+  NetworkSettings: undefined;
+  About: undefined;
+  DefaultView: undefined;
+  ElectrumSettings: undefined;
+  EncryptStorage: undefined;
+  Language: undefined;
+  LightningSettings: {
+    url?: string;
+  };
+  NotificationSettings: undefined;
+  SelfTest: undefined;
+  ReleaseNotes: undefined;
+  Tools: undefined;
+  SettingsPrivacy: undefined;
+  ViewEditMultisigCosignersRoot: { walletID: string; cosigners: string[] };
+  WalletXpubRoot: undefined;
+  SignVerifyRoot: {
+    screen: 'SignVerify';
+    params: {
+      walletID: string;
+      address: string;
+    };
+  };
+  ReceiveDetailsRoot: {
+    screen: 'ReceiveDetails';
+    params: {
+      walletID: string;
+      address: string;
+    };
+  };
+  ScanQRCodeRoot: {
+    screen: string;
+    params: {
+      isLoading: false;
+      cameraStatusGranted?: boolean;
+      backdoorPressed?: boolean;
+      launchedBy?: string;
+      urTotal?: number;
+      urHave?: number;
+      backdoorText?: string;
+      onDismiss?: () => void;
+      showFileImportButton: true;
+      backdoorVisible?: boolean;
+      animatedQRCodeData?: Record<string, any>;
+    };
+  };
+  PaymentCodeList: {
+    paymentCode: string;
+    walletID: string;
+  };
+  ReorderWallets: undefined;
 };

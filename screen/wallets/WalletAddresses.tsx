@@ -1,15 +1,27 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
 import { useFocusEffect, useRoute, RouteProp } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
 import { WatchOnlyWallet } from '../../class';
 import { AddressItem } from '../../components/addresses/AddressItem';
-import { AddressTypeTabs, TABS } from '../../components/addresses/AddressTypeTabs';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import SegmentedControl from '../../components/SegmentControl';
+import loc from '../../loc';
+
+export const TABS = {
+  EXTERNAL: 'receive',
+  INTERNAL: 'change',
+} as const;
+
+type TabKey = keyof typeof TABS;
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 interface Address {
   key: string;
@@ -205,9 +217,15 @@ const WalletAddresses: React.FC = () => {
         centerContent={!showAddresses}
         contentInsetAdjustmentBehavior="automatic"
         ListHeaderComponent={
-          <AddressTypeTabs
-            currentTab={currentTab}
-            setCurrentTab={(tab: (typeof TABS)[keyof typeof TABS]) => dispatch({ type: SET_CURRENT_TAB, payload: tab })}
+          <SegmentedControl
+            values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
+            selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
+            onChange={index => {
+              const tabKey = Object.keys(TABS)[index] as TabKey;
+              dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+            }}
+
+            // style={{ marginVertical: 10 }}
           />
         }
       />

@@ -16,7 +16,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
+import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
 import debounce from '../../blue_modules/debounce';
 import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
@@ -84,11 +84,13 @@ const OutputList = ({
 
   return (
     <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
-      <Avatar
-        rounded
-        overlayContainerStyle={oStyles.avatar}
+      <RNElementsListItem.CheckBox
+        checkedColor="#0070FF"
+        iconType="material-community"
+        checkedIcon="checkbox-marked"
+        uncheckedIcon="checkbox-blank-outline"
+        checked={selected}
         onPress={selected ? onDeSelect : onSelect}
-        icon={selected ? { name: 'check' } : undefined}
       />
       <RNElementsListItem.Content>
         <RNElementsListItem.Title style={oStyles.amount}>{amount}</RNElementsListItem.Title>

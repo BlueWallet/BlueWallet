@@ -1,6 +1,6 @@
 PODS:
   - boost (1.83.0)
-  - BugsnagReactNative (7.23.0):
+  - BugsnagReactNative (7.24.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1093,7 +1093,7 @@ PODS:
     - React-perflogger (= 0.73.8)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.9.0):
+  - RealmJS (12.10.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -1105,7 +1105,7 @@ PODS:
     - React-Core
   - RNDefaultPreference (1.4.4):
     - React-Core
-  - RNDeviceInfo (10.14.0):
+  - RNDeviceInfo (11.1.0):
     - React-Core
   - RNFS (2.20.0):
     - React-Core
@@ -1117,7 +1117,7 @@ PODS:
     - React
   - RNKeychain (8.2.0):
     - React-Core
-  - RNLocalize (3.1.0):
+  - RNLocalize (3.2.0):
     - React-Core
   - RNPermissions (4.1.5):
     - React-Core
@@ -1431,7 +1431,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  BugsnagReactNative: 079e8ede687b76bd8b661acd55bc5c888af56dc7
+  BugsnagReactNative: 65729c7ee7d9f61b8dbd9f046d920bb38a43931a
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
@@ -1497,18 +1497,18 @@ SPEC CHECKSUMS:
   React-utils: 4cc2ba652f5df1c8f0461d4ae9e3ee474c1354ea
   ReactCommon: 1da3fc14d904883c46327b3322325eebf60a720a
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 7aa0e7dcc8959d28cee3ab302415a8893e50ad12
+  RealmJS: f86da4f2c5b089d976db335f370449903ddc8fbb
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
-  RNDeviceInfo: 59344c19152c4b2b32283005f9737c5c64b42fba
+  RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: 96439cf6543defdde87459e48cd1a3f0e45a008e
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
-  RNLocalize: e8694475db034bf601e17bd3dfa8986565e769eb
+  RNLocalize: b77875884750cb6a58cd6865863fe2ba2729b72b
   RNPermissions: 9fa74223844f437bc309e112994859dc47194829
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93

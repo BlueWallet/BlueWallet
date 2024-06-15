@@ -4,10 +4,10 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import createHash from 'create-hash';
-import { SectionList, StyleSheet, Text, View } from 'react-native';
+import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueButtonLink, BlueLoading } from '../../BlueComponents';
+import { BlueLoading } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -20,19 +20,21 @@ import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { PaymentCodeStackParamList } from '../../navigation/PaymentCodeStack';
 import SafeArea from '../../components/SafeArea';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 interface DataSection {
   title: string;
   data: string[];
 }
+
 enum Actions {
   pay,
   rename,
   copyToClipboard,
+  hide,
 }
 
 const actionKeys: Action[] = [
@@ -60,18 +62,26 @@ const actionKeys: Action[] = [
       iconValue: 'doc.on.doc',
     },
   },
+  {
+    id: Actions.hide,
+    text: loc.bip47.hide_contact,
+    icon: {
+      iconType: 'SYSTEM',
+      iconValue: 'eye.slash',
+    },
+  },
 ];
 
 function onlyUnique(value: any, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-type PaymentCodeListRouteProp = RouteProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
-type PaymentCodesListNavigationProp = NativeStackNavigationProp<PaymentCodeStackParamList, 'PaymentCodesList'>;
+type PaymentCodeListRouteProp = RouteProp<DetailViewStackParamList, 'PaymentCodeList'>;
+type PaymentCodesListNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeList'>;
 
 export default function PaymentCodesList() {
-  const route = useRoute<PaymentCodeListRouteProp>();
   const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
+  const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
@@ -79,6 +89,13 @@ export default function PaymentCodesList() {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading...');
+  const state = navigation.getState();
+  const previousRouteIndex = state.index - 1;
+
+  let previousRouteName: string | null;
+  if (previousRouteIndex >= 0) {
+    previousRouteName = state.routes[previousRouteIndex].name;
+  }
 
   useEffect(() => {
     if (!walletID) return;
@@ -103,63 +120,101 @@ export default function PaymentCodesList() {
   };
 
   const onToolTipPress = async (id: any, pc: string) => {
-    if (String(id) === String(Actions.copyToClipboard)) {
-      Clipboard.setString(pc);
-      presentAlert({ message: loc.bip47.copied });
+    try {
+      setIsLoading(true);
+      await _onToolTipPress(id, pc);
+    } catch (error: any) {
+      presentAlert({ message: error.message });
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if (String(id) === String(Actions.rename)) {
-      const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, false, 'plain-text');
-      if (!newName) return;
+  const _onToolTipPress = async (id: any, pc: string) => {
+    switch (String(id)) {
+      case String(Actions.copyToClipboard): {
+        Clipboard.setString(pc);
+        break;
+      }
+      case String(Actions.rename): {
+        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, true, 'plain-text');
+        if (!newName) return;
 
-      counterpartyMetadata[pc] = { label: newName };
-      setReload(Math.random());
-      await saveToDisk();
-    }
-
-    if (String(id) === String(Actions.pay)) {
-      const cl = new ContactList();
-      if (cl.isBip352PaymentCodeValid(pc)) {
+        counterpartyMetadata[pc] = { label: newName };
+        setReload(Math.random());
+        await saveToDisk();
+        break;
+      }
+      case String(Actions.pay): {
+        const cl = new ContactList();
         // ok its a SilentPayments code, ok to just send
+        if (cl.isBip352PaymentCodeValid(pc)) {
+          _navigateToSend(pc);
+          return;
+        }
+        // check if notif tx is in place and has confirmations
+        const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
+        assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+        const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
+        if (!notifTx) {
+          await _addContact(pc);
+          return;
+        }
+        if (!notifTx.confirmations) {
+          // when we just sent the confirmation tx and it havent confirmed yet
+          presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
+          return;
+        }
         _navigateToSend(pc);
-        return;
+        break;
       }
-
-      // check if notif tx is in place and has confirmations
-      const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-      assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
-      const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
-      if (!notifTx) {
-        await _addContact(pc);
-        return;
+      case String(Actions.hide): {
+        if (!(await confirm(loc.wallets.details_are_you_sure))) {
+          return;
+        }
+        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
+        setReload(Math.random());
+        await saveToDisk();
+        break;
       }
-
-      if (!notifTx.confirmations) {
-        // when we just sent the confirmation tx and it havent confirmed yet
-        presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
-        return;
-      }
-
-      _navigateToSend(pc);
+      default:
+        break;
     }
   };
 
   const _navigateToSend = (pc: string) => {
-    // @ts-ignore idk how to fix
     navigation.navigate('SendDetailsRoot', {
       screen: 'SendDetails',
       params: {
-        memo: '',
-        address: pc,
         walletID,
+        addRecipientParams: {
+          address: pc,
+        },
       },
+      merge: true,
     });
   };
 
   const renderItem = (pc: string) => {
+    if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
+
     const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
 
     const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
+
+    if (previousRouteName === 'SendDetails') {
+      return (
+        <TouchableOpacity onPress={() => onToolTipPress(Actions.pay, pc)}>
+          <View style={styles.contactRowContainer}>
+            <View style={[styles.circle, { backgroundColor: '#' + color }]} />
+            <View style={styles.contactRowBody}>
+              <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
+            </View>
+          </View>
+          <View style={styles.stick} />
+        </TouchableOpacity>
+      );
+    }
 
     return (
       <ToolTipMenu
@@ -179,16 +234,6 @@ export default function PaymentCodesList() {
     );
   };
 
-  const navigateToPaymentCodes = () => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
-
-    // @ts-ignore idk how to fix
-    navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCode',
-      params: { paymentCode: foundWallet.getBIP47PaymentCode() },
-    });
-  };
-
   const onAddContactPress = async () => {
     try {
       const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, true, 'plain-text');
@@ -196,7 +241,7 @@ export default function PaymentCodesList() {
 
       await _addContact(newPc);
     } catch (error: any) {
-      presentAlert({ message: error.message });
+      console.debug(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -205,6 +250,14 @@ export default function PaymentCodesList() {
   const _addContact = async (newPc: string) => {
     const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
     assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
+
+    if (counterpartyMetadata[newPc]?.hidden) {
+      // contact already present, just need to unhide it
+      counterpartyMetadata[newPc].hidden = false;
+      await saveToDisk();
+      setReload(Math.random());
+      return;
+    }
 
     const cl = new ContactList();
 
@@ -279,6 +332,7 @@ export default function PaymentCodesList() {
       } catch (_) {}
       setLoadingText('Fetching transactions...');
       await foundWallet.fetchTransactions();
+      setLoadingText('');
     }
   };
 
@@ -301,7 +355,6 @@ export default function PaymentCodesList() {
         </View>
       )}
 
-      <BlueButtonLink title={loc.bip47.my_payment_code} onPress={navigateToPaymentCodes} />
       <Button title={loc.bip47.add_contact} onPress={onAddContactPress} />
     </SafeArea>
   );

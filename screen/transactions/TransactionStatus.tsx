@@ -2,7 +2,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -18,6 +18,7 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 import HeaderRightButton from '../../components/HeaderRightButton';
 
 enum ButtonStatus {
@@ -476,7 +477,7 @@ const TransactionStatus = () => {
     <SafeArea>
       <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffActivityType.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 

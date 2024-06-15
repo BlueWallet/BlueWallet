@@ -63,18 +63,10 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async generateFromEntropy(user: Buffer): Promise<void> {
-    let i = 0;
-    do {
-      i += 1;
-      const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
-      const buf = Buffer.concat([user, random], 32);
-      try {
-        this.secret = ECPair.fromPrivateKey(buf).toWIF();
-        return;
-      } catch (e) {
-        if (i === 5) throw e;
-      }
-    } while (true);
+    if (user.length !== 32) {
+      throw new Error('Entropy should be 32 bytes');
+    }
+    this.secret = ECPair.fromPrivateKey(user).toWIF();
   }
 
   getAddress(): string | false {

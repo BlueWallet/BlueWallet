@@ -43,7 +43,8 @@
   "entropy": {
     "save": "Guardar",
     "title": "Entropía ",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "amountOfEntropy": "{bits} de {limit} bits"
   },
   "errors": {
     "broadcast": "Error de transmisión",
@@ -126,7 +127,8 @@
     "maxSatsFull": "La cantidad máxima es {max} sats o {currency}",
     "minSats": "La cantidad mínima es {min} sats",
     "minSatsFull": "La cantidad mínima es {min} sats o {currency}",
-    "qrcode_for_the_address": "Código QR para la dirección"
+    "qrcode_for_the_address": "Código QR para la dirección",
+    "bip47_explanation": "Los códigos de pago son una dirección universal que evita revelar las direcciones de tu billetera. No todos los servicios los admitirán."
   },
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
@@ -148,6 +150,7 @@
     "create_to": "A",
     "create_tx_size": "Tamaño de transacción",
     "create_verify": "Verificar en coinb.in",
+    "details_insert_contact": "Insertar contacto",
     "details_add_rec_add": "Agregar destinatario",
     "details_add_rec_rem": "Eliminar destinatario",
     "details_address": "Dirección",
@@ -213,6 +216,9 @@
     "success_done": "Hecho",
     "txSaved": "El archivo ({filePath}) se ha guardado en tu carpeta de Descargas.",
     "file_saved_at_path": "El archivo ({fileName}) se ha guardado en tu carpeta Descargas.",
+    "cant_send_to_silentpayment_adress": "Esta billetera no puede enviar a direcciones de SilentPayment",
+    "cant_send_to_bip47": "Esta billetera no puede enviar códigos de pago BIP47",
+    "cant_find_bip47_notification": "Agrega este código de pago primero a tus contactos ",
     "problem_with_psbt": "Problema con PSBT"
   },
   "settings": {
@@ -237,7 +243,7 @@
     "biometrics_no_longer_available": "La configuración de tu dispositivo cambió y ya no coincide con la configuración de seguridad seleccionada en la aplicación. Vuelve a habilitar los datos biométricos o el código de acceso, luego reinicia la aplicación para aplicar estos cambios.",
     "biom_10times": "Has intentado ingresar tu contraseña 10 veces. ¿Te gustaría restablecer tu almacenamiento? Esto eliminará todas las billeteras y descifrará tu almacenamiento.",
     "biom_conf_identity": "Por favor confirma tu identidad.",
-    "biom_no_passcode": "Tu dispositivo no tiene un código de acceso. Para continuar, configura un código de acceso en la aplicación Configuración.",
+    "biom_no_passcode": "tu dispositivo no tiene un código de acceso ni datos biométricos habilitados. Para continuar, configura un código de acceso o datos biométricos en la aplicación Configuración.",
     "biom_remove_decrypt": "Se eliminarán todas tus billeteras y se descifrará tu almacenamiento. ¿Estás seguro que deseas continuar?",
     "currency": "Divisa",
     "currency_source": "El precio se obtiene de",
@@ -382,6 +388,8 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Billetera Bitcoin simple y potente",
     "add_create": "Crear",
+    "add_entropy": "Entropía ",
+    "add_entropy_bytes": "{bytes} bytes de entropía",
     "add_entropy_generated": "{gen} bytes de entropía generada",
     "add_entropy_provide": "Entropía mediante el lanzamiento de dados",
     "add_entropy_remain": "{gen} bytes de entropía generada. Los {rem} bytes restantes se obtendrán del generador de números aleatorios del sistema.",
@@ -395,6 +403,10 @@
     "add_title": "Agregar Billetera",
     "add_wallet_name": "Nombre",
     "add_wallet_type": "Tipo",
+    "add_wallet_seed_length": "Longitud de la semilla",
+    "add_wallet_seed_length_message": "Elige la longitud de la frase semilla que deseas utilizar para esta billetera.",
+    "add_wallet_seed_length_12": "12 palabras",
+    "add_wallet_seed_length_24": "24 palabras",
     "clipboard_bitcoin": "Tienes una dirección de Bitcoin en tu portapapeles. ¿te gustaría usarlo para una transacción?",
     "clipboard_lightning": "Tienes una factura Lightning en tu portapapeles. ¿Te gustaría usarlo para una transacción?",
     "details_address": "Dirección",
@@ -622,7 +634,7 @@
     "pay_this_contact": "Paga a este contacto",
     "rename_contact": "Renombrar contacto",
     "copy_payment_code": "Copiar código de pago",
-    "copied": "Copiado",
+    "hide_contact": "Ocultar contacto",
     "rename": "Cambiar nombre",
     "provide_name": "Proporciona un nuevo nombre para este contacto",
     "add_contact": "Agregar contacto",
@@ -631,7 +643,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

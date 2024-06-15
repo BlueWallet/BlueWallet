@@ -43,7 +43,8 @@
   "entropy": {
     "save": "Save",
     "title": "Entropy",
-    "undo": "Undo"
+    "undo": "Undo",
+    "amountOfEntropy": "{bits} of {limit} bits"
   },
   "errors": {
     "broadcast": "Broadcast failed.",
@@ -126,7 +127,8 @@
     "maxSatsFull": "Maximum amount is {max} sats or {currency}",
     "minSats": "Minimal amount is {min} sats",
     "minSatsFull": "Minimal amount is {min} sats or {currency}",
-    "qrcode_for_the_address": "QR Code for the address"
+    "qrcode_for_the_address": "QR Code for the address",
+    "bip47_explanation": "Payment codes are an universal address that avoids disclosing your wallet addresses. Not all services will support them."
   },
   "send": {
     "provided_address_is_invoice": "This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.",
@@ -148,6 +150,7 @@
     "create_to": "To",
     "create_tx_size": "Transaction Size",
     "create_verify": "Verify on coinb.in",
+    "details_insert_contact": "Insert Contact",
     "details_add_rec_add": "Add Recipient",
     "details_add_rec_rem": "Remove Recipient",
     "details_address": "Address",
@@ -385,6 +388,8 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
+    "add_entropy": "Entropy",
+    "add_entropy_bytes": "{bytes} bytes of entropy",
     "add_entropy_generated": "{gen} bytes of generated entropy",
     "add_entropy_provide": "Provide entropy via dice rolls",
     "add_entropy_remain": "{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.",
@@ -398,6 +403,10 @@
     "add_title": "Add Wallet",
     "add_wallet_name": "Name",
     "add_wallet_type": "Type",
+    "add_wallet_seed_length": "Seed Length",
+    "add_wallet_seed_length_message": "Choose the length of the seed phrase you wish to use for this wallet.",
+    "add_wallet_seed_length_12": "12 words",
+    "add_wallet_seed_length_24": "24 words",
     "clipboard_bitcoin": "You have a Bitcoin address on your clipboard. Would you like to use it for a transaction?",
     "clipboard_lightning": "You have a Lightning invoice on your clipboard. Would you like to use it for a transaction?",
     "details_address": "Address",
@@ -419,6 +428,7 @@
     "details_show_xpub": "Show Wallet XPUB",
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
+    "wallets": "Wallets",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Use with Hardware Wallet",
     "details_wallet_updated": "Wallet updated",
@@ -620,13 +630,12 @@
   },
   "bip47": {
     "payment_code": "Payment Code",
-    "my_payment_code": "My Payment Code",
     "contacts": "Contacts",
     "purpose": "Reusable and shareable code (BIP47)",
     "pay_this_contact": "Pay this contact",
     "rename_contact": "Rename contact",
     "copy_payment_code": "Copy Payment Code",
-    "copied": "Copied",
+    "hide_contact": "Hide contact",
     "rename": "Rename",
     "provide_name": "Provide new name for this contact",
     "add_contact": "Add Contact",

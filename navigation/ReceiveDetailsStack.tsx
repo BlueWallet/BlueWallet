@@ -16,9 +16,7 @@ const ReceiveDetailsStackRoot = () => {
       <Stack.Screen
         name="ReceiveDetails"
         component={ReceiveDetailsComponent}
-        options={navigationStyle({ closeButton: true, headerBackVisible: false, title: loc.receive.header, statusBarStyle: 'light' })(
-          theme,
-        )}
+        options={navigationStyle({ headerBackVisible: false, title: loc.receive.header, statusBarStyle: 'light' })(theme)}
       />
     </Stack.Navigator>
   );

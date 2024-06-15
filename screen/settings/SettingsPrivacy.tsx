@@ -107,7 +107,6 @@ const SettingsPrivacy: React.FC = () => {
       ) : null}
 
       <ListItem
-        hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
         switch={{
@@ -124,7 +123,6 @@ const SettingsPrivacy: React.FC = () => {
       </BlueCard>
       <BlueSpacing20 />
       <ListItem
-        hideChevron
         title={loc.settings.privacy_quickactions}
         Component={TouchableWithoutFeedback}
         switch={{
@@ -142,7 +140,6 @@ const SettingsPrivacy: React.FC = () => {
       </BlueCard>
 
       <ListItem
-        hideChevron
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
         switch={{ onValueChange: onDoNotTrackValueChange, value: isDoNotTrackEnabled, disabled: isLoading === SettingsPrivacySection.All }}
@@ -157,7 +154,6 @@ const SettingsPrivacy: React.FC = () => {
             {loc.settings.widgets}
           </Text>
           <ListItem
-            hideChevron
             title={loc.settings.total_balance}
             Component={TouchableWithoutFeedback}
             switch={{

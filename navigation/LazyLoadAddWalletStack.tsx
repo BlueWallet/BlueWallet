@@ -11,7 +11,7 @@ const ImportWallet = lazy(() => import('../screen/wallets/import'));
 const PleaseBackup = lazy(() => import('../screen/wallets/PleaseBackup'));
 const PleaseBackupLNDHub = lazy(() => import('../screen/wallets/pleaseBackupLNDHub'));
 const PleaseBackupLdk = lazy(() => import('../screen/wallets/pleaseBackupLdk'));
-const ProvideEntropy = lazy(() => import('../screen/wallets/provideEntropy'));
+const ProvideEntropy = lazy(() => import('../screen/wallets/ProvideEntropy'));
 const WalletsAddMultisig = lazy(() => import('../screen/wallets/addMultisig'));
 const WalletsAddMultisigStep2 = lazy(() => import('../screen/wallets/addMultisigStep2'));
 const WalletsAddMultisigHelp = lazy(() => import('../screen/wallets/addMultisigHelp'));

@@ -44,6 +44,10 @@ export type TCounterpartyMetadata = {
      * custom human-readable name we assign ourselves
      */
     label: string;
+    /**
+     * some counterparties cannot be deleted because they sent a notif tx onchain, so we just mark them as hidden when user deletes
+     */
+    hidden?: boolean;
   };
 };
 

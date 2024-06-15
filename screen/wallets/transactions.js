@@ -17,7 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -138,6 +138,8 @@ const WalletTransactions = ({ navigation }) => {
     setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
+      headerBackTitle: wallet.getLabel(),
+      headerBackTitleVisible: true,
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.type),
         borderBottomWidth: 0,
@@ -625,6 +627,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       </TouchableOpacity>
     ),
     title: '',
+    headerBackTitleStyle: { fontSize: 0 },
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,
@@ -633,7 +636,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       shadowOffset: { height: 0, width: 0 },
     },
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: false,
+    headerBackTitleVisible: true,
   };
 });
 
@@ -666,7 +669,7 @@ const styles = StyleSheet.create({
   },
   listHeaderTextRow: {
     flex: 1,
-    marginHorizontal: 16,
+    margin: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
