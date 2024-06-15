@@ -298,6 +298,7 @@ DEPENDENCIES
   activesupport (>= 6.1.7.3, < 7.1.0)
   algolia (= 2.3.0)
   cocoapods (>= 1.13, < 1.15)
+  domain_name (= 0.5.20190701)
   fastlane
   public_suffix (= 4.0)
   rubyzip (= 2.3.0)
