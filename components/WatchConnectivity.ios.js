@@ -232,6 +232,9 @@ function WatchConnectivity() {
       if (wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type) {
         walletInformation.xpub = wallet.getXpub() ? wallet.getXpub() : wallet.getSecret();
       }
+      if (wallet.allowBIP47() && wallet.isBIP47Enabled()) {
+        walletInformation.paymentCode = wallet.getBIP47PaymentCode();
+      }
       walletsToProcess.push(walletInformation);
     }
     return { wallets: walletsToProcess, randomID: Math.floor(Math.random() * 11) };
