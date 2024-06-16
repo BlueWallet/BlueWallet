@@ -3,7 +3,7 @@ import { Pressable } from 'react-native';
 import { MenuView, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps } from './types';
 
-const BaseToolTipMenu = (props: ToolTipMenuProps, _ref: any) => {
+const BaseToolTipMenu = (props: ToolTipMenuProps, ref: any) => {
   const {
     actions,
     children,
@@ -16,6 +16,8 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, _ref: any) => {
     title = 'Menu',
     ...restProps
   } = props;
+
+  console.debug('ToolTipMenu.android.tsx ref:', ref);
 
   const menuItems = useMemo(() => {
     return actions.flatMap(action => {
