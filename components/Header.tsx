@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWal
     },
   });
 
-  const HEADER_MAX_HEIGHT = 70;
+  const HEADER_MAX_HEIGHT = 55;
   const HEADER_MIN_HEIGHT = 0;
   const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
@@ -44,9 +44,9 @@ export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWal
   return (
     <Animated.View style={[styles.root, styleWithProps.root, !staticText && { height: headerHeightAnimated, opacity: headerOpacity }]}>
       {staticText ? (
-        <Text style={[styles.text, styleWithProps.text, styles.title]}>{leftText}</Text>
+        <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
       ) : (
-        <Animated.Text style={[styles.text, styleWithProps.text, styles.title]}>{leftText}</Animated.Text>
+        <Animated.Text style={[styles.text, styleWithProps.text]}>{leftText}</Animated.Text>
       )}
       {onNewWalletPress && <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={onNewWalletPress} />}
     </Animated.View>
@@ -65,9 +65,5 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontWeight: 'bold',
     fontSize: 34,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: '600',
   },
 });
