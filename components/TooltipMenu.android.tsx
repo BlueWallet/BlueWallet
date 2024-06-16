@@ -3,9 +3,7 @@ import { Pressable } from 'react-native';
 import { MenuView, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps } from './types';
 
-// Define a custom type for the nativeEvent parameter
-
-const BaseToolTipMenu = (props: ToolTipMenuProps) => {
+const BaseToolTipMenu = (props: ToolTipMenuProps, _ref: any) => {
   const {
     actions,
     children,
