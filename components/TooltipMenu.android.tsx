@@ -64,6 +64,6 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, _ref: any) => {
   );
 };
 
-const ToolTipMenu = forwardRef(BaseToolTipMenu);
+const ToolTipMenu = BaseToolTipMenu;
 
-export default ToolTipMenu;
+export default forwardRef(ToolTipMenu);
