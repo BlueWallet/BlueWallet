@@ -142,7 +142,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
-      <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList staticText />
       <WalletsCarousel
         // @ts-ignore: refactor later
         data={state.wallets.concat(false as any)}

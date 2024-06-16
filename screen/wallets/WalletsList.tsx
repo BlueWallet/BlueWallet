@@ -1,6 +1,16 @@
-import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
-import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import {
+  findNodeHandle,
+  Image,
+  InteractionManager,
+  SectionList,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+  Animated,
+} from 'react-native';
 import A from '../../blue_modules/analytics';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
@@ -21,6 +31,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import { Header } from '../../components/Header';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -106,12 +117,14 @@ const WalletsList: React.FC = () => {
   } = useStorage();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate, setOptions } = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const routeName = useRoute().name;
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
+
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -148,6 +161,21 @@ const WalletsList: React.FC = () => {
 
     walletsCount.current = wallets.length;
   }, [wallets]);
+
+  const HeaderTitle = useMemo(() => {
+    const titleOpacity = scrollY.interpolate({
+      inputRange: [0, 200],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    });
+    return <Animated.Text style={[styles.nativeHeaderTitle, { opacity: titleOpacity }]}>{loc.wallets.list_title}</Animated.Text>;
+  }, [scrollY]);
+
+  useEffect(() => {
+    setOptions({
+      headerTitle: () => HeaderTitle,
+    });
+  }, [HeaderTitle, scrollY, setOptions]);
 
   const verifyBalance = useCallback(() => {
     if (getBalance() !== 0) {
@@ -405,6 +433,7 @@ const WalletsList: React.FC = () => {
 
   return (
     <View style={styles.root}>
+      <Header leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} scrollY={scrollY} />
       <View style={[styles.walletsListWrapper, stylesHook.walletsListWrapper]}>
         <SectionList<any | string, SectionData>
           removeClippedSubviews
@@ -421,6 +450,8 @@ const WalletsList: React.FC = () => {
           windowSize={21}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
+          scrollEventThrottle={16}
         />
         {renderScanButton()}
       </View>
@@ -472,5 +503,10 @@ const styles = StyleSheet.create({
   },
   transaction: {
     marginHorizontal: 0,
+  },
+  nativeHeaderTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: 'black', // adjust color if necessary
   },
 });
