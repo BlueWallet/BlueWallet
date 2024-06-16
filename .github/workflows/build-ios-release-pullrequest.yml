@@ -35,7 +35,8 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: true
+          ruby-version: 2.6.10
+          bundler-cache: false
       - name: Install dependencies with Bundler
         run: bundle install
       - name: Install Fastlane
