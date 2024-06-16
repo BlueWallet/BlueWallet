@@ -36,9 +36,9 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          bundler-cache: false
+          bundler-cache: true
       - name: Install dependencies with Bundler
-        run: bundle install
+        run: bundle install --quiet
       - name: Install Fastlane
         run: gem install fastlane
       - name: Clear Derived Data
@@ -134,7 +134,7 @@ jobs:
       - name: Install dependencies with Bundler
         run: |
           bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3
+          bundle install --jobs 4 --retry 3 --quiet
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
