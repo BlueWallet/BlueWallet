@@ -249,7 +249,7 @@ GEM
     rouge (2.0.7)
     ruby-macho (2.5.1)
     ruby2_keywords (0.0.5)
-    rubyzip (2.3.0)
+    rubyzip (2.3.2)
     security (0.1.5)
     signet (0.18.0)
       addressable (~> 2.8)
@@ -301,7 +301,7 @@ DEPENDENCIES
   domain_name (= 0.5.20190701)
   fastlane
   public_suffix (= 4.0)
-  rubyzip (= 2.3.0)
+  rubyzip (= 2.3.2)
 
 RUBY VERSION
    ruby 2.6.10p210
