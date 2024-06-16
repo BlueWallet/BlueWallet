@@ -35,7 +35,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.10
+          ruby-version: 3.1.6
           bundler-cache: false
       - name: Install dependencies with Bundler
         run: bundle install
@@ -113,63 +113,62 @@ jobs:
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
 
   testflight-upload:
-      needs: build
-      runs-on: macos-14
-      if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-      env:
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-        PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
-        LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-      steps:
-        - name: Checkout project
-          uses: actions/checkout@v3
-        - name: Cache Ruby Gems
-          uses: actions/cache@v2
-          with:
-            path: vendor/bundle
-            key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-gems-
-        - name: Install dependencies with Bundler
-          run: |
-            bundle config path vendor/bundle
-            bundle install --jobs 4 --retry 3
-        - name: Download IPA from Artifact
-          uses: actions/download-artifact@v2
-          with:
-            name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
-            path: ./ios/build
-        - name: Create App Store Connect API Key JSON
-          run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-        - name: Upload to TestFlight
-          env: 
-            APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
-            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-            GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
-            GIT_URL: ${{ secrets.GIT_URL }}
-            ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
-            ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
-            APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-            APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          run: bundle exec fastlane ios upload_to_testflight_lane
-          working-directory: ./ios
-        - name: Post PR Comment
-          if: success() && github.event_name == 'pull_request'
-          uses: actions/github-script@v6
-          env:
-            BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
-            LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
-          with:
-            script: |
-              const buildNumber = process.env.BUILD_NUMBER;
-              const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
-              const prNumber = context.payload.pull_request.number;
-              const repo = context.repo;
-              github.rest.issues.createComment({
-                ...repo,
-                issue_number: prNumber,
-                body: message,
-              });
-  
+    needs: build
+    runs-on: macos-14
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      NEW_BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - name: Download IPA from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          path: ./ios/build
+      - name: Create App Store Connect API Key JSON
+        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
+      - name: Upload to TestFlight
+        env: 
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios upload_to_testflight_lane
+        working-directory: ./ios
+      - name: Post PR Comment
+        if: success() && github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        env:
+          BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
+        with:
+          script: |
+            const buildNumber = process.env.BUILD_NUMBER;
+            const message = `The build ${buildNumber} has been uploaded to TestFlight.`;
+            const prNumber = context.payload.pull_request.number;
+            const repo = context.repo;
+            github.rest.issues.createComment({
+              ...repo,
+              issue_number: prNumber,
+              body: message,
+            });
