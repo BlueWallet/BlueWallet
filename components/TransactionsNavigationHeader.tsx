@@ -63,16 +63,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     verifyIfWalletAllowsOnchainAddress();
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
-  const handleCopyPress = () => {
+  const handleCopyPress = useCallback(() => {
     const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
     if (value) {
       Clipboard.setString(value);
     }
-  };
+  }, [wallet]);
 
-  const handleBalanceVisibility = () => {
+  const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
-  };
+  }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
   const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
     w.preferredBalanceUnit = newPreferredUnit;
@@ -106,13 +106,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   };
 
-  const onPressMenuItem = (id: string) => {
-    if (id === 'walletBalanceVisibility') {
-      handleBalanceVisibility();
-    } else if (id === 'copyToClipboard') {
-      handleCopyPress();
-    }
-  };
+  const onPressMenuItem = useCallback(
+    (id: string) => {
+      if (id === 'walletBalanceVisibility') {
+        handleBalanceVisibility();
+      } else if (id === 'copyToClipboard') {
+        handleCopyPress();
+      }
+    },
+    [handleBalanceVisibility, handleCopyPress],
+  );
 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
