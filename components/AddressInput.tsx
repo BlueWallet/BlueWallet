@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
@@ -210,7 +210,7 @@ const actionKeys = {
 const actionIcons = {
   ScanQR: {
     iconType: 'SYSTEM',
-    iconValue: 'qrcode',
+    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
   },
   ImportFile: {
     iconType: 'SYSTEM',
@@ -218,7 +218,7 @@ const actionIcons = {
   },
   ChoosePhoto: {
     iconType: 'SYSTEM',
-    iconValue: 'photo',
+    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
   },
   Clipboard: {
     iconType: 'SYSTEM',
