@@ -1,10 +1,10 @@
-import React, { forwardRef, Ref, useCallback, useMemo } from 'react';
+import React, { Ref, useCallback, useMemo } from 'react';
 import { Platform, Pressable, TouchableOpacity, View } from 'react-native';
 import { ContextMenuView, RenderItem, OnPressMenuItemEventObject, MenuState, IconConfig } from 'react-native-ios-context-menu';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 
-const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
+const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   const {
     title = '',
     isMenuPrimaryAction = false,
@@ -83,7 +83,6 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
     console.debug('ToolTipMenu.tsx rendering: renderContextMenuView');
     return (
       <ContextMenuView
-        ref={ref}
         lazyPreview
         shouldEnableAggressiveCleanup
         internalCleanupMode="automatic"
@@ -140,8 +139,6 @@ const BaseToolTipMenu = (props: ToolTipMenuProps, ref: Ref<any>) => {
   };
 
   return Platform.OS === 'ios' && renderPreview ? renderContextMenuView() : renderMenuView();
-};
-
-const ToolTipMenu = forwardRef(BaseToolTipMenu);
+});
 
 export default ToolTipMenu;

@@ -1,8 +1,7 @@
-import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { TWallet } from '../class/wallets/types';
@@ -11,8 +10,8 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
-import ToolTipMenu from './TooltipMenu';
 import { ToolTipMenuProps } from './types';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -155,7 +154,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           isMenuPrimaryAction
           isButton
           enableAndroidRipple={false}
-          ref={menuRef}
           buttonStyle={styles.walletBalance}
           onPressMenuItem={onPressMenuItem}
           actions={

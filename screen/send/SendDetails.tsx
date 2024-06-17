@@ -1113,11 +1113,26 @@ const SendDetails = () => {
   }, [isEditable, wallet, addresses, balance, isTransactionReplaceable]);
 
   const HeaderRight = useMemo(
-    () => (
-      <ToolTipMenu disabled={isLoading} isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-      </ToolTipMenu>
-    ),
+    () =>
+      Platform.OS === 'ios' ? (
+        <ToolTipMenu disabled={isLoading} isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
+          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
+        </ToolTipMenu>
+      ) : (
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={loc._.more}
+          disabled={isLoading}
+          style={styles.advancedOptions}
+          onPress={() => {
+            Keyboard.dismiss();
+            setOptionsVisible(true);
+          }}
+          testID="advancedOptionsMenuButton"
+        >
+          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+        </TouchableOpacity>
+      ),
     [isLoading, headerRightOnPress, headerRightActions, colors.foregroundColor],
   );
 
