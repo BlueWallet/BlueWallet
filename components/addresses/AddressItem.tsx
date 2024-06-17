@@ -141,6 +141,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
         onPressMenuItem={onToolTipPress}
         renderPreview={renderPreview}
         onPress={navigateToReceive}
+        isButton
       >
         <ListItem key={item.key} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
