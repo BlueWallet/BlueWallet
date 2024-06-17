@@ -117,6 +117,21 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     [handleBalanceVisibility, handleCopyPress],
   );
 
+  const toolTipActions = useMemo(() => {
+    return [
+      {
+        id: actionKeys.Refill,
+        text: loc.lnd.refill,
+        icon: actionIcons.Refill,
+      },
+      {
+        id: actionKeys.RefillWithExternalWallet,
+        text: loc.lnd.refill_external,
+        icon: actionIcons.RefillWithExternalWallet,
+      },
+    ];
+  }, []);
+
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
     const balanceUnit = wallet.getPreferredBalanceUnit();
@@ -224,18 +239,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           isMenuPrimaryAction
           isButton
           onPressMenuItem={handleManageFundsPressed}
-          actions={[
-            {
-              id: actionKeys.Refill,
-              text: loc.lnd.refill,
-              icon: actionIcons.Refill,
-            },
-            {
-              id: actionKeys.RefillWithExternalWallet,
-              text: loc.lnd.refill_external,
-              icon: actionIcons.RefillWithExternalWallet,
-            },
-          ]}
+          actions={toolTipActions}
           buttonStyle={styles.manageFundsButton}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
