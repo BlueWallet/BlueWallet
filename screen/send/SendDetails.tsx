@@ -57,6 +57,7 @@ import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
+import { Action } from '../../components/types';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -686,12 +687,40 @@ const SendDetails = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routeParams.walletID]);
 
+  const importQrTransactionOnBarScanned = useCallback(
+    (ret: any) => {
+      navigation.getParent()?.getParent()?.dispatch(popAction);
+      if (!wallet) return;
+      if (!ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        // we dont support it in this flow
+      } else {
+        // psbt base64?
+
+        // we construct PSBT object and pass to next screen
+        // so user can do smth with it:
+        const psbt = bitcoin.Psbt.fromBase64(ret.data);
+        navigation.navigate('PsbtWithHardwareWallet', {
+          memo: transactionMemo,
+          fromWallet: wallet,
+          psbt,
+        });
+        setIsLoading(false);
+        setOptionsVisible(false);
+      }
+    },
+    [navigation, popAction, wallet, transactionMemo],
+  );
+
   /**
    * same as `importTransaction`, but opens camera instead.
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = () => {
+  const importQrTransaction = useCallback(() => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -706,32 +735,7 @@ const SendDetails = () => {
         },
       });
     });
-  };
-
-  const importQrTransactionOnBarScanned = (ret: any) => {
-    navigation.getParent()?.getParent()?.dispatch(popAction);
-    if (!wallet) return;
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-    } else {
-      // psbt base64?
-
-      // we construct PSBT object and pass to next screen
-      // so user can do smth with it:
-      const psbt = bitcoin.Psbt.fromBase64(ret.data);
-      navigation.navigate('PsbtWithHardwareWallet', {
-        memo: transactionMemo,
-        fromWallet: wallet,
-        psbt,
-      });
-      setIsLoading(false);
-      setOptionsVisible(false);
-    }
-  };
+  }, [wallet?.type, navigation, importQrTransactionOnBarScanned]);
 
   /**
    * watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
@@ -741,7 +745,7 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importTransaction = async () => {
+  const importTransaction = useCallback(async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -792,7 +796,7 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  };
+  }, [wallet, navigation, transactionMemo]);
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
@@ -815,54 +819,65 @@ const SendDetails = () => {
     });
   };
 
-  const _importTransactionMultisig = async (base64arg: string | false) => {
-    try {
-      const base64 = base64arg || (await fs.openSignedTransaction());
-      if (!base64) return;
-      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
-
-      if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
-        hideOptions();
-        setIsLoading(true);
-        await sleep(100);
-        (wallet as MultisigHDWallet).cosignPsbt(psbt);
-        setIsLoading(false);
-        await sleep(100);
-      }
-
-      if (wallet) {
-        navigation.navigate('PsbtMultisig', {
-          memo: transactionMemo,
-          psbtBase64: psbt.toBase64(),
-          walletID: wallet.getID(),
-        });
-      }
-    } catch (error: any) {
-      presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
-    }
-    setIsLoading(false);
+  const hideOptions = useCallback(() => {
+    Keyboard.dismiss();
     setOptionsVisible(false);
-  };
+  }, []);
 
-  const importTransactionMultisig = () => {
+  const _importTransactionMultisig = useCallback(
+    async (base64arg: string | false) => {
+      try {
+        const base64 = base64arg || (await fs.openSignedTransaction());
+        if (!base64) return;
+        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+          hideOptions();
+          setIsLoading(true);
+          await sleep(100);
+          (wallet as MultisigHDWallet).cosignPsbt(psbt);
+          setIsLoading(false);
+          await sleep(100);
+        }
+
+        if (wallet) {
+          navigation.navigate('PsbtMultisig', {
+            memo: transactionMemo,
+            psbtBase64: psbt.toBase64(),
+            walletID: wallet.getID(),
+          });
+        }
+      } catch (error: any) {
+        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+      }
+      setIsLoading(false);
+      setOptionsVisible(false);
+    },
+    [wallet, hideOptions, sleep, navigation, transactionMemo],
+  );
+
+  const importTransactionMultisig = useCallback(() => {
     return _importTransactionMultisig(false);
-  };
+  }, [_importTransactionMultisig]);
 
-  const onBarScanned = (ret: any) => {
-    navigation.getParent()?.dispatch(popAction);
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-    } else {
-      // psbt base64?
-      return _importTransactionMultisig(ret.data);
-    }
-  };
+  const onBarScanned = useCallback(
+    (ret: any) => {
+      navigation.getParent()?.dispatch(popAction);
+      if (!ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        // we dont support it in this flow
+      } else {
+        // psbt base64?
+        return _importTransactionMultisig(ret.data);
+      }
+    },
+    [navigation, popAction, _importTransactionMultisig],
+  );
 
-  const importTransactionMultisigScanQr = () => {
+  const importTransactionMultisigScanQr = useCallback(() => {
     setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
@@ -873,9 +888,9 @@ const SendDetails = () => {
         },
       });
     });
-  };
+  }, [navigation, onBarScanned]);
 
-  const handleAddRecipient = async () => {
+  const handleAddRecipient = useCallback(async () => {
     console.log('handleAddRecipient');
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
     setOptionsVisible(false);
@@ -883,9 +898,9 @@ const SendDetails = () => {
     scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
     scrollView.current?.flashScrollIndicators();
-  };
+  }, [addresses.length, sleep]);
 
-  const handleRemoveRecipient = async () => {
+  const handleRemoveRecipient = useCallback(async () => {
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
@@ -897,24 +912,24 @@ const SendDetails = () => {
     await sleep(200); // wait for animation
     scrollView.current?.flashScrollIndicators();
     if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
-  };
+  }, [addresses.length, sleep]);
 
-  const handleCoinControl = () => {
+  const handleCoinControl = useCallback(() => {
     if (!wallet) return;
     setOptionsVisible(false);
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
     });
-  };
+  }, [wallet, setOptionsVisible, navigation]);
 
-  const handleInsertContact = () => {
+  const handleInsertContact = useCallback(() => {
     if (!wallet) return;
     setOptionsVisible(false);
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
-  };
+  }, [wallet, navigation, setOptionsVisible]);
 
-  const handlePsbtSign = async () => {
+  const handlePsbtSign = useCallback(async () => {
     setIsLoading(true);
     setOptionsVisible(false);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
@@ -954,170 +969,9 @@ const SendDetails = () => {
       showAnimatedQr: true,
       psbt,
     });
-  };
+  }, [name, navigation, wallet]);
 
-  const hideOptions = () => {
-    Keyboard.dismiss();
-    setOptionsVisible(false);
-  };
-
-  // Header Right Button
-
-  const headerRightOnPress = (id: string) => {
-    if (id === SendDetails.actionKeys.AddRecipient) {
-      handleAddRecipient();
-    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
-      handleRemoveRecipient();
-    } else if (id === SendDetails.actionKeys.SignPSBT) {
-      handlePsbtSign();
-    } else if (id === SendDetails.actionKeys.SendMax) {
-      onUseAllPressed();
-    } else if (id === SendDetails.actionKeys.AllowRBF) {
-      onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
-    } else if (id === SendDetails.actionKeys.ImportTransaction) {
-      importTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
-      importQrTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
-      importTransactionMultisig();
-    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
-      importTransactionMultisigScanQr();
-    } else if (id === SendDetails.actionKeys.CoinControl) {
-      handleCoinControl();
-    } else if (id === SendDetails.actionKeys.InsertContact) {
-      handleInsertContact();
-    }
-  };
-
-  const headerRightActions = () => {
-    const actions = [];
-    if (isEditable) {
-      if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
-        actions.push([
-          { id: SendDetails.actionKeys.InsertContact, text: loc.send.details_insert_contact, icon: SendDetails.actionIcons.InsertContact },
-        ]);
-      }
-
-      if (Number(wallet?.getBalance()) > 0) {
-        const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
-
-        actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
-      }
-      if (wallet?.type === HDSegwitBech32Wallet.type) {
-        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
-      }
-      const transactionActions = [];
-      if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
-        transactionActions.push(
-          {
-            id: SendDetails.actionKeys.ImportTransaction,
-            text: loc.send.details_adv_import,
-            icon: SendDetails.actionIcons.ImportTransaction,
-          },
-          {
-            id: SendDetails.actionKeys.ImportTransactionQR,
-            text: loc.send.details_adv_import_qr,
-            icon: SendDetails.actionIcons.ImportTransactionQR,
-          },
-        );
-      }
-      if (wallet?.type === MultisigHDWallet.type) {
-        transactionActions.push({
-          id: SendDetails.actionKeys.ImportTransactionMultsig,
-          text: loc.send.details_adv_import,
-          icon: SendDetails.actionIcons.ImportTransactionMultsig,
-        });
-      }
-      if (wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
-        transactionActions.push({
-          id: SendDetails.actionKeys.CoSignTransaction,
-          text: loc.multisig.co_sign_transaction,
-          icon: SendDetails.actionIcons.SignPSBT,
-        });
-      }
-      if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
-        transactionActions.push({ id: SendDetails.actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: SendDetails.actionIcons.SignPSBT });
-      }
-      actions.push(transactionActions, [
-        {
-          id: SendDetails.actionKeys.AddRecipient,
-          text: loc.send.details_add_rec_add,
-          icon: SendDetails.actionIcons.AddRecipient,
-        },
-        {
-          id: SendDetails.actionKeys.RemoveRecipient,
-          text: loc.send.details_add_rec_rem,
-          disabled: addresses.length < 2,
-          icon: SendDetails.actionIcons.RemoveRecipient,
-        },
-      ]);
-    }
-
-    actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
-
-    return actions;
-  };
-  const setHeaderRightOptions = () => {
-    navigation.setOptions({
-      headerRight: Platform.select({
-        // eslint-disable-next-line react/no-unstable-nested-components
-        ios: () => (
-          <ToolTipMenu
-            disabled={isLoading}
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={headerRightOnPress}
-            // @ts-ignore idk how to fix
-            actions={headerRightActions()}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-          </ToolTipMenu>
-        ),
-        // eslint-disable-next-line react/no-unstable-nested-components
-        default: () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.more}
-            disabled={isLoading}
-            style={styles.advancedOptions}
-            onPress={() => {
-              Keyboard.dismiss();
-              setOptionsVisible(true);
-            }}
-            testID="advancedOptionsMenuButton"
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ),
-      }),
-    });
-  };
-
-  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
-    setIsTransactionReplaceable(value);
-  };
-
-  //
-
-  // because of https://github.com/facebook/react-native/issues/21718 we use
-  // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
-  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
-  const onUseAllPressed = () => {
+  const onUseAllPressed = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
@@ -1146,6 +1000,155 @@ const SendDetails = () => {
       ],
       { cancelable: false },
     );
+  }, [frozenBalance]);
+
+  // Header Right Button
+
+  const headerRightOnPress = useCallback(
+    (id: string) => {
+      if (id === actionKeys.AddRecipient) {
+        handleAddRecipient();
+      } else if (id === actionKeys.RemoveRecipient) {
+        handleRemoveRecipient();
+      } else if (id === actionKeys.SignPSBT) {
+        handlePsbtSign();
+      } else if (id === actionKeys.SendMax) {
+        onUseAllPressed();
+      } else if (id === actionKeys.AllowRBF) {
+        onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
+      } else if (id === actionKeys.ImportTransaction) {
+        importTransaction();
+      } else if (id === actionKeys.ImportTransactionQR) {
+        importQrTransaction();
+      } else if (id === actionKeys.ImportTransactionMultsig) {
+        importTransactionMultisig();
+      } else if (id === actionKeys.CoSignTransaction) {
+        importTransactionMultisigScanQr();
+      } else if (id === actionKeys.CoinControl) {
+        handleCoinControl();
+      } else if (id === actionKeys.InsertContact) {
+        handleInsertContact();
+      }
+    },
+    [
+      handleAddRecipient,
+      handleCoinControl,
+      handleInsertContact,
+      handlePsbtSign,
+      handleRemoveRecipient,
+      importQrTransaction,
+      importTransaction,
+      importTransactionMultisig,
+      importTransactionMultisigScanQr,
+      isTransactionReplaceable,
+      onUseAllPressed,
+    ],
+  );
+
+  const headerRightActions = useCallback(() => {
+    const actions: Action[] & Action[][] = [];
+    if (isEditable) {
+      if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
+        actions.push([{ id: actionKeys.InsertContact, text: loc.send.details_insert_contact, icon: actionIcons.InsertContact }]);
+      }
+
+      if (Number(wallet?.getBalance()) > 0) {
+        const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
+        actions.push([{ id: actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      }
+      if (wallet?.type === HDSegwitBech32Wallet.type) {
+        actions.push([{ id: actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
+      }
+      const transactionActions = [];
+      if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
+        transactionActions.push(
+          {
+            id: actionKeys.ImportTransaction,
+            text: loc.send.details_adv_import,
+            icon: actionIcons.ImportTransaction,
+          },
+          {
+            id: actionKeys.ImportTransactionQR,
+            text: loc.send.details_adv_import_qr,
+            icon: actionIcons.ImportTransactionQR,
+          },
+        );
+      }
+      if (wallet?.type === MultisigHDWallet.type) {
+        transactionActions.push({
+          id: actionKeys.ImportTransactionMultsig,
+          text: loc.send.details_adv_import,
+          icon: actionIcons.ImportTransactionMultsig,
+        });
+      }
+      if (wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0) {
+        transactionActions.push({
+          id: actionKeys.CoSignTransaction,
+          text: loc.multisig.co_sign_transaction,
+          icon: actionIcons.SignPSBT,
+        });
+      }
+      if ((wallet as MultisigHDWallet)?.allowCosignPsbt()) {
+        transactionActions.push({ id: actionKeys.SignPSBT, text: loc.send.psbt_sign, icon: actionIcons.SignPSBT });
+      }
+      actions.push(transactionActions, [
+        {
+          id: actionKeys.AddRecipient,
+          text: loc.send.details_add_rec_add,
+          icon: actionIcons.AddRecipient,
+        },
+        {
+          id: actionKeys.RemoveRecipient,
+          text: loc.send.details_add_rec_rem,
+          disabled: addresses.length < 2,
+          icon: actionIcons.RemoveRecipient,
+        },
+      ]);
+    }
+
+    actions.push({ id: actionKeys.CoinControl, text: loc.cc.header, icon: actionIcons.CoinControl });
+
+    return actions;
+  }, [isEditable, wallet, addresses, balance, isTransactionReplaceable]);
+
+  const HeaderRight = useMemo(
+    () => (
+      <ToolTipMenu disabled={isLoading} isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
+      </ToolTipMenu>
+    ),
+    [isLoading, headerRightOnPress, headerRightActions, colors.foregroundColor],
+  );
+
+  const setHeaderRightOptions = () => {
+    navigation.setOptions({
+      headerRight: () => HeaderRight,
+    });
+  };
+
+  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
+    setIsTransactionReplaceable(value);
+  };
+
+  //
+
+  // because of https://github.com/facebook/react-native/issues/21718 we use
+  // onScroll for android and onMomentumScrollEnd for iOS
+  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
+  };
+
+  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
@@ -1605,7 +1608,7 @@ const SendDetails = () => {
 
 export default SendDetails;
 
-SendDetails.actionKeys = {
+const actionKeys = {
   InsertContact: 'InsertContact',
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
@@ -1619,7 +1622,7 @@ SendDetails.actionKeys = {
   CoSignTransaction: 'CoSignTransaction',
 };
 
-SendDetails.actionIcons = {
+const actionIcons = {
   InsertContact: { iconType: 'SYSTEM', iconValue: 'at.badge.plus' },
   SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
   SendMax: 'SendMax',

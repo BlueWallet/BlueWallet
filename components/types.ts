@@ -3,7 +3,7 @@ import { AccessibilityRole, ViewStyle } from 'react-native';
 export interface Action {
   id: string | number;
   text: string;
-  icon: {
+  icon?: {
     iconType: string;
     iconValue: string;
   };
