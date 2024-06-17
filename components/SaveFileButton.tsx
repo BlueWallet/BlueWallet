@@ -67,11 +67,9 @@ export default SaveFileButton;
 
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Save: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.down',
   },
 };

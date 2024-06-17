@@ -153,7 +153,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             id: 'walletBalanceVisibility',
             text: loc.transactions.details_balance_show,
             icon: {
-              iconType: 'SYSTEM',
               iconValue: 'eye',
             },
           },
@@ -163,7 +162,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             id: 'walletBalanceVisibility',
             text: loc.transactions.details_balance_hide,
             icon: {
-              iconType: 'SYSTEM',
               iconValue: 'eye.slash',
             },
           },
@@ -171,7 +169,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             id: 'copyToClipboard',
             text: loc.transactions.details_copy,
             icon: {
-              iconType: 'SYSTEM',
               iconValue: 'doc.on.doc',
             },
           },
@@ -343,23 +340,18 @@ export const actionKeys = {
 
 export const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Refill: {
-    iconType: 'SYSTEM',
     iconValue: 'goforward.plus',
   },
   RefillWithExternalWallet: {
-    iconType: 'SYSTEM',
     iconValue: 'qrcode',
   },
 };

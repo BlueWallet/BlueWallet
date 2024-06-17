@@ -175,19 +175,15 @@ const actionKeys = {
 
 const actionIcons = {
   Signature: {
-    iconType: 'SYSTEM',
     iconValue: 'signature',
   },
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   ExportPrivateKey: {
-    iconType: 'SYSTEM',
     iconValue: 'key',
   },
 };

@@ -22,11 +22,9 @@ interface QRCodeComponentProps {
 
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Copy: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
 };

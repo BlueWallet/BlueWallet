@@ -209,20 +209,16 @@ const actionKeys = {
 
 const actionIcons = {
   ScanQR: {
-    iconType: 'SYSTEM',
     iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
   },
   ImportFile: {
-    iconType: 'SYSTEM',
     iconValue: 'doc',
   },
   ChoosePhoto: {
-    iconType: 'SYSTEM',
     iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
+    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
   },
 };
 

@@ -367,23 +367,18 @@ const actionKeys = {
 
 const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Link: {
-    iconType: 'SYSTEM',
     iconValue: 'link',
   },
   Note: {
-    iconType: 'SYSTEM',
     iconValue: 'note.text',
   },
 };

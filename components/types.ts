@@ -4,7 +4,6 @@ export interface Action {
   id: string | number;
   text: string;
   icon?: {
-    iconType: string;
     iconValue: string;
   };
   menuTitle?: string;
