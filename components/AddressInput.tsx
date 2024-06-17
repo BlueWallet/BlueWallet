@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
@@ -69,6 +69,12 @@ const AddressInput = ({
     Keyboard.dismiss();
   };
 
+  const toolTipOnPress = useCallback(async () => {
+    await scanButtonTapped();
+    Keyboard.dismiss();
+    if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+  }, [launchedBy, onBarScanned, scanButtonTapped]);
+
   const onMenuItemPressed = useCallback(
     (action: string) => {
       if (onBarScanned === undefined) throw new Error('onBarScanned is required');
@@ -119,6 +125,8 @@ const AddressInput = ({
     [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
   );
 
+  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
+
   return (
     <View style={[styles.root, stylesHook.root]}>
       <TextInput
@@ -144,12 +152,8 @@ const AddressInput = ({
           onPressMenuItem={onMenuItemPressed}
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
-          onPress={async () => {
-            await scanButtonTapped();
-            Keyboard.dismiss();
-            if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
-          }}
-          buttonStyle={[styles.scan, stylesHook.scan]}
+          onPress={toolTipOnPress}
+          buttonStyle={buttonStyle}
           accessibilityLabel={loc.send.details_scan}
           accessibilityHint={loc.send.details_scan_hint}
         >

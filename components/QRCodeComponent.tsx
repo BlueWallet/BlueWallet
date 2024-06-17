@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
@@ -76,13 +76,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     });
   };
 
-  const onPressMenuItem = (id: string) => {
+  const onPressMenuItem = useCallback((id: string) => {
     if (id === actionKeys.Share) {
       handleShareQRCode();
     } else if (id === actionKeys.Copy) {
       qrCode.current.toDataURL(Clipboard.setImage);
     }
-  };
+  }, []);
 
   const renderQRCode = (
     <QRCode

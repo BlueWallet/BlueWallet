@@ -100,11 +100,14 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = (actionKeyID?: string) => {
-    if (onManageFundsPressed) {
-      onManageFundsPressed(actionKeyID);
-    }
-  };
+  const handleManageFundsPressed = useCallback(
+    (actionKeyID?: string) => {
+      if (onManageFundsPressed) {
+        onManageFundsPressed(actionKeyID);
+      }
+    },
+    [onManageFundsPressed],
+  );
 
   const onPressMenuItem = useCallback(
     (id: string) => {
