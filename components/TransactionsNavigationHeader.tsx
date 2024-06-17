@@ -146,6 +146,38 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
 
+  const toolTipWalletBalanceActions = useMemo(() => {
+    return wallet.hideBalance
+      ? [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_show,
+            icon: {
+              iconType: 'SYSTEM',
+              iconValue: 'eye',
+            },
+          },
+        ]
+      : [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_hide,
+            icon: {
+              iconType: 'SYSTEM',
+              iconValue: 'eye.slash',
+            },
+          },
+          {
+            id: 'copyToClipboard',
+            text: loc.transactions.details_copy,
+            icon: {
+              iconType: 'SYSTEM',
+              iconValue: 'doc.on.doc',
+            },
+          },
+        ];
+  }, [wallet.hideBalance]);
+
   return (
     <LinearGradient
       colors={WalletGradient.gradientsFor(wallet.type)}
@@ -177,37 +209,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           enableAndroidRipple={false}
           buttonStyle={styles.walletBalance}
           onPressMenuItem={onPressMenuItem}
-          actions={
-            wallet.hideBalance
-              ? [
-                  {
-                    id: 'walletBalanceVisibility',
-                    text: loc.transactions.details_balance_show,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'eye',
-                    },
-                  },
-                ]
-              : [
-                  {
-                    id: 'walletBalanceVisibility',
-                    text: loc.transactions.details_balance_hide,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'eye.slash',
-                    },
-                  },
-                  {
-                    id: 'copyToClipboard',
-                    text: loc.transactions.details_copy,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'doc.on.doc',
-                    },
-                  },
-                ]
-          }
+          actions={toolTipWalletBalanceActions}
         >
           <View style={styles.walletBalance}>
             {wallet.hideBalance ? (
