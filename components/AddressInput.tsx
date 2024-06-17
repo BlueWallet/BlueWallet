@@ -146,7 +146,7 @@ const AddressInput = ({
             Keyboard.dismiss();
             if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
           }}
-          style={[styles.scan, stylesHook.scan]}
+          buttonStyle={[styles.scan, stylesHook.scan]}
           accessibilityLabel={loc.send.details_scan}
           accessibilityHint={loc.send.details_scan_hint}
         >
