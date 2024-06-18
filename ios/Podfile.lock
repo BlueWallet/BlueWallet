@@ -491,7 +491,7 @@ PODS:
     - React-Core
   - RNPrivacySnapshot (1.0.0):
     - React
-  - RNQuickAction (0.3.13):
+  - RNQuickAction (0.3.14):
     - React
   - RNRate (1.2.12):
     - React-Core
@@ -838,7 +838,7 @@ SPEC CHECKSUMS:
   RNLocalize: b77875884750cb6a58cd6865863fe2ba2729b72b
   RNPermissions: 9fa74223844f437bc309e112994859dc47194829
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
-  RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
+  RNQuickAction: c056e83ff3f649e7a723c60659037a4fdad2d929
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: d4f25b2a931c4f0b2bb12173a3096f02ea4cfb05
@@ -852,4 +852,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
 
-COCOAPODS: 1.15.0
+COCOAPODS: 1.15.2
