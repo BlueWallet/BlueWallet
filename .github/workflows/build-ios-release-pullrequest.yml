@@ -19,7 +19,7 @@ jobs:
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
@@ -56,6 +56,16 @@ jobs:
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+      - name: Ensure Yoga Module Map
+        run: |
+          if [ -f "./ios/Pods/Headers/Public/yoga/Yoga.modulemap" ]; then
+            echo "Yoga module map found."
+          else
+            echo "Yoga module map not found. Re-running pod install."
+            sudo gem install cocoapods
+            bundle exec pod install
+          fi
+        working-directory: ./ios
       - name: Display release-notes.txt
         run: cat release-notes.txt
       - name: Get Latest Commit Message
@@ -110,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
@@ -138,7 +148,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
