@@ -48,7 +48,7 @@ jobs:
         run: npm install
       - name: Install CocoaPods Dependencies
         run: |
-          sudo gem install cocoapods
+          gem install cocoapods
           bundle exec pod install
         working-directory: ./ios
       - name: Cache CocoaPods Pods
