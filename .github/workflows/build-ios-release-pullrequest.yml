@@ -22,7 +22,7 @@ jobs:
       APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
       - name: Specify node version
@@ -38,7 +38,7 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
       - name: Install dependencies with Bundler
-        run: bundle instal      
+        run: bundle install
       - name: Clear Derived Data
         run: bundle exec fastlane ios clear_derived_data_lane
         working-directory: ./ios
@@ -116,7 +116,7 @@ jobs:
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cache Ruby Gems
         uses: actions/cache@v2
         with:
