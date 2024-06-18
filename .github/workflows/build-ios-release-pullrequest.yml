@@ -49,16 +49,6 @@ jobs:
         with:
           path: ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-      - name: Ensure Yoga Module Map
-        run: |
-          if [ -f "./ios/Pods/Headers/Public/yoga/Yoga.modulemap" ]; then
-            echo "Yoga module map found."
-          else
-            echo "Yoga module map not found. Re-running pod install."
-            sudo gem install cocoapods
-            bundle exec pod install
-          fi
-        working-directory: ./ios
       - name: Display release-notes.txt
         run: cat release-notes.txt
       - name: Get Latest Commit Message
