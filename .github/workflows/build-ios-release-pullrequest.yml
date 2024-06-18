@@ -44,6 +44,11 @@ jobs:
         working-directory: ./ios
       - name: Install node_modules
         run: npm install
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          bundle exec pod install
+        working-directory: ./ios
       - name: Cache CocoaPods Pods
         uses: actions/cache@v2
         with:
