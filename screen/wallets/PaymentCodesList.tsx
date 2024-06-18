@@ -147,8 +147,8 @@ export default function PaymentCodesList() {
       }
       case String(Actions.pay): {
         const cl = new ContactList();
-        // ok its a SilentPayments code, ok to just send
-        if (cl.isBip352PaymentCodeValid(pc)) {
+        // ok its a SilentPayments code/regular address, no need to check for notif tx, ok to just send
+        if (cl.isBip352PaymentCodeValid(pc) || cl.isAddressValid(pc)) {
           _navigateToSend(pc);
           return;
         }
@@ -260,6 +260,13 @@ export default function PaymentCodesList() {
     }
 
     const cl = new ContactList();
+
+    if (cl.isAddressValid(newPc)) {
+      // this is not a payment code but a regular onchain address. pretending its a payment code and adding it
+      foundWallet.addBIP47Receiver(newPc);
+      setReload(Math.random());
+      return;
+    }
 
     if (!cl.isPaymentCodeValid(newPc)) {
       presentAlert({ message: loc.bip47.invalid_pc });
