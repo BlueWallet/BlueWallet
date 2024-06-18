@@ -343,7 +343,7 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.10.4):
+  - react-native-safe-area-context (4.10.5):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
@@ -462,7 +462,7 @@ PODS:
     - React-perflogger (= 0.72.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.9.0):
+  - RealmJS (12.10.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -803,7 +803,7 @@ SPEC CHECKSUMS:
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: 399a5859f6acbdf67f671c69b53113f535f3b5b0
+  react-native-safe-area-context: a240ad4b683349e48b1d51fed1611138d1bdad97
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
   React-NativeModulesApple: 3107f777453f953906d9ba9dc5f8cbd91a6ef913
@@ -824,7 +824,7 @@ SPEC CHECKSUMS:
   React-utils: 22a77b05da25ce49c744faa82e73856dcae1734e
   ReactCommon: ff94462e007c568d8cdebc32e3c97af86ec93bb5
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 7aa0e7dcc8959d28cee3ab302415a8893e50ad12
+  RealmJS: f86da4f2c5b089d976db335f370449903ddc8fbb
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
@@ -850,6 +850,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: c32e0be1a17f8f1f0e633a3122f7666441f52c82
 
-PODFILE CHECKSUM: d43800c8d806b1d14ba325886c4b71fff2938408
+PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
 
 COCOAPODS: 1.14.3
