@@ -39,9 +39,6 @@ jobs:
           bundler-cache: true
       - name: Install dependencies with Bundler
         run: bundle install
-      - name: Clear Derived Data
-        run: bundle exec fastlane ios clear_derived_data_lane
-        working-directory: ./ios
       - name: Install node_modules
         run: npm install
       - name: Install CocoaPods Dependencies
