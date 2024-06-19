@@ -1,8 +1,7 @@
-import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { TWallet } from '../class/wallets/types';
@@ -11,8 +10,8 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
-import ToolTipMenu from './TooltipMenu';
 import { ToolTipMenuProps } from './types';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -64,16 +63,16 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     verifyIfWalletAllowsOnchainAddress();
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
-  const handleCopyPress = () => {
+  const handleCopyPress = useCallback(() => {
     const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
     if (value) {
       Clipboard.setString(value);
     }
-  };
+  }, [wallet]);
 
-  const handleBalanceVisibility = () => {
+  const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
-  };
+  }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
   const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
     w.preferredBalanceUnit = newPreferredUnit;
@@ -101,19 +100,40 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = (actionKeyID?: string) => {
-    if (onManageFundsPressed) {
-      onManageFundsPressed(actionKeyID);
-    }
-  };
+  const handleManageFundsPressed = useCallback(
+    (actionKeyID?: string) => {
+      if (onManageFundsPressed) {
+        onManageFundsPressed(actionKeyID);
+      }
+    },
+    [onManageFundsPressed],
+  );
 
-  const onPressMenuItem = (id: string) => {
-    if (id === 'walletBalanceVisibility') {
-      handleBalanceVisibility();
-    } else if (id === 'copyToClipboard') {
-      handleCopyPress();
-    }
-  };
+  const onPressMenuItem = useCallback(
+    (id: string) => {
+      if (id === 'walletBalanceVisibility') {
+        handleBalanceVisibility();
+      } else if (id === 'copyToClipboard') {
+        handleCopyPress();
+      }
+    },
+    [handleBalanceVisibility, handleCopyPress],
+  );
+
+  const toolTipActions = useMemo(() => {
+    return [
+      {
+        id: actionKeys.Refill,
+        text: loc.lnd.refill,
+        icon: actionIcons.Refill,
+      },
+      {
+        id: actionKeys.RefillWithExternalWallet,
+        text: loc.lnd.refill_external,
+        icon: actionIcons.RefillWithExternalWallet,
+      },
+    ];
+  }, []);
 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
@@ -125,6 +145,35 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     return !hideBalance && balanceFormatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
+
+  const toolTipWalletBalanceActions = useMemo(() => {
+    return wallet.hideBalance
+      ? [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_show,
+            icon: {
+              iconValue: 'eye',
+            },
+          },
+        ]
+      : [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_hide,
+            icon: {
+              iconValue: 'eye.slash',
+            },
+          },
+          {
+            id: 'copyToClipboard',
+            text: loc.transactions.details_copy,
+            icon: {
+              iconValue: 'doc.on.doc',
+            },
+          },
+        ];
+  }, [wallet.hideBalance]);
 
   return (
     <LinearGradient
@@ -155,40 +204,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           isMenuPrimaryAction
           isButton
           enableAndroidRipple={false}
-          ref={menuRef}
           buttonStyle={styles.walletBalance}
           onPressMenuItem={onPressMenuItem}
-          actions={
-            wallet.hideBalance
-              ? [
-                  {
-                    id: 'walletBalanceVisibility',
-                    text: loc.transactions.details_balance_show,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'eye',
-                    },
-                  },
-                ]
-              : [
-                  {
-                    id: 'walletBalanceVisibility',
-                    text: loc.transactions.details_balance_hide,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'eye.slash',
-                    },
-                  },
-                  {
-                    id: 'copyToClipboard',
-                    text: loc.transactions.details_copy,
-                    icon: {
-                      iconType: 'SYSTEM',
-                      iconValue: 'doc.on.doc',
-                    },
-                  },
-                ]
-          }
+          actions={toolTipWalletBalanceActions}
         >
           <View style={styles.walletBalance}>
             {wallet.hideBalance ? (
@@ -223,18 +241,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           isMenuPrimaryAction
           isButton
           onPressMenuItem={handleManageFundsPressed}
-          actions={[
-            {
-              id: actionKeys.Refill,
-              text: loc.lnd.refill,
-              icon: actionIcons.Refill,
-            },
-            {
-              id: actionKeys.RefillWithExternalWallet,
-              text: loc.lnd.refill_external,
-              icon: actionIcons.RefillWithExternalWallet,
-            },
-          ]}
+          actions={toolTipActions}
           buttonStyle={styles.manageFundsButton}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
@@ -333,23 +340,18 @@ export const actionKeys = {
 
 export const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Refill: {
-    iconType: 'SYSTEM',
     iconValue: 'goforward.plus',
   },
   RefillWithExternalWallet: {
-    iconType: 'SYSTEM',
     iconValue: 'qrcode',
   },
 };
