@@ -19,16 +19,16 @@ jobs:
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
       latest_commit_message: ${{ steps.get_latest_commit_message.outputs.commit_message }}
     env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}  # Setting the environment variable
+      APPLE_ID: ${{ secrets.APPLE_ID }}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches all history
       - name: Specify node version
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
@@ -38,17 +38,12 @@ jobs:
           ruby-version: 3.1.6
           bundler-cache: true
       - name: Install dependencies with Bundler
-        run: bundle install --quiet
-      - name: Install Fastlane
-        run: gem install fastlane
-      - name: Clear Derived Data
-        run: bundle exec fastlane ios clear_derived_data_lane
-        working-directory: ./ios
+        run: bundle install
       - name: Install node_modules
         run: npm install
       - name: Install CocoaPods Dependencies
         run: |
-          sudo gem install cocoapods # Ensure CocoaPods is installed
+          gem install cocoapods
           bundle exec pod install
         working-directory: ./ios
       - name: Cache CocoaPods Pods
@@ -110,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{ env.NEW_BUILD_NUMBER }}).ipa
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
   testflight-upload:
     needs: build
@@ -123,7 +118,12 @@ jobs:
       LATEST_COMMIT_MESSAGE: ${{ needs.build.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
       - name: Cache Ruby Gems
         uses: actions/cache@v2
         with:
@@ -138,7 +138,7 @@ jobs:
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet.${{needs.build.outputs.project_version}}(${{needs.build.outputs.new_build_number}}).ipa
+          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
