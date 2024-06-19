@@ -571,7 +571,6 @@
 		13B07FAE1A68108700A75B9A /* BlueWallet */ = {
 			isa = PBXGroup;
 			children = (
-				B4AB21052B61D8890080440C /* SplashScreen */,
 				B461B850299599F800E431AA /* AppDelegate.h */,
 				B461B851299599F800E431AA /* AppDelegate.mm */,
 				32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */,
@@ -909,13 +908,6 @@
 				B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */,
 			);
 			path = BlueWalletUITests;
-			sourceTree = "<group>";
-		};
-		B4AB21052B61D8890080440C /* SplashScreen */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = SplashScreen;
 			sourceTree = "<group>";
 		};
 		FAA856B639C61E61D2CF90A8 /* Pods */ = {

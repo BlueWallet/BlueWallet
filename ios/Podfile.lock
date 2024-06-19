@@ -464,7 +464,7 @@ PODS:
     - React-perflogger (= 0.72.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.10.0):
+  - RealmJS (12.11.0):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -480,7 +480,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.16.2):
+  - RNGestureHandler (2.17.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNHandoff (0.0.3):
@@ -503,7 +503,7 @@ PODS:
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNScreens (3.31.1):
+  - RNScreens (3.32.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTImage
@@ -830,7 +830,7 @@ SPEC CHECKSUMS:
   React-utils: 22a77b05da25ce49c744faa82e73856dcae1734e
   ReactCommon: ff94462e007c568d8cdebc32e3c97af86ec93bb5
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: f86da4f2c5b089d976db335f370449903ddc8fbb
+  RealmJS: 5f96d3e02420b5f579296c465a437f6e20026da9
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
@@ -838,7 +838,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 982741f345785f2927e7b28f67dc83679cf3bfc8
+  RNGestureHandler: 2d351f93c68bf410fc0fe8d9ace7bdddb0c2e566
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: b77875884750cb6a58cd6865863fe2ba2729b72b
@@ -848,7 +848,7 @@ SPEC CHECKSUMS:
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
   RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
   RNReanimated: d4f25b2a931c4f0b2bb12173a3096f02ea4cfb05
-  RNScreens: b8d370282cdeae9df85dd5eab20c88eb5181243b
+  RNScreens: ad1c105ac9107cf1a613bf80889485458eb20bd7
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: af3907ac5d4fa26a862b75a16d8f15bc74f2ceda
   RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
@@ -858,4 +858,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
