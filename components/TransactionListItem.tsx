@@ -16,12 +16,12 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
 import ListItem from './ListItem';
 import { useTheme } from './themes';
-import ToolTipMenu from './TooltipMenu';
 import { Action, ToolTipMenuProps } from './types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -339,7 +339,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
   return (
-    <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
+    <ToolTipMenu isButton actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
       <ListItem
         leftAvatar={avatar}
         title={title}
@@ -367,23 +367,18 @@ const actionKeys = {
 
 const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Link: {
-    iconType: 'SYSTEM',
     iconValue: 'link',
   },
   Note: {
-    iconType: 'SYSTEM',
     iconValue: 'note.text',
   },
 };

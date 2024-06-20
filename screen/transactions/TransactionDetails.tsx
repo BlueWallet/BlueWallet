@@ -32,11 +32,9 @@ const actionKeys = {
 
 const actionIcons = {
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   GoToWallet: {
-    iconType: 'SYSTEM',
     iconValue: 'wallet.pass',
   },
 };
