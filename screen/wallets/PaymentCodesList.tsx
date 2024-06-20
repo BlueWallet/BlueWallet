@@ -42,7 +42,6 @@ const actionKeys: Action[] = [
     id: Actions.pay,
     text: loc.bip47.pay_this_contact,
     icon: {
-      iconType: 'SYSTEM',
       iconValue: 'paperplane',
     },
   },
@@ -50,7 +49,6 @@ const actionKeys: Action[] = [
     id: Actions.rename,
     text: loc.bip47.rename_contact,
     icon: {
-      iconType: 'SYSTEM',
       iconValue: 'pencil',
     },
   },
@@ -58,7 +56,6 @@ const actionKeys: Action[] = [
     id: Actions.copyToClipboard,
     text: loc.bip47.copy_payment_code,
     icon: {
-      iconType: 'SYSTEM',
       iconValue: 'doc.on.doc',
     },
   },
@@ -66,7 +63,6 @@ const actionKeys: Action[] = [
     id: Actions.hide,
     text: loc.bip47.hide_contact,
     icon: {
-      iconType: 'SYSTEM',
       iconValue: 'eye.slash',
     },
   },

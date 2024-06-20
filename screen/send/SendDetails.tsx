@@ -57,6 +57,7 @@ import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
+import { Action } from '../../components/types';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -990,7 +991,7 @@ const SendDetails = () => {
   };
 
   const headerRightActions = () => {
-    const actions = [];
+    const actions: Action[] & Action[][] = [];
     if (isEditable) {
       if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
         actions.push([
@@ -1620,16 +1621,16 @@ SendDetails.actionKeys = {
 };
 
 SendDetails.actionIcons = {
-  InsertContact: { iconType: 'SYSTEM', iconValue: 'at.badge.plus' },
-  SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
+  InsertContact: { iconValue: 'at.badge.plus' },
+  SignPSBT: { iconValue: 'signature' },
   SendMax: 'SendMax',
-  AddRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.plus' },
-  RemoveRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.minus' },
+  AddRecipient: { iconValue: 'person.badge.plus' },
+  RemoveRecipient: { iconValue: 'person.badge.minus' },
   AllowRBF: 'AllowRBF',
-  ImportTransaction: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
-  ImportTransactionMultsig: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down.on.square' },
-  ImportTransactionQR: { iconType: 'SYSTEM', iconValue: 'qrcode.viewfinder' },
-  CoinControl: { iconType: 'SYSTEM', iconValue: 'switch.2' },
+  ImportTransaction: { iconValue: 'square.and.arrow.down' },
+  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
+  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
+  CoinControl: { iconValue: 'switch.2' },
 };
 
 const styles = StyleSheet.create({

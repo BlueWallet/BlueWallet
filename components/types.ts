@@ -3,13 +3,13 @@ import { AccessibilityRole, ViewStyle } from 'react-native';
 export interface Action {
   id: string | number;
   text: string;
-  icon: {
-    iconType: string;
+  icon?: {
     iconValue: string;
   };
   menuTitle?: string;
   menuStateOn?: boolean;
   disabled?: boolean;
+  displayInline?: boolean;
 }
 
 export interface ToolTipMenuProps {
@@ -30,7 +30,7 @@ export interface ToolTipMenuProps {
   style?: ViewStyle | ViewStyle[];
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  buttonStyle?: ViewStyle;
+  buttonStyle?: ViewStyle | ViewStyle[];
   onMenuWillShow?: () => void;
   onMenuWillHide?: () => void;
 }
