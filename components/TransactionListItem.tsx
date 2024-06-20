@@ -1,8 +1,7 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Linking, StyleSheet, View } from 'react-native';
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -14,14 +13,15 @@ import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
 import ListItem from './ListItem';
 import { useTheme } from './themes';
-import ToolTipMenu from './TooltipMenu';
 import { Action, ToolTipMenuProps } from './types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
+import { useStorage } from '../hooks/context/useStorage';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -36,15 +36,12 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
   const { colors } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
   const menuRef = useRef<ToolTipMenuProps>();
-  const { txMetadata, counterpartyMetadata, wallets } = useContext(BlueStorageContext);
+  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
   const { preferredFiatCurrency, language } = useSettings();
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
       borderBottomColor: colors.lightBorder,
-      paddingTop: 16,
-      paddingBottom: 16,
-      paddingRight: 0,
     }),
     [colors.lightBorder],
   );
@@ -73,7 +70,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     if (sub !== '') sub += ' ';
     sub += txMemo;
     if (item.memo) sub += item.memo;
-    return sub || null;
+    return sub || undefined;
   }, [txMemo, item.confirmations, item.memo]);
 
   const rowTitle = useMemo(() => {
@@ -87,7 +84,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
       if (invoiceExpiration > now) {
         return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
-      } else if (invoiceExpiration < now) {
+      } else {
         if (item.ispaid) {
           return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
         } else {
@@ -249,7 +246,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
-  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle), [subtitle]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle ?? ''), [subtitle]);
   const handleOnViewOnBlockExplorer = useCallback(() => {
     const url = `https://mempool.space/tx/${item.hash}`;
     Linking.canOpenURL(url).then(supported => {
@@ -342,22 +339,20 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
   return (
-    <View style={styles.container}>
-      <ToolTipMenu ref={menuRef} actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
-        <ListItem
-          leftAvatar={avatar}
-          title={title}
-          subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={subtitle}
-          Component={View}
-          subtitleProps={subtitleProps}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          containerStyle={containerStyle}
-        />
-      </ToolTipMenu>
-    </View>
+    <ToolTipMenu isButton actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
+      <ListItem
+        leftAvatar={avatar}
+        title={title}
+        subtitleNumberOfLines={subtitleNumberOfLines}
+        subtitle={subtitle}
+        Component={View}
+        subtitleProps={subtitleProps}
+        chevron={false}
+        rightTitle={rowTitle}
+        rightTitleStyle={rowTitleStyle}
+        containerStyle={containerStyle}
+      />
+    </ToolTipMenu>
   );
 });
 
@@ -372,28 +367,22 @@ const actionKeys = {
 
 const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Link: {
-    iconType: 'SYSTEM',
     iconValue: 'link',
   },
   Note: {
-    iconType: 'SYSTEM',
     iconValue: 'note.text',
   },
 };
 
 const styles = StyleSheet.create({
   iconWidth: { width: 25 },
-  container: { marginHorizontal: 4 },
 });

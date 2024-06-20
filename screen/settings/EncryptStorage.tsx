@@ -1,17 +1,16 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { StackActions } from '@react-navigation/native';
-
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useStorage } from '../../hooks/context/useStorage';
+import { popToTop } from '../../NavigationService';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -56,9 +55,9 @@ const reducer = (state: State, action: Action): State => {
 
 const EncryptStorage = () => {
   const { isStorageEncrypted, encryptStorage, decryptStorage, saveToDisk } = useStorage();
-  const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType, unlockWithBiometrics } = useBiometrics();
+  const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, dispatch: navigationDispatch } = useExtendedNavigation();
+  const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
 
   const styleHooks = StyleSheet.create({
@@ -83,10 +82,6 @@ const EncryptStorage = () => {
     initializeState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const popToTop = () => {
-    navigationDispatch(StackActions.popToTop());
-  };
 
   const handleDecryptStorage = async () => {
     dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'decrypt' });
@@ -195,7 +190,7 @@ const EncryptStorage = () => {
     return isCapable ? (
       <>
         <BlueText />
-        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType })}</BlueText>
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
       </>
     ) : null;
   };
@@ -213,14 +208,14 @@ const EncryptStorage = () => {
             {loc.settings.biometrics}
           </Text>
           <ListItem
-            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType })}
+            title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
             Component={TouchableWithoutFeedback}
             switch={{ value: biometricEnabled, onValueChange: onUseBiometricSwitch, disabled: state.currentLoadingSwitch !== null }}
             isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
             containerStyle={[styles.row, styleHooks.root]}
           />
           <BlueCard>
-            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType })}</BlueText>
+            <BlueText>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</BlueText>
             {renderPasscodeExplanation()}
           </BlueCard>
           <BlueSpacing20 />
@@ -231,7 +226,6 @@ const EncryptStorage = () => {
       </Text>
       <ListItem
         testID="EncyptedAndPasswordProtected"
-        hideChevron
         title={loc.settings.encrypt_enc_and_pass}
         Component={TouchableWithoutFeedback}
         switch={{

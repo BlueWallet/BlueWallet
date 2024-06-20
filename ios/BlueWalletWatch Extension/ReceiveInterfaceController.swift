@@ -9,17 +9,13 @@ import WatchConnectivity
 import Foundation
 import EFQRCode
 
-import WatchKit
-import WatchConnectivity
-import Foundation
-import EFQRCode
-
 class ReceiveInterfaceController: WKInterfaceController {
 
     static let identifier = "ReceiveInterfaceController"
     private var wallet: Wallet?
-    private var receiveMethod: String = "receive"
-    private var interfaceMode: InterfaceMode = .Address
+    private var receiveMethod: ReceiveMethod = .Onchain
+    private var interfaceMode: ReceiveInterfaceMode = .Address
+    var receiveType: ReceiveType = .Address
     @IBOutlet weak var addressLabel: WKInterfaceLabel!
     @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
     @IBOutlet weak var imageInterface: WKInterfaceImage!
@@ -35,18 +31,19 @@ class ReceiveInterfaceController: WKInterfaceController {
 
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        guard let passedContext = context as? (Int, String) else {
+        guard let passedContext = context as? (Int, ReceiveMethod, ReceiveType) else {
             pop()
             return
         }
         let wallet = WatchDataSource.shared.wallets[passedContext.0]
         self.wallet = wallet
         receiveMethod = passedContext.1
+        receiveType = passedContext.2
         setupView()
     }
 
     private func setupView() {
-        if receiveMethod == "createInvoice" && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue) {
+      if receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue) {
             presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
         } else {
             setupQRCode()
@@ -55,7 +52,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     }
 
     private func setupQRCode() {
-        guard let address = wallet?.receiveAddress else { return }
+      guard let address = receiveType == .Address ? wallet?.receiveAddress : wallet?.paymentCode else { return }
         addressLabel.setText(address)
         generateQRCode(from: address)
     }
@@ -95,7 +92,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     }
 
     private func isCreatingInvoice() -> Bool {
-        return receiveMethod == "createInvoice" && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue)
+      return receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue)
     }
 
     override func didDeactivate() {

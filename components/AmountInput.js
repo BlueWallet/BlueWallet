@@ -4,7 +4,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Badge, Icon, Text } from 'react-native-elements';
+import { Badge, Icon, Text } from '@rneui/themed';
 
 import {
   fiatToBTC,

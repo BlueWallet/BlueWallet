@@ -1,5 +1,5 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   I18nManager,
@@ -14,13 +14,11 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
-
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import presentAlert from '../../components/Alert';
@@ -32,9 +30,10 @@ import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const LNDCreateInvoice = () => {
-  const { wallets, saveToDisk, setSelectedWalletID } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, setSelectedWalletID } = useStorage();
   const { walletID, uri } = useRoute().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const createInvoiceRef = useRef();

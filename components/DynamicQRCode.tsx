@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Text } from '@rneui/themed';
 
 import { encodeUR } from '../blue_modules/ur';
 import { BlueSpacing20 } from '../BlueComponents';

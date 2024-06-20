@@ -1,8 +1,6 @@
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useMemo, useReducer, useRef } from 'react';
+import React, { useCallback, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -11,6 +9,7 @@ import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 type RootStackParamList = {
   ExportMultisigCoordinationSetup: {
@@ -65,7 +64,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { isLoading, isShareButtonTapped, qrCodeContents } = state;
   const { params } = useRoute<RouteProp<RootStackParamList, 'ExportMultisigCoordinationSetup'>>();
   const walletID = params.walletID;
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>();
   const { colors } = useTheme();

@@ -3,10 +3,8 @@ import BigNumber from 'bignumber.js';
 import { Psbt } from 'bitcoinjs-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, LightningLdkWallet } from '../../class';
 import AddressInput from '../../components/AddressInput';
@@ -16,9 +14,10 @@ import { ArrowPicker } from '../../components/ArrowPicker';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 type LdkOpenChannelProps = RouteProp<
   {
@@ -35,7 +34,7 @@ type LdkOpenChannelProps = RouteProp<
 
 const LdkOpenChannel = (props: any) => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors }: { colors: any } = useTheme();
   const { navigate, setParams } = useNavigation();
   const {

@@ -31,7 +31,6 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for example:
-          // packages.add(new MyReactNativePackage());
           return packages;
         }
 
@@ -40,15 +39,15 @@ public class MainApplication extends Application implements ReactApplication {
           return "index";
         }
 
-           @Override
-	        protected boolean isNewArchEnabled() {
-	          return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
-	        }
-	
-	        @Override
-	        protected Boolean isHermesEnabled() {
-	          return BuildConfig.IS_HERMES_ENABLED;
-	        }
+        @Override
+        protected boolean isNewArchEnabled() {
+          return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+        }
+
+        @Override
+        protected Boolean isHermesEnabled() {
+          return BuildConfig.IS_HERMES_ENABLED;
+        }
       };
 
   @Override
@@ -62,19 +61,19 @@ public class MainApplication extends Application implements ReactApplication {
     I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
     sharedI18nUtilInstance.allowRTL(getApplicationContext(), true);
     SoLoader.init(this, /* native exopackage */ false);
-      if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-	      // If you opted-in for the New Architecture, we load the native entry point for this app.
-	      DefaultNewArchitectureEntryPoint.load();
-	    }
-      SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE);
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      // If you opted-in for the New Architecture, we load the native entry point for this app.
+      DefaultNewArchitectureEntryPoint.load();
+    }
+    SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE);
 
-      // Retrieve the "donottrack" value. Default to "0" if not found.
-      String isDoNotTrackEnabled = sharedPref.getString("donottrack", "0");
+    // Retrieve the "donottrack" value. Default to "0" if not found.
+    String isDoNotTrackEnabled = sharedPref.getString("donottrack", "0");
 
-      // Check if do not track is not enabled and initialize Bugsnag if so
-      if (!isDoNotTrackEnabled.equals("1")) {
-          // Initialize Bugsnag or your error tracking here
-          Bugsnag.start(this);
-      }
+    // Check if do not track is not enabled and initialize Bugsnag if so
+    if (!isDoNotTrackEnabled.equals("1")) {
+        // Initialize Bugsnag or your error tracking here
+        Bugsnag.start(this);
+    }
   }
 }

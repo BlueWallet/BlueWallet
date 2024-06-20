@@ -1,13 +1,10 @@
+import React from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation } from '@react-navigation/native';
-import React, { useContext } from 'react';
 import { Alert, Image, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import Rate, { AndroidMarket } from 'react-native-rate';
-
 import A from '../../blue_modules/analytics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -15,66 +12,29 @@ import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const branch = require('../../current-branch.json');
 
-const About = () => {
-  const { navigate } = useNavigation();
+const About: React.FC = () => {
+  const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
-  const { isElectrumDisabled } = useContext(BlueStorageContext);
-  const styles = StyleSheet.create({
-    copyToClipboard: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    copyToClipboardText: {
-      fontSize: 13,
-      fontWeight: '400',
-      color: '#68bbe1',
-    },
-    center: {
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 54,
-    },
-    logo: {
-      width: 102,
-      height: 124,
-    },
-    textFree: {
-      maxWidth: 260,
-      marginVertical: 24,
-      color: '#9AA0AA',
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
-    },
+  const { isElectrumDisabled } = useStorage();
+
+  const stylesHook = StyleSheet.create({
     textBackup: {
-      maxWidth: 260,
-      marginBottom: 40,
       color: colors.foregroundColor,
-      fontSize: 15,
-      textAlign: 'center',
-      fontWeight: '500',
     },
     buildWith: {
       backgroundColor: colors.inputBackgroundColor,
-      padding: 16,
-      paddingTop: 0,
-      borderRadius: 8,
     },
     buttonLink: {
       backgroundColor: colors.lightButton,
-      borderRadius: 12,
-      justifyContent: 'center',
-      padding: 8,
-      flexDirection: 'row',
     },
     textLink: {
       color: colors.foregroundColor,
-      marginLeft: 8,
-      fontWeight: '600',
     },
   });
 
@@ -105,9 +65,11 @@ const About = () => {
   const handleOnTelegramPress = () => {
     Linking.openURL('https://t.me/bluewallethat');
   };
+
   const handleOnGithubPress = () => {
     Linking.openURL('https://github.com/BlueWallet/BlueWallet');
   };
+
   const handleOnRatePress = () => {
     const options = {
       AppleAppID: '1376878040',
@@ -130,7 +92,7 @@ const About = () => {
         <View style={styles.center}>
           <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
           <Text style={styles.textFree}>{loc.settings.about_free}</Text>
-          <Text style={styles.textBackup}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
+          <Text style={[styles.textBackup, stylesHook.textBackup]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}</Text>
           {((Platform.OS === 'android' && hasGmsSync()) || Platform.OS !== 'android') && (
             <Button onPress={handleOnRatePress} title={loc.settings.about_review + ' ⭐🙏'} />
           )}
@@ -164,9 +126,8 @@ const About = () => {
         title={loc.settings.about_sm_discord}
       />
       <BlueCard>
-        <View style={styles.buildWith}>
+        <View style={[styles.buildWith, stylesHook.buildWith]}>
           <BlueSpacing20 />
-
           <BlueTextCentered>{loc.settings.about_awesome} 👍</BlueTextCentered>
           <BlueSpacing20 />
           <BlueTextCentered>React Native</BlueTextCentered>
@@ -174,10 +135,9 @@ const About = () => {
           <BlueTextCentered>Nodejs</BlueTextCentered>
           <BlueTextCentered>Electrum server</BlueTextCentered>
           <BlueSpacing20 />
-
-          <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={styles.buttonLink}>
+          <TouchableOpacity accessibilityRole="button" onPress={handleOnGithubPress} style={[styles.buttonLink, stylesHook.buttonLink]}>
             <Icon size={22} name="github" type="font-awesome-5" color={colors.foregroundColor} />
-            <Text style={styles.textLink}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
+            <Text style={[styles.textLink, stylesHook.textLink]}>{formatStringAddTwoWhiteSpaces(loc.settings.about_sm_github)}</Text>
           </TouchableOpacity>
         </View>
       </BlueCard>
@@ -242,24 +202,28 @@ const About = () => {
       <BlueTextCentered>
         {getApplicationName()} ver {getVersion()} (build {getBuildNumber() + ' ' + branch})
       </BlueTextCentered>
-      <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
+      <BlueTextCentered>{new Date(Number(getBuildNumber()) * 1000).toUTCString()}</BlueTextCentered>
       <BlueTextCentered>{getBundleId()}</BlueTextCentered>
       <BlueTextCentered>
         w, h = {width}, {height}
       </BlueTextCentered>
-      <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
-      <View style={styles.copyToClipboard}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          onPress={() => {
-            const stringToCopy = 'userId:' + getUniqueIdSync();
-            A.logError('copied unique id');
-            Clipboard.setString(stringToCopy);
-          }}
-        >
-          <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
-        </TouchableOpacity>
-      </View>
+      {process.env.NODE_ENV !== 'development' && (
+        <>
+          <BlueTextCentered>Unique ID: {getUniqueIdSync()}</BlueTextCentered>
+          <View style={styles.copyToClipboard}>
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => {
+                const stringToCopy = 'userId:' + getUniqueIdSync();
+                A.logError('copied unique id');
+                Clipboard.setString(stringToCopy);
+              }}
+            >
+              <Text style={styles.copyToClipboardText}>{loc.transactions.details_copy}</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
       <BlueSpacing20 />
       <BlueSpacing20 />
     </ScrollView>
@@ -267,3 +231,54 @@ const About = () => {
 };
 
 export default About;
+
+const styles = StyleSheet.create({
+  copyToClipboard: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  copyToClipboardText: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: '#68bbe1',
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 54,
+  },
+  logo: {
+    width: 102,
+    height: 124,
+  },
+  textFree: {
+    maxWidth: 260,
+    marginVertical: 24,
+    color: '#9AA0AA',
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  textBackup: {
+    maxWidth: 260,
+    marginBottom: 40,
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  buildWith: {
+    padding: 16,
+    paddingTop: 0,
+    borderRadius: 8,
+  },
+  buttonLink: {
+    borderRadius: 12,
+    justifyContent: 'center',
+    padding: 8,
+    flexDirection: 'row',
+  },
+  textLink: {
+    marginLeft: 8,
+    fontWeight: '600',
+  },
+});

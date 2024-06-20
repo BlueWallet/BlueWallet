@@ -1,16 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { openSettings } from 'react-native-permissions';
-
 import A from '../../blue_modules/analytics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-import { useSettings } from '../../components/Context/SettingsContext';
 import { Header } from '../../components/Header';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { setBalanceDisplayAllowed } from '../../components/WidgetCommunication';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum SettingsPrivacySection {
   None,
@@ -22,7 +21,7 @@ enum SettingsPrivacySection {
 
 const SettingsPrivacy: React.FC = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted } = useContext(BlueStorageContext);
+  const { isStorageEncrypted } = useStorage();
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
@@ -108,7 +107,6 @@ const SettingsPrivacy: React.FC = () => {
       ) : null}
 
       <ListItem
-        hideChevron
         title={loc.settings.privacy_read_clipboard}
         Component={TouchableWithoutFeedback}
         switch={{
@@ -125,7 +123,6 @@ const SettingsPrivacy: React.FC = () => {
       </BlueCard>
       <BlueSpacing20 />
       <ListItem
-        hideChevron
         title={loc.settings.privacy_quickactions}
         Component={TouchableWithoutFeedback}
         switch={{
@@ -143,7 +140,6 @@ const SettingsPrivacy: React.FC = () => {
       </BlueCard>
 
       <ListItem
-        hideChevron
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
         switch={{ onValueChange: onDoNotTrackValueChange, value: isDoNotTrackEnabled, disabled: isLoading === SettingsPrivacySection.All }}
@@ -158,7 +154,6 @@ const SettingsPrivacy: React.FC = () => {
             {loc.settings.widgets}
           </Text>
           <ListItem
-            hideChevron
             title={loc.settings.total_balance}
             Component={TouchableWithoutFeedback}
             switch={{

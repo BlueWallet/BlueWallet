@@ -8,8 +8,10 @@ export default class ActionSheet {
     InteractionManager.runAfterInteractions(() => {
       const iosOptions = {
         ...options,
-        anchor: options.anchor,
       };
+      if (options.anchor) {
+        iosOptions.anchor = options.anchor;
+      }
       ActionSheetIOS.showActionSheetWithOptions(iosOptions, completion);
     });
   }

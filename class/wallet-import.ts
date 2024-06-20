@@ -381,40 +381,37 @@ const startImport = (
       yield { wallet: aezeed2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
 
-    // if it is multi-line string, then it is probably SLIP39 wallet
-    // each line - one share
+    // Let's try SLIP39
     yield { progress: 'SLIP39' };
-    if (text.includes('\n')) {
-      const s1 = new SLIP39SegwitP2SHWallet();
-      s1.setSecret(text);
+    const s1 = new SLIP39SegwitP2SHWallet();
+    s1.setSecret(text);
 
-      if (s1.validateMnemonic()) {
-        yield { progress: 'SLIP39 p2wpkh-p2sh' };
-        if (password) {
-          s1.setPassphrase(password);
-        }
-        if (await s1.wasEverUsed()) {
-          yield { wallet: s1 };
-        }
-
-        yield { progress: 'SLIP39 p2pkh' };
-        const s2 = new SLIP39LegacyP2PKHWallet();
-        if (password) {
-          s2.setPassphrase(password);
-        }
-        s2.setSecret(text);
-        if (await s2.wasEverUsed()) {
-          yield { wallet: s2 };
-        }
-
-        yield { progress: 'SLIP39 p2wpkh' };
-        const s3 = new SLIP39SegwitBech32Wallet();
-        s3.setSecret(text);
-        if (password) {
-          s3.setPassphrase(password);
-        }
-        yield { wallet: s3 };
+    if (s1.validateMnemonic()) {
+      yield { progress: 'SLIP39 p2wpkh-p2sh' };
+      if (password) {
+        s1.setPassphrase(password);
       }
+      if (await s1.wasEverUsed()) {
+        yield { wallet: s1 };
+      }
+
+      yield { progress: 'SLIP39 p2pkh' };
+      const s2 = new SLIP39LegacyP2PKHWallet();
+      if (password) {
+        s2.setPassphrase(password);
+      }
+      s2.setSecret(text);
+      if (await s2.wasEverUsed()) {
+        yield { wallet: s2 };
+      }
+
+      yield { progress: 'SLIP39 p2wpkh' };
+      const s3 = new SLIP39SegwitBech32Wallet();
+      s3.setSecret(text);
+      if (password) {
+        s3.setPassphrase(password);
+      }
+      yield { wallet: s3 };
     }
 
     // is it BC-UR payload with multiple accounts?

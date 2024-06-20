@@ -1,16 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
-
-import { BlueStorageContext } from '../blue_modules/storage-context';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import { TWallet } from '../class/wallets/types';
-import { useSettings } from '../components/Context/SettingsContext';
 import useOnAppLaunch from '../hooks/useOnAppLaunch';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -32,7 +31,7 @@ export async function getEnabled(): Promise<boolean> {
 }
 
 function DeviceQuickActions() {
-  const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useContext(BlueStorageContext);
+  const { wallets, walletsInitialized, isStorageEncrypted, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { preferredFiatCurrency, isQuickActionsEnabled } = useSettings();
 
   const { isViewAllWalletsEnabled, getSelectedDefaultWallet } = useOnAppLaunch();

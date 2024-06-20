@@ -1,4 +1,5 @@
 import { LightningTransaction } from '../class/wallets/types';
+import { SendDetailsParams } from './SendDetailsStackParamList';
 
 export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
@@ -30,7 +31,11 @@ export type DetailViewStackParamList = {
   Success: undefined;
   WalletAddresses: { walletID: string };
   AddWalletRoot: undefined;
-  SendDetailsRoot: undefined;
+  SendDetailsRoot: {
+    screen: string;
+    params: SendDetailsParams;
+    merge: boolean;
+  };
   LNDCreateInvoiceRoot: undefined;
   ScanLndInvoiceRoot: {
     screen: string;
@@ -94,6 +99,9 @@ export type DetailViewStackParamList = {
       animatedQRCodeData?: Record<string, any>;
     };
   };
-  PaymentCodeRoot: undefined;
+  PaymentCodeList: {
+    paymentCode: string;
+    walletID: string;
+  };
   ReorderWallets: undefined;
 };

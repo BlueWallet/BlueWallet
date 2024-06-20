@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -23,13 +23,12 @@ import {
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import RNFS from 'react-native-fs';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -57,6 +56,8 @@ import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackPara
 import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
+import { useStorage } from '../../hooks/context/useStorage';
+import { Action } from '../../components/types';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -75,8 +76,9 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
 const SendDetails = () => {
-  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, setSelectedWalletID, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
+  const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const name = route.name;
   const routeParams = route.params;
@@ -194,27 +196,59 @@ const SendDetails = () => {
       }
     } else if (routeParams.address) {
       const { amount, amountSats, unit = BitcoinUnit.BTC } = routeParams;
-      setAddresses(addrs => {
-        if (currentAddress) {
+      // @ts-ignore: needs fix
+      setAddresses(value => {
+        if (currentAddress && currentAddress.address && routeParams.address) {
           currentAddress.address = routeParams.address;
-          addrs[scrollIndex.current] = currentAddress;
-          return [...addrs];
+          value[scrollIndex.current] = currentAddress;
+          return [...value];
         } else {
-          return [...addrs, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
+          return [...value, { address: routeParams.address, key: String(Math.random()), amount, amountSats }];
         }
       });
-      if (routeParams.memo?.trim().length > 0) {
+      if (routeParams.memo && routeParams.memo?.trim().length > 0) {
         setTransactionMemo(routeParams.memo);
       }
       setUnits(u => {
         u[scrollIndex.current] = unit;
         return [...u];
       });
+    } else if (routeParams.addRecipientParams) {
+      const index = addresses.length === 0 ? 0 : scrollIndex.current;
+      const isEmptyArray = addresses.length > 0 || addresses.length < 2;
+      const addRecipientParams = routeParams.addRecipientParams;
+
+      if (isEmptyArray) {
+        if (Number(addRecipientParams.amount) > 0) {
+          setAddresses([
+            {
+              address: addRecipientParams.address,
+              amount: addRecipientParams.amount,
+              amountSats: btcToSatoshi(addRecipientParams.amount!),
+              key: String(Math.random()),
+            } as IPaymentDestinations,
+          ]);
+        } else {
+          setAddresses([{ address: addRecipientParams.address, key: String(Math.random()) } as IPaymentDestinations]);
+        }
+      } else {
+        setAddresses(addrs => {
+          if (routeParams.addRecipientParams?.amount) {
+            addrs[index].amount = routeParams.addRecipientParams?.amount;
+            addrs[index].amountSats = btcToSatoshi(routeParams.addRecipientParams?.amount);
+          }
+          if (routeParams.addRecipientParams?.address) {
+            addrs[index].address = routeParams.addRecipientParams?.address;
+          }
+          return [...addrs];
+        });
+        setParams({ addRecipientParams: undefined });
+      }
     } else {
       setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address]);
+  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
     // check if we have a suitable wallet
@@ -505,6 +539,29 @@ const SendDetails = () => {
         }
       }
 
+      // validating payment codes, if any
+      if (!error) {
+        if (transaction.address.startsWith('sp1')) {
+          if (!wallet.allowSilentPaymentSend()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_silentpayment_adress;
+          }
+        }
+
+        if (transaction.address.startsWith('PM')) {
+          if (!wallet.allowBIP47()) {
+            console.log('validation error');
+            error = loc.send.cant_send_to_bip47;
+          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
+            console.log('validation error');
+            error = loc.send.cant_find_bip47_notification;
+          } else {
+            // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
+            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+          }
+        }
+      }
+
       if (error) {
         scrollView.current?.scrollToIndex({ index });
         setIsLoading(false);
@@ -622,10 +679,13 @@ const SendDetails = () => {
     setIsLoading(false);
   };
 
-  const onWalletSelect = (w: TWallet) => {
-    setWallet(w);
-    navigation.dispatch(popAction);
-  };
+  useEffect(() => {
+    const newWallet = wallets.find(w => w.getID() === routeParams.walletID);
+    if (newWallet) {
+      setWallet(newWallet);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.walletID]);
 
   /**
    * same as `importTransaction`, but opens camera instead.
@@ -849,6 +909,12 @@ const SendDetails = () => {
     });
   };
 
+  const handleInsertContact = () => {
+    if (!wallet) return;
+    setOptionsVisible(false);
+    navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
+  };
+
   const handlePsbtSign = async () => {
     setIsLoading(true);
     setOptionsVisible(false);
@@ -919,15 +985,25 @@ const SendDetails = () => {
       importTransactionMultisigScanQr();
     } else if (id === SendDetails.actionKeys.CoinControl) {
       handleCoinControl();
+    } else if (id === SendDetails.actionKeys.InsertContact) {
+      handleInsertContact();
     }
   };
 
   const headerRightActions = () => {
-    const actions = [];
+    const actions: Action[] & Action[][] = [];
     if (isEditable) {
-      const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+      if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
+        actions.push([
+          { id: SendDetails.actionKeys.InsertContact, text: loc.send.details_insert_contact, icon: SendDetails.actionIcons.InsertContact },
+        ]);
+      }
 
-      actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      if (Number(wallet?.getBalance()) > 0) {
+        const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
+
+        actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
+      }
       if (wallet?.type === HDSegwitBech32Wallet.type) {
         actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
       }
@@ -1138,6 +1214,12 @@ const SendDetails = () => {
     },
   });
 
+  const calculateTotalAmount = () => {
+    const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
+    const totalWithFee = totalAmount + (feePrecalc.current || 0);
+    return totalWithFee;
+  };
+
   const renderFeeSelectionModal = () => {
     const nf = networkTransactionFees;
     const options = [
@@ -1239,14 +1321,16 @@ const SendDetails = () => {
 
     return (
       <BottomModal isVisible={optionsVisible} onClose={hideOptions}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
+        <KeyboardAvoidingView enabled={!isTablet} behavior={undefined}>
           <View style={[styles.optionsContent, stylesHook.optionsContent]}>
+            {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+              <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
+            )}
             {isEditable && (
               <ListItem
                 testID="sendMaxButton"
                 disabled={balance === 0 || isSendMaxUsed}
                 title={loc.send.details_adv_full}
-                hideChevron
                 onPress={onUseAllPressed}
               />
             )}
@@ -1258,37 +1342,31 @@ const SendDetails = () => {
               />
             )}
             {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransaction} />
+              <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
             )}
             {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem
-                testID="ImportQrTransactionButton"
-                title={loc.send.details_adv_import_qr}
-                hideChevron
-                onPress={importQrTransaction}
-              />
+              <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
             )}
             {wallet?.type === MultisigHDWallet.type && isEditable && (
-              <ListItem title={loc.send.details_adv_import} hideChevron onPress={importTransactionMultisig} />
+              <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
             )}
             {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-              <ListItem title={loc.multisig.co_sign_transaction} hideChevron onPress={importTransactionMultisigScanQr} />
+              <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
             )}
             {isEditable && (
               <>
-                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} hideChevron onPress={handleAddRecipient} />
+                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
                 <ListItem
                   testID="RemoveRecipient"
                   title={loc.send.details_add_rec_rem}
-                  hideChevron
                   disabled={addresses.length < 2}
                   onPress={handleRemoveRecipient}
                 />
               </>
             )}
-            <ListItem testID="CoinControl" title={loc.cc.header} hideChevron onPress={handleCoinControl} />
+            <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
             {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
-              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} hideChevron onPress={handlePsbtSign} />
+              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
             )}
           </View>
         </KeyboardAvoidingView>
@@ -1297,12 +1375,15 @@ const SendDetails = () => {
   };
 
   const renderCreateButton = () => {
+    const totalWithFee = calculateTotalAmount();
+    const isDisabled = totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0;
+
     return (
       <View style={styles.createButton}>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Button onPress={createTransaction} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <Button onPress={createTransaction} disabled={isDisabled} title={loc.send.details_next} testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -1331,7 +1412,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -1341,7 +1422,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN })}
+            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
@@ -1526,6 +1607,7 @@ const SendDetails = () => {
 export default SendDetails;
 
 SendDetails.actionKeys = {
+  InsertContact: 'InsertContact',
   SignPSBT: 'SignPSBT',
   SendMax: 'SendMax',
   AddRecipient: 'AddRecipient',
@@ -1539,15 +1621,16 @@ SendDetails.actionKeys = {
 };
 
 SendDetails.actionIcons = {
-  SignPSBT: { iconType: 'SYSTEM', iconValue: 'signature' },
+  InsertContact: { iconValue: 'at.badge.plus' },
+  SignPSBT: { iconValue: 'signature' },
   SendMax: 'SendMax',
-  AddRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.plus' },
-  RemoveRecipient: { iconType: 'SYSTEM', iconValue: 'person.badge.minus' },
+  AddRecipient: { iconValue: 'person.badge.plus' },
+  RemoveRecipient: { iconValue: 'person.badge.minus' },
   AllowRBF: 'AllowRBF',
-  ImportTransaction: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down' },
-  ImportTransactionMultsig: { iconType: 'SYSTEM', iconValue: 'square.and.arrow.down.on.square' },
-  ImportTransactionQR: { iconType: 'SYSTEM', iconValue: 'qrcode.viewfinder' },
-  CoinControl: { iconType: 'SYSTEM', iconValue: 'switch.2' },
+  ImportTransaction: { iconValue: 'square.and.arrow.down' },
+  ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
+  ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
+  CoinControl: { iconValue: 'switch.2' },
 };
 
 const styles = StyleSheet.create({

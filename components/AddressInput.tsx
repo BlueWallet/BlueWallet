@@ -1,13 +1,13 @@
-import React from 'react';
-import { Image, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { scanQrHelper } from '../helpers/scan-qr';
 import loc from '../loc';
 import { useTheme } from './themes';
-import ToolTipMenu from './TooltipMenu';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import Clipboard from '@react-native-clipboard/clipboard';
 import presentAlert from './Alert';
+import ToolTipMenu from './TooltipMenu';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -69,52 +69,63 @@ const AddressInput = ({
     Keyboard.dismiss();
   };
 
-  const onMenuItemPressed = (action: string) => {
-    if (onBarScanned === undefined) throw new Error('onBarScanned is required');
-    switch (action) {
-      case actionKeys.ScanQR:
-        scanButtonTapped();
-        if (launchedBy) {
-          scanQrHelper(launchedBy)
-            .then(value => onBarScanned({ data: value }))
+  const toolTipOnPress = useCallback(async () => {
+    await scanButtonTapped();
+    Keyboard.dismiss();
+    if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+  }, [launchedBy, onBarScanned, scanButtonTapped]);
+
+  const onMenuItemPressed = useCallback(
+    (action: string) => {
+      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
+      switch (action) {
+        case actionKeys.ScanQR:
+          scanButtonTapped();
+          if (launchedBy) {
+            scanQrHelper(launchedBy)
+              .then(value => onBarScanned({ data: value }))
+              .catch(error => {
+                presentAlert({ message: error.message });
+              });
+          }
+
+          break;
+        case actionKeys.CopyFromClipboard:
+          Clipboard.getString()
+            .then(onChangeText)
             .catch(error => {
               presentAlert({ message: error.message });
             });
-        }
+          break;
+        case actionKeys.ChoosePhoto:
+          showImagePickerAndReadImage()
+            .then(value => {
+              if (value) {
+                onChangeText(value);
+              }
+            })
+            .catch(error => {
+              presentAlert({ message: error.message });
+            });
+          break;
+        case actionKeys.ImportFile:
+          showFilePickerAndReadFile()
+            .then(value => {
+              if (value.data) {
+                onChangeText(value.data);
+              }
+            })
+            .catch(error => {
+              presentAlert({ message: error.message });
+            });
+          break;
+      }
+      Keyboard.dismiss();
+    },
+    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
+  );
 
-        break;
-      case actionKeys.CopyFromClipboard:
-        Clipboard.getString()
-          .then(onChangeText)
-          .catch(error => {
-            presentAlert({ message: error.message });
-          });
-        break;
-      case actionKeys.ChoosePhoto:
-        showImagePickerAndReadImage()
-          .then(value => {
-            if (value) {
-              onChangeText(value);
-            }
-          })
-          .catch(error => {
-            presentAlert({ message: error.message });
-          });
-        break;
-      case actionKeys.ImportFile:
-        showFilePickerAndReadFile()
-          .then(value => {
-            if (value.data) {
-              onChangeText(value.data);
-            }
-          })
-          .catch(error => {
-            presentAlert({ message: error.message });
-          });
-        break;
-    }
-    Keyboard.dismiss();
-  };
+  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -141,12 +152,8 @@ const AddressInput = ({
           onPressMenuItem={onMenuItemPressed}
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
-          onPress={async () => {
-            await scanButtonTapped();
-            Keyboard.dismiss();
-            if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
-          }}
-          style={[styles.scan, stylesHook.scan]}
+          onPress={toolTipOnPress}
+          buttonStyle={buttonStyle}
           accessibilityLabel={loc.send.details_scan}
           accessibilityHint={loc.send.details_scan_hint}
         >
@@ -202,20 +209,16 @@ const actionKeys = {
 
 const actionIcons = {
   ScanQR: {
-    iconType: 'SYSTEM',
-    iconValue: 'qrcode',
+    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
   },
   ImportFile: {
-    iconType: 'SYSTEM',
     iconValue: 'doc',
   },
   ChoosePhoto: {
-    iconType: 'SYSTEM',
-    iconValue: 'photo',
+    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
+    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
   },
 };
 

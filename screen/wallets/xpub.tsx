@@ -1,9 +1,7 @@
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -13,6 +11,8 @@ import SafeArea from '../../components/SafeArea';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
+import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -23,7 +23,7 @@ export type RootStackParamList = {
 };
 
 const WalletXpub: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -95,7 +95,7 @@ const WalletXpub: React.FC = () => {
             <BlueSpacing20 />
             {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
-          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>

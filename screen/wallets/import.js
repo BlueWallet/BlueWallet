@@ -11,12 +11,12 @@ import {
   BlueText,
 } from '../../BlueComponents';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const WalletsImport = () => {
   const navigation = useNavigation();

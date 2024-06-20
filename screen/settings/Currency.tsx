@@ -12,12 +12,12 @@ import {
 } from '../../blue_modules/currency';
 import { BlueCard, BlueSpacing10, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
-import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { useSettings } from '../../hooks/context/useSettings';
 
 dayjs.extend(calendar);
 
