@@ -428,6 +428,7 @@
     "details_show_xpub": "Mostrar el XPUB de la Billetera",
     "details_show_addresses": "Mostrar direcciones",
     "details_title": "Billetera",
+    "wallets": "Billeteras",
     "details_type": "Tipo",
     "details_use_with_hardware_wallet": "Usar con Billetera de Hardware",
     "details_wallet_updated": "Billetera actualizada",
