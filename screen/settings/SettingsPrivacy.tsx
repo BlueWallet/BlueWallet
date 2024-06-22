@@ -102,7 +102,7 @@ const SettingsPrivacy: React.FC = () => {
     <ScrollView style={[styles.root, styleHooks.root]} contentInsetAdjustmentBehavior="automatic" automaticallyAdjustContentInsets>
       {Platform.OS === 'android' ? (
         <View style={styles.headerContainer}>
-          <Header leftText={loc.settings.general} staticText />
+          <Header leftText={loc.settings.general} />
         </View>
       ) : null}
 
