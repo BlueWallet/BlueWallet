@@ -2,15 +2,15 @@ import Foundation
 import SwiftData
 
 @Model
-class WalletTransaction: ObservableObject, Identifiable {
+class WalletTransaction {
     @Attribute(.unique) var id: UUID
     var time: String
-    var memo: String?
+    var memo: String
     var amount: String
     var type: String
-    @Relationship(.cascade, inverse: \Wallet.transactions) var wallet: Wallet?
+    var wallet: Wallet
 
-    init(id: UUID = UUID(), time: String, memo: String? = nil, amount: String, type: String, wallet: Wallet? = nil) {
+    required init(id: UUID, time: String, memo: String, amount: String, type: String, wallet: Wallet) {
         self.id = id
         self.time = time
         self.memo = memo

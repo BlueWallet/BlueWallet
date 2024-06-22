@@ -31,6 +31,7 @@ enum WatchDataKeys: String {
     case preferredFiatCurrency
     case isWalletsInitialized
     case randomID
+    case id
     case description
     case invoicePaymentRequest
 }

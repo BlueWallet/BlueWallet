@@ -149,7 +149,7 @@
 		B4896F8C2C25218F0051BD44 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F8A2C2519500051BD44 /* MarketData.swift */; };
 		B4896F8E2C2636980051BD44 /* WatchDataKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F8D2C2636980051BD44 /* WatchDataKeys.swift */; };
 		B4896F902C26390E0051BD44 /* MarketDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F8F2C26390E0051BD44 /* MarketDataManager.swift */; };
-		B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B48A6A282C1DF01000030AB9 /* KeychainSwift */; };
+		B4896F922C27571F0051BD44 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F912C27571F0051BD44 /* SampleData.swift */; };
 		B49038D92B8FBAD300A8164A /* BlueWalletUITest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */; };
 		B4A29A2C2B55C990002A67DF /* EventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32C5C52596CE3A008C077C /* EventEmitter.m */; };
 		B4A29A2D2B55C990002A67DF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -444,6 +444,7 @@
 		B4896F8A2C2519500051BD44 /* MarketData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketData.swift; sourceTree = "<group>"; };
 		B4896F8D2C2636980051BD44 /* WatchDataKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDataKeys.swift; sourceTree = "<group>"; };
 		B4896F8F2C26390E0051BD44 /* MarketDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketDataManager.swift; sourceTree = "<group>"; };
+		B4896F912C27571F0051BD44 /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
 		B49038D82B8FBAD300A8164A /* BlueWalletUITest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlueWalletUITest.swift; sourceTree = "<group>"; };
 		B4A29A452B55C990002A67DF /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4A29A462B55C990002A67DF /* BlueWallet-NoLDK.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BlueWallet-NoLDK.plist"; sourceTree = "<absolute>"; };
@@ -513,7 +514,6 @@
 			files = (
 				B41B76852B66B2FF002C48D5 /* Bugsnag in Frameworks */,
 				B41B76872B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin in Frameworks */,
-				B48A6A292C1DF01000030AB9 /* KeychainSwift in Frameworks */,
 				6DFC807024EA0B6C007B8700 /* EFQRCode in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -783,6 +783,7 @@
 				B43304CC2C23BB3B00014D03 /* NotificationHostingController.swift */,
 				B43304CE2C2492C200014D03 /* BlueWalletWatchApp.swift */,
 				B4896F8F2C26390E0051BD44 /* MarketDataManager.swift */,
+				B4896F912C27571F0051BD44 /* SampleData.swift */,
 			);
 			path = "BlueWalletWatch Extension";
 			sourceTree = "<group>";
@@ -1018,7 +1019,6 @@
 				6DFC806F24EA0B6C007B8700 /* EFQRCode */,
 				B41B76842B66B2FF002C48D5 /* Bugsnag */,
 				B41B76862B66B2FF002C48D5 /* BugsnagNetworkRequestPlugin */,
-				B48A6A282C1DF01000030AB9 /* KeychainSwift */,
 			);
 			productName = "BlueWalletWatch Extension";
 			productReference = B40D4E3C225841ED00428FCC /* BlueWalletWatch Extension.appex */;
@@ -1152,7 +1152,6 @@
 			packageReferences = (
 				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
 				B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */,
-				B48A6A272C1DF01000030AB9 /* XCRemoteSwiftPackageReference "keychain-swift" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1647,6 +1646,7 @@
 				6D4AF18425D215D1009DD853 /* UserDefaultsExtension.swift in Sources */,
 				B4AB225D2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */,
 				B40D4E5E2258425500428FCC /* NumericKeypadView.swift in Sources */,
+				B4896F922C27571F0051BD44 /* SampleData.swift in Sources */,
 				B44033F52BCC377F00162242 /* WidgetData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2660,14 +2660,6 @@
 				version = 6.28.1;
 			};
 		};
-		B48A6A272C1DF01000030AB9 /* XCRemoteSwiftPackageReference "keychain-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/evgenyneu/keychain-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 24.0.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2685,11 +2677,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */;
 			productName = BugsnagNetworkRequestPlugin;
-		};
-		B48A6A282C1DF01000030AB9 /* KeychainSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B48A6A272C1DF01000030AB9 /* XCRemoteSwiftPackageReference "keychain-swift" */;
-			productName = KeychainSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

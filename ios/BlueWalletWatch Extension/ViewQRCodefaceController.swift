@@ -1,7 +1,3 @@
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/11/19.
-
 import Foundation
 import EFQRCode
 import SwiftUI

@@ -41,7 +41,7 @@ struct WalletDetailsView: View {
     }
 
     private var transactionsList: some View {
-        List(wallet.transactions ?? []) { transaction in
+      List(wallet.transactions ?? []) { transaction in
             TransactionTableRowView(transaction: transaction)
         }
     }
@@ -90,14 +90,6 @@ extension Optional where Wrapped == String {
 
 struct WalletDetailsView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockWallet = Wallet(
-            id: UUID(),
-            label: "Sample Wallet",
-            balance: "$1000",
-            type: "HDsegwitP2SH",
-            preferredBalanceUnit: "BTC",
-            receiveAddress: "address"
-        )
-        return WalletDetailsView(wallet: mockWallet)
+        WalletDetailsView(wallet: SampleData.createSampleWallet())
     }
 }

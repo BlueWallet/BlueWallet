@@ -29,11 +29,15 @@ struct ReceivePageView: View {
 struct ReceivePageView_Previews: PreviewProvider {
     static var previews: some View {
         let mockWallet = Wallet(
+            id: UUID(),
             label: "Sample Wallet",
             balance: "$1000",
             type: "HDsegwitP2SH",
             preferredBalanceUnit: "BTC",
-            receiveAddress: "address", hideBalance: false
+            receiveAddress: "address", 
+            xpub: "123",
+            hideBalance: false,
+            paymentCode: nil
         )
         return ReceivePageView(wallet: mockWallet)
     }

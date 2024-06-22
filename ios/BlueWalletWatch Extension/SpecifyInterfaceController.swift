@@ -13,7 +13,7 @@ struct SpecifyInterfaceView: View {
             TextField("Description", text: $descriptionText)
             TextField("Amount", text: $amountText)
                 .onChange(of: amountText) { newValue in
-                    amount = Double(newValue)
+                    amount = Double(newValue) ?? 0.0
                 }
             Button(action: createInvoice) {
                 Text("Create")
@@ -37,8 +37,14 @@ struct SpecifyInterfaceView: View {
 
     private func createInvoice() {
         if dataSource.companionWalletsInitialized {
-            WatchDataSource.requestLightningInvoice(walletIdentifier: wallet.id, amount: amount ?? 0, description: descriptionText) { _ in
-                // handle response
+            Task {
+                do {
+                  let invoice = try await dataSource.handleLightningInvoiceCreateRequest(walletIndex: UUID().hashValue, amount: amount ?? 0, description: descriptionText)
+                    print("Invoice created: \(invoice)")
+                } catch {
+                    print("Failed to create invoice: \(error)")
+                    showAlert = true
+                }
             }
         } else {
             showAlert = true
@@ -48,14 +54,7 @@ struct SpecifyInterfaceView: View {
 
 struct SpecifyInterfaceView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockWallet = Wallet(
-            id: UUID(),
-            label: "Sample Wallet",
-            balance: "$1000",
-            type: "HDsegwitP2SH",
-            preferredBalanceUnit: "BTC",
-            receiveAddress: "address"
-        )
-        return SpecifyInterfaceView(wallet: mockWallet)
+        let sampleWallet = SampleData.createSampleWallet()
+        return SpecifyInterfaceView(wallet: sampleWallet)
     }
 }

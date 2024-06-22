@@ -33,7 +33,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         for complication: CLKComplication,
         withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void
     ) {
-        guard let marketData: MarketData = groupUserDefaults?.codable(forKey: WatchDataKeys.preferredCurrency.rawValue) else {
+      guard let group = groupUserDefaults, let marketData: MarketData = group.value(forKey: WatchDataKeys.preferredCurrency.rawValue) as? MarketData else {
             handler(nil)
             return
         }

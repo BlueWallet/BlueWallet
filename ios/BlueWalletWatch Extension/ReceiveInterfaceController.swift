@@ -1,8 +1,8 @@
+
 import SwiftUI
 import EFQRCode
 
 struct ReceiveInterfaceView: View {
-    @ObservedObject var dataSource = WatchDataSource.shared
     var wallet: Wallet
     var receiveMethod: ReceiveMethod = .Onchain
     @State private var interfaceMode: ReceiveInterfaceMode = .Address
@@ -50,14 +50,6 @@ struct ReceiveInterfaceView: View {
 
 struct ReceiveInterfaceView_Previews: PreviewProvider {
     static var previews: some View {
-        let mockWallet = Wallet(
-            id: UUID(),
-            label: "Sample Wallet",
-            balance: "$1000",
-            type: "HDsegwitP2SH",
-            preferredBalanceUnit: "BTC",
-            receiveAddress: "address"
-        )
-        return ReceiveInterfaceView(wallet: mockWallet)
+        ReceiveInterfaceView(wallet: SampleData.createSampleWallet())
     }
 }

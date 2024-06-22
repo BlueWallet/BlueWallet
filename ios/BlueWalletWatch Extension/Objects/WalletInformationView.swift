@@ -32,12 +32,15 @@ struct WalletInformationView: View {
 struct WalletInformationView_Previews: PreviewProvider {
     static var previews: some View {
         let mockWallet = Wallet(
+            id: UUID(),
             label: "Sample Wallet",
             balance: "$1000",
             type: "HDsegwitP2SH",
             preferredBalanceUnit: "BTC",
             receiveAddress: "address",
-            hideBalance: false
+            xpub: "1123",
+            hideBalance: false,
+            paymentCode: nil
         )
         return WalletInformationView(wallet: mockWallet)
     }

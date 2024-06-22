@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 @Model
-class Wallet: ObservableObject, Identifiable {
+class Wallet {
     @Attribute(.unique) var id: UUID
     var label: String
     var balance: String
@@ -12,9 +12,9 @@ class Wallet: ObservableObject, Identifiable {
     var xpub: String?
     var hideBalance: Bool
     var paymentCode: String?
-    @Relationship(.cascade, inverse: \WalletTransaction.wallet) var transactions: [WalletTransaction]
+    var transactions: [WalletTransaction] = []
 
-    init(id: UUID = UUID(), label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, xpub: String? = nil, hideBalance: Bool = false, paymentCode: String? = nil) {
+    required init(id: UUID, label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, xpub: String?, hideBalance: Bool, paymentCode: String?) {
         self.id = id
         self.label = label
         self.balance = balance
@@ -24,6 +24,14 @@ class Wallet: ObservableObject, Identifiable {
         self.xpub = xpub
         self.hideBalance = hideBalance
         self.paymentCode = paymentCode
-        self.transactions = []
     }
+
+    func addTransactions(_ transactions: [WalletTransaction]) {
+        self.transactions.append(contentsOf: transactions)
+    }
+  
+  public func createInvoice(amount: Double, description: String?) throws -> String {
+       // Mock implementation, replace with actual invoice creation logic
+       return "invoice-\(UUID().uuidString)"
+   }
 }
