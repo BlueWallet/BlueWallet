@@ -42,6 +42,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
+import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -286,7 +287,6 @@ const WalletTransactions = ({ navigation }) => {
       </View>
     );
   };
-
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
@@ -530,6 +530,16 @@ const WalletTransactions = ({ navigation }) => {
         }}
       />
       <View style={[styles.list, stylesHook.list]}>
+        {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+          <WatchOnlyWarning
+            disabled={isLoading}
+            handleDismiss={() => {
+              wallet.isWatchOnlyWarningVisible = false;
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+              saveToDisk();
+            }}
+          />
+        )}
         <FlatList
           getItemLayout={getItemLayout}
           updateCellsBatchingPeriod={30}

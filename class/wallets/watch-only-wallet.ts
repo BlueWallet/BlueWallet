@@ -18,6 +18,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   public readonly type = WatchOnlyWallet.type;
   // @ts-ignore: override
   public readonly typeReadable = WatchOnlyWallet.typeReadable;
+  public isWatchOnlyWarningVisible = true;
 
   public _hdWalletInstance?: THDWalletForWatchOnly;
   use_with_hardware_wallet = false;
