@@ -1,11 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { I18nManager, View } from 'react-native';
+import { I18nManager } from 'react-native';
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import LdkInfo from '../screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from '../screen/lnd/lndViewAdditionalInvoiceInformation';
@@ -64,41 +63,26 @@ import SignVerifyStackRoot from './SignVerifyStack';
 import ViewEditMultisigCosignersStackRoot from './ViewEditMultisigCosignersStack';
 import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
-import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
-  const navigation = useExtendedNavigation();
 
   const SaveButton = useMemo(() => <HeaderRightButton testID="SaveButton" disabled={true} title={loc.wallets.details_save} />, []);
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
-  const navigateToAddWallet = useCallback(() => {
-    navigation.navigate('AddWalletRoot');
-  }, [navigation]);
-
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const RightBarButtons = (
-      <>
-        <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
-        <View style={styles.width24} />
-        <SettingsButton />
-      </>
-    );
-
     return {
       title: loc.wallets.wallets,
       navigationBarColor: theme.colors.navigationBarColor,
       headerShown: !isDesktop,
-      headerLargeTitle: true,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: I18nManager.isRTL ? undefined : () => RightBarButtons,
-      headerLeft: I18nManager.isRTL ? () => RightBarButtons : undefined,
+      headerRight: I18nManager.isRTL ? undefined : () => <SettingsButton />,
+      headerLeft: I18nManager.isRTL ? () => <SettingsButton /> : undefined,
     };
-  }, [navigateToAddWallet, theme.colors.customHeader, theme.colors.navigationBarColor]);
+  }, [theme.colors.customHeader, theme.colors.navigationBarColor]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   return (
@@ -161,8 +145,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerRight: () => DetailButton,
-          headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
         })(theme)}
       />
       <DetailViewStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
@@ -268,9 +250,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           headerTransparent: true,
           title: loc.settings.header,
-          // workaround to deal with the flicker when headerBackTitleVisible is false
-          headerBackTitleStyle: { fontSize: 0 },
-          headerBackTitleVisible: true,
           headerShadowVisible: false,
           headerLargeTitle: true,
           animationTypeForReplace: 'push',
@@ -388,9 +367,3 @@ const DetailViewStackScreensStack = () => {
 };
 
 export default DetailViewStackScreensStack;
-
-const styles = {
-  width24: {
-    width: 24,
-  },
-};
