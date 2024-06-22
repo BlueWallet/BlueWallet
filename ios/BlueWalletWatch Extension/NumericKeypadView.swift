@@ -1,10 +1,3 @@
-//
-//  NumericKeypadInterfaceController.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/23/19.
-
-//
 import SwiftUI
 
 struct NumericKeypadView: View {

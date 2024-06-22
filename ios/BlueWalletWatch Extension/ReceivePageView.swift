@@ -28,10 +28,14 @@ struct ReceivePageView: View {
 
 struct ReceivePageView_Previews: PreviewProvider {
     static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        let mockWallet = Wallet.createMockWallet(context: context)
-        
+        let mockWallet = Wallet(
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address", hideBalance: false
+        )
         return ReceivePageView(wallet: mockWallet)
-            .environment(\.managedObjectContext, context)
     }
 }
+

@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct TransactionTableRowView: View {
-    var transaction: Transaction
+    var transaction: WalletTransaction
 
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(transaction.amount)
-                Text(transaction.memo)
-                Text(transaction.time)
+                Text(transaction.amount ?? "")
+                Text(transaction.memo ?? "")
+                Text(transaction.time ?? "")
                     .foregroundColor(transaction.type == "pendingConfirmation" ? .orange : .primary)
             }
             Spacer()
-            Image(systemName: icon(for: transaction.type))
+            Image(systemName: icon(for: transaction.type ?? ""))
         }
     }
 
@@ -39,6 +39,13 @@ struct TransactionTableRowView: View {
 
 struct TransactionTableRowView_Previews: PreviewProvider {
     static var previews: some View {
-        TransactionTableRowView(transaction: Transaction(context: PersistenceController.preview.container.viewContext))
+        let mockTransaction = WalletTransaction(
+            id: UUID(),
+            time: "12:00 PM",
+            memo: "Sample Transaction",
+            amount: "$100",
+            type: "received"
+        )
+        return TransactionTableRowView(transaction: mockTransaction)
     }
 }

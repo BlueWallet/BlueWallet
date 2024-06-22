@@ -1,13 +1,4 @@
-//
-//  SpecifyInterfaceController.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/23/19.
-
-//
-
 import SwiftUI
-import WatchConnectivity
 
 struct SpecifyInterfaceView: View {
     @ObservedObject var dataSource = WatchDataSource.shared
@@ -57,10 +48,14 @@ struct SpecifyInterfaceView: View {
 
 struct SpecifyInterfaceView_Previews: PreviewProvider {
     static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        let mockWallet = Wallet.createMockWallet(context: context)
-        
+        let mockWallet = Wallet(
+            id: UUID(),
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address"
+        )
         return SpecifyInterfaceView(wallet: mockWallet)
-            .environment(\.managedObjectContext, context)
     }
 }

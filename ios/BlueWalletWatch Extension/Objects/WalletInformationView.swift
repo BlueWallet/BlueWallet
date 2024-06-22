@@ -31,6 +31,14 @@ struct WalletInformationView: View {
 
 struct WalletInformationView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletInformationView(wallet: Wallet(context: PersistenceController.preview.container.viewContext))
+        let mockWallet = Wallet(
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address",
+            hideBalance: false
+        )
+        return WalletInformationView(wallet: mockWallet)
     }
 }

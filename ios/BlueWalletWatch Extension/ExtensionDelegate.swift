@@ -4,13 +4,17 @@ import Bugsnag
 
 class ExtensionDelegate: NSObject, WKExtensionDelegate {
     
-    let container = PersistenceController.shared.container
-    let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+    static let shared = ExtensionDelegate()
+    let groupUserDefaults = UserDefaults(suiteName: WatchDataKeys.donottrack.rawValue)
+
+    private override init() {
+        super.init()
+    }
 
     func applicationDidFinishLaunching() {
         scheduleNextReload()
         updatePreferredFiatCurrency()
-        if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
+        if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: WatchDataKeys.donottrack.rawValue), !isDoNotTrackEnabled {
             Bugsnag.start()
         }
     }
@@ -21,7 +25,7 @@ class ExtensionDelegate: NSObject, WKExtensionDelegate {
     }
 
     private func fetchPreferredFiatUnit() -> FiatUnit? {
-        if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+        if let preferredFiatCurrency = groupUserDefaults?.string(forKey: WatchDataKeys.preferredCurrency.rawValue), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
             return preferredFiatUnit
         } else {
             return fiatUnit(currency: "USD")

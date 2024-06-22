@@ -1,10 +1,4 @@
-//
-//  ReceiveInterfaceController.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/12/19.
 import SwiftUI
-import WatchConnectivity
 import EFQRCode
 
 struct ReceiveInterfaceView: View {
@@ -56,10 +50,14 @@ struct ReceiveInterfaceView: View {
 
 struct ReceiveInterfaceView_Previews: PreviewProvider {
     static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        let mockWallet = Wallet.createMockWallet(context: context)
-        
+        let mockWallet = Wallet(
+            id: UUID(),
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address"
+        )
         return ReceiveInterfaceView(wallet: mockWallet)
-            .environment(\.managedObjectContext, context)
     }
 }

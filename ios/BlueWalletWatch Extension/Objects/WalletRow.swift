@@ -1,13 +1,3 @@
-//
-//  WalletRow.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 6/19/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
-
-import Foundation
-
 import SwiftUI
 
 struct WalletRow: View {
@@ -22,25 +12,27 @@ struct WalletRow: View {
                     .font(.subheadline)
             }
             Spacer()
-            Image(walletGradient(for: wallet.type).imageString)
+            Image(systemName: "wallet.pass")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 50)
         }
         .padding()
     }
-
-    private func walletGradient(for type: String) -> WalletGradient {
-        return WalletGradient(rawValue: type) ?? .SegwitHD
-    }
 }
 
 struct WalletRow_Previews: PreviewProvider {
     static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        let mockWallet = Wallet.createMockWallet(context: context)
+        let mockWallet = Wallet(
+            id: UUID(),
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address",
+            hideBalance: false
+        )
         
         return WalletRow(wallet: mockWallet)
-            .environment(\.managedObjectContext, context)
     }
 }
