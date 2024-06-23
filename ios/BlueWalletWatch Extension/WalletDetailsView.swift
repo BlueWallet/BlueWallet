@@ -7,34 +7,31 @@ struct WalletDetailsView: View {
     @State private var navigationTag: String?
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack {
-                    walletDetailsHeader
-                    transactionsList
-                }
+        NavigationStack {
+            VStack {
+                walletDetailsHeader
+                transactionsList
             }
             .onAppear(perform: loadWalletDetails)
-            .navigationTitle(wallet.label)
+            .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(
-                LinearGradient(
-                    gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ), for: .navigationBar
-            )
-            .background(
-                NavigationLink(
-                    destination: QRCodeView(address: navigationTag ?? ""),
-                    isActive: Binding(
-                        get: { navigationTag != nil },
-                        set: { _ in navigationTag = nil }
-                    )
-                ) {
-                    EmptyView()
-                }
-            )
+            .toolbar {
+              ToolbarItem(placement: .topBarTrailing) {
+                              Text(wallet.label)
+                                  .font(.headline)
+                                  .lineLimit(1)
+                                  .truncationMode(.tail)
+                                  .accessibilityAddTraits(.isHeader)
+                          }
+               
+            }
+          
+            .navigationDestination(isPresented: Binding(
+                get: { navigationTag != nil },
+                set: { _ in navigationTag = nil }
+            )) {
+                QRCodeView(address: navigationTag ?? "")
+            }
         }
     }
 
@@ -50,11 +47,11 @@ struct WalletDetailsView: View {
                 }) {
                     Image(systemName: "qrcode")
                         .font(.title2) // Make the icon smaller
-                        .foregroundColor(.white)
-                        .frame(width: 28, height: 28)
-                        .background(Color.black.opacity(0.5))
-                        .clipShape(Circle())
                 }
+                .foregroundColor(.white)
+                .frame(width: 28, height: 28)
+                .background(Color.black.opacity(0.5))
+                .clipShape(Circle())
                 .actionSheet(isPresented: $showingActionSheet) {
                     var buttons: [ActionSheet.Button] = [
                         .default(Text("Address")) {
@@ -91,13 +88,12 @@ struct WalletDetailsView: View {
     }
 
     private var transactionsList: some View {
-        VStack {
-            ForEach(wallet.transactions) { transaction in
-                TransactionTableRowView(transaction: transaction)
-                    .padding(.horizontal)
-                    .padding(.vertical, 4)
-            }
+        List(wallet.transactions) { transaction in
+            TransactionTableRowView(transaction: transaction)
+                .padding(.horizontal)
+                .padding(.vertical, 4)
         }
+        .listStyle(PlainListStyle())
     }
 
     private var isLightningWallet: Bool {
