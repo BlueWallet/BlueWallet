@@ -12,20 +12,18 @@ struct TransactionTableRowView: View {
                 .foregroundColor(transaction.type == .Pending ? .orange : .primary)
             }
             Spacer()
-          Image(systemName: icon(for: transaction.type.rawValue))
+          Image(systemName: icon(for: transaction.type))
         }
     }
 
-    private func icon(for type: String) -> String {
+    private func icon(for type: WalletTransactionType) -> String {
         switch type {
-        case "pendingConfirmation":
+        case .Pending:
             return "clock"
-        case "received":
-            return "arrow.down.circle"
-        case "sent":
-            return "arrow.up.circle"
-        default:
-            return "questionmark.circle"
+        case .Received:
+            return "arrow.down.left.circle"
+        case .Sent:
+            return "arrow.up.right.circle"
         }
     }
 }

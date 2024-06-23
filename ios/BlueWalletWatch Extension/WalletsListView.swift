@@ -2,16 +2,15 @@ import SwiftUI
 
 struct WalletsListView: View {
     @ObservedObject var dataSource = WatchDataSource.shared
+    @State private var navigationTitle: String = "Wallets"
+    @State private var transactionsSectionVisible = false
+    @State private var transactionsHeaderVisible = true
 
     var body: some View {
         NavigationView {
-            VStack {
-                if dataSource.wallets.isEmpty {
-                    Text("No wallets available. Please, add one by opening BlueWallet on your iPhone.")
-                        .font(.headline)
-                        .padding()
-                } else {
-                    List {
+            ScrollViewReader { proxy in
+                List {
+                    Section(header: EmptyView()) {
                         ForEach(dataSource.wallets) { wallet in
                             NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
                                 WalletRowView(wallet: wallet)
@@ -25,16 +24,69 @@ struct WalletsListView: View {
                                 .cornerRadius(8)
                             )
                             .listRowInsets(EdgeInsets())
+                            .background(GeometryReader { geo -> Color in
+                                let minY = geo.frame(in: .global).minY
+                                DispatchQueue.main.async {
+                                    if minY < 100 && navigationTitle != "Transactions" {
+                                        withAnimation {
+                                            navigationTitle = "Wallets"
+                                            transactionsHeaderVisible = true
+                                        }
+                                    }
+                                }
+                                return Color.clear
+                            })
                         }
                     }
-                    .listStyle(PlainListStyle())
+                    
+                    Section(header: transactionsHeader) {
+                        ForEach(getRecentTransactions(), id: \.id) { transaction in
+                            TransactionTableRowView(transaction: transaction)
+                                .padding(.horizontal)
+                                .padding(.vertical, 4)
+                                .background(GeometryReader { geo -> Color in
+                                    let minY = geo.frame(in: .global).minY
+                                    DispatchQueue.main.async {
+                                        if minY < 100 {
+                                            withAnimation {
+                                                navigationTitle = "Transactions"
+                                                transactionsSectionVisible = true
+                                                transactionsHeaderVisible = false
+                                            }
+                                        } else if transactionsSectionVisible {
+                                            withAnimation {
+                                                transactionsSectionVisible = false
+                                                navigationTitle = "Wallets"
+                                                transactionsHeaderVisible = true
+                                            }
+                                        }
+                                    }
+                                    return Color.clear
+                                })
+                        }
+                    }
                 }
+                .listStyle(PlainListStyle())
+                .onAppear {
+                    dataSource.loadWallets()
+                }
+                .navigationTitle(navigationTitle)
+                .navigationBarTitleDisplayMode(.automatic)
             }
-            .onAppear {
-                dataSource.loadWallets()
-            }
-            .navigationTitle("Wallets")
         }
+    }
+
+    private var transactionsHeader: some View {
+        Text("Transactions")
+        .font(.title3)
+            .opacity(transactionsHeaderVisible ? 1 : 0)
+            .padding(.vertical)
+            .animation(.easeInOut, value: transactionsHeaderVisible)
+    }
+
+    private func getRecentTransactions() -> [WalletTransaction] {
+        let allTransactions = dataSource.wallets.flatMap { $0.transactions }
+        return allTransactions.sorted(by: { $0.time > $1.time }).prefix(10).map { $0 }
     }
 }
 
