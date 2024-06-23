@@ -5,6 +5,7 @@ struct WalletsListView: View {
     @State private var navigationTitle: String = "Wallets"
     @State private var transactionsSectionVisible = false
     @State private var transactionsHeaderVisible = true
+    @State private var anyWalletRowVisible = false
 
     var body: some View {
         NavigationView {
@@ -25,9 +26,15 @@ struct WalletsListView: View {
                             )
                             .listRowInsets(EdgeInsets())
                             .background(GeometryReader { geo -> Color in
-                                let minY = geo.frame(in: .global).minY
+                                let frame = geo.frame(in: .global)
                                 DispatchQueue.main.async {
-                                    if minY < 100 && navigationTitle != "Transactions" {
+                                    let threshold: CGFloat = 100
+                                    if frame.minY > threshold && frame.minY < frame.maxY {
+                                        anyWalletRowVisible = true
+                                    } else if frame.maxY < threshold {
+                                        anyWalletRowVisible = false
+                                    }
+                                    if anyWalletRowVisible {
                                         withAnimation {
                                             navigationTitle = "Wallets"
                                             transactionsHeaderVisible = true
@@ -45,19 +52,22 @@ struct WalletsListView: View {
                                 .padding(.horizontal)
                                 .padding(.vertical, 4)
                                 .background(GeometryReader { geo -> Color in
-                                    let minY = geo.frame(in: .global).minY
+                                    let frame = geo.frame(in: .global)
                                     DispatchQueue.main.async {
-                                        if minY < 100 {
+                                        let threshold: CGFloat = 100
+                                        if frame.minY < threshold && frame.minY < frame.maxY {
                                             withAnimation {
                                                 navigationTitle = "Transactions"
                                                 transactionsSectionVisible = true
                                                 transactionsHeaderVisible = false
                                             }
-                                        } else if transactionsSectionVisible {
+                                        } else if transactionsSectionVisible && frame.minY > threshold {
                                             withAnimation {
                                                 transactionsSectionVisible = false
-                                                navigationTitle = "Wallets"
-                                                transactionsHeaderVisible = true
+                                                if anyWalletRowVisible {
+                                                    navigationTitle = "Wallets"
+                                                    transactionsHeaderVisible = true
+                                                }
                                             }
                                         }
                                     }
@@ -78,7 +88,7 @@ struct WalletsListView: View {
 
     private var transactionsHeader: some View {
         Text("Transactions")
-        .font(.title3)
+            .font(.title3)
             .opacity(transactionsHeaderVisible ? 1 : 0)
             .padding(.vertical)
             .animation(.easeInOut, value: transactionsHeaderVisible)
