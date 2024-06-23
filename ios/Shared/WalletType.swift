@@ -1,12 +1,4 @@
-//
-//  WalletType.swift
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 6/22/24.
-//  Copyright © 2024 BlueWallet. All rights reserved.
-//
-
-enum WalletType: String, Codable {
+enum WalletType: String, Codable, CaseIterable {
     case SegwitHD = "HDsegwitP2SH"
     case Segwit = "segwitP2SH"
     case LightningCustodial = "lightningCustodianWallet"

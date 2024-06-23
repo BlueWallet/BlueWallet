@@ -9,10 +9,10 @@ struct TransactionTableRowView: View {
                 Text(transaction.amount)
                 Text(transaction.memo)
                 Text(transaction.time)
-                    .foregroundColor(transaction.type == "pendingConfirmation" ? .orange : .primary)
+                .foregroundColor(transaction.type == .Pending ? .orange : .primary)
             }
             Spacer()
-            Image(systemName: icon(for: transaction.type))
+          Image(systemName: icon(for: transaction.type.rawValue))
         }
     }
 

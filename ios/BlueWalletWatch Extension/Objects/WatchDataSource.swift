@@ -61,8 +61,10 @@ class WatchDataSource: ObservableObject {
 
     func initializeSampleData() {
         do {
-            let sampleWallet = SampleData.createSampleWallet()
-            context.insert(sampleWallet)
+            let sampleWallets = SampleData.createAllSampleWallets()
+            sampleWallets.forEach { wallet in
+            context.insert(wallet)
+            }
             try context.save()
         } catch {
             print("Failed to insert sample data: \(error)")
@@ -100,7 +102,7 @@ class WatchDataSource: ObservableObject {
                         time: txData[WatchDataKeys.time.rawValue] as? String ?? "",
                         memo: txData[WatchDataKeys.memo.rawValue] as? String ?? "",
                         amount: txData[WatchDataKeys.amount.rawValue] as? String ?? "",
-                        type: txData[WatchDataKeys.type.rawValue] as? String ?? "",
+                        type: txData[WatchDataKeys.type.rawValue] as? WalletTransactionType ?? .Received,
                         wallet: wallet
                     )
                     newTransactions.append(transaction)

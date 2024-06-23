@@ -3,54 +3,105 @@ import SwiftUI
 struct WalletDetailsView: View {
     @ObservedObject var dataSource = WatchDataSource.shared
     @State var wallet: Wallet
+    @State private var showingActionSheet = false
+    @State private var navigationTag: String?
 
     var body: some View {
-        VStack {
-            walletDetailsHeader
-            transactionsList
+        NavigationView {
+            ScrollView {
+                VStack {
+                    walletDetailsHeader
+                    transactionsList
+                }
+            }
+            .onAppear(perform: loadWalletDetails)
+            .navigationTitle(wallet.label)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(
+                LinearGradient(
+                    gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ), for: .navigationBar
+            )
+            .background(
+                NavigationLink(
+                    destination: QRCodeView(address: navigationTag ?? ""),
+                    isActive: Binding(
+                        get: { navigationTag != nil },
+                        set: { _ in navigationTag = nil }
+                    )
+                ) {
+                    EmptyView()
+                }
+            )
         }
-        .onAppear(perform: loadWalletDetails)
-        .navigationTitle(wallet.label)
     }
 
     private var walletDetailsHeader: some View {
         VStack {
-            Text(wallet.label)
-                .font(.headline)
-            Text(wallet.hideBalance ? "" : wallet.balance)
-                .font(.subheadline)
-            LinearGradient(gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)), startPoint: .top, endPoint: .bottom)
-                .mask(
-                    Image(systemName: "wallet.pass")
-                        .resizable()
-                        .scaledToFit()
-                )
-                .frame(height: 50)
             HStack {
-                if isLightningWallet {
-                    Button("Create Invoice", action: createInvoice)
-                        .padding()
+                Text(wallet.hideBalance ? "" : wallet.balance)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: {
+                    showingActionSheet = true
+                }) {
+                    Image(systemName: "qrcode")
+                        .font(.title2) // Make the icon smaller
+                        .foregroundColor(.white)
+                        .frame(width: 28, height: 28)
+                        .background(Color.black.opacity(0.5))
+                        .clipShape(Circle())
                 }
-                if !wallet.receiveAddress.isEmpty {
-                    Button("Receive", action: receive)
-                        .padding()
+                .actionSheet(isPresented: $showingActionSheet) {
+                    var buttons: [ActionSheet.Button] = [
+                        .default(Text("Address")) {
+                            navigationTag = wallet.receiveAddress
+                        },
+                        .default(Text("XPUB")) {
+                            navigationTag = wallet.xpub ?? ""
+                        }
+                    ]
+                    if isLightningWallet {
+                        buttons.append(.default(Text("Create Invoice")) {
+                            createInvoice()
+                        })
+                    }
+                    buttons.append(.cancel())
+
+                    return ActionSheet(
+                        title: Text("Receive"),
+                        message: Text("Select an option"),
+                        buttons: buttons
+                    )
                 }
-                if isXPubAvailable {
-                    Button("View XPUB", action: viewXPub)
-                        .padding()
-                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+    }
+
+    private var transactionsList: some View {
+        VStack {
+            ForEach(wallet.transactions) { transaction in
+                TransactionTableRowView(transaction: transaction)
+                    .padding(.horizontal)
+                    .padding(.vertical, 4)
             }
         }
     }
 
-    private var transactionsList: some View {
-      List(wallet.transactions) { transaction in
-            TransactionTableRowView(transaction: transaction)
-        }
-    }
-
     private var isLightningWallet: Bool {
-        wallet.type == WalletType.LightningCustodial || wallet.type == WalletType.LightningLDK
+        wallet.type == .LightningCustodial || wallet.type == .LightningLDK
     }
 
     private var isXPubAvailable: Bool {
