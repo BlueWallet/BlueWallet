@@ -7,27 +7,32 @@ struct WalletDetailsView: View {
     @State private var navigationTag: String?
 
     var body: some View {
-        NavigationStack {
             VStack {
                 walletDetailsHeader
                 transactionsList
             }
             .onAppear(perform: loadWalletDetails)
             .navigationTitle("")
-                     .navigationBarTitleDisplayMode(.inline)
-                     .toolbar {
-                       ToolbarItem(placement: .topBarTrailing) {
-                                       Text(wallet.label)
-                                           .font(.headline)
-                                          
-                                           .lineLimit(1)
-                                           .truncationMode(.tail)
-                                           .foregroundColor(.white)
-                                           .accessibilityAddTraits(.isHeader)
-                                   }
-                        
-                     }
-                   
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text(wallet.label)
+                        .font(.headline)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .accessibilityAddTraits(.isHeader)
+                        .foregroundColor(.white)
+                }
+            }
+            .toolbarBackground(
+                LinearGradient(
+                  gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                for: .navigationBar
+            )
+            .toolbarBackground(.visible, for: .navigationBar)
             .navigationDestination(isPresented: Binding(
                 get: { navigationTag != nil },
                 set: { _ in navigationTag = nil }
@@ -36,7 +41,23 @@ struct WalletDetailsView: View {
                     QRCodeView(address: tag, title: navigationTag == wallet.receiveAddress ? "Address" : "XPUB")
                 }
             }
-        }
+            .confirmationDialog("Receive", isPresented: $showingActionSheet, actions: {
+                if isXPubAvailable {
+                    Button("XPUB") {
+                        navigationTag = wallet.xpub ?? ""
+                    }
+                }
+                Button("Address") {
+                    navigationTag = wallet.receiveAddress
+                }
+                if isLightningWallet {
+                    Button("Create Invoice") {
+                        createInvoice()
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            })
+        
     }
 
     private var walletDetailsHeader: some View {
@@ -56,28 +77,6 @@ struct WalletDetailsView: View {
                 .frame(width: 28, height: 28)
                 .background(Color.black.opacity(0.5))
                 .clipShape(Circle())
-                .actionSheet(isPresented: $showingActionSheet) {
-                    var buttons: [ActionSheet.Button] = [
-                      .default(Text("XPUB")) {
-                          navigationTag = wallet.xpub ?? ""
-                      },
-                        .default(Text("Address")) {
-                            navigationTag = wallet.receiveAddress
-                        }
-                    ]
-                    if isLightningWallet {
-                        buttons.append(.default(Text("Create Invoice")) {
-                            createInvoice()
-                        })
-                    }
-                    buttons.append(.cancel())
-
-                    return ActionSheet(
-                        title: Text("Receive"),
-                        message: Text("Select an option"),
-                        buttons: buttons
-                    )
-                }
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -119,23 +118,10 @@ struct WalletDetailsView: View {
             // Navigate to create invoice view
         } else {
             // Show error
-            presentAlert(title: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.")
+//            presentAlert(title: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.")
         }
     }
-
-    private func receive() {
-        // Navigate to receive view
-    }
-
-    private func viewXPub() {
-        // Navigate to view XPUB
-    }
-
-    private func presentAlert(title: String, message: String) {
-        // Present an alert
-    }
 }
-
 extension Optional where Wrapped == String {
     var isNilOrEmpty: Bool {
         self?.isEmpty ?? true

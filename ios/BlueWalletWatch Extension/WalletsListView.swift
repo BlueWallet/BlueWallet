@@ -8,7 +8,6 @@ struct WalletsListView: View {
     @State private var anyWalletRowVisible = false
 
     var body: some View {
-        NavigationView {
             ScrollViewReader { proxy in
                 List {
                     Section(header: EmptyView()) {
@@ -83,7 +82,7 @@ struct WalletsListView: View {
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.automatic)
             }
-        }
+        
     }
 
     private var transactionsHeader: some View {
