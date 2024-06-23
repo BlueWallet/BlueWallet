@@ -8,9 +8,9 @@ struct SampleData {
             balance: "$1000",
             type: type,
             preferredBalanceUnit: "BTC",
-            receiveAddress: "address",
-            xpub: "xpub...",
-            hideBalance: false,
+            receiveAddress: "addressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddress",
+            xpub: "xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...",
+            hideBalance: type == .LightningCustodial,
             paymentCode: nil
         )
 

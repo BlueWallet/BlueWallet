@@ -14,23 +14,26 @@ struct WalletDetailsView: View {
             }
             .onAppear(perform: loadWalletDetails)
             .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-              ToolbarItem(placement: .topBarTrailing) {
-                              Text(wallet.label)
-                                  .font(.headline)
-                                  .lineLimit(1)
-                                  .truncationMode(.tail)
-                                  .accessibilityAddTraits(.isHeader)
-                          }
-               
-            }
-          
+                     .navigationBarTitleDisplayMode(.inline)
+                     .toolbar {
+                       ToolbarItem(placement: .topBarTrailing) {
+                                       Text(wallet.label)
+                                           .font(.headline)
+                                          
+                                           .lineLimit(1)
+                                           .truncationMode(.tail)
+                                           .accessibilityAddTraits(.isHeader)
+                                   }
+                        
+                     }
+                   
             .navigationDestination(isPresented: Binding(
                 get: { navigationTag != nil },
                 set: { _ in navigationTag = nil }
             )) {
-                QRCodeView(address: navigationTag ?? "")
+                if let tag = navigationTag {
+                    QRCodeView(address: tag, title: navigationTag == wallet.receiveAddress ? "Address" : "XPUB")
+                }
             }
         }
     }
@@ -46,7 +49,7 @@ struct WalletDetailsView: View {
                     showingActionSheet = true
                 }) {
                     Image(systemName: "qrcode")
-                        .font(.title2) // Make the icon smaller
+                        .font(.title2)
                 }
                 .foregroundColor(.white)
                 .frame(width: 28, height: 28)
@@ -54,11 +57,11 @@ struct WalletDetailsView: View {
                 .clipShape(Circle())
                 .actionSheet(isPresented: $showingActionSheet) {
                     var buttons: [ActionSheet.Button] = [
+                      .default(Text("XPUB")) {
+                          navigationTag = wallet.xpub ?? ""
+                      },
                         .default(Text("Address")) {
                             navigationTag = wallet.receiveAddress
-                        },
-                        .default(Text("XPUB")) {
-                            navigationTag = wallet.xpub ?? ""
                         }
                     ]
                     if isLightningWallet {
