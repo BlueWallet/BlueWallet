@@ -22,6 +22,7 @@ struct WalletDetailsView: View {
                                           
                                            .lineLimit(1)
                                            .truncationMode(.tail)
+                                           .foregroundColor(.white)
                                            .accessibilityAddTraits(.isHeader)
                                    }
                         
