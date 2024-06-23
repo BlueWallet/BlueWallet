@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SpecifyInterfaceView: View {
+struct SpecifyAmountView: View {
     @ObservedObject var dataSource = WatchDataSource.shared
     var wallet: Wallet
     @State private var descriptionText: String = ""
@@ -30,7 +30,7 @@ struct SpecifyInterfaceView: View {
     }
 
     private func setupView() {
-        if wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue {
+        if wallet.type == .LightningCustodial || wallet.type == .LightningLDK {
             amountText = ""
         }
     }
@@ -52,9 +52,9 @@ struct SpecifyInterfaceView: View {
     }
 }
 
-struct SpecifyInterfaceView_Previews: PreviewProvider {
+struct SpecifyAmountView_Previews: PreviewProvider {
     static var previews: some View {
         let sampleWallet = SampleData.createSampleWallet()
-        return SpecifyInterfaceView(wallet: sampleWallet)
+        return SpecifyAmountView(wallet: sampleWallet)
     }
 }

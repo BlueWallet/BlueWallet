@@ -2,7 +2,7 @@ import Foundation
 import EFQRCode
 import SwiftUI
 
-struct ViewQRCodefaceView: View {
+struct QRCodeView: View {
     var address: String
     @State private var qrCodeImage: UIImage?
 
@@ -45,8 +45,8 @@ struct ViewQRCodefaceView: View {
     }
 }
 
-struct ViewQRCodefaceView_Previews: PreviewProvider {
+struct QRCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        ViewQRCodefaceView(address: "Sample Address")
+        QRCodeView(address: "Sample Address")
     }
 }

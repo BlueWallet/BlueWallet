@@ -7,7 +7,7 @@ struct BlueWalletWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            InterfaceControllerView()
+          WalletsListView()
                 .environmentObject(dataSource)
                 .modelContainer(for: [Wallet.self, WalletTransaction.self])
                 .onAppear {

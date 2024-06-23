@@ -84,7 +84,7 @@ class WatchDataSource: ObservableObject {
                     id: entry[WatchDataKeys.id.rawValue] as? UUID ?? UUID(),
                     label: entry[WatchDataKeys.label.rawValue] as? String ?? "",
                     balance: entry[WatchDataKeys.balance.rawValue] as? String ?? "",
-                    type: entry[WatchDataKeys.type.rawValue] as? String ?? "",
+                    type: entry[WatchDataKeys.type.rawValue] as? WalletType ?? .SegwitNative,
                     preferredBalanceUnit: entry[WatchDataKeys.preferredBalanceUnit.rawValue] as? String ?? "",
                     receiveAddress: entry[WatchDataKeys.receiveAddress.rawValue] as? String ?? "",
                     xpub: entry[WatchDataKeys.xpub.rawValue] as? String,

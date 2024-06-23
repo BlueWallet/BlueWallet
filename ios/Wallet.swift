@@ -6,7 +6,7 @@ class Wallet {
     @Attribute(.unique) var id: UUID
     var label: String
     var balance: String
-    var type: String
+    var type: WalletType
     var preferredBalanceUnit: String
     var receiveAddress: String
     var xpub: String?
@@ -14,7 +14,7 @@ class Wallet {
     var paymentCode: String?
     var transactions: [WalletTransaction] = []
 
-    required init(id: UUID, label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, xpub: String?, hideBalance: Bool, paymentCode: String?) {
+    required init(id: UUID, label: String, balance: String, type: WalletType, preferredBalanceUnit: String, receiveAddress: String, xpub: String?, hideBalance: Bool, paymentCode: String?) {
         self.id = id
         self.label = label
         self.balance = balance

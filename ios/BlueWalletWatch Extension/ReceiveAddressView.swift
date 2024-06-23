@@ -2,7 +2,7 @@
 import SwiftUI
 import EFQRCode
 
-struct ReceiveInterfaceView: View {
+struct ReceiveAddressView: View {
     var wallet: Wallet
     var receiveMethod: ReceiveMethod = .Onchain
     @State private var interfaceMode: ReceiveInterfaceMode = .Address
@@ -48,8 +48,8 @@ struct ReceiveInterfaceView: View {
     }
 }
 
-struct ReceiveInterfaceView_Previews: PreviewProvider {
+struct ReceiveAddressView_Previews: PreviewProvider {
     static var previews: some View {
-        ReceiveInterfaceView(wallet: SampleData.createSampleWallet())
+      ReceiveAddressView(wallet: SampleData.createSampleWallet())
     }
 }

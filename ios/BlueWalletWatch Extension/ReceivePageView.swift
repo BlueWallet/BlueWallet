@@ -16,9 +16,9 @@ struct ReceivePageView: View {
         TabView {
             ForEach(0..<pageNames.count, id: \.self) { index in
                 if index == 0 {
-                    ReceiveInterfaceView(wallet: wallet)
+                    ReceiveAddressView(wallet: wallet)
                 } else {
-                    ReceiveInterfaceView(wallet: wallet, receiveMethod: .CreateInvoice)
+                  ReceiveAddressView(wallet: wallet, receiveMethod: .CreateInvoice)
                 }
             }
         }
@@ -32,7 +32,7 @@ struct ReceivePageView_Previews: PreviewProvider {
             id: UUID(),
             label: "Sample Wallet",
             balance: "$1000",
-            type: "HDsegwitP2SH",
+            type: WalletType.SegwitNative,
             preferredBalanceUnit: "BTC",
             receiveAddress: "address", 
             xpub: "123",

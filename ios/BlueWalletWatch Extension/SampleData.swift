@@ -5,7 +5,7 @@ struct SampleData {
             id: UUID(),
             label: "Sample Wallet",
             balance: "$1000",
-            type: "HDsegwitP2SH",
+            type: WalletType.SegwitNative,
             preferredBalanceUnit: "BTC",
             receiveAddress: "address",
             xpub: "xpub...",

@@ -19,9 +19,12 @@ struct WalletDetailsView: View {
                 .font(.headline)
             Text(wallet.hideBalance ? "" : wallet.balance)
                 .font(.subheadline)
-            Image(WalletGradient(rawValue: wallet.type)?.imageString ?? "wallet")
-                .resizable()
-                .scaledToFit()
+            LinearGradient(gradient: Gradient(colors: WalletGradient.gradients(for: wallet.type)), startPoint: .top, endPoint: .bottom)
+                .mask(
+                    Image(systemName: "wallet.pass")
+                        .resizable()
+                        .scaledToFit()
+                )
                 .frame(height: 50)
             HStack {
                 if isLightningWallet {
@@ -41,13 +44,13 @@ struct WalletDetailsView: View {
     }
 
     private var transactionsList: some View {
-      List(wallet.transactions ?? []) { transaction in
+      List(wallet.transactions) { transaction in
             TransactionTableRowView(transaction: transaction)
         }
     }
 
     private var isLightningWallet: Bool {
-        wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue
+        wallet.type == WalletType.LightningCustodial || wallet.type == WalletType.LightningLDK
     }
 
     private var isXPubAvailable: Bool {
