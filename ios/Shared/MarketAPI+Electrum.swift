@@ -8,6 +8,7 @@
 
 import Foundation
 
+
 struct APIError: LocalizedError {
   var errorDescription: String = "Failed to fetch Electrum data..."
 }

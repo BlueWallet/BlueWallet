@@ -152,6 +152,8 @@
 		B485CF012C27A8EF00AF320D /* WalletType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B485CEFF2C27A8EF00AF320D /* WalletType.swift */; };
 		B485CF022C27A8EF00AF320D /* WalletType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B485CEFF2C27A8EF00AF320D /* WalletType.swift */; };
 		B485CF032C27A8EF00AF320D /* WalletType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B485CEFF2C27A8EF00AF320D /* WalletType.swift */; };
+		B485CF5B2C2B354100AF320D /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
+		B485CF5C2C2B354700AF320D /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B4896F8C2C25218F0051BD44 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F8A2C2519500051BD44 /* MarketData.swift */; };
 		B4896F8E2C2636980051BD44 /* WatchDataKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F8D2C2636980051BD44 /* WatchDataKeys.swift */; };
 		B4896F922C27571F0051BD44 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4896F912C27571F0051BD44 /* SampleData.swift */; };
@@ -1643,6 +1645,7 @@
 				B44033DB2BCC369B00162242 /* Colors.swift in Sources */,
 				B40D4E632258425500428FCC /* ReceiveAddressView.swift in Sources */,
 				B44033C02BCC32F800162242 /* BitcoinUnit.swift in Sources */,
+				B485CF5C2C2B354700AF320D /* SwiftTCPClient.swift in Sources */,
 				B44033E52BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033EF2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
 				B4D0B2622C1DEA11006B6B1B /* ReceivePageView.swift in Sources */,
@@ -1676,6 +1679,7 @@
 				B47462D02C1538D800100825 /* CustomSegmentedControlManager.m in Sources */,
 				B44033E72BCC36FF00162242 /* WalletData.swift in Sources */,
 				B44033E02BCC36C300162242 /* LatestTransaction.swift in Sources */,
+				B485CF5B2C2B354100AF320D /* SwiftTCPClient.swift in Sources */,
 				B44033D92BCC369900162242 /* Colors.swift in Sources */,
 				B485CEFE2C27A76B00AF320D /* WalletGradient.swift in Sources */,
 				B4A29A2C2B55C990002A67DF /* EventEmitter.m in Sources */,
