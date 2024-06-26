@@ -382,7 +382,9 @@
     "txid": "Transaction ID",
     "from": "From: {counterparty}",
     "to": "To: {counterparty}",
-    "updating": "Updating..."
+    "updating": "Updating...",
+    "watchOnlyWarningTitle": "Scam Alert",
+    "watchOnlyWarningDescription": "Be aware that scammers usually use this type of wallet 'watch-only' to try to steal from users. This wallet you cannot control or send from it, only allows to watch the balance."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
