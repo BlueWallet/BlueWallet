@@ -1006,7 +1006,7 @@ PODS:
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.0.6):
+  - react-native-tcp-socket (6.1.0):
     - CocoaAsyncSocket
     - React-Core
   - React-nativeconfig (0.74.2)
@@ -1240,7 +1240,7 @@ PODS:
     - React-utils (= 0.74.2)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.11.0):
+  - RealmJS (12.11.1):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -1256,7 +1256,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.17.0):
+  - RNGestureHandler (2.17.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1709,7 +1709,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: a240ad4b683349e48b1d51fed1611138d1bdad97
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
-  react-native-tcp-socket: e724380c910c2e704816ec817ed28f1342246ff7
+  react-native-tcp-socket: ea937a61ee9ff2cb3cceade359290a46ad2b5aab
   React-nativeconfig: 9f223cd321823afdecf59ed00861ab2d69ee0fc1
   React-NativeModulesApple: ff7efaff7098639db5631236cfd91d60abff04c0
   React-perflogger: 32ed45d9cee02cf6639acae34251590dccd30994
@@ -1734,7 +1734,7 @@ SPEC CHECKSUMS:
   React-utils: 4476b7fcbbd95cfd002f3e778616155241d86e31
   ReactCommon: ecad995f26e0d1e24061f60f4e5d74782f003f12
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: 5f96d3e02420b5f579296c465a437f6e20026da9
+  RealmJS: ecd23895a68689ce2c048d28df3d699cf76cedb7
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
@@ -1742,7 +1742,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 45a92e7dca8326094bf59160576692ab271182d3
+  RNGestureHandler: 8dbcccada4a7e702e7dec9338c251b1cf393c960
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
   RNLocalize: b77875884750cb6a58cd6865863fe2ba2729b72b
