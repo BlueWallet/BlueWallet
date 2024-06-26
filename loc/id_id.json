@@ -215,7 +215,6 @@
     "biometrics": "Biometrik",
     "biom_10times": "Anda telah mencoba memasukkan kata sandi Anda 10 kali. Apakah Anda ingin mengatur ulang penyimpanan Anda? Semua dompet anda akan dihapus dan penyimpanan anda akan didekripsi. ",
     "biom_conf_identity": "Mohon konfirmasi identitas Anda.",
-    "biom_no_passcode": "Perangkat Anda tidak memiliki kode sandi. Untuk melanjutkan, harap konfigurasikan kode sandi di aplikasi Pengaturan.",
     "biom_remove_decrypt": "Semua dompet Anda akan dihapus dan penyimpanan Anda akan didekripsi. Anda yakin ingin melanjutkan?",
     "currency": "Mata Uang",
     "currency_source": "Harga diperoleh dari",
@@ -309,6 +308,7 @@
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_create": "Buat",
+    "add_entropy": "Entropi",
     "add_import_wallet": "Impor dompet",
     "add_lndhub": "Hubungan ke LNDHub Anda",
     "add_placeholder": "dompet pertama saya",
@@ -329,6 +329,7 @@
     "details_show_xpub": "Tampilkan XPUB dompet",
     "details_show_addresses": "Tunjukkan alamat",
     "details_title": "Dompet",
+    "wallets": "Dompet",
     "details_type": "Tipe",
     "details_yes_delete": "Ya, hapus",
     "export_title": "ekspor dompet",
