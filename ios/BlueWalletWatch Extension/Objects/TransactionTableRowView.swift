@@ -17,8 +17,6 @@ struct TransactionTableRowView: View {
                 .background(backgroundColor(for: transaction.type))
                 .clipShape(Circle())
         }
-        .padding()
-        .background(backgroundColor(for: transaction.type))
         .cornerRadius(8)
     }
 
@@ -47,7 +45,7 @@ struct TransactionTableRowView: View {
     private func backgroundColor(for type: WalletTransactionType) -> Color {
         switch type {
         case .Pending:
-            return Color.orange.opacity(0.2)
+            return Color(hex: "#3A3A3C")
         case .Received:
             return Color(hex: "#d2f8d6")
         case .Sent:

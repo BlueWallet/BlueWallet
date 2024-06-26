@@ -13,6 +13,7 @@ enum WatchDataKeys: String {
     case label
     case balance
     case type
+    case createdAt
     case preferredBalanceUnit
     case receiveAddress
     case xpub

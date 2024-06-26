@@ -14,6 +14,8 @@ class Balance {
             }
         case .LOCAL_CURRENCY:
             fetchLocalCurrencyEquivalent(satoshi: balance, completion: completion)
+        case .MAX:
+          break;
         }
     }
 

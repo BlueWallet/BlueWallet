@@ -33,11 +33,12 @@ struct ReceivePageView_Previews: PreviewProvider {
             label: "Sample Wallet",
             balance: "$1000",
             type: WalletType.SegwitNative,
-            preferredBalanceUnit: "BTC",
-            receiveAddress: "address", 
+            preferredBalanceUnit: .BTC,
+            receiveAddress: "address",
             xpub: "123",
             hideBalance: false,
-            paymentCode: nil
+            paymentCode: nil,
+            createdAt: Date()
         )
         return ReceivePageView(wallet: mockWallet)
     }

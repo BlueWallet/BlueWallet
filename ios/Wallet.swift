@@ -5,16 +5,17 @@ import SwiftData
 class Wallet {
     @Attribute(.unique) var id: UUID
     var label: String
-    var balance: String
+    var balance: Double
     var type: WalletType
-    var preferredBalanceUnit: String
     var receiveAddress: String
     var xpub: String?
     var hideBalance: Bool
     var paymentCode: String?
     var transactions: [WalletTransaction] = []
+    var createdAt: Date // New property to store the creation time
+    var preferredBalanceUnit: BitcoinUnit
 
-    required init(id: UUID, label: String, balance: String, type: WalletType, preferredBalanceUnit: String, receiveAddress: String, xpub: String?, hideBalance: Bool, paymentCode: String?) {
+  required init(id: UUID, label: String, balance: Double, type: WalletType, preferredBalanceUnit: BitcoinUnit = .BTC, receiveAddress: String, xpub: String?, hideBalance: Bool, paymentCode: String?, createdAt: Date) {
         self.id = id
         self.label = label
         self.balance = balance
@@ -24,6 +25,8 @@ class Wallet {
         self.xpub = xpub
         self.hideBalance = hideBalance
         self.paymentCode = paymentCode
+        self.createdAt = createdAt
+        self.preferredBalanceUnit = preferredBalanceUnit
     }
 
     func addTransactions(_ transactions: [WalletTransaction]) {

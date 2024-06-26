@@ -21,11 +21,11 @@ struct WalletRowView_Previews: PreviewProvider {
             label: "Sample Wallet",
             balance: "$1000",
             type: .SegwitHD,
-            preferredBalanceUnit: "BTC",
+            preferredBalanceUnit: .BTC,
             receiveAddress: "address",
             xpub: "1123",
             hideBalance: false,
-            paymentCode: nil
+            paymentCode: nil, createdAt: Date()
         )
         return WalletRowView(wallet: mockWallet)
             .previewLayout(.sizeThatFits)

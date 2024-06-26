@@ -5,20 +5,21 @@ struct SampleData {
         let wallet = Wallet(
             id: UUID(),
             label: "\(type.rawValue) Wallet",
-            balance: "$1000",
+            balance: 1000,
             type: type,
-            preferredBalanceUnit: "BTC",
+            preferredBalanceUnit: BitcoinUnit.BTC,
             receiveAddress: "addressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddressaddress",
             xpub: "xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...xpub...",
             hideBalance: type == .LightningCustodial,
-            paymentCode: nil
+            paymentCode: nil,
+            createdAt: Date()
         )
 
         let transaction1 = WalletTransaction(
             id: UUID(),
             time: "12:00 PM",
             memo: "Sample Transaction 1",
-            amount: "$100",
+            amount: 100,
             type: .Received,
             wallet: wallet
         )
@@ -27,7 +28,7 @@ struct SampleData {
             id: UUID(),
             time: "01:00 PM",
             memo: "Sample Transaction 2",
-            amount: "$200",
+            amount: 200,
             type: .Sent,
             wallet: wallet
         )

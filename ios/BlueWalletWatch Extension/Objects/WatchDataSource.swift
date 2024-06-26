@@ -1,29 +1,53 @@
-import Foundation
+import SwiftUI
 import SwiftData
 import Combine
+
+// Extend the Wallet model to store balance in local currency
+extension Wallet {
+    var balanceInLocalCurrency: String {
+        let exchangeRate = WatchDataSource.shared.exchangeRate ?? 1.0
+        if let balanceInBTC = Double(balance.dropFirst()), wallet.preferredBalanceUnit == .LOCAL_CURRENCY {
+            return "\(balanceInBTC * exchangeRate)"
+        }
+        return balance
+    }
+}
+
+// Extend the WalletTransaction model to store amount in local currency
+extension WalletTransaction {
+    var amountInLocalCurrency: String {
+        let exchangeRate = WatchDataSource.shared.exchangeRate ?? 1.0
+        if let amountInBTC = Double(amount.dropFirst()), wallet.preferredBalanceUnit == .LOCAL_CURRENCY {
+            return "\(amountInBTC * exchangeRate)"
+        }
+        return amount
+    }
+}
 
 @MainActor
 class WatchDataSource: ObservableObject {
     static let shared = WatchDataSource()
     @Published var wallets: [Wallet] = []
+    @Published var exchangeRate: Double?
     var companionWalletsInitialized = false
     private var context: ModelContext!
 
     init() {
         initializeModelContext()
+        fetchExchangeRate()
     }
 
     private func initializeModelContext() {
         do {
-          let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
-          self.context = ModelContext(container)
+            let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
+            self.context = ModelContext(container)
             loadWallets()
         } catch {
             print("ModelContainer initialization failed: \(error). Deleting existing data.")
             deleteExistingData()
             do {
-              let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
-              self.context = ModelContext(container)
+                let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
+                self.context = ModelContext(container)
                 loadWallets()
             } catch {
                 fatalError("Re-initialization failed: \(error)")
@@ -63,7 +87,7 @@ class WatchDataSource: ObservableObject {
         do {
             let sampleWallets = SampleData.createAllSampleWallets()
             sampleWallets.forEach { wallet in
-            context.insert(wallet)
+                context.insert(wallet)
             }
             try context.save()
         } catch {
@@ -87,11 +111,12 @@ class WatchDataSource: ObservableObject {
                     label: entry[WatchDataKeys.label.rawValue] as? String ?? "",
                     balance: entry[WatchDataKeys.balance.rawValue] as? String ?? "",
                     type: entry[WatchDataKeys.type.rawValue] as? WalletType ?? .SegwitNative,
-                    preferredBalanceUnit: entry[WatchDataKeys.preferredBalanceUnit.rawValue] as? String ?? "",
+                    preferredBalanceUnit: entry[WatchDataKeys.preferredBalanceUnit.rawValue] as? BitcoinUnit ?? .BTC,
                     receiveAddress: entry[WatchDataKeys.receiveAddress.rawValue] as? String ?? "",
                     xpub: entry[WatchDataKeys.xpub.rawValue] as? String,
                     hideBalance: entry[WatchDataKeys.hideBalance.rawValue] as? Bool ?? false,
-                    paymentCode: entry[WatchDataKeys.paymentCode.rawValue] as? String
+                    paymentCode: entry[WatchDataKeys.paymentCode.rawValue] as? String,
+                    createdAt: entry[WatchDataKeys.createdAt.rawValue] as? Date ?? Date()
                 )
 
                 let transactionsData = entry[WatchDataKeys.transactions.rawValue] as? [[String: Any]] ?? []
@@ -136,6 +161,28 @@ class WatchDataSource: ObservableObject {
             companionWalletsInitialized = isWalletsInitialized
         } else {
             WatchDataSource.shared.processWalletsData(walletsInfo: data)
+        }
+    }
+
+    private func fetchExchangeRate() {
+        let preferredCurrency = Currency.getUserPreferredCurrency()
+        MarketAPI.fetchPrice(currency: preferredCurrency) { [weak self] dataStore, error in
+            guard let self = self else { return }
+            if let dataStore = dataStore {
+                DispatchQueue.main.async {
+                    self.exchangeRate = dataStore.rateDouble
+                }
+            } else {
+                print("Failed to fetch exchange rate: \(String(describing: error))")
+            }
+        }
+    }
+
+    func saveWalletChanges() {
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save wallet changes: \(error)")
         }
     }
 }
