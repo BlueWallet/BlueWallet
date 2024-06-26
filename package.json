@@ -104,7 +104,7 @@
     "@react-native-clipboard/clipboard": "1.14.1",
     "@react-native-community/push-notification-ios": "1.11.0",
     "@react-native-menu/menu": "1.1.2",
-    "@react-native/metro-config": "0.74.0",
+    "@react-native/metro-config": "0.74.84",
     "@react-navigation/drawer": "6.6.15",
     "@react-navigation/native": "6.1.17",
     "@react-navigation/native-stack": "6.9.26",
