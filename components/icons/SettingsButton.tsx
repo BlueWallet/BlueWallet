@@ -17,7 +17,7 @@ const SettingsButton = () => {
       accessibilityRole="button"
       accessibilityLabel={loc.settings.default_title}
       testID="SettingsButton"
-      style={[style.buttonStyle, { backgroundColor: colors.darkGray }]}
+      style={[style.buttonStyle, { backgroundColor: colors.lightButton }]}
       onPress={onPress}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
