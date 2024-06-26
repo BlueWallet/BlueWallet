@@ -236,7 +236,6 @@
     "biometrics": "Biometriset tiedot",
     "biom_10times": "Olet yrittänyt antaa salasanasi 10 kertaa. Haluatko nollata tallennustilan? Tämä poistaa kaikki lompakot ja purkaa tallennustilan salauksen.",
     "biom_conf_identity": "Vahvista identiteettisi.",
-    "biom_no_passcode": "Laitteellasi ei ole salasanaa. Jatkaaksesi määritä salasana Asetukset-sovelluksessa.",
     "biom_remove_decrypt": "Kaikki lompakot poistetaan ja tallennustilasi puretaan. Haluatko varmasti jatkaa?",
     "currency": "Valuutta",
     "currency_source": "Hinta saadaan seuraavista lähteistä",
@@ -379,6 +378,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Yksinkertainen ja tehokas Bitcoin-lompakko",
     "add_create": "Luo",
+    "add_entropy": "Entropia",
     "add_entropy_generated": "{gen} tavua luotua entropiaa",
     "add_entropy_provide": "Hanki entropia nopanheiton kautta",
     "add_entropy_remain": "{gen} tavua luotua entropiaa. Jäljellä olevat {rem} tavut saadaan Järjestelmän satunnaislukugeneraattorilta.",
@@ -413,6 +413,7 @@
     "details_show_xpub": "Näytä lompakon XPUB",
     "details_show_addresses": "Näytä osoitteet",
     "details_title": "Lompakko",
+    "wallets": "lompakot",
     "details_type": "Tyyppi",
     "details_use_with_hardware_wallet": "Käytä hardware-lompakon kanssa",
     "details_wallet_updated": "Lompakko päivitetty",
@@ -610,7 +611,6 @@
     "contacts": "Yhteystiedot",
     "purpose": "Uudelleenkäytettävä ja jaettavissa oleva koodi (BIP47)",
     "rename_contact": "Nimeä uudelleen yhteystieto",
-    "copied": "Kopioitu",
     "rename": "Nimeä uudelleen",
     "add_contact": "Lisää yhteystieto"
   }

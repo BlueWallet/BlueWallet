@@ -196,6 +196,7 @@
   },
   "wallets": {
     "add_create": "Oluştur",
+    "add_entropy": "Entropi",
     "add_import_wallet": "Cüzdan İçeri Yükle",
     "add_title": "Cüzdan ekle",
     "add_wallet_name": "İsim",
@@ -208,6 +209,7 @@
     "details_save": "Kaydet",
     "details_show_xpub": "Cüzdan XPUB göster",
     "details_title": "Cüzdan",
+    "wallets": "cüzdanlar",
     "details_type": "Tip",
     "details_yes_delete": "Evet, sil",
     "export_title": "cüzdan yedekle",

@@ -644,7 +644,7 @@
     "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
     "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
     "onchain_tx_needed": "On-Chain Transaktion benötigt.",
-    "notif_tx_sent" : "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx_sent": "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
     "notif_tx": "Benachrichtigungstransaktion",
     "not_found": "Zahlungscode nicht gefunden"
   }
