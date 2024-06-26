@@ -205,6 +205,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
       await element(by.text(`No, and do not ask me again.`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('CopyTextToClipboard');
@@ -517,6 +518,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
       await element(by.text(`No, and do not ask me again.`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
 
     await sup('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
