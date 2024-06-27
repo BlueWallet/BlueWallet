@@ -6,10 +6,14 @@
 //  Copyright © 2024 BlueWallet. All rights reserved.
 //
 
-import Foundation
+enum BitcoinUnit: String, Codable, CaseIterable {
+    case BTC
+    case SATS = "sats"
+    case LOCAL_CURRENCY = "local_currency"
+    case MAX
+}
 
-enum BitcoinUnit: String {
-    case BTC = "BTC"
-    case SATS = "SATS"
-    case LOCAL_CURRENCY = "LOCAL_CURRENCY"
+enum Chain: String, Codable, CaseIterable {
+    case ONCHAIN
+    case OFFCHAIN
 }

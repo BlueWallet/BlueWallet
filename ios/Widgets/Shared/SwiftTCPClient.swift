@@ -1,8 +1,3 @@
-//  BlueWallet
-//
-//  Created by Marcos Rodriguez on 3/23/23.
-//  Copyright © 2023 BlueWallet. All rights reserved.
-
 import Foundation
 
 /**
@@ -26,7 +21,7 @@ import Foundation
  } else {
      print("Failed to connect.")
  }
-**/
+ **/
 
 class SwiftTCPClient: NSObject {
     private var inputStream: InputStream?
@@ -35,7 +30,7 @@ class SwiftTCPClient: NSObject {
     private var readData = Data()
     private let readTimeout = 5.0 // Timeout in seconds
 
-     func connect(to host: String, port: UInt32, useSSL: Bool = false) -> Bool {
+    func connect(to host: String, port: UInt32, useSSL: Bool = false) -> Bool {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
 
@@ -71,7 +66,6 @@ class SwiftTCPClient: NSObject {
 
         return true
     }
-    
 
     func send(data: Data) -> Bool {
         guard let outputStream = outputStream else {
@@ -89,33 +83,32 @@ class SwiftTCPClient: NSObject {
     }
 
     func receive() throws -> Data {
-    guard let inputStream = inputStream else {
-        throw NSError(domain: "SwiftTCPClientError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Input stream is nil."])
-    }
-    
-    // Check if the input stream is ready for reading
-    if inputStream.streamStatus != .open && inputStream.streamStatus != .reading {
-        throw NSError(domain: "SwiftTCPClientError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Stream is not ready for reading."])
-    }
-
-    readData = Data()
-
-    // Wait for data to be available or timeout
-    let timeoutDate = Date().addingTimeInterval(readTimeout)
-    repeat {
-        RunLoop.current.run(mode: RunLoop.Mode.default, before: Date(timeIntervalSinceNow: 0.1))
-        if readData.count > 0 || Date() > timeoutDate {
-            break
+        guard let inputStream = inputStream else {
+            throw NSError(domain: "SwiftTCPClientError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Input stream is nil."])
         }
-    } while inputStream.streamStatus == .open || inputStream.streamStatus == .reading
 
-    if readData.count == 0 && Date() > timeoutDate {
-        throw NSError(domain: "SwiftTCPClientError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Read timed out."])
+        // Check if the input stream is ready for reading
+        if inputStream.streamStatus != .open && inputStream.streamStatus != .reading {
+            throw NSError(domain: "SwiftTCPClientError", code: 3, userInfo: [NSLocalizedDescriptionKey: "Stream is not ready for reading."])
+        }
+
+        readData = Data()
+
+        // Wait for data to be available or timeout
+        let timeoutDate = Date().addingTimeInterval(readTimeout)
+        repeat {
+            RunLoop.current.run(mode: RunLoop.Mode.default, before: Date(timeIntervalSinceNow: 0.1))
+            if readData.count > 0 || Date() > timeoutDate {
+                break
+            }
+        } while inputStream.streamStatus == .open || inputStream.streamStatus == .reading
+
+        if readData.count == 0 && Date() > timeoutDate {
+            throw NSError(domain: "SwiftTCPClientError", code: 2, userInfo: [NSLocalizedDescriptionKey: "Read timed out."])
+        }
+
+        return readData
     }
-
-    return readData
-}
-
 
     func close() {
         inputStream?.close()
@@ -149,4 +142,4 @@ extension SwiftTCPClient: StreamDelegate {
             break
         }
     }
-}
+} 

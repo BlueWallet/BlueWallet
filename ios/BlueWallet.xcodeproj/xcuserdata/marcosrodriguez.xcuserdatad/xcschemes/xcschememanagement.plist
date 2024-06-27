@@ -32,12 +32,12 @@
 		<key>BlueWalletUITests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>97</integer>
+			<integer>96</integer>
 		</dict>
 		<key>BlueWalletWatch (Complication).xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>123</integer>
+			<integer>122</integer>
 		</dict>
 		<key>BlueWalletWatch (Glance).xcscheme_^#shared#^_</key>
 		<dict>
@@ -103,6 +103,11 @@
 			<true/>
 		</dict>
 		<key>B47B21E82B2128B8001F6690</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B4A29A212B55C990002A67DF</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -1,0 +1,1380 @@
+File: BlueWalletWatch Extension/ComplicationController.swift
+Content:
+import ClockKit
+
+class ComplicationController: NSObject, CLKComplicationDataSource {
+  
+    private let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
+    // MARK: - Timeline Configuration
+    
+    func getSupportedTimeTravelDirections(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationTimeTravelDirections) -> Void) {
+        handler([])
+    }
+    
+    func getTimelineStartDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+        handler(nil)
+    }
+    
+    @available(watchOSApplicationExtension 7.0, *)
+    func complicationDescriptors() async -> [CLKComplicationDescriptor] {
+        return [CLKComplicationDescriptor(
+            identifier: "io.bluewallet.bluewallet",
+            displayName: "Market Price",
+            supportedFamilies: CLKComplicationFamily.allCases)]
+    }
+    
+    func getTimelineEndDate(for complication: CLKComplication, withHandler handler: @escaping (Date?) -> Void) {
+        handler(nil)
+    }
+    
+    func getPrivacyBehavior(for complication: CLKComplication, withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void) {
+        handler(.showOnLockScreen)
+    }
+    
+    // MARK: - Timeline Population
+    
+    func getCurrentTimelineEntry(
+        for complication: CLKComplication,
+        withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void
+    ) {
+        let marketData: WidgetDataStore? = groupUserDefaults?.codable(forKey: MarketData.string)
+        let entry: CLKComplicationTimelineEntry
+        let date: Date
+        let valueLabel: String
+        let valueSmallLabel: String
+        let currencySymbol: String
+        let timeLabel: String
+        
+        if let price = marketData?.formattedRateForComplication,
+           let priceAbbreviated = marketData?.formattedRateForSmallComplication,
+           let marketDatadata = marketData?.date,
+           let lastUpdated = marketData?.formattedDate {
+            date = marketDatadata
+            valueLabel = price
+            timeLabel = lastUpdated
+            valueSmallLabel = priceAbbreviated
+            if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"),
+               let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+                currencySymbol = preferredFiatUnit.symbol
+            } else {
+                currencySymbol = fiatUnit(currency: "USD")!.symbol
+            }
+        } else {
+            valueLabel = "--"
+            timeLabel = "--"
+            valueSmallLabel = "--"
+            currencySymbol = fiatUnit(currency: "USD")!.symbol
+            date = Date()
+        }
+        
+        let line2Text = CLKSimpleTextProvider(text: currencySymbol)
+        let line1SmallText = CLKSimpleTextProvider(text: valueSmallLabel)
+        
+        switch complication.family {
+        case .circularSmall:
+            let template = CLKComplicationTemplateCircularSmallStackText(
+                line1TextProvider: line1SmallText,
+                line2TextProvider: line2Text
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .utilitarianSmallFlat:
+            let template = CLKComplicationTemplateUtilitarianSmallFlat(
+                textProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueSmallLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .utilitarianSmall:
+            let template = CLKComplicationTemplateUtilitarianSmallRingImage(
+                imageProvider: CLKImageProvider(onePieceImage: UIImage(named: "Complication/Utilitarian")!),
+                fillFraction: 1.0,
+                ringStyle: .closed
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .graphicCircular:
+            let template = CLKComplicationTemplateGraphicCircularStackText(
+                line1TextProvider: line1SmallText,
+                line2TextProvider: line2Text
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .modularSmall:
+            let template = CLKComplicationTemplateModularSmallStackText(
+                line1TextProvider: line1SmallText,
+                line2TextProvider: line2Text
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .graphicCorner:
+            let template = CLKComplicationTemplateGraphicCornerStackText(
+                innerTextProvider: CLKTextProvider(format: "%@", currencySymbol),
+                outerTextProvider: CLKTextProvider(format: "%@", valueSmallLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .graphicBezel:
+            let circularTemplate = CLKComplicationTemplateGraphicCircularImage(
+                imageProvider: CLKFullColorImageProvider(fullColorImage: UIImage(named: "Complication/Graphic Bezel")!)
+            )
+            let template = CLKComplicationTemplateGraphicBezelCircularText(
+                circularTemplate: circularTemplate,
+                textProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueSmallLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .utilitarianLarge:
+            let template = CLKComplicationTemplateUtilitarianLargeFlat(
+                textProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .modularLarge:
+            let template = CLKComplicationTemplateModularLargeStandardBody(
+                headerTextProvider: CLKTextProvider(format: "Bitcoin Price"),
+                body1TextProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueLabel),
+                body2TextProvider: CLKTextProvider(format: "at %@", timeLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .extraLarge:
+            let template = CLKComplicationTemplateExtraLargeStackText(
+                line1TextProvider: line1SmallText,
+                line2TextProvider: CLKTextProvider(format: "at %@", timeLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .graphicRectangular:
+            let template = CLKComplicationTemplateGraphicRectangularStandardBody(
+                headerTextProvider: CLKTextProvider(format: "Bitcoin Price"),
+                body1TextProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueLabel),
+                body2TextProvider: CLKTextProvider(format: "at %@", timeLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        case .graphicExtraLarge:
+            let template = CLKComplicationTemplateGraphicExtraLargeCircularStackText(
+                line1TextProvider: CLKTextProvider(format: "%@%@", currencySymbol, valueLabel),
+                line2TextProvider: CLKTextProvider(format: "at %@", timeLabel)
+            )
+            entry = CLKComplicationTimelineEntry(date: date, complicationTemplate: template)
+            handler(entry)
+            
+        @unknown default:
+            fatalError()
+        }
+    }
+    
+    func getTimelineEntries(
+        for complication: CLKComplication,
+        before date: Date,
+        limit: Int,
+        withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void
+    ) {
+        // Call the handler with the timeline entries prior to the given date
+        handler(nil)
+    }
+    
+    func getTimelineEntries(
+        for complication: CLKComplication,
+        after date: Date,
+        limit: Int,
+        withHandler handler: @escaping ([CLKComplicationTimelineEntry]?) -> Void
+    ) {
+        // Call the handler with the timeline entries after to the given date
+        handler(nil)
+    }
+    
+    // MARK: - Placeholder Templates
+    
+    func getLocalizableSampleTemplate(
+        for complication: CLKComplication,
+        withHandler handler: @escaping (CLKComplicationTemplate?) -> Void
+    ) {
+        let line1Text = CLKSimpleTextProvider(text: "46 K")
+        let line2Text = CLKSimpleTextProvider(text: "$")
+        let lineTimeText = CLKSimpleTextProvider(text: "3:40 PM")
+        
+        switch complication.family {
+        case .circularSmall:
+            let template = CLKComplicationTemplateCircularSmallStackText(
+                line1TextProvider: line1Text,
+                line2TextProvider: line2Text
+            )
+            handler(template)
+            
+        case .utilitarianSmallFlat:
+            let template = CLKComplicationTemplateUtilitarianSmallFlat(
+                textProvider: CLKTextProvider(format: "%@", "$46,134")
+            )
+            handler(template)
+            
+        case .utilitarianSmall:
+            let template = CLKComplicationTemplateUtilitarianSmallRingImage(
+                imageProvider: CLKImageProvider(onePieceImage: UIImage(named: "Complication/Utilitarian")!),
+                fillFraction: 1.0,
+                ringStyle: .closed
+            )
+            handler(template)
+            
+        case .graphicCircular:
+            let template = CLKComplicationTemplateGraphicCircularStackText(
+                line1TextProvider: line1Text,
+                line2TextProvider: line2Text
+            )
+            handler(template)
+            
+        case .graphicCorner:
+            let template = CLKComplicationTemplateGraphicCornerStackText(
+                innerTextProvider: CLKTextProvider(format: "%@", line2Text.text),
+                outerTextProvider: CLKTextProvider(format: "%@", line1Text.text)
+            )
+            handler(template)
+            
+        case .modularSmall:
+            let template = CLKComplicationTemplateModularSmallStackText(
+                line1TextProvider: line1Text,
+                line2TextProvider: line2Text
+            )
+            handler(template)
+            
+        case .utilitarianLarge:
+            let template = CLKComplicationTemplateUtilitarianLargeFlat(
+                textProvider: CLKTextProvider(format: "%@%@", "$", "46,000")
+            )
+            handler(template)
+            
+        case .graphicBezel:
+            let circularTemplate = CLKComplicationTemplateGraphicCircularImage(
+                imageProvider: CLKFullColorImageProvider(fullColorImage: UIImage(named: "Complication/Graphic Bezel")!)
+            )
+            let template = CLKComplicationTemplateGraphicBezelCircularText(
+                circularTemplate: circularTemplate,
+                textProvider: CLKTextProvider(format: "%@%@", "$S", "46,000")
+            )
+            handler(template)
+            
+        case .modularLarge:
+            let template = CLKComplicationTemplateModularLargeStandardBody(
+                headerTextProvider: CLKTextProvider(format: "Bitcoin Price"),
+                body1TextProvider: CLKTextProvider(format: "%@%@", "$S", "46,000"),
+                body2TextProvider: lineTimeText
+            )
+            handler(template)
+            
+        case .extraLarge:
+            let template = CLKComplicationTemplateExtraLargeStackText(
+                line1TextProvider: line1Text,
+                line2TextProvider: lineTimeText
+            )
+            handler(template)
+            
+        case .graphicRectangular:
+            let template = CLKComplicationTemplateGraphicRectangularStandardBody(
+                headerTextProvider: CLKTextProvider(format: "Bitcoin Price"),
+                body1TextProvider: CLKTextProvider(format: "%@%@", "$S", "46,000"),
+                body2TextProvider: CLKTextProvider(format: "%@", Date().description)
+            )
+            handler(template)
+            
+        case .graphicExtraLarge:
+            let template = CLKComplicationTemplateGraphicExtraLargeCircularStackText(
+                line1TextProvider: line1Text,
+                line2TextProvider: line2Text
+            )
+            handler(template)
+            
+        @unknown default:
+            fatalError()
+        }
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/ReceiveInterfaceController.swift
+Content:
+//
+//  ReceiveInterfaceController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/12/19.
+import SwiftUI
+import WatchConnectivity
+import EFQRCode
+
+struct ReceiveInterfaceView: View {
+    @ObservedObject var dataSource = WatchDataSource.shared
+    var wallet: BaseWallet
+    var receiveMethod: ReceiveMethod = .Onchain
+    @State private var interfaceMode: ReceiveInterfaceMode = .Address
+    @State private var qrCodeImage: UIImage?
+
+    var body: some View {
+        VStack {
+            if let qrCodeImage = qrCodeImage {
+                Image(uiImage: qrCodeImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 200)
+            } else {
+                Text(wallet.receiveAddress)
+                    .font(.title)
+            }
+            Button(action: toggleView) {
+                Text(interfaceMode == .QRCode ? "Show Address" : "Show QR Code")
+            }
+        }
+        .onAppear {
+            setupQRCode()
+        }
+        .navigationTitle("Receive")
+    }
+
+    private func toggleView() {
+        interfaceMode = interfaceMode == .QRCode ? .Address : .QRCode
+        setupQRCode()
+    }
+
+    private func setupQRCode() {
+        if interfaceMode == .QRCode {
+            DispatchQueue.global(qos: .userInteractive).async {
+                guard let cgImage = EFQRCode.generate(for: wallet.receiveAddress) else { return }
+                DispatchQueue.main.async {
+                    qrCodeImage = UIImage(cgImage: cgImage)
+                }
+            }
+        } else {
+            qrCodeImage = nil
+        }
+    }
+}
+
+struct ReceiveInterfaceView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        let mockWallet = BaseWallet.createMockWallet()
+        
+        return ReceiveInterfaceView(wallet: mockWallet)
+            .environment(\.managedObjectContext, context)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/SpecifyInterfaceController.swift
+Content:
+//
+//  SpecifyInterfaceController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/23/19.
+
+//
+
+import SwiftUI
+import WatchConnectivity
+
+struct SpecifyInterfaceView: View {
+    @ObservedObject var dataSource = WatchDataSource.shared
+    var wallet: BaseWallet
+    @State private var descriptionText: String = ""
+    @State private var amountText: String = "0"
+    @State private var amount: Double? = nil
+    @State private var showAlert = false
+
+    var body: some View {
+        VStack {
+            TextField("Description", text: $descriptionText)
+            TextField("Amount", text: $amountText)
+                .onChange(of: amountText) { newValue in
+                    amount = Double(newValue)
+                }
+            Button(action: createInvoice) {
+                Text("Create")
+            }
+            .disabled(amount == nil || amount! <= 0)
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Error"), message: Text("Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets."), dismissButton: .default(Text("OK")))
+        }
+        .onAppear {
+            setupView()
+        }
+        .navigationTitle("Specify Invoice")
+    }
+
+    private func setupView() {
+        if wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue {
+            amountText = ""
+        }
+    }
+
+    private func createInvoice() {
+        if dataSource.companionWalletsInitialized {
+            WatchDataSource.requestLightningInvoice(walletIdentifier: wallet.id, amount: amount ?? 0, description: descriptionText) { _ in
+                // handle response
+            }
+        } else {
+            showAlert = true
+        }
+    }
+}
+
+struct SpecifyInterfaceView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        let mockWallet = BaseWallet.createMockWallet(context: context)
+        
+        return SpecifyInterfaceView(wallet: mockWallet)
+            .environment(\.managedObjectContext, context)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/InterfaceController.swift
+Content:
+//
+//  InterfaceController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/6/19.
+//
+
+import SwiftUI
+
+struct InterfaceControllerView: View {
+    @ObservedObject var dataSource = WatchDataSource.shared
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                if dataSource.wallets.isEmpty {
+                    Text("No wallets available. Please, add one by opening BlueWallet on your iPhone.")
+                        .font(.headline)
+                        .padding()
+                } else {
+                    List(dataSource.wallets) { wallet in
+                        NavigationLink(destination: WalletDetailsView(wallet: wallet)) {
+                            WalletRow(wallet: wallet)
+                        }
+                    }
+                }
+            }
+            .onAppear {
+                dataSource.loadWallets()
+            }
+            .navigationTitle("Wallets")
+        }
+    }
+}
+
+struct InterfaceControllerView_Previews: PreviewProvider {
+    static var previews: some View {
+        InterfaceControllerView()
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/ViewQRCodefaceController.swift
+Content:
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/11/19.
+
+import Foundation
+import EFQRCode
+import SwiftUI
+
+struct ViewQRCodefaceView: View {
+    var address: String
+    @State private var qrCodeImage: UIImage?
+
+    var body: some View {
+        VStack {
+            if let qrCodeImage = qrCodeImage {
+                Image(uiImage: qrCodeImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 200)
+            } else {
+                Text(address)
+                    .font(.title)
+            }
+            Button(action: toggleView) {
+                Text(qrCodeImage != nil ? "Show Address" : "Show QR Code")
+            }
+        }
+        .onAppear {
+            generateQRCode()
+        }
+        .navigationTitle("View QR Code")
+    }
+
+    private func toggleView() {
+        if qrCodeImage != nil {
+            qrCodeImage = nil
+        } else {
+            generateQRCode()
+        }
+    }
+
+    private func generateQRCode() {
+        DispatchQueue.global(qos: .userInteractive).async {
+            guard let cgImage = EFQRCode.generate(for: address) else { return }
+            DispatchQueue.main.async {
+                qrCodeImage = UIImage(cgImage: cgImage)
+            }
+        }
+    }
+}
+
+struct ViewQRCodefaceView_Previews: PreviewProvider {
+    static var previews: some View {
+        ViewQRCodefaceView(address: "Sample Address")
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/WalletRow.swift
+Content:
+import SwiftUI
+
+struct WalletRow: View {
+    var wallet: Wallet
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(wallet.label)
+                    .font(.headline)
+                Text(wallet.hideBalance ? "" : wallet.balance)
+                    .font(.subheadline)
+            }
+            Spacer()
+            Image(systemName: "wallet.pass")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+        }
+        .padding()
+    }
+}
+
+struct WalletRow_Previews: PreviewProvider {
+    static var previews: some View {
+        let mockWallet = Wallet(
+            label: "Sample Wallet",
+            balance: "$1000",
+            type: "HDsegwitP2SH",
+            preferredBalanceUnit: "BTC",
+            receiveAddress: "address"
+        )
+        
+        return WalletRow(wallet: mockWallet)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/WatchDataSource.swift
+Content:
+    import Foundation
+    import WatchConnectivity
+    import CoreData
+    import Combine
+
+    class WatchDataSource: NSObject, ObservableObject {
+        static let shared = WatchDataSource()
+
+        @Published var wallets: [Wallet] = []
+        var companionWalletsInitialized = false
+        private let container = PersistentModel.shared.container
+        private var session: WCSession
+
+        override init() {
+            session = WCSession.default
+            super.init()
+            session.delegate = self
+            session.activate()
+            loadWallets()
+        }
+
+        func loadWallets() {
+            let fetchRequest: NSFetchRequest<BaseWallet> = BaseWallet.fetchRequest()
+            do {
+                wallets = try container.viewContext.fetch(fetchRequest)
+            } catch {
+                print("Failed to fetch wallets: \(error)")
+            }
+        }
+
+        func processWalletsData(walletsInfo: [String: Any]) {
+            let context = container.viewContext
+            context.perform {
+                for entry in walletsInfo["wallets"] as? [[String: Any]] ?? [] {
+                    let wallet = BaseWallet(context: context)
+                    wallet.id = UUID()
+                    wallet.label = entry["label"] as? String ?? ""
+                    wallet.balance = entry["balance"] as? String ?? ""
+                    wallet.type = entry["type"] as? String ?? ""
+                    wallet.preferredBalanceUnit = entry["preferredBalanceUnit"] as? String ?? ""
+                    wallet.receiveAddress = entry["receiveAddress"] as? String ?? ""
+                    wallet.xpub = entry["xpub"] as? String
+                    wallet.hideBalance = entry["hideBalance"] as? Bool ?? false
+                    wallet.paymentCode = entry["paymentCode"] as? String
+
+                    let transactionsData = entry["transactions"] as? [[String: Any]] ?? []
+                    for txData in transactionsData {
+                        let transaction = WalletTransaction(context: context)
+                        transaction.id = UUID()
+                        transaction.time = txData["time"] as? String ?? ""
+                        transaction.memo = txData["memo"] as? String ?? ""
+                        transaction.amount = txData["amount"] as? String ?? ""
+                        transaction.type = txData["type"] as? String ?? ""
+                        transaction.wallet = wallet
+                        wallet.addToTransactions(transaction)
+                    }
+                    self.wallets.append(wallet)
+                }
+                do {
+                    try context.save()
+                } catch {
+                    print("Failed to save wallets: \(error)")
+                }
+            }
+        }
+
+        static func requestLightningInvoice(walletIdentifier: UUID, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
+            guard let walletIndex = WatchDataSource.shared.wallets.firstIndex(where: { $0.id == walletIdentifier }) else {
+                responseHandler("")
+                return
+            }
+            WCSession.default.sendMessage(["request": "createInvoice", "walletIndex": walletIndex, "amount": amount, "description": description ?? ""], replyHandler: { (reply: [String : Any]) in
+                if let invoicePaymentRequest = reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
+                    responseHandler(invoicePaymentRequest)
+                } else {
+                    responseHandler("")
+                }
+            }) { (error) in
+                print(error)
+                responseHandler("")
+            }
+        }
+
+        static func toggleWalletHideBalance(walletIdentifier: UUID, hideBalance: Bool, responseHandler: @escaping (_ invoice: String) -> Void) {
+            guard let walletIndex = WatchDataSource.shared.wallets.firstIndex(where: { $0.id == walletIdentifier }) else {
+                responseHandler("")
+                return
+            }
+            WCSession.default.sendMessage(["message": "hideBalance", "walletIndex": walletIndex, "hideBalance": hideBalance], replyHandler: { (reply: [String : Any]) in
+                responseHandler("")
+            }) { (error) in
+                print(error)
+                responseHandler("")
+            }
+        }
+
+        func processData(data: [String: Any]) {
+            if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+                let fiatCurrencyData = ["preferredCurrency": preferredFiatCurrencyUnit.endPointKey]
+                UserDefaults.standard.set(fiatCurrencyData, forKey: "preferredCurrency")
+
+                let extensionDelegate = ExtensionDelegate()
+                extensionDelegate.updatePreferredFiatCurrency()
+            } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
+                companionWalletsInitialized = isWalletsInitialized
+            } else {
+                WatchDataSource.shared.processWalletsData(walletsInfo: data)
+            }
+        }
+    }
+
+    extension WatchDataSource: WCSessionDelegate {
+    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        if activationState == .activated {
+        loadWallets()
+        }
+    }
+    
+    func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
+        processData(data: applicationContext)
+    }
+    
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        processData(data: userInfo)
+
+    }
+
+        func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+            processData(data: message)
+        }
+    }
+
+
+
+File: BlueWalletWatch Extension/Objects/ReceiveInterfaceMode.swift
+Content:
+//
+//  ReceiveInterfaceMode.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/15/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+
+import Foundation
+
+enum ReceiveInterfaceMode {
+  case Address, QRCode
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/WalletGradient.swift
+Content:
+//
+//  WalletGradient.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/23/19.
+
+//
+
+import Foundation
+
+enum WalletGradient: String {
+  case SegwitHD = "HDsegwitP2SH"
+  case Segwit = "segwitP2SH"
+  case LightningCustodial = "lightningCustodianWallet"
+  case LightningLDK = "lightningLdk"
+  case SegwitNative = "HDsegwitBech32"
+  case WatchOnly = "watchOnly"
+  case MultiSig = "HDmultisig"
+  
+  var imageString: String{
+    switch self {
+    case .Segwit:
+      return "wallet"
+    case .SegwitNative:
+      return "walletHDSegwitNative"
+    case .SegwitHD:
+      return "walletHD"
+    case .WatchOnly:
+      return "walletWatchOnly"
+    case .LightningCustodial, .LightningLDK:
+      return "walletLightningCustodial"
+    case .MultiSig:
+      return "watchMultisig"
+    }
+  }
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/TransactionTableRowView.swift
+Content:
+//
+//  TransactionTableRow.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/10/19.
+
+//
+import SwiftUI
+
+struct TransactionTableRowView: View {
+    var transaction: WalletTransaction
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(transaction.amount)
+                Text(transaction.memo)
+                Text(transaction.time)
+                    .foregroundColor(transaction.type == "pendingConfirmation" ? .orange : .primary)
+            }
+            Spacer()
+            Image(systemName: icon(for: transaction.type))
+        }
+    }
+
+    private func icon(for type: String) -> String {
+        switch type {
+        case "pendingConfirmation":
+            return "clock"
+        case "received":
+            return "arrow.down.circle"
+        case "sent":
+            return "arrow.up.circle"
+        default:
+            return "questionmark.circle"
+        }
+    }
+}
+
+struct TransactionTableRowView_Previews: PreviewProvider {
+    static var previews: some View {
+        TransactionTableRowView(transaction: WalletTransaction(context: PersistenceController.preview.container.viewContext))
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/ReceiveMethod.swift
+Content:
+//
+//  ReceiveMethod.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/15/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+
+import Foundation
+
+enum ReceiveMethod {
+  case Onchain, CreateInvoice
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/WalletInformationView.swift
+Content:
+//
+//  WalletInformation.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/10/19.
+
+//
+import SwiftUI
+
+struct WalletInformationView: View {
+    var wallet: BaseWallet
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(wallet.label)
+                .font(.headline)
+            Text(wallet.hideBalance ? "" : wallet.balance)
+                .font(.subheadline)
+            Image(walletGradient(for: wallet.type).imageString)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+        }
+        .padding()
+    }
+
+    private func walletGradient(for type: String) -> WalletGradient {
+        return WalletGradient(rawValue: type) ?? .SegwitHD
+    }
+}
+
+struct WalletInformationView_Previews: PreviewProvider {
+    static var previews: some View {
+        WalletInformationView(wallet: BaseWallet(context: PersistenceController.preview.container.viewContext))
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/Handoff.swift
+Content:
+//
+//  Handoff.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Admin on 9/27/21.
+//  Copyright © 2021 BlueWallet. All rights reserved.
+//
+
+import Foundation
+
+enum HandoffIdentifier: String {
+  case ReceiveOnchain = "io.bluewallet.bluewallet.receiveonchain"
+  case Xpub = "io.bluewallet.bluewallet.xpub"
+  case ViewInBlockExplorer = "io.bluewallet.bluewallet.blockexplorer"
+}
+
+enum HandOffUserInfoKey: String {
+  case ReceiveOnchain = "address"
+  case Xpub = "xpub"
+}
+
+enum HandOffTitle: String {
+  case ReceiveOnchain = "View Address"
+  case Xpub = "View XPUB"
+}
+
+
+
+File: BlueWalletWatch Extension/Objects/ReceiveType.swift
+Content:
+//
+//  ReceiveType.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/15/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+
+import Foundation
+
+enum ReceiveType {
+  case Address, PaymentCode
+}
+
+
+
+File: BlueWalletWatch Extension/ReceivePageView.swift
+Content:
+//
+//  ReceivePageViewController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/15/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+import SwiftUI
+
+struct ReceivePageView: View {
+    var wallet: Wallet
+    var pageNames = ["Address", "Payment Code"]
+    var pageControllers = ["ReceiveInterfaceController", "ReceiveInterfaceController"]
+
+    var body: some View {
+        TabView {
+            ForEach(0..<pageNames.count, id: \.self) { index in
+                if index == 0 {
+                    ReceiveInterfaceView(wallet: wallet)
+                } else {
+                    ReceiveInterfaceView(wallet: wallet, receiveMethod: .CreateInvoice)
+                }
+            }
+        }
+        .tabViewStyle(PageTabViewStyle())
+    }
+}
+
+struct ReceivePageView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        let mockWallet = Wallet.createMockWallet(context: context)
+        
+        return ReceivePageView(wallet: mockWallet)
+            .environment(\.managedObjectContext, context)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/WalletDetailsView.swift
+Content:
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/11/19.
+
+import SwiftUI
+
+struct WalletDetailsView: View {
+    @ObservedObject var dataSource = WatchDataSource.shared
+    @State var wallet: BaseWallet
+
+    var body: some View {
+        VStack {
+            walletDetailsHeader
+            transactionsList
+        }
+        .onAppear(perform: loadWalletDetails)
+        .navigationTitle(wallet.label)
+    }
+
+    private var walletDetailsHeader: some View {
+        VStack {
+            Text(wallet.label)
+                .font(.headline)
+            Text(wallet.hideBalance ? "" : wallet.balance)
+                .font(.subheadline)
+            Image(WalletGradient(rawValue: wallet.type)?.imageString ?? "wallet")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 50)
+            HStack {
+                if isLightningWallet {
+                    Button("Create Invoice", action: createInvoice)
+                        .padding()
+                }
+                if !wallet.receiveAddress.isEmpty {
+                    Button("Receive", action: receive)
+                        .padding()
+                }
+                if isXPubAvailable {
+                    Button("View XPUB", action: viewXPub)
+                        .padding()
+                }
+            }
+        }
+    }
+
+    private var transactionsList: some View {
+        List(wallet.transactionsArray) { transaction in
+            TransactionTableRowView(transaction: transaction)
+        }
+    }
+
+    private var isLightningWallet: Bool {
+        wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue
+    }
+
+    private var isXPubAvailable: Bool {
+        !(wallet.xpub?.isEmpty ?? true) && !isLightningWallet
+    }
+
+    private func loadWalletDetails() {
+        if let updatedWallet = dataSource.wallets.first(where: { $0.id == wallet.id }) {
+            wallet = updatedWallet
+        }
+    }
+
+    private func createInvoice() {
+        if dataSource.companionWalletsInitialized {
+            // Navigate to create invoice view
+        } else {
+            // Show error
+            presentAlert(title: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.")
+        }
+    }
+
+    private func receive() {
+        // Navigate to receive view
+    }
+
+    private func viewXPub() {
+        // Navigate to view XPUB
+    }
+
+    private func presentAlert(title: String, message: String) {
+        // Present an alert
+    }
+}
+
+extension Optional where Wrapped == String {
+    var isNilOrEmpty: Bool {
+        self?.isEmpty ?? true
+    }
+}
+
+struct WalletDetailsView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        let mockWallet = Wallet.createMockWallet(context: context)
+        
+        return WalletDetailsView(wallet: mockWallet)
+            .environment(\.managedObjectContext, context)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/ExtensionDelegate.swift
+Content:
+import WatchKit
+import ClockKit
+import Bugsnag
+
+class ExtensionDelegate: NSObject, WKExtensionDelegate {
+    
+    let container = PersistenceController.shared.container
+    let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
+
+    func applicationDidFinishLaunching() {
+        scheduleNextReload()
+        updatePreferredFiatCurrency()
+        if let isDoNotTrackEnabled = groupUserDefaults?.bool(forKey: "donottrack"), !isDoNotTrackEnabled {
+            Bugsnag.start()
+        }
+    }
+
+    func updatePreferredFiatCurrency() {
+        guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else { return }
+        updateMarketData(for: fiatUnitUserDefaults)
+    }
+
+    private func fetchPreferredFiatUnit() -> FiatUnit? {
+        if let preferredFiatCurrency = groupUserDefaults?.string(forKey: "preferredCurrency"), let preferredFiatUnit = fiatUnit(currency: preferredFiatCurrency) {
+            return preferredFiatUnit
+        } else {
+            return fiatUnit(currency: "USD")
+        }
+    }
+
+    private func updateMarketData(for fiatUnit: FiatUnit) {
+        MarketAPI.fetchPrice(currency: fiatUnit.endPointKey) { (data, error) in
+            guard let data = data, let encodedData = try? PropertyListEncoder().encode(data) else { return }
+            self.groupUserDefaults?.set(encodedData, forKey: MarketData.string)
+            self.groupUserDefaults?.synchronize()
+            ExtensionDelegate.reloadActiveComplications()
+        }
+    }
+
+    private static func reloadActiveComplications() {
+        let server = CLKComplicationServer.sharedInstance()
+        for complication in server.activeComplications ?? [] {
+            server.reloadTimeline(for: complication)
+        }
+    }
+
+    func nextReloadTime(after date: Date) -> Date {
+        let calendar = Calendar(identifier: .gregorian)
+        return calendar.date(byAdding: .minute, value: 10, to: date)!
+    }
+
+    func scheduleNextReload() {
+        let targetDate = nextReloadTime(after: Date())
+        WKExtension.shared().scheduleBackgroundRefresh(
+            withPreferredDate: targetDate,
+            userInfo: nil,
+            scheduledCompletion: { _ in }
+        )
+    }
+
+    func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
+        for task in backgroundTasks {
+            switch task {
+                case let backgroundTask as WKApplicationRefreshBackgroundTask:
+                    handleApplicationRefreshBackgroundTask(backgroundTask)
+                default:
+                    task.setTaskCompletedWithSnapshot(false)
+            }
+        }
+    }
+
+    private func handleApplicationRefreshBackgroundTask(_ backgroundTask: WKApplicationRefreshBackgroundTask) {
+        scheduleNextReload()
+        guard let fiatUnitUserDefaults = fetchPreferredFiatUnit() else {
+            backgroundTask.setTaskCompletedWithSnapshot(false)
+            return
+        }
+        updateMarketData(for: fiatUnitUserDefaults)
+        backgroundTask.setTaskCompletedWithSnapshot(false)
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/NumericKeypadView.swift
+Content:
+//
+//  NumericKeypadInterfaceController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/23/19.
+
+//
+import SwiftUI
+
+struct NumericKeypadView: View {
+    @State private var amount: [String] = ["0"]
+    var keyPadType: NumericKeypadType = .BTC
+
+    var body: some View {
+        VStack {
+            Text(title)
+                .font(.largeTitle)
+            HStack {
+                Button("1", action: { append(value: "1") })
+                Button("2", action: { append(value: "2") })
+                Button("3", action: { append(value: "3") })
+            }
+            HStack {
+                Button("4", action: { append(value: "4") })
+                Button("5", action: { append(value: "5") })
+                Button("6", action: { append(value: "6") })
+            }
+            HStack {
+                Button("7", action: { append(value: "7") })
+                Button("8", action: { append(value: "8") })
+                Button("9", action: { append(value: "9") })
+            }
+            HStack {
+                Button(".", action: { append(value: ".") }).disabled(keyPadType == .SATS)
+                Button("0", action: { append(value: "0") })
+                Button("<", action: { amount.removeLast() })
+            }
+        }
+    }
+
+    private var title: String {
+        var title = ""
+        for amount in self.amount {
+            let isValid = Double(amount)
+            if amount == "." || isValid != nil {
+                title.append(String(amount))
+            }
+        }
+        return "< \(title.isEmpty ? "0" : title) \(keyPadType.rawValue)"
+    }
+
+    private func append(value: String) {
+        guard amount.filter({$0 != "."}).count <= 9 && !(amount.contains(".") && value == ".") else {
+            return
+        }
+        switch keyPadType {
+        case .SATS:
+            if amount.first == "0" {
+                if value == "0" {
+                    return
+                }
+                amount[0] = value
+            } else {
+                amount.append(value)
+            }
+        case .BTC:
+            if amount.isEmpty {
+                if (value == "0") {
+                    amount.append("0")
+                } else if value == "." && !amount.contains(".") {
+                    amount.append("0")
+                    amount.append(".")
+                } else {
+                    amount.append(value)
+                }
+            } else if let first = amount.first, first == "0" {
+                if amount.count > 1, amount[1] != "." {
+                    amount.insert(".", at: 1)
+                } else if amount.count == 1, amount.first == "0" && value != "." {
+                    amount.append(".")
+                    amount.append(value)
+                } else {
+                    amount.append(value)
+                }
+            } else {
+                amount.append(value)
+            }
+        }
+    }
+}
+
+struct NumericKeypadView_Previews: PreviewProvider {
+    static var previews: some View {
+        NumericKeypadView(keyPadType: .BTC)
+    }
+}
+
+enum NumericKeypadType: String {
+    case BTC = "BTC"
+    case SATS = "sats"
+}
+
+
+
+File: BlueWalletWatch Extension/NotificationView.swift
+Content:
+//
+//  NotificationController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 3/6/19.
+
+//
+import SwiftUI
+
+struct NotificationView: View {
+    var body: some View {
+        Text("You have a new notification")
+            .font(.headline)
+    }
+}
+
+struct NotificationView_Previews: PreviewProvider {
+    static var previews: some View {
+        NotificationView()
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/NotificationHostingController.swift
+Content:
+//
+//  NotificationHostingController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/19/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+import WatchKit
+import SwiftUI
+
+class NotificationHostingController: WKHostingController<NotificationView> {
+    override var body: NotificationView {
+        return NotificationView()
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/BlueWalletWatchApp.swift
+Content:
+//
+//  BlueWalletWatchApp.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/20/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+
+import SwiftUI
+import SwiftData
+
+@main
+struct BlueWalletWatchApp: App {
+    var body: some Scene {
+        WindowGroup {
+            InterfaceControllerView()
+                .modelContainer(for: [Wallet.self, WalletTransaction.self])
+        }
+    }
+}
+
+
+
+File: BlueWalletWatch Extension/HostingController.swift
+Content:
+//
+//  HostingController.swift
+//  BlueWalletWatch Extension
+//
+//  Created by Marcos Rodriguez on 6/19/24.
+//  Copyright © 2024 BlueWallet. All rights reserved.
+//
+
+import WatchKit
+import Foundation
+import SwiftUI
+
+class HostingController: WKHostingController<InterfaceControllerView> {
+    override var body: InterfaceControllerView {
+        InterfaceControllerView()
+    }
+}
+
+
+
