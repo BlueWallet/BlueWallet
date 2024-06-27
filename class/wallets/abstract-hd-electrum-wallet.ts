@@ -1438,6 +1438,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ret.push(this._getExternalAddressByIndex(c));
     }
 
+    if (this.allowBIP47() && this.isBIP47Enabled()) {
+      // returning BIP47 joint addresses with everyone who can pay us because they are kinda our 'external' aka 'receive' addresses
+
+      for (const pc of this._receive_payment_codes) {
+        for (let c = 0; c < this._getNextFreePaymentCodeIndexReceive(pc) + this.gap_limit / 4; c++) {
+          //  ^^^ not full gap limit to reduce computation (theoretically, there should not be gaps at all)
+          ret.push(this._getBIP47AddressReceive(pc, c));
+        }
+      }
+    }
+
     return ret;
   }
 

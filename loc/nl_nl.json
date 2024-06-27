@@ -35,11 +35,11 @@
     "redeem": "Inwisselen naar wallet.",
     "redeemButton": "Inwisselen",
     "success": "Succes",
-    "title": "Los uw Atze.co voucher in"
+    "title": "Verzilver uw Atze.co voucher"
   },
   "entropy": {
     "save": "Opslaan",
-    "title": "Entropy",
+    "title": "Entropie",
     "undo": "Ongedaan maken"
   },
   "errors": {
@@ -61,7 +61,10 @@
     "node_alias": "Node alias",
     "expiresIn": "Verloopt in {time} minuten",
     "payButton": "Betalen",
+    "payment": "Betaling",
+    "placeholder": "Factuur of adres",
     "open_channel": "Open kanaal",
+    "funding_amount_placeholder": "Stortingsbedrag, bijvoorbeeld 0.001",
     "opening_channnel_for_from": "Open kanaal voor wallet {forWalletLabel}, door financiering vanuit {fromWalletLabel}",
     "are_you_sure_open_channel": "Weet je het zeker dat je dit kanaal wilt openen?",
     "potentialFee": "Mogelijke fee: {fee}",
@@ -211,7 +214,6 @@
     "biometrics": "Biometrische beveiliging",
     "biom_10times": "Je hebt 10 wachtwoordpogingen gedaan. Wil je je opslagruimte resetten? Al je wallets worden verwijderd en je opslag wordt ontsleuteld.",
     "biom_conf_identity": "Bevestig je identiteit.",
-    "biom_no_passcode": "Er is geen wachtwoord ingesteld op je apparaat. Ga naar het instellingenmenu om een wachtwoord in te stellen, om door te gaan.",
     "biom_remove_decrypt": "Al je wallets worden verwijderd en je opslag zal worden ontsleuteld. Weet je zeker dat je door wil gaan?",
     "currency": "Valuta",
     "currency_fetch_error": "Er is een fout opgetreden bij het ophalen van de Rate voor de geselecteerde muntsoort",
@@ -339,6 +341,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Eenvoudige en krachtige Bitcoin-wallet",
     "add_create": "Aanmaken",
+    "add_entropy": "Entropy",
     "add_entropy_generated": "{gen} bytes gegenereerde entropie",
     "add_entropy_provide": "Zorg voor entropie via dobbelstenen",
     "add_entropy_remain": "{gen} bytes gegenereerde entropie. Resterende {rem} bytes zullen worden verkregen uit het systeem voor willekeurige getallen.",
@@ -370,6 +373,7 @@
     "details_show_xpub": "Toon wallet XPUB",
     "details_show_addresses": "Toon adressen",
     "details_title": "Wallet",
+    "wallets": "Wallets",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Gebruik met hardware-wallet",
     "details_wallet_updated": "Wallet bijgewerkt",

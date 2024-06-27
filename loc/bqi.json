@@ -276,6 +276,7 @@
   "wallets": {
     "add_bitcoin": "بیت کوین",
     "add_create": "وورکل",
+    "add_entropy": "آنتروپی",
     "details_address": "آدرس",
     "details_save": "زفت کردن"
   },

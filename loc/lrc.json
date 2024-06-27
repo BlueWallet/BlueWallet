@@ -148,6 +148,7 @@
   },
   "wallets": {
     "add_bitcoin": "بیت کوین",
+    "add_entropy": "آنتروپی",
     "details_address": "آدرس",
     "details_advanced": "پؽش رته"
   },
