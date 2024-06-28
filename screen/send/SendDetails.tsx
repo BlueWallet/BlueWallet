@@ -215,23 +215,26 @@ const SendDetails = () => {
       });
     } else if (routeParams.addRecipientParams) {
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
-      const isEmptyArray = addresses.length > 0 || addresses.length < 2;
       const addRecipientParams = routeParams.addRecipientParams;
 
-      if (isEmptyArray) {
-        if (Number(addRecipientParams.amount) > 0) {
-          setAddresses([
-            {
-              address: addRecipientParams.address,
-              amount: addRecipientParams.amount,
-              amountSats: btcToSatoshi(addRecipientParams.amount!),
-              key: String(Math.random()),
-            } as IPaymentDestinations,
-          ]);
-        } else {
-          setAddresses([{ address: addRecipientParams.address, key: String(Math.random()) } as IPaymentDestinations]);
-        }
+      if (Number(addRecipientParams.amount) > 0) {
+        setAddresses(prevAddresses => [
+          ...prevAddresses,
+          {
+            address: addRecipientParams.address,
+            amount: addRecipientParams.amount,
+            amountSats: btcToSatoshi(addRecipientParams.amount!),
+            key: String(Math.random()),
+          } as IPaymentDestinations,
+        ]);
       } else {
+        setAddresses(prevAddresses => [
+          ...prevAddresses,
+          { address: addRecipientParams.address, key: String(Math.random()) } as IPaymentDestinations,
+        ]);
+      }
+
+      if (addresses.length >= 2) {
         setAddresses(addrs => {
           if (routeParams.addRecipientParams?.amount) {
             addrs[index].amount = routeParams.addRecipientParams?.amount;
