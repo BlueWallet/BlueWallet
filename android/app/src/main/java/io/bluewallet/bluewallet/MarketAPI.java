@@ -14,19 +14,18 @@ public class MarketAPI {
 
     public static String fetchPrice(Context context, String currency) {
         try {
-            // Load JSON from assets
-            InputStreamReader isr = new InputStreamReader(context.getAssets().open("fiatUnits.json"));
-            StringBuilder jsonBuilder = new StringBuilder();
-            char[] buffer = new char[1024];
-            int length;
-            while ((length = isr.read(buffer)) != -1) {
-                jsonBuilder.append(buffer, 0, length);
+            // Load the JSON file from assets
+            InputStreamReader is = new InputStreamReader(context.getAssets().open("fiatUnits.json"));
+            StringBuilder json = new StringBuilder();
+            int data = is.read();
+            while (data != -1) {
+                json.append((char) data);
+                data = is.read();
             }
-            isr.close();
+            is.close();
 
-            String jsonString = jsonBuilder.toString();
-            JSONObject json = new JSONObject(jsonString);
-            JSONObject currencyInfo = json.getJSONObject(currency);
+            JSONObject jsonObject = new JSONObject(json.toString());
+            JSONObject currencyInfo = jsonObject.getJSONObject(currency);
             String source = currencyInfo.getString("source");
             String endPointKey = currencyInfo.getString("endPointKey");
 
@@ -45,9 +44,9 @@ public class MarketAPI {
             InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
             StringBuilder jsonResponse = new StringBuilder();
             int read;
-            char[] buffer2 = new char[1024];
-            while ((read = reader.read(buffer2)) != -1) {
-                jsonResponse.append(buffer2, 0, read);
+            char[] buffer = new char[1024];
+            while ((read = reader.read(buffer)) != -1) {
+                jsonResponse.append(buffer, 0, read);
             }
 
             return parseJSONBasedOnSource(jsonResponse.toString(), source, endPointKey);

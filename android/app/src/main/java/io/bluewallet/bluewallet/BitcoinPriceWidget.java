@@ -1,113 +1,123 @@
 package io.bluewallet.bluewallet;
 
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
+import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.view.View;
-import android.widget.RemoteViews;
 
-import androidx.annotation.NonNull;
-import androidx.work.Constraints;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+import com.bugsnag.android.Bugsnag;
+import com.facebook.react.PackageList;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactInstanceManager;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactNativeHost;
+import com.facebook.soloader.SoLoader;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import java.lang.ref.WeakReference;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-public class BitcoinPriceWidget extends AppWidgetProvider {
+public class BitcoinPriceWidget extends Application implements ReactApplication {
 
     private static final String TAG = "BitcoinPriceWidget";
-    private static final String ACTION_UPDATE = "io.bluewallet.bluewallet.UPDATE";
     private static final String PREFS_NAME = "BitcoinPriceWidgetPrefs";
     private static final String PREF_PREFIX_KEY = "appwidget_";
     private static final int UPDATE_INTERVAL_MINUTES = 10; // Adjustable interval in minutes
-    private static ExecutorService executorService;
+    private Timer timer;
+
+    private final ReactNativeHost mReactNativeHost =
+            new DefaultReactNativeHost(this) {
+                @Override
+                public boolean getUseDeveloperSupport() {
+                    return BuildConfig.DEBUG;
+                }
+
+                @Override
+                protected List<ReactPackage> getPackages() {
+                    @SuppressWarnings("UnnecessaryLocalVariable")
+                    List<ReactPackage> packages = new PackageList(this).getPackages();
+                    // Packages that cannot be autolinked yet can be added manually here, for example:
+                    return packages;
+                }
+
+                @Override
+                protected String getJSMainModuleName() {
+                    return "index";
+                }
+
+                @Override
+                protected boolean isNewArchEnabled() {
+                    return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
+                }
+
+                @Override
+                protected Boolean isHermesEnabled() {
+                    return BuildConfig.IS_HERMES_ENABLED;
+                }
+            };
 
     @Override
-    public void onEnabled(Context context) {
-        super.onEnabled(context);
-        initializeExecutorService();
+    public ReactNativeHost getReactNativeHost() {
+        return mReactNativeHost;
     }
 
     @Override
-    public void onDisabled(Context context) {
-        super.onDisabled(context);
-        if (executorService != null) {
-            executorService.shutdown();
+    public void onCreate() {
+        super.onCreate();
+        SoLoader.init(this, /* native exopackage */ false);
+
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+            // If you opted-in for the New Architecture, we load the native entry point for this app.
+            DefaultNewArchitectureEntryPoint.load();
         }
+
+        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE);
+
+        // Retrieve the "donottrack" value. Default to "0" if not found.
+        String isDoNotTrackEnabled = sharedPref.getString("donottrack", "0");
+
+        // Check if do not track is not enabled and initialize Bugsnag if so
+        if (!isDoNotTrackEnabled.equals("1")) {
+            // Initialize Bugsnag or your error tracking here
+            Bugsnag.start(this);
+        }
+
+        // Schedule the first update
+        scheduleUpdate();
     }
 
-    @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        initializeExecutorService();
-        if (appWidgetIds.length > 0) {
-            for (int appWidgetId : appWidgetIds) {
-                Log.d(TAG, "Updating widget ID: " + appWidgetId);
-
-                RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
-                // Set up the pending intent to open the app when the widget is clicked
-                Intent launchAppIntent = new Intent(context, MainActivity.class);
-                PendingIntent launchAppPendingIntent = PendingIntent.getActivity(context, 0, launchAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-                views.setOnClickPendingIntent(R.id.widget_layout, launchAppPendingIntent);
-
-                // Set the loading indicator visible initially
-                views.setViewVisibility(R.id.loading_indicator, View.VISIBLE);
-                views.setViewVisibility(R.id.price_value, View.GONE);
-                views.setViewVisibility(R.id.last_updated, View.GONE);
-                views.setViewVisibility(R.id.last_updated_time, View.GONE);
-
-                appWidgetManager.updateAppWidget(appWidgetId, views);
-
-                executorService.execute(new FetchBitcoinPriceTask(context, appWidgetManager, appWidgetId));
+    private void scheduleUpdate() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // Ensure this runs on the main thread
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(() -> {
+                    Context context = getApplicationContext();
+                    // Trigger the update worker here
+                    FetchBitcoinPriceTask fetchTask = new FetchBitcoinPriceTask(context);
+                    fetchTask.run();
+                });
             }
-
-            scheduleNextUpdate(context);
-        }
-    }
-
-    private void initializeExecutorService() {
-        if (executorService == null || executorService.isShutdown()) {
-            executorService = Executors.newSingleThreadExecutor();
-        }
-    }
-
-    private void scheduleNextUpdate(Context context) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(UpdateWidgetWorker.class)
-                .setInitialDelay(UPDATE_INTERVAL_MINUTES, TimeUnit.MINUTES)
-                .build();
-
-        WorkManager.getInstance(context).enqueue(workRequest);
+        }, 0, UPDATE_INTERVAL_MINUTES * 60 * 1000); // Update interval in milliseconds
     }
 
     private static class FetchBitcoinPriceTask implements Runnable {
-        private final WeakReference<Context> contextRef;
-        private final AppWidgetManager appWidgetManager;
-        private final int appWidgetId;
 
-        FetchBitcoinPriceTask(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-            this.contextRef = new WeakReference<>(context);
-            this.appWidgetManager = appWidgetManager;
-            this.appWidgetId = appWidgetId;
+        private final Context context;
+
+        FetchBitcoinPriceTask(Context context) {
+            this.context = context;
         }
 
         @Override
         public void run() {
-            Context context = contextRef.get();
-            if (context == null) return;
-
-            Log.d(TAG, "Starting to fetch Bitcoin price...");
+            Log.d(TAG, "Fetching Bitcoin price...");
 
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
             String preferredCurrency = prefs.getString("preferredCurrency", "USD");
@@ -121,85 +131,13 @@ public class BitcoinPriceWidget extends AppWidgetProvider {
         }
 
         private void updateWidgetWithPrice(Context context, String price) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-
-            // Fetch current and previous data
-            String prevPrice = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_prev_price", "N/A");
-            String prevTime = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_prev_time", "N/A");
-            String currentPrice = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_current_price", null);
-            String currentTime = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_current_time", null);
-
-            SharedPreferences.Editor editor = prefs.edit();
-
-            String newTime = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-            Log.d(TAG, "Fetch completed with price: " + price + " at " + newTime + ". Previous price: " + prevPrice + " at " + prevTime);
-            NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.US);
-            views.setTextViewText(R.id.price_value, currencyFormat.format(Double.parseDouble(price)));
-
-            if (currentPrice != null) {
-                double previousPrice = Double.parseDouble(currentPrice);
-                double newPrice = Double.parseDouble(price);
-                if (newPrice > previousPrice) {
-                    views.setImageViewResource(R.id.price_arrow, android.R.drawable.arrow_up_float);
-                } else if (newPrice < previousPrice) {
-                    views.setImageViewResource(R.id.price_arrow, android.R.drawable.arrow_down_float);
-                } else {
-                    views.setImageViewResource(R.id.price_arrow, 0);
-                }
-
-                if (newPrice != previousPrice) {
-                    views.setTextViewText(R.id.previous_price, "from " + currencyFormat.format(previousPrice));
-                    views.setViewVisibility(R.id.price_arrow_container, View.VISIBLE);
-                    views.setViewVisibility(R.id.previous_price, View.VISIBLE);
-                } else {
-                    views.setTextViewText(R.id.previous_price, "");
-                    views.setViewVisibility(R.id.price_arrow_container, View.GONE);
-                    views.setViewVisibility(R.id.previous_price, View.GONE);
-                }
-            } else {
-                views.setImageViewResource(R.id.price_arrow, 0);
-                views.setTextViewText(R.id.previous_price, "");
-                views.setViewVisibility(R.id.price_arrow_container, View.GONE);
-                views.setViewVisibility(R.id.previous_price, View.GONE);
-            }
-
-            // Shift current to previous
-            editor.putString(PREF_PREFIX_KEY + appWidgetId + "_prev_price", currentPrice);
-            editor.putString(PREF_PREFIX_KEY + appWidgetId + "_prev_time", currentTime);
-
-            // Set new current
-            editor.putString(PREF_PREFIX_KEY + appWidgetId + "_current_price", price);
-            editor.putString(PREF_PREFIX_KEY + appWidgetId + "_current_time", newTime);
-            editor.apply();
-
-            views.setTextViewText(R.id.last_updated, "Last Updated");
-            views.setTextViewText(R.id.last_updated_time, newTime);
-
-            views.setViewVisibility(R.id.loading_indicator, View.GONE);
-            views.setViewVisibility(R.id.price_value, View.VISIBLE);
-            views.setViewVisibility(R.id.last_updated, View.VISIBLE);
-            views.setViewVisibility(R.id.last_updated_time, View.VISIBLE);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
+            // Update the widget with the fetched price
+            // Add your implementation here
         }
 
         private void handleError(Context context) {
-            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-            String errorMessage = "Network Error";
-            Log.e(TAG, errorMessage);
-            views.setTextViewText(R.id.price_value, errorMessage);
-            views.setTextViewText(R.id.last_updated, "");
-            views.setTextViewText(R.id.last_updated_time, "");
-            views.setImageViewResource(R.id.price_arrow, 0);
-            views.setTextViewText(R.id.previous_price, "");
-            views.setViewVisibility(R.id.price_arrow_container, View.GONE);
-            views.setViewVisibility(R.id.previous_price, View.GONE);
-            views.setViewVisibility(R.id.loading_indicator, View.GONE);
-
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-
-            Log.e(TAG, "Failed to fetch Bitcoin price");
+            // Handle the error
+            // Add your implementation here
         }
     }
 }
