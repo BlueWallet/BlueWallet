@@ -1,6 +1,13 @@
 import React, { Ref, useCallback, useMemo } from 'react';
 import { Platform, Pressable, TouchableOpacity, View } from 'react-native';
-import { ContextMenuView, RenderItem, OnPressMenuItemEventObject, MenuState, IconConfig } from 'react-native-ios-context-menu';
+import {
+  ContextMenuView,
+  RenderItem,
+  OnPressMenuItemEventObject,
+  MenuState,
+  IconConfig,
+  MenuElementConfig,
+} from 'react-native-ios-context-menu';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 
@@ -21,6 +28,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   } = props;
 
   const mapMenuItemForContextMenuView = useCallback((action: Action) => {
+    if (!action.id) return null;
     return {
       actionKey: action.id.toString(),
       actionTitle: action.text,
@@ -30,7 +38,8 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
     };
   }, []);
 
-  const mapMenuItemForMenuView = useCallback((action: Action): MenuAction => {
+  const mapMenuItemForMenuView = useCallback((action: Action): MenuAction | null => {
+    if (!action.id) return null;
     return {
       id: action.id.toString(),
       title: action.text,
@@ -41,28 +50,34 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
   }, []);
 
   const contextMenuItems = useMemo(() => {
-    const flattenedActions = props.actions.flat();
-    return flattenedActions.map(mapMenuItemForContextMenuView);
+    const flattenedActions = props.actions.flat().filter(action => action.id);
+    return flattenedActions.map(mapMenuItemForContextMenuView).filter(item => item !== null) as MenuElementConfig[];
   }, [props.actions, mapMenuItemForContextMenuView]);
 
   const menuViewItemsIOS = useMemo(() => {
-    return props.actions.map(actionGroup => {
-      if (Array.isArray(actionGroup)) {
-        return {
-          id: actionGroup[0].id.toString(),
-          title: '',
-          subactions: actionGroup.map(mapMenuItemForMenuView),
-          displayInline: true,
-        };
-      } else {
-        return mapMenuItemForMenuView(actionGroup);
-      }
-    });
+    return props.actions
+      .map(actionGroup => {
+        if (Array.isArray(actionGroup) && actionGroup.length > 0) {
+          return {
+            id: actionGroup[0].id.toString(),
+            title: '',
+            subactions: actionGroup
+              .filter(action => action.id)
+              .map(mapMenuItemForMenuView)
+              .filter(item => item !== null) as MenuAction[],
+            displayInline: true,
+          };
+        } else if (!Array.isArray(actionGroup) && actionGroup.id) {
+          return mapMenuItemForMenuView(actionGroup);
+        }
+        return null;
+      })
+      .filter(item => item !== null) as MenuAction[];
   }, [props.actions, mapMenuItemForMenuView]);
 
   const menuViewItemsAndroid = useMemo(() => {
-    const mergedActions = props.actions.flat();
-    return mergedActions.map(mapMenuItemForMenuView);
+    const mergedActions = props.actions.flat().filter(action => action.id);
+    return mergedActions.map(mapMenuItemForMenuView).filter(item => item !== null) as MenuAction[];
   }, [props.actions, mapMenuItemForMenuView]);
 
   const handlePressMenuItemForContextMenuView = useCallback(
@@ -138,7 +153,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
     );
   };
 
-  return Platform.OS === 'ios' && renderPreview ? renderContextMenuView() : renderMenuView();
+  return props.actions.length > 0 ? (Platform.OS === 'ios' && renderPreview ? renderContextMenuView() : renderMenuView()) : null;
 });
 
 export default ToolTipMenu;
