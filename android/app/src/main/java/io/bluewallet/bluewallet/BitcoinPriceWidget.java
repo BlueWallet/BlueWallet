@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BitcoinPriceWidget extends Application implements ReactApplication {
+public class MainApplication extends Application implements ReactApplication {
 
     private static final String TAG = "BitcoinPriceWidget";
     private static final String PREFS_NAME = "BitcoinPriceWidgetPrefs";
