@@ -16,6 +16,10 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import java.util.List;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import java.util.concurrent.TimeUnit;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -75,5 +79,8 @@ public class MainApplication extends Application implements ReactApplication {
         // Initialize Bugsnag or your error tracking here
         Bugsnag.start(this);
     }
+    PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(UpdateWidgetWorker.class, 10, TimeUnit.MINUTES)
+    .build();
+WorkManager.getInstance(this).enqueueUniquePeriodicWork("UpdateWidgetWork", ExistingPeriodicWorkPolicy.REPLACE, workRequest);
   }
 }

@@ -1,5 +1,7 @@
 package io.bluewallet.bluewallet;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,19 +12,20 @@ import java.net.URL;
 
 public class MarketAPI {
 
-    private static final String HARD_CODED_JSON = "{\n" +
-            "    \"USD\": {\n" +
-            "        \"endPointKey\": \"USD\",\n" +
-            "        \"locale\": \"en-US\",\n" +
-            "        \"source\": \"Kraken\",\n" +
-            "        \"symbol\": \"$\",\n" +
-            "        \"country\": \"United States (US Dollar)\"\n" +
-            "    }\n" +
-            "}";
-
-    public static String fetchPrice(String currency) {
+    public static String fetchPrice(Context context, String currency) {
         try {
-            JSONObject json = new JSONObject(HARD_CODED_JSON);
+            // Load JSON from assets
+            InputStreamReader isr = new InputStreamReader(context.getAssets().open("fiatUnits.json"));
+            StringBuilder jsonBuilder = new StringBuilder();
+            char[] buffer = new char[1024];
+            int length;
+            while ((length = isr.read(buffer)) != -1) {
+                jsonBuilder.append(buffer, 0, length);
+            }
+            isr.close();
+
+            String jsonString = jsonBuilder.toString();
+            JSONObject json = new JSONObject(jsonString);
             JSONObject currencyInfo = json.getJSONObject(currency);
             String source = currencyInfo.getString("source");
             String endPointKey = currencyInfo.getString("endPointKey");
@@ -42,9 +45,9 @@ public class MarketAPI {
             InputStreamReader reader = new InputStreamReader(urlConnection.getInputStream());
             StringBuilder jsonResponse = new StringBuilder();
             int read;
-            char[] buffer = new char[1024];
-            while ((read = reader.read(buffer)) != -1) {
-                jsonResponse.append(buffer, 0, read);
+            char[] buffer2 = new char[1024];
+            while ((read = reader.read(buffer2)) != -1) {
+                jsonResponse.append(buffer2, 0, read);
             }
 
             return parseJSONBasedOnSource(jsonResponse.toString(), source, endPointKey);

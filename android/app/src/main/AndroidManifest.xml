@@ -19,7 +19,7 @@
     <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
     <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
     <uses-permission android:name="android.permission.ACTION_CREATE_DOCUMENT" />
-
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application
         android:name=".MainApplication"
         android:label="@string/app_name"
@@ -59,16 +59,16 @@
             </intent-filter>
         </receiver>
 <receiver
-    android:name=".BitcoinPriceWidget"
-    android:exported="true"
-    android:label="Bitcoin Price Widget">
-    <intent-filter>
-        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-    </intent-filter>
-    <meta-data
-        android:name="android.appwidget.provider"
-        android:resource="@xml/bitcoin_price_widget_info" />
-</receiver>
+            android:name=".BitcoinPriceWidget"
+            android:exported="true"
+            android:label="Bitcoin Price Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/bitcoin_price_widget_info" />
+        </receiver>
 
 
         <service
