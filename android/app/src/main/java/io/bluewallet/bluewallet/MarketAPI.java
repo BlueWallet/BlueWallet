@@ -1,6 +1,7 @@
 package io.bluewallet.bluewallet;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,24 +13,26 @@ import java.net.URL;
 
 public class MarketAPI {
 
+    private static final String TAG = "MarketAPI";
+    private static final String HARD_CODED_JSON = "{\n" +
+            "    \"USD\": {\n" +
+            "        \"endPointKey\": \"USD\",\n" +
+            "        \"locale\": \"en-US\",\n" +
+            "        \"source\": \"Kraken\",\n" +
+            "        \"symbol\": \"$\",\n" +
+            "        \"country\": \"United States (US Dollar)\"\n" +
+            "    }\n" +
+            "}";
+
     public static String fetchPrice(Context context, String currency) {
         try {
-            // Load the JSON file from assets
-            InputStreamReader is = new InputStreamReader(context.getAssets().open("fiatUnits.json"));
-            StringBuilder json = new StringBuilder();
-            int data = is.read();
-            while (data != -1) {
-                json.append((char) data);
-                data = is.read();
-            }
-            is.close();
-
-            JSONObject jsonObject = new JSONObject(json.toString());
-            JSONObject currencyInfo = jsonObject.getJSONObject(currency);
+            JSONObject json = new JSONObject(HARD_CODED_JSON);
+            JSONObject currencyInfo = json.getJSONObject(currency);
             String source = currencyInfo.getString("source");
             String endPointKey = currencyInfo.getString("endPointKey");
 
             String urlString = buildURLString(source, endPointKey);
+            Log.d(TAG, "Fetching from URL: " + urlString);
             URI uri = new URI(urlString);
             URL url = uri.toURL();
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

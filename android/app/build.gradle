@@ -84,6 +84,12 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
+        }
+    }
+
     buildTypes {
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -94,6 +100,13 @@ android {
         }
     }
 }
+
+task copyFiatUnits(type: Copy) {
+    from '../../models/fiatUnits.json'
+    into 'src/main/assets'
+}
+
+preBuild.dependsOn(copyFiatUnits)
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
@@ -110,6 +123,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.4.0'
+    implementation "androidx.work:work-runtime:2.7.1"
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 
