@@ -1,78 +1,125 @@
 package io.bluewallet.bluewallet;
 
+import android.app.Application;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.PowerManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
+
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class BitcoinPriceWidget extends AppWidgetProvider {
 
     private static final String TAG = "BitcoinPriceWidget";
-    private static final String PREFS_NAME = "BitcoinPriceWidgetPrefs";
-    private static final String PREF_PREFIX_KEY = "appwidget_";
+    private static final String ACTION_UPDATE = "io.bluewallet.bluewallet.UPDATE_WIDGET";
+    private static final long UPDATE_INTERVAL_MINUTES = 15; // Update interval in minutes
+    private static final int MAX_RETRIES = 3;
+
+    private static PowerManager.WakeLock wakeLock;
+    private static int retryCount = 0;
+    private static boolean isScreenOn = true;
+
+    @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+        registerScreenReceiver(context);
+        schedulePeriodicUpdates(context);
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        super.onDisabled(context);
+        unregisterScreenReceiver(context);
+        WorkManager.getInstance(context).cancelUniqueWork("UpdateWidgetWork");
+    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.d(TAG, "Updating widget");
-
-        for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId);
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+        if (isScreenOn) {
+            scheduleWork(context);
         }
-
-        WidgetUpdateWorker.scheduleWork(context); // Schedule to run periodically
     }
 
-    private void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        String currentPrice = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_current_price", "N/A");
-        String currentTime = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_current_time", "N/A");
-        String previousPrice = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_previous_price", "N/A");
-        String previousTime = prefs.getString(PREF_PREFIX_KEY + appWidgetId + "_previous_time", "N/A");
+    private void schedulePeriodicUpdates(Context context) {
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(WidgetUpdateWorker.class,
+                UPDATE_INTERVAL_MINUTES, TimeUnit.MINUTES)
+                .setInitialDelay(UPDATE_INTERVAL_MINUTES, TimeUnit.MINUTES)
+                .build();
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "UpdateWidgetWork",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                workRequest
+        );
+    }
 
-        if (!currentPrice.equals("N/A")) {
-            views.setTextViewText(R.id.price_value, currentPrice);
-            views.setTextViewText(R.id.last_updated, "Last Updated");
-            views.setTextViewText(R.id.last_updated_time, currentTime);
-            views.setViewVisibility(R.id.loading_indicator, View.GONE);
-        } else {
-            views.setTextViewText(R.id.price_value, "Loading...");
-            views.setViewVisibility(R.id.loading_indicator, View.VISIBLE);
-        }
+    private void registerScreenReceiver(Context context) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        context.getApplicationContext().registerReceiver(screenReceiver, filter);
+    }
 
-        if (!previousPrice.equals("N/A") && !previousPrice.equals(currentPrice)) {
-            views.setViewVisibility(R.id.price_arrow_container, View.VISIBLE);
-            views.setTextViewText(R.id.previous_price, "From " + previousPrice);
+    private void unregisterScreenReceiver(Context context) {
+        context.getApplicationContext().unregisterReceiver(screenReceiver);
+    }
 
-            try {
-                double current = Double.parseDouble(currentPrice.replaceAll("[^\\d.]", ""));
-                double previous = Double.parseDouble(previousPrice.replaceAll("[^\\d.]", ""));
-                if (current > previous) {
-                    views.setImageViewResource(R.id.price_arrow, android.R.drawable.arrow_up_float);
-                } else {
-                    views.setImageViewResource(R.id.price_arrow, android.R.drawable.arrow_down_float);
+    private final BroadcastReceiver screenReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() != null) {
+                PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                if (pm != null) {
+                    switch (intent.getAction()) {
+                        case Intent.ACTION_SCREEN_ON:
+                            isScreenOn = true;
+                            Log.d(TAG, "Screen ON");
+                            acquireWakeLock(context);
+                            scheduleWork(context);
+                            break;
+                        case Intent.ACTION_SCREEN_OFF:
+                            isScreenOn = false;
+                            Log.d(TAG, "Screen OFF");
+                            releaseWakeLock();
+                            break;
+                    }
                 }
-            } catch (NumberFormatException e) {
-                Log.e(TAG, "Error parsing prices", e);
             }
-
-        } else {
-            views.setViewVisibility(R.id.price_arrow_container, View.GONE);
         }
+    };
 
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+    private void acquireWakeLock(Context context) {
+        if (wakeLock == null) {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+                wakeLock.acquire(10 * 60 * 1000L /*10 minutes*/);
+            }
+        }
     }
 
-    public static void savePreferences(Context context, int appWidgetId, String currentPrice, String currentTime, String previousPrice, String previousTime) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_current_price", currentPrice);
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_current_time", currentTime);
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_previous_price", previousPrice);
-        prefs.putString(PREF_PREFIX_KEY + appWidgetId + "_previous_time", previousTime);
-        prefs.apply();
+    private void releaseWakeLock() {
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            wakeLock = null;
+        }
+    }
+
+    private void scheduleWork(Context context) {
+        Log.d(TAG, "Scheduling work for widget update");
+        WorkManager.getInstance(context).enqueue(WidgetUpdateWorker.createWorkRequest());
     }
 }

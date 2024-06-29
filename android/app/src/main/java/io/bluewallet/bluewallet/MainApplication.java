@@ -76,6 +76,10 @@ public class MainApplication extends Application implements ReactApplication {
             Bugsnag.start(this);
         }
 
-        WidgetUpdateWorker.scheduleWork(this); // Schedule to run every 10 minutes
+
+    // Schedule periodic widget updates
+    PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(WidgetUpdateWorker.class, 4, TimeUnit.MINUTES).build();
+    WorkManager.getInstance(this).enqueueUniquePeriodicWork("UpdateWidgetWork", ExistingPeriodicWorkPolicy.REPLACE, workRequest);
+
     }
 }

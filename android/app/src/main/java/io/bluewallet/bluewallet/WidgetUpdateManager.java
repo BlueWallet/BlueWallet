@@ -61,9 +61,8 @@ public class WidgetUpdateManager extends Worker {
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
             views.setTextViewText(R.id.price_value, price);
             views.setTextViewText(R.id.last_updated_time, DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date()));
-            views.setViewVisibility(R.id.loading_indicator, View.GONE);
             views.setViewVisibility(R.id.price_value, View.VISIBLE);
-            views.setViewVisibility(R.id.last_updated, View.VISIBLE);
+            views.setViewVisibility(R.id.last_updated_label, View.VISIBLE);
             views.setViewVisibility(R.id.last_updated_time, View.VISIBLE);
 
             if (!"N/A".equals(previousPrice)) {
