@@ -382,7 +382,9 @@
     "txid": "ID de Transacción",
     "from": "De: {counterparty}",
     "to": "A: {counterparty}",
-    "updating": "Actualizando..."
+    "updating": "Actualizando...",
+    "watchOnlyWarningTitle": "Alerta de estafa",
+    "watchOnlyWarningDescription": "Ten en cuenta que los estafadores suelen usar este tipo de billetera \"solo para ver\" para tratar de robar a los usuarios. Esta billetera no se puede controlar ni enviar desde ella, solo permite ver el saldo."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -644,7 +646,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
