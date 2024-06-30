@@ -5,10 +5,8 @@ import {
   ActivityIndicator,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   PixelRatio,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -132,7 +130,7 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, 
   const amount = formatBalance(value, balanceUnit, true);
 
   const oStyles = StyleSheet.create({
-    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
+    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
     tranContainer: { paddingLeft: 20 },
@@ -197,6 +195,7 @@ const mStyles = StyleSheet.create({
   },
 });
 
+const transparentBackground = { backgroundColor: 'transparent' };
 const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
   const { colors } = useTheme();
   const { txMetadata, saveToDisk } = useStorage();
@@ -234,7 +233,12 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         ]}
         onChangeText={onMemoChange}
       />
-      <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
+      <ListItem
+        title={loc.cc.freezeLabel}
+        containerStyle={transparentBackground}
+        Component={TouchableWithoutFeedback}
+        switch={switchValue}
+      />
       <BlueSpacing20 />
       <View style={mStyles.buttonContainer}>
         <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
@@ -417,12 +421,11 @@ const CoinControl = () => {
           Keyboard.dismiss();
           setOutput(false);
         }}
+        backgroundColor={colors.elevated}
+        contentContainerStyle={styles.modalContent}
       >
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
-        </KeyboardAvoidingView>
+        {output && renderOutputModalContent()}
       </BottomModal>
-
       <FlatList
         ListHeaderComponent={tipCoins}
         data={utxo}
@@ -463,10 +466,6 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
   empty: {
     flex: 1,
