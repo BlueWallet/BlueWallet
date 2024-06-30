@@ -31,7 +31,7 @@ import {
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
-import BottomModal from '../../components/BottomModal';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
@@ -68,9 +68,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number | false>(false);
-  const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
-  const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
-  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+  const shareModalRef = useRef<BottomModalHandle>(null);
+  const provideMnemonicsModalRef = useRef<BottomModalHandle>(null);
+  const mnemonicsModalRef = useRef<BottomModalHandle>(null);
   const [importText, setImportText] = useState('');
   const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
@@ -164,7 +164,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   );
 
   const saveFileButtonAfterOnPress = () => {
-    setIsShareModalVisible(false);
+    shareModalRef.current?.dismiss();
   };
 
   const onSave = async () => {
@@ -226,12 +226,12 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const hideMnemonicsModal = () => {
     Keyboard.dismiss();
-    setIsMnemonicsModalVisible(false);
+    mnemonicsModalRef.current?.dismiss();
   };
 
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal} coverScreen={false}>
+      <BottomModal ref={mnemonicsModalRef} onClose={hideMnemonicsModal}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
@@ -274,14 +274,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
           <Button
             title={loc.multisig.share}
             onPress={() => {
-              setIsMnemonicsModalVisible(false);
+              mnemonicsModalRef.current?.dismiss();
               setTimeout(() => {
-                setIsShareModalVisible(true);
+                shareModalRef.current?.present();
               }, 1000);
             }}
           />
           <BlueSpacing20 />
-          <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current?.dismiss()} />
         </View>
       </BottomModal>
     );
@@ -346,7 +346,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                     setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');
-                    setIsMnemonicsModalVisible(true);
+                    mnemonicsModalRef.current?.present();
                   },
                 }}
                 dashes={MultipleStepsListItemDashType.topAndBottom}
@@ -360,7 +360,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
                   setCurrentlyEditingCosignerNum(el.index + 1);
-                  setIsProvideMnemonicsModalVisible(true);
+                  provideMnemonicsModalRef.current?.present();
                 },
               }}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
@@ -389,7 +389,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                       passphrase: passphrase ?? '',
                       isLoading: false,
                     });
-                    setIsMnemonicsModalVisible(true);
+                    mnemonicsModalRef.current?.present();
                     const fp = wallet.getFingerprint(keyIndex);
                     const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
                     if (!path) {
@@ -485,7 +485,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
-    setIsProvideMnemonicsModalVisible(false);
+    provideMnemonicsModalRef.current?.dismiss();
     setIsSaveButtonDisabled(false);
     setImportText('');
     setAskPassphrase(false);
@@ -509,75 +509,71 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const scanOrOpenFile = async () => {
-    setIsProvideMnemonicsModalVisible(false);
+    provideMnemonicsModalRef.current?.dismiss();
     const scanned = await scanQrHelper(route.name, true);
     setImportText(String(scanned));
-    setIsProvideMnemonicsModalVisible(true);
+    provideMnemonicsModalRef.current?.present();
   };
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
-    setIsProvideMnemonicsModalVisible(false);
+    provideMnemonicsModalRef.current?.dismiss();
     setImportText('');
     setAskPassphrase(false);
   };
 
   const hideShareModal = () => {
-    setIsShareModalVisible(false);
+    shareModalRef.current?.dismiss();
   };
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-            <BlueSpacing20 />
-            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            {isAdvancedModeEnabled && (
-              <>
-                <BlueSpacing10 />
-                <View style={styles.row}>
-                  <BlueText>{loc.wallets.import_passphrase}</BlueText>
-                  <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-                </View>
-              </>
-            )}
-            <BlueSpacing20 />
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
-            )}
-            <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
-          </View>
-        </KeyboardAvoidingView>
+      <BottomModal onClose={hideProvideMnemonicsModal} ref={provideMnemonicsModalRef}>
+        <View style={[styles.modalContent, stylesHook.modalContent]}>
+          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+          {isAdvancedModeEnabled && (
+            <>
+              <BlueSpacing10 />
+              <View style={styles.row}>
+                <BlueText>{loc.wallets.import_passphrase}</BlueText>
+                <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+              </View>
+            </>
+          )}
+          <BlueSpacing20 />
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
+          )}
+          <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+        </View>
       </BottomModal>
     );
   };
 
   const renderShareModal = () => {
     return (
-      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
-          <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>
-              {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-            </Text>
-            <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-            <BlueSpacing20 />
-            <View style={styles.squareButtonWrapper}>
-              <SaveFileButton
-                style={[styles.exportButton, stylesHook.exportButton]}
-                fileContent={exportString}
-                fileName={exportFilename}
-                afterOnPress={saveFileButtonAfterOnPress}
-              >
-                <SquareButton title={loc.multisig.share} />
-              </SaveFileButton>
-            </View>
+      <BottomModal ref={shareModalRef} onClose={hideShareModal}>
+        <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
+          <Text style={[styles.headerText, stylesHook.textDestination]}>
+            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+          </Text>
+          <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+          <BlueSpacing20 />
+          <View style={styles.squareButtonWrapper}>
+            <SaveFileButton
+              style={[styles.exportButton, stylesHook.exportButton]}
+              fileContent={exportString}
+              fileName={exportFilename}
+              afterOnPress={saveFileButtonAfterOnPress}
+            >
+              <SquareButton title={loc.multisig.share} />
+            </SaveFileButton>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </BottomModal>
     );
   };

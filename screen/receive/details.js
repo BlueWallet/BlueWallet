@@ -1,17 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  BackHandler,
-  InteractionManager,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { BackHandler, InteractionManager, Keyboard, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -47,12 +36,12 @@ const ReceiveDetails = () => {
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [isCustom, setIsCustom] = useState(false);
-  const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams } = useExtendedNavigation();
+  const bottomModalRef = useRef(null);
   const { colors } = useTheme();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
@@ -62,11 +51,6 @@ const ReceiveDetails = () => {
   const fetchAddressInterval = useRef();
   const receiveAddressButton = useRef();
   const stylesHook = StyleSheet.create({
-    modalContent: {
-      backgroundColor: colors.modal,
-      borderTopColor: colors.foregroundColor,
-      borderWidth: colors.borderWidth,
-    },
     customAmount: {
       borderColor: colors.formBorder,
       borderBottomColor: colors.formBorder,
@@ -324,16 +308,16 @@ const ReceiveDetails = () => {
 
   const dismissCustomAmountModal = () => {
     Keyboard.dismiss();
-    setIsCustomModalVisible(false);
+    bottomModalRef.current.dismiss();
   };
 
   const showCustomAmountModal = () => {
-    setIsCustomModalVisible(true);
+    bottomModalRef.current.present();
   };
 
   const createCustomAmountAddress = () => {
     setIsCustom(true);
-    setIsCustomModalVisible(false);
+    bottomModalRef.current.dismiss();
     let amount = customAmount;
     switch (customUnit) {
       case BitcoinUnit.BTC:
@@ -357,34 +341,35 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <BottomModal isVisible={isCustomModalVisible} onClose={dismissCustomAmountModal}>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
-            <View style={[styles.customAmount, stylesHook.customAmount]}>
-              <TextInput
-                onChangeText={setCustomLabel}
-                placeholderTextColor="#81868e"
-                placeholder={loc.receive.details_label}
-                value={customLabel || ''}
-                numberOfLines={1}
-                style={[styles.customAmountText, stylesHook.customAmountText]}
-                testID="CustomAmountDescription"
-              />
-            </View>
-            <BlueSpacing20 />
-            <View>
-              <Button
-                testID="CustomAmountSaveButton"
-                style={[styles.modalButton, stylesHook.modalButton]}
-                title={loc.receive.details_create}
-                onPress={createCustomAmountAddress}
-              />
-              <BlueSpacing20 />
-            </View>
-            <BlueSpacing20 />
-          </View>
-        </KeyboardAvoidingView>
+      <BottomModal
+        ref={bottomModalRef}
+        onClose={dismissCustomAmountModal}
+        backgroundColor={colors.modal}
+        contentContainerStyle={styles.modalContent}
+      >
+        <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
+        <View style={[styles.customAmount, stylesHook.customAmount]}>
+          <TextInput
+            onChangeText={setCustomLabel}
+            placeholderTextColor="#81868e"
+            placeholder={loc.receive.details_label}
+            value={customLabel || ''}
+            numberOfLines={1}
+            style={[styles.customAmountText, stylesHook.customAmountText]}
+            testID="CustomAmountDescription"
+          />
+        </View>
+        <BlueSpacing20 />
+        <View>
+          <Button
+            testID="CustomAmountSaveButton"
+            style={[styles.modalButton, stylesHook.modalButton]}
+            title={loc.receive.details_create}
+            onPress={createCustomAmountAddress}
+          />
+          <BlueSpacing20 />
+        </View>
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
@@ -480,10 +465,6 @@ const styles = StyleSheet.create({
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    minHeight: 350,
-    height: 350,
   },
   customAmount: {
     flexDirection: 'row',

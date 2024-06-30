@@ -36,7 +36,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
-import BottomModal from '../../components/BottomModal';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
@@ -91,10 +91,10 @@ const SendDetails = () => {
   const [width, setWidth] = useState(Dimensions.get('window').width);
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
+  const feeModalRef = useRef<BottomModalHandle>(null);
+  const optionsModalRef = useRef<BottomModalHandle>(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
-  const [isFeeSelectionModalVisible, setIsFeeSelectionModalVisible] = useState(false);
-  const [optionsVisible, setOptionsVisible] = useState(false);
   const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean>(false);
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
   const [units, setUnits] = useState<BitcoinUnit[]>([]);
@@ -609,11 +609,16 @@ const SendDetails = () => {
 
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
+      feeModalRef.current?.dismiss();
+      optionsModalRef.current?.dismiss();
       // @ts-ignore idk how to fix FIXME?
+
       navigation.navigate(routeParams.launchedBy, { psbt });
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
+      feeModalRef.current?.dismiss();
+      optionsModalRef.current?.dismiss();
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -628,6 +633,8 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === MultisigHDWallet.type) {
+      feeModalRef.current?.dismiss();
+      optionsModalRef.current?.dismiss();
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -652,6 +659,8 @@ const SendDetails = () => {
       // (ez can be the case for single-address wallet when doing self-payment for consolidation)
       recipients = outputs;
     }
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -685,8 +694,9 @@ const SendDetails = () => {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    setOptionsVisible(false);
     requestCameraAuthorization().then(() => {
+      feeModalRef.current?.dismiss();
+      optionsModalRef.current?.dismiss();
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -707,18 +717,20 @@ const SendDetails = () => {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
     } else {
+      feeModalRef.current?.dismiss();
+      optionsModalRef.current?.dismiss();
       // psbt base64?
 
       // we construct PSBT object and pass to next screen
       // so user can do smth with it:
       const psbt = bitcoin.Psbt.fromBase64(ret.data);
+
       navigation.navigate('PsbtWithHardwareWallet', {
         memo: transactionMemo,
         fromWallet: wallet,
         psbt,
       });
       setIsLoading(false);
-      setOptionsVisible(false);
     }
   };
 
@@ -731,6 +743,8 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importTransaction = async () => {
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -751,7 +765,7 @@ const SendDetails = () => {
         const txhex = psbt.extractTransaction().toHex();
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex });
         setIsLoading(false);
-        setOptionsVisible(false);
+
         return;
       }
 
@@ -762,7 +776,7 @@ const SendDetails = () => {
         const psbt = bitcoin.Psbt.fromBase64(file);
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, psbt });
         setIsLoading(false);
-        setOptionsVisible(false);
+
         return;
       }
 
@@ -771,7 +785,7 @@ const SendDetails = () => {
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, fromWallet: wallet, txhex: file });
         setIsLoading(false);
-        setOptionsVisible(false);
+
         return;
       }
 
@@ -805,6 +819,8 @@ const SendDetails = () => {
   };
 
   const _importTransactionMultisig = async (base64arg: string | false) => {
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     try {
       const base64 = base64arg || (await fs.openSignedTransaction());
       if (!base64) return;
@@ -830,7 +846,6 @@ const SendDetails = () => {
       presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
     }
     setIsLoading(false);
-    setOptionsVisible(false);
   };
 
   const importTransactionMultisig = () => {
@@ -852,7 +867,8 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = () => {
-    setOptionsVisible(false);
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -867,7 +883,7 @@ const SendDetails = () => {
   const handleAddRecipient = async () => {
     console.log('handleAddRecipient');
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
-    setOptionsVisible(false);
+
     await sleep(200); // wait for animation
     scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
@@ -881,7 +897,7 @@ const SendDetails = () => {
       addrs.splice(scrollIndex.current, 1);
       return [...addrs];
     });
-    setOptionsVisible(false);
+
     if (addresses.length === 0) return;
     await sleep(200); // wait for animation
     scrollView.current?.flashScrollIndicators();
@@ -890,7 +906,8 @@ const SendDetails = () => {
 
   const handleCoinControl = () => {
     if (!wallet) return;
-    setOptionsVisible(false);
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
@@ -899,13 +916,16 @@ const SendDetails = () => {
 
   const handleInsertContact = () => {
     if (!wallet) return;
-    setOptionsVisible(false);
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
   const handlePsbtSign = async () => {
     setIsLoading(true);
-    setOptionsVisible(false);
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
+
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
     const scannedData = await scanQrHelper(name);
     if (!scannedData) return setIsLoading(false);
@@ -947,7 +967,6 @@ const SendDetails = () => {
 
   const hideOptions = () => {
     Keyboard.dismiss();
-    setOptionsVisible(false);
   };
 
   // Header Right Button
@@ -1071,7 +1090,8 @@ const SendDetails = () => {
             style={styles.advancedOptions}
             onPress={() => {
               Keyboard.dismiss();
-              setOptionsVisible(true);
+              feeModalRef.current?.dismiss();
+              optionsModalRef.current?.present();
             }}
             testID="advancedOptionsMenuButton"
           >
@@ -1127,7 +1147,6 @@ const SendDetails = () => {
               return [...u];
             });
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            setOptionsVisible(false);
           },
           style: 'default',
         },
@@ -1237,69 +1256,67 @@ const SendDetails = () => {
     ];
 
     return (
-      <BottomModal isVisible={isFeeSelectionModalVisible} onClose={() => setIsFeeSelectionModalVisible(false)}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            {options.map(({ label, time, fee, rate, active, disabled }, index) => (
-              <TouchableOpacity
-                accessibilityRole="button"
-                key={label}
-                disabled={disabled}
-                onPress={() => {
-                  setFeePrecalc(fp => ({ ...fp, current: fee }));
-                  setIsFeeSelectionModalVisible(false);
-                  setCustomFee(rate.toString());
-                }}
-                style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
-              >
-                <View style={styles.feeModalRow}>
-                  <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
-                    {label}
-                  </Text>
-                  <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
-                    <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
-                  </View>
-                </View>
-                <View style={styles.feeModalRow}>
-                  <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-                  <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                    {rate} {loc.units.sat_vbyte}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+      <BottomModal ref={feeModalRef}>
+        <View style={[styles.modalContent, stylesHook.modalContent]}>
+          {options.map(({ label, time, fee, rate, active, disabled }, index) => (
             <TouchableOpacity
-              testID="feeCustom"
               accessibilityRole="button"
-              style={styles.feeModalCustom}
-              onPress={async () => {
-                let error = loc.send.fee_satvbyte;
-                while (true) {
-                  let fee: number | string;
+              key={label}
+              disabled={disabled}
+              onPress={() => {
+                setFeePrecalc(fp => ({ ...fp, current: fee }));
+                feeModalRef.current?.dismiss();
+                setCustomFee(rate.toString());
+              }}
+              style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
+            >
+              <View style={styles.feeModalRow}>
+                <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
+                  {label}
+                </Text>
+                <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
+                  <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
+                </View>
+              </View>
+              <View style={styles.feeModalRow}>
+                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
+                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
+                  {rate} {loc.units.sat_vbyte}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            testID="feeCustom"
+            accessibilityRole="button"
+            style={styles.feeModalCustom}
+            onPress={async () => {
+              let error = loc.send.fee_satvbyte;
+              while (true) {
+                let fee: number | string;
 
-                  try {
-                    fee = await prompt(loc.send.create_fee, error, true, 'numeric');
-                  } catch (_) {
-                    return;
-                  }
-
-                  if (!/^\d+$/.test(fee)) {
-                    error = loc.send.details_fee_field_is_not_valid;
-                    continue;
-                  }
-
-                  if (Number(fee) < 1) fee = '1';
-                  fee = Number(fee).toString(); // this will remove leading zeros if any
-                  setCustomFee(fee);
-                  setIsFeeSelectionModalVisible(false);
+                try {
+                  fee = await prompt(loc.send.create_fee, error, true, 'numeric');
+                } catch (_) {
                   return;
                 }
-              }}
-            >
-              <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
+
+                if (!/^\d+$/.test(fee)) {
+                  error = loc.send.details_fee_field_is_not_valid;
+                  continue;
+                }
+
+                if (Number(fee) < 1) fee = '1';
+                fee = Number(fee).toString(); // this will remove leading zeros if any
+                setCustomFee(fee);
+                feeModalRef.current?.dismiss();
+                return;
+              }
+            }}
+          >
+            <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
+          </TouchableOpacity>
+        </View>
       </BottomModal>
     );
   };
@@ -1308,56 +1325,57 @@ const SendDetails = () => {
     const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
     return (
-      <BottomModal isVisible={optionsVisible} onClose={hideOptions}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={undefined}>
-          <View style={[styles.optionsContent, stylesHook.optionsContent]}>
-            {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
-              <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
-            )}
-            {isEditable && (
-              <ListItem
-                testID="sendMaxButton"
-                disabled={balance === 0 || isSendMaxUsed}
-                title={loc.send.details_adv_full}
-                onPress={onUseAllPressed}
-              />
-            )}
-            {wallet?.type === HDSegwitBech32Wallet.type && isEditable && (
-              <ListItem
-                title={loc.send.details_adv_fee_bump}
-                Component={TouchableWithoutFeedback}
-                switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
-              />
-            )}
-            {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
-            )}
-            {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-              <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
-            )}
-            {wallet?.type === MultisigHDWallet.type && isEditable && (
-              <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
-            )}
-            {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-              <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
-            )}
-            {isEditable && (
-              <>
-                <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
-                <ListItem
-                  testID="RemoveRecipient"
-                  title={loc.send.details_add_rec_rem}
-                  disabled={addresses.length < 2}
-                  onPress={handleRemoveRecipient}
-                />
-              </>
-            )}
-            <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
-            {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
-              <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
-            )}
-          </View>
-        </KeyboardAvoidingView>
+      <BottomModal
+        ref={optionsModalRef}
+        onClose={hideOptions}
+        backgroundColor={colors.modal}
+        contentContainerStyle={[styles.optionsContent, stylesHook.optionsContent]}
+      >
+        {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+          <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
+        )}
+        {isEditable && (
+          <ListItem
+            testID="sendMaxButton"
+            disabled={balance === 0 || isSendMaxUsed}
+            title={loc.send.details_adv_full}
+            onPress={onUseAllPressed}
+          />
+        )}
+        {wallet?.type === HDSegwitBech32Wallet.type && isEditable && (
+          <ListItem
+            title={loc.send.details_adv_fee_bump}
+            Component={TouchableWithoutFeedback}
+            switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
+          />
+        )}
+        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
+          <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
+        )}
+        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
+          <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
+        )}
+        {wallet?.type === MultisigHDWallet.type && isEditable && (
+          <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
+        )}
+        {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
+          <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
+        )}
+        {isEditable && (
+          <>
+            <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
+            <ListItem
+              testID="RemoveRecipient"
+              title={loc.send.details_add_rec_rem}
+              disabled={addresses.length < 2}
+              onPress={handleRemoveRecipient}
+            />
+          </>
+        )}
+        <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
+        {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
+          <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
+        )}
       </BottomModal>
     );
   };
@@ -1400,7 +1418,11 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
+            onPress={() => {
+              feeModalRef.current?.dismiss();
+              optionsModalRef.current?.dismiss();
+              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+            }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
@@ -1410,7 +1432,11 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN })}
+            onPress={() => {
+              feeModalRef.current?.dismiss();
+              optionsModalRef.current?.dismiss();
+              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+            }}
             disabled={!isEditable || isLoading}
           >
             <Text style={[styles.selectLabel, stylesHook.selectLabel]}>{wallet?.getLabel()}</Text>
@@ -1558,7 +1584,7 @@ const SendDetails = () => {
           <TouchableOpacity
             testID="chooseFee"
             accessibilityRole="button"
-            onPress={() => setIsFeeSelectionModalVisible(true)}
+            onPress={() => feeModalRef.current?.present()}
             disabled={isLoading}
             style={styles.fee}
           >
@@ -1641,15 +1667,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    minHeight: 200,
   },
   optionsContent: {
     padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    minHeight: 130,
   },
   feeModalItem: {
     paddingHorizontal: 16,

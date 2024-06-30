@@ -256,6 +256,7 @@ const CoinControl = () => {
   const { colors } = useTheme();
   const navigation = useNavigation();
   const { width } = useWindowDimensions();
+  const bottomModalRef = useRef(null);
   const { walletID, onUTXOChoose } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -386,6 +387,14 @@ const CoinControl = () => {
     return <OutputModalContent output={output} wallet={wallet} onUseCoin={handleUseCoin} frozen={oFrozen} setFrozen={setOFrozen} />;
   };
 
+  useEffect(() => {
+    if (output) {
+      bottomModalRef.current?.present();
+    } else {
+      bottomModalRef.current?.dismiss();
+    }
+  }, [output]);
+
   if (loading) {
     return (
       <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
@@ -403,7 +412,7 @@ const CoinControl = () => {
       )}
 
       <BottomModal
-        isVisible={Boolean(output)}
+        ref={bottomModalRef}
         onClose={() => {
           Keyboard.dismiss();
           setOutput(false);

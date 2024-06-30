@@ -6,7 +6,7 @@ import { BlueLoading, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../
 import { LightningLdkWallet } from '../../class';
 import { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import BottomModal from '../../components/BottomModal';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import LNNodeBar from '../../components/LNNodeBar';
 import navigationStyle from '../../components/navigationStyle';
@@ -46,6 +46,7 @@ const LdkInfo = () => {
   const [pendingChannels, setPendingChannels] = useState<any[]>([]);
   const [wBalance, setWalletBalance] = useState<{ confirmedBalance?: number }>({});
   const [maturingBalance, setMaturingBalance] = useState(0);
+  const bottomModalRef = useRef<BottomModalHandle>(null);
   const [maturingEta, setMaturingEta] = useState('');
   const centerContent = channels.length === 0 && pendingChannels.length === 0 && inactiveChannels.length === 0;
   const allChannelsAmount = useRef(0);
@@ -210,6 +211,7 @@ const LdkInfo = () => {
   const closeModal = () => {
     Keyboard.dismiss();
     setSelectedChannelIndex(undefined);
+    bottomModalRef.current?.dismiss();
   };
 
   const handleOnConnectPeerTapped = async (channelData: any) => {
@@ -222,7 +224,7 @@ const LdkInfo = () => {
     const status = selectedChannelIndex?.status;
     const channelData = selectedChannelIndex?.channel.item;
     return (
-      <BottomModal isVisible={selectedChannelIndex !== undefined} onClose={closeModal} avoidKeyboard>
+      <BottomModal ref={bottomModalRef}>
         <View style={[styles.modalContent, stylesHook.modalContent]}>
           <Text style={stylesHook.detailsText}>{loc.lnd.node_alias}</Text>
           <BlueSpacing10 />
