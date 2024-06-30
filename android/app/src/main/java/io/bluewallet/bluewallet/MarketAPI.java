@@ -1,5 +1,8 @@
 package io.bluewallet.bluewallet;
 
+import android.content.Context;
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,6 +13,7 @@ import java.net.URL;
 
 public class MarketAPI {
 
+    private static final String TAG = "MarketAPI";
     private static final String HARD_CODED_JSON = "{\n" +
             "    \"USD\": {\n" +
             "        \"endPointKey\": \"USD\",\n" +
@@ -20,7 +24,7 @@ public class MarketAPI {
             "    }\n" +
             "}";
 
-    public static String fetchPrice(String currency) {
+    public static String fetchPrice(Context context, String currency) {
         try {
             JSONObject json = new JSONObject(HARD_CODED_JSON);
             JSONObject currencyInfo = json.getJSONObject(currency);
@@ -28,6 +32,7 @@ public class MarketAPI {
             String endPointKey = currencyInfo.getString("endPointKey");
 
             String urlString = buildURLString(source, endPointKey);
+            Log.d(TAG, "Fetching from URL: " + urlString);
             URI uri = new URI(urlString);
             URL url = uri.toURL();
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
