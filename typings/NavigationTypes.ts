@@ -1,9 +1,9 @@
 export type AddWalletStackParamList = {
   AddWallet: undefined;
-  ImportWallet: undefined;
-  ImportWalletDiscovery: undefined;
+  ImportWallet: { label?: string; triggerImport?: boolean };
+  ImportWalletDiscovery: { importText: string; askPassphrase: boolean; searchAccounts: boolean };
+  ImportCustomDerivationPath: { importText: string; password?: string };
   ImportSpeed: undefined;
-  ImportCustomDerivationPath: undefined;
   PleaseBackup: undefined;
   PleaseBackupLNDHub: undefined;
   PleaseBackupLdk: undefined;

@@ -28,10 +28,15 @@ import type { TWallet } from './wallets/types';
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
 
-type TReturn = {
+type TStatus = {
   cancelled: boolean;
   stopped: boolean;
   wallets: TWallet[];
+};
+
+export type TImport = {
+  promise: Promise<TStatus>;
+  stop: () => void;
 };
 
 /**
@@ -52,13 +57,13 @@ const startImport = (
   onProgress: (name: string) => void,
   onWallet: (wallet: TWallet) => void,
   onPassword: (title: string, text: string) => Promise<string>,
-): { promise: Promise<TReturn>; stop: () => void } => {
+): TImport => {
   // state
-  let promiseResolve: (arg: TReturn) => void;
+  let promiseResolve: (arg: TStatus) => void;
   let promiseReject: (reason?: any) => void;
   let running = true; // if you put it to false, internal generator stops
   const wallets: TWallet[] = [];
-  const promise = new Promise<TReturn>((resolve, reject) => {
+  const promise = new Promise<TStatus>((resolve, reject) => {
     promiseResolve = resolve;
     promiseReject = reject;
   });
