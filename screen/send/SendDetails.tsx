@@ -1165,16 +1165,6 @@ const SendDetails = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    modalContent: {
-      backgroundColor: colors.modal,
-      borderTopColor: colors.borderTopColor,
-      borderWidth: colors.borderWidth,
-    },
-    optionsContent: {
-      backgroundColor: colors.modal,
-      borderTopColor: colors.borderTopColor,
-      borderWidth: colors.borderWidth,
-    },
     feeModalItemActive: {
       backgroundColor: colors.feeActive,
     },
@@ -1256,40 +1246,15 @@ const SendDetails = () => {
     ];
 
     return (
-      <BottomModal ref={feeModalRef}>
-        <View style={[styles.modalContent, stylesHook.modalContent]}>
-          {options.map(({ label, time, fee, rate, active, disabled }, index) => (
-            <TouchableOpacity
-              accessibilityRole="button"
-              key={label}
-              disabled={disabled}
-              onPress={() => {
-                setFeePrecalc(fp => ({ ...fp, current: fee }));
-                feeModalRef.current?.dismiss();
-                setCustomFee(rate.toString());
-              }}
-              style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
-            >
-              <View style={styles.feeModalRow}>
-                <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
-                  {label}
-                </Text>
-                <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
-                  <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
-                </View>
-              </View>
-              <View style={styles.feeModalRow}>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                  {rate} {loc.units.sat_vbyte}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+      <BottomModal
+        ref={feeModalRef}
+        backgroundColor={colors.modal}
+        contentContainerStyle={styles.modalContent}
+        footerDefaultMargins
+        footer={
           <TouchableOpacity
             testID="feeCustom"
             accessibilityRole="button"
-            style={styles.feeModalCustom}
             onPress={async () => {
               let error = loc.send.fee_satvbyte;
               while (true) {
@@ -1316,7 +1281,34 @@ const SendDetails = () => {
           >
             <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
           </TouchableOpacity>
-        </View>
+        }
+      >
+        {options.map(({ label, time, fee, rate, active, disabled }) => (
+          <TouchableOpacity
+            accessibilityRole="button"
+            key={label}
+            disabled={disabled}
+            onPress={() => {
+              setFeePrecalc(fp => ({ ...fp, current: fee }));
+              feeModalRef.current?.dismiss();
+              setCustomFee(rate.toString());
+            }}
+            style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
+          >
+            <View style={styles.feeModalRow}>
+              <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>{label}</Text>
+              <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
+                <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
+              </View>
+            </View>
+            <View style={styles.feeModalRow}>
+              <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
+              <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
+                {rate} {loc.units.sat_vbyte}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        ))}
       </BottomModal>
     );
   };
@@ -1325,12 +1317,7 @@ const SendDetails = () => {
     const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
     return (
-      <BottomModal
-        ref={optionsModalRef}
-        onClose={hideOptions}
-        backgroundColor={colors.modal}
-        contentContainerStyle={[styles.optionsContent, stylesHook.optionsContent]}
-      >
+      <BottomModal ref={optionsModalRef} onClose={hideOptions} backgroundColor={colors.modal} contentContainerStyle={styles.optionsContent}>
         {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
           <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
         )}
@@ -1666,7 +1653,7 @@ const styles = StyleSheet.create({
     right: 8,
   },
   modalContent: {
-    padding: 22,
+    margin: 22,
   },
   optionsContent: {
     padding: 22,
@@ -1692,11 +1679,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 6,
     paddingVertical: 3,
-  },
-  feeModalCustom: {
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   feeModalCustomText: {
     fontSize: 15,

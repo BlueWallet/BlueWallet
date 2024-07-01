@@ -1,5 +1,6 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
+import { StyleSheet, View } from 'react-native';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -7,6 +8,8 @@ interface BottomModalProps extends TrueSheetProps {
   name?: string;
   isGrabberVisible?: boolean;
   sizes?: SheetSize[] | undefined;
+  footer?: ReactElement | ComponentType<any>;
+  footerDefaultMargins?: boolean | number;
 }
 
 export interface BottomModalHandle {
@@ -15,7 +18,10 @@ export interface BottomModalHandle {
 }
 
 const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
-  ({ name, onClose, onPresent, onSizeChange, isGrabberVisible = true, sizes = ['auto'], children, ...props }, ref) => {
+  (
+    { name, onClose, onPresent, onSizeChange, isGrabberVisible = true, sizes = ['auto'], footer, footerDefaultMargins, children, ...props },
+    ref,
+  ) => {
     const trueSheetRef = useRef<TrueSheet>(null);
 
     useImperativeHandle(ref, () => ({
@@ -35,6 +41,19 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       },
     }));
 
+    const stlyes = StyleSheet.create({
+      footerContainer: { padding: typeof footerDefaultMargins === 'number' ? footerDefaultMargins : 40, alignItems: 'center' },
+    });
+
+    let FooterComponent: ReactElement | ComponentType<any> | undefined;
+    if (footer) {
+      if (React.isValidElement(footer)) {
+        FooterComponent = footerDefaultMargins ? <View style={stlyes.footerContainer}>{footer}</View> : footer;
+      } else {
+        FooterComponent = footer;
+      }
+    }
+
     return (
       <TrueSheet
         name={name ?? 'BottomModal'}
@@ -46,7 +65,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-
+        FooterComponent={FooterComponent}
         {...props}
       >
         {children}

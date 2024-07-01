@@ -7,7 +7,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AmountInput from '../../components/AmountInput';
 import BottomModal from '../../components/BottomModal';
@@ -346,6 +346,15 @@ const ReceiveDetails = () => {
         onClose={dismissCustomAmountModal}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
+        footerDefaultMarginsEnabled
+        footer={
+          <Button
+            testID="CustomAmountSaveButton"
+            style={[styles.modalButton, stylesHook.modalButton]}
+            title={loc.receive.details_create}
+            onPress={createCustomAmountAddress}
+          />
+        }
       >
         <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
         <View style={[styles.customAmount, stylesHook.customAmount]}>
@@ -359,17 +368,6 @@ const ReceiveDetails = () => {
             testID="CustomAmountDescription"
           />
         </View>
-        <BlueSpacing20 />
-        <View>
-          <Button
-            testID="CustomAmountSaveButton"
-            style={[styles.modalButton, stylesHook.modalButton]}
-            title={loc.receive.details_create}
-            onPress={createCustomAmountAddress}
-          />
-          <BlueSpacing20 />
-        </View>
-        <BlueSpacing20 />
       </BottomModal>
     );
   };

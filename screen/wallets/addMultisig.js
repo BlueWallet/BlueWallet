@@ -103,7 +103,12 @@ const WalletsAddMultisig = () => {
 
   const renderModal = () => {
     return (
-      <BottomModal sizes={['auto', 'large']} ref={bottomModalRef} contentContainerStyle={styles.modalContentShort} backgroundColor={stylesHook.modalContentShort}>
+      <BottomModal
+        sizes={['auto', 'large']}
+        ref={bottomModalRef}
+        contentContainerStyle={styles.modalContentShort}
+        backgroundColor={stylesHook.modalContentShort}
+      >
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>
         <View style={styles.rowCenter}>
