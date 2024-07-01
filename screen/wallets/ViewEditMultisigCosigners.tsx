@@ -92,9 +92,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     textDestination: {
       color: colors.foregroundColor,
     },
-    modalContent: {
-      backgroundColor: colors.elevated,
-    },
     exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
@@ -224,65 +221,60 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const hideMnemonicsModal = () => {
-    Keyboard.dismiss();
-    mnemonicsModalRef.current?.dismiss();
-  };
-
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal ref={mnemonicsModalRef} onClose={hideMnemonicsModal}>
-        <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
-          <View style={styles.itemKeyUnprovidedWrapper}>
-            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-            </View>
-            <View style={styles.vaultKeyTextWrapper}>
-              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-              </Text>
-            </View>
-          </View>
-          <BlueSpacing20 />
-          {vaultKeyData.xpub.length > 1 && (
-            <>
-              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
-              <BlueSpacing10 />
-              <SquareEnumeratedWords
-                contentAlign={SquareEnumeratedWordsContentAlign.left}
-                entries={[vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path]}
-                appendNumber={false}
-              />
-            </>
-          )}
-          {vaultKeyData.seed.length > 1 && (
-            <>
-              <BlueSpacing20 />
-              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
-              <BlueSpacing10 />
-              <SquareEnumeratedWords
-                contentAlign={SquareEnumeratedWordsContentAlign.left}
-                entries={vaultKeyData.seed.split(' ')}
-                appendNumber
-              />
-              {vaultKeyData.passphrase.length > 1 && (
-                <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
-              )}
-            </>
-          )}
-          <BlueSpacing20 />
+      <BottomModal
+        ref={mnemonicsModalRef}
+        footerDefaultMargins
+        backgroundColor={colors.elevated}
+        contentContainerStyle={styles.newKeyModalContent}
+        footer={
           <Button
             title={loc.multisig.share}
             onPress={() => {
-              mnemonicsModalRef.current?.dismiss();
-              setTimeout(() => {
-                shareModalRef.current?.present();
-              }, 1000);
+              shareModalRef.current?.present();
             }}
           />
-          <BlueSpacing20 />
-          <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current?.dismiss()} />
+        }
+      >
+        <View style={styles.itemKeyUnprovidedWrapper}>
+          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+          </View>
+          <View style={styles.vaultKeyTextWrapper}>
+            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+            </Text>
+          </View>
         </View>
+        <BlueSpacing20 />
+        {vaultKeyData.xpub.length > 1 && (
+          <>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
+            <BlueSpacing10 />
+            <SquareEnumeratedWords
+              contentAlign={SquareEnumeratedWordsContentAlign.left}
+              entries={[vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path]}
+              appendNumber={false}
+            />
+          </>
+        )}
+        {vaultKeyData.seed.length > 1 && (
+          <>
+            <BlueSpacing20 />
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
+            <BlueSpacing10 />
+            <SquareEnumeratedWords
+              contentAlign={SquareEnumeratedWordsContentAlign.left}
+              entries={vaultKeyData.seed.split(' ')}
+              appendNumber
+            />
+            {vaultKeyData.passphrase.length > 1 && (
+              <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
+            )}
+          </>
+        )}
+        {renderShareModal()}
       </BottomModal>
     );
   };
@@ -509,7 +501,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const scanOrOpenFile = async () => {
-    provideMnemonicsModalRef.current?.dismiss();
     const scanned = await scanQrHelper(route.name, true);
     setImportText(String(scanned));
     provideMnemonicsModalRef.current?.present();
@@ -522,57 +513,65 @@ const ViewEditMultisigCosigners: React.FC = () => {
     setAskPassphrase(false);
   };
 
-  const hideShareModal = () => {
-    shareModalRef.current?.dismiss();
-  };
+  const hideShareModal = () => {};
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <BottomModal onClose={hideProvideMnemonicsModal} ref={provideMnemonicsModalRef}>
-        <View style={[styles.modalContent, stylesHook.modalContent]}>
-          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-          <BlueSpacing20 />
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-          {isAdvancedModeEnabled && (
-            <>
-              <BlueSpacing10 />
-              <View style={styles.row}>
-                <BlueText>{loc.wallets.import_passphrase}</BlueText>
-                <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-              </View>
-            </>
-          )}
-          <BlueSpacing20 />
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
-          )}
-          <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
-        </View>
+      <BottomModal
+        onClose={hideProvideMnemonicsModal}
+        ref={provideMnemonicsModalRef}
+        contentContainerStyle={styles.newKeyModalContent}
+        backgroundColor={colors.elevated}
+        footerDefaultMargins
+        footer={
+          <>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
+            )}
+            <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+          </>
+        }
+      >
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        <BlueSpacing20 />
+        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        {isAdvancedModeEnabled && (
+          <>
+            <BlueSpacing10 />
+            <View style={styles.row}>
+              <BlueText>{loc.wallets.import_passphrase}</BlueText>
+              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+            </View>
+          </>
+        )}
       </BottomModal>
     );
   };
 
   const renderShareModal = () => {
     return (
-      <BottomModal ref={shareModalRef} onClose={hideShareModal}>
-        <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-          <Text style={[styles.headerText, stylesHook.textDestination]}>
-            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-          </Text>
-          <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-          <BlueSpacing20 />
-          <View style={styles.squareButtonWrapper}>
-            <SaveFileButton
-              style={[styles.exportButton, stylesHook.exportButton]}
-              fileContent={exportString}
-              fileName={exportFilename}
-              afterOnPress={saveFileButtonAfterOnPress}
-            >
-              <SquareButton title={loc.multisig.share} />
-            </SaveFileButton>
-          </View>
+      <BottomModal
+        ref={shareModalRef}
+        onClose={hideShareModal}
+        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
+        backgroundColor={colors.elevated}
+      >
+        <Text style={[styles.headerText, stylesHook.textDestination]}>
+          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+        </Text>
+        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+        <BlueSpacing20 />
+        <View style={styles.squareButtonWrapper}>
+          <SaveFileButton
+            style={[styles.exportButton, stylesHook.exportButton]}
+            fileContent={exportString}
+            fileName={exportFilename}
+            afterOnPress={saveFileButtonAfterOnPress}
+          >
+            <SquareButton title={loc.multisig.share} />
+          </SaveFileButton>
         </View>
       </BottomModal>
     );
@@ -639,8 +638,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       {renderProvideMnemonicsModal()}
 
-      {renderShareModal()}
-
       {renderMnemonicsModal()}
     </View>
   );
@@ -657,20 +654,14 @@ const styles = StyleSheet.create({
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingVertical: 32,
+    paddingTop: 32,
     justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 300,
   },
   modalContent: {
     padding: 22,
     justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
     backgroundColor: 'white',
-    minHeight: 400,
   },
   vaultKeyCircleSuccess: {
     width: 42,
