@@ -11,6 +11,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentControl';
 import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -123,10 +124,10 @@ const WalletAddresses: React.FC = () => {
   const addressList = useRef<FlatList<Address>>(null);
   const wallet = wallets.find((w: any) => w.getID() === walletID);
 
-  const balanceUnit = wallet?.getPreferredBalanceUnit();
+  const balanceUnit = wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC;
   const isWatchOnly = wallet?.type === WatchOnlyWallet.type;
   const walletInstance = isWatchOnly ? wallet._hdWalletInstance : wallet;
-  const allowSignVerifyMessage = wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage();
+  const allowSignVerifyMessage = (wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage()) ?? false;
 
   const { colors } = useTheme();
   const { setOptions } = useExtendedNavigation<NavigationProps>();
@@ -189,9 +190,9 @@ const WalletAddresses: React.FC = () => {
 
   const renderRow = useCallback(
     ({ item }: { item: Address }) => {
-      return balanceUnit && allowSignVerifyMessage ? (
+      return (
         <AddressItem item={item} {...item} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />
-      ) : null;
+      );
     },
     [balanceUnit, walletID, allowSignVerifyMessage],
   );

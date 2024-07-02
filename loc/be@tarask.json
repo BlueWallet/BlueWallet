@@ -60,6 +60,7 @@
     "save": "Захаваць"
   },
   "wallets": {
+    "add_entropy": "Энтрапія",
     "details_save": "Захаваць"
   }
 }

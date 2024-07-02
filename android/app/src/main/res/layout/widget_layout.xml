@@ -14,11 +14,11 @@
         android:gravity="end">
         
         <TextView
-            android:id="@+id/last_updated"
+            android:id="@+id/last_updated_label"
             style="@style/WidgetTextSecondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
+            android:text="Last Updated:"
             android:textSize="12sp"
             android:textStyle="bold"
             android:layout_marginEnd="8dp"/>
@@ -66,6 +66,16 @@
                 android:layout_marginBottom="8dp"/>
 
             <TextView
+                android:id="@+id/previous_price_label"
+                style="@style/WidgetTextPrimary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="From:"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
                 android:id="@+id/previous_price"
                 style="@style/WidgetTextPrimary"
                 android:layout_width="wrap_content"
@@ -76,4 +86,11 @@
                 android:layout_marginBottom="8dp"/>
         </LinearLayout>
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 </LinearLayout>

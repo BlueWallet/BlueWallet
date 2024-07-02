@@ -382,7 +382,9 @@
     "txid": "ID de Transacción",
     "from": "De: {counterparty}",
     "to": "A: {counterparty}",
-    "updating": "Actualizando..."
+    "updating": "Actualizando...",
+    "watchOnlyWarningTitle": "Alerta de estafa",
+    "watchOnlyWarningDescription": "Ten en cuenta que los estafadores suelen usar este tipo de billetera \"solo para ver\" para tratar de robar a los usuarios. Esta billetera no se puede controlar ni enviar desde ella, solo permite ver el saldo."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
