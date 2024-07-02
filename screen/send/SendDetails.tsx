@@ -881,7 +881,8 @@ const SendDetails = () => {
   };
 
   const handleAddRecipient = async () => {
-    console.log('handleAddRecipient');
+    console.debug('handleAddRecipient');
+    optionsModalRef.current?.dismiss();
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
     await sleep(200); // wait for animation
@@ -891,6 +892,7 @@ const SendDetails = () => {
   };
 
   const handleRemoveRecipient = async () => {
+    optionsModalRef.current?.dismiss();
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
@@ -906,7 +908,6 @@ const SendDetails = () => {
 
   const handleCoinControl = () => {
     if (!wallet) return;
-    feeModalRef.current?.dismiss();
     optionsModalRef.current?.dismiss();
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
@@ -916,16 +917,13 @@ const SendDetails = () => {
 
   const handleInsertContact = () => {
     if (!wallet) return;
-    feeModalRef.current?.dismiss();
     optionsModalRef.current?.dismiss();
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
   const handlePsbtSign = async () => {
     setIsLoading(true);
-    feeModalRef.current?.dismiss();
     optionsModalRef.current?.dismiss();
-
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
     const scannedData = await scanQrHelper(name);
     if (!scannedData) return setIsLoading(false);
@@ -972,6 +970,8 @@ const SendDetails = () => {
   // Header Right Button
 
   const headerRightOnPress = (id: string) => {
+    feeModalRef.current?.dismiss();
+    optionsModalRef.current?.dismiss();
     if (id === SendDetails.actionKeys.AddRecipient) {
       handleAddRecipient();
     } else if (id === SendDetails.actionKeys.RemoveRecipient) {
