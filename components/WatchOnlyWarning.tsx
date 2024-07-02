@@ -25,7 +25,7 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss, isLoading }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ff4c4c',
+    backgroundColor: '#fc990e',
     padding: 16,
     margin: 16,
     borderRadius: 8,
