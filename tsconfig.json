@@ -6,14 +6,15 @@
     "isolatedModules": true,
     "jsx": "react",
     "lib": ["es2020"],
-    "moduleResolution": "node",
     "noEmit": true,
     "strict": true,
     "target": "esnext",
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "module": "esnext",
+    "paths": {
+    }
   },
-  "extends": "@tsconfig/react-native/tsconfig.json",
-  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "exclude": ["node_modules", "babel.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
 }

@@ -1,5 +1,6 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
+apply plugin: "org.jetbrains.kotlin.android"
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -70,7 +71,7 @@ def jscFlavor = 'org.webkit:android-jsc-intl:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "io.bluewallet.bluewallet"
