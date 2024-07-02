@@ -466,6 +466,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
+    minHeight: 400,
   },
   empty: {
     flex: 1,

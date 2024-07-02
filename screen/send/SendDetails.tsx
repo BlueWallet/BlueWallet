@@ -1127,6 +1127,7 @@ const SendDetails = () => {
   };
 
   const onUseAllPressed = () => {
+    optionsModalRef.current?.dismiss();
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
