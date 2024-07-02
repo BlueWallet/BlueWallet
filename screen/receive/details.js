@@ -346,7 +346,7 @@ const ReceiveDetails = () => {
         onClose={dismissCustomAmountModal}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
-        footerDefaultMarginsEnabled
+        footerDefaultMargins
         footer={
           <Button
             testID="CustomAmountSaveButton"

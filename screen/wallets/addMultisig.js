@@ -34,9 +34,6 @@ const WalletsAddMultisig = () => {
     textdesc: {
       color: colors.alternativeTextColor,
     },
-    modalContentShort: {
-      backgroundColor: colors.elevated,
-    },
     textSubtitle: {
       color: colors.alternativeTextColor,
     },
@@ -107,7 +104,7 @@ const WalletsAddMultisig = () => {
         sizes={['auto', 'large']}
         ref={bottomModalRef}
         contentContainerStyle={styles.modalContentShort}
-        backgroundColor={stylesHook.modalContentShort}
+        backgroundColor={colors.elevated}
       >
         <Text style={[styles.textHeader, stylesHook.textHeader]}>{loc.multisig.quorum_header}</Text>
         <Text style={[styles.textSubtitle, stylesHook.textSubtitle]}>{loc.multisig.required_keys_out_of_total}</Text>

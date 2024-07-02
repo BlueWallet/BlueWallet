@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
-import { SheetSize, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
+import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
 import { StyleSheet, View } from 'react-native';
 
 interface BottomModalProps extends TrueSheetProps {
@@ -10,6 +10,8 @@ interface BottomModalProps extends TrueSheetProps {
   sizes?: SheetSize[] | undefined;
   footer?: ReactElement | ComponentType<any>;
   footerDefaultMargins?: boolean | number;
+  onPresent?: () => void;
+  onSizeChange?: (size: SizeInfo) => void;
 }
 
 export interface BottomModalHandle {
@@ -42,7 +44,11 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     }));
 
     const stlyes = StyleSheet.create({
-      footerContainer: { padding: typeof footerDefaultMargins === 'number' ? footerDefaultMargins : 40, alignItems: 'center' },
+      footerContainer: {
+        padding: typeof footerDefaultMargins === 'number' ? footerDefaultMargins : 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
     });
 
     let FooterComponent: ReactElement | ComponentType<any> | undefined;
@@ -60,13 +66,13 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         ref={trueSheetRef}
         cornerRadius={24}
         sizes={sizes}
-        blurTint="regular"
         onDismiss={onClose}
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
         FooterComponent={FooterComponent}
         {...props}
+        blurTint="regular"
       >
         {children}
       </TrueSheet>
