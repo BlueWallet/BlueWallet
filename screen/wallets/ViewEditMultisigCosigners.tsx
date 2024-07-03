@@ -165,6 +165,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const onSave = async () => {
+    dismissAllModals();
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
@@ -443,6 +444,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
+  const dismissAllModals = () => {
+    provideMnemonicsModalRef.current?.dismiss();
+    shareModalRef.current?.dismiss();
+    mnemonicsModalRef.current?.dismiss();
+  };
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
     if (askPassphrase) {

@@ -43,9 +43,8 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       },
     }));
 
-    const stlyes = StyleSheet.create({
+    const styles = StyleSheet.create({
       footerContainer: {
-        padding: typeof footerDefaultMargins === 'number' ? footerDefaultMargins : 40,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -54,7 +53,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
     let FooterComponent: ReactElement | ComponentType<any> | undefined;
     if (footer) {
       if (React.isValidElement(footer)) {
-        FooterComponent = footerDefaultMargins ? <View style={stlyes.footerContainer}>{footer}</View> : footer;
+        FooterComponent = footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
       } else {
         FooterComponent = footer;
       }

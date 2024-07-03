@@ -1,5 +1,5 @@
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -15,7 +15,6 @@ import {
   View,
 } from 'react-native';
 import { Icon } from '@rneui/themed';
-
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
@@ -39,6 +38,7 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const staticCache = {};
 
@@ -47,7 +47,7 @@ const WalletsAddMultisigStep2 = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
   const { name } = useRoute();
 
@@ -90,7 +90,14 @@ const WalletsAddMultisigStep2 = () => {
   }, [currentSharedCosigner]);
 
   const handleOnHelpPress = () => {
+    dismissAllModals();
     navigation.navigate('WalletsAddMultisigHelp');
+  };
+
+  const dismissAllModals = () => {
+    mnemonicsModalRef.current?.dismiss();
+    provideMnemonicsModalRef.current?.dismiss();
+    renderCosignersXpubModalRef.current?.dismiss();
   };
 
   const stylesHook = StyleSheet.create({
@@ -171,6 +178,7 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    dismissAllModals();
     navigation.getParent().goBack();
   };
 

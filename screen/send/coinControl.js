@@ -1,6 +1,6 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import PropTypes from 'prop-types';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
   FlatList,
@@ -27,6 +27,7 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -258,7 +259,7 @@ OutputModalContent.propTypes = {
 
 const CoinControl = () => {
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { width } = useWindowDimensions();
   const bottomModalRef = useRef(null);
   const { walletID, onUTXOChoose } = useRoute().params;
@@ -329,6 +330,7 @@ const CoinControl = () => {
   const handleChoose = item => setOutput(item);
 
   const handleUseCoin = u => {
+    bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);

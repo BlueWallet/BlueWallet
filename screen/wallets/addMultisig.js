@@ -1,6 +1,6 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
 
@@ -13,10 +13,11 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const WalletsAddMultisig = () => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
+  const { navigate } = useExtendedNavigation();
   const loadingAnimation = useRef();
   const bottomModalRef = useRef();
   const { walletLabel } = useRoute().params;
@@ -64,6 +65,7 @@ const WalletsAddMultisig = () => {
   }, []);
 
   const onLetsStartPress = () => {
+    bottomModalRef.current?.dismiss();
     navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
   };
 
