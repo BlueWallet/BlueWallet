@@ -341,28 +341,31 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <BottomModal ref={bottomModalRef} onClose={dismissCustomAmountModal} backgroundColor={colors.modal}>
-        <View style={styles.modalContainerJustify}>
-          <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
-          <View style={[styles.customAmount, stylesHook.customAmount]}>
-            <TextInput
-              onChangeText={setCustomLabel}
-              placeholderTextColor="#81868e"
-              placeholder={loc.receive.details_label}
-              value={customLabel || ''}
-              numberOfLines={1}
-              style={[styles.customAmountText, stylesHook.customAmountText]}
-              testID="CustomAmountDescription"
-            />
-          </View>
-          <BlueSpacing40 />
-          <Button
-            testID="CustomAmountSaveButton"
-            style={[styles.modalButton, stylesHook.modalButton]}
-            title={loc.receive.details_create}
-            onPress={createCustomAmountAddress}
+      <BottomModal
+        ref={bottomModalRef}
+        contentContainerStyle={styles.modalContainerJustify}
+        onClose={dismissCustomAmountModal}
+        backgroundColor={colors.modal}
+      >
+        <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
+        <View style={[styles.customAmount, stylesHook.customAmount]}>
+          <TextInput
+            onChangeText={setCustomLabel}
+            placeholderTextColor="#81868e"
+            placeholder={loc.receive.details_label}
+            value={customLabel || ''}
+            numberOfLines={1}
+            style={[styles.customAmountText, stylesHook.customAmountText]}
+            testID="CustomAmountDescription"
           />
         </View>
+        <BlueSpacing40 />
+        <Button
+          testID="CustomAmountSaveButton"
+          style={[styles.modalButton, stylesHook.modalButton]}
+          title={loc.receive.details_create}
+          onPress={createCustomAmountAddress}
+        />
       </BottomModal>
     );
   };
