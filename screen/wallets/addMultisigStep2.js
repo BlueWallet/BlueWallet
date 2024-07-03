@@ -567,7 +567,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal onClose={Keyboard.dismiss} ref={mnemonicsModalRef} isGrabberVisible={false}>
+      <BottomModal onClose={Keyboard.dismiss} ref={mnemonicsModalRef} isGrabberVisible={false} dismissible={false}>
         <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
