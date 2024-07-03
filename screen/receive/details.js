@@ -416,40 +416,42 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
-      {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
-        <View style={styles.tabsContainer}>
-          <SegmentedControl
-            values={segmentControlValues}
-            selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-            onChange={index => {
-              setCurrentTab(segmentControlValues[index]);
-            }}
-          />
-        </View>
-      )}
-      {showAddress && renderTabContent()}
-      {renderCustomAmountModal()}
-      {address !== undefined && showAddress && (
-        <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
-      )}
-      {showConfirmedBalance ? renderConfirmedBalance() : null}
-      {showPendingBalance ? renderPendingBalance() : null}
-      {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
-      <View style={styles.share}>
-        <BlueCard>
-          {showAddress && currentTab === loc.wallets.details_address && (
-            <BlueButtonLink
-              style={styles.link}
-              testID="SetCustomAmountButton"
-              title={loc.receive.details_setAmount}
-              onPress={showCustomAmountModal}
+    <>
+      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+        {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
+          <View style={styles.tabsContainer}>
+            <SegmentedControl
+              values={segmentControlValues}
+              selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
+              onChange={index => {
+                setCurrentTab(segmentControlValues[index]);
+              }}
             />
-          )}
-          <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
-        </BlueCard>
-      </View>
-    </ScrollView>
+          </View>
+        )}
+        {showAddress && renderTabContent()}
+        {address !== undefined && showAddress && (
+          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
+        )}
+        {showConfirmedBalance ? renderConfirmedBalance() : null}
+        {showPendingBalance ? renderPendingBalance() : null}
+        {!showAddress && !showPendingBalance && !showConfirmedBalance ? <BlueLoading /> : null}
+        <View style={styles.share}>
+          <BlueCard>
+            {showAddress && currentTab === loc.wallets.details_address && (
+              <BlueButtonLink
+                style={styles.link}
+                testID="SetCustomAmountButton"
+                title={loc.receive.details_setAmount}
+                onPress={showCustomAmountModal}
+              />
+            )}
+            <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
+          </BlueCard>
+        </View>
+      </ScrollView>
+      {renderCustomAmountModal()}
+    </>
   );
 };
 
