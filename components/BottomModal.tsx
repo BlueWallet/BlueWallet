@@ -72,6 +72,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         FooterComponent={FooterComponent}
         {...props}
         blurTint="regular"
+        accessibilityViewIsModal
       >
         {children}
       </TrueSheet>
