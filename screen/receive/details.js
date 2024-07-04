@@ -1,6 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { BackHandler, InteractionManager, Keyboard, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, InteractionManager, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
