@@ -306,11 +306,6 @@ const ReceiveDetails = () => {
     }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
   );
 
-  const dismissCustomAmountModal = () => {
-    Keyboard.dismiss();
-    bottomModalRef.current.dismiss();
-  };
-
   const showCustomAmountModal = () => {
     bottomModalRef.current.present();
   };
@@ -341,12 +336,7 @@ const ReceiveDetails = () => {
 
   const renderCustomAmountModal = () => {
     return (
-      <BottomModal
-        ref={bottomModalRef}
-        contentContainerStyle={styles.modalContainerJustify}
-        onClose={dismissCustomAmountModal}
-        backgroundColor={colors.modal}
-      >
+      <BottomModal ref={bottomModalRef} contentContainerStyle={styles.modalContainerJustify} backgroundColor={colors.modal}>
         <AmountInput unit={customUnit} amount={customAmount || ''} onChangeText={setCustomAmount} onAmountUnitChange={setCustomUnit} />
         <View style={[styles.customAmount, stylesHook.customAmount]}>
           <TextInput
