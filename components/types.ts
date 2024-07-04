@@ -30,6 +30,7 @@ export interface ToolTipMenuProps {
   style?: ViewStyle | ViewStyle[];
   accessibilityLabel?: string;
   accessibilityHint?: string;
+  accessibilityState?: object;
   buttonStyle?: ViewStyle | ViewStyle[];
   onMenuWillShow?: () => void;
   onMenuWillHide?: () => void;
