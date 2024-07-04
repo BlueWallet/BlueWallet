@@ -148,6 +148,7 @@ const ScanLndInvoice = () => {
   };
 
   const processInvoice = data => {
+    data = data.data ? data.data : data;
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
     if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
