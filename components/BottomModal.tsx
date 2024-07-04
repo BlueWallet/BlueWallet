@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -28,6 +28,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
 
     useImperativeHandle(ref, () => ({
       present: async () => {
+        Keyboard.dismiss();
         if (trueSheetRef.current?.present) {
           await trueSheetRef.current.present();
         } else {
@@ -35,6 +36,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         }
       },
       dismiss: async () => {
+        Keyboard.dismiss();
         if (trueSheetRef.current?.dismiss) {
           await trueSheetRef.current.dismiss();
         } else {
