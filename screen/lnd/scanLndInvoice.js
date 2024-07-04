@@ -148,7 +148,6 @@ const ScanLndInvoice = () => {
   };
 
   const processInvoice = data => {
-    data = data.data ? data.data : data;
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
     if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
@@ -324,7 +323,7 @@ const ScanLndInvoice = () => {
                   text = text.trim();
                   setDestination(text);
                 }}
-                onBarScanned={processInvoice}
+                onBarScanned={data => processTextForInvoice(data.data)}
                 address={destination}
                 isLoading={isLoading}
                 placeholder={loc.lnd.placeholder}
