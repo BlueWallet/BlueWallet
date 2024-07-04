@@ -332,6 +332,12 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     return actions as Action[] | Action[][];
   }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines]);
 
+  const accessibilityState = useMemo(() => {
+    return {
+      expanded: subtitleNumberOfLines === 0,
+    };
+  }, [subtitleNumberOfLines]);
+
   return (
     <ToolTipMenu
       isButton
@@ -340,7 +346,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       onPress={onPress}
       accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
       accessibilityRole="button"
-      accessibilityState={{ expanded: subtitleNumberOfLines === 0 }}
+      accessibilityState={accessibilityState}
     >
       <ListItem
         leftAvatar={avatar}
