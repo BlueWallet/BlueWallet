@@ -400,7 +400,7 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View style={styles.modalButtonContainer}>
-            <Button
+              <Button
                 testID="CustomAmountResetButton"
                 style={[styles.modalButton, stylesHook.modalButton]}
                 title={loc.receive.reset}
@@ -413,7 +413,6 @@ const ReceiveDetails = () => {
                 title={loc.receive.details_create}
                 onPress={createCustomAmountAddress}
               />
-            
             </View>
             <BlueSpacing20 />
           </View>
