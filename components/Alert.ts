@@ -1,7 +1,5 @@
-import { Alert as RNAlert, Platform } from 'react-native';
-
+import { Alert as RNAlert, Platform, ToastAndroid } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { ToastAndroid } from 'react-native/types';
 import loc from '../loc';
 
 export enum AlertType {
