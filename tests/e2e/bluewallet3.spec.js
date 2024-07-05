@@ -43,7 +43,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await device.pressBack();
     await element(by.id('CustomAmountDescription')).typeText('Test');
-    await device.pressBack();
     await element(by.id('CustomAmountSaveButton')).tap();
     await sup('1 BTC');
     await sup('Test');
