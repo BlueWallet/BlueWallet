@@ -15,7 +15,7 @@ static EventEmitter *sharedInstance;
 RCT_EXPORT_MODULE();
 
 + (BOOL)requiresMainQueueSetup {
-    return NO;
+    return YES;
 }
 
 + (EventEmitter *)sharedInstance {
