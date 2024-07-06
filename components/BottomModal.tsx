@@ -1,6 +1,6 @@
-import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, JSXElementConstructor, ReactNode } from 'react';
 import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, Image } from 'react-native';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -12,6 +12,7 @@ interface BottomModalProps extends TrueSheetProps {
   footerDefaultMargins?: boolean | number;
   onPresent?: () => void;
   onSizeChange?: (size: SizeInfo) => void;
+  showCloseButton?: boolean;
 }
 
 export interface BottomModalHandle {
@@ -19,9 +20,40 @@ export interface BottomModalHandle {
   dismiss: () => Promise<void>;
 }
 
+const styles = StyleSheet.create({
+  footerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    top: 20,
+    right: 20,
+    zIndex: 10,
+  },
+});
+
 const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
   (
-    { name, onClose, onPresent, onSizeChange, isGrabberVisible = true, sizes = ['auto'], footer, footerDefaultMargins, children, ...props },
+    {
+      name,
+      onClose,
+      onPresent,
+      onSizeChange,
+      showCloseButton = true,
+      isGrabberVisible = true,
+      sizes = ['auto'],
+      footer,
+      footerDefaultMargins,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const trueSheetRef = useRef<TrueSheet>(null);
@@ -45,21 +77,32 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       },
     }));
 
-    const styles = StyleSheet.create({
-      footerContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-    });
+    const dismiss = () => {
+      trueSheetRef.current?.dismiss();
+    };
 
-    let FooterComponent: ReactElement | ComponentType<any> | undefined;
-    if (footer) {
+    const renderTopRightButton = () =>
+      showCloseButton ? (
+        <TouchableOpacity style={styles.buttonContainer} onPress={dismiss}>
+          <Image source={require('../img/close.png')} width={20} height={20} />
+        </TouchableOpacity>
+      ) : null;
+
+    const renderFooter = (): ReactElement<any, string | JSXElementConstructor<any>> | ComponentType<unknown> | undefined => {
+      // Footer is not working correctly on Android yet.
+      if (Platform.OS === 'android') return undefined;
+      if (!footer) return undefined;
+
       if (React.isValidElement(footer)) {
-        FooterComponent = footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
-      } else {
-        FooterComponent = footer;
+        return footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
+      } else if (typeof footer === 'function') {
+        // Render the footer component dynamically
+        const FooterComponent = footer as ComponentType<any>;
+        return <FooterComponent />;
       }
-    }
+
+      return undefined;
+    };
 
     return (
       <TrueSheet
@@ -71,12 +114,14 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-        FooterComponent={FooterComponent}
+        FooterComponent={renderFooter()}
         {...props}
         blurTint="regular"
         accessibilityViewIsModal
       >
         {children}
+        {renderTopRightButton()}
+        {renderFooter() as ReactNode}
       </TrueSheet>
     );
   },
