@@ -963,10 +963,6 @@ const SendDetails = () => {
     });
   };
 
-  const hideOptions = () => {
-    Keyboard.dismiss();
-  };
-
   // Header Right Button
 
   const headerRightOnPress = (id: string) => {
@@ -1322,7 +1318,7 @@ const SendDetails = () => {
     const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
 
     return (
-      <BottomModal ref={optionsModalRef} onClose={hideOptions} backgroundColor={colors.modal} contentContainerStyle={styles.optionsContent}>
+      <BottomModal ref={optionsModalRef} backgroundColor={colors.modal} contentContainerStyle={styles.optionsContent}>
         {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
           <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
         )}
