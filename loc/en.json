@@ -423,6 +423,8 @@
     "details_display": "Display in Home Screen",
     "details_export_backup": "Export/Backup",
     "details_export_history": "Export History to CSV",
+    "details_import_notes": "Import Notes",
+    "details_import_notes_error": "Failed to import notes. Please make sure that the provided data is valid.",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
     "details_no_cancel": "No, cancel",

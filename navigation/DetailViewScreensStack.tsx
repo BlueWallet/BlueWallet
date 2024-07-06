@@ -66,6 +66,7 @@ import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
+import ImportNotes from '../screen/wallets/ImportNotes';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -132,6 +133,15 @@ const DetailViewStackScreensStack = () => {
           headerTitle: loc.wallets.details_title,
           statusBarStyle: 'auto',
           headerRight: () => SaveButton,
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ImportNotes"
+        component={ImportNotes}
+        options={navigationStyle({
+          closeButtonPosition: CloseButtonPosition.Left,
+          title: loc.wallets.details_import_notes,
+          presentation: 'modal',
         })(theme)}
       />
       <DetailViewStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />

@@ -17,7 +17,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { writeFileAndExport } from '../../blue_modules/fs';
+import { showFilePickerAndReadFile, writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
@@ -425,6 +425,14 @@ const WalletDetails = () => {
     return `${label}-history.csv`;
   }, [wallet]);
 
+  const navigateToImportNotes = () => {
+    showFilePickerAndReadFile().then(data => {
+    navigate('ImportNotes', {
+      importedDataUri: data.uri
+    });
+  });
+  };
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -613,6 +621,8 @@ const WalletDetails = () => {
                     </SaveFileButton>
                   </>
                 )}
+                                      <SecondButton title={loc.wallets.details_import_notes} onPress={navigateToImportNotes} />
+
                 {wallet.type === MultisigHDWallet.type && (
                   <>
                     <BlueSpacing20 />
