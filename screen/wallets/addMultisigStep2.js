@@ -567,42 +567,72 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal onClose={Keyboard.dismiss} ref={mnemonicsModalRef} isGrabberVisible={false} dismissible={false}>
-        <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
-          <View style={styles.itemKeyUnprovidedWrapper}>
-            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-            </View>
-            <View style={styles.vaultKeyTextWrapper}>
-              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-              </Text>
-            </View>
+      <BottomModal
+        ref={mnemonicsModalRef}
+        isGrabberVisible={false}
+        dismissible={false}
+        showCloseButton={!isLoading}
+        footerDefaultMargins
+        contentContainerStyle={[styles.newKeyModalContent, stylesHook.modalContent]}
+        footer={
+          isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
+        }
+      >
+        <View style={styles.itemKeyUnprovidedWrapper}>
+          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
           </View>
-          <BlueSpacing20 />
-          <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created}</Text>
-          <BlueSpacing20 />
-          <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
-          <BlueSpacing10 />
-          <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
-          <BlueSpacing20 />
-          {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />}
+          <View style={styles.vaultKeyTextWrapper}>
+            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+            </Text>
+          </View>
         </View>
+        <BlueSpacing20 />
+        <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created}</Text>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
+        <BlueSpacing10 />
+        <View style={styles.secretContainer}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
 
   const hideProvideMnemonicsModal = () => {
-    Keyboard.dismiss();
-    provideMnemonicsModalRef.current.dismiss();
-
     setImportText('');
     setAskPassphrase(false);
   };
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <BottomModal onClose={hideProvideMnemonicsModal} ref={provideMnemonicsModalRef} isGrabberVisible={false}>
+      <BottomModal
+        footerDefaultMargins
+        footer={
+          isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <>
+              <Button
+                testID="DoImportKeyButton"
+                disabled={importText.trim().length === 0}
+                title={loc.wallets.import_do_import}
+                onPress={useMnemonicPhrase}
+              />
+              <BlueButtonLink
+                testID="ScanOrOpenFile"
+                ref={openScannerButton}
+                disabled={isLoading}
+                onPress={scanOrOpenFile}
+                title={loc.wallets.import_scan_qr}
+              />
+            </>
+          )
+        }
+        onClose={hideProvideMnemonicsModal}
+        ref={provideMnemonicsModalRef}
+        isGrabberVisible={false}
+      >
         <View style={[styles.modalContent, stylesHook.modalContent]}>
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
@@ -616,24 +646,6 @@ const WalletsAddMultisigStep2 = () => {
               </View>
             </>
           )}
-          <BlueSpacing20 />
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <Button
-              testID="DoImportKeyButton"
-              disabled={importText.trim().length === 0}
-              title={loc.wallets.import_do_import}
-              onPress={useMnemonicPhrase}
-            />
-          )}
-          <BlueButtonLink
-            testID="ScanOrOpenFile"
-            ref={openScannerButton}
-            disabled={isLoading}
-            onPress={scanOrOpenFile}
-            title={loc.wallets.import_scan_qr}
-          />
         </View>
       </BottomModal>
     );
@@ -654,30 +666,33 @@ const WalletsAddMultisigStep2 = () => {
 
   const renderCosignersXpubModal = () => {
     return (
-      <BottomModal onClose={hideCosignersXpubModal} ref={renderCosignersXpubModalRef} isGrabberVisible={false}>
-        <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-          <Text style={[styles.headerText, stylesHook.textDestination]}>
-            {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-          </Text>
-          <BlueSpacing20 />
-          <QRCodeComponent value={cosignerXpubURv2} size={260} />
-          <BlueSpacing20 />
-          <View style={styles.squareButtonWrapper}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <SaveFileButton
-                style={[styles.exportButton, stylesHook.exportButton]}
-                fileName={cosignerXpubFilename}
-                fileContent={cosignerXpub}
-                beforeOnPress={exportCosignerBeforeOnPress}
-                afterOnPress={exportCosignerAfterOnPress}
-              >
-                <SquareButton title={loc.multisig.share} />
-              </SaveFileButton>
-            )}
-          </View>
-        </View>
+      <BottomModal
+        onClose={hideCosignersXpubModal}
+        ref={renderCosignersXpubModalRef}
+        footerDefaultMargins
+        contentContainerStyle={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}
+        footer={
+          isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <SaveFileButton
+              style={[styles.exportButton, stylesHook.exportButton]}
+              fileName={cosignerXpubFilename}
+              fileContent={cosignerXpub}
+              beforeOnPress={exportCosignerBeforeOnPress}
+              afterOnPress={exportCosignerAfterOnPress}
+            >
+              <SquareButton title={loc.multisig.share} />
+            </SaveFileButton>
+          )
+        }
+      >
+        <Text style={[styles.headerText, stylesHook.textDestination]}>
+          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+        </Text>
+        <BlueSpacing20 />
+        <QRCodeComponent value={cosignerXpubURv2} size={260} />
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
@@ -742,19 +757,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 32,
     justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 400,
+    minHeight: 480,
   },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingBottom: 60,
-    paddingTop: 50,
     justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 400,
   },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -784,13 +792,11 @@ const styles = StyleSheet.create({
   exportButton: {
     height: 48,
     borderRadius: 8,
-    flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 15, color: '#13244D' },
   alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
   helpButtonWrapper: {
     alignItems: 'flex-end',
     flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',

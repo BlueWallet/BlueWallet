@@ -400,7 +400,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
             )}
 
             <MultipleStepsListItem
-              useActionSheet
               actionSheetOptions={{
                 options: [loc._.cancel, loc.multisig.confirm],
                 title: loc._.seed,
@@ -561,15 +560,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
       <BottomModal
         ref={shareModalRef}
         onClose={hideShareModal}
-        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
+        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter, styles.shareModalHeight]}
         backgroundColor={colors.elevated}
-      >
-        <Text style={[styles.headerText, stylesHook.textDestination]}>
-          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-        </Text>
-        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-        <BlueSpacing20 />
-        <View style={styles.squareButtonWrapper}>
+        footerDefaultMargins
+        footer={
           <SaveFileButton
             style={[styles.exportButton, stylesHook.exportButton]}
             fileContent={exportString}
@@ -578,7 +572,13 @@ const ViewEditMultisigCosigners: React.FC = () => {
           >
             <SquareButton title={loc.multisig.share} />
           </SaveFileButton>
-        </View>
+        }
+      >
+        <Text style={[styles.headerText, stylesHook.textDestination]}>
+          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+        </Text>
+        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
@@ -661,8 +661,7 @@ const styles = StyleSheet.create({
   newKeyModalContent: {
     paddingHorizontal: 22,
     paddingTop: 32,
-    justifyContent: 'center',
-    minHeight: 300,
+    minHeight: 370,
   },
   modalContent: {
     padding: 22,
@@ -679,14 +678,13 @@ const styles = StyleSheet.create({
   exportButton: {
     height: 48,
     borderRadius: 8,
-    flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
   headerText: { fontSize: 15, color: '#13244D' },
   mainBlock: { marginHorizontal: 16 },
   alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
+  shareModalHeight: { minHeight: 300 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',

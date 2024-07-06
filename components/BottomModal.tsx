@@ -90,7 +90,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
 
     const renderFooter = (): ReactElement<any, string | JSXElementConstructor<any>> | ComponentType<unknown> | undefined => {
       // Footer is not working correctly on Android yet.
-      if (Platform.OS === 'android') return undefined;
       if (!footer) return undefined;
 
       if (React.isValidElement(footer)) {
@@ -104,6 +103,8 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
       return undefined;
     };
 
+    const FooterComponent = Platform.OS !== 'android' && renderFooter();
+
     return (
       <TrueSheet
         name={name ?? 'BottomModal'}
@@ -114,14 +115,15 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         onPresent={onPresent}
         onSizeChange={onSizeChange}
         grabber={isGrabberVisible}
-        FooterComponent={renderFooter()}
+        // Footer is not working correctly on Android yet.
+        FooterComponent={FooterComponent as ReactElement}
         {...props}
         blurTint="regular"
         accessibilityViewIsModal
       >
         {children}
         {renderTopRightButton()}
-        {renderFooter() as ReactNode}
+        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
       </TrueSheet>
     );
   },

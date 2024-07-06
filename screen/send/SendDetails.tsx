@@ -1284,32 +1284,36 @@ const SendDetails = () => {
           </TouchableOpacity>
         }
       >
-        {options.map(({ label, time, fee, rate, active, disabled }) => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            key={label}
-            disabled={disabled}
-            onPress={() => {
-              setFeePrecalc(fp => ({ ...fp, current: fee }));
-              feeModalRef.current?.dismiss();
-              setCustomFee(rate.toString());
-            }}
-            style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
-          >
-            <View style={styles.feeModalRow}>
-              <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>{label}</Text>
-              <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
-                <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
+        <View style={styles.paddingTop80}>
+          {options.map(({ label, time, fee, rate, active, disabled }) => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              key={label}
+              disabled={disabled}
+              onPress={() => {
+                setFeePrecalc(fp => ({ ...fp, current: fee }));
+                feeModalRef.current?.dismiss();
+                setCustomFee(rate.toString());
+              }}
+              style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
+            >
+              <View style={styles.feeModalRow}>
+                <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
+                  {label}
+                </Text>
+                <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
+                  <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.feeModalRow}>
-              <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-              <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                {rate} {loc.units.sat_vbyte}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View style={styles.feeModalRow}>
+                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
+                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
+                  {rate} {loc.units.sat_vbyte}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </BottomModal>
     );
   };
@@ -1655,7 +1659,9 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 22,
+    minHeight: 370,
   },
+  paddingTop80: { paddingTop: 80 },
   optionsContent: {
     padding: 22,
   },
