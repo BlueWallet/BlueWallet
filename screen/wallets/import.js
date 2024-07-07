@@ -60,18 +60,18 @@ const WalletsImport = () => {
   useEffect(() => {
     enableBlur();
 
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true),
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>
+      setIsToolbarVisibleForAndroid(true),
     );
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsToolbarVisibleForAndroid(false),
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () =>
+      setIsToolbarVisibleForAndroid(false),
     );
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
       disableBlur();
-
     };
   }, [disableBlur, enableBlur]);
-
 
   useEffect(() => {
     if (triggerImport) importButtonPressed();
