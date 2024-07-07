@@ -76,19 +76,14 @@ const LNDCreateInvoice = () => {
     },
   });
 
-
-
   useEffect(() => {
-    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow,
-    );
-    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide,
-    );
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
     return () => {
       showSubscription.remove();
       hideSubscription.remove();
     };
   }, []);
-
 
   const renderReceiveDetails = async () => {
     try {
