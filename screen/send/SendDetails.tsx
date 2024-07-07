@@ -827,7 +827,6 @@ const SendDetails = () => {
       const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
       if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
-        hideOptions();
         setIsLoading(true);
         await sleep(100);
         (wallet as MultisigHDWallet).cosignPsbt(psbt);
