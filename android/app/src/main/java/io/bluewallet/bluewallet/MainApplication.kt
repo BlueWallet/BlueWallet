@@ -3,9 +3,6 @@ package io.bluewallet.bluewallet
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
 import com.bugsnag.android.Bugsnag
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -16,7 +13,6 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
-import java.util.concurrent.TimeUnit
 
 class MainApplication : Application(), ReactApplication {
 
@@ -31,9 +27,9 @@ class MainApplication : Application(), ReactApplication {
 
         override fun getJSMainModuleName() = "index"
 
-        override fun isNewArchEnabled() = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+        override val isNewArchEnabled = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
 
-        override fun isHermesEnabled() = BuildConfig.IS_HERMES_ENABLED
+        override val isHermesEnabled = BuildConfig.IS_HERMES_ENABLED
     }
 
     override fun getReactNativeHost() = mReactNativeHost
@@ -47,7 +43,7 @@ class MainApplication : Application(), ReactApplication {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load()
         }
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+        val sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
 
         // Retrieve the "donottrack" value. Default to "0" if not found.
         val isDoNotTrackEnabled = sharedPref.getString("donottrack", "0")
