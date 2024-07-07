@@ -119,7 +119,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         FooterComponent={FooterComponent as ReactElement}
         {...props}
         blurTint="regular"
-        accessibilityViewIsModal
       >
         {children}
         {renderTopRightButton()}
