@@ -557,7 +557,7 @@
     "ms_help_title2": "Editar Claves",
     "ms_help_2": "Puedes crear todas las claves de la Bóveda en este dispositivo y eliminarlas o editarlas después. Tener todas las claves en el mismo dispositivo tiene la seguridad equivalente a la de un monedero de Bitcoin normal.",
     "ms_help_title3": "Copias de seguridad de la Bóveda",
-    "ms_help_3": "En las opciones de la billetera, encontrarás la copia de seguridad de la bóveda y la copia de seguridad de la billetera de solo-ver. Esta copia de seguridad es como un mapa de tu billetera. Es esencial para la recuperación de la billetera en caso de que pierdas una de tus semillas. ",
+    "ms_help_3": "En las opciones de la billetera, encontrarás la copia de seguridad de la bóveda y la copia de seguridad de la billetera de \"solo ver\". Esta copia de seguridad es como un mapa de tu billetera. Es esencial para la recuperación de la billetera en caso de que pierdas una de tus semillas. ",
     "ms_help_title4": "Importando Bóvedas",
     "ms_help_4": "Para importar una multifirma, usa tu archivo de respaldo y la función Importar. Si solo tienes semillas y XPUB, puedes utilizar el botón de importación individual al crear claves de Bóveda.",
     "ms_help_title5": "Modo Avanzado",
