@@ -383,8 +383,8 @@
     "from": "De: {counterparty}",
     "to": "A: {counterparty}",
     "updating": "Actualizando...",
-    "watchOnlyWarningTitle": "Alerta de estafa",
-    "watchOnlyWarningDescription": "Ten en cuenta que los estafadores suelen usar este tipo de billetera \"solo para ver\" para tratar de robar a los usuarios. Esta billetera no se puede controlar ni enviar desde ella, solo permite ver el saldo."
+    "watchOnlyWarningTitle": "Advertencia de seguridad",
+    "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
