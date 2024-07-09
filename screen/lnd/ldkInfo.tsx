@@ -6,7 +6,6 @@ import { BlueLoading, BlueSpacing10, BlueSpacing20, BlueTextCentered } from '../
 import { LightningLdkWallet } from '../../class';
 import { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import LNNodeBar from '../../components/LNNodeBar';
 import navigationStyle from '../../components/navigationStyle';
@@ -18,6 +17,7 @@ import selectWallet from '../../helpers/select-wallet';
 import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 
 const LdkNodeInfoChannelStatus = { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING: 'PENDING', STATUS: 'status' };
 
@@ -224,52 +224,50 @@ const LdkInfo = () => {
     const status = selectedChannelIndex?.status;
     const channelData = selectedChannelIndex?.channel.item;
     return (
-      <BottomModal ref={bottomModalRef}>
-        <View style={[styles.modalContent, stylesHook.modalContent]}>
-          <Text style={stylesHook.detailsText}>{loc.lnd.node_alias}</Text>
-          <BlueSpacing10 />
-          {channelData && (
-            <Text style={stylesHook.detailsText}>
-              {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
-                ' (' +
-                channelData.remote_node_id.substr(0, 10) +
-                '...' +
-                channelData.remote_node_id.substr(-6) +
-                ')'}
-            </Text>
-          )}
-          <BlueSpacing20 />
-          <LNNodeBar
-            disabled={
-              status === LdkNodeInfoChannelStatus.ACTIVE || status === LdkNodeInfoChannelStatus.INACTIVE ? !channelData?.is_usable : true
-            }
-            canSend={Number(channelData?.outbound_capacity_msat / 1000)}
-            canReceive={Number(channelData?.inbound_capacity_msat / 1000)}
-            itemPriceUnit={wallet.getPreferredBalanceUnit()}
-          />
-
+      <BottomModal ref={bottomModalRef} contentContainerStyle={[styles.modalContent, stylesHook.modalContent]}>
+        <Text style={stylesHook.detailsText}>{loc.lnd.node_alias}</Text>
+        <BlueSpacing10 />
+        {channelData && (
           <Text style={stylesHook.detailsText}>
-            {status === LdkNodeInfoChannelStatus.PENDING
-              ? loc.transactions.pending
-              : channelData?.is_usable
-                ? loc.lnd.active
-                : loc.lnd.inactive}
+            {LightningLdkWallet.pubkeyToAlias(channelData.remote_node_id) +
+              ' (' +
+              channelData.remote_node_id.substr(0, 10) +
+              '...' +
+              channelData.remote_node_id.substr(-6) +
+              ')'}
           </Text>
+        )}
+        <BlueSpacing20 />
+        <LNNodeBar
+          disabled={
+            status === LdkNodeInfoChannelStatus.ACTIVE || status === LdkNodeInfoChannelStatus.INACTIVE ? !channelData?.is_usable : true
+          }
+          canSend={Number(channelData?.outbound_capacity_msat / 1000)}
+          canReceive={Number(channelData?.inbound_capacity_msat / 1000)}
+          itemPriceUnit={wallet.getPreferredBalanceUnit()}
+        />
 
-          {status === LdkNodeInfoChannelStatus.INACTIVE && (
-            <>
-              <StyledButton
-                onPress={() => handleOnConnectPeerTapped(channelData)}
-                text={loc.lnd.reconnect_peer}
-                buttonStyle={StyledButtonType.grey}
-              />
-              <BlueSpacing20 />
-            </>
-          )}
+        <Text style={stylesHook.detailsText}>
+          {status === LdkNodeInfoChannelStatus.PENDING
+            ? loc.transactions.pending
+            : channelData?.is_usable
+              ? loc.lnd.active
+              : loc.lnd.inactive}
+        </Text>
 
-          <StyledButton onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={StyledButtonType.destroy} />
-          <BlueSpacing20 />
-        </View>
+        {status === LdkNodeInfoChannelStatus.INACTIVE && (
+          <>
+            <StyledButton
+              onPress={() => handleOnConnectPeerTapped(channelData)}
+              text={loc.lnd.reconnect_peer}
+              buttonStyle={StyledButtonType.grey}
+            />
+            <BlueSpacing20 />
+          </>
+        )}
+
+        <StyledButton onPress={() => closeChannel(channelData)} text={loc.lnd.close_channel} buttonStyle={StyledButtonType.destroy} />
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
