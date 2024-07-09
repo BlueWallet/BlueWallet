@@ -15,7 +15,115 @@ struct PriceView: View {
   var previousMarketData: MarketData? = emptyMarketData
   
   var body: some View {
-    VStack(alignment: .trailing, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
+    switch entry.family {
+    case .accessoryCircular:
+      accessoryCircularView
+    case .accessoryInline:
+      accessoryInlineView
+    case .accessoryRectangular:
+      accessoryRectangularView
+    default:
+      defaultView
+    }
+  }
+  
+  private var accessoryCircularView: some View {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.numberStyle = .decimal
+    numberFormatter.maximumFractionDigits = 0
+    
+    let priceString = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
+    
+    var priceChangePercentage: String? {
+      if let currentRate = entry.currentMarketData?.rate, let previousRate = entry.previousMarketData?.rate, Int(currentRate) != Int(previousRate) {
+        let change = ((currentRate - previousRate) / previousRate) * 100
+        return String(format: "%+.1f%%", change)
+      }
+      return nil
+    }
+    
+    return VStack(alignment: .center, spacing: 4) {
+      Text("BTC")
+        .font(.caption)
+      Text(priceString)
+        .font(.body)
+        .minimumScaleFactor(0.1)
+        .lineLimit(1)
+      if let priceChangePercentage = priceChangePercentage {
+        Text(priceChangePercentage)
+          .font(.caption2)
+          .foregroundColor(priceChangePercentage.contains("-") ? .red : .green)
+      }
+    }
+    .widgetURL(URL(string: "bluewallet://marketprice"))
+  }
+  
+  private var accessoryInlineView: some View {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.maximumFractionDigits = 0
+    numberFormatter.numberStyle = .currency
+    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+    
+    let priceString = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
+    
+    var priceChangePercentage: String? {
+      if let currentRate = entry.currentMarketData?.rate, let previousRate = entry.previousMarketData?.rate, Int(currentRate) != Int(previousRate) {
+        let change = ((currentRate - previousRate) / previousRate) * 100
+        return String(format: "%+.1f%%", change)
+      }
+      return nil
+    }
+    
+    return HStack {
+      Text(priceString)
+        .font(.body)
+        .minimumScaleFactor(0.1)
+      if let priceChangePercentage = priceChangePercentage {
+        Image(systemName: priceChangePercentage.contains("-") ? "arrow.down" : "arrow.up")
+          .foregroundColor(priceChangePercentage.contains("-") ? .red : .green)
+      }
+    }
+  }
+  
+  private var accessoryRectangularView: some View {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.numberStyle = .currency
+    numberFormatter.maximumFractionDigits = 0
+    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+    
+    let currentPrice = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
+    
+    return VStack(alignment: .leading, spacing: 4) {
+      Text("Bitcoin Price")
+        .font(.caption)
+        .foregroundColor(.secondary)
+      HStack {
+        Text(currentPrice)
+          .font(.caption)
+          .fontWeight(.bold)
+        if let currentMarketDataRate = entry.currentMarketData?.rate,
+           let previousMarketDataRate = entry.previousMarketData?.rate,
+           currentMarketDataRate != previousMarketDataRate {
+          
+          Image(systemName: currentMarketDataRate  > previousMarketDataRate ? "arrow.up" : "arrow.down")
+        }
+      }
+      
+      if let previousMarketDataPrice = entry.previousMarketData?.price, Int(entry.currentMarketData?.rate ?? 0) != Int(entry.previousMarketData?.rate ?? 0) {
+        Text("From \(previousMarketDataPrice)")
+          .font(.caption)
+          .foregroundColor(.secondary)
+      }
+      
+      Text("@ \(entry.currentMarketData?.formattedDate ?? "--")")
+        .font(.caption2)
+        .foregroundColor(.secondary)
+    }
+    .padding()
+  }
+  
+  private var defaultView: some View {
+    VStack(alignment: .trailing, spacing: nil, content: {
       Text("Last Updated").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
       HStack(alignment: .lastTextBaseline, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/, content: {
         Text(currentMarketData?.formattedDate ?? "").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01).transition(.opacity)
