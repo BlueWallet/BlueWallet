@@ -13,17 +13,44 @@ struct PriceView: View {
   var entry: PriceWidgetEntry
   
   var body: some View {
-    switch entry.family {
-    case .accessoryCircular:
-      accessoryCircularView
-    case .accessoryInline:
-      accessoryInlineView
-    case .accessoryRectangular:
-      accessoryRectangularView
-    default:
-      defaultView
+      switch entry.family {
+      case .accessoryInline, .accessoryCircular, .accessoryRectangular:
+        wrappedView(for: getView(for: entry.family), family: entry.family)
+      default:
+        defaultView
+      }
     }
-  }
+    
+    private func getView(for family: WidgetFamily) -> some View {
+      switch family {
+      case .accessoryCircular:
+        return AnyView(accessoryCircularView)
+      case .accessoryInline:
+        return AnyView(accessoryInlineView)
+      case .accessoryRectangular:
+        return AnyView(accessoryRectangularView)
+      default:
+        return AnyView(defaultView)
+      }
+    }
+    
+    @ViewBuilder
+    private func wrappedView<Content: View>(for content: Content, family: WidgetFamily) -> some View {
+      if #available(iOSApplicationExtension 16.0, *) {
+        ZStack {
+          if family == .accessoryRectangular {
+            AccessoryWidgetBackground()
+              .background(Color(.systemBackground))
+              .clipShape(RoundedRectangle(cornerRadius: 10))
+          } else {
+            AccessoryWidgetBackground()
+          }
+          content
+        }
+      } else {
+          content
+      }
+    }
   
   private var accessoryCircularView: some View {
     let numberFormatter = NumberFormatter()
@@ -88,11 +115,11 @@ struct PriceView: View {
     numberFormatter.numberStyle = .currency
     numberFormatter.maximumFractionDigits = 0
     numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
-    
+
     let currentPrice = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
-    
+
     return VStack(alignment: .leading, spacing: 4) {
-      Text("Bitcoin Price")
+      Text("Bitcoin (\(Currency.getUserPreferredCurrency()))")
         .font(.caption)
         .foregroundColor(.secondary)
       HStack {
@@ -102,22 +129,25 @@ struct PriceView: View {
         if let currentMarketDataRate = entry.currentMarketData?.rate,
            let previousMarketDataRate = entry.previousMarketData?.rate,
            currentMarketDataRate != previousMarketDataRate {
-          
+
           Image(systemName: currentMarketDataRate  > previousMarketDataRate ? "arrow.up" : "arrow.down")
         }
       }
-      
+
       if let previousMarketDataPrice = entry.previousMarketData?.price, Int(entry.currentMarketData?.rate ?? 0) != Int(entry.previousMarketData?.rate ?? 0) {
         Text("From \(previousMarketDataPrice)")
           .font(.caption)
           .foregroundColor(.secondary)
       }
-      
+
       Text("at \(entry.currentMarketData?.formattedDate ?? "--")")
         .font(.caption2)
         .foregroundColor(.secondary)
     }
-    .padding()
+    .padding(.all, 8)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(Color(.systemBackground))
+    .clipShape(RoundedRectangle(cornerRadius: 10))
   }
   
   private var defaultView: some View {
