@@ -113,7 +113,7 @@ struct PriceView: View {
           .foregroundColor(.secondary)
       }
       
-      Text("@ \(entry.currentMarketData?.formattedDate ?? "--")")
+      Text("at \(entry.currentMarketData?.formattedDate ?? "--")")
         .font(.caption2)
         .foregroundColor(.secondary)
     }

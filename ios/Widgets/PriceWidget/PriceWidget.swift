@@ -66,26 +66,6 @@ struct PriceWidgetProvider: TimelineProvider {
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
       }
-    }}
-  }
-  
-  var body: some WidgetConfiguration {
-    if #available(iOSApplicationExtension 17.0, *) {
-      return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
-        PriceWidgetEntryView(entry: entry).containerBackground(.regularMaterial, for: .widget)
-      }
-      .configurationDisplayName("Price")
-      .description("View the current price of Bitcoin.")
-      .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryInline, .accessoryRectangular])
-      .contentMarginsDisabledIfAvailable()
-    } else {
-      return StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
-        PriceWidgetEntryView(entry: entry)  
-      }
-      .configurationDisplayName("Price")
-      .description("View the current price of Bitcoin.")
-      .supportedFamilies([.systemSmall])
-      .contentMarginsDisabledIfAvailable()
     }
   }
 }
