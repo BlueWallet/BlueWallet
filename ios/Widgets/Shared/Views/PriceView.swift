@@ -13,63 +13,53 @@ struct PriceView: View {
   var entry: PriceWidgetEntry
   
   var body: some View {
-      switch entry.family {
-      case .accessoryInline, .accessoryCircular, .accessoryRectangular:
-        wrappedView(for: getView(for: entry.family), family: entry.family)
-      default:
-        defaultView
-      }
+    switch entry.family {
+    case .accessoryInline, .accessoryCircular, .accessoryRectangular:
+      wrappedView(for: getView(for: entry.family), family: entry.family)
+    default:
+      defaultView.background(Color.widgetBackground)
     }
-    
-    private func getView(for family: WidgetFamily) -> some View {
-      switch family {
-      case .accessoryCircular:
-        return AnyView(accessoryCircularView)
-      case .accessoryInline:
-        return AnyView(accessoryInlineView)
-      case .accessoryRectangular:
-        return AnyView(accessoryRectangularView)
-      default:
-        return AnyView(defaultView)
-      }
+  }
+  
+  private func getView(for family: WidgetFamily) -> some View {
+    switch family {
+    case .accessoryCircular:
+      return AnyView(accessoryCircularView)
+    case .accessoryInline:
+      return AnyView(accessoryInlineView)
+    case .accessoryRectangular:
+      return AnyView(accessoryRectangularView)
+    default:
+      return AnyView(defaultView)
     }
-    
-    @ViewBuilder
-    private func wrappedView<Content: View>(for content: Content, family: WidgetFamily) -> some View {
-      if #available(iOSApplicationExtension 16.0, *) {
-        ZStack {
-          if family == .accessoryRectangular {
-            AccessoryWidgetBackground()
-              .background(Color(.systemBackground))
-              .clipShape(RoundedRectangle(cornerRadius: 10))
-          } else {
-            AccessoryWidgetBackground()
-          }
-          content
+  }
+  
+  @ViewBuilder
+  private func wrappedView<Content: View>(for content: Content, family: WidgetFamily) -> some View {
+    if #available(iOSApplicationExtension 16.0, *) {
+      ZStack {
+        if family == .accessoryRectangular {
+          AccessoryWidgetBackground()
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        } else {
+          AccessoryWidgetBackground()
         }
-      } else {
-          content
+        content
       }
+    } else {
+      content
     }
+  }
   
   private var accessoryCircularView: some View {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.numberStyle = .decimal
-    numberFormatter.maximumFractionDigits = 0
-    
-    let priceString = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
-    
-    var priceChangePercentage: String? {
-      if let currentRate = entry.currentMarketData?.rate, let previousRate = entry.previousMarketData?.rate, Int(currentRate) != Int(previousRate) {
-        let change = ((currentRate - previousRate) / previousRate) * 100
-        return String(format: "%+.1f%%", change)
-      }
-      return nil
-    }
+    let priceString = formattedPriceString(from: entry.currentMarketData?.rate)
+    let priceChangePercentage = formattedPriceChangePercentage(currentRate: entry.currentMarketData?.rate, previousRate: entry.previousMarketData?.rate)
     
     return VStack(alignment: .center, spacing: 4) {
       Text("BTC")
         .font(.caption)
+        .minimumScaleFactor(0.1)
       Text(priceString)
         .font(.body)
         .minimumScaleFactor(0.1)
@@ -84,20 +74,8 @@ struct PriceView: View {
   }
   
   private var accessoryInlineView: some View {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.maximumFractionDigits = 0
-    numberFormatter.numberStyle = .currency
-    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
-    
-    let priceString = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
-    
-    var priceChangePercentage: String? {
-      if let currentRate = entry.currentMarketData?.rate, let previousRate = entry.previousMarketData?.rate, Int(currentRate) != Int(previousRate) {
-        let change = ((currentRate - previousRate) / previousRate) * 100
-        return String(format: "%+.1f%%", change)
-      }
-      return nil
-    }
+    let priceString = formattedCurrencyString(from: entry.currentMarketData?.rate)
+    let priceChangePercentage = formattedPriceChangePercentage(currentRate: entry.currentMarketData?.rate, previousRate: entry.previousMarketData?.rate)
     
     return HStack {
       Text(priceString)
@@ -111,13 +89,8 @@ struct PriceView: View {
   }
   
   private var accessoryRectangularView: some View {
-    let numberFormatter = NumberFormatter()
-    numberFormatter.numberStyle = .currency
-    numberFormatter.maximumFractionDigits = 0
-    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
-
-    let currentPrice = numberFormatter.string(from: NSNumber(value: entry.currentMarketData?.rate ?? 0)) ?? "--"
-
+    let currentPrice = formattedCurrencyString(from: entry.currentMarketData?.rate)
+    
     return VStack(alignment: .leading, spacing: 4) {
       Text("Bitcoin (\(Currency.getUserPreferredCurrency()))")
         .font(.caption)
@@ -129,17 +102,16 @@ struct PriceView: View {
         if let currentMarketDataRate = entry.currentMarketData?.rate,
            let previousMarketDataRate = entry.previousMarketData?.rate,
            currentMarketDataRate != previousMarketDataRate {
-
-          Image(systemName: currentMarketDataRate  > previousMarketDataRate ? "arrow.up" : "arrow.down")
+          Image(systemName: currentMarketDataRate > previousMarketDataRate ? "arrow.up" : "arrow.down")
         }
       }
-
+      
       if let previousMarketDataPrice = entry.previousMarketData?.price, Int(entry.currentMarketData?.rate ?? 0) != Int(entry.previousMarketData?.rate ?? 0) {
         Text("From \(previousMarketDataPrice)")
           .font(.caption)
           .foregroundColor(.secondary)
       }
-
+      
       Text("at \(entry.currentMarketData?.formattedDate ?? "--")")
         .font(.caption2)
         .foregroundColor(.secondary)
@@ -171,6 +143,27 @@ struct PriceView: View {
       })
     }).frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .trailing).padding()
   }
+  
+  private func formattedPriceString(from rate: Double?) -> String {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.numberStyle = .decimal
+    numberFormatter.maximumFractionDigits = 0
+    return numberFormatter.string(from: NSNumber(value: rate ?? 0)) ?? "--"
+  }
+  
+  private func formattedCurrencyString(from rate: Double?) -> String {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.maximumFractionDigits = 0
+    numberFormatter.numberStyle = .currency
+    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+    return numberFormatter.string(from: NSNumber(value: rate ?? 0)) ?? "--"
+  }
+  
+  private func formattedPriceChangePercentage(currentRate: Double?, previousRate: Double?) -> String? {
+    guard let currentRate = currentRate, let previousRate = previousRate, previousRate > 0 else { return nil }
+    let change = ((currentRate - previousRate) / previousRate) * 100
+    return change == 0 ? nil : String(format: "%+.1f%%", change)
+  }
 }
 
 struct PriceView_Previews: PreviewProvider {
@@ -185,7 +178,7 @@ struct PriceView_Previews: PreviewProvider {
           .previewContext(WidgetPreviewContext(family: .accessoryInline))
         PriceView(entry: PriceWidgetEntry(date: Date(), family: .accessoryRectangular, currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"), previousMarketData: emptyMarketData))
           .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-      }
-    }
-  }
-}
+          }
+          }
+          }
+          }
