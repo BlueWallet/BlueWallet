@@ -332,7 +332,3 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     </ToolTipMenu>
   );
 });
-
-const styles = StyleSheet.create({
-  iconWidth: { width: 25 },
-});
