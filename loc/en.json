@@ -123,6 +123,7 @@
     "details_setAmount": "Receive with amount",
     "details_share": "Share...",
     "header": "Receive",
+    "reset": "Reset",
     "maxSats": "Maximum amount is {max} sats",
     "maxSatsFull": "Maximum amount is {max} sats or {currency}",
     "minSats": "Minimal amount is {min} sats",
