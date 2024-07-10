@@ -14,74 +14,112 @@ struct PriceView: View {
   
   var body: some View {
     switch entry.family {
-    case .accessoryCircular:
-      accessoryCircularView
-    case .accessoryInline:
-      accessoryInlineView
-    case .accessoryRectangular:
-      accessoryRectangularView
+    case .accessoryInline, .accessoryCircular, .accessoryRectangular:
+      wrappedView(for: getView(for: entry.family), family: entry.family)
     default:
-      defaultView
+      defaultView.background(Color.widgetBackground)
+    }
+  }
+  
+  private func getView(for family: WidgetFamily) -> some View {
+    switch family {
+    case .accessoryCircular:
+      return AnyView(accessoryCircularView)
+    case .accessoryInline:
+      return AnyView(accessoryInlineView)
+    case .accessoryRectangular:
+      return AnyView(accessoryRectangularView)
+    default:
+      return AnyView(defaultView)
+    }
+  }
+  
+  @ViewBuilder
+  private func wrappedView<Content: View>(for content: Content, family: WidgetFamily) -> some View {
+    if #available(iOSApplicationExtension 16.0, *) {
+      ZStack {
+        if family == .accessoryRectangular {
+          AccessoryWidgetBackground()
+            .background(Color(.systemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        } else {
+          AccessoryWidgetBackground()
+        }
+        content
+      }
+    } else {
+      content
     }
   }
   
   private var accessoryCircularView: some View {
-    VStack {
+    let priceString = formattedPriceString(from: entry.currentMarketData?.rate)
+    let priceChangePercentage = formattedPriceChangePercentage(currentRate: entry.currentMarketData?.rate, previousRate: entry.previousMarketData?.rate)
+    
+    return VStack(alignment: .center, spacing: 4) {
       Text("BTC")
         .font(.caption)
         .minimumScaleFactor(0.1)
-      if let preferredFiatCurrencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol, let rateAbbreviated = entry.currentMarketData?.rate.abbreviated {
-        Text("\(preferredFiatCurrencySymbol)\(rateAbbreviated)")
-          .font(.title3)
-          .minimumScaleFactor(0.1)
-      } else {
-        Text("--")
-          .font(.title)
-          .fontWeight(.bold)
+      Text(priceString)
+        .font(.body)
+        .minimumScaleFactor(0.1)
+        .lineLimit(1)
+      if let priceChangePercentage = priceChangePercentage {
+        Text(priceChangePercentage)
+          .font(.caption2)
+          .foregroundColor(priceChangePercentage.contains("-") ? .red : .green)
       }
     }
     .widgetURL(URL(string: "bluewallet://marketprice"))
   }
   
   private var accessoryInlineView: some View {
-    HStack {
-      if let preferredFiatCurrencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol, let rateAbbreviated = entry.currentMarketData?.rate.abbreviated {
-        Text("BTC \(preferredFiatCurrencySymbol)\(rateAbbreviated)")
-          .font(.body)
-      } else {
-        Text("BTC --")
-          .font(.body)
+    let priceString = formattedCurrencyString(from: entry.currentMarketData?.rate)
+    let priceChangePercentage = formattedPriceChangePercentage(currentRate: entry.currentMarketData?.rate, previousRate: entry.previousMarketData?.rate)
+    
+    return HStack {
+      Text(priceString)
+        .font(.body)
+        .minimumScaleFactor(0.1)
+      if let priceChangePercentage = priceChangePercentage {
+        Image(systemName: priceChangePercentage.contains("-") ? "arrow.down" : "arrow.up")
+          .foregroundColor(priceChangePercentage.contains("-") ? .red : .green)
       }
     }
   }
   
   private var accessoryRectangularView: some View {
-    VStack(alignment: .leading, spacing: 4) {
-      Text("Bitcoin Price")
+    let currentPrice = formattedCurrencyString(from: entry.currentMarketData?.rate)
+    
+    return VStack(alignment: .leading, spacing: 4) {
+      Text("Bitcoin (\(Currency.getUserPreferredCurrency()))")
         .font(.caption)
         .foregroundColor(.secondary)
       HStack {
-        Text(entry.currentMarketData?.price ?? "--")
-          .font(.title2)
+        Text(currentPrice)
+          .font(.caption)
           .fontWeight(.bold)
-        if let currentMarketDataRate = entry.currentMarketData?.rate, let previousMarketDataRate = entry.previousMarketData?.rate, previousMarketDataRate > 0 {
+        if let currentMarketDataRate = entry.currentMarketData?.rate,
+           let previousMarketDataRate = entry.previousMarketData?.rate,
+           currentMarketDataRate != previousMarketDataRate {
           Image(systemName: currentMarketDataRate > previousMarketDataRate ? "arrow.up" : "arrow.down")
-            .foregroundColor(currentMarketDataRate > previousMarketDataRate ? .green : .red)
         }
       }
-      .minimumScaleFactor(0.01)
       
-      if let previousMarketDataPrice = entry.previousMarketData?.price {
+      if let previousMarketDataPrice = entry.previousMarketData?.price, Int(entry.currentMarketData?.rate ?? 0) != Int(entry.previousMarketData?.rate ?? 0) {
         Text("From \(previousMarketDataPrice)")
           .font(.caption)
           .foregroundColor(.secondary)
       }
       
-      Text("Last Updated: \(entry.currentMarketData?.formattedDate ?? "--")")
+      Text("at \(entry.currentMarketData?.formattedDate ?? "--")")
         .font(.caption2)
         .foregroundColor(.secondary)
     }
-    .padding()
+    .padding(.all, 8)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(Color(.systemBackground))
+    .clipShape(RoundedRectangle(cornerRadius: 10))
   }
   
   private var defaultView: some View {
@@ -105,6 +143,27 @@ struct PriceView: View {
       })
     }).frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .trailing).padding()
   }
+  
+  private func formattedPriceString(from rate: Double?) -> String {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.numberStyle = .decimal
+    numberFormatter.maximumFractionDigits = 0
+    return numberFormatter.string(from: NSNumber(value: rate ?? 0)) ?? "--"
+  }
+  
+  private func formattedCurrencyString(from rate: Double?) -> String {
+    let numberFormatter = NumberFormatter()
+    numberFormatter.maximumFractionDigits = 0
+    numberFormatter.numberStyle = .currency
+    numberFormatter.currencySymbol = fiatUnit(currency: Currency.getUserPreferredCurrency())?.symbol
+    return numberFormatter.string(from: NSNumber(value: rate ?? 0)) ?? "--"
+  }
+  
+  private func formattedPriceChangePercentage(currentRate: Double?, previousRate: Double?) -> String? {
+    guard let currentRate = currentRate, let previousRate = previousRate, previousRate > 0 else { return nil }
+    let change = ((currentRate - previousRate) / previousRate) * 100
+    return change == 0 ? nil : String(format: "%+.1f%%", change)
+  }
 }
 
 struct PriceView_Previews: PreviewProvider {
@@ -119,7 +178,7 @@ struct PriceView_Previews: PreviewProvider {
           .previewContext(WidgetPreviewContext(family: .accessoryInline))
         PriceView(entry: PriceWidgetEntry(date: Date(), family: .accessoryRectangular, currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"), previousMarketData: emptyMarketData))
           .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-      }
-    }
-  }
-}
+          }
+          }
+          }
+          }
