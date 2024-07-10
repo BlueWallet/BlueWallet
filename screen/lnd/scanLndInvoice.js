@@ -223,7 +223,7 @@ const ScanLndInvoice = () => {
 
   const processTextForInvoice = text => {
     if (
-      text.toLowerCase().startsWith('lnb') ||
+      (text && text.toLowerCase().startsWith('lnb')) ||
       text.toLowerCase().startsWith('lightning:lnb') ||
       Lnurl.isLnurl(text) ||
       Lnurl.isLightningAddress(text)
@@ -323,7 +323,7 @@ const ScanLndInvoice = () => {
                   text = text.trim();
                   setDestination(text);
                 }}
-                onBarScanned={processInvoice}
+                onBarScanned={data => processTextForInvoice(data.data)}
                 address={destination}
                 isLoading={isLoading}
                 placeholder={loc.lnd.placeholder}

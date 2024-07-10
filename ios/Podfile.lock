@@ -349,7 +349,7 @@ PODS:
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.1.0):
+  - react-native-tcp-socket (6.2.0):
     - CocoaAsyncSocket
     - React-Core
   - React-NativeModulesApple (0.72.14):
@@ -811,7 +811,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 422017db8bcabbada9ad607d010996c56713234c
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
-  react-native-tcp-socket: ea937a61ee9ff2cb3cceade359290a46ad2b5aab
+  react-native-tcp-socket: 8c3e8bef909ab06c557eeb95363fe029391ff09d
   React-NativeModulesApple: 3107f777453f953906d9ba9dc5f8cbd91a6ef913
   React-perflogger: daabc494c6328efc1784a4b49b8b74fca305d11c
   React-RCTActionSheet: 0e0e64a7cf6c07f1de73d1f0a92d26a70262b256
