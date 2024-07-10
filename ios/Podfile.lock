@@ -1,6 +1,6 @@
 PODS:
   - boost (1.76.0)
-  - BugsnagReactNative (7.24.0):
+  - BugsnagReactNative (7.25.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -345,11 +345,11 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.10.5):
+  - react-native-safe-area-context (4.10.7):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.1.0):
+  - react-native-tcp-socket (6.2.0):
     - CocoaAsyncSocket
     - React-Core
   - React-NativeModulesApple (0.72.14):
@@ -772,7 +772,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
-  BugsnagReactNative: 65729c7ee7d9f61b8dbd9f046d920bb38a43931a
+  BugsnagReactNative: 5b7370cd797d247983ace25aa07cca0058d7d505
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
@@ -809,9 +809,9 @@ SPEC CHECKSUMS:
   react-native-menu: d32728a357dfb360cf01cd5979cf7713c5acbb95
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: a240ad4b683349e48b1d51fed1611138d1bdad97
+  react-native-safe-area-context: 422017db8bcabbada9ad607d010996c56713234c
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
-  react-native-tcp-socket: ea937a61ee9ff2cb3cceade359290a46ad2b5aab
+  react-native-tcp-socket: 8c3e8bef909ab06c557eeb95363fe029391ff09d
   React-NativeModulesApple: 3107f777453f953906d9ba9dc5f8cbd91a6ef913
   React-perflogger: daabc494c6328efc1784a4b49b8b74fca305d11c
   React-RCTActionSheet: 0e0e64a7cf6c07f1de73d1f0a92d26a70262b256
