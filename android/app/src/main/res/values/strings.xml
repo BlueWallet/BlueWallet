@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">BlueWallet</string>
+        <string name="loading">Loading...</string>
+    <string name="last_updated">Last Updated</string>
+    <string name="from">From</string>
 </resources>

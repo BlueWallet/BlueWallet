@@ -13,7 +13,7 @@ package io.bluewallet.bluewallet;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class DetoxTest {
+public class    DetoxTest {
     // Replace 'MainActivity' with the value of android:name entry in
     // <activity> in AndroidManifest.xml
     @Rule

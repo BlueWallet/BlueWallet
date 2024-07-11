@@ -2,7 +2,6 @@ package io.bluewallet.bluewallet
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import com.bugsnag.android.Bugsnag
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -13,6 +12,8 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.MockResponse
 
 class MainApplication : Application(), ReactApplication {
 
@@ -43,6 +44,10 @@ class MainApplication : Application(), ReactApplication {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load()
         }
+        if (BuildConfig.USE_MOCK_SERVER) {
+            startMockServer()
+        }
+
         val sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
 
         // Retrieve the "donottrack" value. Default to "0" if not found.
@@ -53,5 +58,13 @@ class MainApplication : Application(), ReactApplication {
             // Initialize Bugsnag or your error tracking here
             Bugsnag.start(this)
         }
+    }
+
+    private fun startMockServer() {
+        val mockWebServer = MockWebServer()
+        mockWebServer.start(8080)
+        MarketAPI.baseUrl = mockWebServer.url("/").toString()
+
+        mockWebServer.enqueue(MockResponse().setBody("{\"USD\": {\"price\": \"60000.00\"}}"))
     }
 }
