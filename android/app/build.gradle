@@ -94,27 +94,12 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            buildConfigField "boolean", "USE_MOCK_SERVER", "false"
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
-        debug {
-            buildConfigField "boolean", "USE_MOCK_SERVER", "false"
-        }
-    }
-      
-     productFlavors {
-        normal {
-            dimension "mode"
-        }
-        mock {
-            dimension "mode"
-            buildConfigField "boolean", "USE_MOCK_SERVER", "true"
-        }
     }
 
-    flavorDimensions "mode"
 }
 
 task copyFiatUnits(type: Copy) {
@@ -137,20 +122,11 @@ dependencies {
         implementation jscFlavor
     }
     androidTestImplementation('com.wix:detox:+')
-    androidTestImplementation "androidx.work:work-testing:2.7.1"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    testImplementation 'com.google.guava:guava:30.1.1-android'
-    androidTestImplementation 'com.google.guava:guava:30.1.1-android'
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
-    androidTestImplementation 'androidx.test:core:1.4.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.android.material:material:1.4.0'
     implementation "androidx.work:work-runtime-ktx:2.7.1"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
-    implementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
