@@ -7,33 +7,26 @@ import android.widget.RemoteViews
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.testing.WorkManagerTestInitHelper
-import androidx.work.WorkManager
-import com.google.common.util.concurrent.ListenableFuture
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import org.json.JSONObject
+import com.squareup.okhttp.mockwebserver.MockResponse
+import com.squareup.okhttp.mockwebserver.MockWebServer
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.text.NumberFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class MockServerTest {
 
     private lateinit var mockWebServer: MockWebServer
-    private lateinit var context: Context
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
         mockWebServer = MockWebServer()
         mockWebServer.start()
-
-        val baseUrl = mockWebServer.url("/").toString()
-        MarketAPI.baseUrl = baseUrl
-
-        WorkManagerTestInitHelper.initializeTestWorkManager(context)
+        MarketAPI.baseUrl = mockWebServer.url("/").toString()
     }
 
     @After
@@ -43,45 +36,39 @@ class MockServerTest {
 
     @Test
     fun testWidgetUpdate() {
-        // Mock API response
-        val mockResponse = MockResponse()
-            .setBody(createMockJsonResponse("USD", "61500"))
-            .setResponseCode(200)
-        mockWebServer.enqueue(mockResponse)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        WorkManagerTestInitHelper.initializeTestWorkManager(context)
 
-        // Trigger the widget update
+        val prices = listOf("60000", "60500", "61000", "61500", "62000")
+        prices.forEach {
+            mockWebServer.enqueue(MockResponse().setBody("""{"USD": {"price": "$it"}}"""))
+        }
+
         WidgetUpdateWorker.scheduleWork(context)
+        WorkManagerTestInitHelper.getTestDriver()?.setAllConstraintsMet(WidgetUpdateWorker.WORK_NAME)
 
-        // Wait for the worker to run
-        val workInfos = WorkManager.getInstance(context).getWorkInfosByTag(WidgetUpdateWorker.WORK_NAME).get()
-        val testDriver = WorkManagerTestInitHelper.getTestDriver()
-        for (workInfo in workInfos) {
-            testDriver?.setAllConstraintsMet(workInfo.id)
-        }
-        Thread.sleep(10000) // Wait for 10 seconds to simulate the update interval
-
-        // Validate the widget updates
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        val widgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, BitcoinPriceWidget::class.java))
+        val thisWidget = ComponentName(context, BitcoinPriceWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+        val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
-        for (widgetId in widgetIds) {
-            val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            // Add your assertions here to validate the widget update
-        }
-    }
-
-    private fun createMockJsonResponse(currency: String, price: String): String {
-        return """
-            {
-                "$currency": {
-                    "endPointKey": "$currency",
-                    "locale": "en-US",
-                    "source": "Kraken",
-                    "symbol": "$",
-                    "country": "United States (US Dollar)",
-                    "price": "$price"
-                }
+        prices.forEachIndexed { index, price ->
+            val currencyFormat = NumberFormat.getCurrencyInstance(Locale.getDefault()).apply {
+                maximumFractionDigits = 0
             }
-        """.trimIndent()
+            val formattedPrice = currencyFormat.format(price.toDouble())
+            views.setTextViewText(R.id.price_value, formattedPrice)
+            views.setTextViewText(R.id.last_updated_time, SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date()))
+
+            if (index > 0) {
+                views.setViewVisibility(R.id.price_arrow_container, View.VISIBLE)
+                views.setTextViewText(R.id.previous_price, currencyFormat.format(prices[index - 1].toDouble()))
+            } else {
+                views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+            }
+
+            appWidgetManager.updateAppWidget(appWidgetIds, views)
+            Thread.sleep(5000) // Wait for 5 seconds before updating to the next price
+        }
     }
 }
