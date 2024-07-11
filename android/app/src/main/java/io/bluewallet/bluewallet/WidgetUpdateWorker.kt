@@ -3,10 +3,15 @@ package io.bluewallet.bluewallet
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.*
+import org.json.JSONObject
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,10 +45,11 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
         val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
 
-        // Simulate fetching price data
+        val sharedPref = applicationContext.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
-        val price = fetchPrice() // Simulated method to fetch the price
-        val previousPrice = getPreviousPrice() // Simulated method to fetch the previous price
+        val price = fetchPrice()
+        val previousPrice = sharedPref.getString("previous_price", null)
 
         // Log fetched data
         Log.d(TAG, "Fetch completed with price: $price at $currentTime. Previous price: $previousPrice")
@@ -54,6 +60,8 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         }
         views.setTextViewText(R.id.price_value, currencyFormat.format(price.toDouble()))
         views.setTextViewText(R.id.last_updated_time, currentTime)
+        views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+        views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
 
         if (previousPrice != null) {
             views.setViewVisibility(R.id.price_arrow_container, View.VISIBLE)
@@ -69,16 +77,31 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
 
         appWidgetManager.updateAppWidget(appWidgetIds, views)
 
+        savePrice(sharedPref, price)
+
         return Result.success()
     }
 
     private fun fetchPrice(): String {
-        // Simulate a network call to fetch the price
-        return (60000 + Random().nextInt(5000)).toString() // Replace with actual fetch logic
+        val urlString = "https://api.kraken.com/0/public/Ticker?pair=XXBTZUSD"
+        val url = URL(urlString)
+        val urlConnection = url.openConnection() as HttpURLConnection
+        return try {
+            val reader = InputStreamReader(urlConnection.inputStream)
+            val jsonResponse = StringBuilder()
+            val buffer = CharArray(1024)
+            var read: Int
+            while (reader.read(buffer).also { read = it } != -1) {
+                jsonResponse.append(buffer, 0, read)
+            }
+            val json = JSONObject(jsonResponse.toString())
+            json.getJSONObject("result").getJSONObject("XXBTZUSD").getJSONArray("c").getString(0)
+        } finally {
+            urlConnection.disconnect()
+        }
     }
 
-    private fun getPreviousPrice(): String? {
-        // Simulate retrieving the previous price from shared preferences or a database
-        return (60000 + Random().nextInt(5000)).toString() // Replace with actual retrieval logic
+    private fun savePrice(sharedPref: SharedPreferences, price: String) {
+        sharedPref.edit().putString("previous_price", price).apply()
     }
 }

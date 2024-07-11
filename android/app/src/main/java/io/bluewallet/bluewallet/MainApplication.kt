@@ -12,8 +12,6 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.MockResponse
 
 class MainApplication : Application(), ReactApplication {
 
@@ -44,9 +42,6 @@ class MainApplication : Application(), ReactApplication {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load()
         }
-        if (BuildConfig.USE_MOCK_SERVER) {
-            startMockServer()
-        }
 
         val sharedPref = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
 
@@ -58,13 +53,5 @@ class MainApplication : Application(), ReactApplication {
             // Initialize Bugsnag or your error tracking here
             Bugsnag.start(this)
         }
-    }
-
-    private fun startMockServer() {
-        val mockWebServer = MockWebServer()
-        mockWebServer.start(8080)
-        MarketAPI.baseUrl = mockWebServer.url("/").toString()
-
-        mockWebServer.enqueue(MockResponse().setBody("{\"USD\": {\"price\": \"60000.00\"}}"))
     }
 }
