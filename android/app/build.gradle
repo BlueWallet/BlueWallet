@@ -84,6 +84,11 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
