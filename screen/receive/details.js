@@ -1,16 +1,6 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  BackHandler,
-  InteractionManager,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { BackHandler, InteractionManager, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Share from 'react-native-share';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -328,7 +318,6 @@ const ReceiveDetails = () => {
 
   const createCustomAmountAddress = () => {
     setIsCustom(true);
-    bottomModalRef.current.dismiss();
     let amount = tempCustomAmount;
     switch (tempCustomUnit) {
       case BitcoinUnit.BTC:
@@ -351,6 +340,7 @@ const ReceiveDetails = () => {
     setCustomUnit(tempCustomUnit);
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: tempCustomLabel }));
     setShowAddress(true);
+    bottomModalRef.current.dismiss();
   };
 
   const resetCustomAmount = () => {
@@ -363,49 +353,6 @@ const ReceiveDetails = () => {
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
     setShowAddress(true);
     bottomModalRef.current.dismiss();
-  };
-
-  const renderCustomAmountModal = () => {
-    return (
-      <BottomModal ref={bottomModalRef} contentContainerStyle={styles.modalContainerJustify} backgroundColor={colors.modal}>
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <AmountInput
-            unit={tempCustomUnit}
-            amount={tempCustomAmount || ''}
-            onChangeText={setTempCustomAmount}
-            onAmountUnitChange={setTempCustomUnit}
-          />
-          <View style={[styles.customAmount, stylesHook.customAmount]}>
-            <TextInput
-              onChangeText={setTempCustomLabel}
-              placeholderTextColor="#81868e"
-              placeholder={loc.receive.details_label}
-              value={tempCustomLabel || ''}
-              numberOfLines={1}
-              style={[styles.customAmountText, stylesHook.customAmountText]}
-              testID="CustomAmountDescription"
-            />
-          </View>
-          <BlueSpacing20 />
-          <View style={styles.modalButtonContainer}>
-            <Button
-              testID="CustomAmountResetButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.reset}
-              onPress={resetCustomAmount}
-            />
-            <View style={styles.modalButtonSpacing} />
-            <Button
-              testID="CustomAmountSaveButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.details_create}
-              onPress={createCustomAmountAddress}
-            />
-          </View>
-          <BlueSpacing20 />
-        </KeyboardAvoidingView>
-      </BottomModal>
-    );
   };
 
   const handleShareButtonPressed = () => {
@@ -490,8 +437,43 @@ const ReceiveDetails = () => {
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
+        <BottomModal ref={bottomModalRef} contentContainerStyle={styles.modalContainerJustify} backgroundColor={colors.modal}>
+          <AmountInput
+            unit={tempCustomUnit}
+            amount={tempCustomAmount || ''}
+            onChangeText={setTempCustomAmount}
+            onAmountUnitChange={setTempCustomUnit}
+          />
+          <View style={[styles.customAmount, stylesHook.customAmount]}>
+            <TextInput
+              onChangeText={setTempCustomLabel}
+              placeholderTextColor="#81868e"
+              placeholder={loc.receive.details_label}
+              value={tempCustomLabel || ''}
+              numberOfLines={1}
+              style={[styles.customAmountText, stylesHook.customAmountText]}
+              testID="CustomAmountDescription"
+            />
+          </View>
+          <BlueSpacing20 />
+          <View style={styles.modalButtonContainer}>
+            <Button
+              testID="CustomAmountResetButton"
+              style={[styles.modalButton, stylesHook.modalButton]}
+              title={loc.receive.reset}
+              onPress={resetCustomAmount}
+            />
+            <View style={styles.modalButtonSpacing} />
+            <Button
+              testID="CustomAmountSaveButton"
+              style={[styles.modalButton, stylesHook.modalButton]}
+              title={loc.receive.details_create}
+              onPress={createCustomAmountAddress}
+            />
+          </View>
+          <BlueSpacing20 />
+        </BottomModal>
       </ScrollView>
-      {renderCustomAmountModal()}
     </>
   );
 };
