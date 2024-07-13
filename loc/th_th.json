@@ -218,6 +218,7 @@
     "details_to": "เอ้าพุท",
     "pending": "รอดำเนินการ",
     "list_title": "ธุรกรรม",
+    "transaction": "ธุรกรรม",
     "rbf_title": "เพิ่มค่าธรรมเนียม (RBF)",
     "status_bump": "เพิ่มค่าธรรมเนียม",
     "status_cancel": "ยกเลิกธุรกรรม",

@@ -329,6 +329,7 @@
     "eta_1d": "Tiempo estimado: En ~1 día",
     "view_wallet": "Ver {walletLabel}",
     "list_title": "Transacciones",
+    "transaction": "Transaccion",
     "open_url_error": "No se puede abrir el enlace con el navegador predeterminado. Cambia tu navegador predeterminado y vuelve a intentarlo.",
     "rbf_explain": "Reemplazaremos esta transacción con una tarifa más alta para que se ejecute más rápido. Esto se llama RBF—Reemplazo por comisión.",
     "rbf_title": "Incrementar comisión (RBF)",

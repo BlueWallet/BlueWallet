@@ -152,7 +152,8 @@
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
     "pending": "Disgwyl",
-    "list_title": "Trafodion"
+    "list_title": "Trafodion",
+    "transaction": "Trafodyn"
   },
   "wallets": {
     "add_bitcoin_explain": "Waled Bitcoin syml a cryf",

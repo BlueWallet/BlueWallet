@@ -108,7 +108,8 @@
     "details_show_in_block_explorer": "Bonisa ibhloko umhloi",
     "details_title": "Ngeniswa",
     "details_to": "Mveliso",
-    "list_title": "ngeniswa"
+    "list_title": "ngeniswa",
+    "transaction": "Ngeniswa"
   },
   "wallets": {
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
