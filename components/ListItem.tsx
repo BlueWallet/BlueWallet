@@ -153,7 +153,15 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />}
             {rightIcon && <Avatar icon={rightIcon} />}
             {switchProps && <Switch {...memoizedSwitchProps} accessibilityLabel={title} accessible accessibilityRole="switch" />}
-            {checkmark && <RNElementsListItem.CheckBox iconType="octaicon" checkedColor="#0070FF" checkedIcon="check" checked />}
+            {checkmark && (
+              <RNElementsListItem.CheckBox
+                iconRight
+                containerStyle={stylesHook.containerStyle}
+                iconType="octaicon"
+                checkedIcon="check"
+                checked
+              />
+            )}
           </>
         )}
       </>
