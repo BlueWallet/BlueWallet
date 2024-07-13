@@ -214,8 +214,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('CustomAmountDescription')).typeText('test');
     await element(by.id('CustomAmountDescription')).tapReturnKey();
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('test');
+    await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('test');
+    await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
+
     await yo('BitcoinAddressQRCodeContainer');
     await yo('CopyTextToClipboard');
     await device.pressBack();

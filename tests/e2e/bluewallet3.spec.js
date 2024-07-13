@@ -44,8 +44,9 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('CustomAmountDescription')).typeText('Test');
     await element(by.id('CustomAmountDescription')).tapReturnKey();
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('Test');
+    await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('Test');
+    await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
+
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
     await expect(element(by.text('bitcoin:bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv?amount=1&label=Test'))).toBeVisible();
