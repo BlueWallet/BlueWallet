@@ -185,7 +185,8 @@
     "details_show_in_block_explorer": "Wys in blok verkenner",
     "details_title": "Transaksie",
     "details_to": "Resultaat",
-    "list_title": "transaksies"
+    "list_title": "transaksies",
+    "transaction": "Transaksie"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

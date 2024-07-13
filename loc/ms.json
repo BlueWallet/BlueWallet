@@ -300,6 +300,7 @@
     "eta_3h": "ETA: Dalam ~3 jam",
     "eta_1d": "ETA: Dalam ~1 hari",
     "list_title": "Urus niaga",
+    "transaction": "Urus niaga",
     "rbf_title": "Tambah Yuran (RBF)",
     "status_bump": "Tambah Yuran",
     "status_cancel": "Batalkan Urus Niaga",

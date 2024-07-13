@@ -274,6 +274,7 @@
     "pending": "Pendente",
     "view_wallet": "Ver {walletLabel}",
     "list_title": "Transações",
+    "transaction": "detalhes",
     "open_url_error": "Não foi possível abrir a ligação com o browser predefinido. Altere o seu navegador predefinido e tente novamente.",
     "rbf_explain": "Substituiremos esta transação por outra com uma taxa mais elevada para que seja minerada mais rapidamente. A isto chama-se RBF – Replace by Fee (substituição por taxa).",
     "rbf_title": "Aumentar taxa (RBF)",

@@ -268,6 +268,7 @@
     "list_conf": "Conf: {number}",
     "pending": "待办",
     "list_title": "交易",
+    "transaction": "转账",
     "rbf_title": "碰撞费用（RBF）",
     "status_bump": "碰撞费用",
     "status_cancel": "取消交易",
