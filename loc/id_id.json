@@ -301,6 +301,7 @@
     "eta_3h": "Estimasi: dalam ~3 jam",
     "eta_1d": "Estimasi: dalam ~1 hari",
     "list_title": "transaksi",
+    "transaction": "Transaksi",
     "status_cancel": "Batalkan Transaksi",
     "txid": "ID Transaksi",
     "updating": "Memperbaharui..."

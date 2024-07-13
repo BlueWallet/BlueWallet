@@ -339,6 +339,7 @@
     "eta_1d": "ETA: In ~1 giorno",
     "view_wallet": "Visualizza {walletLabel}",
     "list_title": "Transazioni",
+    "transaction": "Transazione",
     "open_url_error": "Non è stato possibile aprire il link con il browser predefinito. Per favore cambia il tuo browser predefinito e riprova.",
     "rbf_explain": "Rimpiazzeremo questa transazione con una che ha costi di transazione più alti così da poter essere minata più velocemente. Questa procedura è chiamata RBF—Replace by Fee.",
     "rbf_title": "Aumenta la commissione (RBF)",
