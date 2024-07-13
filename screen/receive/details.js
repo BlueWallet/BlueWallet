@@ -237,7 +237,7 @@ const ReceiveDetails = () => {
           {isCustom && (
             <>
               {getDisplayAmount() && (
-                <BlueText testID="CustomAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
+                <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
                   {getDisplayAmount()}
                 </BlueText>
               )}
