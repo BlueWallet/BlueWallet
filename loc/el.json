@@ -256,6 +256,7 @@
     "received_with_amount": "+{amt1} ({amt2})",
     "view_wallet": "Προβολή {walletLabel}",
     "list_title": "Συναλλαγές",
+    "transaction": "Συναλλαγή",
     "status_cancel": "Ακύρωση συναλλαγής",
     "txid": "ID συναλλαγής"
   },

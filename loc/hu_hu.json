@@ -338,6 +338,7 @@
     "eta_3h": "ETA: ~3 órán belül",
     "eta_1d": "ETA: ~1 napon belül",
     "list_title": "tranzakciók",
+    "transaction": "Tranzakció",
     "open_url_error": "Nem lehetett megnyitni a URL-t az alapértelmezett böngészővel. Kérem változtassa meg a böngészőjét és próbálkozzon meg újra.",
     "rbf_explain": "Kiváltjuk ezt a tranzakciót egy magasabb tranzakciós díjjal járó tranzakcióval, így hamarabb teljesül. Ezt a megoldást Tranzakciós Díj Pótlásnak hívjuk, angolul RBF—Replace by Fee.",
     "rbf_title": "Kiváltási díj (RBF)",

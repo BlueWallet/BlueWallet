@@ -327,6 +327,7 @@
     "eta_3h": "ETA: Čez ~3 ure",
     "eta_1d": "ETA: Čez ~1 dan",
     "list_title": "Transakcije",
+    "transaction": "Transakcija",
     "open_url_error": "Povezave ni mogoče odpreti s privzetim brskalnikom. Spremenite privzeti brskalnik in poskusite ponovno.",
     "rbf_explain": "To transakcijo bomo nadomestili z novo, ki plača višjo omrežnino, zato bo potrditev hitrejša. (RBF - Replace By Fee)",
     "rbf_title": "Povečaj omrežnino (RBF)",
