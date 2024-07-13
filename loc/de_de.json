@@ -373,6 +373,7 @@
     "eta_1d": "In ca. 1 Tag verbucht.",
     "view_wallet": "{walletLabel} anzeigen",
     "list_title": "Transaktionen",
+    "transaction": "Transaktion",
     "open_url_error": "Der Standardbrowser kann die URL nicht öffnen. Bitte diesen ggf. ändern, um es erneut zu versuchen.",
     "rbf_explain": "BlueWallet ersetzt die aktuelle Transaktion zur schnelleren Überweisung durch eine Transaktion mit höherer Gebühr. Dieses Verfahren wird 'RBF - Replace By Fee' genannt.",
     "rbf_title": "TRX-Gebühr erhöhen (RBF)",

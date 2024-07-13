@@ -373,6 +373,7 @@
     "eta_1d": "Tempo estimado de chegada: Em ~1 dia",
     "view_wallet": "Ver {walletLabel}",
     "list_title": "Transações",
+    "transaction": "Transação",
     "open_url_error": "Incapaz de abrir o link com o navegador padrão. Por favor, mude o seu navegador padrão e tente novamente.",
     "rbf_explain": "Substituiremos essa transação por uma com uma taxa maior, assim ela será alocada mais rapidamente em um bloco. Isso é chamado de RBF—Replace by Fee.",
     "rbf_title": "Aumentar Taxa (RBF)",

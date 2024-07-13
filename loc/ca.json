@@ -250,6 +250,7 @@
     "pending": "Pendent",
     "view_wallet": "Veure {walletLabel}",
     "list_title": "transaccions",
+    "transaction": "Transacció",
     "status_cancel": "Cancel·lar la Transacció",
     "txid": "ID de la transacció",
     "updating": "Actualitzant..."

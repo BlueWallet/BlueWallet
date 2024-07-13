@@ -346,6 +346,7 @@
     "eta_1d": "ETA: Dans ~1 jour",
     "view_wallet": "Voir {walletLabel}",
     "list_title": "transactions",
+    "transaction": "Transaction",
     "open_url_error": "Incapable d'ouvrir le lien avec l'explorateur par défaut. Veuillez changer votre explorateur par défaut et réessayer.",
     "rbf_explain": "Nous allons remplacer cette transaction par celle avec des frais plus élevés. Elle devrait donc être minée plus vite. On parle de RBF - Replace By Fee.",
     "rbf_title": "Frais de propulsion (RBF)",

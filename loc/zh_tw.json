@@ -261,6 +261,7 @@
     "list_conf": "Conf: {number}",
     "pending": "等待中",
     "list_title": "交易",
+    "transaction": "轉賬",
     "rbf_title": "對碰費用（RBF）",
     "status_bump": "對碰費用",
     "status_cancel": "取消交易",
