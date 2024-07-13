@@ -317,6 +317,7 @@ const ReceiveDetails = () => {
   };
 
   const createCustomAmountAddress = () => {
+    bottomModalRef.current.dismiss();
     setIsCustom(true);
     let amount = tempCustomAmount;
     switch (tempCustomUnit) {
@@ -340,7 +341,6 @@ const ReceiveDetails = () => {
     setCustomUnit(tempCustomUnit);
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: tempCustomLabel }));
     setShowAddress(true);
-    bottomModalRef.current.dismiss();
   };
 
   const resetCustomAmount = () => {
