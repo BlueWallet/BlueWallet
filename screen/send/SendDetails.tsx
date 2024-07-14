@@ -743,8 +743,7 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importTransaction = async () => {
-    feeModalRef.current?.dismiss();
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -819,8 +818,7 @@ const SendDetails = () => {
   };
 
   const _importTransactionMultisig = async (base64arg: string | false) => {
-    feeModalRef.current?.dismiss();
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     try {
       const base64 = base64arg || (await fs.openSignedTransaction());
       if (!base64) return;
@@ -866,7 +864,6 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = () => {
-    feeModalRef.current?.dismiss();
     optionsModalRef.current?.dismiss();
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
@@ -905,24 +902,24 @@ const SendDetails = () => {
     if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
   };
 
-  const handleCoinControl = () => {
+  const handleCoinControl = async () => {
     if (!wallet) return;
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
     });
   };
 
-  const handleInsertContact = () => {
+  const handleInsertContact = async () => {
     if (!wallet) return;
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
   const handlePsbtSign = async () => {
+    await optionsModalRef.current?.dismiss();
     setIsLoading(true);
-    optionsModalRef.current?.dismiss();
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
     const scannedData = await scanQrHelper(name);
     if (!scannedData) return setIsLoading(false);
@@ -965,8 +962,6 @@ const SendDetails = () => {
   // Header Right Button
 
   const headerRightOnPress = (id: string) => {
-    feeModalRef.current?.dismiss();
-    optionsModalRef.current?.dismiss();
     if (id === SendDetails.actionKeys.AddRecipient) {
       handleAddRecipient();
     } else if (id === SendDetails.actionKeys.RemoveRecipient) {
@@ -1084,8 +1079,6 @@ const SendDetails = () => {
             disabled={isLoading}
             style={styles.advancedOptions}
             onPress={() => {
-              Keyboard.dismiss();
-              feeModalRef.current?.dismiss();
               optionsModalRef.current?.present();
             }}
             testID="advancedOptionsMenuButton"
@@ -1122,7 +1115,6 @@ const SendDetails = () => {
   };
 
   const onUseAllPressed = () => {
-    optionsModalRef.current?.dismiss();
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
@@ -1132,6 +1124,7 @@ const SendDetails = () => {
         {
           text: loc._.ok,
           onPress: () => {
+            optionsModalRef.current?.dismiss();
             Keyboard.dismiss();
             setAddresses(addrs => {
               addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
@@ -1422,8 +1415,6 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              feeModalRef.current?.dismiss();
-              optionsModalRef.current?.dismiss();
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
             disabled={!isEditable || isLoading}
