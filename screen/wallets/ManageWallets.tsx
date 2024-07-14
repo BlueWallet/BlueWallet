@@ -61,7 +61,7 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-const ReorderWallets: React.FC = () => {
+const ManageWallets: React.FC = () => {
   const sortableList = useRef(null);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useStorage();
@@ -181,7 +181,7 @@ const ReorderWallets: React.FC = () => {
   );
 };
 
-export default ReorderWallets;
+export default ManageWallets;
 
 const styles = StyleSheet.create({
   root: {

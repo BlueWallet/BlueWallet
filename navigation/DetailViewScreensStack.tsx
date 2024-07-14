@@ -379,7 +379,7 @@ const DetailViewStackScreensStack = () => {
         }}
       />
       <DetailViewStack.Screen
-        name="ReorderWallets"
+        name="ManageWallets"
         component={ReorderWalletsStackRoot}
         options={{
           headerShown: false,

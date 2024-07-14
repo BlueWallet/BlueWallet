@@ -229,7 +229,7 @@ const WalletsList: React.FC = () => {
 
   const handleLongPress = useCallback(() => {
     if (wallets.length > 1) {
-      navigate('ReorderWallets');
+      navigate('ManageWallets');
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
