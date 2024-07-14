@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   FlatList,
   I18nManager,
-  InteractionManager,
   Keyboard,
   LayoutAnimation,
   Platform,
@@ -33,7 +32,6 @@ import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
-import { scanQrHelper } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -382,8 +380,10 @@ const WalletsAddMultisigStep2 = () => {
     if (ret.data.toUpperCase().startsWith('UR')) {
       presentAlert({ message: 'BC-UR not decoded. This should never happen' });
     } else if (isValidMnemonicSeed(ret.data)) {
-      provideMnemonicsModalRef.current.present();
       setImportText(ret.data);
+      setTimeout(() => {
+        provideMnemonicsModalRef.current.present().then(() => {});
+      }, 100);
     } else {
       if (MultisigHDWallet.isXpubValid(ret.data) && !MultisigHDWallet.isXpubForMultisig(ret.data)) {
         return presentAlert({ message: loc.multisig.not_a_multisignature_xpub });
@@ -461,10 +461,15 @@ const WalletsAddMultisigStep2 = () => {
     }
   };
 
-  const scanOrOpenFile = () => {
-    InteractionManager.runAfterInteractions(async () => {
-      const scanned = await scanQrHelper(name, true);
-      onBarScanned({ data: scanned });
+  const scanOrOpenFile = async () => {
+    await provideMnemonicsModalRef.current.dismiss();
+
+    navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: name,
+        onBarScanned,
+      },
     });
   };
 
@@ -573,7 +578,13 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         contentContainerStyle={styles.newKeyModalContent}
         footer={
-          isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
+          <View style={styles.modalFooterBottomPadding}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
+            )}
+          </View>
         }
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
@@ -597,9 +608,8 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const hideProvideMnemonicsModal = () => {
+  const resetProvideMnemonicsModalImportText = () => {
     setImportText('');
-    setAskPassphrase(false);
   };
 
   const renderProvideMnemonicsModal = () => {
@@ -607,45 +617,46 @@ const WalletsAddMultisigStep2 = () => {
       <BottomModal
         footerDefaultMargins
         footer={
-          isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <>
-              <Button
-                testID="DoImportKeyButton"
-                disabled={importText.trim().length === 0}
-                title={loc.wallets.import_do_import}
-                onPress={useMnemonicPhrase}
-              />
-              <BlueButtonLink
-                testID="ScanOrOpenFile"
-                ref={openScannerButton}
-                disabled={isLoading}
-                onPress={scanOrOpenFile}
-                title={loc.wallets.import_scan_qr}
-              />
-            </>
-          )
+          <View style={styles.modalFooterBottomPadding}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <Button
+                  testID="DoImportKeyButton"
+                  disabled={importText.trim().length === 0}
+                  title={loc.wallets.import_do_import}
+                  onPress={useMnemonicPhrase}
+                />
+                <BlueButtonLink
+                  testID="ScanOrOpenFile"
+                  ref={openScannerButton}
+                  disabled={isLoading}
+                  onPress={scanOrOpenFile}
+                  title={loc.wallets.import_scan_qr}
+                />
+              </>
+            )}
+          </View>
         }
-        onClose={hideProvideMnemonicsModal}
+        onClose={resetProvideMnemonicsModalImportText}
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
         isGrabberVisible={false}
+        contentContainerStyle={styles.modalContent}
       >
-        <View style={styles.modalContent}>
-          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-          <BlueSpacing20 />
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-          {isAdvancedModeEnabled && (
-            <>
-              <BlueSpacing10 />
-              <View style={styles.row}>
-                <BlueText>{loc.wallets.import_passphrase}</BlueText>
-                <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-              </View>
-            </>
-          )}
-        </View>
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        <BlueSpacing20 />
+        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        {isAdvancedModeEnabled && (
+          <>
+            <BlueSpacing10 />
+            <View style={styles.row}>
+              <BlueText>{loc.wallets.import_passphrase}</BlueText>
+              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+            </View>
+          </>
+        )}
       </BottomModal>
     );
   };
@@ -672,19 +683,21 @@ const WalletsAddMultisigStep2 = () => {
         footerDefaultMargins
         contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
         footer={
-          isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <SaveFileButton
-              style={[styles.exportButton, stylesHook.exportButton]}
-              fileName={cosignerXpubFilename}
-              fileContent={cosignerXpub}
-              beforeOnPress={exportCosignerBeforeOnPress}
-              afterOnPress={exportCosignerAfterOnPress}
-            >
-              <SquareButton title={loc.multisig.share} />
-            </SaveFileButton>
-          )
+          <View style={styles.modalFooterBottomPadding}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <SaveFileButton
+                style={[styles.exportButton, stylesHook.exportButton]}
+                fileName={cosignerXpubFilename}
+                fileContent={cosignerXpub}
+                beforeOnPress={exportCosignerBeforeOnPress}
+                afterOnPress={exportCosignerAfterOnPress}
+              >
+                <SquareButton title={loc.multisig.share} />
+              </SaveFileButton>
+            )}
+          </View>
         }
       >
         <Text style={[styles.headerText, stylesHook.textDestination]}>
@@ -757,13 +770,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 32,
     justifyContent: 'center',
-    minHeight: 480,
+    minHeight: 400,
   },
   newKeyModalContent: {
     paddingHorizontal: 22,
     justifyContent: 'center',
     minHeight: 400,
   },
+  modalFooterBottomPadding: { paddingBottom: 26 },
   vaultKeyCircleSuccess: {
     width: 42,
     height: 42,
