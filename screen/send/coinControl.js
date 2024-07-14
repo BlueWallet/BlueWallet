@@ -241,10 +241,6 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         switch={switchValue}
       />
       <BlueSpacing20 />
-      <View style={mStyles.buttonContainer}>
-        <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
-      </View>
-      <BlueSpacing20 />
     </>
   );
 };
@@ -424,6 +420,11 @@ const CoinControl = () => {
           setOutput(false);
         }}
         backgroundColor={colors.elevated}
+        footer={
+          <View style={mStyles.buttonContainer}>
+            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
+          </View>
+        }
         contentContainerStyle={styles.modalContent}
       >
         {output && renderOutputModalContent()}
