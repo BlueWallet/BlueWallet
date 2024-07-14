@@ -107,9 +107,6 @@ const WalletsAddMultisigStep2 = () => {
     textDestination: {
       color: colors.foregroundColor,
     },
-    modalContent: {
-      backgroundColor: colors.modal,
-    },
     exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
@@ -671,8 +668,9 @@ const WalletsAddMultisigStep2 = () => {
       <BottomModal
         onClose={hideCosignersXpubModal}
         ref={renderCosignersXpubModalRef}
+        backgroundColor={colors.modal}
         footerDefaultMargins
-        contentContainerStyle={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}
+        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter]}
         footer={
           isLoading ? (
             <ActivityIndicator />
