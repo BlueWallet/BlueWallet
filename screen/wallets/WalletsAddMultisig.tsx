@@ -1,9 +1,8 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
 import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-
 import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
 import BottomModal from '../../components/BottomModal';
@@ -13,12 +12,18 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
-const WalletsAddMultisig = () => {
+type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
+type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
+
+const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
-  const loadingAnimation = useRef();
-  const { walletLabel } = useRoute().params;
+  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const loadingAnimation = useRef<LottieView>(null);
+  const { walletLabel } = useRoute<RouteProps>().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -183,10 +188,10 @@ const WalletsAddMultisig = () => {
     setIsModalVisible(true);
   };
 
-  const getCurrentlySelectedFormat = code => {
+  const getCurrentlySelectedFormat = (code: string) => {
     switch (code) {
       case 'format':
-        return WalletsAddMultisig.getCurrentFormatReadable(format);
+        return getCurrentFormatReadable(format);
       case 'quorum':
         return loc.formatString(loc.multisig.quorum, { m, n });
       default:
@@ -326,7 +331,7 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisig.getCurrentFormatReadable = f => {
+const getCurrentFormatReadable = (f: string) => {
   switch (f) {
     case MultisigHDWallet.FORMAT_P2WSH:
       return loc.multisig.native_segwit_title;
@@ -338,10 +343,6 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
     default:
       throw new Error('This should never happen');
   }
-};
-
-WalletsAddMultisig.initialParams = {
-  walletLabel: loc.multisig.default_label,
 };
 
 export default WalletsAddMultisig;
