@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -22,7 +22,6 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
 const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
-  const loadingAnimation = useRef<LottieView>(null);
   const { walletLabel } = useRoute<RouteProps>().params;
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
@@ -55,19 +54,6 @@ const WalletsAddMultisig: React.FC = () => {
       color: colors.outputValue,
     },
   });
-
-  useEffect(() => {
-    if (loadingAnimation.current) {
-      /*
-      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
-      Temporary workaround until Lottie is fixed.
-      */
-      setTimeout(() => {
-        loadingAnimation.current?.reset();
-        loadingAnimation.current?.play();
-      }, 100);
-    }
-  }, []);
 
   const onLetsStartPress = () => {
     navigate('WalletsAddMultisigStep2', { m, n, format, walletLabel });
@@ -203,7 +189,7 @@ const WalletsAddMultisig: React.FC = () => {
     <SafeArea style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
-          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay ref={loadingAnimation} loop={false} />
+          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay loop={false} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
