@@ -3,7 +3,16 @@ import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Image, LayoutAnimation, Pressable, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Image,
+  LayoutAnimation,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Badge, Icon, Text } from '@rneui/themed';
 
 import {
@@ -26,7 +35,7 @@ class AmountInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
     /**
-     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
+     * amount is a string that's always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
      */
     amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     /**
@@ -35,7 +44,7 @@ class AmountInput extends Component {
      */
     onChangeText: PropTypes.func.isRequired,
     /**
-     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
+     * callback that's fired to notify of currently selected denomination, returns <BitcoinUnit.*>
      */
     onAmountUnitChange: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
@@ -47,7 +56,7 @@ class AmountInput extends Component {
   };
 
   /**
-   * cache of conversions  fiat amount => satoshi
+   * cache of conversions fiat amount => satoshi
    * @type {{}}
    */
   static conversionCache = {};
@@ -63,6 +72,7 @@ class AmountInput extends Component {
   constructor() {
     super();
     this.state = { mostRecentFetchedRate: Date(), isRateOutdated: false, isRateBeingUpdated: false };
+    this.textInput = React.createRef();
   }
 
   componentDidMount() {
@@ -76,15 +86,14 @@ class AmountInput extends Component {
   }
 
   /**
-   * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
+   * here we must recalculate old amount value (which was denominated in `previousUnit`) to new denomination `newUnit`
    * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
    *
    * @param previousUnit {string} one of {BitcoinUnit.*}
    * @param newUnit {string} one of {BitcoinUnit.*}
    */
-  onAmountUnitChange(previousUnit, newUnit) {
+  onAmountUnitChange = (previousUnit, newUnit) => {
     const amount = this.props.amount || 0;
-    const log = `${amount}(${previousUnit}) ->`;
     let sats = 0;
     switch (previousUnit) {
       case BitcoinUnit.BTC:
@@ -98,20 +107,19 @@ class AmountInput extends Component {
         break;
     }
     if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && AmountInput.conversionCache[amount + previousUnit]) {
-      // cache hit! we reuse old value that supposedly doesnt have rounding errors
+      // cache hit! we reuse old value that supposedly doesn't have rounding errors
       sats = AmountInput.conversionCache[amount + previousUnit];
     }
 
     const newInputValue = formatBalancePlain(sats, newUnit, false);
-    console.log(`${log} ${sats}(sats) -> ${newInputValue}(${newUnit})`);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
+      // we cache conversion, so when we will need reverse conversion there won't be a rounding error
       AmountInput.conversionCache[newInputValue + newUnit] = amount;
     }
     this.props.onChangeText(newInputValue);
     this.props.onAmountUnitChange(newUnit);
-  }
+  };
 
   /**
    * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
@@ -143,55 +151,32 @@ class AmountInput extends Component {
     }
   };
 
-  textInput = React.createRef();
-
   handleTextInputOnPress = () => {
     this.textInput.current.focus();
   };
 
   handleChangeText = text => {
-    text = text.trim();
-    if (this.props.unit !== BitcoinUnit.LOCAL_CURRENCY) {
-      text = text.replace(',', '.');
-      const split = text.split('.');
-      if (split.length >= 2) {
-        text = `${parseInt(split[0], 10)}.${split[1]}`;
-      } else {
-        text = `${parseInt(split[0], 10)}`;
-      }
+    text = text.replace(/,/g, '.').replace(/[^0-9.]/g, '');
 
-      text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
-
-      if (text.startsWith('.')) {
-        text = '0.';
-      }
-    } else if (this.props.unit === BitcoinUnit.LOCAL_CURRENCY) {
-      text = text.replace(/,/gi, '.');
-      if (text.split('.').length > 2) {
-        // too many dots. stupid code to remove all but first dot:
-        let rez = '';
-        let first = true;
-        for (const part of text.split('.')) {
-          rez += part;
-          if (first) {
-            rez += '.';
-            first = false;
-          }
-        }
-        text = rez;
-      }
-      if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
-        text = text.replace(/^(0+)/g, '');
-      }
-      text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
-      text = text.replace(/(\..*)\./g, '$1');
+    const split = text.split('.');
+    if (split.length > 2) {
+      text = split[0] + '.' + split[1];
     }
+    
+    if (split.length === 2 && split[1].length > 8) {
+      text = split[0] + '.' + split[1].substring(0, 8);
+    }
+
+    if (text.startsWith('.')) {
+      text = '0' + text;
+    }
+    
     this.props.onChangeText(text);
   };
 
   resetAmount = async () => {
     if (await confirm(loc.send.reset_amount, loc.send.reset_amount_confirm)) {
-      this.props.onChangeText();
+      this.props.onChangeText('');
     }
   };
 
@@ -212,12 +197,12 @@ class AmountInput extends Component {
   };
 
   render() {
-    const { colors, disabled, unit } = this.props;
-    const amount = this.props.amount || 0;
+    const { colors, disabled, unit, amount = 0 } = this.props;
+
     let secondaryDisplayCurrency = formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
     // if main display is sat or btc - secondary display is fiat
-    // if main display is fiat - secondary dislay is btc
+    // if main display is fiat - secondary display is btc
     let sat;
     switch (unit) {
       case BitcoinUnit.BTC:
@@ -242,7 +227,11 @@ class AmountInput extends Component {
     const stylesHook = StyleSheet.create({
       center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
       localCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
-      input: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2, fontSize: amount.length > 10 ? 20 : 36 },
+      input: {
+        color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2,
+        fontSize: amount.length > 10 ? 20 : 36,
+        textAlign: 'right',
+      },
       cryptoCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
     });
 
@@ -251,7 +240,7 @@ class AmountInput extends Component {
         accessibilityRole="button"
         accessibilityLabel={loc._.enter_amount}
         disabled={this.props.pointerEvents === 'none'}
-        onPress={() => this.textInput.focus()}
+        onPress={this.handleTextInputOnPress}
       >
         <>
           <View style={styles.root}>
@@ -268,19 +257,16 @@ class AmountInput extends Component {
                     keyboardType="numeric"
                     adjustsFontSizeToFit
                     onChangeText={this.handleChangeText}
-                    onBlur={() => {
-                      if (this.props.onBlur) this.props.onBlur();
-                    }}
-                    onFocus={() => {
-                      if (this.props.onFocus) this.props.onFocus();
-                    }}
+                    onBlur={this.props.onBlur}
+                    onFocus={this.props.onFocus}
                     placeholder="0"
                     maxLength={this.maxLength()}
-                    ref={textInput => (this.textInput = textInput)}
+                    ref={this.textInput}
                     editable={!this.props.isLoading && !disabled}
-                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                    value={amount === BitcoinUnit.MAX ? loc.units.MAX : amount}
                     placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
                     style={[styles.input, stylesHook.input]}
+                    textAlign="right"
                   />
                 ) : (
                   <Pressable onPress={this.resetAmount}>
