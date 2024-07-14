@@ -83,7 +83,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
 
     const renderTopRightButton = () =>
       showCloseButton ? (
-        <TouchableOpacity style={styles.buttonContainer} onPress={dismiss}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={dismiss} testID="ModalDoneButton">
           <Image source={require('../img/close.png')} width={20} height={20} />
         </TouchableOpacity>
       ) : null;

@@ -573,7 +573,8 @@ const WalletsAddMultisigStep2 = () => {
         dismissible={false}
         showCloseButton={!isLoading}
         footerDefaultMargins
-        contentContainerStyle={[styles.newKeyModalContent, stylesHook.modalContent]}
+        backgroundColor={colors.modal}
+        contentContainerStyle={styles.newKeyModalContent}
         footer={
           isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={() => mnemonicsModalRef.current.dismiss()} />
         }
@@ -631,9 +632,10 @@ const WalletsAddMultisigStep2 = () => {
         }
         onClose={hideProvideMnemonicsModal}
         ref={provideMnemonicsModalRef}
+        backgroundColor={colors.modal}
         isGrabberVisible={false}
       >
-        <View style={[styles.modalContent, stylesHook.modalContent]}>
+        <View style={styles.modalContent}>
           <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
           <BlueSpacing20 />
           <BlueFormMultiInput value={importText} onChangeText={setImportText} />
