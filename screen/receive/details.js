@@ -437,25 +437,12 @@ const ReceiveDetails = () => {
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </BlueCard>
         </View>
-        <BottomModal ref={bottomModalRef} contentContainerStyle={styles.modalContainerJustify} backgroundColor={colors.modal}>
-          <AmountInput
-            unit={tempCustomUnit}
-            amount={tempCustomAmount || ''}
-            onChangeText={setTempCustomAmount}
-            onAmountUnitChange={setTempCustomUnit}
-          />
-          <View style={[styles.customAmount, stylesHook.customAmount]}>
-            <TextInput
-              onChangeText={setTempCustomLabel}
-              placeholderTextColor="#81868e"
-              placeholder={loc.receive.details_label}
-              value={tempCustomLabel || ''}
-              numberOfLines={1}
-              style={[styles.customAmountText, stylesHook.customAmountText]}
-              testID="CustomAmountDescription"
-            />
-          </View>
-          <BlueSpacing20 />
+      </ScrollView>
+      <BottomModal
+        ref={bottomModalRef}
+        contentContainerStyle={styles.modalContainerJustify}
+        backgroundColor={colors.modal}
+        footer={
           <View style={styles.modalButtonContainer}>
             <Button
               testID="CustomAmountResetButton"
@@ -471,9 +458,29 @@ const ReceiveDetails = () => {
               onPress={createCustomAmountAddress}
             />
           </View>
-          <BlueSpacing20 />
-        </BottomModal>
-      </ScrollView>
+        }
+      >
+        <AmountInput
+          unit={tempCustomUnit}
+          amount={tempCustomAmount || ''}
+          onChangeText={setTempCustomAmount}
+          onAmountUnitChange={setTempCustomUnit}
+        />
+        <View style={[styles.customAmount, stylesHook.customAmount]}>
+          <TextInput
+            onChangeText={setTempCustomLabel}
+            placeholderTextColor="#81868e"
+            placeholder={loc.receive.details_label}
+            value={tempCustomLabel || ''}
+            numberOfLines={1}
+            style={[styles.customAmountText, stylesHook.customAmountText]}
+            testID="CustomAmountDescription"
+          />
+        </View>
+        <BlueSpacing20 />
+
+        <BlueSpacing20 />
+      </BottomModal>
     </>
   );
 };
@@ -538,6 +545,8 @@ const styles = StyleSheet.create({
   modalButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 34,
   },
   modalButtonSpacing: {
     width: 16,

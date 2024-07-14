@@ -1248,35 +1248,37 @@ const SendDetails = () => {
         contentContainerStyle={styles.modalContent}
         footerDefaultMargins
         footer={
-          <TouchableOpacity
-            testID="feeCustom"
-            accessibilityRole="button"
-            onPress={async () => {
-              let error = loc.send.fee_satvbyte;
-              while (true) {
-                let fee: number | string;
+          <View style={styles.feeModalFooter}>
+            <TouchableOpacity
+              testID="feeCustom"
+              accessibilityRole="button"
+              onPress={async () => {
+                let error = loc.send.fee_satvbyte;
+                while (true) {
+                  let fee: number | string;
 
-                try {
-                  fee = await prompt(loc.send.create_fee, error, true, 'numeric');
-                } catch (_) {
+                  try {
+                    fee = await prompt(loc.send.create_fee, error, true, 'numeric');
+                  } catch (_) {
+                    return;
+                  }
+
+                  if (!/^\d+$/.test(fee)) {
+                    error = loc.send.details_fee_field_is_not_valid;
+                    continue;
+                  }
+
+                  if (Number(fee) < 1) fee = '1';
+                  fee = Number(fee).toString(); // this will remove leading zeros if any
+                  setCustomFee(fee);
+                  feeModalRef.current?.dismiss();
                   return;
                 }
-
-                if (!/^\d+$/.test(fee)) {
-                  error = loc.send.details_fee_field_is_not_valid;
-                  continue;
-                }
-
-                if (Number(fee) < 1) fee = '1';
-                fee = Number(fee).toString(); // this will remove leading zeros if any
-                setCustomFee(fee);
-                feeModalRef.current?.dismiss();
-                return;
-              }
-            }}
-          >
-            <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
-          </TouchableOpacity>
+              }}
+            >
+              <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
+            </TouchableOpacity>
+          </View>
         }
       >
         <View style={styles.paddingTop80}>
@@ -1654,7 +1656,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 22,
-    minHeight: 370,
+    minHeight: 350,
   },
   paddingTop80: { paddingTop: 80 },
   optionsContent: {
@@ -1718,6 +1720,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginRight: 18,
     marginVertical: 8,
+  },
+  feeModalFooter: {
+    paddingBottom: 50,
   },
   memo: {
     flexDirection: 'row',
