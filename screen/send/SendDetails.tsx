@@ -922,57 +922,41 @@ const SendDetails = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
-    const handleBarScanned = async (scannedData: string | null) => {
-      if (!scannedData) {
-        setIsLoading(false);
-        return;
-      }
+    const scannedData = await scanQrHelper(name, true, undefined, navigation.navigate);
+    if (!scannedData) return setIsLoading(false);
 
-      let tx;
-      let psbt;
-      try {
-        psbt = bitcoin.Psbt.fromBase64(scannedData);
-        tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
-      } catch (e: any) {
-        presentAlert({ title: loc.errors.error, message: e.message });
-        setIsLoading(false);
-        return;
-      }
-
-      if (!tx || !wallet) {
-        setIsLoading(false);
-        return;
-      }
-
-      // we need to remove change address from recipients, so that Confirm screen show more accurate info
-      const changeAddresses: string[] = [];
-      // @ts-ignore hacky
-      for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
-        // @ts-ignore hacky
-        changeAddresses.push(wallet._getInternalAddressByIndex(c));
-      }
-      const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
-
-      navigation.navigate('CreateTransaction', {
-        fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
-        feeSatoshi: psbt.getFee(),
-        wallet,
-        tx: tx.toHex(),
-        recipients,
-        satoshiPerByte: psbt.getFeeRate(),
-        showAnimatedQr: true,
-        psbt,
-      });
-
+    let tx;
+    let psbt;
+    try {
+      psbt = bitcoin.Psbt.fromBase64(scannedData);
+      tx = (wallet as MultisigHDWallet).cosignPsbt(psbt).tx;
+    } catch (e: any) {
+      presentAlert({ title: loc.errors.error, message: e.message });
+      return;
+    } finally {
       setIsLoading(false);
-    };
+    }
 
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned: handleBarScanned,
-      },
+    if (!tx || !wallet) return setIsLoading(false);
+
+    // we need to remove change address from recipients, so that Confirm screen show more accurate info
+    const changeAddresses: string[] = [];
+    // @ts-ignore hacky
+    for (let c = 0; c < wallet.next_free_change_address_index + wallet.gap_limit; c++) {
+      // @ts-ignore hacky
+      changeAddresses.push(wallet._getInternalAddressByIndex(c));
+    }
+    const recipients = psbt.txOutputs.filter(({ address }) => !changeAddresses.includes(String(address)));
+
+    navigation.navigate('CreateTransaction', {
+      fee: new BigNumber(psbt.getFee()).dividedBy(100000000).toNumber(),
+      feeSatoshi: psbt.getFee(),
+      wallet,
+      tx: tx.toHex(),
+      recipients,
+      satoshiPerByte: psbt.getFeeRate(),
+      showAnimatedQr: true,
+      psbt,
     });
   };
 

@@ -1,6 +1,8 @@
 import { Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { navigationRef } from '../NavigationService';
+import { NavigationProp } from '@react-navigation/native';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
 /**
  * Helper function that navigates to ScanQR screen, and returns promise that will resolve with the result of a scan,
  * and then navigates back. If QRCode scan was closed, promise resolves to null.
@@ -11,7 +13,12 @@ import { navigationRef } from '../NavigationService';
  * @param onDismiss {function} - if camera is closed via X button it gets triggered
  * @return {Promise<string>}
  */
-function scanQrHelper(currentScreenName: string, showFileImportButton = true, onDismiss?: () => void): Promise<string | null> {
+function scanQrHelper(
+  currentScreenName: string,
+  showFileImportButton = true,
+  onDismiss?: () => void,
+  navigate?: NavigationProp<any>['navigate'], // pass navigate when calling from inside BottomModal
+): Promise<string | null> {
   return requestCameraAuthorization().then(() => {
     return new Promise(resolve => {
       const params = {
@@ -22,17 +29,22 @@ function scanQrHelper(currentScreenName: string, showFileImportButton = true, on
 
       params.onBarScanned = function (data: any) {
         setTimeout(() => resolve(data.data || data), 1);
-        navigationRef.navigate({ name: currentScreenName, params: {}, merge: true });
+        (navigate || navigationRef.navigate)({
+          name: currentScreenName,
+          params: {},
+          merge: true,
+        });
       };
-
-      navigationRef.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params,
+      (navigate || navigationRef.navigate)({
+        name: 'ScanQRCodeRoot',
+        params: {
+          screen: 'ScanQRCode',
+          params,
+        },
       });
     });
   });
 }
-
 const isCameraAuthorizationStatusGranted = async () => {
   const status = await check(Platform.OS === 'android' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
   return status === RESULTS.GRANTED;

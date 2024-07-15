@@ -37,6 +37,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { scanQrHelper } from '../../helpers/scan-qr';
 
 const staticCache = {};
 
@@ -463,14 +464,8 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: name,
-        onBarScanned,
-      },
-    });
+    const scanned = await scanQrHelper(name, true, undefined, navigation.navigate);
+    onBarScanned({ data: scanned });
   };
 
   const dashType = ({ index, lastIndex, isChecked, isFocus }) => {

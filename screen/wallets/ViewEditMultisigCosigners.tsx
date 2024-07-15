@@ -230,12 +230,15 @@ const ViewEditMultisigCosigners: React.FC = () => {
         backgroundColor={colors.elevated}
         contentContainerStyle={styles.newKeyModalContent}
         footer={
-          <Button
-            title={loc.multisig.share}
-            onPress={() => {
-              shareModalRef.current?.present();
-            }}
-          />
+          <>
+            <Button
+              title={loc.multisig.share}
+              onPress={() => {
+                shareModalRef.current?.present();
+              }}
+            />
+            <BlueSpacing20 />
+          </>
         }
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
@@ -506,7 +509,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const scanOrOpenFile = async () => {
-    const scanned = await scanQrHelper(route.name, true);
+    await provideMnemonicsModalRef.current?.dismiss();
+    const scanned = await scanQrHelper(route.name, true, undefined, navigate);
     setImportText(String(scanned));
     provideMnemonicsModalRef.current?.present();
   };
@@ -535,7 +539,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
             ) : (
               <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
-            <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+            <>
+              <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+              <BlueSpacing20 />
+            </>
           </>
         }
       >
@@ -666,7 +673,6 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 22,
     justifyContent: 'center',
-    backgroundColor: 'white',
   },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -680,11 +686,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     paddingHorizontal: 16,
+    marginBottom: 32,
   },
   headerText: { fontSize: 15, color: '#13244D' },
   mainBlock: { marginHorizontal: 16 },
-  alignItemsCenter: { alignItems: 'center' },
-  shareModalHeight: { minHeight: 300 },
+  alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
+  shareModalHeight: { minHeight: 450 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
