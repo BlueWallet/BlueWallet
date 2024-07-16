@@ -904,7 +904,6 @@ const SendDetails = () => {
 
   const handleCoinControl = async () => {
     if (!wallet) return;
-    await optionsModalRef.current?.dismiss();
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
