@@ -85,9 +85,9 @@ const OutputList = ({
     <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
       <RNElementsListItem.CheckBox
         checkedColor="#0070FF"
-        iconType="material-community"
-        checkedIcon="checkbox-marked"
-        uncheckedIcon="checkbox-blank-outline"
+        iconType="octaicon"
+        checkedIcon="check"
+        uncheckedColor="white"
         checked={selected}
         onPress={selected ? onDeSelect : onSelect}
       />

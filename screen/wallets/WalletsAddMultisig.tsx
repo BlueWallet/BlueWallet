@@ -1,26 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useRoute } from '@react-navigation/native';
+import React, { useRef, useState } from 'react';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-
 import { BlueSpacing20 } from '../../BlueComponents';
 import { MultisigHDWallet } from '../../class';
-import BottomModal from '../../components/BottomModal';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 
-const WalletsAddMultisig = () => {
+type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
+type RouteProps = RouteProp<AddWalletStackParamList, 'WalletsAddMultisig'>;
+
+const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
-  const { navigate } = useExtendedNavigation();
-  const loadingAnimation = useRef();
-  const bottomModalRef = useRef();
-  const { walletLabel } = useRoute().params;
+  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { walletLabel } = useRoute<RouteProps>().params;
+  const bottomModalRef = useRef<BottomModalHandle>(null);
   const [m, setM] = useState(2);
   const [n, setN] = useState(3);
   const [format, setFormat] = useState(MultisigHDWallet.FORMAT_P2WSH);
@@ -50,19 +53,6 @@ const WalletsAddMultisig = () => {
       color: colors.outputValue,
     },
   });
-
-  useEffect(() => {
-    if (loadingAnimation.current) {
-      /*
-      https://github.com/lottie-react-native/lottie-react-native/issues/832#issuecomment-1008209732
-      Temporary workaround until Lottie is fixed.
-      */
-      setTimeout(() => {
-        loadingAnimation.current?.reset();
-        loadingAnimation.current?.play();
-      }, 100);
-    }
-  }, []);
 
   const onLetsStartPress = () => {
     bottomModalRef.current?.dismiss();
@@ -171,13 +161,13 @@ const WalletsAddMultisig = () => {
   };
 
   const showAdvancedOptionsModal = () => {
-    bottomModalRef.current.present();
+    bottomModalRef.current?.present();
   };
 
-  const getCurrentlySelectedFormat = code => {
+  const getCurrentlySelectedFormat = (code: string) => {
     switch (code) {
       case 'format':
-        return WalletsAddMultisig.getCurrentFormatReadable(format);
+        return getCurrentFormatReadable(format);
       case 'quorum':
         return loc.formatString(loc.multisig.quorum, { m, n });
       default:
@@ -189,7 +179,7 @@ const WalletsAddMultisig = () => {
     <SafeArea style={stylesHook.root}>
       <View style={styles.descriptionContainer}>
         <View style={styles.imageWrapper}>
-          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay ref={loadingAnimation} loop={false} />
+          <LottieView source={require('../../img/msvault.json')} style={styles.lottie} autoPlay loop={false} />
         </View>
         <BlueSpacing20 />
         <Text style={[styles.textdesc, stylesHook.textdesc]}>
@@ -311,7 +301,7 @@ const styles = StyleSheet.create({
   },
 });
 
-WalletsAddMultisig.getCurrentFormatReadable = f => {
+const getCurrentFormatReadable = (f: string) => {
   switch (f) {
     case MultisigHDWallet.FORMAT_P2WSH:
       return loc.multisig.native_segwit_title;
@@ -323,10 +313,6 @@ WalletsAddMultisig.getCurrentFormatReadable = f => {
     default:
       throw new Error('This should never happen');
   }
-};
-
-WalletsAddMultisig.initialParams = {
-  walletLabel: loc.multisig.default_label,
 };
 
 export default WalletsAddMultisig;
