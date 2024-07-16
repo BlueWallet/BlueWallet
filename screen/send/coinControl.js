@@ -7,6 +7,7 @@ import {
   Keyboard,
   LayoutAnimation,
   PixelRatio,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -193,6 +194,8 @@ const mStyles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+    marginBottom: 36,
+    marginHorizontal: 24,
   },
 });
 
@@ -425,7 +428,7 @@ const CoinControl = () => {
             <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
           </View>
         }
-        contentContainerStyle={styles.modalContent}
+        contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
       >
         {output && renderOutputModalContent()}
       </BottomModal>
@@ -470,8 +473,8 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 22,
     paddingTop: 66,
-    minHeight: 420,
   },
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 350 } :  {},
   empty: {
     flex: 1,
     justifyContent: 'center',
