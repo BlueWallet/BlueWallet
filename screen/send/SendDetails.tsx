@@ -1238,7 +1238,7 @@ const SendDetails = () => {
       <BottomModal
         ref={feeModalRef}
         backgroundColor={colors.modal}
-        contentContainerStyle={styles.modalContent}
+        contentContainerStyle={[styles.modalContent, styles.modalContentMinHeight]}
         footerDefaultMargins
         footer={
           <View style={styles.feeModalFooter}>
@@ -1647,8 +1647,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 22,
-    minHeight: 350,
   },
+  modalContentMinHeight: Platform.OS === 'android' ? { minHeight: 350 } : {},
   paddingTop80: { paddingTop: 80 },
   optionsContent: {
     padding: 22,
@@ -1713,7 +1713,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   feeModalFooter: {
-    paddingBottom: 50,
+    paddingVertical: 50,
   },
   memo: {
     flexDirection: 'row',
