@@ -422,7 +422,7 @@ const CoinControl = () => {
         backgroundColor={colors.elevated}
         footer={
           <View style={mStyles.buttonContainer}>
-            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin(output)} />
+            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
           </View>
         }
         contentContainerStyle={styles.modalContent}

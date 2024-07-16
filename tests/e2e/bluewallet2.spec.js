@@ -485,7 +485,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('test1')).atIndex(0).tap();
     await element(by.id('OutputMemo')).replaceText('test2');
     await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
-    await device.pressBack(); // closing modal
+    await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 
