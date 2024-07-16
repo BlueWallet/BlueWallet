@@ -1,8 +1,8 @@
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { navigationRef } from '../NavigationService';
-import { useStorage } from '../blue_modules/storage-context';
 import { presentWalletExportReminder } from '../helpers/presentWalletExportReminder';
-import { useBiometrics } from './useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from './useBiometrics';
+import { useStorage } from './context/useStorage';
 
 // List of screens that require biometrics
 const requiresBiometrics = ['WalletExportRoot', 'WalletXpubRoot', 'ViewEditMultisigCosignersRoot', 'ExportMultisigCoordinationSetupRoot'];
@@ -13,7 +13,7 @@ const requiresWalletExportIsSaved = ['ReceiveDetailsRoot', 'WalletAddresses'];
 export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>(): T => {
   const originalNavigation = useNavigation<T>();
   const { wallets, saveToDisk } = useStorage();
-  const { isBiometricUseEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseEnabled } = useBiometrics();
 
   const enhancedNavigate: NavigationProp<ParamListBase>['navigate'] = (screenOrOptions: any, params?: any) => {
     let screenName: string;

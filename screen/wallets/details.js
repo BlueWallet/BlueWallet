@@ -1,4 +1,3 @@
-import { useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,11 +16,9 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Notifications from '../../blue_modules/notifications';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -37,17 +34,20 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import ListItem from '../../components/ListItem';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
+import { popToTop } from '../../NavigationService';
+import { useRoute } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
 
 const WalletDetails = () => {
   const { saveToDisk, wallets, deleteWallet, setSelectedWalletID, txMetadata } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -120,7 +120,7 @@ const WalletDetails = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
-  const { goBack, setOptions, popToTop, navigate } = useExtendedNavigation();
+  const { goBack, setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const [masterFingerprint, setMasterFingerprint] = useState();
   const walletTransactionsLength = useMemo(() => wallet.getTransactions().length, [wallet]);
@@ -202,6 +202,7 @@ const WalletDetails = () => {
   useEffect(() => {
     setOptions({
       headerRight: () => SaveButton,
+      headerBackTitleVisible: true,
     });
   }, [SaveButton, setOptions]);
 
@@ -251,7 +252,7 @@ const WalletDetails = () => {
     navigate('WalletExportRoot', {
       screen: 'WalletExport',
       params: {
-        walletID: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -259,7 +260,7 @@ const WalletDetails = () => {
     navigate('ExportMultisigCoordinationSetupRoot', {
       screen: 'ExportMultisigCoordinationSetup',
       params: {
-        walletID: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -282,7 +283,7 @@ const WalletDetails = () => {
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
-        walletID: wallet.getID(),
+        walletID,
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
       },
     });
@@ -294,16 +295,10 @@ const WalletDetails = () => {
 
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
-      walletID: wallet.getID(),
+      walletID,
     });
 
-  const navigateToPaymentCodes = () =>
-    navigate('PaymentCodeRoot', {
-      screen: 'PaymentCodesList',
-      params: {
-        walletID: wallet.getID(),
-      },
-    });
+  const navigateToContacts = () => navigate('PaymentCodeList', { walletID });
 
   const exportInternals = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
@@ -593,7 +588,9 @@ const WalletDetails = () => {
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && isBIP47Enabled && <ListItem onPress={navigateToPaymentCodes} title="Show payment codes" chevron />}
+            {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
+              <ListItem disabled={isToolTipMenuVisible} onPress={navigateToContacts} title={loc.bip47.contacts} chevron />
+            )}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />

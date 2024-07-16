@@ -1,13 +1,13 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { useMemo } from 'react';
-
-import navigationStyle, { navigationStyleTx } from '../components/navigationStyle';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import {
   CoinControlComponent,
   ConfirmComponent,
   CreateTransactionComponent,
+  PaymentCodesListComponent,
   PsbtMultisigComponent,
   PsbtMultisigQRCodeComponent,
   PsbtWithHardwareWalletComponent,
@@ -22,18 +22,21 @@ const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
 const SendDetailsStack = () => {
   const theme = useTheme();
-  const DetailsButton = useMemo(() => <HeaderRightButton testID="Save" disabled={true} title={loc.wallets.create_details} />, []);
+  const DetailsButton = useMemo(
+    () => <HeaderRightButton testID="TransactionDetailsButton" disabled={true} title={loc.send.create_details} />,
+    [],
+  );
 
   return (
     <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false }}>
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}
-        options={navigationStyleTx({}, options => ({
-          ...options,
+        options={navigationStyle({
           title: loc.send.header,
           statusBarStyle: 'light',
-        }))(theme)}
+          closeButtonPosition: CloseButtonPosition.Left,
+        })(theme)}
         initialParams={{ isEditable: true }} // Correctly typed now
       />
       <Stack.Screen
@@ -72,6 +75,11 @@ const SendDetailsStack = () => {
         options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
       />
       <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
+      <Stack.Screen
+        name="PaymentCodeList"
+        component={PaymentCodesListComponent}
+        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
+      />
     </Stack.Navigator>
   );
 };

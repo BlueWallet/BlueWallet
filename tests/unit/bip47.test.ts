@@ -262,6 +262,62 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
   });
 
+  it('should be able to pay to PC (BIP-352 SilentPayments)', async () => {
+    if (!process.env.BIP47_HD_MNEMONIC) {
+      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    const walletSender = new HDSegwitBech32Wallet();
+    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.switchBIP47(true);
+
+    const utxos: CreateTransactionUtxo[] = [
+      {
+        txid: 'ff2b3dc0f16ad96e48f59232421113330781a88ca9b4518846ad9a626260abd3',
+        vout: 1,
+        address: 'bc1qr7trw22djl93c2vz43ftlmaexhvph8w0v4f6ap',
+        value: 195928,
+        wif: walletSender._getWIFbyAddress('bc1qr7trw22djl93c2vz43ftlmaexhvph8w0v4f6ap') as string,
+      },
+    ];
+    const changeAddress = 'bc1q7vraw79vcf7qhnefeaul578h7vjc7tr95ywfuq';
+
+    const { tx, fee } = walletSender.createTransaction(
+      utxos,
+      [
+        { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 22000 },
+        {
+          address: 'sp1qqvvnsd3xnjpmx8hnn2ua0e9sllm34t9jydf8qfesgc7nhdxgzksjwqlrxx37nfzsg6rure5vwa92fksd6f5a6rk05kr07twhd55u3ahquy2v7t6s',
+          value: 10234,
+        },
+      ],
+      6,
+      changeAddress,
+    );
+    assert(tx);
+
+    const legacyAddressDestination = tx.outs.find(o => bitcoin.address.fromOutputScript(o.script) === '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS');
+    assert.strictEqual(legacyAddressDestination?.value, 22000);
+
+    const spDestinatiob = tx.outs.find(o => o.value === 10234);
+    assert.strictEqual(
+      bitcoin.address.fromOutputScript(spDestinatiob!.script!),
+      'bc1pu7dwaehvur4lpc7cqmynnjgx5ngthk574p05mgwxf9lecv4r6j5s02nhxq',
+    );
+
+    const changeDestination = tx.outs.find(
+      o => bitcoin.address.fromOutputScript(o.script) === 'bc1q7vraw79vcf7qhnefeaul578h7vjc7tr95ywfuq',
+    );
+
+    const calculatedFee = 195928 - changeDestination!.value - spDestinatiob!.value - legacyAddressDestination!.value;
+
+    assert.strictEqual(fee, calculatedFee);
+
+    const actualFeerate = fee / tx.virtualSize();
+    assert.strictEqual(Math.round(actualFeerate), 6);
+  });
+
   it('can unwrap addresses to send & receive', () => {
     if (!process.env.BIP47_HD_MNEMONIC) {
       console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
@@ -284,5 +340,27 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
 
     assert.strictEqual(addr2, 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt');
+
+    assert.strictEqual(w.getAllExternalAddresses().length, 20); // exactly gap limit for external addresses
+    assert.ok(!w.getAllExternalAddresses().includes(addr)); // joint address to _receive_ is not included
+
+    // since we dont do network calls in unit test we cant get counterparties payment codes from our notif address,
+    // and thus, dont know collaborative addresses with our payers. lets hardcode our counterparty payment code to test
+    // this functionality
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), []);
+
+    w.switchBIP47(true);
+
+    w._receive_payment_codes = [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ];
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ]);
+
+    assert.ok(w.getAllExternalAddresses().includes(addr)); // joint address to _receive_ is included
+    assert.ok(w.getAllExternalAddresses().length > 20);
   });
 });

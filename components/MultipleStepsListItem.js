@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useRef } from 'react';
 import { ActivityIndicator, findNodeHandle, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 
 import ActionSheet from '../screen/ActionSheet';
 import ActionSheetOptions from '../screen/ActionSheet.common';

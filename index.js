@@ -1,7 +1,7 @@
 import './shim.js';
 
 import React, { useEffect } from 'react';
-import { AppRegistry, LogBox, Platform, UIManager } from 'react-native';
+import { AppRegistry, LogBox } from 'react-native';
 
 import App from './App';
 import A from './blue_modules/analytics';
@@ -13,12 +13,6 @@ if (!Error.captureStackTrace) {
 }
 
 LogBox.ignoreLogs(['Require cycle:', 'Battery state `unknown` and monitoring disabled, this is normal for simulators and tvOS.']);
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 const BlueAppComponent = () => {
   useEffect(() => {

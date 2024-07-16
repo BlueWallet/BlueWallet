@@ -4,13 +4,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-import { BlueStorageProvider } from './blue_modules/storage-context';
 import { LargeScreenProvider } from './components/Context/LargeScreenProvider';
-import { SettingsProvider } from './components/Context/SettingsContext';
+import { SettingsProvider } from './components/Context/SettingsProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
+import { StorageProvider } from './components/Context/StorageProvider';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -19,11 +18,11 @@ const App = () => {
     <LargeScreenProvider>
       <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
         <SafeAreaProvider>
-          <BlueStorageProvider>
+          <StorageProvider>
             <SettingsProvider>
               <MasterView />
             </SettingsProvider>
-          </BlueStorageProvider>
+          </StorageProvider>
         </SafeAreaProvider>
       </NavigationContainer>
     </LargeScreenProvider>

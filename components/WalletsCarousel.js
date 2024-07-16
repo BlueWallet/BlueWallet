@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { forwardRef, useCallback, useContext, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import {
   Animated,
   FlatList,
@@ -14,16 +14,16 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-
-import { BlueStorageContext, WalletTransactionsStatus } from '../blue_modules/storage-context';
 import { BlueSpacing10 } from '../BlueComponents';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
-import { useSettings } from './Context/SettingsContext';
+import { useSettings } from '../hooks/context/useSettings';
 import { useTheme } from './themes';
+import { useStorage } from '../hooks/context/useStorage';
+import { WalletTransactionsStatus } from './Context/StorageProvider';
 
 const nStyles = StyleSheet.create({
   container: {
@@ -154,10 +154,10 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle }) => {
+export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal }) => {
   const scaleValue = new Animated.Value(1.0);
   const { colors } = useTheme();
-  const { walletTransactionUpdateStatus } = useContext(BlueStorageContext);
+  const { walletTransactionUpdateStatus } = useStorage();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
   const isLargeScreen = useIsLargeScreen();
@@ -197,7 +197,7 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
   return (
     <Animated.View
       style={[
-        isLargeScreen ? iStyles.rootLargeDevice : customStyle ?? { ...iStyles.root, width: itemWidth },
+        isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
         { opacity, transform: [{ scale: scaleValue }] },
       ]}
     >
@@ -206,7 +206,9 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
         testID={item.getLabel()}
         onPressIn={onPressedIn}
         onPressOut={onPressedOut}
-        onLongPress={handleLongPress}
+        onLongPress={() => {
+          handleLongPress();
+        }}
         onPress={() => {
           onPressedOut();
           setTimeout(() => {
@@ -287,6 +289,7 @@ const WalletsCarousel = forwardRef((props, ref) => {
           index={index}
           handleLongPress={handleLongPress}
           onPress={onPress}
+          horizontal={horizontal}
         />
       ) : (
         <NewWalletPanel onPress={onPress} />

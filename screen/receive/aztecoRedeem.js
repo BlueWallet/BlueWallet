@@ -1,14 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { I18nManager, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import { Icon } from 'react-native-elements';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import { Icon } from '@rneui/themed';
 import { BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 import Azteco from '../../class/azteco';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 const styles = StyleSheet.create({
   loading: {
@@ -51,7 +50,7 @@ const styles = StyleSheet.create({
 });
 
 export default class AztecoRedeem extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   state = { isLoading: true };
 
   constructor(props, context) {

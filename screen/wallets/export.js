@@ -1,8 +1,6 @@
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -12,9 +10,11 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 const WalletExport = () => {
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk } = useStorage();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
@@ -116,11 +116,7 @@ const WalletExport = () => {
               </BlueText>
             )}
             {wallet.type === WatchOnlyWallet.type && (
-              <HandOffComponent
-                title={loc.wallets.xpub_title}
-                type={HandOffComponent.activityTypes.Xpub}
-                userInfo={{ xpub: wallet.getSecret() }}
-              />
+              <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: wallet.getSecret() }} />
             )}
           </React.Fragment>
         ))}

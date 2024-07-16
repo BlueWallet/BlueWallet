@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 import { StyleProp, ViewStyle } from 'react-native';
 
 import * as fs from '../blue_modules/fs';
@@ -28,22 +28,25 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
   onMenuWillHide,
   onMenuWillShow,
 }) => {
-  const handlePressMenuItem = async (actionId: string) => {
-    if (beforeOnPress) {
-      await beforeOnPress();
-    }
-    const action = actions.find(a => a.id === actionId);
+  const handlePressMenuItem = useCallback(
+    async (actionId: string) => {
+      if (beforeOnPress) {
+        await beforeOnPress();
+      }
+      const action = actions.find(a => a.id === actionId);
 
-    if (action?.id === 'save') {
-      await fs.writeFileAndExport(fileName, fileContent, false).finally(() => {
-        afterOnPress?.();
-      });
-    } else if (action?.id === 'share') {
-      await fs.writeFileAndExport(fileName, fileContent, true).finally(() => {
-        afterOnPress?.();
-      });
-    }
-  };
+      if (action?.id === 'save') {
+        await fs.writeFileAndExport(fileName, fileContent, false).finally(() => {
+          afterOnPress?.();
+        });
+      } else if (action?.id === 'share') {
+        await fs.writeFileAndExport(fileName, fileContent, true).finally(() => {
+          afterOnPress?.();
+        });
+      }
+    },
+    [afterOnPress, beforeOnPress, fileContent, fileName],
+  );
 
   return (
     <ToolTipMenu
@@ -64,11 +67,9 @@ export default SaveFileButton;
 
 const actionIcons: { [key: string]: ActionIcons } = {
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Save: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.down',
   },
 };

@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   LayoutAnimation,
@@ -17,7 +18,6 @@ import {
 
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import {
   BlueApp,
@@ -29,13 +29,14 @@ import {
 } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -53,7 +54,7 @@ interface State {
   label: string;
   selectedWalletType: ButtonSelected;
   backdoorPressed: number;
-  entropy: string | any[] | undefined;
+  entropy: Buffer | undefined;
   entropyButtonText: string;
 }
 
@@ -123,7 +124,7 @@ const WalletsAdd: React.FC = () => {
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, wallets } = useContext(BlueStorageContext);
+  const { addWallet, saveToDisk, wallets } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {
@@ -161,18 +162,13 @@ const WalletsAdd: React.FC = () => {
     });
   }, [colorScheme, setOptions]);
 
-  const entropyGenerated = (newEntropy: string | any[]) => {
+  const entropyGenerated = (newEntropy: Buffer) => {
     let entropyTitle;
     if (!newEntropy) {
       entropyTitle = loc.wallets.add_entropy_provide;
-    } else if (newEntropy.length < 32) {
-      entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
-        gen: newEntropy.length,
-        rem: 32 - newEntropy.length,
-      });
     } else {
-      entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
-        gen: newEntropy.length,
+      entropyTitle = loc.formatString(loc.wallets.add_entropy_bytes, {
+        bytes: newEntropy.length,
       });
     }
     setEntropy(newEntropy);
@@ -203,7 +199,7 @@ const WalletsAdd: React.FC = () => {
     dispatch({ type: 'INCREMENT_BACKDOOR_PRESSED', payload: value });
   };
 
-  const setEntropy = (value: string | any[]) => {
+  const setEntropy = (value: Buffer) => {
     dispatch({ type: 'SET_ENTROPY', payload: value });
   };
 
@@ -236,7 +232,6 @@ const WalletsAdd: React.FC = () => {
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
           try {
-            // @ts-ignore: Return later to update
             await w.generateFromEntropy(entropy);
           } catch (e: any) {
             console.log(e.toString());
@@ -334,8 +329,34 @@ const WalletsAdd: React.FC = () => {
   };
 
   const navigateToEntropy = () => {
-    // @ts-ignore: Return later to update
-    navigate('ProvideEntropy', { onGenerated: entropyGenerated });
+    Alert.alert(
+      loc.wallets.add_wallet_seed_length,
+      loc.wallets.add_wallet_seed_length_message,
+      [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'default',
+        },
+        {
+          text: loc.wallets.add_wallet_seed_length_12,
+          onPress: () => {
+            // @ts-ignore: Return later to update
+            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 12 });
+          },
+          style: 'default',
+        },
+        {
+          text: loc.wallets.add_wallet_seed_length_24,
+          onPress: () => {
+            // @ts-ignore: Return later to update
+            navigate('ProvideEntropy', { onGenerated: entropyGenerated, words: 24 });
+          },
+          style: 'default',
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   const navigateToImportWallet = () => {

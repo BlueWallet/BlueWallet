@@ -17,7 +17,6 @@ const WalletXpubStackRoot = () => {
         name="WalletXpub"
         component={WalletXpubComponent}
         options={navigationStyle({
-          closeButton: true,
           headerBackVisible: false,
           headerTitle: loc.wallets.xpub_title,
         })(theme)}

@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useMemo, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Text } from '@rneui/themed';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -8,7 +8,6 @@ import { BlueText, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import Notifications from '../../blue_modules/notifications';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
@@ -17,13 +16,14 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
-import debounce from '../../blue_modules/debounce';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { ContactList } from '../../class/contact-list';
+import { useStorage } from '../../hooks/context/useStorage';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -65,11 +65,11 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
-  const { recipients, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate, setOptions, goBack } = navigation;
@@ -148,7 +148,6 @@ const Confirm: React.FC = () => {
       satoshiPerByte,
       wallet,
       feeSatoshi,
-      unlockWithBiometrics,
     ],
   );
 
@@ -212,6 +211,7 @@ const Confirm: React.FC = () => {
       navigate('Success', {
         fee: Number(fee),
         amount,
+        txid,
       });
 
       dispatch({ type: ActionType.SET_LOADING, payload: false });
@@ -225,8 +225,6 @@ const Confirm: React.FC = () => {
       presentAlert({ message: error.message });
     }
   };
-
-  const debouncedSend = debounce(send, 3000);
 
   const broadcast = async (transaction: string) => {
     await BlueElectrum.ping();
@@ -246,7 +244,28 @@ const Confirm: React.FC = () => {
     return result;
   };
 
+  const shortenContactName = (name: string): string => {
+    if (name.length < 20) return name;
+    return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
+  };
+
   const renderItem = ({ index, item }: { index: number; item: CreateTransactionTarget }) => {
+    // first, trying to find if this destination is to a PaymentCode, and if it is - get its local alias
+    let contact: string = '';
+    try {
+      const cl = new ContactList();
+      if (targets?.[index]?.address && cl.isPaymentCodeValid(targets[index].address!)) {
+        // this is why we need `targets` in this screen.
+        // in case address was a payment code, and it got turned into a regular address, we need to display the PC as well
+        contact = targets[index].address!;
+        if (counterpartyMetadata?.[contact].label) {
+          contact = counterpartyMetadata?.[contact].label;
+        }
+
+        contact = shortenContactName(contact);
+      }
+    } catch (_) {}
+
     return (
       <>
         <View style={styles.valueWrap}>
@@ -263,6 +282,7 @@ const Confirm: React.FC = () => {
           <Text testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
             {item.address}
           </Text>
+          {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>
         {recipients.length > 1 && (
           <BlueText style={styles.valueOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>
@@ -309,7 +329,7 @@ const Confirm: React.FC = () => {
           {state.isLoading ? (
             <ActivityIndicator />
           ) : (
-            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={debouncedSend} title={loc.send.confirm_sendNow} />
+            <Button disabled={isElectrumDisabled || state.isButtonDisabled} onPress={send} title={loc.send.confirm_sendNow} />
           )}
         </BlueCard>
       </View>

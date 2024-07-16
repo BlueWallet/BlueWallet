@@ -23,7 +23,6 @@ const ViewEditMultisigCosignersStackRoot = () => {
         name="ViewEditMultisigCosigners"
         component={ViewEditMultisigCosignersComponent}
         options={navigationStyle({
-          closeButton: true,
           headerBackVisible: false,
           title: loc.multisig.manage_keys,
         })(theme)}

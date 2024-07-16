@@ -187,14 +187,17 @@
     "cpfp_create": "Oluştur",
     "details_copy": "Kopya",
     "details_from": "Girdi",
+    "transaction_saved": "Kaydedildi",
     "details_show_in_block_explorer": "Blok gezgininde göster",
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "pending": "Beklemede",
-    "list_title": "işlemler"
+    "list_title": "işlemler",
+    "transaction": "İşlem"
   },
   "wallets": {
     "add_create": "Oluştur",
+    "add_entropy": "Entropi",
     "add_import_wallet": "Cüzdan İçeri Yükle",
     "add_title": "Cüzdan ekle",
     "add_wallet_name": "İsim",
@@ -207,6 +210,7 @@
     "details_save": "Kaydet",
     "details_show_xpub": "Cüzdan XPUB göster",
     "details_title": "Cüzdan",
+    "wallets": "cüzdanlar",
     "details_type": "Tip",
     "details_yes_delete": "Evet, sil",
     "export_title": "cüzdan yedekle",

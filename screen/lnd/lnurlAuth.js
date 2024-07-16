@@ -1,10 +1,8 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import URL from 'url';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
@@ -15,6 +13,7 @@ import selectWallet from '../../helpers/select-wallet';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -24,7 +23,7 @@ const AuthState = {
 };
 
 const LnurlAuth = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { name } = useRoute();
   const { walletID, lnurl } = useRoute().params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
@@ -174,6 +173,4 @@ const styles = StyleSheet.create({
 
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',
-  closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

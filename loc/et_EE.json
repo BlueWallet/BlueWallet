@@ -48,6 +48,7 @@
     "save": "Salvesta"
   },
   "wallets": {
+    "add_entropy": "Entroopia",
     "details_save": "Salvesta"
   }
 }

@@ -1,23 +1,23 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, Text, View } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { ListItem } from '@rneui/themed';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import confirm from '../../helpers/confirm';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
 import QRCodeComponent from '../QRCodeComponent';
 import { useTheme } from '../themes';
-import TooltipMenu from '../TooltipMenu';
-import { Action, ToolTipMenuProps } from '../types';
+import { Action } from '../types';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
+import ToolTipMenu from '../TooltipMenu';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript
@@ -32,7 +32,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
 
   const hasTransactions = item.transactions > 0;
 
@@ -57,16 +57,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
 
   const { navigate } = useNavigation<NavigationProps>();
 
-  const menuRef = useRef<ToolTipMenuProps>();
-
-  const dismissMenu = () => {
-    if (menuRef.current?.dismissMenu) {
-      menuRef.current.dismissMenu();
-    }
-  };
-
   const navigateToReceive = () => {
-    dismissMenu();
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -77,7 +68,6 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const navigateToSignVerify = () => {
-    dismissMenu();
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -145,13 +135,13 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
 
   const render = () => {
     return (
-      <TooltipMenu
+      <ToolTipMenu
         title={item.address}
-        ref={menuRef}
         actions={menuActions}
         onPressMenuItem={onToolTipPress}
         renderPreview={renderPreview}
         onPress={navigateToReceive}
+        isButton
       >
         <ListItem key={item.key} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
@@ -170,7 +160,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
             </Text>
           </View>
         </ListItem>
-      </TooltipMenu>
+      </ToolTipMenu>
     );
   };
 
@@ -186,19 +176,15 @@ const actionKeys = {
 
 const actionIcons = {
   Signature: {
-    iconType: 'SYSTEM',
     iconValue: 'signature',
   },
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   ExportPrivateKey: {
-    iconType: 'SYSTEM',
     iconValue: 'key',
   },
 };

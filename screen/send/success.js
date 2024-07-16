@@ -1,17 +1,18 @@
+import React, { useEffect, useRef } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
 import PropTypes from 'prop-types';
-import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-elements';
-
+import { Text } from '@rneui/themed';
 import { BlueCard } from '../../BlueComponents';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import HandOffComponent from '../../components/HandOffComponent';
+import { HandOffActivityType } from '../../components/types';
 
 const Success = () => {
   const pop = () => {
@@ -19,7 +20,7 @@ const Success = () => {
   };
   const { colors } = useTheme();
   const { getParent } = useNavigation();
-  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop } = useRoute().params;
+  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', onDonePressed = pop, txid } = useRoute().params;
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -47,6 +48,13 @@ const Success = () => {
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
+      {txid && (
+        <HandOffComponent
+          title={loc.transactions.details_title}
+          type={HandOffActivityType.ViewInBlockExplorer}
+          url={`https://mempool.space/tx/${txid}`}
+        />
+      )}
     </SafeArea>
   );
 };

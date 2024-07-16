@@ -91,7 +91,8 @@
     "details_show_in_block_explorer": "Prikaži u blok eksploreru",
     "details_title": "Transakcija",
     "details_to": "Za",
-    "list_title": "transakcije"
+    "list_title": "transakcije",
+    "transaction": "Transakcija"
   },
   "wallets": {
     "add_create": "Stvori",
@@ -107,6 +108,7 @@
     "details_save": "Spremi",
     "details_show_xpub": "Prikaži voletov XPUB",
     "details_title": "Volet",
+    "wallets": "Voleti",
     "details_type": "Tip",
     "details_yes_delete": "Da, briši",
     "export_title": "izvoz voleta",

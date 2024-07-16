@@ -152,7 +152,7 @@ function Notifications(props) {
           message: loc.notifications.would_you_like_to_receive_notifications,
           options,
           cancelButtonIndex: 0, // Assuming 'no and don't ask' is still treated as the cancel action
-          anchor: findNodeHandle(anchor.current),
+          anchor: anchor ? findNodeHandle(anchor.current) : undefined,
         },
         buttonIndex => {
           switch (buttonIndex) {
@@ -259,7 +259,7 @@ function Notifications(props) {
   };
 
   Notifications.saveUri = async function (uri) {
-    baseURI = uri || groundControlUri; // settign the url to use currently. if not set - use default
+    baseURI = uri || groundControlUri; // setting the url to use currently. if not set - use default
     return AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, uri);
   };
 

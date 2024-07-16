@@ -1,18 +1,15 @@
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
+import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
 import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-
 import A from '../../blue_modules/analytics';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel from '../../components/WalletsCarousel';
@@ -23,6 +20,7 @@ import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -280,15 +278,13 @@ const WalletsList: React.FC = () => {
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
       switch (section.section.key) {
-        case WalletsListSections.CAROUSEL:
-          return isLargeScreen ? null : <Header leftText={loc.wallets.list_title} onNewWalletPress={() => navigate('AddWalletRoot')} />;
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         default:
           return null;
       }
     },
-    [isLargeScreen, navigate, renderListHeaderComponent],
+    [renderListHeaderComponent],
   );
 
   const renderSectionFooter = useCallback(
@@ -368,7 +364,7 @@ const WalletsList: React.FC = () => {
     const anchor = findNodeHandle(walletActionButtonsRef.current);
 
     if (anchor) {
-      options.push(anchor);
+      options.push(String(anchor));
     }
 
     ActionSheet.showActionSheetWithOptions(props, buttonIndex => {

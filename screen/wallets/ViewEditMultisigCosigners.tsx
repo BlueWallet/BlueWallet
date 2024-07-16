@@ -1,5 +1,5 @@
-import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -16,10 +16,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Badge, Icon } from 'react-native-elements';
-
+import { Badge, Icon } from '@rneui/themed';
 import { isDesktop, isTablet } from '../../blue_modules/environment';
-import { useStorage } from '../../blue_modules/storage-context';
 import { encodeUR } from '../../blue_modules/ur';
 import {
   BlueButtonLink,
@@ -35,7 +33,6 @@ import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../
 import presentAlert from '../../components/Alert';
 import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
-import { useSettings } from '../../components/Context/SettingsContext';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
   MultipleStepsListItemDashType,
@@ -47,17 +44,19 @@ import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder, isElectrumDisabled } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, dispatch, addListener } = useExtendedNavigation();
   const openScannerButtonRef = useRef();

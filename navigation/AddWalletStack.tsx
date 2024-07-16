@@ -4,7 +4,6 @@ import React from 'react';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { AddWalletStackParamList } from '../typings/NavigationTypes';
 import {
   AddComponent,
   ImportCustomDerivationPathComponent,
@@ -20,6 +19,28 @@ import {
   WalletsAddMultisigStep2Component,
 } from './LazyLoadAddWalletStack';
 
+export type AddWalletStackParamList = {
+  AddWallet: undefined;
+  ImportWallet: undefined;
+  ImportWalletDiscovery: undefined;
+  ImportSpeed: undefined;
+  ImportCustomDerivationPath: undefined;
+  PleaseBackup: undefined;
+  PleaseBackupLNDHub: undefined;
+  PleaseBackupLdk: undefined;
+  ProvideEntropy: undefined;
+  WalletsAddMultisig: {
+    walletLabel: string;
+  };
+  WalletsAddMultisigStep2: {
+    m: number;
+    n: number;
+    walletLabel: string;
+    format: string;
+  };
+  WalletsAddMultisigHelp: undefined;
+};
+
 const Stack = createNativeStackNavigator<AddWalletStackParamList>();
 
 const AddWalletStack = () => {
@@ -30,7 +51,6 @@ const AddWalletStack = () => {
         name="AddWallet"
         component={AddComponent}
         options={navigationStyle({
-          closeButton: true,
           headerBackVisible: false,
           title: loc.wallets.add_title,
         })(theme)}
@@ -81,7 +101,12 @@ const AddWalletStack = () => {
         component={ProvideEntropyComponent}
         options={navigationStyle({ title: loc.entropy.title })(theme)}
       />
-      <Stack.Screen name="WalletsAddMultisig" component={WalletsAddMultisigComponent} options={navigationStyle({ title: '' })(theme)} />
+      <Stack.Screen
+        name="WalletsAddMultisig"
+        component={WalletsAddMultisigComponent}
+        options={navigationStyle({ title: '' })(theme)}
+        initialParams={{ walletLabel: loc.multisig.default_label }}
+      />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}

@@ -205,6 +205,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
       await element(by.text(`No, and do not ask me again.`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
     await yo('BitcoinAddressQRCodeContainer');
     await yo('CopyTextToClipboard');
@@ -240,7 +241,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to Security page where we will enable encryption
     await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/react-native-elements/react-native-elements/issues/2519
+    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/@rneui/themed/@rneui/themed/issues/2519
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
 
     if (device.getPlatform() === 'ios') {
@@ -291,7 +292,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
     await expect(element(by.id('SecurityButton'))).toBeVisible();
     await element(by.id('SecurityButton')).tap();
-    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/react-native-elements/react-native-elements/issues/2519
+    // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible(); // @see https://github.com/@rneui/themed/@rneui/themed/issues/2519
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeVisible();
     await element(by.id('PlausibleDeniabilityButton')).tap();
 
@@ -517,6 +518,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
       await element(by.text(`No, and do not ask me again.`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
 
     await sup('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');

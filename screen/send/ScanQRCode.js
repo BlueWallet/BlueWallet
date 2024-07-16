@@ -5,7 +5,7 @@ import createHash from 'create-hash';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import { launchImageLibrary } from 'react-native-image-picker';
 
 import Base43 from '../../blue_modules/base43';

@@ -17,14 +17,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import BlueClipboard from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage, WalletTransactionsStatus } from '../../blue_modules/storage-context';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert from '../../components/Alert';
@@ -36,11 +35,14 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useBiometrics } from '../../hooks/useBiometrics';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
+import { useStorage } from '../../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
+import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -56,7 +58,7 @@ const WalletTransactions = ({ navigation }) => {
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
-  const { isBiometricUseCapableAndEnabled, unlockWithBiometrics } = useBiometrics();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -137,6 +139,8 @@ const WalletTransactions = ({ navigation }) => {
     setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
+      headerBackTitle: wallet.getLabel(),
+      headerBackTitleVisible: true,
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.type),
         borderBottomWidth: 0,
@@ -283,7 +287,6 @@ const WalletTransactions = ({ navigation }) => {
       </View>
     );
   };
-
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
@@ -527,6 +530,16 @@ const WalletTransactions = ({ navigation }) => {
         }}
       />
       <View style={[styles.list, stylesHook.list]}>
+        {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+          <WatchOnlyWarning
+            disabled={isLoading}
+            handleDismiss={() => {
+              wallet.isWatchOnlyWarningVisible = false;
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+              saveToDisk();
+            }}
+          />
+        )}
         <FlatList
           getItemLayout={getItemLayout}
           updateCellsBatchingPeriod={30}
@@ -624,6 +637,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       </TouchableOpacity>
     ),
     title: '',
+    headerBackTitleStyle: { fontSize: 0 },
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,
@@ -632,7 +646,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       shadowOffset: { height: 0, width: 0 },
     },
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: false,
+    headerBackTitleVisible: true,
   };
 });
 
@@ -665,7 +679,7 @@ const styles = StyleSheet.create({
   },
   listHeaderTextRow: {
     flex: 1,
-    marginHorizontal: 16,
+    margin: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
