@@ -15,9 +15,13 @@ struct PriceView: View {
   var body: some View {
     switch entry.family {
     case .accessoryInline, .accessoryCircular, .accessoryRectangular:
-      wrappedView(for: getView(for: entry.family), family: entry.family)
+      if #available(iOSApplicationExtension 16.0, *) {
+        wrappedView(for: getView(for: entry.family), family: entry.family)
+      } else {
+        getView(for: entry.family)
+      }
     default:
-      defaultView.background(Color.widgetBackground)
+      defaultView.background(Color(UIColor.systemBackground))
     }
   }
   
@@ -40,7 +44,7 @@ struct PriceView: View {
       ZStack {
         if family == .accessoryRectangular {
           AccessoryWidgetBackground()
-            .background(Color(.systemBackground))
+            .background(Color(UIColor.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 10))
         } else {
           AccessoryWidgetBackground()
@@ -118,26 +122,26 @@ struct PriceView: View {
     }
     .padding(.all, 8)
     .frame(maxWidth: .infinity, alignment: .leading)
-    .background(Color(.systemBackground))
+    .background(Color(UIColor.systemBackground))
     .clipShape(RoundedRectangle(cornerRadius: 10))
   }
   
   private var defaultView: some View {
     VStack(alignment: .trailing, spacing: nil, content: {
-      Text("Last Updated").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
+      Text("Last Updated").font(Font.system(size: 11, weight: .regular)).foregroundColor(Color(UIColor.lightGray))
       HStack(alignment: .lastTextBaseline, spacing: nil, content: {
-        Text(entry.currentMarketData?.formattedDate ?? "").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01).transition(.opacity)
+        Text(entry.currentMarketData?.formattedDate ?? "").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 13, weight: .regular)).minimumScaleFactor(0.01).transition(.opacity)
       })
       Spacer()
       VStack(alignment: .trailing, spacing: 16, content: {
         HStack(alignment: .lastTextBaseline, spacing: nil, content: {
-          Text(entry.currentMarketData?.price ?? "").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01).transition(.opacity)
+          Text(entry.currentMarketData?.price ?? "").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 28, weight: .bold)).minimumScaleFactor(0.01).transition(.opacity)
         })
         if let previousMarketDataPrice = entry.previousMarketData?.price, let currentMarketDataRate = entry.currentMarketData?.rate, let previousMarketDataRate = entry.previousMarketData?.rate, previousMarketDataRate > 0, currentMarketDataRate != previousMarketDataRate {
           HStack(alignment: .lastTextBaseline, spacing: nil, content: {
-            Image(systemName: currentMarketDataRate > previousMarketDataRate  ?  "arrow.up" : "arrow.down")
-            Text("from").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
-            Text(previousMarketDataPrice).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
+            Image(systemName: currentMarketDataRate > previousMarketDataRate ? "arrow.up" : "arrow.down")
+            Text("from").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 13, weight: .regular)).minimumScaleFactor(0.01)
+            Text(previousMarketDataPrice).lineLimit(1).foregroundColor(.primary).font(Font.system(size: 13, weight: .regular)).minimumScaleFactor(0.01)
           }).transition(.slide)
         }
       })
@@ -178,7 +182,7 @@ struct PriceView_Previews: PreviewProvider {
           .previewContext(WidgetPreviewContext(family: .accessoryInline))
         PriceView(entry: PriceWidgetEntry(date: Date(), family: .accessoryRectangular, currentMarketData: MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00"), previousMarketData: emptyMarketData))
           .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-          }
-          }
-          }
-          }
+      }
+    }
+  }
+}

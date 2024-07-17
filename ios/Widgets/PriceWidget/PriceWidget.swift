@@ -49,9 +49,18 @@ struct PriceWidgetProvider: TimelineProvider {
           let previousEntry = PriceWidgetProvider.lastSuccessfulEntry
           let previousMarketData = previousEntry?.currentMarketData
 
-          let entry = PriceWidgetEntry(date: Date(), family: context.family, currentMarketData: currentMarketData, previousMarketData: previousMarketData ?? emptyMarketData)
-          PriceWidgetProvider.lastSuccessfulEntry = entry
-          entries.append(entry)
+          // Check if the new fetched price is the same as the current price
+          if let previousMarketData = previousMarketData, previousMarketData.rate == currentMarketData.rate {
+            // If the new price is the same, only update the date
+            let updatedEntry = PriceWidgetEntry(date: Date(), family: context.family, currentMarketData: previousMarketData, previousMarketData: previousEntry?.previousMarketData ?? emptyMarketData)
+            PriceWidgetProvider.lastSuccessfulEntry = updatedEntry
+            entries.append(updatedEntry)
+          } else {
+            // If the new price is different, update the data
+            let entry = PriceWidgetEntry(date: Date(), family: context.family, currentMarketData: currentMarketData, previousMarketData: previousMarketData ?? emptyMarketData)
+            PriceWidgetProvider.lastSuccessfulEntry = entry
+            entries.append(entry)
+          }
         } else {
           // Use the last successful entry if available
           if let lastEntry = PriceWidgetProvider.lastSuccessfulEntry {

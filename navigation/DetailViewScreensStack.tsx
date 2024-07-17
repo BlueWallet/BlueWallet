@@ -32,7 +32,6 @@ import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
-import ExportMultisigCoordinationSetupStackRoot from './ExportMultisigCoordinationSetupStack';
 import {
   AboutComponent,
   CurrencyComponent,
@@ -66,6 +65,7 @@ import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
+import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -263,7 +263,7 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupStackRoot}
+        component={ExportMultisigCoordinationSetupStack}
         options={NavigationDefaultOptions}
       />
       <DetailViewStack.Screen

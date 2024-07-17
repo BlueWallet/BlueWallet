@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -48,6 +47,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
+import { useRoute } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -252,7 +252,7 @@ const WalletDetails = () => {
     navigate('WalletExportRoot', {
       screen: 'WalletExport',
       params: {
-        walletID: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -260,7 +260,7 @@ const WalletDetails = () => {
     navigate('ExportMultisigCoordinationSetupRoot', {
       screen: 'ExportMultisigCoordinationSetup',
       params: {
-        walletID: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -283,7 +283,7 @@ const WalletDetails = () => {
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
-        walletID: wallet.getID(),
+        walletID,
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
       },
     });
@@ -295,7 +295,7 @@ const WalletDetails = () => {
 
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
-      walletID: wallet.getID(),
+      walletID,
     });
 
   const navigateToContacts = () => navigate('PaymentCodeList', { walletID });

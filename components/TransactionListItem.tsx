@@ -22,6 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -255,17 +256,17 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
   const onToolTipPress = useCallback(
     (id: any) => {
-      if (id === actionKeys.CopyAmount) {
+      if (id === CommonToolTipActions.CopyAmount.id) {
         handleOnCopyAmountTap();
-      } else if (id === actionKeys.CopyNote) {
+      } else if (id === CommonToolTipActions.CopyNote.id) {
         handleOnCopyNote();
-      } else if (id === actionKeys.OpenInBlockExplorer) {
+      } else if (id === CommonToolTipActions.OpenInBlockExplorer.id) {
         handleOnViewOnBlockExplorer();
-      } else if (id === actionKeys.ExpandNote) {
+      } else if (id === CommonToolTipActions.ExpandNote.id) {
         handleOnExpandNote();
-      } else if (id === actionKeys.CopyBlockExplorerLink) {
+      } else if (id === CommonToolTipActions.CopyBlockExplorerLink.id) {
         handleCopyOpenInBlockExplorerPress();
-      } else if (id === actionKeys.CopyTXID) {
+      } else if (id === CommonToolTipActions.CopyTXID.id) {
         handleOnCopyTransactionID();
       }
     },
@@ -282,51 +283,19 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const actions: (Action | Action[])[] = [];
 
     if (rowTitle !== loc.lnd.expired) {
-      actions.push({
-        id: actionKeys.CopyAmount,
-        text: loc.transactions.details_copy_amount,
-        icon: actionIcons.Clipboard,
-      });
+      actions.push(CommonToolTipActions.CopyAmount);
     }
 
     if (subtitle) {
-      actions.push({
-        id: actionKeys.CopyNote,
-        text: loc.transactions.details_copy_note,
-        icon: actionIcons.Clipboard,
-      });
+      actions.push(CommonToolTipActions.CopyNote);
     }
 
     if (item.hash) {
-      actions.push(
-        {
-          id: actionKeys.CopyTXID,
-          text: loc.transactions.details_copy_txid,
-          icon: actionIcons.Clipboard,
-        },
-        {
-          id: actionKeys.CopyBlockExplorerLink,
-          text: loc.transactions.details_copy_block_explorer_link,
-          icon: actionIcons.Clipboard,
-        },
-        [
-          {
-            id: actionKeys.OpenInBlockExplorer,
-            text: loc.transactions.details_show_in_block_explorer,
-            icon: actionIcons.Link,
-          },
-        ],
-      );
+      actions.push(CommonToolTipActions.CopyTXID, CommonToolTipActions.CopyBlockExplorerLink, [CommonToolTipActions.OpenInBlockExplorer]);
     }
 
     if (subtitle && subtitleNumberOfLines === 1) {
-      actions.push([
-        {
-          id: actionKeys.ExpandNote,
-          text: loc.transactions.expand_note,
-          icon: actionIcons.Note,
-        },
-      ]);
+      actions.push([CommonToolTipActions.ExpandNote]);
     }
 
     return actions as Action[] | Action[][];
@@ -363,30 +332,3 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     </ToolTipMenu>
   );
 });
-
-const actionKeys = {
-  CopyTXID: 'copyTX_ID',
-  CopyBlockExplorerLink: 'copy_blockExplorer',
-  ExpandNote: 'expandNote',
-  OpenInBlockExplorer: 'open_in_blockExplorer',
-  CopyAmount: 'copyAmount',
-  CopyNote: 'copyNote',
-};
-
-const actionIcons = {
-  Eye: {
-    iconValue: 'eye',
-  },
-  EyeSlash: {
-    iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
-  },
-  Link: {
-    iconValue: 'link',
-  },
-  Note: {
-    iconValue: 'note.text',
-  },
-};
