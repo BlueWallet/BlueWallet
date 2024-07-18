@@ -324,6 +324,7 @@
     "eta_1d": "ETA: Om ~1 dag",
     "view_wallet": "Se {walletLabel}",
     "list_title": "Transaksjoner",
+    "transaction": "Transaksjon",
     "open_url_error": "Kan ikke åpne lenken med standardnettleseren. Vennligst endre standardnettleser og prøv igjen.",
     "rbf_explain": "Vi vil erstatte denne transaksjonen med en med en høyere avgift, slik at den blir utvunnet raskere. Dette kalles RBF - Replace by Fee.",
     "rbf_title": "Betal en høyere avgift (RBF)",

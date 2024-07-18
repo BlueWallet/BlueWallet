@@ -192,7 +192,8 @@
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "pending": "Beklemede",
-    "list_title": "işlemler"
+    "list_title": "işlemler",
+    "transaction": "İşlem"
   },
   "wallets": {
     "add_create": "Oluştur",

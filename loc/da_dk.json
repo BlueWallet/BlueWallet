@@ -83,7 +83,8 @@
     "details_show_in_block_explorer": "Vis i block-explorer",
     "details_title": "Transaktion",
     "details_to": "Til",
-    "list_title": "transaktioner"
+    "list_title": "transaktioner",
+    "transaction": "Transaktion"
   },
   "wallets": {
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",

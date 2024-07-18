@@ -30,6 +30,7 @@ interface BottomModalProps {
   allowBackdropPress?: boolean;
   isVisible: boolean;
   coverScreen?: boolean;
+  propagateSwipe?: boolean;
 }
 
 const BottomModal: React.FC<BottomModalProps> = ({
@@ -43,6 +44,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
   avoidKeyboard = false,
   allowBackdropPress = true,
   coverScreen = true,
+  propagateSwipe,
   ...props
 }) => {
   const { height: valueWindowHeight, width: valueWindowWidth } = useWindowDimensions();
@@ -57,6 +59,7 @@ const BottomModal: React.FC<BottomModalProps> = ({
 
   return (
     <Modal
+      propagateSwipe={propagateSwipe}
       style={styles.root}
       deviceHeight={windowHeight ?? valueWindowHeight}
       deviceWidth={windowWidth ?? valueWindowWidth}

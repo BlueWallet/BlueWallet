@@ -1,6 +1,6 @@
 PODS:
   - boost (1.83.0)
-  - BugsnagReactNative (7.24.0):
+  - BugsnagReactNative (7.25.0):
     - React-Core
   - BVLinearGradient (2.8.3):
     - React-Core
@@ -1002,11 +1002,11 @@ PODS:
     - React
   - react-native-randombytes (3.6.1):
     - React-Core
-  - react-native-safe-area-context (4.10.7):
+  - react-native-safe-area-context (4.10.8):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.1.0):
+  - react-native-tcp-socket (6.2.0):
     - CocoaAsyncSocket
     - React-Core
   - React-nativeconfig (0.74.3)
@@ -1244,7 +1244,7 @@ PODS:
     - React
   - rn-ldk (0.8.4):
     - React-Core
-  - RNCAsyncStorage (1.23.1):
+  - RNCAsyncStorage (1.24.0):
     - React-Core
   - RNCClipboard (1.14.1):
     - React-Core
@@ -1663,7 +1663,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  BugsnagReactNative: 65729c7ee7d9f61b8dbd9f046d920bb38a43931a
+  BugsnagReactNative: 5b7370cd797d247983ace25aa07cca0058d7d505
   BVLinearGradient: 880f91a7854faff2df62518f0281afb1c60d49a3
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 76ab83afb40bddeeee456813d9c04f67f78771b5
@@ -1707,9 +1707,9 @@ SPEC CHECKSUMS:
   react-native-menu: d32728a357dfb360cf01cd5979cf7713c5acbb95
   react-native-qrcode-local-image: 35ccb306e4265bc5545f813e54cc830b5d75bcfc
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
-  react-native-safe-area-context: 422017db8bcabbada9ad607d010996c56713234c
+  react-native-safe-area-context: b7daa1a8df36095a032dff095a1ea8963cb48371
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
-  react-native-tcp-socket: ea937a61ee9ff2cb3cceade359290a46ad2b5aab
+  react-native-tcp-socket: 8c3e8bef909ab06c557eeb95363fe029391ff09d
   React-nativeconfig: fa5de9d8f4dbd5917358f8ad3ad1e08762f01dcb
   React-NativeModulesApple: 585d1b78e0597de364d259cb56007052d0bda5e5
   React-perflogger: 7bb9ba49435ff66b666e7966ee10082508a203e8
@@ -1736,7 +1736,7 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
   RealmJS: ecd23895a68689ce2c048d28df3d699cf76cedb7
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
-  RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
+  RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31

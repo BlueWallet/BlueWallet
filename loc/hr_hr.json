@@ -91,7 +91,8 @@
     "details_show_in_block_explorer": "Prikaži u blok eksploreru",
     "details_title": "Transakcija",
     "details_to": "Za",
-    "list_title": "transakcije"
+    "list_title": "transakcije",
+    "transaction": "Transakcija"
   },
   "wallets": {
     "add_create": "Stvori",

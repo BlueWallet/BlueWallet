@@ -58,9 +58,5 @@ class MainApplication : Application(), ReactApplication {
             // Initialize Bugsnag or your error tracking here
             Bugsnag.start(this)
         }
-
-         // Schedule periodic widget updates
-         val workRequest = PeriodicWorkRequest.Builder(WidgetUpdateWorker::class.java, 4, TimeUnit.MINUTES).build()
-         WorkManager.getInstance(this).enqueueUniquePeriodicWork("UpdateWidgetWork", ExistingPeriodicWorkPolicy.REPLACE, workRequest)
     }
 }

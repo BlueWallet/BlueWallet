@@ -334,6 +334,7 @@
     "eta_1d": "Dến trong ~1 ngày",
     "view_wallet": "Xem {walletLabel}",
     "list_title": "Các giao dịch",
+    "transaction": "Giao dịch",
     "open_url_error": "Không thể mở liên kết với trình duyệt mặc định. Vui lòng thay đổi trình duyệt mặc định và thử lại.",
     "rbf_explain": "Chúng tôi sẽ thay thế giao dịch này với một cái mới có phí lớn hơn để nó được khai thác nhanh hơn. Cái dó gọi là RBF: Replace By Fee.",
     "rbf_title": "Tăng phí (RBF)",

@@ -182,6 +182,7 @@
     "details_to": "Výstup",
     "pending": "Čaká...",
     "list_title": "transakcie",
+    "transaction": "Transakcia",
     "rbf_title": "Navýšiť poplatok za transakciu (RBF)",
     "status_bump": "Navýšiť poplatok",
     "status_cancel": "Zrušiť transakciu",

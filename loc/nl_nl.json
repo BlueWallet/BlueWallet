@@ -330,6 +330,7 @@
     "eta_3h": "ETA: In ~3 uur",
     "eta_1d": "ETA: In ~1 dag",
     "list_title": "Transacties",
+    "transaction": "Transacties",
     "rbf_title": "Bumb fee (RBF)",
     "status_bump": "Bumb fee",
     "status_cancel": "Annuleer transactie",

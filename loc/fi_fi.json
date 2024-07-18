@@ -363,6 +363,7 @@
     "eta_1d": "Saapuu noin vuorokaudessa",
     "view_wallet": "Näytä {walletLabel}",
     "list_title": "Siirtotapahtumat",
+    "transaction": "Siirtotapahtuma",
     "open_url_error": "Linkkiä ei voi avata oletusselaimella. Vaihda oletusselainta ja yritä uudelleen.",
     "rbf_explain": "Korvaamme tämän siirtotapahtuman korkeamman siirtomaksun sisältävällä siirtotapahtumalla, jotta se louhitaan nopeammin. Tätä kutsutaan nimellä RBF-Replace by Fee.",
     "rbf_title": "Nosta siirtomaksua (RBF)",
