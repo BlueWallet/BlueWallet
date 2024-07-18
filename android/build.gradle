@@ -71,7 +71,7 @@ subprojects {
         }
         
         // Check if the project name is 'rn-ldk' before applying the Kotlin compile options
-        if (project.name == 'rn-ldk') {
+        if (project.name == 'rn-ldk' || package.name == '@lodev09/react-native-true-sheet') {
             tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
                 if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
                     kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
