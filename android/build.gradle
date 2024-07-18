@@ -25,9 +25,8 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
         classpath 'com.google.gms:google-services:4.4.2'  // Google Services plugin
-    	classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-
     }
 }
 
@@ -37,13 +36,13 @@ allprojects {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
 
-            mavenCentral {
-	            // We don't want to fetch react-native from Maven Central as there are
-	            // older versions over there.
-	            content {
-	                excludeGroup "com.facebook.react"
-	            }
-	        }
+        mavenCentral {
+            // We don't want to fetch react-native from Maven Central as there are
+            // older versions over there.
+            content {
+                excludeGroup "com.facebook.react"
+            }
+        }
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -54,31 +53,38 @@ allprojects {
             url("$rootDir/../node_modules/jsc-android/dist")
         }
         google()
-                maven { url 'https://www.jitpack.io' }
+        maven { url 'https://www.jitpack.io' }
     }
 }
 
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
-            android {
-                buildToolsVersion "34.0.0"
-                compileSdkVersion 34
-                 defaultConfig {
-                    minSdkVersion 24
+            project.android {
+                buildToolsVersion = rootProject.ext.buildToolsVersion
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                defaultConfig {
+                    minSdkVersion rootProject.ext.minSdkVersion
                 }
             }
         }
-        
-        // Check if the project name is 'rn-ldk' or '@lodev09/react-native-true-sheet' before applying the Kotlin compile options
+
+        // Check if the project name is 'rn-ldk' or 'react-native-true-sheet' before applying the Kotlin compile options
         if (project.name == 'rn-ldk' || project.name == 'react-native-true-sheet') {
-            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-                if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
-                    kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
-                } else {
-                    kotlinOptions.jvmTarget = sourceCompatibility
+            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+                        jvmTarget = project.android.compileOptions.sourceCompatibility.toString()
+                    } else {
+                        jvmTarget = project.sourceCompatibility.toString()
+                    }
                 }
             }
         }
     }
+}
+
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
