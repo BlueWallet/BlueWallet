@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo, useState, createContext, useContext } from 'react';
 import { Platform, StyleSheet, View, TouchableOpacity, useColorScheme, SectionList, LayoutAnimation, SectionListData, Animated } from 'react-native';
 // @ts-ignore: fix later
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
@@ -75,6 +75,10 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+const WalletContext = createContext<any>(null);
+
+const useWalletContext = () => useContext(WalletContext);
+
 const ManageWallets: React.FC = () => {
   const sortableList = useRef(null);
   const { colors } = useTheme();
@@ -84,7 +88,6 @@ const ManageWallets: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [expandedSections, setExpandedSections] = useState<{ [key: number]: boolean }>({});
   const [dragging, setDragging] = useState(false);
-  const scaleValue = useRef(new Animated.Value(1)).current;
 
   const stylesHook = {
     root: {
@@ -164,83 +167,58 @@ const ManageWallets: React.FC = () => {
 
   const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused || !state.isEditing;
 
-  
-  const WalletItemContent = ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => {
-    const scaleValue = useRef(new Animated.Value(1)).current;
-  
+  const WalletItemContent: React.FC<{ item: TWallet; drag: () => void; isActive: boolean }> = ({ item, drag, isActive }) => {
+    const heightValue = useRef(new Animated.Value(280)).current;
+
     useEffect(() => {
       if (dragging && !isActive) {
-        Animated.timing(scaleValue, {
-          toValue: 0.7,
+        Animated.timing(heightValue, {
+          toValue: 120,
           duration: 300,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }).start();
       } else {
-        Animated.timing(scaleValue, {
-          toValue: 1,
+        Animated.timing(heightValue, {
+          toValue: 280,
           duration: 300,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }).start();
       }
     }, [dragging, isActive]);
-  
+
     const animatedStyle = {
-      transform: [{ scale: scaleValue }],
+      height: heightValue,
     };
-  
+
     return (
-      <Animated.View style={[styles.walletItemContainer, animatedStyle]}>
-        <View style={styles.walletItem}>
-          <WalletCarouselItem
-            // @ts-ignore: fix later
-            item={item}
-            onPress={navigateToWallet}
-            disabled={state.isEditing}
-            allowOnPressAnimation={!state.isEditing}
-          />
-        </View>
-        {!isDraggingDisabled && (
-          <TouchableOpacity style={styles.walletItemContainer} delayLongPress={200} onLongPress={isDraggingDisabled ? undefined : drag}>
-            <Icon name="grip-lines" size={24} type="font-awesome-5" color={colors.foregroundColor} style={styles.gripIcon} />
-          </TouchableOpacity>
-        )}
-      </Animated.View>
+      <ScaleDecorator>
+        <Animated.View style={[styles.walletItemContainer, animatedStyle]}>
+          <ListItem containerStyle={[styles.walletItem, stylesHook.root, isActive && styles.activeItem]}>
+            <ListItem.Content style={{ flex: 1, width: '100%'}}>
+              <WalletCarouselItem
+                // @ts-ignore: fix later
+                item={item}
+                onPress={navigateToWallet}
+                disabled={state.isEditing}
+                allowOnPressAnimation={!state.isEditing}
+              />
+            </ListItem.Content>
+            {!isDraggingDisabled && (
+              <TouchableOpacity style={styles.gripIconContainer} delayLongPress={200} onLongPress={isDraggingDisabled ? undefined : drag}>
+                <Icon name="grip-lines" size={24} type="font-awesome-5" color={colors.foregroundColor} style={styles.gripIcon} />
+              </TouchableOpacity>
+            )}
+          </ListItem>
+        </Animated.View>
+      </ScaleDecorator>
     );
   };
 
   const renderItem = useCallback(
     ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => (
-      <ScaleDecorator>
-        {state.isEditing ? (
-          <ListItem.Swipeable
-            containerStyle={stylesHook.root}
-            leftContent={(reset) => (
-              <Button
-                title="Info"
-                onPress={() => reset()}
-                icon={{ name: 'info', color: 'white' }}
-                buttonStyle={{ minHeight: '100%' }}
-              />
-            )}
-            rightContent={(reset) => (
-              <Button
-                title="Delete"
-                onPress={() => reset()}
-                icon={{ name: 'delete', color: 'white' }}
-                buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-              />
-            )}
-          >
-            <ListItem.Content>
-              <WalletItemContent item={item} drag={drag} isActive={isActive} />
-            </ListItem.Content>
-          </ListItem.Swipeable>
-        ) : (
-          <WalletItemContent item={item} drag={drag} isActive={isActive} />
-        )}
-      </ScaleDecorator>
+      <WalletItemContent item={item} drag={drag} isActive={isActive} />
     ),
-    [state.isEditing, stylesHook.root, WalletItemContent],
+    [state.isEditing, dragging, colors.foregroundColor, navigateToWallet],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -251,19 +229,9 @@ const ManageWallets: React.FC = () => {
     setDragging(true);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
   }, []);
-  
+
   const onRelease = useCallback(() => {
     setDragging(false);
-    Animated.timing(scaleValue, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    Animated.timing(heightValue, {
-      toValue: 80,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   }, []);
 
@@ -279,7 +247,6 @@ const ManageWallets: React.FC = () => {
   const _keyExtractor = useCallback((item: TWallet, index: number) => index.toString(), []);
 
   const renderSectionHeader = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
     ({ section }: { section: SectionListData<TWallet> }) => {
       const sectionIndex = state.walletData.findIndex(wallet => wallet.getLabel() === section.data[0].getLabel());
       return (
@@ -315,33 +282,35 @@ const ManageWallets: React.FC = () => {
   );
 
   return (
-    <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
-      {state.isEditing ? (
-        <DraggableFlatList
-          ref={sortableList}
-          contentInsetAdjustmentBehavior="automatic"
-          automaticallyAdjustContentInsets
-          data={state.walletData}
-          keyExtractor={_keyExtractor}
-          renderItem={renderItem}
-          onChangeOrder={onChangeOrder}
-          onDragBegin={onDragBegin}
-          contentContainerStyle={styles.padding16}
-          onRelease={onRelease}
-          onDragEnd={onDragEnd}
-        />
-      ) : (
-        <SectionList
-          sections={state.walletData.map(wallet => ({ title: wallet.getLabel(), data: [wallet] }))}
-          keyExtractor={_keyExtractor}
-          automaticallyAdjustContentInsets
-          contentInsetAdjustmentBehavior="automatic"
-          contentContainerStyle={styles.padding16}
-          renderItem={() => null} // Render item inside accordion
-          renderSectionHeader={renderSectionHeader}
-        />
-      )}
-    </GestureHandlerRootView>
+    <WalletContext.Provider value={{ state, navigateToWallet, isDraggingDisabled, dragging }}>
+      <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
+        {state.isEditing ? (
+          <DraggableFlatList
+            ref={sortableList}
+            contentInsetAdjustmentBehavior="automatic"
+            automaticallyAdjustContentInsets
+            data={state.walletData}
+            keyExtractor={_keyExtractor}
+            renderItem={renderItem}
+            onChangeOrder={onChangeOrder}
+            onDragBegin={onDragBegin}
+            contentContainerStyle={styles.padding16}
+            onRelease={onRelease}
+            onDragEnd={onDragEnd}
+          />
+        ) : (
+          <SectionList
+            sections={state.walletData.map(wallet => ({ title: wallet.getLabel(), data: [wallet] }))}
+            keyExtractor={_keyExtractor}
+            automaticallyAdjustContentInsets
+            contentInsetAdjustmentBehavior="automatic"
+            contentContainerStyle={styles.padding16}
+            renderItem={() => null} // Render item inside accordion
+            renderSectionHeader={renderSectionHeader}
+          />
+        )}
+      </GestureHandlerRootView>
+    </WalletContext.Provider>
   );
 };
 
@@ -356,17 +325,27 @@ const styles = StyleSheet.create({
   },
   walletItemContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
-    minHeight: 80, // Minimum height
+    
+    height: 280, // Set the initial height to 280 for proper scaling
   },
   walletItem: {
     flex: 1,
+    width: '100%',
   },
   gripIcon: {
     marginLeft: 16,
   },
   accordionContent: {
     flex: 1,
+  },
+  gripIconContainer: {
+    marginLeft: 16,
+  },
+  activeItem: {
+    opacity: 1,
+  },
+  inactiveItem: {
+    opacity: 0.5,
   },
 });
