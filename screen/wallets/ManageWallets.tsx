@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View, TouchableOpacity, useColorScheme, SectionList, LayoutAnimation, SectionListData } from 'react-native';
+import { Platform, StyleSheet, View, TouchableOpacity, useColorScheme, SectionList, LayoutAnimation, SectionListData, Animated } from 'react-native';
 // @ts-ignore: fix later
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -9,7 +9,7 @@ import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { Icon, ListItem } from '@rneui/base';
+import { Icon, ListItem, Button } from '@rneui/base';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { TWallet } from '../../class/wallets/types';
 import { CloseButton, CloseButtonState } from '../../components/navigationStyle';
@@ -83,6 +83,8 @@ const ManageWallets: React.FC = () => {
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const [state, dispatch] = useReducer(reducer, initialState);
   const [expandedSections, setExpandedSections] = useState<{ [key: number]: boolean }>({});
+  const [dragging, setDragging] = useState(false);
+  const scaleValue = useRef(new Animated.Value(1)).current;
 
   const stylesHook = {
     root: {
@@ -162,31 +164,72 @@ const ManageWallets: React.FC = () => {
 
   const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused || !state.isEditing;
 
+  const WalletItemContent = ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => {
+    const animatedStyle = {
+      transform: [{ scale: isActive ? 1 : scaleValue }, { scaleY: isActive ? 1 : scaleValue }],
+    };
+
+    useEffect(() => {
+      Animated.timing(scaleValue, {
+        toValue: dragging && !isActive ? 0.7 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }, [dragging, isActive]);
+
+    return (
+      <Animated.View style={[styles.walletItemContainer, animatedStyle]}>
+        <View style={styles.walletItem}>
+          <WalletCarouselItem
+            // @ts-ignore: fix later
+            item={item}
+            onPress={navigateToWallet}
+            disabled={state.isEditing}
+            allowOnPressAnimation={!state.isEditing}
+          />
+        </View>
+        {!isDraggingDisabled && (
+          <TouchableOpacity style={styles.walletItemContainer} delayLongPress={200} onLongPress={isDraggingDisabled ? undefined : drag}>
+            <Icon name="grip-lines" size={24} type="font-awesome-5" color={colors.foregroundColor} style={styles.gripIcon} />
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+    );
+  };
+
   const renderItem = useCallback(
-    // eslint-disable-next-line react/no-unused-prop-types
-    ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => {
-      return (
-        <ScaleDecorator>
-          <View style={[styles.walletItemContainer, isActive ? styles.activeItem : styles.inactiveItem]}>
-            <View style={styles.walletItem}>
-              <WalletCarouselItem
-                // @ts-ignore: fix later
-                item={item}
-                onPress={navigateToWallet}
-                disabled={state.isEditing}
-                allowOnPressAnimation={!state.isEditing}
+    ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => (
+      <ScaleDecorator>
+        {state.isEditing ? (
+          <ListItem.Swipeable
+            containerStyle={stylesHook.root}
+            leftContent={(reset) => (
+              <Button
+                title="Info"
+                onPress={() => reset()}
+                icon={{ name: 'info', color: 'white' }}
+                buttonStyle={{ minHeight: '100%' }}
               />
-            </View>
-            {!isDraggingDisabled && (
-              <TouchableOpacity style={styles.walletItemContainer} delayLongPress={200} onLongPress={isDraggingDisabled ? undefined : drag}>
-                <Icon name="grip-lines" size={24} type="font-awesome-5" color={colors.foregroundColor} style={styles.gripIcon} />
-              </TouchableOpacity>
             )}
-          </View>
-        </ScaleDecorator>
-      );
-    },
-    [isDraggingDisabled, navigateToWallet, state.isEditing, colors.foregroundColor],
+            rightContent={(reset) => (
+              <Button
+                title="Delete"
+                onPress={() => reset()}
+                icon={{ name: 'delete', color: 'white' }}
+                buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
+              />
+            )}
+          >
+            <ListItem.Content>
+              <WalletItemContent item={item} drag={drag} isActive={isActive} />
+            </ListItem.Content>
+          </ListItem.Swipeable>
+        ) : (
+          <WalletItemContent item={item} drag={drag} isActive={isActive} />
+        )}
+      </ScaleDecorator>
+    ),
+    [state.isEditing, stylesHook.root, WalletItemContent],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -194,15 +237,18 @@ const ManageWallets: React.FC = () => {
   }, []);
 
   const onDragBegin = useCallback(() => {
+    setDragging(true);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
   }, []);
 
   const onRelease = useCallback(() => {
+    setDragging(false);
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   }, []);
 
   const onDragEnd = useCallback(
     ({ data }: { data: TWallet[] }) => {
+      setDragging(false);
       setWalletsWithNewOrder(data);
       dispatch({ type: SET_WALLET_DATA, payload: data });
     },
@@ -291,6 +337,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
+    height: 80, // Initial height
   },
   walletItem: {
     flex: 1,
@@ -300,11 +347,5 @@ const styles = StyleSheet.create({
   },
   accordionContent: {
     flex: 1,
-  },
-  activeItem: {
-    opacity: 1,
-  },
-  inactiveItem: {
-    opacity: 0.5,
   },
 });
