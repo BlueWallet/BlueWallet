@@ -256,6 +256,7 @@
     "received_with_amount": "+{amt1} ({amt2})",
     "view_wallet": "Προβολή {walletLabel}",
     "list_title": "Συναλλαγές",
+    "transaction": "Συναλλαγή",
     "status_cancel": "Ακύρωση συναλλαγής",
     "txid": "ID συναλλαγής"
   },
@@ -263,6 +264,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Απλό και ισχυρό πορτοφόλι Bitcoin",
     "add_create": "Δημιουργία",
+    "add_entropy": "Εντροπία",
     "add_import_wallet": "Εισαγωγή πορτοφολιού",
     "add_lightning": "Lightning",
     "add_lndhub": "Σύνδεση στο δικό σας LNDHub",
@@ -283,6 +285,7 @@
     "details_show_xpub": "Προβολή XPUB του πορτοφολιού",
     "details_show_addresses": "Εμφάνιση διευθύνσεων",
     "details_title": "Πορτοφόλι",
+    "wallets": "Πορτοφόλια",
     "details_type": "Τύπος",
     "details_use_with_hardware_wallet": "Χρήση με hardware πορτοφόλι",
     "details_wallet_updated": "Το πορτοφόλι ενημερώθηκε",

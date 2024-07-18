@@ -340,5 +340,27 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
 
     assert.strictEqual(addr2, 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt');
+
+    assert.strictEqual(w.getAllExternalAddresses().length, 20); // exactly gap limit for external addresses
+    assert.ok(!w.getAllExternalAddresses().includes(addr)); // joint address to _receive_ is not included
+
+    // since we dont do network calls in unit test we cant get counterparties payment codes from our notif address,
+    // and thus, dont know collaborative addresses with our payers. lets hardcode our counterparty payment code to test
+    // this functionality
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), []);
+
+    w.switchBIP47(true);
+
+    w._receive_payment_codes = [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ];
+
+    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), [
+      'PM8TJi1RuCrgSHTzGMoayUf8xUW6zYBGXBPSWwTiMhMMwqto7G6NA4z9pN5Kn8Pbhryo2eaHMFRRcidCGdB3VCDXJD4DdPD2ZyG3ScLMEvtStAetvPMo',
+    ]);
+
+    assert.ok(w.getAllExternalAddresses().includes(addr)); // joint address to _receive_ is included
+    assert.ok(w.getAllExternalAddresses().length > 20);
   });
 });

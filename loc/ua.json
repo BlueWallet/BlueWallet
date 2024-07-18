@@ -249,6 +249,7 @@
     "pending": "Очікування",
     "received_with_amount": "+{amt1} ({amt2})",
     "list_title": "Транзакції",
+    "transaction": "Деталі транзакції",
     "transactions_count": "Кількість Транзакцій",
     "updating": "Оновлення..."
   },
@@ -256,6 +257,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Простий і потужний Біткойн гаманець",
     "add_create": "Створити",
+    "add_entropy": "Ентропія",
     "add_import_wallet": "Імпортувати гаманець",
     "add_lightning": "Lightning",
     "add_lndhub": "Підключитися до вашого LNDHub",
@@ -276,6 +278,7 @@
     "details_show_xpub": "Показати XPUB Гаманця",
     "details_show_addresses": "Показати адреси",
     "details_title": "Гаманець",
+    "wallets": "Гаманці",
     "details_type": "Тип",
     "details_wallet_updated": "Гаманець оновлено",
     "details_yes_delete": "Так, видалити",

@@ -17,7 +17,7 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss, isLoading }) => {
         </TouchableOpacity>
         <Icon name="warning" color="#FFFF" />
         <Text style={styles.title}>{loc.transactions.watchOnlyWarningTitle}</Text>
-        <Text style={styles.description}>{loc.transactions.watchOnlyWarningDescription}</Text> 
+        <Text style={styles.description}>{loc.transactions.watchOnlyWarningDescription}</Text>
       </View>
     </View>
   );
@@ -25,7 +25,7 @@ const WatchOnlyWarning: React.FC<Props> = ({ handleDismiss, isLoading }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#ff4c4c',
+    backgroundColor: '#fc990e',
     padding: 16,
     margin: 16,
     borderRadius: 8,

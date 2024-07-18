@@ -5,6 +5,7 @@ import {
   I18nManager,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -63,12 +64,11 @@ const ScanLndInvoice = () => {
   });
 
   useEffect(() => {
-    console.log('scanLndInvoice useEffect');
-    Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
-    Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeAllListeners('keyboardDidShow');
-      Keyboard.removeAllListeners('keyboardDidHide');
+      showSubscription.remove();
+      hideSubscription.remove();
     };
   }, []);
 
@@ -223,7 +223,7 @@ const ScanLndInvoice = () => {
 
   const processTextForInvoice = text => {
     if (
-      text.toLowerCase().startsWith('lnb') ||
+      (text && text.toLowerCase().startsWith('lnb')) ||
       text.toLowerCase().startsWith('lightning:lnb') ||
       Lnurl.isLnurl(text) ||
       Lnurl.isLightningAddress(text)
@@ -323,7 +323,7 @@ const ScanLndInvoice = () => {
                   text = text.trim();
                   setDestination(text);
                 }}
-                onBarScanned={processInvoice}
+                onBarScanned={data => processTextForInvoice(data.data)}
                 address={destination}
                 isLoading={isLoading}
                 placeholder={loc.lnd.placeholder}

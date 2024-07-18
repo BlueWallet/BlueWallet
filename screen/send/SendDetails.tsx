@@ -151,11 +151,11 @@ const SendDetails = () => {
       setIsAmountToolbarVisibleForAndroid(false);
     };
 
-    Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
-    Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeAllListeners('keyboardDidShow');
-      Keyboard.removeAllListeners('keyboardDidHide');
+      showSubscription.remove();
+      hideSubscription.remove();
     };
   }, []);
 
@@ -215,35 +215,23 @@ const SendDetails = () => {
       });
     } else if (routeParams.addRecipientParams) {
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
-      const isEmptyArray = addresses.length > 0 || addresses.length < 2;
-      const addRecipientParams = routeParams.addRecipientParams;
+      const { address, amount } = routeParams.addRecipientParams;
 
-      if (isEmptyArray) {
-        if (Number(addRecipientParams.amount) > 0) {
-          setAddresses([
-            {
-              address: addRecipientParams.address,
-              amount: addRecipientParams.amount,
-              amountSats: btcToSatoshi(addRecipientParams.amount!),
-              key: String(Math.random()),
-            } as IPaymentDestinations,
-          ]);
-        } else {
-          setAddresses([{ address: addRecipientParams.address, key: String(Math.random()) } as IPaymentDestinations]);
+      setAddresses(prevAddresses => {
+        const updatedAddresses = [...prevAddresses];
+        if (address) {
+          updatedAddresses[index] = {
+            ...updatedAddresses[index],
+            address,
+            amount: amount ?? updatedAddresses[index].amount,
+            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[index].amountSats,
+          } as IPaymentDestinations;
         }
-      } else {
-        setAddresses(addrs => {
-          if (routeParams.addRecipientParams?.amount) {
-            addrs[index].amount = routeParams.addRecipientParams?.amount;
-            addrs[index].amountSats = btcToSatoshi(routeParams.addRecipientParams?.amount);
-          }
-          if (routeParams.addRecipientParams?.address) {
-            addrs[index].address = routeParams.addRecipientParams?.address;
-          }
-          return [...addrs];
-        });
-        setParams({ addRecipientParams: undefined });
-      }
+        return updatedAddresses;
+      });
+
+      // @ts-ignore: Fix later
+      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else {
       setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }

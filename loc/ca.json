@@ -250,6 +250,7 @@
     "pending": "Pendent",
     "view_wallet": "Veure {walletLabel}",
     "list_title": "transaccions",
+    "transaction": "Transacció",
     "status_cancel": "Cancel·lar la Transacció",
     "txid": "ID de la transacció",
     "updating": "Actualitzant..."
@@ -258,6 +259,7 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Moneder de Bitcoin senzill i potent",
     "add_create": "Crear",
+    "add_entropy": "Entropia",
     "add_import_wallet": "Importar moneder",
     "add_lightning": "Lightning",
     "add_title": "Afegir moneder",
@@ -275,6 +277,7 @@
     "details_save": "Guardar",
     "details_show_xpub": "Mostrar wallet XPUB",
     "details_title": "Detalls del moneder",
+    "wallets": "moneders",
     "details_type": "Tipus",
     "details_use_with_hardware_wallet": "Usar amb un moneder hardware",
     "details_wallet_updated": "Moneder actualitzat",

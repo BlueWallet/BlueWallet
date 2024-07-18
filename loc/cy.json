@@ -152,7 +152,8 @@
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
     "pending": "Disgwyl",
-    "list_title": "Trafodion"
+    "list_title": "Trafodion",
+    "transaction": "Trafodyn"
   },
   "wallets": {
     "add_bitcoin_explain": "Waled Bitcoin syml a cryf",
@@ -174,6 +175,7 @@
     "details_no_cancel": "Na, canslo",
     "details_save": "Safio",
     "details_show_addresses": "Dangos cyfeiriadau",
+    "wallets": "Waledi",
     "details_type": "Math",
     "details_yes_delete": "Ia, dileu",
     "enter_bip38_password": "Angen cyfrinair i ddad-gryptio",

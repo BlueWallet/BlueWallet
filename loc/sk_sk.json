@@ -182,6 +182,7 @@
     "details_to": "Výstup",
     "pending": "Čaká...",
     "list_title": "transakcie",
+    "transaction": "Transakcia",
     "rbf_title": "Navýšiť poplatok za transakciu (RBF)",
     "status_bump": "Navýšiť poplatok",
     "status_cancel": "Zrušiť transakciu",
@@ -190,6 +191,7 @@
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_create": "Vytvoriť",
+    "add_entropy": "Entropia",
     "add_entropy_generated": "{gen} bytov vygenerovanej entropie",
     "add_entropy_provide": "Vytvoriť entropiu pomocou hodov kockou",
     "add_entropy_remain": "{gen} bytov vygenerovanej entropie. Zvyšných {rem} bytov sa získa zo systémového generátora náhodných čísel.",
@@ -212,6 +214,7 @@
     "details_save": "Uložiť",
     "details_show_xpub": "Ukázať XPUB",
     "details_title": "Peňaženka",
+    "wallets": "peňaženky",
     "details_type": "Typ",
     "details_use_with_hardware_wallet": "Použiť s hardwarovou peňaženkou",
     "details_yes_delete": "Ano, zmazať",

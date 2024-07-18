@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, StyleSheet, View } from 'react-native';
+import { Linking, View } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -22,6 +22,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -37,7 +38,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
   const { navigate } = useExtendedNavigation<NavigationProps>();
   const menuRef = useRef<ToolTipMenuProps>();
   const { txMetadata, counterpartyMetadata, wallets } = useStorage();
-  const { preferredFiatCurrency, language } = useSettings();
+  const { language } = useSettings();
   const containerStyle = useMemo(
     () => ({
       backgroundColor: 'transparent',
@@ -94,8 +95,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     } else {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, itemPriceUnit, preferredFiatCurrency]);
+  }, [item, itemPriceUnit]);
 
   const rowTitleStyle = useMemo(() => {
     let color = colors.successColor;
@@ -126,73 +126,70 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     };
   }, [item, colors.foregroundColor, colors.successColor]);
 
-  const avatar = useMemo(() => {
-    // is it lightning refill tx?
+  const determineTransactionTypeAndAvatar = () => {
     if (item.category === 'receive' && item.confirmations! < 3) {
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionPendingIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
     }
 
     if (item.type && item.type === 'bitcoind_tx') {
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionOnchainIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.onchain,
+        icon: <TransactionOnchainIcon />,
+      };
     }
+
     if (item.type === 'paid_invoice') {
-      // is it lightning offchain payment?
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionOffchainIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.offchain,
+        icon: <TransactionOffchainIcon />,
+      };
     }
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (!item.ispaid) {
-        const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-        const invoiceExpiration = item.timestamp! + item.expire_time!;
-        if (invoiceExpiration < now) {
-          return (
-            <View style={styles.iconWidth}>
-              <TransactionExpiredIcon />
-            </View>
-          );
-        }
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      if (!item.ispaid && invoiceExpiration < now) {
+        return {
+          label: loc.transactions.expired_transaction,
+          icon: <TransactionExpiredIcon />,
+        };
       } else {
-        return (
-          <View style={styles.iconWidth}>
-            <TransactionOffchainIncomingIcon />
-          </View>
-        );
+        return {
+          label: loc.transactions.incoming_transaction,
+          icon: <TransactionOffchainIncomingIcon />,
+        };
       }
     }
 
     if (!item.confirmations) {
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionPendingIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
     } else if (item.value! < 0) {
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionOutgoingIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.outgoing_transaction,
+        icon: <TransactionOutgoingIcon />,
+      };
     } else {
-      return (
-        <View style={styles.iconWidth}>
-          <TransactionIncomingIcon />
-        </View>
-      );
+      return {
+        label: loc.transactions.incoming_transaction,
+        icon: <TransactionIncomingIcon />,
+      };
     }
-  }, [item]);
+  };
+
+  const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
+
+  const amountWithUnit = useMemo(() => {
+    const amount = formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+    const unit = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
+    return `${amount}${unit}`;
+  }, [item.value, itemPriceUnit]);
 
   useEffect(() => {
     setSubtitleNumberOfLines(1);
@@ -234,13 +231,11 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, wallets]);
+  }, [item, wallets, navigate, walletID]);
 
   const handleOnExpandNote = useCallback(() => {
     setSubtitleNumberOfLines(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subtitle]);
+  }, []);
 
   const subtitleProps = useMemo(() => ({ numberOfLines: subtitleNumberOfLines }), [subtitleNumberOfLines]);
 
@@ -261,17 +256,17 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 
   const onToolTipPress = useCallback(
     (id: any) => {
-      if (id === actionKeys.CopyAmount) {
+      if (id === CommonToolTipActions.CopyAmount.id) {
         handleOnCopyAmountTap();
-      } else if (id === actionKeys.CopyNote) {
+      } else if (id === CommonToolTipActions.CopyNote.id) {
         handleOnCopyNote();
-      } else if (id === actionKeys.OpenInBlockExplorer) {
+      } else if (id === CommonToolTipActions.OpenInBlockExplorer.id) {
         handleOnViewOnBlockExplorer();
-      } else if (id === actionKeys.ExpandNote) {
+      } else if (id === CommonToolTipActions.ExpandNote.id) {
         handleOnExpandNote();
-      } else if (id === actionKeys.CopyBlockExplorerLink) {
+      } else if (id === CommonToolTipActions.CopyBlockExplorerLink.id) {
         handleCopyOpenInBlockExplorerPress();
-      } else if (id === actionKeys.CopyTXID) {
+      } else if (id === CommonToolTipActions.CopyTXID.id) {
         handleOnCopyTransactionID();
       }
     },
@@ -288,58 +283,40 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const actions: (Action | Action[])[] = [];
 
     if (rowTitle !== loc.lnd.expired) {
-      actions.push({
-        id: actionKeys.CopyAmount,
-        text: loc.transactions.details_copy_amount,
-        icon: actionIcons.Clipboard,
-      });
+      actions.push(CommonToolTipActions.CopyAmount);
     }
 
     if (subtitle) {
-      actions.push({
-        id: actionKeys.CopyNote,
-        text: loc.transactions.details_copy_note,
-        icon: actionIcons.Clipboard,
-      });
+      actions.push(CommonToolTipActions.CopyNote);
     }
 
     if (item.hash) {
-      actions.push(
-        {
-          id: actionKeys.CopyTXID,
-          text: loc.transactions.details_copy_txid,
-          icon: actionIcons.Clipboard,
-        },
-        {
-          id: actionKeys.CopyBlockExplorerLink,
-          text: loc.transactions.details_copy_block_explorer_link,
-          icon: actionIcons.Clipboard,
-        },
-        [
-          {
-            id: actionKeys.OpenInBlockExplorer,
-            text: loc.transactions.details_show_in_block_explorer,
-            icon: actionIcons.Link,
-          },
-        ],
-      );
+      actions.push(CommonToolTipActions.CopyTXID, CommonToolTipActions.CopyBlockExplorerLink, [CommonToolTipActions.OpenInBlockExplorer]);
     }
 
     if (subtitle && subtitleNumberOfLines === 1) {
-      actions.push([
-        {
-          id: actionKeys.ExpandNote,
-          text: loc.transactions.expand_note,
-          icon: actionIcons.Note,
-        },
-      ]);
+      actions.push([CommonToolTipActions.ExpandNote]);
     }
 
     return actions as Action[] | Action[][];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines, txMetadata]);
+  }, [item.hash, subtitle, rowTitle, subtitleNumberOfLines]);
+
+  const accessibilityState = useMemo(() => {
+    return {
+      expanded: subtitleNumberOfLines === 0,
+    };
+  }, [subtitleNumberOfLines]);
+
   return (
-    <ToolTipMenu isButton actions={toolTipActions} onPressMenuItem={onToolTipPress} onPress={onPress}>
+    <ToolTipMenu
+      isButton
+      actions={toolTipActions}
+      onPressMenuItem={onToolTipPress}
+      onPress={onPress}
+      accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+      accessibilityRole="button"
+      accessibilityState={accessibilityState}
+    >
       <ListItem
         leftAvatar={avatar}
         title={title}
@@ -354,35 +331,4 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       />
     </ToolTipMenu>
   );
-});
-
-const actionKeys = {
-  CopyTXID: 'copyTX_ID',
-  CopyBlockExplorerLink: 'copy_blockExplorer',
-  ExpandNote: 'expandNote',
-  OpenInBlockExplorer: 'open_in_blockExplorer',
-  CopyAmount: 'copyAmount',
-  CopyNote: 'copyNote',
-};
-
-const actionIcons = {
-  Eye: {
-    iconValue: 'eye',
-  },
-  EyeSlash: {
-    iconValue: 'eye.slash',
-  },
-  Clipboard: {
-    iconValue: 'doc.on.doc',
-  },
-  Link: {
-    iconValue: 'link',
-  },
-  Note: {
-    iconValue: 'note.text',
-  },
-};
-
-const styles = StyleSheet.create({
-  iconWidth: { width: 25 },
 });

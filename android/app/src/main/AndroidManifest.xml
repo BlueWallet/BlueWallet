@@ -19,10 +19,11 @@
     <uses-permission android:name="android.permission.ACTION_OPEN_DOCUMENT" />
     <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
     <uses-permission android:name="android.permission.ACTION_CREATE_DOCUMENT" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-
-
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACTION_SCREEN_OFF"/>
+    <uses-permission android:name="android.permission.ACTION_SCREEN_ON"/>
+    
     <application
         android:name=".MainApplication"
         android:label="@string/app_name"
@@ -61,18 +62,17 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-<receiver
-    android:name=".BitcoinPriceWidget"
-    android:exported="true"
-    android:label="Bitcoin Price Widget">
-    <intent-filter>
-        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-    </intent-filter>
-    <meta-data
-        android:name="android.appwidget.provider"
-        android:resource="@xml/bitcoin_price_widget_info" />
-</receiver>
 
+        <receiver android:name=".BitcoinPriceWidget" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.intent.action.SCREEN_ON"/>
+                <action android:name="android.intent.action.SCREEN_OFF"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/bitcoin_price_widget_info"/>
+        </receiver>
 
         <service
             android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"

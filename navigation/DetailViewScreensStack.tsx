@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { I18nManager, View } from 'react-native';
+import { View } from 'react-native';
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -32,7 +32,6 @@ import WalletsList from '../screen/wallets/WalletsList';
 import { NavigationDefaultOptions, NavigationFormModalOptions, StatusBarLightOptions, DetailViewStack } from './index'; // Importing the navigator
 import AddWalletStack from './AddWalletStack';
 import AztecoRedeemStackRoot from './AztecoRedeemStack';
-import ExportMultisigCoordinationSetupStackRoot from './ExportMultisigCoordinationSetupStack';
 import {
   AboutComponent,
   CurrencyComponent,
@@ -66,6 +65,7 @@ import WalletExportStack from './WalletExportStack';
 import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
+import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -78,27 +78,31 @@ const DetailViewStackScreensStack = () => {
     navigation.navigate('AddWalletRoot');
   }, [navigation]);
 
-  const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const RightBarButtons = (
+  const RightBarButtons = useMemo(
+    () => (
       <>
         <PlusIcon accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPress={navigateToAddWallet} />
         <View style={styles.width24} />
         <SettingsButton />
       </>
-    );
+    ),
+    [navigateToAddWallet],
+  );
 
+  const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     return {
       title: loc.wallets.wallets,
       navigationBarColor: theme.colors.navigationBarColor,
       headerShown: !isDesktop,
       headerLargeTitle: true,
+      headerShadowVisible: false,
+      headerLargeTitleShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: I18nManager.isRTL ? undefined : () => RightBarButtons,
-      headerLeft: I18nManager.isRTL ? () => RightBarButtons : undefined,
+      headerRight: () => RightBarButtons,
     };
-  }, [navigateToAddWallet, theme.colors.customHeader, theme.colors.navigationBarColor]);
+  }, [RightBarButtons, theme.colors.customHeader, theme.colors.navigationBarColor]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   return (
@@ -259,7 +263,7 @@ const DetailViewStackScreensStack = () => {
       />
       <DetailViewStack.Screen
         name="ExportMultisigCoordinationSetupRoot"
-        component={ExportMultisigCoordinationSetupStackRoot}
+        component={ExportMultisigCoordinationSetupStack}
         options={NavigationDefaultOptions}
       />
       <DetailViewStack.Screen
