@@ -154,106 +154,111 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal }) => {
-  const scaleValue = new Animated.Value(1.0);
-  const { colors } = useTheme();
-  const { walletTransactionUpdateStatus } = useStorage();
-  const { width } = useWindowDimensions();
-  const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = useIsLargeScreen();
-  const onPressedIn = () => {
-    Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 0.9 }).start();
-  };
+export const WalletCarouselItem = React.memo(
+  ({ item, _, onPress, disabled = false, handleLongPress, isSelectedWallet, customStyle, horizontal, allowOnPressAnimation = true }) => {
+    const scaleValue = new Animated.Value(1.0);
+    const { colors } = useTheme();
+    const { walletTransactionUpdateStatus } = useStorage();
+    const { width } = useWindowDimensions();
+    const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+    const isLargeScreen = useIsLargeScreen();
+    const onPressedIn = () => {
+      Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 0.9 }).start();
+    };
 
-  const onPressedOut = () => {
-    Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 1.0 }).start();
-  };
+    const onPressedOut = () => {
+      Animated.spring(scaleValue, { duration: 50, useNativeDriver: true, toValue: 1.0 }).start();
+    };
 
-  const opacity = isSelectedWallet === false ? 0.5 : 1.0;
-  let image;
-  switch (item.type) {
-    case LightningLdkWallet.type:
-    case LightningCustodianWallet.type:
-      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-      break;
-    case MultisigHDWallet.type:
-      image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-      break;
-    default:
-      image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-  }
+    const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+    let image;
+    switch (item.type) {
+      case LightningLdkWallet.type:
+      case LightningCustodianWallet.type:
+        image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+        break;
+      case MultisigHDWallet.type:
+        image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+        break;
+      default:
+        image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+    }
 
-  const latestTransactionText =
-    walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
-      ? loc.transactions.updating
-      : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-        ? loc.wallets.pull_to_refresh
-        : item.getTransactions().find(tx => tx.confirmations === 0)
-          ? loc.transactions.pending
-          : transactionTimeToReadable(item.getLatestTransactionTime());
+    const latestTransactionText =
+      walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
+        ? loc.transactions.updating
+        : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+          ? loc.wallets.pull_to_refresh
+          : item.getTransactions().find(tx => tx.confirmations === 0)
+            ? loc.transactions.pending
+            : transactionTimeToReadable(item.getLatestTransactionTime());
 
-  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
 
-  return (
-    <Animated.View
-      style={[
-        isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
-        { opacity, transform: [{ scale: scaleValue }] },
-      ]}
-    >
-      <Pressable
-        accessibilityRole="button"
-        testID={item.getLabel()}
-        onPressIn={onPressedIn}
-        onPressOut={onPressedOut}
-        onLongPress={() => {
-          handleLongPress();
-        }}
-        onPress={() => {
-          onPressedOut();
-          setTimeout(() => {
-            onPress(item); // Replace 'onPress' with your navigation function
-          }, 50);
-        }}
+    return (
+      <Animated.View
+        style={[
+          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
+          { opacity, transform: [{ scale: scaleValue }] },
+        ]}
       >
-        <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-          <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image source={image} style={iStyles.image} />
-            <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-              {item.getLabel()}
-            </Text>
-            <View style={iStyles.balanceContainer}>
-              {item.hideBalance ? (
-                <>
-                  <BlueSpacing10 />
-                  <BlurredBalanceView />
-                </>
-              ) : (
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                  style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
-                >
-                  {`${balance} `}
-                </Text>
-              )}
-            </View>
-            <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
-              {loc.wallets.list_latest_transaction}
-            </Text>
+        <Pressable
+          accessibilityRole="button"
+          testID={item.getLabel()}
+          disabled={disabled}
+          onPressIn={allowOnPressAnimation ? onPressedIn : undefined}
+          onPressOut={allowOnPressAnimation ? onPressedOut : undefined}
+          onLongPress={() => {
 
-            <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-              {latestTransactionText}
-            </Text>
-          </LinearGradient>
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
-});
+            if (handleLongPress) handleLongPress();
+          }}
+          onPress={() => {
+            onPressedOut();
+            setTimeout(() => {
+              console.warn('onPress', item);
+              onPress(item); // Replace 'onPress' with your navigation function
+            }, 50);
+          }}
+        >
+          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
+            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
+              <Image source={image} style={iStyles.image} />
+              <Text style={iStyles.br} />
+              <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                {item.getLabel()}
+              </Text>
+              <View style={iStyles.balanceContainer}>
+                {item.hideBalance ? (
+                  <>
+                    <BlueSpacing10 />
+                    <BlurredBalanceView />
+                  </>
+                ) : (
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                    style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                  >
+                    {`${balance} `}
+                  </Text>
+                )}
+              </View>
+              <Text style={iStyles.br} />
+              <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
+                {loc.wallets.list_latest_transaction}
+              </Text>
+
+              <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                {latestTransactionText}
+              </Text>
+            </LinearGradient>
+          </View>
+        </Pressable>
+      </Animated.View>
+    );
+  },
+);
 
 WalletCarouselItem.propTypes = {
   item: PropTypes.any,

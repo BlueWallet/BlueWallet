@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback } from 'react';
-import { Platform, StyleSheet, useColorScheme } from 'react-native';
+import { Platform, StyleSheet, View, TouchableOpacity, useColorScheme } from 'react-native';
 // @ts-ignore: fix later
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -9,11 +9,14 @@ import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { Icon } from '@rneui/base';
+import HeaderRightButton from '../../components/HeaderRightButton';
 
 // Action Types
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
 const SET_WALLET_DATA = 'SET_WALLET_DATA';
+const TOGGLE_EDIT_MODE = 'TOGGLE_EDIT_MODE';
 
 // Action Interfaces
 interface SetSearchQueryAction {
@@ -31,13 +34,18 @@ interface SetWalletDataAction {
   payload: any[];
 }
 
-type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetWalletDataAction;
+interface ToggleEditModeAction {
+  type: typeof TOGGLE_EDIT_MODE;
+}
+
+type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetWalletDataAction | ToggleEditModeAction;
 
 // State Interface
 interface State {
   searchQuery: string;
   isSearchFocused: boolean;
   walletData: any[];
+  isEditing: boolean;
 }
 
 // Initial State
@@ -45,6 +53,7 @@ const initialState: State = {
   searchQuery: '',
   isSearchFocused: false,
   walletData: [],
+  isEditing: false,
 };
 
 // Reducer
@@ -56,6 +65,8 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, isSearchFocused: action.payload };
     case SET_WALLET_DATA:
       return { ...state, walletData: action.payload };
+    case TOGGLE_EDIT_MODE:
+      return { ...state, isEditing: !state.isEditing };
     default:
       return state;
   }
@@ -85,8 +96,17 @@ const ManageWallets: React.FC = () => {
   useEffect(() => {
     setOptions({
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+      headerLeft: () => (
+        <HeaderRightButton
+          isTitleBold={state.isEditing}
+          disabled={false}
+          isTransparentBackground={!state.isEditing}
+          title={state.isEditing ? loc.send.input_done : loc.wallets.edit}
+          onPress={() => dispatch({ type: TOGGLE_EDIT_MODE })}
+        />
+      ),
     });
-  }, [colorScheme, setOptions]);
+  }, [colorScheme, setOptions, state.isEditing]);
 
   useEffect(() => {
     const filteredWallets = wallets.filter(wallet => wallet.getLabel().toLowerCase().includes(state.searchQuery.toLowerCase()));
@@ -118,7 +138,7 @@ const ManageWallets: React.FC = () => {
     [goBack, navigate],
   );
 
-  const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused;
+  const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused || !state.isEditing;
 
   const renderItem = useCallback(
     ({ item, drag, isActive }: any) => {
@@ -126,18 +146,27 @@ const ManageWallets: React.FC = () => {
 
       return (
         <ScaleDecorator>
-          <WalletCarouselItem
-            // @ts-ignore: fix later
-            item={item}
-            handleLongPress={isDraggingDisabled ? null : drag}
-            isActive={isActive}
-            onPress={navigateToWallet}
-            customStyle={[styles.padding16, { opacity: itemOpacity }]}
-          />
+          <View style={styles.walletItemContainer}>
+            <View style={styles.walletItem}>
+              <WalletCarouselItem
+                // @ts-ignore: fix later
+                item={item}
+                onPress={navigateToWallet}
+                disabled={state.isEditing}
+                allowOnPressAnimation={!state.isEditing}
+                customStyle={[styles.padding16, { opacity: itemOpacity }]}
+              />
+            </View>
+            {!isDraggingDisabled && (
+              <TouchableOpacity style={styles.walletItemContainer} delayLongPress={200} onLongPress={isDraggingDisabled ? null : drag}>
+                <Icon name="grip-lines" size={24} type="font-awesome-5" color={colors.foregroundColor} style={styles.gripIcon} />
+              </TouchableOpacity>
+            )}
+          </View>
         </ScaleDecorator>
       );
     },
-    [isDraggingDisabled, navigateToWallet],
+    [isDraggingDisabled, navigateToWallet, state.isEditing, colors.foregroundColor],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -175,7 +204,7 @@ const ManageWallets: React.FC = () => {
         onDragBegin={onDragBegin}
         onRelease={onRelease}
         onDragEnd={onDragEnd}
-        containerStyle={styles.root}
+        contentContainerStyle={styles.padding16}
       />
     </GestureHandlerRootView>
   );
@@ -187,7 +216,16 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  padding16: {
-    padding: 16,
+  padding16: {},
+  walletItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  walletItem: {
+    flex: 1,
+  },
+  gripIcon: {
+    marginLeft: 16,
   },
 });

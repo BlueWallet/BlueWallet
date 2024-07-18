@@ -8,20 +8,33 @@ interface HeaderRightButtonProps {
   onPress?: () => void;
   title: string;
   testID?: string;
+  isTransparentBackground?: boolean;
+  isTitleBold?: boolean;
 }
 
-const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, onPress, title, testID }) => {
+const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({
+  disabled = true,
+  onPress,
+  title,
+  testID,
+  isTransparentBackground,
+  isTitleBold,
+}) => {
   const { colors } = useTheme();
   const opacity = disabled ? 0.5 : 1;
+  const styleHook = StyleSheet.create({
+    title: { color: colors.buttonTextColor, fontWeight: isTitleBold ? 'bold' : '600' },
+    button: { backgroundColor: isTransparentBackground ? 'transparent' : colors.lightButton },
+  });
   return (
     <TouchableOpacity
       accessibilityRole="button"
       disabled={disabled}
-      style={[styles.save, { backgroundColor: colors.lightButton }, { opacity }]}
+      style={[styles.save, styleHook.button, { opacity }]}
       onPress={onPress}
       testID={testID}
     >
-      <Text style={[styles.saveText, { color: colors.buttonTextColor }]}>{title}</Text>
+      <Text style={[styles.saveText, styleHook.title]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -35,8 +48,7 @@ const styles = StyleSheet.create({
     height: 34,
   },
   saveText: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
   },
 });
 

@@ -55,6 +55,18 @@ const getHandleCloseAction = (
   };
 };
 
+const CloseButton = ({ onPress, theme }: { onPress: () => void; theme: Theme }) => (
+  <TouchableOpacity
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={styles.button}
+    onPress={onPress}
+    testID="NavigationCloseButton"
+  >
+    <Image source={theme.closeImage} />
+  </TouchableOpacity>
+);
+
 const navigationStyle = (
   {
     closeButtonPosition,
@@ -84,29 +96,9 @@ const navigationStyle = (
       }
 
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerRight = () => <CloseButton onPress={handleClose} theme={theme} />;
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerLeft = () => <CloseButton onPress={handleClose} theme={theme} />;
       }
 
       let options: NativeStackNavigationOptions = {
