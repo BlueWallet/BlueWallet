@@ -164,19 +164,30 @@ const ManageWallets: React.FC = () => {
 
   const isDraggingDisabled = state.searchQuery.length > 0 || state.isSearchFocused || !state.isEditing;
 
+  
   const WalletItemContent = ({ item, drag, isActive }: { item: TWallet; drag: () => void; isActive: boolean }) => {
-    const animatedStyle = {
-      transform: [{ scale: isActive ? 1 : scaleValue }, { scaleY: isActive ? 1 : scaleValue }],
-    };
-
+    const scaleValue = useRef(new Animated.Value(1)).current;
+  
     useEffect(() => {
-      Animated.timing(scaleValue, {
-        toValue: dragging && !isActive ? 0.7 : 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      if (dragging && !isActive) {
+        Animated.timing(scaleValue, {
+          toValue: 0.7,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.timing(scaleValue, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      }
     }, [dragging, isActive]);
-
+  
+    const animatedStyle = {
+      transform: [{ scale: scaleValue }],
+    };
+  
     return (
       <Animated.View style={[styles.walletItemContainer, animatedStyle]}>
         <View style={styles.walletItem}>
@@ -240,9 +251,19 @@ const ManageWallets: React.FC = () => {
     setDragging(true);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
   }, []);
-
+  
   const onRelease = useCallback(() => {
     setDragging(false);
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    Animated.timing(heightValue, {
+      toValue: 80,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   }, []);
 
@@ -337,7 +358,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    height: 80, // Initial height
+    minHeight: 80, // Minimum height
   },
   walletItem: {
     flex: 1,
