@@ -55,7 +55,6 @@ import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
 import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ReorderWalletsStackRoot from './ReorderWalletsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
 import ScanQRCodeStackRoot from './ScanQRCodeStack';
 import SendDetailsStack from './SendDetailsStack';
@@ -66,6 +65,7 @@ import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
+import ManageWalletsStackRoot from './ManageWalletsStack';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -379,8 +379,8 @@ const DetailViewStackScreensStack = () => {
         }}
       />
       <DetailViewStack.Screen
-        name="ManageWallets"
-        component={ReorderWalletsStackRoot}
+        name="ManageWalletsStackRoot"
+        component={ManageWalletsStackRoot}
         options={{
           headerShown: false,
           gestureEnabled: false,
