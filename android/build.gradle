@@ -64,7 +64,7 @@ subprojects {
             android {
                 buildToolsVersion "34.0.0"
                 compileSdkVersion 34
-                 defaultConfig
+                 defaultConfig {
                     minSdkVersion 24
                 }
             }
