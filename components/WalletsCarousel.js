@@ -220,7 +220,7 @@ export const WalletCarouselItem = React.memo(
             }, 50);
           }}
         >
-          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
+          <View style={[iStyles.shadowContainer, {  backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />

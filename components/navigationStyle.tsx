@@ -1,9 +1,9 @@
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { Image, Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
 
 import loc from '../loc';
-import { Theme } from './themes';
+import { Theme, useTheme } from './themes';
 
 const styles = StyleSheet.create({
   button: {
@@ -12,12 +12,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonEnabled: {
+    opacity: 1,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
 });
 
 enum CloseButtonPosition {
   None = 'None',
   Left = 'Left',
   Right = 'Right',
+}
+
+enum CloseButtonState {
+  Enabled = 'Enabled',
+  Disabled = 'Disabled',
 }
 
 type OptionsFormatter = (
@@ -55,27 +66,33 @@ const getHandleCloseAction = (
   };
 };
 
-const CloseButton = ({ onPress, theme }: { onPress: () => void; theme: Theme }) => (
-  <TouchableOpacity
-    accessibilityRole="button"
-    accessibilityLabel={loc._.close}
-    style={styles.button}
-    onPress={onPress}
-    testID="NavigationCloseButton"
-  >
-    <Image source={theme.closeImage} />
-  </TouchableOpacity>
-);
+export const CloseButton = ({ onPress, state }: { onPress: () => void; state: CloseButtonState }) => {
+  const buttonStyle = state === CloseButtonState.Disabled ? styles.buttonDisabled : styles.buttonEnabled;
+  const { closeImage } = useTheme();
+  return (
+    <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={loc._.close}
+      style={[styles.button, buttonStyle]}
+      onPress={onPress}
+      testID="NavigationCloseButton"
+    >
+      <Image source={closeImage} />
+    </TouchableOpacity>
+  );
+};
 
 const navigationStyle = (
   {
     closeButtonPosition,
     onCloseButtonPressed,
     headerBackVisible = true,
+    closeButtonState = CloseButtonState.Enabled,
     ...opts
   }: NativeStackNavigationOptions & {
     closeButtonPosition?: CloseButtonPosition;
     onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
+    closeButtonState?: CloseButtonState;
   },
   formatter?: OptionsFormatter,
 ): NavigationOptionsGetter => {
@@ -96,9 +113,9 @@ const navigationStyle = (
       }
 
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = () => <CloseButton onPress={handleClose} theme={theme} />;
+        headerRight = () => <CloseButton onPress={handleClose}  state={closeButtonState} />;
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = () => <CloseButton onPress={handleClose} theme={theme} />;
+        headerLeft = () => <CloseButton onPress={handleClose}  state={closeButtonState} />;
       }
 
       let options: NativeStackNavigationOptions = {
@@ -123,4 +140,4 @@ const navigationStyle = (
 };
 
 export default navigationStyle;
-export { CloseButtonPosition };
+export { CloseButtonPosition, CloseButtonState };
