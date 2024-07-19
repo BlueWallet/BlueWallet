@@ -60,31 +60,37 @@ allprojects {
 subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
-            project.android {
-                buildToolsVersion = rootProject.ext.buildToolsVersion
-                compileSdkVersion rootProject.ext.compileSdkVersion
+            android {
+                buildToolsVersion "34.0.0"
+                compileSdkVersion 34
                 defaultConfig {
-                    minSdkVersion rootProject.ext.minSdkVersion
+                    minSdkVersion 24
+                }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_11
+                    targetCompatibility JavaVersion.VERSION_11
+                    java {
+                        toolchain {
+                            languageVersion.set(JavaLanguageVersion.of(11))
+                        }
+                    }
                 }
             }
         }
 
         // Check if the project name is 'rn-ldk' or 'react-native-true-sheet' before applying the Kotlin compile options
         if (project.name == 'rn-ldk' || project.name == 'react-native-true-sheet') {
-            project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
                 kotlinOptions {
-                    if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
-                        jvmTarget = project.android.compileOptions.sourceCompatibility.toString()
-                    } else {
-                        jvmTarget = project.sourceCompatibility.toString()
+                    jvmTarget = "11"
+                }
+                kotlin {
+                    jvmToolchain {
+                        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
                     }
                 }
             }
         }
     }
-}
-
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
