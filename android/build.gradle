@@ -81,16 +81,13 @@ subprojects {
 
         // Apply the JVM target configuration only to 'rn-ldk' and 'react-native-true-sheet'
         if (project.name == 'rn-ldk' || project.name == 'react-native-true-sheet') {
-            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-                kotlinOptions {
-                    jvmTarget = "11"
-                }
-                kotlin {
-                    jvmToolchain {
-                        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(11))
-                    }
-                }
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+                kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
+            } else {
+                kotlinOptions.jvmTarget = sourceCompatibility
             }
+        }
         }
     }
 }
