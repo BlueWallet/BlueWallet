@@ -57,7 +57,7 @@ allprojects {
     }
 }
 
-   subprojects {
+subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             android {
@@ -93,5 +93,4 @@ allprojects {
             }
         }
     }
-}
 }
