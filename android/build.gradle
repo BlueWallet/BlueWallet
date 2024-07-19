@@ -57,7 +57,7 @@ allprojects {
     }
 }
 
-subprojects {
+   subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             android {
@@ -66,7 +66,7 @@ subprojects {
                 defaultConfig {
                     minSdkVersion 24
                 }
-
+                
                 compileOptions {
                     sourceCompatibility JavaVersion.VERSION_11
                     targetCompatibility JavaVersion.VERSION_11
@@ -79,9 +79,9 @@ subprojects {
             }
         }
 
-        // Check if the project name is 'rn-ldk' or 'react-native-true-sheet' before applying the Kotlin compile options
+        // Apply the JVM target configuration only to 'rn-ldk' and 'react-native-true-sheet'
         if (project.name == 'rn-ldk' || project.name == 'react-native-true-sheet') {
-            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
                 kotlinOptions {
                     jvmTarget = "11"
                 }
@@ -93,4 +93,5 @@ subprojects {
             }
         }
     }
+}
 }
