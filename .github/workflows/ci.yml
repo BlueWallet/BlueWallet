@@ -118,10 +118,10 @@ jobs:
       run: npm install || npm install
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '11'
 
     - name: Enable KVM group perms
       run: |
