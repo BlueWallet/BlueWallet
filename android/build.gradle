@@ -55,6 +55,12 @@ allprojects {
         google()
                 maven { url 'https://www.jitpack.io' }
     }
+
+    configurations.all {
+        resolutionStrategy {
+            force 'com.facebook.react:react-native:0.74.3'
+        }
+    }
 }
 
 subprojects {
