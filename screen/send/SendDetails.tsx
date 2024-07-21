@@ -1114,7 +1114,8 @@ const SendDetails = () => {
     scrollIndex.current = index;
   };
 
-  const onUseAllPressed = () => {
+  const onUseAllPressed = async () => {
+    await optionsModalRef.current?.dismiss();
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
@@ -1124,7 +1125,6 @@ const SendDetails = () => {
         {
           text: loc._.ok,
           onPress: () => {
-            optionsModalRef.current?.dismiss();
             Keyboard.dismiss();
             setAddresses(addrs => {
               addrs[scrollIndex.current].amount = BitcoinUnit.MAX;
@@ -1135,11 +1135,16 @@ const SendDetails = () => {
               u[scrollIndex.current] = BitcoinUnit.BTC;
               return [...u];
             });
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           },
           style: 'default',
         },
-        { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
+        {
+          text: loc._.cancel,
+          onPress: () => {
+            optionsModalRef.current?.present();
+          },
+          style: 'cancel',
+        },
       ],
       { cancelable: false },
     );
