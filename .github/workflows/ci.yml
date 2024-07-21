@@ -147,4 +147,3 @@ jobs:
       with:
         name: e2e-test-videos
         path: /mnt/artifacts/
-        
