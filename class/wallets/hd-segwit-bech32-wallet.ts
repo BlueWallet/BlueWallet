@@ -1,4 +1,5 @@
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import { WalletType } from './types';
 
 /**
  * HD Wallet (BIP39).
@@ -6,7 +7,7 @@ import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
  * @see https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
  */
 export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
-  static readonly type = 'HDsegwitBech32';
+  static readonly type = WalletType.HDSegwitBech32;
   static readonly typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
   // @ts-ignore: override
   public readonly type = HDSegwitBech32Wallet.type;

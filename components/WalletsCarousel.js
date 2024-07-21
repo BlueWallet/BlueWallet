@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { BlueSpacing10 } from '../BlueComponents';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
@@ -24,6 +23,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
+import { WalletType } from '../class/wallets/types';
 
 const nStyles = StyleSheet.create({
   container: {
@@ -172,11 +172,11 @@ export const WalletCarouselItem = React.memo(({ item, _, onPress, handleLongPres
   const opacity = isSelectedWallet === false ? 0.5 : 1.0;
   let image;
   switch (item.type) {
-    case LightningLdkWallet.type:
-    case LightningCustodianWallet.type:
+    case WalletType.LightningLdk:
+    case WalletType.LightningCustodian:
       image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
       break;
-    case MultisigHDWallet.type:
+    case WalletType.MultisigHD:
       image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
       break;
     default:

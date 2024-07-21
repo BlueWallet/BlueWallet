@@ -12,7 +12,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import { CreateTransactionResult, CreateTransactionUtxo } from './types';
+import { CreateTransactionResult, CreateTransactionUtxo, WalletType } from './types';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -56,7 +56,7 @@ const electrumStandart = (passphrase?: string): SeedOpts => ({
 const ELECTRUM_SEED_PREFIX = 'electrumseed:';
 
 export class MultisigHDWallet extends AbstractHDElectrumWallet {
-  static readonly type = 'HDmultisig';
+  static readonly type = WalletType.MultisigHD;
   static readonly typeReadable = 'Multisig Vault';
   // @ts-ignore: override
   public readonly type = MultisigHDWallet.type;

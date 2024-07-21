@@ -1,23 +1,66 @@
 import bitcoin from 'bitcoinjs-lib';
 import { CoinSelectOutput, CoinSelectReturnInput, CoinSelectUtxo } from 'coinselect';
-
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDAezeedWallet } from './hd-aezeed-wallet';
-import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
-import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { HDSegwitElectrumSeedP2WPKHWallet } from './hd-segwit-electrum-seed-p2wpkh-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
-import { LegacyWallet } from './legacy-wallet';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import { LightningLdkWallet } from './lightning-ldk-wallet';
-import { MultisigHDWallet } from './multisig-hd-wallet';
-import { SegwitBech32Wallet } from './segwit-bech32-wallet';
-import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
-import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './slip39-wallets';
-import { WatchOnlyWallet } from './watch-only-wallet';
+import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 
+
+export enum WalletType {
+  AbstractWallet = 'abstract',
+  AbstractHDWallet = 'abstracthd',
+  HDAezeed = 'HDAezeedWallet',
+  HDLegacyBreadwallet = 'HDLegacyBreadwallet',
+  HDLegacyElectrumSeedP2PKH = 'HDlegacyElectrumSeedP2PKH',
+  HDLegacyP2PKH = 'HDlegacyP2PKH',
+  HDSegwitBech32 = 'HDsegwitBech32',
+  HDSegwitElectrumSeedP2WPKH = 'HDSegwitElectrumSeedP2WPKHWallet',
+  HDSegwitP2SH = 'HDsegwitP2SH',
+  Legacy = 'legacy',
+  LightningCustodian = 'lightningCustodianWallet',
+  LightningLdk = 'lightningLdk',
+  MultisigHD = 'HDmultisig',
+  SLIP39LegacyP2PKH = 'SLIP39legacyP2PKH',
+  SLIP39SegwitBech32 = 'SLIP39segwitBech32',
+  SLIP39SegwitP2SH = 'SLIP39segwitP2SH',
+  SegwitBech32 = 'segwitBech32',
+  SegwitP2SH = 'segwitP2SH',
+  WatchOnly = 'watchOnly',
+  AbstractHDElectrumWallet = 'AbstractHDElectrumWallet',
+}
+
+type WalletClassMapping = {
+  [key in WalletType]: () => Promise<any>;
+};
+
+export const walletClassMapping: WalletClassMapping = {
+  [WalletType.AbstractWallet]: () => import('./abstract-wallet').then(m => m.AbstractWallet),
+  [WalletType.AbstractHDWallet]: () => import('./abstract-hd-wallet').then(m => m.AbstractHDWallet),
+  [WalletType.HDAezeed]: () => import('./hd-aezeed-wallet').then(m => m.HDAezeedWallet),
+  [WalletType.HDLegacyBreadwallet]: () => import('./hd-legacy-breadwallet-wallet').then(m => m.HDLegacyBreadwalletWallet),
+  [WalletType.HDLegacyElectrumSeedP2PKH]: () => import('./hd-legacy-electrum-seed-p2pkh-wallet').then(m => m.HDLegacyElectrumSeedP2PKHWallet),
+  [WalletType.HDLegacyP2PKH]: () => import('./hd-legacy-p2pkh-wallet').then(m => m.HDLegacyP2PKHWallet),
+  [WalletType.AbstractHDElectrumWallet]: () => import('./abstract-hd-electrum-wallet').then(m => m.AbstractHDElectrumWallet),
+  [WalletType.HDSegwitBech32]: () => import('./hd-segwit-bech32-wallet').then(m => m.HDSegwitBech32Wallet),
+  [WalletType.HDSegwitElectrumSeedP2WPKH]: () => import('./hd-segwit-electrum-seed-p2wpkh-wallet').then(m => m.HDSegwitElectrumSeedP2WPKHWallet),
+  [WalletType.HDSegwitP2SH]: () => import('./hd-segwit-p2sh-wallet').then(m => m.HDSegwitP2SHWallet),
+  [WalletType.Legacy]: () => import('./legacy-wallet').then(m => m.LegacyWallet),
+  [WalletType.LightningCustodian]: () => import('./lightning-custodian-wallet').then(m => m.LightningCustodianWallet),
+  [WalletType.LightningLdk]: () => import('./lightning-ldk-wallet').then(m => m.LightningLdkWallet),
+  [WalletType.MultisigHD]: () => import('./multisig-hd-wallet').then(m => m.MultisigHDWallet),
+  [WalletType.SLIP39LegacyP2PKH]: () => import('./slip39-wallets').then(m => ({ SLIP39LegacyP2PKHWallet: m.SLIP39LegacyP2PKHWallet })),
+  [WalletType.SLIP39SegwitBech32]: () => import('./slip39-wallets').then(m => ({ SLIP39SegwitBech32Wallet: m.SLIP39SegwitBech32Wallet })),
+  [WalletType.SLIP39SegwitP2SH]: () => import('./slip39-wallets').then(m => ({ SLIP39SegwitP2SHWallet: m.SLIP39SegwitP2SHWallet })),
+  [WalletType.SegwitBech32]: () => import('./segwit-bech32-wallet').then(m => m.SegwitBech32Wallet),
+  [WalletType.SegwitP2SH]: () => import('./segwit-p2sh-wallet').then(m => m.SegwitP2SHWallet),
+  [WalletType.WatchOnly]: () => import('./watch-only-wallet').then(m => m.WatchOnlyWallet),
+};
+
+export type WalletClass<T extends WalletType> = T extends keyof WalletClassMapping
+  ? Awaited<ReturnType<WalletClassMapping[T]>>
+  : never;
+
+export type TWallet = WalletClass<WalletType>;
 export type Utxo = {
   // Returned by BlueElectrum
   height: number;
@@ -122,24 +165,5 @@ export type ExtendedTransaction = Transaction & {
   walletID: string;
   walletPreferredBalanceUnit: BitcoinUnit;
 };
-
-export type TWallet =
-  | HDAezeedWallet
-  | HDLegacyBreadwalletWallet
-  | HDLegacyElectrumSeedP2PKHWallet
-  | HDLegacyP2PKHWallet
-  | HDSegwitBech32Wallet
-  | HDSegwitElectrumSeedP2WPKHWallet
-  | HDSegwitP2SHWallet
-  | LegacyWallet
-  | LightningCustodianWallet
-  | LightningLdkWallet
-  | MultisigHDWallet
-  | SLIP39LegacyP2PKHWallet
-  | SLIP39SegwitBech32Wallet
-  | SLIP39SegwitP2SHWallet
-  | SegwitBech32Wallet
-  | SegwitP2SHWallet
-  | WatchOnlyWallet;
 
 export type THDWalletForWatchOnly = HDSegwitBech32Wallet | HDSegwitP2SHWallet | HDLegacyP2PKHWallet;
