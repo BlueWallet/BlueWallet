@@ -118,10 +118,10 @@ jobs:
       run: npm install || npm install
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '11'
 
     - name: Enable KVM group perms
       run: |
@@ -135,9 +135,9 @@ jobs:
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 33
-        avd-name: Pixel_4_API_33
-        force-avd-creation: true
+        api-level: 31
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
         script: npm run e2e:release-test --  --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 3 --artifacts-location /mnt/artifacts
