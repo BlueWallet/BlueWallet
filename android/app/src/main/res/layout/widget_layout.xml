@@ -8,6 +8,13 @@
     android:background="@drawable/widget_background"
     android:gravity="end">
 
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +28,8 @@
             android:text="Last Updated"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/last_updated_time"
@@ -31,7 +39,8 @@
             android:text=""
             android:textSize="12sp"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="2dp"/>
+            android:layout_marginTop="2dp"
+            android:visibility="gone"/>
     </LinearLayout>
 
     <LinearLayout
@@ -49,14 +58,16 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/price_arrow_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end">
+            android:gravity="end"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/price_arrow"
@@ -84,12 +95,5 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"/>
         </LinearLayout>
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/loading_indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+</LinearLayout>
 </LinearLayout>
