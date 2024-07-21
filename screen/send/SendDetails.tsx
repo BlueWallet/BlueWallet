@@ -1653,7 +1653,7 @@ const styles = StyleSheet.create({
   modalContent: {
     margin: 22,
   },
-  modalContentMinHeight: Platform.OS === 'android' ? { minHeight: 350 } : {},
+  modalContentMinHeight: Platform.OS === 'android' ? { minHeight: 400 } : {},
   paddingTop80: { paddingTop: 80 },
   optionsContent: {
     padding: 22,
