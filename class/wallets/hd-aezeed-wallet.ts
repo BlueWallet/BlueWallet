@@ -4,7 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import AbstractHDElectrumWallet from './abstract-hd-electrum-wallet';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -18,7 +18,7 @@ const bip32 = BIP32Factory(ecc);
  * @see https://github.com/guggero/chantools/blob/master/doc/chantools_genimportscript.md
  * @see https://github.com/lightningnetwork/lnd/blob/master/keychain/derivation.go
  */
-export class HDAezeedWallet extends AbstractHDElectrumWallet {
+export default class HDAezeedWallet extends AbstractHDElectrumWallet {
   static readonly type = 'HDAezeedWallet';
   static readonly typeReadable = 'HD Aezeed';
   public readonly segwitType = 'p2wpkh';

@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import * as mn from 'electrum-mnemonic';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
+import HDLegacyP2PKHWallet from './hd-legacy-p2pkh-wallet';
 
 const bip32 = BIP32Factory(ecc);
 const PREFIX = mn.PREFIXES.standard;
@@ -19,7 +19,7 @@ type SeedOpts = {
  *
  * @see https://electrum.readthedocs.io/en/latest/seedphrase.html
  */
-export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
+export default class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static readonly type = 'HDlegacyElectrumSeedP2PKH';
   static readonly typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
   // @ts-ignore: override

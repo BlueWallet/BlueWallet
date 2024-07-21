@@ -10,7 +10,7 @@ type UtxoMetadata = {
   memo?: string;
 };
 
-export class AbstractWallet {
+export default class AbstractWallet {
   static readonly type = 'abstract';
   static readonly typeReadable = 'abstract';
   // @ts-ignore: override

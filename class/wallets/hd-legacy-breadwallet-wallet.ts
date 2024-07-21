@@ -6,8 +6,8 @@ import { CoinSelectReturnInput } from 'coinselect';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
+import AbstractHDElectrumWallet from './abstract-hd-electrum-wallet';
+import HDLegacyP2PKHWallet from './hd-legacy-p2pkh-wallet';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -15,7 +15,7 @@ const bip32 = BIP32Factory(ecc);
  * HD Wallet (BIP39).
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
-export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
+export  default class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static readonly type = 'HDLegacyBreadwallet';
   static readonly typeReadable = 'HD Legacy Breadwallet (P2PKH)';
   // @ts-ignore: override

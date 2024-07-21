@@ -11,7 +11,7 @@ import * as mn from 'electrum-mnemonic';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { decodeUR } from '../../blue_modules/ur';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import AbstractHDElectrumWallet from './abstract-hd-electrum-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
@@ -55,7 +55,7 @@ const electrumStandart = (passphrase?: string): SeedOpts => ({
 
 const ELECTRUM_SEED_PREFIX = 'electrumseed:';
 
-export class MultisigHDWallet extends AbstractHDElectrumWallet {
+export default class MultisigHDWallet extends AbstractHDElectrumWallet {
   static readonly type = 'HDmultisig';
   static readonly typeReadable = 'Multisig Vault';
   // @ts-ignore: override

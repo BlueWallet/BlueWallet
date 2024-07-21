@@ -45,7 +45,7 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
 
   if (success) {
     console.log('loaded from disk');
-    // We want to return true to let the UnlockWith screen that its ok to proceed.
+    // We want to return true to let the UnlockWith screen know that it's okay to proceed.
     return true;
   }
 
@@ -57,7 +57,7 @@ export const startAndDecrypt = async (retry?: boolean): Promise<boolean> => {
     } else {
       unlockAttempt = 0;
       showKeychainWipeAlert();
-      // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
+      // We want to return false to let the UnlockWith screen know that it is NOT okay to proceed.
       return false;
     }
   } else {

@@ -5,7 +5,7 @@ import b58 from 'bs58check';
 import { CoinSelectReturnInput } from 'coinselect';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import AbstractHDElectrumWallet from './abstract-hd-electrum-wallet';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -14,7 +14,7 @@ const bip32 = BIP32Factory(ecc);
  * In particular, BIP49 (P2SH Segwit)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
-export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
+export default class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   static readonly type = 'HDsegwitP2SH';
   static readonly typeReadable = 'HD SegWit (BIP49 P2SH)';
   // @ts-ignore: override

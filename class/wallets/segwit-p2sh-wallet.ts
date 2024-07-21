@@ -3,7 +3,7 @@ import { CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { LegacyWallet } from './legacy-wallet';
+import LegacyWallet from './legacy-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
 
 const ECPair = ECPairFactory(ecc);
@@ -21,7 +21,7 @@ function pubkeyToP2shSegwitAddress(pubkey: Buffer): string | false {
   return address ?? false;
 }
 
-export class SegwitP2SHWallet extends LegacyWallet {
+export default class SegwitP2SHWallet extends LegacyWallet {
   static readonly type = 'segwitP2SH';
   static readonly typeReadable = 'SegWit (P2SH)';
   // @ts-ignore: override

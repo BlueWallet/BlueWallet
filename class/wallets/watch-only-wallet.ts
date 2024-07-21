@@ -2,16 +2,16 @@ import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { AbstractWallet } from './abstract-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
-import { LegacyWallet } from './legacy-wallet';
+import  AbstractWallet  from './abstract-wallet';
+import HDLegacyP2PKHWallet from './hd-legacy-p2pkh-wallet';
+import HDSegwitBech32Wallet  from './hd-segwit-bech32-wallet';
+import HDSegwitP2SHWallet from './hd-segwit-p2sh-wallet';
+import LegacyWallet  from './legacy-wallet';
 import { THDWalletForWatchOnly } from './types';
 
 const bip32 = BIP32Factory(ecc);
 
-export class WatchOnlyWallet extends LegacyWallet {
+export default class WatchOnlyWallet extends LegacyWallet {
   static readonly type = 'watchOnly';
   static readonly typeReadable = 'Watch-only';
   // @ts-ignore: override

@@ -8,11 +8,11 @@ import presentAlert from '../../components/Alert';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { randomBytes } from '../rng';
 import SyncedAsyncStorage from '../synced-async-storage';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import { SegwitBech32Wallet } from './segwit-bech32-wallet';
+import HDSegwitBech32Wallet from './hd-segwit-bech32-wallet';
+import LightningCustodianWallet from './lightning-custodian-wallet';
+import SegwitBech32Wallet from './segwit-bech32-wallet';
 
-export class LightningLdkWallet extends LightningCustodianWallet {
+export default class LightningLdkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningLdk';
   static readonly typeReadable = 'Lightning LDK';
   // @ts-ignore: override

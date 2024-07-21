@@ -4,7 +4,7 @@ import { CoinSelectReturnInput } from 'coinselect';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+import AbstractHDElectrumWallet from './abstract-hd-electrum-wallet';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -13,7 +13,7 @@ const bip32 = BIP32Factory(ecc);
  * In particular, BIP44 (P2PKH legacy addressess)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
-export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
+export default class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   static readonly type = 'HDlegacyP2PKH';
   static readonly typeReadable = 'HD Legacy (BIP44 P2PKH)';
   // @ts-ignore: override

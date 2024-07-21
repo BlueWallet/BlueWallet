@@ -2,9 +2,9 @@ import createHash from 'create-hash';
 import slip39 from 'slip39';
 import { WORD_LIST } from 'slip39/src/slip39_helper';
 
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
+import HDLegacyP2PKHWallet from './hd-legacy-p2pkh-wallet';
+import HDSegwitBech32Wallet from './hd-segwit-bech32-wallet';
+import HDSegwitP2SHWallet from './hd-segwit-p2sh-wallet';
 
 type TWalletThis = Omit<HDLegacyP2PKHWallet | HDSegwitP2SHWallet | HDSegwitBech32Wallet, 'secret'> & {
   secret: string[];
@@ -90,7 +90,7 @@ export class SLIP39LegacyP2PKHWallet extends HDLegacyP2PKHWallet {
   getID = SLIP39Mixin.getID;
 }
 
-export class SLIP39SegwitP2SHWallet extends HDSegwitP2SHWallet {
+export default class SLIP39SegwitP2SHWallet extends HDSegwitP2SHWallet {
   static readonly type = 'SLIP39segwitP2SH';
   static readonly typeReadable = 'SLIP39 SegWit (P2SH)';
   // @ts-ignore: override

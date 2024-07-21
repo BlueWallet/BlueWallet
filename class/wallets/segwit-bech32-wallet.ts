@@ -3,12 +3,12 @@ import { CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { LegacyWallet } from './legacy-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
+import LegacyWallet from './legacy-wallet';
 
 const ECPair = ECPairFactory(ecc);
 
-export class SegwitBech32Wallet extends LegacyWallet {
+export default class SegwitBech32Wallet extends LegacyWallet {
   static readonly type = 'segwitBech32';
   static readonly typeReadable = 'P2 WPKH';
   // @ts-ignore: override

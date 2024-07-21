@@ -2,9 +2,9 @@ import bolt11 from 'bolt11';
 import Frisbee from 'frisbee';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { LegacyWallet } from './legacy-wallet';
+import LegacyWallet from './legacy-wallet';
 
-export class LightningCustodianWallet extends LegacyWallet {
+export default class LightningCustodianWallet extends LegacyWallet {
   static readonly type = 'lightningCustodianWallet';
   static readonly typeReadable = 'Lightning';
   // @ts-ignore: override

@@ -1,8 +1,8 @@
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { SegwitBech32Wallet } from './segwit-bech32-wallet';
+import SegwitBech32Wallet from './segwit-bech32-wallet';
 
-export class TaprootWallet extends SegwitBech32Wallet {
+export default class TaprootWallet extends SegwitBech32Wallet {
   static readonly type = 'taproot';
   static readonly typeReadable = 'P2 TR';
   // @ts-ignore: override

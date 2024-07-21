@@ -4,7 +4,7 @@ import b58 from 'bs58check';
 import * as mn from 'electrum-mnemonic';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import HDSegwitBech32Wallet from './hd-segwit-bech32-wallet';
 
 const bip32 = BIP32Factory(ecc);
 const PREFIX = mn.PREFIXES.segwit;
@@ -20,7 +20,7 @@ type SeedOpts = {
  *
  * @see https://electrum.readthedocs.io/en/latest/seedphrase.html
  */
-export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
+export default class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
   static readonly type = 'HDSegwitElectrumSeedP2WPKHWallet';
   static readonly typeReadable = 'HD Electrum (BIP32 P2WPKH)';
   // @ts-ignore: override

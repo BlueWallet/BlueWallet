@@ -9,8 +9,8 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
-import { AbstractWallet } from './abstract-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import AbstractWallet from './abstract-wallet';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 
@@ -18,7 +18,7 @@ bitcoin.initEccLib(ecc);
  *  Has private key and single address like "1ABCD....."
  *  (legacy P2PKH compressed)
  */
-export class LegacyWallet extends AbstractWallet {
+export default class LegacyWallet extends AbstractWallet {
   static readonly type = 'legacy';
   static readonly typeReadable = 'Legacy (P2PKH)';
   // @ts-ignore: override

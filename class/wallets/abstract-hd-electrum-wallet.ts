@@ -15,7 +15,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { randomBytes } from '../rng';
-import { AbstractHDWallet } from './abstract-hd-wallet';
+import AbstractHDWallet from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 
@@ -31,7 +31,7 @@ type BalanceByIndex = {
 /**
  * Electrum - means that it utilizes Electrum protocol for blockchain data
  */
-export class AbstractHDElectrumWallet extends AbstractHDWallet {
+export default class AbstractHDElectrumWallet extends AbstractHDWallet {
   static readonly type = 'abstract';
   static readonly typeReadable = 'abstract';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68

@@ -9,25 +9,12 @@ import Realm from 'realm';
 import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
 import { randomBytes } from './rng';
-import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
-import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
-import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
-import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
-import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
-import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
-import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
-import { LegacyWallet } from './wallets/legacy-wallet';
-import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
-import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
-import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
-import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
-import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
-import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
+import { dynamicImportWallet } from './wallet-map';
 import { ExtendedTransaction, Transaction, TWallet } from './wallets/types';
-import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
+
 
 export type TTXMetadata = {
   [txid: string]: {
@@ -258,7 +245,7 @@ export class BlueApp {
   };
 
   /**
-   * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
+   * Returns instance of the Realm database, which is encrypted either by cached user's password OR default password.
    * Database file is deterministically derived from encryption key.
    */
   async getRealmForTransactions() {
@@ -290,7 +277,7 @@ export class BlueApp {
   }
 
   /**
-   * Returns instace of the Realm database, which is encrypted by random bytes stored in keychain.
+   * Returns instance of the Realm database, which is encrypted by random bytes stored in keychain.
    * Database file is static.
    *
    * @returns {Promise<Realm>}
@@ -377,92 +364,24 @@ export class BlueApp {
       if (!data.wallets) return false;
       const wallets = data.wallets;
       for (const key of wallets) {
-        // deciding which type is wallet and instatiating correct object
+        // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
         let unserializedWallet: TWallet;
-        switch (tempObj.type) {
-          case SegwitBech32Wallet.type:
-            unserializedWallet = SegwitBech32Wallet.fromJson(key) as unknown as SegwitBech32Wallet;
-            break;
-          case SegwitP2SHWallet.type:
-            unserializedWallet = SegwitP2SHWallet.fromJson(key) as unknown as SegwitP2SHWallet;
-            break;
-          case WatchOnlyWallet.type:
-            unserializedWallet = WatchOnlyWallet.fromJson(key) as unknown as WatchOnlyWallet;
-            unserializedWallet.init();
-            if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
-              continue;
-            }
-            break;
-          case HDLegacyP2PKHWallet.type:
-            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key) as unknown as HDLegacyP2PKHWallet;
-            break;
-          case HDSegwitP2SHWallet.type:
-            unserializedWallet = HDSegwitP2SHWallet.fromJson(key) as unknown as HDSegwitP2SHWallet;
-            break;
-          case HDSegwitBech32Wallet.type:
-            unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
-            break;
-          case HDLegacyBreadwalletWallet.type:
-            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;
-            break;
-          case HDLegacyElectrumSeedP2PKHWallet.type:
-            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key) as unknown as HDLegacyElectrumSeedP2PKHWallet;
-            break;
-          case HDSegwitElectrumSeedP2WPKHWallet.type:
-            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key) as unknown as HDSegwitElectrumSeedP2WPKHWallet;
-            break;
-          case MultisigHDWallet.type:
-            unserializedWallet = MultisigHDWallet.fromJson(key) as unknown as MultisigHDWallet;
-            break;
-          case HDAezeedWallet.type:
-            unserializedWallet = HDAezeedWallet.fromJson(key) as unknown as HDAezeedWallet;
-            // migrate password to this.passphrase field
-            // remove this code somewhere in year 2022
-            if (unserializedWallet.secret.includes(':')) {
-              const [mnemonic, passphrase] = unserializedWallet.secret.split(':');
-              unserializedWallet.secret = mnemonic;
-              unserializedWallet.passphrase = passphrase;
-            }
+        try {
+          const WalletClass = await dynamicImportWallet(tempObj.type);
+          unserializedWallet = WalletClass.fromJson(key);
+        } catch (error) {
+          console.error(`Failed to import and instantiate wallet of type ${tempObj.type}:`, error);
+          continue;
+        }
 
-            break;
-          case LightningLdkWallet.type:
-            unserializedWallet = LightningLdkWallet.fromJson(key) as unknown as LightningLdkWallet;
-            break;
-          case SLIP39SegwitP2SHWallet.type:
-            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key) as unknown as SLIP39SegwitP2SHWallet;
-            break;
-          case SLIP39LegacyP2PKHWallet.type:
-            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key) as unknown as SLIP39LegacyP2PKHWallet;
-            break;
-          case SLIP39SegwitBech32Wallet.type:
-            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
-            break;
-          case LightningCustodianWallet.type: {
-            unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
-            let lndhub: false | any = false;
-            try {
-              lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
-            } catch (error) {
-              console.warn(error);
-            }
-
-            if (unserializedWallet.baseURI) {
-              unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
-              console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
-            } else if (lndhub) {
-              console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
-              unserializedWallet.setBaseURI(lndhub);
-            } else {
-              console.log('wallet does not have a baseURI. Continuing init...');
-            }
+        if (unserializedWallet.type === 'lightningCustodianWallet') {
+          try {
             unserializedWallet.init();
-            break;
+          } catch (error) {
+            console.error('Failed to initialize Lightning Custodian Wallet:', error);
+            continue;
           }
-          case LegacyWallet.type:
-          default:
-            unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
-            break;
         }
 
         try {
@@ -471,7 +390,6 @@ export class BlueApp {
           presentAlert({ message: error.message });
         }
 
-        // done
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
@@ -482,12 +400,12 @@ export class BlueApp {
       if (realm) realm.close();
       return true;
     } else {
-      return false; // failed loading data or loading/decryptin data
+      return false; // failed loading data or loading/decrypting data
     }
   }
 
   /**
-   * Lookup wallet in list by it's secret and
+   * Lookup wallet in list by its secret and
    * remove it from `this.wallets`
    *
    * @param wallet {AbstractWallet}
@@ -496,7 +414,7 @@ export class BlueApp {
     const ID = wallet.getID();
     const tempWallets = [];
 
-    if (wallet.type === LightningLdkWallet.type) {
+    if (wallet.type === 'lightningLdk') {
       const ldkwallet = wallet;
       ldkwallet.stop().then(ldkwallet.purgeLocalStorage).catch(alert);
     }
@@ -653,7 +571,7 @@ export class BlueApp {
         delete key.current;
         const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
         if ('_hdWalletInstance' in key) {
-          const k = keyCloned as any & WatchOnlyWallet;
+          const k = keyCloned as any & InstanceType<Awaited<ReturnType<typeof dynamicImportWallet>>>;
           k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
@@ -938,48 +856,37 @@ export class BlueApp {
   /**
    * Simple async sleeper function
    */
-  sleep = (ms: number): Promise<void> => {
+  sleep = (ms: number) => {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  purgeRealmKeyValueFile() {
-    const path = 'keyvalue.realm';
-    return Realm.deleteFile({
-      path,
-    });
+  async purgeRealmKeyValueFile() {
+    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
+    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
+    await RNFS.unlink(path);
   }
 
   async moveRealmFilesToCacheDirectory() {
-    const documentPath = RNFS.DocumentDirectoryPath; // Path to documentPath folder
-    const cachePath = RNFS.CachesDirectoryPath; // Path to cachePath folder
-    try {
-      if (!(await RNFS.exists(documentPath))) return; // If the documentPath directory does not exist, return (nothing to move)
-      const files = await RNFS.readDir(documentPath); // Read all files in documentPath directory
-      if (Array.isArray(files) && files.length === 0) return; // If there are no files, return (nothing to move)
-      const appRealmFiles = files.filter(
-        file => file.name.endsWith('.realm') || file.name.endsWith('.realm.lock') || file.name.includes('.realm.management'),
-      );
+    // List of files to move
+    const filesToMove = ['wallettransactions.realm', 'wallettransactions.realm.lock', 'wallettransactions.realm.management'];
 
-      for (const file of appRealmFiles) {
-        const filePath = `${documentPath}/${file.name}`;
-        const newFilePath = `${cachePath}/${file.name}`;
-        const fileExists = await RNFS.exists(filePath); // Check if the file exists
-        const cacheFileExists = await RNFS.exists(newFilePath); // Check if the file already exists in the cache directory
+    // List of all files in the library directory
+    const libraryDirPath = RNFS.LibraryDirectoryPath;
+    const allFiles = await RNFS.readDir(libraryDirPath);
 
-        if (fileExists) {
-          if (cacheFileExists) {
-            await RNFS.unlink(newFilePath); // Delete the file in the cache directory if it exists
-            console.log(`Existing file removed from cache: ${newFilePath}`);
-          }
-          await RNFS.moveFile(filePath, newFilePath); // Move the file
-          console.log(`Moved Realm file: ${filePath} to ${newFilePath}`);
-        } else {
-          console.log(`File does not exist: ${filePath}`);
-        }
+    // Filter out the files we want to move
+    const filteredFiles = allFiles.filter(file => filesToMove.includes(file.name));
+
+    // Loop through each file and move it to the cache directory
+    for (const file of filteredFiles) {
+      const sourcePath = `${libraryDirPath}/${file.name}`;
+      const destinationPath = `${RNFS.CachesDirectoryPath}/${file.name}`;
+      try {
+        await RNFS.moveFile(sourcePath, destinationPath);
+        console.log(`Moved ${file.name} to cache directory`);
+      } catch (error: any) {
+        console.warn(`Failed to move ${file.name}:`, error.message);
       }
-    } catch (error) {
-      console.error('Error moving Realm files:', error);
-      throw new Error(`Error moving Realm files: ${(error as Error).message}`);
     }
   }
 }
