@@ -121,7 +121,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
 
     - name: Enable KVM group perms
       run: |
@@ -147,3 +147,4 @@ jobs:
       with:
         name: e2e-test-videos
         path: /mnt/artifacts/
+        
