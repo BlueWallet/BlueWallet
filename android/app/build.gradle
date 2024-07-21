@@ -114,7 +114,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
     implementation 'androidx.core:core-ktx'
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
