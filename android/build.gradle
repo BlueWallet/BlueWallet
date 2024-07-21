@@ -58,7 +58,7 @@ allprojects {
     }
      configurations.all {
         resolutionStrategy {
-            force 'androidx.activity:activity:1.6.0'
+            force 'androidx.activity:activity:1.5.1'
         }
     }
 }
