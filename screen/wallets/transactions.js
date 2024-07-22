@@ -303,7 +303,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return presentAlert({ message: Err.message });
+          return presentAlert({ message: Err.message, type: AlertType.Toast });
         }
       }
       navigate('SendDetailsRoot', {
