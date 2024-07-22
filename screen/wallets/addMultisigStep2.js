@@ -634,7 +634,6 @@ const WalletsAddMultisigStep2 = () => {
             )}
           </View>
         }
-        onClose={resetProvideMnemonicsModalImportText}
         ref={provideMnemonicsModalRef}
         backgroundColor={colors.modal}
         isGrabberVisible={false}
