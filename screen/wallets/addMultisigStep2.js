@@ -603,10 +603,6 @@ const WalletsAddMultisigStep2 = () => {
     );
   };
 
-  const resetProvideMnemonicsModalImportText = () => {
-    setImportText('');
-  };
-
   const renderProvideMnemonicsModal = () => {
     return (
       <BottomModal
