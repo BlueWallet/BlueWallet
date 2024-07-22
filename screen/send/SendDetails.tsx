@@ -863,8 +863,8 @@ const SendDetails = () => {
     }
   };
 
-  const importTransactionMultisigScanQr = () => {
-    optionsModalRef.current?.dismiss();
+  const importTransactionMultisigScanQr = async () => {
+    await optionsModalRef.current?.dismiss();
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -878,7 +878,7 @@ const SendDetails = () => {
 
   const handleAddRecipient = async () => {
     console.debug('handleAddRecipient');
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
     await sleep(200); // wait for animation
@@ -888,7 +888,7 @@ const SendDetails = () => {
   };
 
   const handleRemoveRecipient = async () => {
-    optionsModalRef.current?.dismiss();
+    await optionsModalRef.current?.dismiss();
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
@@ -903,6 +903,7 @@ const SendDetails = () => {
   };
 
   const handleCoinControl = async () => {
+    await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
@@ -911,8 +912,8 @@ const SendDetails = () => {
   };
 
   const handleInsertContact = async () => {
-    if (!wallet) return;
     await optionsModalRef.current?.dismiss();
+    if (!wallet) return;
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
