@@ -127,12 +127,11 @@ const ReorderWallets: React.FC = () => {
       return (
         <ScaleDecorator>
           <WalletCarouselItem
-            // @ts-ignore: fix later
             item={item}
             handleLongPress={isDraggingDisabled ? null : drag}
             isActive={isActive}
             onPress={navigateToWallet}
-            customStyle={[styles.padding16, { opacity: itemOpacity }]}
+            customStyle={StyleSheet.flatten([styles.padding16, { opacity: itemOpacity }])}
           />
         </ScaleDecorator>
       );
