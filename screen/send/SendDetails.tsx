@@ -1252,6 +1252,7 @@ const SendDetails = () => {
               testID="feeCustom"
               accessibilityRole="button"
               onPress={async () => {
+                await feeModalRef.current?.dismiss();
                 let error = loc.send.fee_satvbyte;
                 while (true) {
                   let fee: number | string;
@@ -1270,7 +1271,6 @@ const SendDetails = () => {
                   if (Number(fee) < 1) fee = '1';
                   fee = Number(fee).toString(); // this will remove leading zeros if any
                   setCustomFee(fee);
-                  feeModalRef.current?.dismiss();
                   return;
                 }
               }}
