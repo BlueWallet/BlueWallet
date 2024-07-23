@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -36,7 +36,6 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { scanQrHelper } from '../../helpers/scan-qr';
 
 const staticCache = {};
@@ -46,7 +45,7 @@ const WalletsAddMultisigStep2 = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
-  const navigation = useExtendedNavigation();
+  const { navigate, goBack } = useNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
   const { name } = useRoute();
 
@@ -90,7 +89,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const handleOnHelpPress = () => {
     dismissAllModals();
-    navigation.navigate('WalletsAddMultisigHelp');
+    navigate('WalletsAddMultisigHelp');
   };
 
   const dismissAllModals = () => {
@@ -159,6 +158,7 @@ const WalletsAddMultisigStep2 = () => {
         w.setDerivationPath(MultisigHDWallet.PATH_LEGACY);
         break;
       default:
+        console.error('Unexpected format:', format);
         throw new Error('This should never happen');
     }
     for (const cc of cosigners) {
@@ -175,7 +175,7 @@ const WalletsAddMultisigStep2 = () => {
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
     dismissAllModals();
-    navigation.getParent().goBack();
+    navigate('WalletsList');
   };
 
   const generateNewKey = () => {
@@ -211,6 +211,7 @@ const WalletsAddMultisigStep2 = () => {
         path = MultisigHDWallet.PATH_LEGACY;
         break;
       default:
+        console.error('Unexpected format:', format);
         throw new Error('This should never happen');
     }
     return path;
@@ -420,6 +421,7 @@ const WalletsAddMultisigStep2 = () => {
               }
               break;
             default:
+              console.error('Unexpected format:', format);
               throw new Error('This should never happen');
           }
         }
@@ -450,6 +452,7 @@ const WalletsAddMultisigStep2 = () => {
           }
           break;
         default:
+          console.error('Unexpected format:', format);
           throw new Error('This should never happen');
       }
 
@@ -464,7 +467,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    const scanned = await scanQrHelper(name, true, undefined, navigation.navigate);
+    const scanned = await scanQrHelper(name, true, undefined, navigate);
     onBarScanned({ data: scanned });
   };
 
