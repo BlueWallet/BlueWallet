@@ -510,7 +510,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current?.dismiss();
-    const scanned = await scanQrHelper(route.name, true, undefined, navigate);
+    const scanned = await scanQrHelper(route.name, true, undefined);
     setImportText(String(scanned));
     provideMnemonicsModalRef.current?.present();
   };

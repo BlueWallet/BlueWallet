@@ -112,7 +112,7 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
@@ -388,6 +388,10 @@ const SendDetails = () => {
     useCallback(() => {
       setIsLoading(false);
       setDumb(v => !v);
+      return () => {
+        feeModalRef.current?.dismiss();
+        optionsModalRef.current?.dismiss();
+      };
     }, []),
   );
 
@@ -922,7 +926,7 @@ const SendDetails = () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
-    const scannedData = await scanQrHelper(name, true, undefined, navigation.navigate);
+    const scannedData = await scanQrHelper(name, true, undefined);
     if (!scannedData) return setIsLoading(false);
 
     let tx;

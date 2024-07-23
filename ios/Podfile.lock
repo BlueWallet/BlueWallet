@@ -517,7 +517,7 @@ PODS:
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.6.1)
-  - TrueSheet (0.12.2):
+  - TrueSheet (0.12.4):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - Yoga (1.14.0)
@@ -860,7 +860,7 @@ SPEC CHECKSUMS:
   RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  TrueSheet: 8235baf14119d4f9d8a904ed1de26111f73b733c
+  TrueSheet: 3ba036b4f20ea78a2953fcf7949e8a60dd63d3f6
   Yoga: c32e0be1a17f8f1f0e633a3122f7666441f52c82
 
 PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
