@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { useFocusEffect, useIsFocused, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { findNodeHandle, Image, InteractionManager, SectionList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import A from '../../blue_modules/analytics';
 import BlueClipboard from '../../blue_modules/clipboard';
@@ -88,6 +88,7 @@ function reducer(state: WalletListState, action: WalletListAction) {
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
@@ -108,7 +109,8 @@ const WalletsList: React.FC = () => {
   const { colors, scanImage } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
-  const routeName = useRoute().name;
+  const route = useRoute<RouteProps>();
+  const routeName = route.name;
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
@@ -148,6 +150,14 @@ const WalletsList: React.FC = () => {
 
     walletsCount.current = wallets.length;
   }, [wallets]);
+
+  useEffect(() => {
+    const scannedData = route.params?.scannedData;
+    if (scannedData) {
+      onBarScanned(scannedData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.params?.scannedData]);
 
   const verifyBalance = useCallback(() => {
     if (getBalance() !== 0) {
@@ -332,9 +342,8 @@ const WalletsList: React.FC = () => {
   };
 
   const onScanButtonPressed = useCallback(() => {
-    scanQrHelper(routeName).then(onBarScanned);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    scanQrHelper(routeName, true, undefined, false);
+  }, [routeName]);
 
   const onBarScanned = useCallback(
     (value: any) => {
@@ -381,7 +390,7 @@ const WalletsList: React.FC = () => {
             });
           break;
         case 2:
-          scanQrHelper(routeName, true).then(data => onBarScanned(data));
+          scanQrHelper(routeName, true, undefined, false);
           break;
         case 3:
           if (!isClipboardEmpty) {
