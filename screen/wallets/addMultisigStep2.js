@@ -45,7 +45,7 @@ const WalletsAddMultisigStep2 = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
-  const { navigate, goBack } = useNavigation();
+  const { navigate } = useNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
   const { name } = useRoute();
 
