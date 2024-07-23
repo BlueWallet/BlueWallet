@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { navigationRef } from '../NavigationService';
-import { NavigationProp } from '@react-navigation/native';
+
 /**
  * Helper function that navigates to ScanQR screen, and returns promise that will resolve with the result of a scan,
  * and then navigates back. If QRCode scan was closed, promise resolves to null.
@@ -10,40 +10,57 @@ import { NavigationProp } from '@react-navigation/native';
  * @param showFileImportButton {boolean}
  *
  * @param onDismiss {function} - if camera is closed via X button it gets triggered
- * @return {Promise<string>}
+ * @param options {object} - additional options to pass to navigate
+ * @return {Promise<string | null>}
  */
 function scanQrHelper(
   currentScreenName: string,
   showFileImportButton = true,
   onDismiss?: () => void,
-  navigate?: NavigationProp<any>['navigate'], // pass navigate when calling from inside BottomModal
+  options: { merge: boolean } = { merge: true },
 ): Promise<string | null> {
   return requestCameraAuthorization().then(() => {
     return new Promise(resolve => {
-      const params = {
+      const params: any = {
         showFileImportButton: Boolean(showFileImportButton),
-        onBarScanned: (data: any) => {},
-        onDismiss,
       };
 
-      params.onBarScanned = function (data: any) {
-        setTimeout(() => resolve(data.data || data), 1);
-        (navigate || navigationRef.navigate)({
-          name: currentScreenName,
-          params: {},
+      if (options?.merge) {
+        if (onDismiss) {
+          params.onDismiss = onDismiss;
+        }
+        params.onBarScanned = function (data: any) {
+          setTimeout(() => resolve(data.data || data), 1);
+          navigationRef.navigate({
+            name: currentScreenName,
+            params: {},
+            merge: options?.merge,
+          });
+        };
+
+        navigationRef.navigate({
+          name: 'ScanQRCodeRoot',
+          params: {
+            screen: 'ScanQRCode',
+            params,
+          },
           merge: true,
         });
-      };
-      (navigate || navigationRef.navigate)({
-        name: 'ScanQRCodeRoot',
-        params: {
-          screen: 'ScanQRCode',
-          params,
-        },
-      });
+      } else {
+        navigationRef.navigate({
+          name: 'ScanQRCodeRoot',
+          params: {
+            screen: 'ScanQRCode',
+            params: {
+              showFileImportButton: Boolean(showFileImportButton),
+            },
+          },
+        });
+      }
     });
   });
 }
+
 const isCameraAuthorizationStatusGranted = async () => {
   const status = await check(Platform.OS === 'android' ? PERMISSIONS.ANDROID.CAMERA : PERMISSIONS.IOS.CAMERA);
   return status === RESULTS.GRANTED;

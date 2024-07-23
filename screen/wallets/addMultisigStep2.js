@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   FlatList,
@@ -37,6 +37,7 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const staticCache = {};
 
@@ -45,7 +46,7 @@ const WalletsAddMultisigStep2 = () => {
   const { isAdvancedModeEnabled } = useSettings();
   const { colors } = useTheme();
 
-  const { navigate } = useNavigation();
+  const { navigate, navigateToWalletsList } = useExtendedNavigation();
   const { m, n, format, walletLabel } = useRoute().params;
   const { name } = useRoute();
 
@@ -87,15 +88,20 @@ const WalletsAddMultisigStep2 = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSharedCosigner]);
 
-  const handleOnHelpPress = () => {
-    dismissAllModals();
+  const handleOnHelpPress = async () => {
+    await dismissAllModals();
     navigate('WalletsAddMultisigHelp');
   };
 
-  const dismissAllModals = () => {
-    mnemonicsModalRef.current?.dismiss();
-    provideMnemonicsModalRef.current?.dismiss();
-    renderCosignersXpubModalRef.current?.dismiss();
+  const dismissAllModals = async () => {
+    try {
+      await mnemonicsModalRef.current?.dismiss();
+      await provideMnemonicsModalRef.current?.dismiss();
+      await renderCosignersXpubModalRef.current?.dismiss();
+    } catch (e) {
+      // in rare occasions trying to dismiss non visible modals can error out
+      console.debug('dismissAllModals error', e);
+    }
   };
 
   const stylesHook = StyleSheet.create({
@@ -174,8 +180,8 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    dismissAllModals();
-    navigate('WalletsList');
+    await dismissAllModals();
+    navigateToWalletsList();
   };
 
   const generateNewKey = () => {
@@ -467,7 +473,7 @@ const WalletsAddMultisigStep2 = () => {
 
   const scanOrOpenFile = async () => {
     await provideMnemonicsModalRef.current.dismiss();
-    const scanned = await scanQrHelper(name, true, undefined, navigate);
+    const scanned = await scanQrHelper(name, true, undefined);
     onBarScanned({ data: scanned });
   };
 
@@ -763,12 +769,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     paddingVertical: 32,
     justifyContent: 'center',
-    minHeight: 400,
+    minHeight: 450,
   },
   newKeyModalContent: {
     paddingHorizontal: 22,
     justifyContent: 'center',
-    minHeight: 400,
+    minHeight: 450,
   },
   modalFooterBottomPadding: { paddingBottom: 26 },
   vaultKeyCircleSuccess: {
