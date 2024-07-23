@@ -24,6 +24,7 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
+  const scannedData = route?.params?.scannedData ?? '';
   const { isAdvancedModeEnabled } = useSettings();
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -76,7 +77,14 @@ const WalletsImport = () => {
   useEffect(() => {
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [triggerImport]);
+
+  useEffect(() => {
+    if (scannedData) {
+      onBarScanned(scannedData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedData]);
 
   const importButtonPressed = () => {
     const textToImport = onBlur();
@@ -102,7 +110,6 @@ const WalletsImport = () => {
         screen: 'ScanQRCode',
         params: {
           launchedBy: route.name,
-          onBarScanned,
           showFileImportButton: true,
         },
       }),

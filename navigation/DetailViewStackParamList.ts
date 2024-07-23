@@ -18,7 +18,7 @@ export type DetailViewStackParamList = {
   LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
-  Broadcast: undefined;
+  Broadcast: { scannedData?: string };
   IsItMyAddress: undefined;
   GenerateWord: undefined;
   LnurlPay: undefined;
