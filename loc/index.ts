@@ -277,7 +277,7 @@ export const saveLanguage = async (lang: string) => {
   await setDateTimeLocale();
 };
 
-export const transactionTimeToReadable = (time: number) => {
+export const transactionTimeToReadable = (time: number | string) => {
   if (time === -1) {
     return 'unknown';
   }
