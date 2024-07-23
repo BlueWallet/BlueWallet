@@ -1,4 +1,4 @@
-import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import LocalQRCode from '@remobile/react-native-qrcode-local-image';
 import * as bitcoin from 'bitcoinjs-lib';
 import createHash from 'create-hash';
@@ -7,6 +7,7 @@ import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View }
 import { CameraScreen } from 'react-native-camera-kit';
 import { Icon } from '@rneui/themed';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
@@ -18,77 +19,19 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { ScanQRCodeParamsList } from '../../navigation/ScanQRCodeStack';
 
-let decoder = false;
+let decoder: BlueURDecoder | null = null;
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
-  closeTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    right: 16,
-    top: 44,
-  },
-  closeImage: {
-    alignSelf: 'center',
-  },
-  imagePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 24,
-    bottom: 48,
-  },
-  filePickerTouch: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    borderRadius: 20,
-    position: 'absolute',
-    left: 96,
-    bottom: 48,
-  },
-  openSettingsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  backdoorButton: {
-    width: 60,
-    height: 60,
-    backgroundColor: 'rgba(0,0,0,0.01)',
-    position: 'absolute',
-  },
-  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
-  progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
-  backdoorInput: {
-    height: '50%',
-    marginTop: 5,
-    marginHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 4,
-    textAlignVertical: 'top',
-  },
-});
+type NavigationProps = NativeStackNavigationProp<ScanQRCodeParamsList>;
+type RouteProps = RouteProp<ScanQRCodeParamsList, 'ScanQRCode'>;
 
-const ScanQRCode = () => {
+const ScanQRCode: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigation = useNavigation();
-  const route = useRoute();
+  const navigation = useNavigation<NavigationProps>();
+  const route = useRoute<RouteProps>();
   const { launchedBy, onBarScanned, onDismiss, showFileImportButton } = route.params;
-  const scannedCache = {};
+  const scannedCache: Record<string, number> = {};
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -96,8 +39,9 @@ const ScanQRCode = () => {
   const [urHave, setUrHave] = useState(0);
   const [backdoorText, setBackdoorText] = useState('');
   const [backdoorVisible, setBackdoorVisible] = useState(false);
-  const [animatedQRCodeData, setAnimatedQRCodeData] = useState({});
+  const [animatedQRCodeData, setAnimatedQRCodeData] = useState<Record<string, string>>({});
   const [cameraStatusGranted, setCameraStatusGranted] = useState(false);
+
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -115,21 +59,21 @@ const ScanQRCode = () => {
     isCameraAuthorizationStatusGranted().then(setCameraStatusGranted);
   }, []);
 
-  const HashIt = function (s) {
+  const HashIt = (s: string | Buffer | createHash.TypedArray | DataView): string => {
     return createHash('sha256').update(s).digest().toString('hex');
   };
 
-  const _onReadUniformResourceV2 = part => {
+  const _onReadUniformResourceV2 = (part: string): void => {
     if (!decoder) decoder = new BlueURDecoder();
     try {
       decoder.receivePart(part);
       if (decoder.isComplete()) {
         const data = decoder.toString();
-        decoder = false; // nullify for future use (?)
+        decoder = null; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
         }
-        onBarScanned({ data });
+        onBarScanned && onBarScanned({ data });
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -138,7 +82,7 @@ const ScanQRCode = () => {
       console.warn(error);
       setIsLoading(true);
       Alert.alert(
-        loc.send.scan_error,
+        loc.errors.error,
         loc._.invalid_animated_qr_code_fragment,
         [
           {
@@ -149,7 +93,7 @@ const ScanQRCode = () => {
             style: 'default',
           },
         ],
-        { cancelabe: false },
+        { cancelable: false },
       );
     }
   };
@@ -158,35 +102,40 @@ const ScanQRCode = () => {
    *
    * @deprecated remove when we get rid of URv1 support
    */
-  const _onReadUniformResource = ur => {
+  const _onReadUniformResource = (ur: string): void => {
     try {
       const [index, total] = extractSingleWorkload(ur);
-      animatedQRCodeData[index + 'of' + total] = ur;
+      const newData = { ...animatedQRCodeData, [index + 'of' + total]: ur };
+      setAnimatedQRCodeData(newData);
       setUrTotal(total);
-      setUrHave(Object.values(animatedQRCodeData).length);
-      if (Object.values(animatedQRCodeData).length === total) {
-        const payload = decodeUR(Object.values(animatedQRCodeData));
+      setUrHave(Object.values(newData).length);
+      if (Object.values(newData).length === total) {
+        const payload = decodeUR(Object.values(newData));
         // lets look inside that data
-        let data = false;
-        if (Buffer.from(payload, 'hex').toString().startsWith('psbt')) {
-          // its a psbt, and whoever requested it expects it encoded in base64
-          data = Buffer.from(payload, 'hex').toString('base64');
-        } else {
-          // its something else. probably plain text is expected
-          data = Buffer.from(payload, 'hex').toString();
+        let data = '';
+        if (payload) {
+          if (
+            Buffer.from(payload as string, 'hex')
+              .toString()
+              .startsWith('psbt')
+          ) {
+            // its a psbt, and whoever requested it expects it encoded in base64
+            data = Buffer.from(payload as string, 'hex').toString('base64');
+          } else {
+            // its something else. probably plain text is expected
+            data = Buffer.from(payload as string, 'hex').toString();
+          }
         }
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
         }
-        onBarScanned({ data });
-      } else {
-        setAnimatedQRCodeData(animatedQRCodeData);
+        onBarScanned && onBarScanned({ data });
       }
     } catch (error) {
       console.warn(error);
       setIsLoading(true);
       Alert.alert(
-        loc.send.scan_error,
+        loc.errors.error,
         loc._.invalid_animated_qr_code_fragment,
         [
           {
@@ -197,12 +146,12 @@ const ScanQRCode = () => {
             style: 'default',
           },
         ],
-        { cancelabe: false },
+        { cancelable: false },
       );
     }
   };
 
-  const onBarCodeRead = ret => {
+  const onBarCodeRead = (ret: { data: string }): void => {
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
@@ -239,9 +188,9 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
 
       if (launchedBy) {
-        navigation.navigate({ name: launchedBy, params: {}, merge: true });
+        navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
       }
-      onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+      onBarScanned && onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
       return;
     } catch (_) {}
 
@@ -249,9 +198,9 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
         }
-        onBarScanned(ret.data);
+        onBarScanned && onBarScanned({ data: ret.data });
       } catch (e) {
         console.log(e);
       }
@@ -259,21 +208,19 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
-  const showFilePicker = async () => {
+  const showFilePicker = async (): Promise<void> => {
     setIsLoading(true);
     const { data } = await fs.showFilePickerAndReadFile();
     if (data) onBarCodeRead({ data });
     setIsLoading(false);
   };
 
-  const showImagePicker = () => {
+  const showImagePicker = (): void => {
     if (!isLoading) {
       setIsLoading(true);
       launchImageLibrary(
         {
-          title: null,
           mediaType: 'photo',
-          takePhotoButtonTitle: null,
           maxHeight: 800,
           maxWidth: 600,
           selectionLimit: 1,
@@ -282,8 +229,8 @@ const ScanQRCode = () => {
           if (response.didCancel) {
             setIsLoading(false);
           } else {
-            const asset = response.assets[0];
-            if (asset.uri) {
+            const asset = response.assets && response.assets?.length > 0 ? response.assets[0] : null;
+            if (asset?.uri) {
               const uri = asset.uri.toString().replace('file://', '');
               LocalQRCode.decode(uri, (error, result) => {
                 if (!error) {
@@ -302,9 +249,9 @@ const ScanQRCode = () => {
     }
   };
 
-  const dismiss = () => {
+  const dismiss = (): void => {
     if (launchedBy) {
-      navigation.navigate({ name: launchedBy, params: {}, merge: true });
+      navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
     } else {
       navigation.goBack();
     }
@@ -322,6 +269,7 @@ const ScanQRCode = () => {
           <Button title={loc.send.open_settings} onPress={openPrivacyDesktopSettings} />
         </View>
       ) : isFocused ? (
+        // @ts-ignore: react-native-camera-kit types are being problematic
         <CameraScreen scanBarcode onReadCode={event => onBarCodeRead({ data: event?.nativeEvent?.codeStringValue })} showFrame={false} />
       ) : null}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel={loc._.close} style={styles.closeTouch} onPress={dismiss}>
@@ -403,3 +351,65 @@ const ScanQRCode = () => {
 };
 
 export default ScanQRCode;
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  closeTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    right: 16,
+    top: 44,
+  },
+  closeImage: {
+    alignSelf: 'center',
+  },
+  imagePickerTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    left: 24,
+    bottom: 48,
+  },
+  filePickerTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    left: 96,
+    bottom: 48,
+  },
+  openSettingsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  backdoorButton: {
+    width: 60,
+    height: 60,
+    backgroundColor: 'rgba(0,0,0,0.01)',
+    position: 'absolute',
+  },
+  backdoorInputWrapper: { position: 'absolute', left: '5%', top: '0%', width: '90%', height: '70%', backgroundColor: 'white' },
+  progressWrapper: { position: 'absolute', alignSelf: 'center', alignItems: 'center', top: '50%', padding: 8, borderRadius: 8 },
+  backdoorInput: {
+    height: '50%',
+    marginTop: 5,
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderRadius: 4,
+    textAlignVertical: 'top',
+  },
+});
