@@ -106,6 +106,8 @@ interface WalletCarouselItemProps {
   horizontal?: boolean;
   isActive?: boolean;
   allowOnPressAnimation?: boolean;
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
 const iStyles = StyleSheet.create({
@@ -168,7 +170,17 @@ const iStyles = StyleSheet.create({
 });
 
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, allowOnPressAnimation = true }) => {
+  ({
+    item,
+    onPress,
+    handleLongPress,
+    isSelectedWallet,
+    customStyle,
+    horizontal,
+    allowOnPressAnimation = true,
+    searchQuery,
+    renderHighlightedText,
+  }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
@@ -246,7 +258,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
               <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-                {item.getLabel()}
+                {renderHighlightedText ? renderHighlightedText(item.getLabel(), searchQuery ?? '') : item.getLabel()}
               </Text>
               <View style={iStyles.balanceContainer}>
                 {item.hideBalance ? (

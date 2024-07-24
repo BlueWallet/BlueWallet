@@ -21,7 +21,7 @@ interface ListItemProps {
   switch?: object; // Define more specific type if needed
   leftIcon?: any; // Define more specific type if needed
   title: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
   rightTitle?: string;
   rightTitleStyle?: object;
