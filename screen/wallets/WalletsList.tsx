@@ -247,13 +247,14 @@ const WalletsList: React.FC = () => {
   const renderWalletsCarousel = useCallback(() => {
     return (
       <WalletsCarousel
-        // @ts-ignore: Fix later
-        data={wallets.concat(false)}
+        data={wallets}
         extraData={[wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
+        showNewWalletPanel
+        onNewWalletPress={handleClick}
         testID="WalletsList"
         horizontal
         scrollEnabled={isFocused}
