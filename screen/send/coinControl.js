@@ -328,9 +328,8 @@ const CoinControl = () => {
 
   const handleChoose = item => setOutput(item);
 
-  const handleUseCoin = u => {
-    bottomModalRef.current?.dismiss();
-    setOutput(null);
+  const handleUseCoin = async u => {
+    await bottomModalRef.current?.dismiss();
     navigation.pop();
     onUTXOChoose(u);
   };
