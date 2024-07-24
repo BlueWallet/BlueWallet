@@ -330,6 +330,7 @@ const CoinControl = () => {
 
   const handleUseCoin = async u => {
     await bottomModalRef.current?.dismiss();
+    setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
   };
@@ -394,8 +395,6 @@ const CoinControl = () => {
   useEffect(() => {
     if (output) {
       bottomModalRef.current?.present();
-    } else {
-      bottomModalRef.current?.dismiss();
     }
   }, [output]);
 
