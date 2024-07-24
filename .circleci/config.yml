@@ -52,6 +52,9 @@ jobs:
     docker:
       - image: cimg/node:16.20.2
 
+    environment:
+      RETRY: "1"
+
     working_directory: ~/repo
 
     resource_class: large
