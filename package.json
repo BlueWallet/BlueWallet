@@ -35,6 +35,7 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-native": "^4.1.0",
     "jest": "^29.4.2",
+    "jest-environment-node": "^29.7.0",
     "node-fetch": "^2.6.7",
     "prettier": "^3.2.5",
     "react-test-renderer": "18.2.0",
@@ -57,7 +58,7 @@
     "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npm run releasenotes2json; npm run branch2json; npm run patches",
     "patches": "patch -p1   < scripts/rn-ldk.patch; patch -p1   < scripts/react-native-camera-kit.patch;",
     "test": "npm run tslint && npm run lint && npm run unit && npm run jest",
-    "jest": "jest -b tests/integration/*",
+    "jest": "jest tests/integration/*",
     "e2e:debug-build": "detox build -c android.debug",
     "e2e:debug-test": "detox test -c android.debug -d 200000 -l info",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || npm run e2e:debug-build; npm run e2e:debug-test",
@@ -67,9 +68,17 @@
     "lint": " npm run tslint && node scripts/find-unused-loc.js && eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components navigation typings",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest -b -i tests/unit/*"
+    "unit": "jest -b tests/unit/*"
   },
   "jest": {
+    "testEnvironment": "<rootDir>/tests/custom-environment.js",
+    "reporters": [
+      "default",
+      [
+        "<rootDir>/tests/custom-reporter.js",
+        {}
+      ]
+    ],
     "preset": "react-native",
     "transform": {
       "^.+\\.(ts|tsx)$": "ts-jest"
