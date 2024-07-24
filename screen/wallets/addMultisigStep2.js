@@ -180,7 +180,6 @@ const WalletsAddMultisigStep2 = () => {
     await saveToDisk();
     A(A.ENUM.CREATED_WALLET);
     triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    await dismissAllModals();
     navigateToWalletsList();
   };
 
