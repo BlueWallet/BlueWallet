@@ -643,6 +643,11 @@ const WalletsAddMultisigStep2 = () => {
         backgroundColor={colors.modal}
         isGrabberVisible={false}
         contentContainerStyle={styles.modalContent}
+        onDismiss={() => {
+          Keyboard.dismiss();
+          setImportText('');
+          setAskPassphrase(false);
+        }}
       >
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
