@@ -53,6 +53,7 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+        RETRY: 1
 
   e2e:
     runs-on: ubuntu-latest
