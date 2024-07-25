@@ -9,21 +9,33 @@ import { navigationRef } from '../NavigationService';
  * @param showFileImportButton {boolean}
  *
  * @param onDismiss {function} - if camera is closed via X button it gets triggered
+ * @param useMerge {boolean} - if true, will merge the new screen with the current screen, otherwise will replace the current screen
  * @return {Promise<string>}
  */
-function scanQrHelper(currentScreenName: string, showFileImportButton = true, onDismiss?: () => void): Promise<string | null> {
+function scanQrHelper(
+  currentScreenName: string,
+  showFileImportButton = true,
+  onDismiss?: () => void,
+  useMerge = true,
+): Promise<string | null> {
   return requestCameraAuthorization().then(() => {
     return new Promise(resolve => {
-      const params = {
-        showFileImportButton: Boolean(showFileImportButton),
-        onBarScanned: (data: any) => {},
-        onDismiss,
-      };
+      let params = {};
 
-      params.onBarScanned = function (data: any) {
-        setTimeout(() => resolve(data.data || data), 1);
-        navigationRef.navigate({ name: currentScreenName, params: {}, merge: true });
-      };
+      if (useMerge) {
+        const onBarScanned = function (data: any) {
+          setTimeout(() => resolve(data.data || data), 1);
+          navigationRef.navigate({ name: currentScreenName, params: {}, merge: true });
+        };
+
+        params = {
+          showFileImportButton: Boolean(showFileImportButton),
+          onDismiss,
+          onBarScanned,
+        };
+      } else {
+        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton) };
+      }
 
       navigationRef.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
