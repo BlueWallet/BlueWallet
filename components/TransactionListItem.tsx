@@ -23,6 +23,7 @@ import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList
 import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import useBounceAnimation from '../hooks/useBounceAnimation';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -33,30 +34,6 @@ interface TransactionListItemProps {
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
-
-const useBounceAnimation = (query: string) => {
-  const bounceAnim = useRef(new Animated.Value(1.0)).current;
-
-  useEffect(() => {
-    if (query) {
-      Animated.spring(bounceAnim, {
-        toValue: 1.2,
-        useNativeDriver: true,
-        friction: 3,
-        tension: 100,
-      }).start(() => {
-        Animated.spring(bounceAnim, {
-          toValue: 1.0,
-          useNativeDriver: true,
-          friction: 3,
-          tension: 100,
-        }).start();
-      });
-    }
-  }, [query, bounceAnim]);
-
-  return bounceAnim;
-};
 
 export const TransactionListItem: React.FC<TransactionListItemProps> = React.memo(
   ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style }) => {
@@ -339,17 +316,17 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const renderHighlightedText = (text: string, query: string) => {
       const parts = text.split(new RegExp(`(${query})`, 'gi'));
       return (
-        <>
+        <Text>
           {parts.map((part, index) =>
             part.toLowerCase() === query.toLowerCase() ? (
-              <Animated.Text key={index} style={[styles.highlighted, { transform: [{ scale: bounceAnim }] }]}>
-                {part}
-              </Animated.Text>
+              <Animated.View key={index} style={[styles.highlightedContainer, { transform: [{ scale: bounceAnim }] }]}>
+                <Text style={[styles.highlighted, styles.defaultText]}>{part}</Text>
+              </Animated.View>
             ) : (
-              <Text key={index}>{part}</Text>
+              <Text key={index} style={query ? styles.dimmedText : {}}>{part}</Text>
             ),
           )}
-        </>
+        </Text>
       );
     };
 
@@ -373,7 +350,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
-          containerStyle={containerStyle}
+          containerStyle={[containerStyle, style]}
         />
       </ToolTipMenu>
     );
@@ -381,11 +358,24 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
 );
 
 const styles = StyleSheet.create({
-  highlighted: {
+  highlightedContainer: {
     backgroundColor: 'white',
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 5,
+    padding: 2,
+    alignSelf: 'flex-start',
+  },
+  highlighted: {
     color: 'black',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  defaultText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  dimmedText: {
+    opacity: 0.5,
   },
 });
