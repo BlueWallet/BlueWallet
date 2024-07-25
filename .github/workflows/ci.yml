@@ -131,9 +131,7 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Build
-      run: |
-        npm run e2e:release-build
-        cd android; ./gradlew --stop
+      run: npm run e2e:release-build
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
