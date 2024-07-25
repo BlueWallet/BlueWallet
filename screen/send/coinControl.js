@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     padding: 22,
     paddingTop: 66,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 420 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 480 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
