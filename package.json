@@ -117,7 +117,7 @@
     "@react-native/metro-config": "0.74.84",
     "@react-navigation/drawer": "6.7.2",
     "@react-navigation/native": "6.1.18",
-    "@react-navigation/native-stack": "6.10.1",
+    "@react-navigation/native-stack": "6.11.0",
     "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image",
     "@rneui/base": "4.0.0-rc.8",
     "@rneui/themed": "4.0.0-rc.8",
