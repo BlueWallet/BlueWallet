@@ -133,6 +133,11 @@ jobs:
     - name: Build
       run: npm run e2e:release-build
 
+    - name: Another space cleanup
+      run: |
+        rm -r -f ~/.npm/
+        rm -r -f ~/.gradle/
+
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
