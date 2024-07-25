@@ -66,9 +66,7 @@ jobs:
     - name: Free Disk Space
       uses: jlumbroso/free-disk-space@main
       with:
-        # this might remove tools that are actually needed,
-        # if set to "true" but frees about 6 GB
-        tool-cache: false
+        tool-cache: true
         android: false
         dotnet: true
         haskell: true
@@ -132,11 +130,6 @@ jobs:
 
     - name: Build
       run: npm run e2e:release-build
-
-    - name: Another space cleanup
-      run: |
-        rm -r -f ~/.npm/
-        rm -r -f ~/.gradle/
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
