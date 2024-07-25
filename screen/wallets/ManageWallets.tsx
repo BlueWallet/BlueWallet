@@ -1,11 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo } from 'react';
-import { Platform, StyleSheet, useColorScheme, TouchableOpacity, Image, Animated, Text, I18nManager } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, TouchableOpacity, Image, Animated, Text, I18nManager, View } from 'react-native';
 // @ts-ignore: no declaration file
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
-import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -14,6 +13,8 @@ import useDebounce from '../../hooks/useDebounce';
 import { Header } from '../../components/Header';
 import { TTXMetadata } from '../../class';
 import { TWallet } from '../../class/wallets/types';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { WalletCarouselItem } from '../../components/WalletsCarousel';
 
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
@@ -86,19 +87,21 @@ const useBounceAnimation = (query: string) => {
 
   useEffect(() => {
     if (query) {
-      Animated.timing(bounceAnim, {
+      Animated.spring(bounceAnim, {
         toValue: 1.2,
-        duration: 150,
         useNativeDriver: true,
+        friction: 3,
+        tension: 100,
       }).start(() => {
-        Animated.timing(bounceAnim, {
+        Animated.spring(bounceAnim, {
           toValue: 1.0,
-          duration: 150,
           useNativeDriver: true,
+          friction: 3,
+          tension: 100,
         }).start();
       });
     }
-  }, [bounceAnim, query]);
+  }, [query]);
 
   return bounceAnim;
 };
@@ -238,13 +241,16 @@ const ManageWallets: React.FC = () => {
 
       if (item.type === 'transaction') {
         return (
-          <TransactionListItem
-            item={item.data}
-            itemPriceUnit="BTC"
-            walletID={item.data.walletID}
-            searchQuery={state.searchQuery}
-            style={StyleSheet.flatten([styles.padding16, { opacity: itemOpacity }])}
-          />
+          <View style={StyleSheet.flatten([styles.padding16, { opacity: itemOpacity }])}>
+            <TransactionListItem
+              item={item.data}
+              // update later to support other units
+              itemPriceUnit={BitcoinUnit.BTC}
+              walletID={item.data.walletID}
+              searchQuery={state.searchQuery}
+              renderHighlightedText={renderHighlightedText}
+            />
+          </View>
         );
       }
 
@@ -292,7 +298,9 @@ const ManageWallets: React.FC = () => {
       <>
         {hasWallets && <Header leftText={loc.wallets.wallets} isDrawerList />}
         {hasTransactions && <Header leftText={loc.addresses.transactions} isDrawerList />}
-        {!hasWallets && !hasTransactions && <Text style={stylesHook.noResultsText}>{loc.wallets.no_results_found}</Text>}
+        {!hasWallets && !hasTransactions && (
+          <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
+        )}
       </>
     );
   }, [state.searchQuery, state.walletData.length, state.txMetadata, stylesHook.noResultsText]);
@@ -328,6 +336,14 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 16,
+  },
+  noResultsText: {
+    fontSize: 19,
+    fontWeight: 'bold',
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+    textAlign: 'center',
+    justifyContent: 'center',
+    marginTop: 34,
   },
 });
 

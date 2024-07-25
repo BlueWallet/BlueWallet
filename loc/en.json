@@ -496,7 +496,7 @@
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
-    "search_wallets": "Search wallets, memos, and transactions"
+    "search_wallets": "Search wallets, memos"
   },
   "multisig": {
     "multisig_vault": "Vault",
