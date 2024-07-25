@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo } from 'react';
 import { Platform, StyleSheet, useColorScheme, TouchableOpacity, Image, Animated, Text, I18nManager } from 'react-native';
-// @ts-ignore: fix later
+// @ts-ignore: no declaration file
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -101,7 +101,7 @@ const useBounceAnimation = (query: string) => {
   return bounceAnim;
 };
 
-const ReorderWallets: React.FC = () => {
+const ManageWallets: React.FC = () => {
   const sortableList = useRef(null);
   const { colors, closeImage } = useTheme();
   const { wallets, setWalletsWithNewOrder, txMetadata } = useStorage();
@@ -115,6 +115,9 @@ const ReorderWallets: React.FC = () => {
     },
     tip: {
       backgroundColor: colors.ballOutgoingExpired,
+    },
+    noResultsText: {
+      color: colors.foregroundColor,
     },
   };
 
@@ -284,12 +287,14 @@ const ReorderWallets: React.FC = () => {
 
     return (
       <>
-        {hasWallets && <Header leftText="Wallets" isDrawerList />}
-        {hasTransactions && <Header leftText="Transactions" isDrawerList />}
-        {!hasWallets && !hasTransactions && <Text style={styles.noResultsText}>No results found</Text>}
+        {hasWallets && <Header leftText={loc.wallets.wallets} isDrawerList />}
+        {hasTransactions && <Header leftText={loc.addresses.transactions} isDrawerList />}
+        {!hasWallets && !hasTransactions && (
+          <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
+        )}
       </>
     );
-  }, [state.searchQuery, state.walletData, state.txMetadata]);
+  }, [state.searchQuery, state.walletData.length, state.txMetadata, stylesHook.noResultsText]);
 
   return (
     <GestureHandlerRootView style={[styles.root, stylesHook.root]}>
@@ -311,7 +316,7 @@ const ReorderWallets: React.FC = () => {
   );
 };
 
-export default ReorderWallets;
+export default ManageWallets;
 
 const styles = StyleSheet.create({
   root: {
