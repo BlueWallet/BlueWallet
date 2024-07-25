@@ -426,6 +426,7 @@ const CoinControl = () => {
             <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
           </View>
         }
+        footerDefaultMargins
         contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
       >
         {output && renderOutputModalContent()}
@@ -470,9 +471,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    paddingTop: 66,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 480 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 400 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
