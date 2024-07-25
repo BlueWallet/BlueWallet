@@ -3,7 +3,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
 
     working_directory: ~/repo
 
@@ -26,7 +26,7 @@ jobs:
 
   unit:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
 
     working_directory: ~/repo
 
@@ -50,7 +50,7 @@ jobs:
 
   integration:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
 
     environment:
       RETRY: "1"
@@ -74,7 +74,7 @@ jobs:
 
       # run tests!
       - run:
-          command: npm run jest || npm run jest || npm run jest
+          command: npm run jest || npm run jest || npm run jest || npm run jest
 
 # Orchestrate our job run sequence
 workflows:
