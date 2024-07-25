@@ -288,7 +288,6 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   handleLongPress?: () => void;
   data: TWallet[];
   scrollEnabled?: boolean;
-  showNewWalletPanel?: boolean; // New prop
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -317,7 +316,7 @@ const cStyles = StyleSheet.create({
 const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
-  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, showNewWalletPanel, onNewWalletPress } = props;
+  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, onNewWalletPress } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
       item ? (
@@ -361,8 +360,8 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   );
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
-    console.log('onScrollToIndexFailed');
-    console.log(error);
+    console.debug('onScrollToIndexFailed');
+    console.debug(error);
     flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
     setTimeout(() => {
       if (data.length !== 0 && flatListRef.current !== null) {
@@ -394,7 +393,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       ListHeaderComponent={ListHeaderComponent}
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
-      ListFooterComponent={showNewWalletPanel && onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
+      ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
     />
   ) : (
@@ -410,7 +409,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           />
         ) : null,
       )}
-      {showNewWalletPanel && onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
+      {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
   );
 });

@@ -145,7 +145,6 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
         data={state.wallets}
-        showNewWalletPanel
         extraData={[state.wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}

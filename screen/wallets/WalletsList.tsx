@@ -253,7 +253,6 @@ const WalletsList: React.FC = () => {
         handleLongPress={handleLongPress}
         onMomentumScrollEnd={onSnapToItem}
         ref={walletsCarousel}
-        showNewWalletPanel
         onNewWalletPress={handleClick}
         testID="WalletsList"
         horizontal
