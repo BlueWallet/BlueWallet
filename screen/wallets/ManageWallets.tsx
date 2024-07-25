@@ -12,6 +12,8 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import useDebounce from '../../hooks/useDebounce';
 import { Header } from '../../components/Header';
+import { TTXMetadata } from '../../class';
+import { TWallet } from '../../class/wallets/types';
 
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
@@ -49,8 +51,8 @@ type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetWalletDataAct
 interface State {
   searchQuery: string;
   isSearchFocused: boolean;
-  walletData: any[];
-  txMetadata: { [key: string]: { memo?: string } };
+  walletData: TWallet[];
+  txMetadata: TTXMetadata;
   order: any[];
 }
 
@@ -122,9 +124,10 @@ const ManageWallets: React.FC = () => {
   };
 
   useEffect(() => {
+    const initialOrder = wallets.map(wallet => ({ type: 'wallet', data: wallet }));
     dispatch({ type: SET_WALLET_DATA, payload: wallets });
     dispatch({ type: SET_TX_METADATA, payload: txMetadata });
-    dispatch({ type: SET_ORDER, payload: wallets });
+    dispatch({ type: SET_ORDER, payload: initialOrder });
   }, [wallets, txMetadata]);
 
   const handleClose = useCallback(() => {
@@ -163,11 +166,18 @@ const ManageWallets: React.FC = () => {
       const filteredTxMetadata = Object.entries(txMetadata).filter(([_, tx]) =>
         tx.memo?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
       );
+      const filteredOrder = [
+        ...filteredWallets.map(wallet => ({ type: 'wallet', data: wallet })),
+        ...Object.entries(filteredTxMetadata).map(([txid, tx]) => ({ type: 'transaction', data: { txid, ...tx } })),
+      ];
       dispatch({ type: SET_WALLET_DATA, payload: filteredWallets });
       dispatch({ type: SET_TX_METADATA, payload: Object.fromEntries(filteredTxMetadata) });
+      dispatch({ type: SET_ORDER, payload: filteredOrder });
     } else {
+      const initialOrder = wallets.map(wallet => ({ type: 'wallet', data: wallet }));
       dispatch({ type: SET_WALLET_DATA, payload: wallets });
       dispatch({ type: SET_TX_METADATA, payload: {} });
+      dispatch({ type: SET_ORDER, payload: initialOrder });
     }
   }, [wallets, txMetadata, debouncedSearchQuery]);
 
@@ -273,13 +283,6 @@ const ManageWallets: React.FC = () => {
 
   const _keyExtractor = useCallback((_item: any, index: number) => index.toString(), []);
 
-  const data = state.searchQuery
-    ? [
-        ...state.walletData.map(wallet => ({ type: 'wallet', data: wallet })),
-        ...Object.entries(state.txMetadata).map(([txid, tx]) => ({ type: 'transaction', data: { txid, ...tx } })),
-      ]
-    : state.walletData.map(wallet => ({ type: 'wallet', data: wallet }));
-
   const renderHeader = useMemo(() => {
     if (!state.searchQuery) return null;
     const hasWallets = state.walletData.length > 0;
@@ -289,9 +292,7 @@ const ManageWallets: React.FC = () => {
       <>
         {hasWallets && <Header leftText={loc.wallets.wallets} isDrawerList />}
         {hasTransactions && <Header leftText={loc.addresses.transactions} isDrawerList />}
-        {!hasWallets && !hasTransactions && (
-          <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
-        )}
+        {!hasWallets && !hasTransactions && <Text style={stylesHook.noResultsText}>{loc.wallets.no_results_found}</Text>}
       </>
     );
   }, [state.searchQuery, state.walletData.length, state.txMetadata, stylesHook.noResultsText]);
@@ -302,7 +303,7 @@ const ManageWallets: React.FC = () => {
         ref={sortableList}
         contentInsetAdjustmentBehavior="automatic"
         automaticallyAdjustContentInsets
-        data={data}
+        data={state.order}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         onChangeOrder={onChangeOrder}
@@ -327,11 +328,6 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 16,
-  },
-  noResultsText: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginTop: 20,
   },
 });
 
