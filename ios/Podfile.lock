@@ -464,7 +464,7 @@ PODS:
     - React-perflogger (= 0.72.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.11.1):
+  - RealmJS (12.12.1):
     - React
   - rn-ldk (0.8.4):
     - React-Core
@@ -836,7 +836,7 @@ SPEC CHECKSUMS:
   React-utils: 22a77b05da25ce49c744faa82e73856dcae1734e
   ReactCommon: ff94462e007c568d8cdebc32e3c97af86ec93bb5
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: ecd23895a68689ce2c048d28df3d699cf76cedb7
+  RealmJS: f4f6d27b325b1c1b402eb0aa5ee79e9d5f603293
   rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
@@ -865,4 +865,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
