@@ -227,7 +227,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     return (
       <Animated.View
         style={[
-          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : customStyle ?? { ...iStyles.root, width: itemWidth },
+          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
           { opacity, transform: [{ scale: scaleValue }] },
         ]}
       >
@@ -288,7 +288,6 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   handleLongPress?: () => void;
   data: TWallet[];
   scrollEnabled?: boolean;
-  showNewWalletPanel?: boolean; // New prop
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -317,7 +316,7 @@ const cStyles = StyleSheet.create({
 const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
-  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, showNewWalletPanel, onNewWalletPress } = props;
+  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, onNewWalletPress } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
       item ? (
@@ -334,35 +333,31 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const flatListRef = useRef<FlatList<any>>(null);
 
-  useImperativeHandle(
-    ref,
-    (): any => {
-      return {
-        scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
-        scrollToIndex: (params: {
-          animated?: boolean | null | undefined;
-          index: number;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToIndex(params),
-        scrollToItem: (params: {
-          animated?: boolean | null | undefined;
-          item: any;
-          viewOffset?: number | undefined;
-          viewPosition?: number | undefined;
-        }) => flatListRef.current?.scrollToItem(params),
-        scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
-        recordInteraction: () => flatListRef.current?.recordInteraction(),
-        flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
-        getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
-      };
-    },
-    [],
-  );
+  useImperativeHandle(ref, (): any => {
+    return {
+      scrollToEnd: (params: { animated?: boolean | null | undefined } | undefined) => flatListRef.current?.scrollToEnd(params),
+      scrollToIndex: (params: {
+        animated?: boolean | null | undefined;
+        index: number;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToIndex(params),
+      scrollToItem: (params: {
+        animated?: boolean | null | undefined;
+        item: any;
+        viewOffset?: number | undefined;
+        viewPosition?: number | undefined;
+      }) => flatListRef.current?.scrollToItem(params),
+      scrollToOffset: (params: { animated?: boolean | null | undefined; offset: number }) => flatListRef.current?.scrollToOffset(params),
+      recordInteraction: () => flatListRef.current?.recordInteraction(),
+      flashScrollIndicators: () => flatListRef.current?.flashScrollIndicators(),
+      getNativeScrollRef: () => flatListRef.current?.getNativeScrollRef(),
+    };
+  }, []);
 
   const onScrollToIndexFailed = (error: { averageItemLength: number; index: number }): void => {
-    console.log('onScrollToIndexFailed');
-    console.log(error);
+    console.debug('onScrollToIndexFailed');
+    console.debug(error);
     flatListRef.current?.scrollToOffset({ offset: error.averageItemLength * error.index, animated: true });
     setTimeout(() => {
       if (data.length !== 0 && flatListRef.current !== null) {
@@ -394,7 +389,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       ListHeaderComponent={ListHeaderComponent}
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
-      ListFooterComponent={showNewWalletPanel && onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
+      ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
     />
   ) : (
@@ -410,7 +405,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           />
         ) : null,
       )}
-      {showNewWalletPanel && onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
+      {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
   );
 });
