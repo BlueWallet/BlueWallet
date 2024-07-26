@@ -11,7 +11,6 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import useDebounce from '../../hooks/useDebounce';
-import { Header } from '../../components/Header';
 import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -303,13 +302,8 @@ const ManageWallets: React.FC = () => {
     const hasTransactions = filteredTxMetadata.length > 0;
 
     return (
-      <>
-        {hasWallets && <Header leftText={loc.wallets.wallets} isDrawerList />}
-        {hasTransactions && <Header leftText={loc.addresses.transactions} isDrawerList />}
-        {!hasWallets && !hasTransactions && (
-          <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
-        )}
-      </>
+      !hasWallets &&
+      !hasTransactions && <Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Text>
     );
   }, [state.searchQuery, state.walletData.length, state.txMetadata, stylesHook.noResultsText]);
 
