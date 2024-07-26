@@ -1,11 +1,10 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import PropTypes from 'prop-types';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
+import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   PixelRatio,
   Platform,
@@ -29,6 +28,7 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -132,7 +132,7 @@ const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, 
   const amount = formatBalance(value, balanceUnit, true);
 
   const oStyles = StyleSheet.create({
-    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
+    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
     tranContainer: { paddingLeft: 20 },
@@ -194,9 +194,12 @@ const mStyles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+    marginBottom: 36,
+    marginHorizontal: 24,
   },
 });
 
+const transparentBackground = { backgroundColor: 'transparent' };
 const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
   const { colors } = useTheme();
   const { txMetadata, saveToDisk } = useStorage();
@@ -234,11 +237,12 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         ]}
         onChangeText={onMemoChange}
       />
-      <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
-      <BlueSpacing20 />
-      <View style={mStyles.buttonContainer}>
-        <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
-      </View>
+      <ListItem
+        title={loc.cc.freezeLabel}
+        containerStyle={transparentBackground}
+        Component={TouchableWithoutFeedback}
+        switch={switchValue}
+      />
       <BlueSpacing20 />
     </>
   );
@@ -254,8 +258,9 @@ OutputModalContent.propTypes = {
 
 const CoinControl = () => {
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { width } = useWindowDimensions();
+  const bottomModalRef = useRef(null);
   const { walletID, onUTXOChoose } = useRoute().params;
   const { wallets, saveToDisk, sleep } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -323,7 +328,8 @@ const CoinControl = () => {
 
   const handleChoose = item => setOutput(item);
 
-  const handleUseCoin = u => {
+  const handleUseCoin = async u => {
+    await bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
@@ -386,6 +392,12 @@ const CoinControl = () => {
     return <OutputModalContent output={output} wallet={wallet} onUseCoin={handleUseCoin} frozen={oFrozen} setFrozen={setOFrozen} />;
   };
 
+  useEffect(() => {
+    if (output) {
+      bottomModalRef.current?.present();
+    }
+  }, [output]);
+
   if (loading) {
     return (
       <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
@@ -403,17 +415,22 @@ const CoinControl = () => {
       )}
 
       <BottomModal
-        isVisible={Boolean(output)}
+        ref={bottomModalRef}
         onClose={() => {
           Keyboard.dismiss();
           setOutput(false);
         }}
+        backgroundColor={colors.elevated}
+        footer={
+          <View style={mStyles.buttonContainer}>
+            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
+          </View>
+        }
+        footerDefaultMargins
+        contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
       >
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
-        </KeyboardAvoidingView>
+        {output && renderOutputModalContent()}
       </BottomModal>
-
       <FlatList
         ListHeaderComponent={tipCoins}
         data={utxo}
@@ -454,11 +471,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 500 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',

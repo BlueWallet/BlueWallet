@@ -26,7 +26,7 @@ import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import WalletGradient from '../../class/wallet-gradient';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import LNNodeBar from '../../components/LNNodeBar';
 import navigationStyle from '../../components/navigationStyle';
@@ -241,7 +241,7 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
       noErr = false;
-      presentAlert({ message: err.message });
+      presentAlert({ message: err.message, type: AlertType.Toast });
       setIsLoading(false);
       setTimeElapsed(prev => prev + 1);
     }
@@ -303,7 +303,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return presentAlert({ message: Err.message });
+          return presentAlert({ message: Err.message, type: AlertType.Toast });
         }
       }
       navigate('SendDetailsRoot', {

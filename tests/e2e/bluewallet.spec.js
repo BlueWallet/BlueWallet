@@ -206,9 +206,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('test');
+    await element(by.id('CustomAmountDescription')).tapReturnKey();
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('test');
+    await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('test');
+    await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
+
     await yo('BitcoinAddressQRCodeContainer');
     await yo('CopyTextToClipboard');
     await device.pressBack();
@@ -575,6 +577,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+    await element(by.id('BitcoinAmountInput')).tapReturnKey();
 
     // setting fee rate:
     const feeRate = 3;
