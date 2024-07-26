@@ -1,5 +1,4 @@
-import { Alert as RNAlert } from 'react-native';
-
+import { Alert as RNAlert, Platform, ToastAndroid } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
 
@@ -21,7 +20,14 @@ const presentAlert = ({
   if (hapticFeedback) {
     triggerHapticFeedback(hapticFeedback);
   }
+
+  if (Platform.OS !== 'android') {
+    type = AlertType.Alert;
+  }
   switch (type) {
+    case AlertType.Toast:
+      ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      break;
     default:
       RNAlert.alert(title ?? loc.alert.default, message);
       break;

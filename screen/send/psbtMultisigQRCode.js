@@ -60,7 +60,7 @@ const PsbtMultisigQRCode = () => {
   };
 
   const openScanner = async () => {
-    const scanned = await scanQrHelper(name, true);
+    const scanned = await scanQrHelper(name, true, undefined);
     onBarScanned({ data: scanned });
   };
 

@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { navigationRef } from '../NavigationService';
+
 /**
  * Helper function that navigates to ScanQR screen, and returns promise that will resolve with the result of a scan,
  * and then navigates back. If QRCode scan was closed, promise resolves to null.
@@ -37,9 +38,13 @@ function scanQrHelper(
         params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton) };
       }
 
-      navigationRef.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params,
+      navigationRef.navigate({
+        name: 'ScanQRCodeRoot',
+        params: {
+          screen: 'ScanQRCode',
+          params,
+        },
+        merge: true,
       });
     });
   });

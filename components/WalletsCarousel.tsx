@@ -23,6 +23,8 @@ import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
+import { useStorage } from '../hooks/context/useStorage';
+import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 
 interface NewWalletPanelProps {
@@ -103,127 +105,8 @@ interface WalletCarouselItemProps {
   customStyle?: ViewStyle;
   horizontal?: boolean;
   isActive?: boolean;
-  searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  allowOnPressAnimation?: boolean;
 }
-
-export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
-  item,
-  onPress,
-  handleLongPress,
-  isSelectedWallet,
-  customStyle,
-  horizontal,
-  isActive,
-  searchQuery,
-  renderHighlightedText,
-}) => {
-  const scaleValue = useRef(new Animated.Value(1.0)).current;
-  const { colors } = useTheme();
-  const { width } = useWindowDimensions();
-  const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const isLargeScreen = useIsLargeScreen();
-
-  const onPressedIn = useCallback(() => {
-    Animated.spring(scaleValue, {
-      toValue: 0.95,
-      useNativeDriver: true,
-      friction: 3,
-      tension: 100,
-    }).start();
-  }, [scaleValue]);
-
-  const onPressedOut = useCallback(() => {
-    Animated.spring(scaleValue, {
-      toValue: 1.0,
-      useNativeDriver: true,
-      friction: 3,
-      tension: 100,
-    }).start();
-  }, [scaleValue]);
-
-  const handlePress = useCallback(() => {
-    onPressedOut();
-    onPress(item);
-  }, [item, onPress, onPressedOut]);
-
-  const opacity = isSelectedWallet === false ? 0.5 : 1.0;
-  let image;
-  switch (item.type) {
-    case LightningLdkWallet.type:
-    case LightningCustodianWallet.type:
-      image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-      break;
-    case MultisigHDWallet.type:
-      image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-      break;
-    default:
-      image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-  }
-
-  const latestTransactionText =
-    item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
-      ? loc.wallets.pull_to_refresh
-      : item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
-        ? loc.transactions.pending
-        : transactionTimeToReadable(item.getLatestTransactionTime());
-
-  const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
-
-  return (
-    <Animated.View
-      style={[
-        isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
-        { opacity, transform: [{ scale: scaleValue }] },
-      ]}
-    >
-      <Pressable
-        accessibilityRole="button"
-        testID={item.getLabel()}
-        onPressIn={onPressedIn}
-        onPressOut={onPressedOut}
-        onLongPress={() => {
-          if (handleLongPress) handleLongPress();
-        }}
-        onPress={handlePress}
-      >
-        <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-          <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
-            <Image source={image} style={iStyles.image} />
-            <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-              {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
-            </Text>
-            <View style={iStyles.balanceContainer}>
-              {item.hideBalance ? (
-                <>
-                  <BlueSpacing10 />
-                  <BlurredBalanceView />
-                </>
-              ) : (
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                  style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
-                >
-                  {`${balance} `}
-                </Text>
-              )}
-            </View>
-            <Text style={iStyles.br} />
-            <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
-              {loc.wallets.list_latest_transaction}
-            </Text>
-            <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-              {latestTransactionText}
-            </Text>
-          </LinearGradient>
-        </View>
-      </Pressable>
-    </Animated.View>
-  );
-};
 
 const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
@@ -284,6 +167,119 @@ const iStyles = StyleSheet.create({
   },
 });
 
+export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
+  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, allowOnPressAnimation = true }) => {
+    const scaleValue = useRef(new Animated.Value(1.0)).current;
+    const { colors } = useTheme();
+    const { walletTransactionUpdateStatus } = useStorage();
+    const { width } = useWindowDimensions();
+    const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+    const isLargeScreen = useIsLargeScreen();
+
+    const onPressedIn = useCallback(() => {
+      Animated.spring(scaleValue, {
+        toValue: 0.95,
+        useNativeDriver: true,
+        friction: 3,
+        tension: 100,
+      }).start();
+    }, [scaleValue]);
+
+    const onPressedOut = useCallback(() => {
+      Animated.spring(scaleValue, {
+        toValue: 1.0,
+        useNativeDriver: true,
+        friction: 3,
+        tension: 100,
+      }).start();
+    }, [scaleValue]);
+
+    const handlePress = useCallback(() => {
+      onPressedOut();
+      onPress(item);
+    }, [item, onPress, onPressedOut]);
+
+    const opacity = isSelectedWallet === false ? 0.5 : 1.0;
+    let image;
+    switch (item.type) {
+      case LightningLdkWallet.type:
+      case LightningCustodianWallet.type:
+        image = I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+        break;
+      case MultisigHDWallet.type:
+        image = I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+        break;
+      default:
+        image = I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+    }
+
+    const latestTransactionText =
+      walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()
+        ? loc.transactions.updating
+        : item.getBalance() !== 0 && item.getLatestTransactionTime() === 0
+          ? loc.wallets.pull_to_refresh
+          : item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
+            ? loc.transactions.pending
+            : transactionTimeToReadable(item.getLatestTransactionTime());
+
+    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+
+    return (
+      <Animated.View
+        style={[
+          isLargeScreen || !horizontal ? [iStyles.rootLargeDevice, customStyle] : (customStyle ?? { ...iStyles.root, width: itemWidth }),
+          { opacity, transform: [{ scale: scaleValue }] },
+        ]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          testID={item.getLabel()}
+          onPressIn={allowOnPressAnimation ? onPressedIn : undefined}
+          onPressOut={allowOnPressAnimation ? onPressedOut : undefined}
+          onLongPress={() => {
+            if (handleLongPress) handleLongPress();
+          }}
+          onPress={handlePress}
+        >
+          <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
+            <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
+              <Image source={image} style={iStyles.image} />
+              <Text style={iStyles.br} />
+              <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
+                {item.getLabel()}
+              </Text>
+              <View style={iStyles.balanceContainer}>
+                {item.hideBalance ? (
+                  <>
+                    <BlueSpacing10 />
+                    <BlurredBalanceView />
+                  </>
+                ) : (
+                  <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                    style={[iStyles.balance, { color: colors.inverseForegroundColor }]}
+                  >
+                    {`${balance} `}
+                  </Text>
+                )}
+              </View>
+              <Text style={iStyles.br} />
+              <Text numberOfLines={1} style={[iStyles.latestTx, { color: colors.inverseForegroundColor }]}>
+                {loc.wallets.list_latest_transaction}
+              </Text>
+              <Text numberOfLines={1} style={[iStyles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                {latestTransactionText}
+              </Text>
+            </LinearGradient>
+          </View>
+        </Pressable>
+      </Animated.View>
+    );
+  },
+);
+
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   horizontal?: boolean;
   selectedWallet?: string;
@@ -292,8 +288,6 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   handleLongPress?: () => void;
   data: TWallet[];
   scrollEnabled?: boolean;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
-  searchQuery?: string;
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -322,17 +316,7 @@ const cStyles = StyleSheet.create({
 const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
-  const {
-    horizontal,
-    data,
-    handleLongPress,
-    onPress,
-    selectedWallet,
-    scrollEnabled,
-    onNewWalletPress,
-    searchQuery,
-    renderHighlightedText,
-  } = props;
+  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, onNewWalletPress } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
       item ? (
@@ -342,11 +326,9 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
-          searchQuery={searchQuery}
-          renderHighlightedText={renderHighlightedText}
         />
       ) : null,
-    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText],
+    [horizontal, selectedWallet, handleLongPress, onPress],
   );
 
   const flatListRef = useRef<FlatList<any>>(null);
@@ -420,8 +402,6 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
             handleLongPress={handleLongPress}
             onPress={onPress}
             key={index}
-            searchQuery={props.searchQuery}
-            renderHighlightedText={props.renderHighlightedText}
           />
         ) : null,
       )}

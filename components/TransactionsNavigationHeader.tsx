@@ -231,7 +231,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
             {wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
+              ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD)
               : wallet.getPreferredBalanceUnit()}
           </Text>
         </TouchableOpacity>

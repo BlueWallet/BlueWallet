@@ -18,7 +18,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
@@ -101,7 +101,7 @@ export default class CPFP extends Component {
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         this.setState({ isLoading: false });
-        presentAlert({ message: error.message });
+        presentAlert({ message: error.message, type: AlertType.Toast });
       }
     });
   };

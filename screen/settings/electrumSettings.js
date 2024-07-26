@@ -28,7 +28,7 @@ import {
   BlueText,
 } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { BlueCurrentTheme } from '../../components/themes';
@@ -205,7 +205,7 @@ export default class ElectrumSettings extends Component {
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: error });
+        presentAlert({ message: error, type: AlertType.Toast });
       }
       this.setState({ isLoading: false });
     });
