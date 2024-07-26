@@ -328,8 +328,8 @@ const CoinControl = () => {
 
   const handleChoose = item => setOutput(item);
 
-  const handleUseCoin = u => {
-    bottomModalRef.current?.dismiss();
+  const handleUseCoin = async u => {
+    await bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
@@ -395,8 +395,6 @@ const CoinControl = () => {
   useEffect(() => {
     if (output) {
       bottomModalRef.current?.present();
-    } else {
-      bottomModalRef.current?.dismiss();
     }
   }, [output]);
 
@@ -428,6 +426,7 @@ const CoinControl = () => {
             <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
           </View>
         }
+        footerDefaultMargins
         contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
       >
         {output && renderOutputModalContent()}
@@ -472,9 +471,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    paddingTop: 66,
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 420 } : {},
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 500 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',

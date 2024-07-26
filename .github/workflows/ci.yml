@@ -42,7 +42,7 @@ jobs:
       run: npm install
 
     - name: Run tests
-      run: npm test || npm test || npm test
+      run: npm test || npm test || npm test || npm test
       env:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
@@ -53,6 +53,7 @@ jobs:
         FAULTY_ZPUB: ${{ secrets.FAULTY_ZPUB }}
         MNEMONICS_COBO: ${{ secrets.MNEMONICS_COBO }}
         MNEMONICS_COLDCARD: ${{ secrets.MNEMONICS_COLDCARD }}
+        RETRY: 1
 
   e2e:
     runs-on: ubuntu-latest
@@ -65,9 +66,7 @@ jobs:
     - name: Free Disk Space
       uses: jlumbroso/free-disk-space@main
       with:
-        # this might remove tools that are actually needed,
-        # if set to "true" but frees about 6 GB
-        tool-cache: false
+        tool-cache: true
         android: false
         dotnet: true
         haskell: true

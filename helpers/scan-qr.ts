@@ -10,53 +10,42 @@ import { navigationRef } from '../NavigationService';
  * @param showFileImportButton {boolean}
  *
  * @param onDismiss {function} - if camera is closed via X button it gets triggered
- * @param options {object} - additional options to pass to navigate
- * @return {Promise<string | null>}
+ * @param useMerge {boolean} - if true, will merge the new screen with the current screen, otherwise will replace the current screen
+ * @return {Promise<string>}
  */
 function scanQrHelper(
   currentScreenName: string,
   showFileImportButton = true,
   onDismiss?: () => void,
-  options: { merge: boolean } = { merge: true },
+  useMerge = true,
 ): Promise<string | null> {
   return requestCameraAuthorization().then(() => {
     return new Promise(resolve => {
-      const params: any = {
-        showFileImportButton: Boolean(showFileImportButton),
-      };
+      let params = {};
 
-      if (options?.merge) {
-        if (onDismiss) {
-          params.onDismiss = onDismiss;
-        }
-        params.onBarScanned = function (data: any) {
+      if (useMerge) {
+        const onBarScanned = function (data: any) {
           setTimeout(() => resolve(data.data || data), 1);
-          navigationRef.navigate({
-            name: currentScreenName,
-            params: {},
-            merge: options?.merge,
-          });
+          navigationRef.navigate({ name: currentScreenName, params: {}, merge: true });
         };
 
-        navigationRef.navigate({
-          name: 'ScanQRCodeRoot',
-          params: {
-            screen: 'ScanQRCode',
-            params,
-          },
-          merge: true,
-        });
+        params = {
+          showFileImportButton: Boolean(showFileImportButton),
+          onDismiss,
+          onBarScanned,
+        };
       } else {
-        navigationRef.navigate({
-          name: 'ScanQRCodeRoot',
-          params: {
-            screen: 'ScanQRCode',
-            params: {
-              showFileImportButton: Boolean(showFileImportButton),
-            },
-          },
-        });
+        params = { launchedBy: currentScreenName, showFileImportButton: Boolean(showFileImportButton) };
       }
+
+      navigationRef.navigate({
+        name: 'ScanQRCodeRoot',
+        params: {
+          screen: 'ScanQRCode',
+          params,
+        },
+        merge: true,
+      });
     });
   });
 }
