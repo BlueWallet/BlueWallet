@@ -52,6 +52,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       [colors.lightBorder],
     );
 
+    const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
+
     const shortenContactName = (name: string): string => {
       if (name.length < 16) return name;
       return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
@@ -333,7 +335,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
-          containerStyle={[containerStyle, style]}
+          containerStyle={combinedStyle}
         />
       </ToolTipMenu>
     );
