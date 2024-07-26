@@ -65,7 +65,7 @@ import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
-import ManageWalletsStackRoot from './ManageWalletsStack';
+import ManageWallets from '../screen/wallets/ManageWallets';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -379,13 +379,15 @@ const DetailViewStackScreensStack = () => {
         }}
       />
       <DetailViewStack.Screen
-        name="ManageWalletsRoot"
-        component={ManageWalletsStackRoot}
-        options={{
-          headerShown: false,
+        name="ManageWallets"
+        component={ManageWallets}
+        options={navigationStyle({
+          headerBackVisible: false,
+          headerLargeTitle: true,
           gestureEnabled: false,
           presentation: 'modal',
-        }}
+          title: loc.wallets.manage_title,
+        })(theme)}
       />
     </DetailViewStack.Navigator>
   );

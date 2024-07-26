@@ -103,5 +103,5 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
-  ManageWalletsRoot: undefined;
+  ManageWallets: undefined;
 };

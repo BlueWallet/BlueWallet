@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useReducer, useCallback, useMemo } from 'react';
-import { Platform, StyleSheet, useColorScheme, TouchableOpacity, Image, Animated, Text, I18nManager, View } from 'react-native';
+import { Platform, StyleSheet, useColorScheme, TouchableOpacity, Image, Animated, Text, I18nManager } from 'react-native';
 // @ts-ignore: no declaration file
 import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -199,7 +199,7 @@ const ManageWallets: React.FC = () => {
         onClear: () => dispatch({ type: SET_SEARCH_QUERY, payload: '' }),
         onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
         onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
-        placeholder: loc.wallets.manage_wallets_search_placeholder, // New placeholder text
+        placeholder: loc.wallets.manage_wallets_search_placeholder,
       },
     });
   }, [setOptions]);
@@ -226,12 +226,12 @@ const ManageWallets: React.FC = () => {
       return (
         <Text>
           {parts.map((part, index) =>
-            part.toLowerCase() === query.toLowerCase() ? (
-              <Animated.View key={index} style={[iStyles.highlightedContainer, { transform: [{ scale: bounceAnim }] }]}>
-                <Text style={[iStyles.highlighted, iStyles.defaultText]}>{part}</Text>
+            query && part.toLowerCase().includes(query.toLowerCase()) ? (
+              <Animated.View key={`${index}-${query}`} style={[iStyles.highlightedContainer, { transform: [{ scale: bounceAnim }] }]}>
+                <Text style={iStyles.highlighted}>{part}</Text>
               </Animated.View>
             ) : (
-              <Text key={index} style={[iStyles.defaultText, query ? iStyles.dimmedText : {}]}>
+              <Text key={`${index}-${query}`} style={query ? iStyles.dimmedText : iStyles.defaultText}>
                 {part}
               </Text>
             ),
@@ -241,22 +241,20 @@ const ManageWallets: React.FC = () => {
     },
     [bounceAnim],
   );
-
   const renderItem = useCallback(
+    // eslint-disable-next-line react/no-unused-prop-types
     ({ item, drag, isActive }: { item: Item; drag: () => void; isActive: boolean }) => {
-      const itemOpacity = isActive ? 1 : state.searchQuery ? 0.5 : 1;
-
       if (item.type === ItemType.TransactionSection && item.data) {
+        const w = wallets.find(wallet => wallet.getTransactions().some((tx: ExtendedTransaction) => tx.hash === item.data.hash));
+        const walletID = w ? w.getID() : '';
         return (
-          <View style={StyleSheet.flatten([styles.padding16, { opacity: itemOpacity }])}>
-            <TransactionListItem
-              item={item.data}
-              itemPriceUnit={BitcoinUnit.BTC}
-              walletID={item.data.walletID}
-              searchQuery={state.searchQuery}
-              style={{ opacity: itemOpacity }}
-            />
-          </View>
+          <TransactionListItem
+            item={item.data}
+            itemPriceUnit={item.data.walletPreferredBalanceUnit || BitcoinUnit.BTC}
+            walletID={walletID}
+            searchQuery={state.searchQuery}
+            renderHighlightedText={renderHighlightedText}
+          />
         );
       } else if (item.type === ItemType.WalletSection) {
         return (
@@ -266,16 +264,16 @@ const ManageWallets: React.FC = () => {
               handleLongPress={isDraggingDisabled ? undefined : drag}
               isActive={isActive}
               onPress={() => navigateToWallet(item.data)}
-              customStyle={StyleSheet.flatten([styles.padding16, { opacity: itemOpacity }])}
+              customStyle={styles.padding16}
               searchQuery={state.searchQuery}
-              renderHighlightedText={state.searchQuery ? renderHighlightedText : undefined}
+              renderHighlightedText={renderHighlightedText}
             />
           </ScaleDecorator>
         );
       }
       return null;
     },
-    [isDraggingDisabled, navigateToWallet, state.searchQuery, renderHighlightedText],
+    [wallets, isDraggingDisabled, navigateToWallet, state.searchQuery, renderHighlightedText],
   );
 
   const onChangeOrder = useCallback(() => {
@@ -299,7 +297,10 @@ const ManageWallets: React.FC = () => {
   const renderHeader = useMemo(() => {
     if (!state.searchQuery) return null;
     const hasWallets = state.walletData.length > 0;
-    const hasTransactions = Object.keys(state.txMetadata).length > 0;
+    const filteredTxMetadata = Object.entries(state.txMetadata).filter(([_, tx]) =>
+      tx.memo?.toLowerCase().includes(state.searchQuery.toLowerCase()),
+    );
+    const hasTransactions = filteredTxMetadata.length > 0;
 
     return (
       <>
@@ -361,18 +362,22 @@ const iStyles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     padding: 2,
-    alignSelf: 'flex-start', // ensure the container resizes based on its content
+    alignSelf: 'flex-start',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'double',
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
   highlighted: {
     color: 'black',
-    fontSize: 14,
+    fontSize: 19,
     fontWeight: '600',
   },
   defaultText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 19,
   },
   dimmedText: {
-    opacity: 0.5,
+    opacity: 0.8,
   },
 });

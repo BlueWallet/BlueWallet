@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
+import { Linking, View, ViewStyle } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -23,7 +23,7 @@ import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList
 import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
-import useBounceAnimation from '../hooks/useBounceAnimation';
+import { pop } from '../NavigationService';
 
 interface TransactionListItemProps {
   itemPriceUnit: BitcoinUnit;
@@ -31,12 +31,13 @@ interface TransactionListItemProps {
   item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
   searchQuery?: string;
   style?: ViewStyle;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 export const TransactionListItem: React.FC<TransactionListItemProps> = React.memo(
-  ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style }) => {
+  ({ item, itemPriceUnit = BitcoinUnit.BTC, walletID, searchQuery, style, renderHighlightedText }) => {
     const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
@@ -202,6 +203,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const onPress = useCallback(async () => {
       menuRef?.current?.dismissMenu?.();
       if (item.hash) {
+        pop();
         navigate('TransactionStatus', { hash: item.hash, walletID });
       } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
         const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
@@ -226,7 +228,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
               return;
             }
           } catch (e) {
-            console.log(e);
+            console.debug(e);
           }
 
           navigate('LNDViewInvoice', {
@@ -311,25 +313,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
       };
     }, [subtitleNumberOfLines]);
 
-    const bounceAnim = useBounceAnimation(searchQuery ?? '');
-
-    const renderHighlightedText = (text: string, query: string) => {
-      const parts = text.split(new RegExp(`(${query})`, 'gi'));
-      return (
-        <Text>
-          {parts.map((part, index) =>
-            part.toLowerCase() === query.toLowerCase() ? (
-              <Animated.View key={index} style={[styles.highlightedContainer, { transform: [{ scale: bounceAnim }] }]}>
-                <Text style={[styles.highlighted, styles.defaultText]}>{part}</Text>
-              </Animated.View>
-            ) : (
-              <Text key={index} style={query ? styles.dimmedText : {}}>{part}</Text>
-            ),
-          )}
-        </Text>
-      );
-    };
-
     return (
       <ToolTipMenu
         isButton
@@ -344,7 +327,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           leftAvatar={avatar}
           title={title}
           subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={subtitle ? renderHighlightedText(subtitle, searchQuery ?? '') : undefined}
+          subtitle={subtitle ? (renderHighlightedText ? renderHighlightedText(subtitle, searchQuery ?? '') : subtitle) : undefined}
           Component={View}
           subtitleProps={subtitleProps}
           chevron={false}
@@ -356,26 +339,3 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     );
   },
 );
-
-const styles = StyleSheet.create({
-  highlightedContainer: {
-    backgroundColor: 'white',
-    borderColor: 'black',
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 2,
-    alignSelf: 'flex-start',
-  },
-  highlighted: {
-    color: 'black',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  defaultText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  dimmedText: {
-    opacity: 0.5,
-  },
-});

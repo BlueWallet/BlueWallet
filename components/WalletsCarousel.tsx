@@ -8,7 +8,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TouchableOpacity,
   useWindowDimensions,
   View,
   FlatListProps,
@@ -73,12 +72,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   });
 
   return (
-    <TouchableOpacity
-      accessibilityRole="button"
-      testID="CreateAWallet"
-      onPress={onPress}
-      style={isLargeScreen ? {} : { width: itemWidth * 1.2 }}
-    >
+    <Pressable accessibilityRole="button" testID="CreateAWallet" onPress={onPress} style={isLargeScreen ? {} : { width: itemWidth * 1.2 }}>
       <View
         style={[
           nStyles.container,
@@ -93,7 +87,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
           <Text style={[nStyles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -105,7 +99,8 @@ interface WalletCarouselItemProps {
   customStyle?: ViewStyle;
   horizontal?: boolean;
   isActive?: boolean;
-  allowOnPressAnimation?: boolean;
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
 const iStyles = StyleSheet.create({
@@ -168,7 +163,7 @@ const iStyles = StyleSheet.create({
 });
 
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, allowOnPressAnimation = true }) => {
+  ({ item, onPress, handleLongPress, isSelectedWallet, customStyle, horizontal, searchQuery, renderHighlightedText }) => {
     const scaleValue = useRef(new Animated.Value(1.0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
@@ -234,8 +229,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         <Pressable
           accessibilityRole="button"
           testID={item.getLabel()}
-          onPressIn={allowOnPressAnimation ? onPressedIn : undefined}
-          onPressOut={allowOnPressAnimation ? onPressedOut : undefined}
+          onPressIn={onPressedIn}
+          onPressOut={onPressedOut}
           onLongPress={() => {
             if (handleLongPress) handleLongPress();
           }}
@@ -246,7 +241,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
               <Image source={image} style={iStyles.image} />
               <Text style={iStyles.br} />
               <Text numberOfLines={1} style={[iStyles.label, { color: colors.inverseForegroundColor }]}>
-                {item.getLabel()}
+                {renderHighlightedText && searchQuery ? renderHighlightedText(item.getLabel(), searchQuery) : item.getLabel()}
               </Text>
               <View style={iStyles.balanceContainer}>
                 {item.hideBalance ? (
@@ -288,6 +283,8 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   handleLongPress?: () => void;
   data: TWallet[];
   scrollEnabled?: boolean;
+  searchQuery?: string;
+  renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -316,7 +313,17 @@ const cStyles = StyleSheet.create({
 const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
-  const { horizontal, data, handleLongPress, onPress, selectedWallet, scrollEnabled, onNewWalletPress } = props;
+  const {
+    horizontal,
+    data,
+    handleLongPress,
+    onPress,
+    selectedWallet,
+    scrollEnabled,
+    onNewWalletPress,
+    searchQuery,
+    renderHighlightedText,
+  } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
       item ? (
@@ -326,9 +333,11 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
+          searchQuery={searchQuery}
+          renderHighlightedText={renderHighlightedText}
         />
       ) : null,
-    [horizontal, selectedWallet, handleLongPress, onPress],
+    [horizontal, selectedWallet, handleLongPress, onPress, searchQuery, renderHighlightedText],
   );
 
   const flatListRef = useRef<FlatList<any>>(null);
@@ -402,6 +411,8 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
             handleLongPress={handleLongPress}
             onPress={onPress}
             key={index}
+            searchQuery={props.searchQuery}
+            renderHighlightedText={props.renderHighlightedText}
           />
         ) : null,
       )}
