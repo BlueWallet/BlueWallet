@@ -1,56 +1,26 @@
-import { Platform } from 'react-native';
-import prompt from 'react-native-prompt-android';
+import { TrueSheet } from '@lodev09/react-native-true-sheet';
+import { PromptType, modalParams, handleCancel, handleContinue } from '../components/PromptModal';
 import loc from '../loc';
 
-export default (
+const prompt = async (
   title: string,
   text: string,
+  type: PromptType = PromptType.SecureText,
   isCancelable = true,
-  type: PromptType | PromptTypeIOS | PromptTypeAndroid = 'secure-text',
-  isOKDestructive = false,
-  continueButtonText = loc._.ok,
+  continueButtonText = loc._.continue
 ): Promise<string> => {
-  const keyboardType = type === 'numeric' ? 'numeric' : 'default';
+  return new Promise(async (resolve, reject) => {
+    modalParams.title = title;
+    modalParams.text = text;
+    modalParams.type = type;
+    modalParams.continueButtonText = continueButtonText;
+    modalParams.isCancelable = isCancelable;
 
-  if (Platform.OS === 'ios' && type === 'numeric') {
-    // `react-native-prompt-android` on ios does not support numeric input
-    type = 'plain-text';
-  }
+    resolvePromise = resolve;
+    rejectPromise = reject;
 
-  return new Promise((resolve, reject) => {
-    const buttons: Array<PromptButton> = isCancelable
-      ? [
-          {
-            text: loc._.cancel,
-            onPress: () => {
-              reject(Error('Cancel Pressed'));
-            },
-            style: 'cancel',
-          },
-          {
-            text: continueButtonText,
-            onPress: password => {
-              console.log('OK Pressed');
-              resolve(password);
-            },
-            style: isOKDestructive ? 'destructive' : 'default',
-          },
-        ]
-      : [
-          {
-            text: continueButtonText,
-            onPress: password => {
-              console.log('OK Pressed');
-              resolve(password);
-            },
-          },
-        ];
-
-    prompt(title, text, buttons, {
-      type,
-      cancelable: isCancelable,
-      // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
-      keyboardType,
-    });
+    await TrueSheet.present('PromptModal');
   });
 };
+
+export default prompt;

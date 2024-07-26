@@ -85,7 +85,7 @@ const EncryptStorage = () => {
 
   const handleDecryptStorage = async () => {
     dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'decrypt' });
-    const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).catch(() => {
+    const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).finally(() => {
       dispatch({ type: ActionType.SetLoading, payload: false });
       dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
     });

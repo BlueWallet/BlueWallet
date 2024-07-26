@@ -10,6 +10,7 @@ import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { StorageProvider } from './components/Context/StorageProvider';
+import PromptModal from './components/PromptModal';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -24,6 +25,8 @@ const App = () => {
             </SettingsProvider>
           </StorageProvider>
         </SafeAreaProvider>
+        <PromptModal />
+
       </NavigationContainer>
     </LargeScreenProvider>
   );
