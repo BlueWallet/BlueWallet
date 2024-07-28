@@ -21,10 +21,10 @@ echo 'export CPPFLAGS="-I/usr/local/opt/node@18/include"' >> ~/.zshrc
 export CPPFLAGS="-I/usr/local/opt/node@18/include"
 echo "Configuration complete."
 
-# Install dependencies using npm
-echo "===== Running npm install ====="
-npm install -y | tee npm-install-log.txt
-echo "npm install complete. Full log output in npm-install-log.txt"
+# Install dependencies using yarn
+echo "===== Running yarn install ====="
+yarn install | tee yarn-install-log.txt
+echo "yarn install complete. Full log output in yarn-install-log.txt"
 
 echo "===== Running pod install ====="
 cd ios
