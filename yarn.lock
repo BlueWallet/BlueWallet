@@ -2402,7 +2402,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ngraveio/bc-ur@npm:1.1.12, @ngraveio/bc-ur@npm:^1.1.5":
+"@ngraveio/bc-ur@npm:1.1.13":
+  version: 1.1.13
+  resolution: "@ngraveio/bc-ur@npm:1.1.13"
+  dependencies:
+    "@keystonehq/alias-sampling": ^0.1.1
+    assert: ^2.0.0
+    bignumber.js: ^9.0.1
+    cbor-sync: ^1.0.4
+    crc: ^3.8.0
+    jsbi: ^3.1.5
+    sha.js: ^2.4.11
+  checksum: 3f8e565c6a6dd7af7489a884f7d4d85d274ce7ce41f9fdb7e362b8a75ccbb2c934b369fd4ea58b2214d6039462ee0e933de61f372c04c551a47a75e1cad14cfd
+  languageName: node
+  linkType: hard
+
+"@ngraveio/bc-ur@npm:^1.1.5":
   version: 1.1.12
   resolution: "@ngraveio/bc-ur@npm:1.1.12"
   dependencies:
@@ -4480,7 +4495,7 @@ __metadata:
     "@jest/reporters": ^27.5.1
     "@keystonehq/bc-ur-registry": 0.6.4
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726"
-    "@ngraveio/bc-ur": 1.1.12
+    "@ngraveio/bc-ur": 1.1.13
     "@noble/secp256k1": 1.6.3
     "@react-native-async-storage/async-storage": 1.24.0
     "@react-native-clipboard/clipboard": 1.14.1
