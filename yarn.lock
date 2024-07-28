@@ -2392,13 +2392,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lodev09/react-native-true-sheet@npm:0.12.4":
+"@lodev09/react-native-true-sheet@github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726":
   version: 0.12.4
-  resolution: "@lodev09/react-native-true-sheet@npm:0.12.4"
+  resolution: "@lodev09/react-native-true-sheet@https://github.com/BlueWallet/react-native-true-sheet.git#commit=730a84b0261ef2dd2e7e9adadba7f260c7f76726"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 729dc1eae7ac72a1012e6e6adc25c138b3c923fe7dcf357784263d9a84c868d134d495b99058d87f2fb4bb0606371366d6235005cf566187961936b3fa7326c6
+  checksum: 5b2b1aee1d623be6ec7cd1fb10a056e23b2b867f08b04acd2cde97dc41d18690cf08603bfbe12c3ef3a79bda40d908cd0e209a4c5d2e8281fcee47100ecd43bf
   languageName: node
   linkType: hard
 
@@ -4479,7 +4479,7 @@ __metadata:
     "@bugsnag/source-maps": 2.3.3
     "@jest/reporters": ^27.5.1
     "@keystonehq/bc-ur-registry": 0.6.4
-    "@lodev09/react-native-true-sheet": 0.12.4
+    "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726"
     "@ngraveio/bc-ur": 1.1.12
     "@noble/secp256k1": 1.6.3
     "@react-native-async-storage/async-storage": 1.24.0

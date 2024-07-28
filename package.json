@@ -43,8 +43,7 @@
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": ">=16",
-    "npm": ">=6.9.0"
+    "node": ">=20"
   },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean; yarn install; yarn start --reset-cache",
@@ -107,7 +106,7 @@
     "@bugsnag/react-native": "7.25.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.6.4",
-    "@lodev09/react-native-true-sheet": "0.12.4",
+    "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726",
     "@ngraveio/bc-ur": "1.1.12",
     "@noble/secp256k1": "1.6.3",
     "@react-native-async-storage/async-storage": "1.24.0",
