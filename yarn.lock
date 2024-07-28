@@ -4595,7 +4595,6 @@ __metadata:
     react-test-renderer: 18.2.0
     readable-stream: 3.6.2
     realm: 12.12.1
-    rn-ldk: "github:BlueWallet/rn-ldk#v0.8.4"
     rn-nodeify: 10.3.0
     scryptsy: 2.1.0
     silent-payments: "github:BlueWallet/SilentPayments#7ac4d17b85dc875a3ebb072883dd1d92ac286d98"
@@ -12550,16 +12549,6 @@ __metadata:
     hash-base: ^3.0.0
     inherits: ^2.0.1
   checksum: 006accc40578ee2beae382757c4ce2908a826b27e2b079efdcd2959ee544ddf210b7b5d7d5e80467807604244e7388427330f5c6d4cd61e6edaddc5773ccc393
-  languageName: node
-  linkType: hard
-
-"rn-ldk@github:BlueWallet/rn-ldk#v0.8.4":
-  version: 0.8.4
-  resolution: "rn-ldk@https://github.com/BlueWallet/rn-ldk.git#commit=ab0ce31e4ec8c208fe16954ecbcaba5df60f56c6"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: 661e15355e96835e86f785cbe8bd3aeeefe7902def29ddf04d06b24de0fc3b198285b09201a3557febfb84cbf4d4805421c145d6c769f781135c93441eb7ff0b
   languageName: node
   linkType: hard
 
