@@ -199,7 +199,7 @@
     "silent-payments": "github:BlueWallet/SilentPayments#7ac4d17b85dc875a3ebb072883dd1d92ac286d98",
     "slip39": "github:BlueWallet/slip39-js#d316ee6a929ab645fe5462ef1c91720eb66889c8",
     "stream-browserify": "3.0.0",
-    "url": "0.11.3",
+    "url": "0.11.4",
     "wif": "2.0.6"
   },
   "react-native": {
