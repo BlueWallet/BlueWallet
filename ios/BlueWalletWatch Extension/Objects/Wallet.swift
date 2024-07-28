@@ -8,11 +8,10 @@
 
 import Foundation
 
-enum InterfaceMode {
-  case Address, QRCode
-}
+class Wallet: NSObject, NSSecureCoding {
+  
+  static var supportsSecureCoding: Bool = true
 
-class Wallet: NSObject, NSCoding {
   static let identifier: String = "Wallet"
 
   var identifier: Int?
@@ -24,8 +23,9 @@ class Wallet: NSObject, NSCoding {
   let transactions: [Transaction]
   let xpub: String?
   let hideBalance: Bool
+  let paymentCode: String?
   
-  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], identifier: Int, xpub: String?, hideBalance: Bool = false) {
+  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction], identifier: Int, xpub: String?, hideBalance: Bool = false, paymentCode: String?) {
     self.label = label
     self.balance = balance
     self.type = type
@@ -35,6 +35,7 @@ class Wallet: NSObject, NSCoding {
     self.identifier = identifier
     self.xpub = xpub
     self.hideBalance = hideBalance
+    self.paymentCode = paymentCode
   }
   
   func encode(with aCoder: NSCoder) {
@@ -47,6 +48,7 @@ class Wallet: NSObject, NSCoding {
     aCoder.encode(identifier, forKey: "identifier")
     aCoder.encode(xpub, forKey: "xpub")
     aCoder.encode(hideBalance, forKey: "hideBalance")
+    aCoder.encode(paymentCode, forKey: "paymentCode")
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -58,6 +60,7 @@ class Wallet: NSObject, NSCoding {
     transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
     xpub = aDecoder.decodeObject(forKey: "xpub") as? String
     hideBalance = aDecoder.decodeObject(forKey: "hideBalance") as? Bool ?? false
+    paymentCode = aDecoder.decodeObject(forKey: "paymentCode") as? String
   }
 
 }

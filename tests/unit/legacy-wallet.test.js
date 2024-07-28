@@ -1,9 +1,7 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { LegacyWallet } from '../../class';
-import { ECPairFactory } from 'ecpair';
-import ecc from '../../blue_modules/noble_ecc';
-const ECPair = ECPairFactory(ecc);
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
 
 describe('Legacy wallet', () => {
   it('can validate addresses', () => {
@@ -145,17 +143,12 @@ describe('Legacy wallet', () => {
     assert.strictEqual(l.getSecret(), 'KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH');
   });
 
-  it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
+  it('throws an error if not 32 bytes provided', async () => {
     const l = new LegacyWallet();
-    const values = [...Array(16)].map(() => 1);
-    await l.generateFromEntropy(Buffer.from(values));
-    assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
-    assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
-    const keyPair = ECPair.fromWIF(l.getSecret());
-    assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
-    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
-    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
-    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('ffffffff'), false);
+    const values = [...Array(31)].map(() => 1);
+    await assert.rejects(async () => await l.generateFromEntropy(Buffer.from(values)), {
+      message: 'Entropy should be 32 bytes',
+    });
   });
 
   it('can sign and verify messages', async () => {

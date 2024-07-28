@@ -1,15 +1,13 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View, StyleSheet, I18nManager } from 'react-native';
-import { Icon } from 'react-native-elements';
-
+import React, { Component } from 'react';
+import { I18nManager, Keyboard, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Icon } from '@rneui/themed';
 import { BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
-import { navigationStyleTx } from '../../components/navigationStyle';
-import loc from '../../loc';
 import Azteco from '../../class/azteco';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 const styles = StyleSheet.create({
   loading: {
@@ -52,7 +50,7 @@ const styles = StyleSheet.create({
 });
 
 export default class AztecoRedeem extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   state = { isLoading: true };
 
   constructor(props, context) {
@@ -184,5 +182,3 @@ AztecoRedeem.propTypes = {
     }),
   }),
 };
-
-AztecoRedeem.navigationOptions = navigationStyleTx({}, opts => ({ ...opts, title: loc.azteco.title, statusBarStyle: 'auto' }));

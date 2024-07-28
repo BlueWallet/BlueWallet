@@ -111,13 +111,13 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   @IBAction func receiveMenuItemTapped() {
     guard let wallet = wallet else { return }
-    presentController(withName: ReceiveInterfaceController.identifier, context: (wallet, "receive"))
+    presentController(withName: ReceivePageInterfaceController.identifier, context: (wallet, ReceiveMethod.Onchain))
   }
   
   @IBAction func createInvoiceTapped() {
     if WatchDataSource.shared.companionWalletsInitialized {
       guard let wallet = wallet else { return }
-      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, "createInvoice"))
+      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, ReceiveMethod.CreateInvoice))
     } else {
       WKInterfaceDevice.current().play(.failure)
       presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
@@ -128,7 +128,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
     guard let wallet = wallet else { return nil }
-    return (wallet.identifier, "receive")
+    return (wallet.identifier, ReceiveMethod.Onchain)
   }
   
 }

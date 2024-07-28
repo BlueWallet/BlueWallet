@@ -1,21 +1,20 @@
-import React, { useState, useCallback, useContext, useRef, useEffect } from 'react';
-import { InteractionManager, ScrollView, ActivityIndicator, View, StyleSheet, AppState } from 'react-native';
-import { useNavigation, useFocusEffect, useRoute } from '@react-navigation/native';
-
-import { BlueSpacing20, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import Biometric from '../../class/biometrics';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import HandoffComponent from '../../components/handoff';
-import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 const WalletExport = () => {
-  const { wallets, saveToDisk } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk } = useStorage();
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
@@ -56,13 +55,6 @@ const WalletExport = () => {
       enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-          if (isBiometricsEnabled) {
-            if (!(await Biometric.unlockWithBiometrics())) {
-              return goBack();
-            }
-          }
           if (!wallet.getUserHasSavedExport()) {
             wallet.setUserHasSavedExport(true);
             saveToDisk();
@@ -75,7 +67,7 @@ const WalletExport = () => {
         disableBlur();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [goBack, saveToDisk, wallet]),
+    }, [wallet]),
   );
 
   if (isLoading || !wallet)
@@ -117,18 +109,14 @@ const WalletExport = () => {
             )}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
-              <BlueCopyTextToClipboard text={wallet.getSecret()} />
+              <CopyTextToClipboard text={wallet.getSecret()} />
             ) : (
               <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
                 {wallet.getSecret()}
               </BlueText>
             )}
             {wallet.type === WatchOnlyWallet.type && (
-              <HandoffComponent
-                title={loc.wallets.xpub_title}
-                type={HandoffComponent.activityTypes.Xpub}
-                userInfo={{ xpub: wallet.getSecret() }}
-              />
+              <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: wallet.getSecret() }} />
             )}
           </React.Fragment>
         ))}
@@ -162,14 +150,5 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
 });
-
-WalletExport.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-    statusBarStyle: 'light',
-  },
-  opts => ({ ...opts, title: loc.wallets.export_title }),
-);
 
 export default WalletExport;

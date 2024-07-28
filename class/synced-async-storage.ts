@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const SHA256 = require('crypto-js/sha256');
-const ENCHEX = require('crypto-js/enc-hex');
-const ENCUTF8 = require('crypto-js/enc-utf8');
-const AES = require('crypto-js/aes');
+import AES from 'crypto-js/aes';
+import ENCHEX from 'crypto-js/enc-hex';
+import ENCUTF8 from 'crypto-js/enc-utf8';
+import SHA256 from 'crypto-js/sha256';
 
 export default class SyncedAsyncStorage {
   defaultBaseUrl = 'https://bytes-store.herokuapp.com';

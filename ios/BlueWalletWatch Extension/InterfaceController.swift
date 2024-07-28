@@ -15,9 +15,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   
   override func awake(withContext context: Any?) {
-    super.awake(withContext: context)
     setupSession()
-    processContextData(context)
   }
   
   override func willActivate() {
@@ -63,6 +61,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
     WatchDataSource.shared.processData(data: applicationContext)
   }
+  
+  
 
   func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
     WatchDataSource.shared.processData(data: userInfo)
@@ -70,16 +70,12 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     if activationState == .activated {
-      WatchDataSource.shared.processWalletsData(walletsInfo: WCSession.default.applicationContext)
+      WatchDataSource.shared.loadKeychainData()
     }
   }
   
   func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
     WatchDataSource.shared.processData(data: message)
-  }
-  
-  override func didDeactivate() {
-    WCSession.default.activate()
   }
   
 }

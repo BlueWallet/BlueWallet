@@ -1,9 +1,10 @@
 import assert from 'assert';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
+
+import { Header } from '../../components/Header';
+import SelfTest from '../../screen/settings/SelfTest';
 import Settings from '../../screen/settings/Settings';
-import Selftest from '../../screen/selftest';
-import { BlueHeaderDefaultSub } from '../../BlueComponents';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -11,8 +12,8 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
-it('BlueHeaderDefaultSub works', () => {
-  const rendered = TestRenderer.create(<BlueHeaderDefaultSub />).toJSON();
+it('Header works', () => {
+  const rendered = TestRenderer.create(<Header />).toJSON();
   expect(rendered).toBeTruthy();
 });
 
@@ -22,8 +23,8 @@ it.skip('Settings work', () => {
   expect(rendered).toBeTruthy();
 });
 
-it('Selftest work', () => {
-  const component = TestRenderer.create(<Selftest />);
+it('SelfTest work', () => {
+  const component = TestRenderer.create(<SelfTest />);
   const root = component.root;
   const rendered = component.toJSON();
   expect(rendered).toBeTruthy();

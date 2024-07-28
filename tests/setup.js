@@ -59,6 +59,7 @@ jest.mock('react-native-device-info', () => {
     getDeviceType: jest.fn().mockReturnValue(false),
     hasGmsSync: jest.fn().mockReturnValue(true),
     hasHmsSync: jest.fn().mockReturnValue(false),
+    isTablet: jest.fn().mockReturnValue(false),
   };
 });
 
@@ -76,6 +77,8 @@ jest.mock('react-native-default-preference', () => {
     set: jest.fn(),
   };
 });
+
+jest.mock('@lodev09/react-native-true-sheet');
 
 jest.mock('react-native-fs', () => {
   return {
@@ -181,12 +184,6 @@ jest.mock('../blue_modules/analytics', () => {
 jest.mock('react-native-share', () => {
   return {
     open: jest.fn(),
-  };
-});
-
-jest.mock('../blue_modules/WidgetCommunication', () => {
-  return {
-    reloadAllTimelines: jest.fn(),
   };
 });
 

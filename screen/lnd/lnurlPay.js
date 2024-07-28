@@ -1,24 +1,23 @@
-import React, { useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
 import { I18nManager, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
-
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import AmountInput from '../../components/AmountInput';
-import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import loc, { formatBalanceWithoutSuffix, formatBalance } from '../../loc';
-import Biometric from '../../class/biometrics';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
+import { Icon } from '@rneui/themed';
 import { btcToSatoshi, fiatToBTC, satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-const prompt = require('../../helpers/prompt');
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import Lnurl from '../../class/lnurl';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import prompt from '../../helpers/prompt';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 /**
  * if user has default currency - fiat, attempting to pay will trigger conversion from entered in input field fiat value
@@ -28,7 +27,8 @@ const prompt = require('../../helpers/prompt');
 const _cacheFiatToSat = {};
 
 const LnurlPay = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID, lnurl } = useRoute().params;
   /** @type {LightningCustodianWallet} */
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -37,7 +37,7 @@ const LnurlPay = () => {
   const [_LN, setLN] = useState();
   const [payButtonDisabled, setPayButtonDisabled] = useState(true);
   const [payload, setPayload] = useState();
-  const { setParams, pop, navigate } = useNavigation();
+  const { setParams, pop, navigate } = useExtendedNavigation();
   const [amount, setAmount] = useState();
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
@@ -107,9 +107,9 @@ const LnurlPay = () => {
     /** @type {Lnurl} */
     const LN = _LN;
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         return;
       }
     }
@@ -291,10 +291,4 @@ const styles = StyleSheet.create({
     textAlignVertical: 'bottom',
     marginTop: 2,
   },
-});
-
-LnurlPay.navigationOptions = navigationStyle({
-  title: '',
-  closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

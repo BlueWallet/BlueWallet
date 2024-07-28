@@ -1,23 +1,24 @@
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import LocalQRCode from '@remobile/react-native-qrcode-local-image';
+import * as bitcoin from 'bitcoinjs-lib';
+import createHash from 'create-hash';
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, Platform, StyleSheet, TextInput, Alert } from 'react-native';
+import { Alert, Image, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { CameraScreen } from 'react-native-camera-kit';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { decodeUR, extractSingleWorkload, BlueURDecoder } from '../../blue_modules/ur';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
-import loc from '../../loc';
-import { BlueLoading, BlueText, BlueSpacing40 } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
-import { openPrivacyDesktopSettings } from '../../class/camera';
-import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
 
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-const createHash = require('create-hash');
-const fs = require('../../blue_modules/fs');
-const Base43 = require('../../blue_modules/base43');
-const bitcoin = require('bitcoinjs-lib');
+import Base43 from '../../blue_modules/base43';
+import * as fs from '../../blue_modules/fs';
+import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
+import { BlueLoading, BlueSpacing40, BlueText } from '../../BlueComponents';
+import { openPrivacyDesktopSettings } from '../../class/camera';
+import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
+import loc from '../../loc';
+
 let decoder = false;
 
 const styles = StyleSheet.create({
@@ -126,9 +127,13 @@ const ScanQRCode = () => {
         const data = decoder.toString();
         decoder = false; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
         }
-        onBarScanned({ data });
+        onBarScanned && onBarScanned({ data });
       } else {
         setUrTotal(100);
         setUrHave(Math.floor(decoder.estimatedPercentComplete() * 100));
@@ -175,9 +180,13 @@ const ScanQRCode = () => {
           data = Buffer.from(payload, 'hex').toString();
         }
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
         }
-        onBarScanned({ data });
+        onBarScanned && onBarScanned({ data });
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
       }
@@ -236,11 +245,15 @@ const ScanQRCode = () => {
     try {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
-
+      const data = Buffer.from(hex, 'hex').toString('base64');
       if (launchedBy) {
-        navigation.navigate({ name: launchedBy, params: {}, merge: true });
+        let merge = true;
+        if (typeof onBarScanned !== 'function') {
+          merge = false;
+        }
+        navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
       }
-      onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+      onBarScanned && onBarScanned({ data });
       return;
     } catch (_) {}
 
@@ -248,9 +261,13 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate({ name: launchedBy, params: {}, merge: true });
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: ret.data }, merge });
         }
-        onBarScanned(ret.data);
+        onBarScanned && onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }
@@ -303,7 +320,11 @@ const ScanQRCode = () => {
 
   const dismiss = () => {
     if (launchedBy) {
-      navigation.navigate({ name: launchedBy, params: {}, merge: true });
+      let merge = true;
+      if (typeof onBarScanned !== 'function') {
+        merge = false;
+      }
+      navigation.navigate({ name: launchedBy, params: {}, merge });
     } else {
       navigation.goBack();
     }
@@ -402,16 +423,3 @@ const ScanQRCode = () => {
 };
 
 export default ScanQRCode;
-ScanQRCode.initialParams = {
-  isLoading: false,
-  cameraStatusGranted: undefined,
-  backdoorPressed: undefined,
-  launchedBy: undefined,
-  urTotal: undefined,
-  urHave: undefined,
-  backdoorText: '',
-  onDismiss: undefined,
-  showFileImportButton: true,
-  backdoorVisible: false,
-  animatedQRCodeData: {},
-};

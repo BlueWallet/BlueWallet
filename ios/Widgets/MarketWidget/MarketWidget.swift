@@ -34,8 +34,8 @@ struct MarketWidgetProvider: TimelineProvider {
         let timeline = Timeline(entries: entries, policy: .atEnd)
         completion(timeline)
       } else {
-          let userPreferredCurrency = WidgetAPI.getUserPreferredCurrency()
-          WidgetAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
+          let userPreferredCurrency = Currency.getUserPreferredCurrency()
+          MarketAPI.fetchMarketData(currency: userPreferredCurrency) { (result, error) in
               let entry: MarketWidgetEntry
 
               if let result = result {

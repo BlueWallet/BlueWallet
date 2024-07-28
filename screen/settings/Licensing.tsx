@@ -1,8 +1,7 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueCard, BlueText, BlueSpacing20 } from '../../BlueComponents';
-import loc from '../../loc';
+
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 
 const Licensing = () => {
   return (
@@ -35,12 +34,5 @@ const Licensing = () => {
     </ScrollView>
   );
 };
-
-Licensing.navigationOptions = navigationStyle({}, options => {
-  return {
-    ...options,
-    headerTitle: loc.settings.license,
-  };
-});
 
 export default Licensing;

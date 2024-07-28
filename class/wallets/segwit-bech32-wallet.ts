@@ -1,16 +1,21 @@
 import * as bitcoin from 'bitcoinjs-lib';
+import { CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { LegacyWallet } from './legacy-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
-import { CoinSelectTarget } from 'coinselect';
 
 const ECPair = ECPairFactory(ecc);
 
 export class SegwitBech32Wallet extends LegacyWallet {
-  static type = 'segwitBech32';
-  static typeReadable = 'P2 WPKH';
-  static segwitType = 'p2wpkh';
+  static readonly type = 'segwitBech32';
+  static readonly typeReadable = 'P2 WPKH';
+  // @ts-ignore: override
+  public readonly type = SegwitBech32Wallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = SegwitBech32Wallet.typeReadable;
+  public readonly segwitType = 'p2wpkh';
 
   getAddress(): string | false {
     if (this._address) return this._address;
@@ -80,7 +85,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
     for (const u of utxos) {
       u.script = { length: 27 };
     }
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;

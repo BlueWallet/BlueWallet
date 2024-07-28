@@ -3,7 +3,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
 
     working_directory: ~/repo
 
@@ -11,22 +11,22 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || yarn
 
       - save_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: npm run tslint && npm run lint
+          command: yarn tslint && yarn lint
 
   unit:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
 
     working_directory: ~/repo
 
@@ -34,23 +34,26 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || yarn
 
       - save_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: npm run unit
+          command: yarn unit
 
 
   integration:
     docker:
-      - image: cimg/node:16.20.2
+      - image: cimg/node:20.16.0
+
+    environment:
+      RETRY: "1"
 
     working_directory: ~/repo
 
@@ -60,18 +63,18 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
 
-      - run: test -d node_modules || npm i
+      - run: test -d node_modules || yarn
 
       - save_cache:
-          key: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: npm run jest || npm run jest || npm run jest
+          command: yarn jest || yarn jest || yarn jest || yarn jest
 
 # Orchestrate our job run sequence
 workflows:

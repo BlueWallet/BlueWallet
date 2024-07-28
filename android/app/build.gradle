@@ -79,9 +79,20 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "6.6.0"
+        versionName "6.6.9"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
+        }
     }
 
     buildTypes {
@@ -93,11 +104,21 @@ android {
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
         }
     }
+
 }
+
+task copyFiatUnits(type: Copy) {
+    from '../../models/fiatUnits.json'
+    into 'src/main/assets'
+}
+
+preBuild.dependsOn(copyFiatUnits)
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation 'androidx.core:core-ktx'
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -107,7 +128,9 @@ dependencies {
     androidTestImplementation('com.wix:detox:+')
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
+apply plugin: 'org.jetbrains.kotlin.android'; applyNativeModulesAppBuildGradle(project)

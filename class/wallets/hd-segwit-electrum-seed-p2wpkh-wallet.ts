@@ -2,6 +2,7 @@ import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import * as mn from 'electrum-mnemonic';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 
@@ -20,9 +21,13 @@ type SeedOpts = {
  * @see https://electrum.readthedocs.io/en/latest/seedphrase.html
  */
 export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
-  static type = 'HDSegwitElectrumSeedP2WPKHWallet';
-  static typeReadable = 'HD Electrum (BIP32 P2WPKH)';
-  static derivationPath = "m/0'";
+  static readonly type = 'HDSegwitElectrumSeedP2WPKHWallet';
+  static readonly typeReadable = 'HD Electrum (BIP32 P2WPKH)';
+  // @ts-ignore: override
+  public readonly type = HDSegwitElectrumSeedP2WPKHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDSegwitElectrumSeedP2WPKHWallet.typeReadable;
+  static readonly derivationPath = "m/0'";
 
   validateMnemonic() {
     return mn.validateMnemonic(this.secret, PREFIX);

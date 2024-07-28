@@ -4,6 +4,8 @@
     "cancel": "Abbrechen",
     "continue": "Fortsetzen",
     "clipboard": "Zwischenablage",
+    "discard_changes": "Änderungen verwerfen?",
+    "discard_changes_explain": "Die ungespeicherten Änderungen verwerfen und den Bildschrim verlassen?",
     "enter_password": "Passwort eingeben",
     "never": "nie",
     "of": "{number} von {total}",
@@ -23,7 +25,8 @@
     "pick_image": "Bild aus Bibliothek wählen",
     "pick_file": "Datei auswählen",
     "enter_amount": "Betrag eingeben",
-    "qr_custom_input_button": "10x antippen für individuelle Eingabe"
+    "qr_custom_input_button": "10x antippen für individuelle Eingabe",
+    "unlock": "Entsperren"
   },
   "alert": {
     "default": "Warnung"
@@ -40,7 +43,8 @@
   "entropy": {
     "save": "Speichern",
     "title": "Entropie",
-    "undo": "Zurück"
+    "undo": "Zurück",
+    "amountOfEntropy": "{bits} von {limit} Bits"
   },
   "errors": {
     "broadcast": "Übertragung fehlgeschlagen",
@@ -61,6 +65,7 @@
     "node_alias": "Knoten-Alias",
     "expiresIn": "Läuft in {time} Minuten ab",
     "payButton": "Zahlen",
+    "payment": "Zahlung",
     "placeholder": "Rechnung oder Adresse",
     "open_channel": "Kanal öffnen",
     "funding_amount_placeholder": "Finanzierungsbetrag, z.B. 0.001",
@@ -121,7 +126,9 @@
     "maxSats": "Der größtmögliche Betrag ist {max} sats",
     "maxSatsFull": "Der größtmögliche Betrag ist {max} sats oder {currency}",
     "minSats": "Der kleinstmögliche Betrag ist {min} sats",
-    "minSatsFull": "Der kleinstmögliche Betrag ist {min} sats oder {currency}"
+    "minSatsFull": "Der kleinstmögliche Betrag ist {min} sats oder {currency}",
+    "qrcode_for_the_address": "QR-Code für die Adresse",
+    "bip47_explanation": "Zahlungscodes sind eine universelle Adresse. Sie vermeiden die Offenlegung der Wallet-Adressen, werden aber nicht durch alle Dienste unterstützt."
   },
   "send": {
     "provided_address_is_invoice": "Diese Adresse ist für eine Lightning-Rechnung. Um diese Rechnung zu zahlen ist ein Lightning Wallet zu verwenden.",
@@ -143,6 +150,7 @@
     "create_to": "An",
     "create_tx_size": "Transaktionsgröße",
     "create_verify": "Verifiziere auf coinb.in",
+    "details_insert_contact": "Kontakt einfügen",
     "details_add_rec_add": "Empfänger hinzufügen",
     "details_add_rec_rem": "Empfänger entfernen",
     "details_address": "Adresse",
@@ -162,6 +170,7 @@
     "details_next": "Weiter",
     "details_no_signed_tx": "Die ausgewählte Datei enthält keine importierbare signierte Transaktion.",
     "details_note_placeholder": "Eigene Bezeichnung",
+    "counterparty_label_placeholder": "Kontaktnamen bearbeiten",
     "details_scan": "Scannen",
     "details_scan_hint": "Zum Importieren / Scannen zweimal tippen",
     "details_total_exceeds_balance": "Der zu sendende Betrag ist größer als der verfügbare Betrag.",
@@ -206,6 +215,10 @@
     "reset_amount_confirm": "Möchten Du den Betrag zurücksetzen?",
     "success_done": "Fertig",
     "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",
+    "file_saved_at_path": "Die Datei ({fileName}) wurde im Download-Ordner gespeichert.",
+    "cant_send_to_silentpayment_adress": "Diese Wallet kann nicht an Stille Zahlung Adressen senden",
+    "cant_send_to_bip47": "Dieses Wallet kann nicht an BIP47 Zahlungscodes senden",
+    "cant_find_bip47_notification": "Diesen Zahlungscode zuerst zu den Kontakten hinzufügen ",
     "problem_with_psbt": "PSBT-Problem"
   },
   "settings": {
@@ -227,9 +240,10 @@
     "about_sm_twitter": "Folgt uns auf Twitter",
     "advanced_options": "Erweiterte Optionen",
     "biometrics": "Biometrie",
+    "biometrics_no_longer_available": "Die Geräteeinstellungen stimmen nicht mehr mit den App Sicherheitseinstellungen überein. Um die Änderungen zu übernehmen, die Biometrie oder den Passcode einrichten, dann die App neu starten.",
     "biom_10times": "Sie haben 10 Mal versucht, Ihr Passwort einzugeben. Möchten Sie Ihren Speicher zurücksetzen? Dadurch werden alle Wallets entfernt und Ihr Speicher entschlüsselt.",
     "biom_conf_identity": "Bitte deine Identität bestätigen.",
-    "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren, diesen in den Geräteeinstellungen zuerst konfigurieren.",
+    "biom_no_passcode": "Um fortzufahren müssen auf dem Gerät entweder ein Sicherheitscode oder biometrische Daten aktiviert sein. Dies lässt sich in der App \"Einstellungen\" vornehmen.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",
     "currency": "Währung",
     "currency_source": "Die Preisangaben stammen von",
@@ -269,7 +283,9 @@
     "encrypt_title": "Sicherheit",
     "encrypt_tstorage": "Speicher",
     "encrypt_use": "Benutze {type}",
+    "encrypted_feature_disabled": "Diese Funktion kann bei verschlüsseltem Speicher nicht genutzt werden.",
     "encrypt_use_expl": "{type} wird zur Transaktionsdurchführung, zum Entsperren, dem Export oder der Löschung einer Wallet benötigt. {type} ersetzt nicht die Passworteingabe bei verschlüsseltem Speicher.",
+    "biometrics_fail": "Wenn {type} nicht aktiviert ist oder entsperrt werden kann, alternativ Ihren Gerätepasscode verwenden.",
     "general": "Allgemein",
     "general_adv_mode": "Erweiterter Modus",
     "general_adv_mode_e": "Erlaubt, wenn aktiviert, verschiedene Wallet-Typen anzulegen, dabei eine benutzerdefinierte Entropie zu verwenden und die LNDHub-Instanz der Lightning Wallet frei zu definieren.",
@@ -280,6 +296,7 @@
     "language": "Sprache",
     "last_updated": "Zuletzt aktualisiert",
     "language_isRTL": "BlueWallet zur Aktivierung der Änderung der Schriftrichtung neu starten.",
+    "license": "Lizenz",
     "lightning_error_lndhub_uri": "Keine gültige LndHub URI",
     "lightning_saved": "Deine Änderungen wurden gespeichert.",
     "lightning_settings": "Lightning-Einstellungen",
@@ -332,7 +349,6 @@
     "cpfp_title": "TRX-Gebühr erhöhen (CPFP)",
     "details_balance_hide": "Guthaben verbergen",
     "details_balance_show": "Guthaben zeigen",
-    "details_block": "Blockhöhe",
     "details_copy": "Kopieren",
     "details_copy_amount": "Betrag kopieren",
     "details_copy_block_explorer_link": "Block-Explorer Link kopieren",
@@ -343,7 +359,7 @@
     "details_outputs": "Ausgänge",
     "date": "Datum",
     "details_received": "Empfangen",
-    "transaction_note_saved": "Transaktionsbezeichnung erfolgreich gespeichert.",
+    "transaction_saved": "Gespeichert",
     "details_show_in_block_explorer": "Im Block-Explorer zeigen",
     "details_title": "Transaktion",
     "details_to": "Ausgang",
@@ -357,6 +373,7 @@
     "eta_1d": "In ca. 1 Tag verbucht.",
     "view_wallet": "{walletLabel} anzeigen",
     "list_title": "Transaktionen",
+    "transaction": "Transaktion",
     "open_url_error": "Der Standardbrowser kann die URL nicht öffnen. Bitte diesen ggf. ändern, um es erneut zu versuchen.",
     "rbf_explain": "BlueWallet ersetzt die aktuelle Transaktion zur schnelleren Überweisung durch eine Transaktion mit höherer Gebühr. Dieses Verfahren wird 'RBF - Replace By Fee' genannt.",
     "rbf_title": "TRX-Gebühr erhöhen (RBF)",
@@ -364,12 +381,16 @@
     "status_cancel": "Transaktion abbrechen",
     "transactions_count": "Anzahl Transaktionen",
     "txid": "Transaktions-ID",
+    "from": "Von: {counterparty}",
+    "to": "Zu: {counterparty}",
     "updating": "Aktualisiere...."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Einfache und leistungsstarke Bitcoin Wallet",
     "add_create": "Erstellen",
+    "add_entropy": "Entropie",
+    "add_entropy_bytes": "{bytes} Bytes Entropie",
     "add_entropy_generated": "{gen} Bytes an generierter Entropie ",
     "add_entropy_provide": "Entropie selbst erzeugen",
     "add_entropy_remain": "{gen} Bytes an generierter Entropie. Die restlichen {rem} Bytes werden vom Zufallsgenerator des Systems ergänzt.",
@@ -383,7 +404,10 @@
     "add_title": "Wallet hinzufügen",
     "add_wallet_name": "Wallet Name",
     "add_wallet_type": "Typ",
-    "balance": "Saldo",
+    "add_wallet_seed_length": "Seedlänge",
+    "add_wallet_seed_length_message": "Länge der Seed-Phrase für diese Wallet wählen.",
+    "add_wallet_seed_length_12": "12 Wörter",
+    "add_wallet_seed_length_24": "24 Wörter",
     "clipboard_bitcoin": "Willst Du die Bitcoin Adresse in der Zwischenablage für eine Transaktion verwenden?",
     "clipboard_lightning": "Willst Du die Lightning Rechnung in der Zwischenablage für eine Transaktion verwenden?",
     "details_address": "Adresse",
@@ -395,7 +419,7 @@
     "details_delete": "Löschen",
     "details_delete_wallet": "Wallet löschen",
     "details_derivation_path": "Ableitungspfad",
-    "details_display": "In Wallet-Liste anzeigen",
+    "details_display": "Auf der Startseite anzeigen",
     "details_export_backup": "Exportieren / Backup",
     "details_export_history": "Verlauf als CSV exportieren",
     "details_master_fingerprint": "Fingerabdruckkennung",
@@ -405,6 +429,7 @@
     "details_show_xpub": "Wallet xPub zeigen",
     "details_show_addresses": "Adressen anzeigen",
     "details_title": "Wallet",
+    "wallets": "Wallets",
     "details_type": "Typ",
     "details_use_with_hardware_wallet": "Hardware Wallet nutzen",
     "details_wallet_updated": "Wallet aktualisiert",
@@ -442,9 +467,9 @@
     "list_empty_txs2": "Beginne mit deinem Wallet.",
     "list_empty_txs2_lightning": "\nDrücke zum Starten «Beträge verwalten», um das Wallet aufzuladen.",
     "list_latest_transaction": "Letzte Transaktion",
-    "list_ln_browser": "LApp Browser",
     "list_long_choose": "Foto auswählen",
     "list_long_clipboard": "Aus der Zwischenablage kopieren",
+    "import_file": "Datei importieren",
     "list_long_scan": "QR Code scannen",
     "list_title": "Wallets",
     "list_tryagain": "Nochmal versuchen",
@@ -460,7 +485,8 @@
     "warning_do_not_disclose": "Warnung! Nicht veröffentlichen",
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
     "identity_pubkey": "Pubkey-Identität",
-    "xpub_title": "Wallet xPub"
+    "xpub_title": "Wallet xPub",
+    "search_wallets": "Wallets suchen"
   },
   "multisig": {
     "multisig_vault": "Tresor",
@@ -475,6 +501,8 @@
     "header": "Senden",
     "share": "Teilen",
     "view": "Anzeigen",
+    "shared_key_detected": "Geteilte Mitsignierer",
+    "shared_key_detected_question": "Ein Mitsignierer wurde mit Ihnen geteilt. Diesen jetzt importierten?",
     "manage_keys": "Schlüssel verwalten",
     "how_many_signatures_can_bluewallet_make": "Anzahl Signaturen durch BlueWallet",
     "signatures_required_to_spend": "Benötigte Signaturen {number}",
@@ -509,6 +537,7 @@
     "i_have_mnemonics": "Seed des Schlüssels importieren",
     "type_your_mnemonics": "Seed zum Import deines Tresorschlüssels eingeben",
     "this_is_cosigners_xpub": "Dies ist der xPub für Mitsigierer zum Import in ein anderes Wallet. Er kann sicher mit anderen geteilt werden.",
+    "this_is_cosigners_xpub_airdrop": "Zur AirDrop-Freigabe müssen alle Empfänger auf dem Koordinierungsbildschirm sein.",
     "wallet_key_created": "Dein Tresorschlüssel wurde erstellt. Nimm dir Zeit ein sicheres Backup des mnemonischen Seeds herzustellen. ",
     "are_you_sure_seed_will_be_lost": "Bist du sicher? Dein mnemonischer Seed ist ohne Backup verloren!",
     "forget_this_seed": "Seed vergessen und xPub verwenden.",
@@ -541,6 +570,12 @@
     "no_wallet_owns_address": "Keines der verfügbaren Wallet besitzt die eingegebene Adresse.",
     "view_qrcode": "QR-Code anzeigen"
   },
+  "autofill_word": {
+    "title": "Das letzte mnemonische Wort generieren",
+    "enter": "Die unvollendete mnemonische Phrase eingeben",
+    "generate_word": "Erzeuge das letzte Word",
+    "error": "Die Eingabe ist keine unvollendete 11- oder 23 Wort Phrase. Bitte erneut versuchen."
+  },
   "cc": {
     "change": "Ändern",
     "coins_selected": "Anz. gewählte Münzen ({number})",
@@ -561,6 +596,8 @@
     "sats": "sats"
   },
   "addresses": {
+    "copy_private_key": "Privaten Schlüssel kopieren",
+    "sensitive_private_key": "Warnung: Private Schlüssel sind gefahrvoll. Weiterfahren?",
     "sign_title": "Meldung signieren/verifizieren",
     "sign_help": "Auf einer Bitcoin-Adresse basierende, kryptografische Signatur erstellen oder verifizieren.",
     "sign_sign": "Signieren",
@@ -593,10 +630,23 @@
     "authenticate": "Authentifizieren"
   },
   "bip47": {
-    "payment_code": "Bezahlcode",
-    "payment_codes_list": "Bezahlcodeliste",
-    "who_can_pay_me": "Wer kann mich bezahlen:",
+    "payment_code": "Zahlungscode",
+    "contacts": "Kontakte",
     "purpose": "Wiederverwendbarer und teilbarer Code (BIP47)",
-    "not_found": "Bezahlcode nicht gefunden"
+    "pay_this_contact": "An diesen Kontakt zahlen",
+    "rename_contact": "Kontakt umbenennen",
+    "copy_payment_code": "Zahlungscode kopieren",
+    "hide_contact": "Kontakt ausblenden",
+    "rename": "Umbenennen",
+    "provide_name": "Neuer Kontaktnahme eingeben",
+    "add_contact": "Kontakt hinzufügen",
+    "provide_payment_code": "Zahlungscode eingeben",
+    "invalid_pc": "Ungültiger Zahlungscode",
+    "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
+    "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
+    "onchain_tx_needed": "On-Chain Transaktion benötigt.",
+    "notif_tx_sent": "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx": "Benachrichtigungstransaktion",
+    "not_found": "Zahlungscode nicht gefunden"
   }
 }

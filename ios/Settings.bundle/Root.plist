@@ -12,15 +12,31 @@
 			<key>FooterText</key>
 			<string>Provide this Unique ID when reporting an issue</string>
 			<key>Title</key>
-			<string></string>
+			<string>Report Issue</string>
 		</dict>
 		<dict>
 			<key>Type</key>
 			<string>PSTextFieldSpecifier</string>
 			<key>Title</key>
 			<string>Unique ID</string>
-			<key>Key</key>
+            <key>Key</key>
 			<string>deviceUIDCopy</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Cache</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Clear Cache on Next Launch</string>
+			<key>Key</key>
+			<string>clearFilesOnLaunch</string>
+			<key>DefaultValue</key>
+			<false/>
 		</dict>
 	</array>
 </dict>

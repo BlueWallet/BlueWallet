@@ -1,6 +1,5 @@
 import assert from 'assert';
-import { getAddress, sortByAddressIndex, totalBalance, filterByAddressType } from '../../screen/wallets/addresses';
-import { TABS } from '../../components/addresses/AddressTypeTabs';
+import { TABS, filterByAddressType, getAddress, sortByAddressIndex, totalBalance } from '../../screen/wallets/WalletAddresses';
 
 jest.mock('../../blue_modules/currency', () => {
   return {
@@ -15,11 +14,11 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
 });
 
 const mockAddressesList = [
-  { index: 2, isInternal: false, key: 'third_external_address' },
-  { index: 0, isInternal: true, key: 'first_internal_address' },
-  { index: 1, isInternal: false, key: 'second_external_address' },
-  { index: 1, isInternal: true, key: 'second_internal_address' },
-  { index: 0, isInternal: false, key: 'first_external_address' },
+  { index: 2, isInternal: false, key: 'third_external_address', address: '', balance: 0, transactions: 0 },
+  { index: 0, isInternal: true, key: 'first_internal_address', address: '', balance: 0, transactions: 0 },
+  { index: 1, isInternal: false, key: 'second_external_address', address: '', balance: 0, transactions: 0 },
+  { index: 1, isInternal: true, key: 'second_internal_address', address: '', balance: 0, transactions: 0 },
+  { index: 0, isInternal: false, key: 'first_external_address', address: '', balance: 0, transactions: 0 },
 ];
 
 describe('Addresses', () => {
@@ -41,7 +40,7 @@ describe('Addresses', () => {
   });
 
   it('Filter by type', () => {
-    let currentTab = TABS.EXTERNAL;
+    let currentTab: (typeof TABS)[keyof typeof TABS] = TABS.EXTERNAL;
 
     const externalAddresses = mockAddressesList.filter(address => filterByAddressType(TABS.INTERNAL, address.isInternal, currentTab));
 

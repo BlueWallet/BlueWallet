@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="19162" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="32700.99.1234" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="19044"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="22609"/>
     </dependencies>
     <scenes>
         <!--BlueWallet-->
@@ -226,6 +225,13 @@
                 </controller>
             </objects>
             <point key="canvasLocation" x="715" y="66"/>
+        </scene>
+        <!--Receive Page Interface Controller-->
+        <scene sceneID="6fh-b2-HCf">
+            <objects>
+                <controller id="v6m-dc-zp4" customClass="ReceivePageInterfaceController" customModule="BlueWalletWatch_Extension"/>
+            </objects>
+            <point key="canvasLocation" x="954" y="64"/>
         </scene>
         <!--SpecifyInterfaceController-->
         <scene sceneID="erR-Ld-VGW">

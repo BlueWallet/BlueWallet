@@ -68,7 +68,6 @@
   },
   "receive": {
     "details_setAmount": "گرؽتن وا مقدار",
-    "details_share": "یک رسونی",
     "header": "گرتن"
   },
   "send": {
@@ -149,13 +148,13 @@
   },
   "wallets": {
     "add_bitcoin": "بیت کوین",
+    "add_entropy": "آنتروپی",
     "details_address": "آدرس",
     "details_advanced": "پؽش رته"
   },
   "multisig": {
     "confirm": "تایید",
     "header": "کلٛ کردن",
-    "share": "یک رسونی",
     "co_sign_transaction": "امزا کردن تراکونش",
     "of": "د",
     "ms_help_title5": "هالت پؽش رته"

@@ -1,17 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import bip21, { TOptions } from 'bip21';
 import * as bitcoin from 'bitcoinjs-lib';
 import URL from 'url';
 
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { Chain } from '../models/bitcoinUnits';
-import { LightningCustodianWallet, WatchOnlyWallet } from './';
+import { WatchOnlyWallet } from './';
 import Azteco from './azteco';
 import Lnurl from './lnurl';
 import type { TWallet } from './wallets/types';
-
-const BlueApp = require('../BlueApp');
-const AppStorage = BlueApp.AppStorage;
 
 type TCompletionHandlerParams = [string, object];
 type TContext = {
@@ -183,7 +179,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (Lnurl.isLightningAddress(event.url)) {
-      // this might be not just an email but a lightning addres
+      // this might be not just an email but a lightning address
       // @see https://lightningaddress.com
       completionHandler([
         'ScanLndInvoiceRoot',
@@ -218,64 +214,6 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
-            case 'openlappbrowser': {
-              console.log('opening LAPP', urlObject.query.url);
-              // searching for LN wallet:
-              let haveLnWallet = false;
-              for (const w of context.wallets) {
-                if (w.type === LightningCustodianWallet.type) {
-                  haveLnWallet = true;
-                }
-              }
-
-              if (!haveLnWallet) {
-                // need to create one
-                const w = new LightningCustodianWallet();
-                w.setLabel(w.typeReadable);
-
-                try {
-                  const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-                  if (lndhub) {
-                    w.setBaseURI(lndhub);
-                    w.init();
-                  }
-                  await w.createAccount();
-                  await w.authorize();
-                } catch (Err) {
-                  // giving up, not doing anything
-                  return;
-                }
-                context.addWallet(w);
-                context.saveToDisk();
-              }
-
-              // now, opening lapp browser and navigating it to URL.
-              // looking for a LN wallet:
-              let lnWallet;
-              for (const w of context.wallets) {
-                if (w.type === LightningCustodianWallet.type) {
-                  lnWallet = w;
-                  break;
-                }
-              }
-
-              if (!lnWallet) {
-                // something went wrong
-                return;
-              }
-
-              completionHandler([
-                'LappBrowserRoot',
-                {
-                  screen: 'LappBrowser',
-                  params: {
-                    walletID: lnWallet.getID(),
-                    url: urlObject.query.url,
-                  },
-                },
-              ]);
-              break;
-            }
             case 'setelectrumserver':
               completionHandler([
                 'ElectrumSettings',

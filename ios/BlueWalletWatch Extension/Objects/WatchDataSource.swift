@@ -9,6 +9,7 @@
 
 import Foundation
 import WatchConnectivity
+import KeychainSwift
 
 class WatchDataSource: NSObject {
   struct NotificationName {
@@ -27,8 +28,12 @@ class WatchDataSource: NSObject {
   
   override init() {
     super.init()
-    if let existingData = keychain.getData(Wallet.identifier), let walletData = ((try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet]) as [Wallet]??) {
-      guard let walletData = walletData, walletData != self.wallets  else { return }
+    loadKeychainData()
+  }
+  
+  func loadKeychainData() {
+    if let existingData = keychain.getData(Wallet.identifier), let walletData = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: Wallet.self, from: existingData) {
+      guard walletData != self.wallets  else { return }
       wallets = walletData
       WatchDataSource.postDataUpdatedNotification()
     }
@@ -38,7 +43,7 @@ class WatchDataSource: NSObject {
     if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
       for (index, entry) in walletsToProcess.enumerated() {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]]  else {
+        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]], let paymentCode = entry["paymentCode"] as? String  else {
           continue
         }
         
@@ -51,7 +56,7 @@ class WatchDataSource: NSObject {
         let receiveAddress = entry["receiveAddress"] as? String ?? ""
         let xpub = entry["xpub"] as? String ?? ""
         let hideBalance = entry["hideBalance"] as? Bool ?? false
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance)
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance, paymentCode: paymentCode)
         wallets.append(wallet)
       }
       

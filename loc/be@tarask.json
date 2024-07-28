@@ -4,6 +4,7 @@
     "cancel": "Адмяніць",
     "continue": "Працягнуць",
     "clipboard": "Буфер абмену",
+    "discard_changes": "Адмяніць зьмены?",
     "enter_password": "Увесьці пароль",
     "never": "Ніколі",
     "of": "{number} ад {total}",
@@ -59,6 +60,7 @@
     "save": "Захаваць"
   },
   "wallets": {
+    "add_entropy": "Энтрапія",
     "details_save": "Захаваць"
   }
 }

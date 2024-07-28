@@ -1,5 +1,6 @@
+import assert from 'assert';
+
 import Lnurl from '../../class/lnurl';
-const assert = require('assert');
 
 describe('LNURL', function () {
   it('can findlnurl', () => {

@@ -1,9 +1,13 @@
-import React from 'react';
-import { Image, Keyboard, Text, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import loc from '../loc';
+import React, { useCallback, useMemo } from 'react';
+import { Image, Keyboard, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+
 import { scanQrHelper } from '../helpers/scan-qr';
+import loc from '../loc';
 import { useTheme } from './themes';
-import { useNavigation } from '@react-navigation/native';
+import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
+import Clipboard from '@react-native-clipboard/clipboard';
+import presentAlert from './Alert';
+import ToolTipMenu from './TooltipMenu';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -46,7 +50,6 @@ const AddressInput = ({
   keyboardType = 'default',
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const { navigate } = useNavigation();
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -65,6 +68,64 @@ const AddressInput = ({
     onBlur();
     Keyboard.dismiss();
   };
+
+  const toolTipOnPress = useCallback(async () => {
+    await scanButtonTapped();
+    Keyboard.dismiss();
+    if (launchedBy) scanQrHelper(launchedBy).then(value => onBarScanned({ data: value }));
+  }, [launchedBy, onBarScanned, scanButtonTapped]);
+
+  const onMenuItemPressed = useCallback(
+    (action: string) => {
+      if (onBarScanned === undefined) throw new Error('onBarScanned is required');
+      switch (action) {
+        case actionKeys.ScanQR:
+          scanButtonTapped();
+          if (launchedBy) {
+            scanQrHelper(launchedBy)
+              .then(value => onBarScanned({ data: value }))
+              .catch(error => {
+                presentAlert({ message: error.message });
+              });
+          }
+
+          break;
+        case actionKeys.CopyFromClipboard:
+          Clipboard.getString()
+            .then(onChangeText)
+            .catch(error => {
+              presentAlert({ message: error.message });
+            });
+          break;
+        case actionKeys.ChoosePhoto:
+          showImagePickerAndReadImage()
+            .then(value => {
+              if (value) {
+                onChangeText(value);
+              }
+            })
+            .catch(error => {
+              presentAlert({ message: error.message });
+            });
+          break;
+        case actionKeys.ImportFile:
+          showFilePickerAndReadFile()
+            .then(value => {
+              if (value.data) {
+                onChangeText(value.data);
+              }
+            })
+            .catch(error => {
+              presentAlert({ message: error.message });
+            });
+          break;
+      }
+      Keyboard.dismiss();
+    },
+    [launchedBy, onBarScanned, onChangeText, scanButtonTapped],
+  );
+
+  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
 
   return (
     <View style={[styles.root, stylesHook.root]}>
@@ -85,17 +146,14 @@ const AddressInput = ({
         keyboardType={keyboardType}
       />
       {editable ? (
-        <TouchableOpacity
+        <ToolTipMenu
+          actions={actions}
+          isButton
+          onPressMenuItem={onMenuItemPressed}
           testID="BlueAddressInputScanQrButton"
           disabled={isLoading}
-          onPress={async () => {
-            await scanButtonTapped();
-            Keyboard.dismiss();
-            // @ts-ignore: Fix later
-            scanQrHelper(navigate, launchedBy).then(onBarScanned);
-          }}
-          accessibilityRole="button"
-          style={[styles.scan, stylesHook.scan]}
+          onPress={toolTipOnPress}
+          buttonStyle={buttonStyle}
           accessibilityLabel={loc.send.details_scan}
           accessibilityHint={loc.send.details_scan_hint}
         >
@@ -103,7 +161,7 @@ const AddressInput = ({
           <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
             {loc.send.details_scan}
           </Text>
-        </TouchableOpacity>
+        </ToolTipMenu>
       ) : null}
     </View>
   );
@@ -141,5 +199,50 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 });
+
+const actionKeys = {
+  ScanQR: 'scan_qr',
+  CopyFromClipboard: 'copy_from_clipboard',
+  ChoosePhoto: 'choose_photo',
+  ImportFile: 'import_file',
+};
+
+const actionIcons = {
+  ScanQR: {
+    iconValue: Platform.OS === 'ios' ? 'qrcode' : 'ic_menu_camera',
+  },
+  ImportFile: {
+    iconValue: 'doc',
+  },
+  ChoosePhoto: {
+    iconValue: Platform.OS === 'ios' ? 'photo' : 'ic_menu_gallery',
+  },
+  Clipboard: {
+    iconValue: Platform.OS === 'ios' ? 'doc' : 'ic_menu_file',
+  },
+};
+
+const actions = [
+  {
+    id: actionKeys.ScanQR,
+    text: loc.wallets.list_long_scan,
+    icon: actionIcons.ScanQR,
+  },
+  {
+    id: actionKeys.CopyFromClipboard,
+    text: loc.wallets.list_long_clipboard,
+    icon: actionIcons.Clipboard,
+  },
+  {
+    id: actionKeys.ChoosePhoto,
+    text: loc.wallets.list_long_choose,
+    icon: actionIcons.ChoosePhoto,
+  },
+  {
+    id: actionKeys.ImportFile,
+    text: loc.wallets.import_file,
+    icon: actionIcons.ImportFile,
+  },
+];
 
 export default AddressInput;

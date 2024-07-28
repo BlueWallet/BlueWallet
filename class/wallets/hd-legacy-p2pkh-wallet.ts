@@ -1,10 +1,12 @@
 import BIP32Factory, { BIP32Interface } from 'bip32';
 import { Psbt } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput } from 'coinselect';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
+
 const bip32 = BIP32Factory(ecc);
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
  * HD Wallet (BIP39).
@@ -12,9 +14,13 @@ const BlueElectrum = require('../../blue_modules/BlueElectrum');
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
 export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
-  static type = 'HDlegacyP2PKH';
-  static typeReadable = 'HD Legacy (BIP44 P2PKH)';
-  static derivationPath = "m/44'/0'/0'";
+  static readonly type = 'HDlegacyP2PKH';
+  static readonly typeReadable = 'HD Legacy (BIP44 P2PKH)';
+  // @ts-ignore: override
+  public readonly type = HDLegacyP2PKHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDLegacyP2PKHWallet.typeReadable;
+  static readonly derivationPath = "m/44'/0'/0'";
 
   allowSend() {
     return true;
@@ -66,7 +72,6 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     // now we need to fetch txhash for each input as required by PSBT
     const txhexes = await BlueElectrum.multiGetTransactionByTxid(
       this.getUtxo().map(x => x.txid),
-      50,
       false,
     );
 
@@ -103,5 +108,9 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     });
 
     return psbt;
+  }
+
+  allowSilentPaymentSend(): boolean {
+    return true;
   }
 }

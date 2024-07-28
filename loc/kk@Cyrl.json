@@ -35,8 +35,7 @@
     "passwords_do_not_match": "Құпия сөздер сәйкес келмейді. Қайталап көріңіз."
   },
   "receive": {
-    "details_create": "Жасау",
-    "details_share": "Бөлісу"
+    "details_create": "Жасау"
   },
   "send": {
     "broadcastError": "Қате",
@@ -83,7 +82,6 @@
   "multisig": {
     "confirm": "Растау",
     "header": "Жіберу",
-    "share": "Бөлісу",
     "create": "Жасау"
   },
   "addresses": {
@@ -92,7 +90,6 @@
   },
   "bip47": {
     "payment_code": "Төлем коды",
-    "payment_codes_list": "Төлем код тізбесі",
     "not_found": "Төлем коды табылмады"
   }
 }

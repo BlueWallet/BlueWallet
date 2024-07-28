@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 import { CoinSelectReturnInput } from 'coinselect';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 
@@ -14,10 +15,14 @@ const bip32 = BIP32Factory(ecc);
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
 export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
-  static type = 'HDsegwitP2SH';
-  static typeReadable = 'HD SegWit (BIP49 P2SH)';
-  static segwitType = 'p2sh(p2wpkh)';
-  static derivationPath = "m/49'/0'/0'";
+  static readonly type = 'HDsegwitP2SH';
+  static readonly typeReadable = 'HD SegWit (BIP49 P2SH)';
+  // @ts-ignore: override
+  public readonly type = HDSegwitP2SHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDSegwitP2SHWallet.typeReadable;
+  public readonly segwitType = 'p2sh(p2wpkh)';
+  static readonly derivationPath = "m/49'/0'/0'";
 
   allowSend() {
     return true;
@@ -110,6 +115,10 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   }
 
   isSegwit() {
+    return true;
+  }
+
+  allowSilentPaymentSend(): boolean {
     return true;
   }
 }

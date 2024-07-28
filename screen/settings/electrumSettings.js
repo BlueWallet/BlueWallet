@@ -1,46 +1,43 @@
-import React, { Component } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
   Alert,
-  View,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Text,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Switch,
   Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import loc from '../../loc';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import navigationStyle from '../../components/navigationStyle';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import {
   BlueButtonLink,
   BlueCard,
+  BlueDismissKeyboardInputAccessory,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueLoading,
   BlueSpacing20,
   BlueText,
-  BlueDoneAndDismissKeyboardInputAccessory,
-  BlueDismissKeyboardInputAccessory,
 } from '../../BlueComponents';
-import { BlueCurrentTheme } from '../../components/themes';
-import WidgetCommunication from '../../blue_modules/WidgetCommunication';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import { BlueCurrentTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 export default class ElectrumSettings extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   constructor(props) {
     super(props);
     const server = props?.route?.params?.server;
@@ -171,7 +168,6 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_HOST);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_SSL_PORT);
             await DefaultPreference.clear(BlueElectrum.ELECTRUM_TCP_PORT);
-            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -200,7 +196,6 @@ export default class ElectrumSettings extends Component {
             await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, host);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, port);
             await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, sslPort);
-            WidgetCommunication.reloadAllTimelines();
           } catch (e) {
             // Must be running on Android
             console.log(e);
@@ -210,7 +205,7 @@ export default class ElectrumSettings extends Component {
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: error });
+        presentAlert({ message: error, type: AlertType.Toast });
       }
       this.setState({ isLoading: false });
     });
@@ -227,17 +222,9 @@ export default class ElectrumSettings extends Component {
     });
   };
 
-  importScan = () => {
-    requestCameraAuthorization().then(() =>
-      this.props.navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: this.props.route.name,
-          onBarScanned: this.onBarScanned,
-          showFileImportButton: true,
-        },
-      }),
-    );
+  importScan = async () => {
+    const scanned = await scanQrHelper('ElectrumSettings', true);
+    this.onBarScanned(scanned);
   };
 
   useSSLPortToggled = value => {
@@ -452,8 +439,6 @@ ElectrumSettings.propTypes = {
     }),
   }),
 };
-
-ElectrumSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.electrum_settings_server }));
 
 const styles = StyleSheet.create({
   status: {

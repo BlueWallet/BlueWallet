@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Keyboard,
@@ -10,22 +11,20 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
 import Share from 'react-native-share';
-import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import loc from '../../loc';
-import { useTheme } from '../../components/themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
+import { BlueDoneAndDismissKeyboardInputAccessory, BlueFormLabel, BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const SignVerify = () => {
   const { colors } = useTheme();
-  const { wallets, sleep } = useContext(BlueStorageContext);
+  const { wallets, sleep } = useStorage();
   const { params } = useRoute();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [address, setAddress] = useState(params.address ?? '');
@@ -39,11 +38,15 @@ const SignVerify = () => {
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
   useEffect(() => {
-    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsKeyboardVisible(true));
-    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsKeyboardVisible(false));
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>
+      setIsKeyboardVisible(true),
+    );
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () =>
+      setIsKeyboardVisible(false),
+    );
     return () => {
-      Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
-      Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide');
+      showSubscription.remove();
+      hideSubscription.remove();
     };
   }, []);
 
@@ -174,7 +177,7 @@ const SignVerify = () => {
             onFocus={() => handleFocus(true)}
             onBlur={() => handleFocus(false)}
           />
-          <BlueSpacing10 />
+          <BlueSpacing40 />
 
           {isShareVisible && !isKeyboardVisible && (
             <>
@@ -231,11 +234,6 @@ const SignVerify = () => {
     </SafeArea>
   );
 };
-
-SignVerify.navigationOptions = navigationStyle({ closeButton: true, headerBackVisible: false, statusBarStyle: 'light' }, opts => ({
-  ...opts,
-  title: loc.addresses.sign_title,
-}));
 
 export default SignVerify;
 

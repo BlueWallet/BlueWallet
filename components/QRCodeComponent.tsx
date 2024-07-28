@@ -1,11 +1,14 @@
-import React, { useRef } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import ToolTipMenu from './TooltipMenu';
-import Share from 'react-native-share';
-import loc from '../loc';
 import Clipboard from '@react-native-clipboard/clipboard';
+import React, { useCallback, useRef } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import Share from 'react-native-share';
+
+import loc from '../loc';
+import { ActionIcons } from '../typings/ActionIcons';
 import { useTheme } from './themes';
+import ToolTipMenu from './TooltipMenu';
+import { Action } from './types';
 
 interface QRCodeComponentProps {
   value: string;
@@ -17,42 +20,37 @@ interface QRCodeComponentProps {
   onError?: () => void;
 }
 
-interface ActionIcons {
-  iconType: 'SYSTEM';
-  iconValue: string;
-}
+const actionIcons: { [key: string]: ActionIcons } = {
+  Share: {
+    iconValue: 'square.and.arrow.up',
+  },
+  Copy: {
+    iconValue: 'doc.on.doc',
+  },
+};
 
-interface ActionType {
-  Share: 'share';
-  Copy: 'copy';
-}
-
-interface Action {
-  id: string;
-  text: string;
-  icon: ActionIcons;
-}
-
-const actionKeys: ActionType = {
+const actionKeys = {
   Share: 'share',
   Copy: 'copy',
 };
 
-interface ActionIcons {
-  iconType: 'SYSTEM';
-  iconValue: string;
-}
-
-const actionIcons: { [key: string]: ActionIcons } = {
-  Share: {
-    iconType: 'SYSTEM',
-    iconValue: 'square.and.arrow.up',
-  },
-  Copy: {
-    iconType: 'SYSTEM',
-    iconValue: 'doc.on.doc',
-  },
-};
+const menuActions: Action[] =
+  Platform.OS === 'ios' || Platform.OS === 'macos'
+    ? [
+        {
+          id: actionKeys.Copy,
+          text: loc.transactions.details_copy,
+          icon: actionIcons.Copy,
+        },
+        { id: actionKeys.Share, text: loc.receive.details_share, icon: actionIcons.Share },
+      ]
+    : [
+        {
+          id: actionKeys.Copy,
+          text: loc.transactions.details_copy,
+          icon: actionIcons.Copy,
+        },
+      ];
 
 const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   value = '',
@@ -76,30 +74,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     });
   };
 
-  const onPressMenuItem = (id: string) => {
+  const onPressMenuItem = useCallback((id: string) => {
     if (id === actionKeys.Share) {
       handleShareQRCode();
     } else if (id === actionKeys.Copy) {
       qrCode.current.toDataURL(Clipboard.setImage);
     }
-  };
-
-  const menuActions = (): Action[] => {
-    const actions: Action[] = [];
-    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-      actions.push({
-        id: actionKeys.Copy,
-        text: loc.transactions.details_copy,
-        icon: actionIcons.Copy,
-      });
-    }
-    actions.push({
-      id: actionKeys.Share,
-      text: loc.receive.details_share,
-      icon: actionIcons.Share,
-    });
-    return actions;
-  };
+  }, []);
 
   const renderQRCode = (
     <QRCode
@@ -117,9 +98,14 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   );
 
   return (
-    <View style={styles.qrCodeContainer} testID="BitcoinAddressQRCodeContainer">
+    <View
+      style={styles.qrCodeContainer}
+      testID="BitcoinAddressQRCodeContainer"
+      accessibilityRole="image"
+      accessibilityLabel={loc.receive.qrcode_for_the_address}
+    >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions()} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
           {renderQRCode}
         </ToolTipMenu>
       ) : (

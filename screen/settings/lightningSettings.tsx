@@ -1,20 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, TextInput, Linking, StyleSheet, Alert, I18nManager, ScrollView } from 'react-native';
-import { Button as ButtonRNElements } from 'react-native-elements';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import navigationStyle, { NavigationOptionsGetter } from '../../components/navigationStyle';
-import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import loc from '../../loc';
-import { useTheme } from '../../components/themes';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { Button } from '../../components/Button';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { Alert, I18nManager, Linking, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Button as ButtonRNElements } from '@rneui/themed';
 
-const BlueApp = require('../../BlueApp');
-const AppStorage = BlueApp.AppStorage;
+import { BlueButtonLink, BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { BlueApp } from '../../class';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import presentAlert from '../../components/Alert';
+import { Button } from '../../components/Button';
+import { useTheme } from '../../components/themes';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import loc from '../../loc';
 
 const styles = StyleSheet.create({
   uri: {
@@ -48,13 +46,12 @@ type LightingSettingsRouteProps = RouteProp<
   'params'
 >;
 
-const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter } = () => {
+const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { colors } = useTheme();
   const route = useRoute();
-  const navigation = useNavigation();
   const styleHook = StyleSheet.create({
     uri: {
       borderColor: colors.formBorder,
@@ -64,7 +61,7 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   });
 
   useEffect(() => {
-    AsyncStorage.getItem(AppStorage.LNDHUB)
+    AsyncStorage.getItem(BlueApp.LNDHUB)
       .then(value => setURI(value ?? undefined))
       .then(() => setIsLoading(false))
       .catch(() => setIsLoading(false));
@@ -103,9 +100,9 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
         // validating only if its not empty. empty means use default
       }
       if (URI) {
-        await AsyncStorage.setItem(AppStorage.LNDHUB, URI);
+        await AsyncStorage.setItem(BlueApp.LNDHUB, URI);
       } else {
-        await AsyncStorage.removeItem(AppStorage.LNDHUB);
+        await AsyncStorage.removeItem(BlueApp.LNDHUB);
       }
       presentAlert({ message: loc.settings.lightning_saved });
     } catch (error) {
@@ -116,17 +113,11 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
   }, [URI]);
 
   const importScan = () => {
-    requestCameraAuthorization().then(() =>
-      // @ts-ignore: Address types later
-      navigation.navigate('ScanQRCodeRoot', {
-        screen: 'ScanQRCode',
-        params: {
-          launchedBy: route.name,
-          onBarScanned: setLndhubURI,
-          showFileImportButton: true,
-        },
-      }),
-    );
+    scanQrHelper(route.name).then(data => {
+      if (data) {
+        setLndhubURI(data);
+      }
+    });
   };
 
   return (
@@ -174,7 +165,5 @@ const LightningSettings: React.FC & { navigationOptions: NavigationOptionsGetter
     </ScrollView>
   );
 };
-
-LightningSettings.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.settings.lightning_settings }));
 
 export default LightningSettings;

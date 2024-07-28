@@ -3,6 +3,7 @@
     "bad_password": "Cyfrinair anghywir. Tria eto. ",
     "cancel": "Canslo",
     "continue": "Parhau",
+    "discard_changes": "Gwaredu newidiadau?",
     "enter_password": "Cyfrinair",
     "never": "Byth",
     "of": "{number} o {total}",
@@ -61,7 +62,6 @@
     "details_create": "Creu",
     "details_label": "Disgrifiad",
     "details_setAmount": "Derbyn efo swm",
-    "details_share": "Rhannu",
     "header": "Derbyn"
   },
   "send": {
@@ -148,10 +148,12 @@
     "details_inputs": "Mewnbynau",
     "details_outputs": "Allbynau",
     "details_received": "Derbynwyd",
+    "transaction_saved": "Wedi Safio",
     "details_title": "Trafodyn",
     "details_to": "Allbwn",
     "pending": "Disgwyl",
-    "list_title": "Trafodion"
+    "list_title": "Trafodion",
+    "transaction": "Trafodyn"
   },
   "wallets": {
     "add_bitcoin_explain": "Waled Bitcoin syml a cryf",
@@ -173,6 +175,7 @@
     "details_no_cancel": "Na, canslo",
     "details_save": "Safio",
     "details_show_addresses": "Dangos cyfeiriadau",
+    "wallets": "Waledi",
     "details_type": "Math",
     "details_yes_delete": "Ia, dileu",
     "enter_bip38_password": "Angen cyfrinair i ddad-gryptio",
@@ -189,6 +192,7 @@
     "list_latest_transaction": "Trafodyn Diweddaraf",
     "list_long_choose": "Dewis Llun",
     "list_long_clipboard": "Copio o'r Clipfwrdd",
+    "import_file": "Mewnforio ffeil",
     "list_title": "Waledi",
     "list_tryagain": "Trio eto",
     "select_wallet": "Dewis waled",
@@ -199,7 +203,6 @@
   "multisig": {
     "confirm": "Cadarnhau",
     "header": "Anfon",
-    "share": "Rhannu",
     "view": "Golwg",
     "create": "Creu",
     "co_sign_transaction": "Arwyddo trafodyn",

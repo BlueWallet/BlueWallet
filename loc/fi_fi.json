@@ -4,6 +4,8 @@
     "cancel": "Peruuta",
     "continue": "Jatka",
     "clipboard": "Leikepöytä",
+    "discard_changes": "Hylkää muutokset?",
+    "discard_changes_explain": "Sinulla on tallentamattomia muutoksia. Haluatko varmasti hylätä ne ja poistu näytöltä? ",
     "enter_password": "Anna salasana",
     "never": "ei koskaan",
     "of": "{number} / {total}",
@@ -15,7 +17,16 @@
     "seed": "Siemen",
     "success": "Onnistui",
     "wallet_key": "Lompakkoavain",
-    "invalid_animated_qr_code_fragment": "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen."
+    "invalid_animated_qr_code_fragment": "Virheellinen animoitu QRCode-fragmentti, yritä uudelleen.",
+    "close": "Sulje",
+    "change_input_currency": "Vaihda lähdevaluutta",
+    "refresh": "Päivitä",
+    "more": "Lisää",
+    "pick_image": "Valitse kuva kirjastosta",
+    "pick_file": "Valitse tiedosto",
+    "enter_amount": "Syötä määrä",
+    "qr_custom_input_button": "Napauta 10 kertaa syöttääksesi halutun arvon",
+    "unlock": "Avaa lukitus"
   },
   "alert": {
     "default": "Hälytys"
@@ -53,6 +64,7 @@
     "node_alias": "Solmun lempinimi",
     "expiresIn": "Vanhenee {time} minuutissa",
     "payButton": "Maksa",
+    "payment": "Maksu",
     "placeholder": "Lasku",
     "open_channel": "Avaa kanava",
     "funding_amount_placeholder": "Rahoitettava määrä, esimerkiksi 0.001",
@@ -108,12 +120,13 @@
     "details_create": "Luo",
     "details_label": "Selite",
     "details_setAmount": "Vastaanotettava summa",
-    "details_share": "jaa",
+    "details_share": "Jaa...",
     "header": "Vastaanota",
     "maxSats": "Enimmäismäärä on {max} satsia",
     "maxSatsFull": "Enimmäismäärä on {max} satsia tai {valuutta}",
     "minSats": "Vähimmäismäärä on {min} satsia",
-    "minSatsFull": "Vähimmäismäärä on {min} satsia tai {valuutta}"
+    "minSatsFull": "Vähimmäismäärä on {min} satsia tai {valuutta}",
+    "qrcode_for_the_address": "QR-koodi osoitteelle"
   },
   "send": {
     "provided_address_is_invoice": "Tämä osoite vaikuttaa olevan Salamalasku. Maksun suorittamiseksi, siirry Salamalompakkoosi.",
@@ -154,6 +167,7 @@
     "details_next": "Seuraava",
     "details_no_signed_tx": "Valittu tiedosto ei sisällä tuotavaa siirtotapahtumaa.",
     "details_note_placeholder": "muistiinpano itselle",
+    "counterparty_label_placeholder": "Muokkaa yhteystiedon nimeä",
     "details_scan": "Skannaa",
     "details_scan_hint": "Scannaa tai tuo tupla-napauttamalla",
     "details_total_exceeds_balance": "Lähetettävä summa ylittää katteen",
@@ -198,6 +212,7 @@
     "reset_amount_confirm": "Haluaisitko nollata määrän?",
     "success_done": "Valmis",
     "txSaved": "Siirtotapahtumatiedosto ({filePath}) on tallennettu Lataukset-kansioon.",
+    "file_saved_at_path": "Tiedosto ({fileName}) on tallennettu Lataukset -kansioosi.",
     "problem_with_psbt": "Ongelma PSBT:n kanssa"
   },
   "settings": {
@@ -221,7 +236,6 @@
     "biometrics": "Biometriset tiedot",
     "biom_10times": "Olet yrittänyt antaa salasanasi 10 kertaa. Haluatko nollata tallennustilan? Tämä poistaa kaikki lompakot ja purkaa tallennustilan salauksen.",
     "biom_conf_identity": "Vahvista identiteettisi.",
-    "biom_no_passcode": "Laitteellasi ei ole salasanaa. Jatkaaksesi määritä salasana Asetukset-sovelluksessa.",
     "biom_remove_decrypt": "Kaikki lompakot poistetaan ja tallennustilasi puretaan. Haluatko varmasti jatkaa?",
     "currency": "Valuutta",
     "currency_source": "Hinta saadaan seuraavista lähteistä",
@@ -272,6 +286,7 @@
     "language": "Kieli",
     "last_updated": "Päivitetty viimeksi",
     "language_isRTL": "BlueWallet on käynnistettävä uudelleen, jotta kielisuuntaus tulee voimaan.",
+    "license": "Lisenssi",
     "lightning_error_lndhub_uri": "Virheellinen LNDHub URI",
     "lightning_saved": "Muutoksesi on tallennettu onnistuneesti",
     "lightning_settings": "Salama-asetukset",
@@ -324,7 +339,6 @@
     "cpfp_title": "Nosta siirtomaksua (CPFP)",
     "details_balance_hide": "Piilota Saldo",
     "details_balance_show": "Näytä Saldo",
-    "details_block": "Lohkon järjestysnumero",
     "details_copy": "Kopioi",
     "details_copy_amount": "Kopioi määrä",
     "details_copy_block_explorer_link": "Kopioi linkki lohkoketjuselaimeen",
@@ -335,7 +349,7 @@
     "details_outputs": "Ulostulot",
     "date": "Päivämäärä",
     "details_received": "Vastaanotettu",
-    "transaction_note_saved": "Siirtotapahtumailmoitus on tallennettu.",
+    "transaction_saved": "Tallennettu",
     "details_show_in_block_explorer": "Näytä lohkoketjuselaimessa",
     "details_title": "Siirtotapahtuma",
     "details_to": "Ulostulo",
@@ -349,6 +363,7 @@
     "eta_1d": "Saapuu noin vuorokaudessa",
     "view_wallet": "Näytä {walletLabel}",
     "list_title": "Siirtotapahtumat",
+    "transaction": "Siirtotapahtuma",
     "open_url_error": "Linkkiä ei voi avata oletusselaimella. Vaihda oletusselainta ja yritä uudelleen.",
     "rbf_explain": "Korvaamme tämän siirtotapahtuman korkeamman siirtomaksun sisältävällä siirtotapahtumalla, jotta se louhitaan nopeammin. Tätä kutsutaan nimellä RBF-Replace by Fee.",
     "rbf_title": "Nosta siirtomaksua (RBF)",
@@ -356,12 +371,15 @@
     "status_cancel": "Peruuta Siirtotapahtuma",
     "transactions_count": "Siirtotapahtumien määrä",
     "txid": "Siirtotapahtuman tunnus",
+    "from": "Lähettäjä: {counterparty}",
+    "to": "Vastaanottaja: {counterparty}",
     "updating": "Päivitetään..."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Yksinkertainen ja tehokas Bitcoin-lompakko",
     "add_create": "Luo",
+    "add_entropy": "Entropia",
     "add_entropy_generated": "{gen} tavua luotua entropiaa",
     "add_entropy_provide": "Hanki entropia nopanheiton kautta",
     "add_entropy_remain": "{gen} tavua luotua entropiaa. Jäljellä olevat {rem} tavut saadaan Järjestelmän satunnaislukugeneraattorilta.",
@@ -375,7 +393,6 @@
     "add_title": "lisää lompakko",
     "add_wallet_name": "nimi",
     "add_wallet_type": "tyyppi",
-    "balance": "Saldo",
     "clipboard_bitcoin": "Sinulla on leikepöydällä Bitcoin-osoite. Haluatko käyttää sitä siirtotapahtumaan?",
     "clipboard_lightning": "Leikepöydälläsi on Salamalasku. Haluatko käyttää sitä siirtoon?",
     "details_address": "Osoite",
@@ -387,7 +404,7 @@
     "details_delete": "Poista",
     "details_delete_wallet": "Poista lompakko",
     "details_derivation_path": "johdantopolku",
-    "details_display": "näkyy lompakkojen listassa",
+    "details_display": "Näytä kotinäkymässä",
     "details_export_backup": "Vie / varmuuskopioi",
     "details_export_history": "Vie historia CSV:ksi",
     "details_master_fingerprint": "Pää sormenjälki",
@@ -397,6 +414,7 @@
     "details_show_xpub": "Näytä lompakon XPUB",
     "details_show_addresses": "Näytä osoitteet",
     "details_title": "Lompakko",
+    "wallets": "lompakot",
     "details_type": "Tyyppi",
     "details_use_with_hardware_wallet": "Käytä hardware-lompakon kanssa",
     "details_wallet_updated": "Lompakko päivitetty",
@@ -434,9 +452,9 @@
     "list_empty_txs2": "Aloita lompakostasi. ",
     "list_empty_txs2_lightning": "Aloita lompakon käyttäminen napsauttamalla \"hallinnoi varoja\" ja lisää saldoasi.\n",
     "list_latest_transaction": "Viimeisin Siirtotapahtuma",
-    "list_ln_browser": "LApp-selain",
     "list_long_choose": "Valitse Kuva",
     "list_long_clipboard": "Kopioi Leikepöydältä",
+    "import_file": "Tuo tiedosto",
     "list_long_scan": "Skannaa QR-koodi",
     "list_title": "lompakot",
     "list_tryagain": "Yritä uudelleen",
@@ -452,7 +470,8 @@
     "warning_do_not_disclose": "Varoitus! Älä paljasta",
     "add_ln_wallet_first": "Sinun on ensin lisättävä Salamalompakko.",
     "identity_pubkey": "Tunnus Pubkey",
-    "xpub_title": "lompakon XPUB"
+    "xpub_title": "lompakon XPUB",
+    "search_wallets": "Etsi lompakoista"
   },
   "multisig": {
     "multisig_vault": "Vault",
@@ -465,7 +484,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "Vahvista",
     "header": "Lähetä",
-    "share": "Jaa",
+    "share": "Jaa...",
     "view": "Näytä",
     "manage_keys": "Hallitse Avaimia",
     "how_many_signatures_can_bluewallet_make": "kuinka monta allekirjoitusta BlueWallet voi tehdä",
@@ -533,6 +552,9 @@
     "no_wallet_owns_address": "Mikään käytettävissä olevista lompakoista ei omista annettua osoitetta.",
     "view_qrcode": "Näytä QR-koodi"
   },
+  "autofill_word": {
+    "generate_word": "Muodosta viimeinen sana"
+  },
   "cc": {
     "change": "vaihto",
     "coins_selected": "Kolikot valittu ({number})",
@@ -553,6 +575,7 @@
     "sats": "sattia"
   },
   "addresses": {
+    "copy_private_key": "Kopio yksityinen avain",
     "sign_title": "Allekirjoita/Varmenna viesti",
     "sign_help": "Täällä voit luoda tai varmentaa Bitcoin-osoitteeseen perustuvan kryptografisen allekirjoituksen.",
     "sign_sign": "Allekirjoita",
@@ -586,8 +609,10 @@
   },
   "bip47": {
     "payment_code": "Maksukoodi",
-    "payment_codes_list": "Maksukoodiluettelo",
-    "who_can_pay_me": "Kuka voi maksaa minulle:",
-    "purpose": "Uudelleenkäytettävä ja jaettavissa oleva koodi (BIP47)"
+    "contacts": "Yhteystiedot",
+    "purpose": "Uudelleenkäytettävä ja jaettavissa oleva koodi (BIP47)",
+    "rename_contact": "Nimeä uudelleen yhteystieto",
+    "rename": "Nimeä uudelleen",
+    "add_contact": "Lisää yhteystieto"
   }
 }

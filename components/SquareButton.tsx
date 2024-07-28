@@ -1,11 +1,12 @@
 import React, { forwardRef } from 'react';
-import { TouchableOpacity, View, Text, StyleProp, ViewStyle, StyleSheet } from 'react-native';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+
 import { useTheme } from './themes';
 
 interface SquareButtonProps {
   title: string;
-  onPress: () => void;
-  style: StyleProp<ViewStyle>;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
@@ -19,12 +20,18 @@ export const SquareButton = forwardRef<TouchableOpacity, SquareButtonProps>((pro
     },
   });
 
-  return (
+  const buttonView = (
+    <View style={styles.contentContainer}>
+      <Text style={[styles.text, hookStyles.text]}>{title}</Text>
+    </View>
+  );
+
+  return onPress ? (
     <TouchableOpacity ref={ref} style={style} onPress={onPress} testID={testID} accessibilityRole="button">
-      <View style={styles.contentContainer}>
-        <Text style={[styles.text, hookStyles.text]}>{title}</Text>
-      </View>
+      {buttonView}
     </TouchableOpacity>
+  ) : (
+    <View style={style}>{buttonView}</View>
   );
 });
 

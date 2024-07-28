@@ -1,17 +1,17 @@
-import React, { useState, useRef, forwardRef, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, PixelRatio } from 'react-native';
+import React, { forwardRef, ReactNode, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from './themes';
 
-const BORDER_RADIUS = 30;
-const PADDINGS = 8;
+const BORDER_RADIUS = 8;
+const PADDINGS = 24;
 const ICON_MARGIN = 7;
 
 const cStyles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    height: '6.3%',
+    height: '6.9%',
     minHeight: 44,
   },
   rootAbsolute: {
@@ -23,7 +23,6 @@ const cStyles = StyleSheet.create({
     bottom: -1000,
   },
   rootPost: {
-    borderRadius: BORDER_RADIUS,
     flexDirection: 'row',
     overflow: 'hidden',
   },
@@ -39,12 +38,24 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const layoutCalculated = useRef(false);
   const bottomInsets = { bottom: insets.bottom ? insets.bottom + 10 : 30 };
+  const { height, width } = useWindowDimensions();
+  const slideAnimation = useRef(new Animated.Value(height)).current;
+
+  useEffect(() => {
+    slideAnimation.setValue(height);
+    Animated.spring(slideAnimation, {
+      toValue: 0,
+      useNativeDriver: true,
+      speed: 100,
+      bounciness: 3,
+    }).start();
+  }, [height, slideAnimation]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     if (layoutCalculated.current) return;
-    const maxWidth = Dimensions.get('window').width - BORDER_RADIUS - 20;
-    const { width } = event.nativeEvent.layout;
-    const withPaddings = Math.ceil(width + PADDINGS * 2);
+    const maxWidth = width - BORDER_RADIUS - 140;
+    const layoutWidth = event.nativeEvent.layout.width;
+    const withPaddings = Math.ceil(layoutWidth + PADDINGS * 2);
     const len = React.Children.toArray(props.children).filter(Boolean).length;
     let newW = withPaddings * len > maxWidth ? Math.floor(maxWidth / len) : withPaddings;
     if (len === 1 && newW < 90) newW = 90;
@@ -53,7 +64,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   };
 
   return (
-    <View
+    <Animated.View
       ref={ref}
       onLayout={onLayout}
       style={[
@@ -61,6 +72,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         props.inline ? cStyles.rootInline : cStyles.rootAbsolute,
         bottomInsets,
         newWidth ? cStyles.rootPost : cStyles.rootPre,
+        { transform: [{ translateY: slideAnimation }] },
       ]}
     >
       {newWidth
@@ -70,7 +82,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               if (typeof child === 'string') {
                 return (
                   <View key={index} style={{ width: newWidth }}>
-                    <Text>{child}</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={1}>
+                      {child}
+                    </Text>
                   </View>
                 );
               }
@@ -82,7 +96,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
               });
             })
         : props.children}
-    </View>
+    </Animated.View>
   );
 });
 
@@ -116,6 +130,8 @@ interface FButtonProps {
   first?: boolean;
   last?: boolean;
   disabled?: boolean;
+  onPress: () => void;
+  onLongPress?: () => void;
 }
 
 export const FButton = ({ text, icon, width, first, last, ...props }: FButtonProps) => {
@@ -123,6 +139,7 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
   const bStylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.buttonBackgroundColor,
+      borderRadius: BORDER_RADIUS,
     },
     text: {
       color: colors.buttonAlternativeTextColor,
@@ -130,21 +147,27 @@ export const FButton = ({ text, icon, width, first, last, ...props }: FButtonPro
     textDisabled: {
       color: colors.formBorder,
     },
+    marginRight: {
+      marginRight: 10,
+    },
   });
   const style: Record<string, any> = {};
+  const additionalStyles = !last ? bStylesHook.marginRight : {};
 
   if (width) {
-    const paddingLeft = first ? BORDER_RADIUS / 2 : PADDINGS;
-    const paddingRight = last ? BORDER_RADIUS / 2 : PADDINGS;
-    style.paddingRight = paddingRight;
-    style.paddingLeft = paddingLeft;
-    style.width = width + paddingRight + paddingLeft;
+    style.paddingHorizontal = PADDINGS;
+    style.width = width + PADDINGS * 2;
   }
 
   return (
-    <TouchableOpacity accessibilityLabel={text} accessibilityRole="button" style={[bStyles.root, bStylesHook.root, style]} {...props}>
+    <TouchableOpacity
+      accessibilityLabel={text}
+      accessibilityRole="button"
+      style={[bStyles.root, bStylesHook.root, style, additionalStyles]}
+      {...props}
+    >
       <View style={bStyles.icon}>{icon}</View>
-      <Text numberOfLines={1} style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
+      <Text numberOfLines={1} adjustsFontSizeToFit style={[bStyles.text, props.disabled ? bStylesHook.textDisabled : bStylesHook.text]}>
         {text}
       </Text>
     </TouchableOpacity>

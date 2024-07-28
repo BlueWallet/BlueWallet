@@ -1,22 +1,23 @@
-import React, { useContext, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { ListItem } from 'react-native-elements';
-import PropTypes from 'prop-types';
-import { AddressTypeBadge } from './AddressTypeBadge';
-import loc, { formatBalance } from '../../loc';
-import TooltipMenu from '../TooltipMenu';
+import React, { useMemo } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, View } from 'react-native';
+import { ListItem } from '@rneui/themed';
 import Share from 'react-native-share';
-import { useTheme } from '../themes';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
-import Biometric from '../../class/biometrics';
-import presentAlert from '../Alert';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import confirm from '../../helpers/confirm';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import presentAlert from '../Alert';
 import QRCodeComponent from '../QRCodeComponent';
-const confirm = require('../../helpers/confirm');
+import { useTheme } from '../themes';
+import { Action } from '../types';
+import { AddressTypeBadge } from './AddressTypeBadge';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
+import ToolTipMenu from '../TooltipMenu';
 
 interface AddressItemProps {
   // todo: fix `any` after addresses.js is converted to the church of holy typescript
@@ -26,9 +27,12 @@ interface AddressItemProps {
   allowSignVerifyMessage: boolean;
 }
 
+type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
+
 const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: AddressItemProps) => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { colors } = useTheme();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
 
   const hasTransactions = item.transactions > 0;
 
@@ -51,13 +55,9 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     },
   });
 
-  const { navigate } = useNavigation();
+  const { navigate } = useNavigation<NavigationProps>();
 
-  const menuRef = useRef();
   const navigateToReceive = () => {
-    // @ts-ignore wtf
-    menuRef.current?.dismissMenu();
-    // @ts-ignore wtf
     navigate('ReceiveDetailsRoot', {
       screen: 'ReceiveDetails',
       params: {
@@ -68,9 +68,6 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const navigateToSignVerify = () => {
-    // @ts-ignore wtf
-    menuRef.current?.dismissMenu();
-    // @ts-ignore wtf
     navigate('SignVerifyRoot', {
       screen: 'SignVerify',
       params: {
@@ -79,6 +76,8 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
       },
     });
   };
+
+  const menuActions = useMemo(() => getAvailableActions({ allowSignVerifyMessage }), [allowSignVerifyMessage]);
 
   const balance = formatBalance(item.balance, balanceUnit, true);
 
@@ -91,7 +90,7 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const handleCopyPrivkeyPress = () => {
-    const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+    const wallet = wallets.find(w => w.getID() === walletID);
     if (!wallet) {
       presentAlert({ message: 'Internal error: cant find wallet' });
       return;
@@ -111,16 +110,16 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
   };
 
   const onToolTipPress = async (id: string) => {
-    if (id === AddressItem.actionKeys.CopyToClipboard) {
+    if (id === actionKeys.CopyToClipboard) {
       handleCopyPress();
-    } else if (id === AddressItem.actionKeys.Share) {
+    } else if (id === actionKeys.Share) {
       handleSharePress();
-    } else if (id === AddressItem.actionKeys.SignVerify) {
+    } else if (id === actionKeys.SignVerify) {
       navigateToSignVerify();
-    } else if (id === AddressItem.actionKeys.ExportPrivateKey) {
+    } else if (id === actionKeys.ExportPrivateKey) {
       if (await confirm(loc.addresses.sensitive_private_key)) {
-        if (await Biometric.isBiometricUseCapableAndEnabled()) {
-          if (!(await Biometric.unlockWithBiometrics())) {
+        if (await isBiometricUseCapableAndEnabled()) {
+          if (!(await unlockWithBiometrics())) {
             return;
           }
         }
@@ -130,52 +129,19 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
     }
   };
 
-  const getAvailableActions = () => {
-    const actions = [
-      {
-        id: AddressItem.actionKeys.CopyToClipboard,
-        text: loc.transactions.details_copy,
-        icon: AddressItem.actionIcons.Clipboard,
-      },
-      {
-        id: AddressItem.actionKeys.Share,
-        text: loc.receive.details_share,
-        icon: AddressItem.actionIcons.Share,
-      },
-    ];
-
-    if (allowSignVerifyMessage) {
-      actions.push({
-        id: AddressItem.actionKeys.SignVerify,
-        text: loc.addresses.sign_title,
-        icon: AddressItem.actionIcons.Signature,
-      });
-    }
-
-    if (allowSignVerifyMessage) {
-      actions.push({
-        id: AddressItem.actionKeys.ExportPrivateKey,
-        text: loc.addresses.copy_private_key,
-        icon: AddressItem.actionIcons.ExportPrivateKey,
-      });
-    }
-
-    return actions;
-  };
-
   const renderPreview = () => {
     return <QRCodeComponent value={item.address} isMenuAvailable={false} />;
   };
 
   const render = () => {
     return (
-      <TooltipMenu
+      <ToolTipMenu
         title={item.address}
-        ref={menuRef}
-        actions={getAvailableActions()}
+        actions={menuActions}
         onPressMenuItem={onToolTipPress}
         renderPreview={renderPreview}
         onPress={navigateToReceive}
+        isButton
       >
         <ListItem key={item.key} containerStyle={stylesHook.container}>
           <ListItem.Content style={stylesHook.list}>
@@ -194,35 +160,31 @@ const AddressItem = ({ item, balanceUnit, walletID, allowSignVerifyMessage }: Ad
             </Text>
           </View>
         </ListItem>
-      </TooltipMenu>
+      </ToolTipMenu>
     );
   };
 
   return render();
 };
 
-AddressItem.actionKeys = {
+const actionKeys = {
   Share: 'share',
   CopyToClipboard: 'copyToClipboard',
   SignVerify: 'signVerify',
   ExportPrivateKey: 'exportPrivateKey',
 };
 
-AddressItem.actionIcons = {
+const actionIcons = {
   Signature: {
-    iconType: 'SYSTEM',
     iconValue: 'signature',
   },
   Share: {
-    iconType: 'SYSTEM',
     iconValue: 'square.and.arrow.up',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   ExportPrivateKey: {
-    iconType: 'SYSTEM',
     iconValue: 'key',
   },
 };
@@ -247,15 +209,37 @@ const styles = StyleSheet.create({
   },
 });
 
-AddressItem.propTypes = {
-  item: PropTypes.shape({
-    key: PropTypes.string,
-    index: PropTypes.number,
-    address: PropTypes.string,
-    isInternal: PropTypes.bool,
-    transactions: PropTypes.number,
-    balance: PropTypes.number,
-  }),
-  balanceUnit: PropTypes.string,
+const getAvailableActions = ({ allowSignVerifyMessage }: { allowSignVerifyMessage: boolean }): Action[] | Action[][] => {
+  const actions = [
+    {
+      id: actionKeys.CopyToClipboard,
+      text: loc.transactions.details_copy,
+      icon: actionIcons.Clipboard,
+    },
+    {
+      id: actionKeys.Share,
+      text: loc.receive.details_share,
+      icon: actionIcons.Share,
+    },
+  ];
+
+  if (allowSignVerifyMessage) {
+    actions.push({
+      id: actionKeys.SignVerify,
+      text: loc.addresses.sign_title,
+      icon: actionIcons.Signature,
+    });
+  }
+
+  if (allowSignVerifyMessage) {
+    actions.push({
+      id: actionKeys.ExportPrivateKey,
+      text: loc.addresses.copy_private_key,
+      icon: actionIcons.ExportPrivateKey,
+    });
+  }
+
+  return actions;
 };
+
 export { AddressItem };

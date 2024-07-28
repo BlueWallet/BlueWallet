@@ -1,4 +1,4 @@
-import { helperDeleteWallet, sleep, hashIt, sup, helperImportWallet, yo } from './helperz';
+import { hashIt, helperDeleteWallet, helperImportWallet, sleep, yo } from './helperz';
 
 beforeAll(async () => {
   // reinstalling the app just for any case to clean up app's storage
@@ -26,7 +26,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
       'watchOnly',
       'Imported Watch-only',
-      '0.0001 BTC',
+      '0.0001',
     );
     await sleep(15000);
 
@@ -35,15 +35,18 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
       await element(by.text(`No, and do not ask me again.`)).tap();
+      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
     await expect(element(by.text('bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
+    await element(by.id('CustomAmountDescription')).tapReturnKey();
     await element(by.id('CustomAmountSaveButton')).tap();
-    await sup('1 BTC');
-    await sup('Test');
+    await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('Test');
+    await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
+
     await expect(element(by.id('BitcoinAddressQRCodeContainer'))).toBeVisible();
 
     await expect(element(by.text('bitcoin:bc1qc8wun6lf9vcajpddtgdpd2pdrp0kwp29j6upgv?amount=1&label=Test'))).toBeVisible();

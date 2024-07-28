@@ -1,6 +1,7 @@
 /* global it, describe */
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
+
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 
 describe('AbstractHDElectrumWallet.cosign', () => {
@@ -138,7 +139,7 @@ describe('AbstractHDElectrumWallet.cosign', () => {
         ],
         witnessUtxo: {
           script: p2sh.output,
-          value: input.amount || input.value,
+          value: input.value,
         },
         redeemScript: p2wpkh.output,
       });
@@ -223,10 +224,8 @@ describe('AbstractHDElectrumWallet.cosign', () => {
         height: 707112,
         value: 10000,
         address: 'bc1q79hsqzg9q6d36ftyncwv2drg7pyt66pamghn9n',
-        txId: 'e598c705bef463e2e12d7bebc15e3cf0a34477679c3c21de9693987c6de8f15e',
         vout: 0,
         txid: 'e598c705bef463e2e12d7bebc15e3cf0a34477679c3c21de9693987c6de8f15e',
-        amount: 10000,
         wif: false,
         confirmations: 1,
       },

@@ -1,6 +1,7 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { SegwitP2SHWallet } from '../../class';
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
 
 describe('Segwit P2SH wallet', () => {
   it('can create transaction', async () => {

@@ -1,30 +1,30 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, TouchableOpacity, ScrollView, View, TextInput, Linking, Platform, Text, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { useIsFocused, useRoute } from '@react-navigation/native';
+import * as bitcoin from 'bitcoinjs-lib';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
-import Biometric from '../../class/biometrics';
-
-import { BlueText, BlueCard, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import { DynamicQRCode } from '../../components/DynamicQRCode';
-import presentAlert from '../../components/Alert';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
+import Notifications from '../../blue_modules/notifications';
+import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
+import presentAlert from '../../components/Alert';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
+import { DynamicQRCode } from '../../components/DynamicQRCode';
+import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
-const bitcoin = require('bitcoinjs-lib');
-const fs = require('../../blue_modules/fs');
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useContext(BlueStorageContext);
-  const navigation = useNavigation();
+  const { txMetadata, fetchAndSaveWalletTransactions, isElectrumDisabled } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
+  const navigation = useExtendedNavigation();
   const route = useRoute();
   const { fromWallet, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
   const routeParamsPSBT = useRef(route.params.psbt);
@@ -37,7 +37,7 @@ const PsbtWithHardwareWallet = () => {
   const isFocused = useIsFocused();
 
   const stylesHook = StyleSheet.create({
-    root: {
+    scrollViewContent: {
       backgroundColor: colors.elevated,
     },
     rootPadding: {
@@ -117,10 +117,10 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         setIsLoading(false);
         return;
       }
@@ -185,12 +185,12 @@ const PsbtWithHardwareWallet = () => {
     );
   };
 
-  const exportPSBT = () => {
-    const fileName = `${Date.now()}.psbt`;
+  const saveFileButtonBeforeOnPress = () => {
     dynamicQRCode.current?.stopAutoMove();
-    fs.writeFileAndExport(fileName, typeof psbt === 'string' ? psbt : psbt.toBase64()).finally(() => {
-      dynamicQRCode.current?.startAutoMove();
-    });
+  };
+
+  const saveFileButtonAfterOnPress = () => {
+    dynamicQRCode.current?.startAutoMove();
   };
 
   const openSignedTransaction = async () => {
@@ -226,70 +226,79 @@ const PsbtWithHardwareWallet = () => {
 
   if (txHex) return _renderBroadcastHex();
 
-  return isLoading ? (
-    <View style={[styles.rootPadding, stylesHook.rootPadding]}>
-      <ActivityIndicator />
-    </View>
+  const renderView = isLoading ? (
+    <ActivityIndicator />
   ) : (
-    <SafeArea style={stylesHook.root}>
-      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} testID="PsbtWithHardwareScrollView">
-        <View style={styles.container}>
-          <BlueCard>
-            <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
-            <BlueSpacing20 />
-            <Text testID="PSBTHex" style={styles.hidden}>
-              {psbt.toHex()}
-            </Text>
-            <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
-            <BlueSpacing20 />
-            <SecondButton
-              testID="PsbtTxScanButton"
-              icon={{
-                name: 'qrcode',
-                type: 'font-awesome',
-                color: colors.buttonTextColor,
-              }}
-              onPress={openScanner}
-              ref={openScannerButton}
-              title={loc.send.psbt_tx_scan}
-            />
-            <BlueSpacing20 />
-            <SecondButton
-              icon={{
-                name: 'login',
-                type: 'entypo',
-                color: colors.buttonTextColor,
-              }}
-              onPress={openSignedTransaction}
-              title={loc.send.psbt_tx_open}
-            />
-            <BlueSpacing20 />
-            <SecondButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: colors.buttonTextColor,
-              }}
-              onPress={exportPSBT}
-              title={loc.send.psbt_tx_export}
-            />
-            <BlueSpacing20 />
-            <View style={styles.copyToClipboard}>
-              <BlueCopyToClipboardButton
-                stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()}
-                displayText={loc.send.psbt_clipboard}
-              />
-            </View>
-          </BlueCard>
+    <View style={styles.container}>
+      <BlueCard>
+        <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
+        <BlueSpacing20 />
+        <Text testID="PSBTHex" style={styles.hidden}>
+          {psbt.toHex()}
+        </Text>
+        <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} />
+        <BlueSpacing20 />
+        <SecondButton
+          testID="PsbtTxScanButton"
+          icon={{
+            name: 'qrcode',
+            type: 'font-awesome',
+            color: colors.secondButtonTextColor,
+          }}
+          onPress={openScanner}
+          ref={openScannerButton}
+          title={loc.send.psbt_tx_scan}
+        />
+        <BlueSpacing20 />
+        <SecondButton
+          icon={{
+            name: 'login',
+            type: 'entypo',
+            color: colors.secondButtonTextColor,
+          }}
+          onPress={openSignedTransaction}
+          title={loc.send.psbt_tx_open}
+        />
+        <BlueSpacing20 />
+        <SaveFileButton
+          fileName={`${Date.now()}.psbt`}
+          fileContent={typeof psbt === 'string' ? psbt : psbt.toBase64()}
+          style={styles.exportButton}
+          beforeOnPress={saveFileButtonBeforeOnPress}
+          afterOnPress={saveFileButtonAfterOnPress}
+        >
+          <SecondButton
+            icon={{
+              name: 'share-alternative',
+              type: 'entypo',
+              color: colors.secondButtonTextColor,
+            }}
+            title={loc.send.psbt_tx_export}
+          />
+        </SaveFileButton>
+        <BlueSpacing20 />
+        <View style={styles.copyToClipboard}>
+          <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
         </View>
-      </ScrollView>
-    </SafeArea>
+      </BlueCard>
+    </View>
+  );
+
+  return (
+    <ScrollView
+      centerContent
+      style={stylesHook.scrollViewContent}
+      automaticallyAdjustContentInsets
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={[styles.scrollViewContent, stylesHook.scrollViewContent]}
+      testID="PsbtWithHardwareScrollView"
+    >
+      {renderView}
+    </ScrollView>
   );
 };
 
 export default PsbtWithHardwareWallet;
-
-PsbtWithHardwareWallet.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.send.header }));
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -331,6 +340,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   copyToClipboard: {
+    marginVertical: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },

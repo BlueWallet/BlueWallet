@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SegwitP2SHWallet } from '../../class';
-const BlueApp = require('../../BlueApp');
-const AppStorage = BlueApp.AppStorage;
-const assert = require('assert');
+import assert from 'assert';
+
+import { BlueApp, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -11,35 +10,197 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
 });
 
 it('Appstorage - loadFromDisk works', async () => {
-  /** @type {AppStorage} */
-  const Storage = new AppStorage();
+  /** @type {BlueApp} */
+  const Storage = new BlueApp();
   const w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
+  Storage.tx_metadata = {
+    txid: {
+      memo: 'tx label',
+    },
+  };
+  Storage.counterparty_metadata = {
+    'payment code': {
+      label: 'yegor letov',
+    },
+  };
   await Storage.saveToDisk();
 
   // saved, now trying to load
 
-  const Storage2 = new AppStorage();
+  const Storage2 = new BlueApp();
   await Storage2.loadFromDisk();
   assert.strictEqual(Storage2.wallets.length, 1);
   assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.tx_metadata.txid.memo, 'tx label');
+  assert.strictEqual(Storage2.counterparty_metadata['payment code'].label, 'yegor letov');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
 
   // emulating encrypted storage (and testing flag)
 
   await AsyncStorage.setItem('data', false);
-  await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-  const Storage3 = new AppStorage();
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+  const Storage3 = new BlueApp();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
 });
 
+it('AppStorage - getTransactions() work', async () => {
+  const Storage = new BlueApp();
+  const w = new HDSegwitBech32Wallet();
+  w.setLabel('testlabel');
+  await w.generate();
+  w._txs_by_internal_index = {
+    0: [
+      {
+        blockhash: '000000000000000000054fae1935a8e5c3ac29ce04a45cca25d7329af5e5db2e',
+        blocktime: 1678137003,
+        confirmations: 61788,
+        hash: '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d',
+        locktime: 0,
+        size: 192,
+        time: 1678137003,
+        txid: '73a2ac70858c5b306b101a861d582f40c456a692096a4e4805aa739258c4400d',
+        version: 1,
+        vsize: 110,
+        weight: 438,
+        inputs: [
+          {
+            scriptSig: {
+              asm: '',
+              hex: '',
+            },
+            sequence: 4294967295,
+            txid: '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f',
+            txinwitness: [
+              '3045022100f2dfd9679719a5b10695c5142cb2998c0dde9d84fb3a0f6e2f82c972846da2b10220059c34862231eda0b8b4059859ae55e2fca5739c664f3ff45be71fbcf438a68d01',
+              '034f150e09d0489a047b1299131180ce174769b28c03ca6a96054555211fdd7fd6',
+            ],
+            vout: 3,
+            addresses: ['bc1qtnsyvl8zkteg7ap57j6w8hc7gk5nxk8vj5vrmz'],
+            value: 0.00077308,
+          },
+        ],
+        outputs: [
+          {
+            n: 0,
+            scriptPubKey: {
+              address: 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt',
+              asm: '0 e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              desc: 'addr(bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt)#pl83f4nc',
+              hex: '0014e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              type: 'witness_v0_keyhash',
+              addresses: ['bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt'],
+            },
+            value: 0.00074822,
+          },
+        ],
+        received: 1678137003000,
+        value: -77308,
+        sort_ts: 1678137003000,
+      },
+    ],
+  };
+
+  const w2 = new HDSegwitBech32Wallet();
+  w2.setLabel('testlabel');
+  await w2.generate();
+  w2._txs_by_internal_index = {
+    0: [
+      {
+        blockhash: '000000000000000000054fae1935a8e5c3ac29ce04a45cca25d7329af5e5db2e',
+        blocktime: 1678137003,
+        confirmations: 61788,
+        hash: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        locktime: 0,
+        size: 192,
+        time: 1678137003,
+        txid: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        version: 1,
+        vsize: 110,
+        weight: 438,
+        inputs: [
+          {
+            scriptSig: {
+              asm: '',
+              hex: '',
+            },
+            sequence: 4294967295,
+            txid: '06b4c14587182fd0474f265a77b156519b4778769a99c21623863a8194d0fa4f',
+            txinwitness: [
+              '3045022100f2dfd9679719a5b10695c5142cb2998c0dde9d84fb3a0f6e2f82c972846da2b10220059c34862231eda0b8b4059859ae55e2fca5739c664f3ff45be71fbcf438a68d01',
+              '034f150e09d0489a047b1299131180ce174769b28c03ca6a96054555211fdd7fd6',
+            ],
+            vout: 3,
+            addresses: ['bc1qtnsyvl8zkteg7ap57j6w8hc7gk5nxk8vj5vrmz'],
+            value: 0.00077308,
+          },
+        ],
+        outputs: [
+          {
+            n: 0,
+            scriptPubKey: {
+              address: 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt',
+              asm: '0 e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              desc: 'addr(bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt)#pl83f4nc',
+              hex: '0014e98d8aa1c6d0dba1936079c0e09af9836b2070b1',
+              type: 'witness_v0_keyhash',
+              addresses: ['bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt'],
+            },
+            value: 0.00074822,
+          },
+        ],
+        received: 1678137003000,
+        value: -77308,
+        sort_ts: 1678137003000,
+      },
+    ],
+  };
+
+  Storage.wallets.push(w);
+  Storage.wallets.push(w2);
+
+  // setup complete. now we have a storage with 2 wallets, each wallet has
+  // exactly one transaction
+
+  let txs = Storage.getTransactions();
+  assert.strictEqual(txs.length, 2); // getter for _all_ txs works
+
+  for (const tx of txs) {
+    assert.ok([w.getID(), w2.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
+
+  //
+
+  txs = Storage.getTransactions(0, 666, true);
+  assert.strictEqual(txs.length, 1); // getter for a specific wallet works
+
+  for (const tx of txs) {
+    assert.ok([w.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
+
+  //
+
+  txs = Storage.getTransactions(1, 666, true);
+  assert.strictEqual(txs.length, 1); // getter for a specific wallet works
+
+  for (const tx of txs) {
+    assert.ok([w2.getID()].includes(tx.walletID));
+    assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
+    assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
+  }
+});
+
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
-  /** @type {AppStorage} */
-  const Storage = new AppStorage();
+  /** @type {BlueApp} */
+  const Storage = new BlueApp();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -54,7 +215,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 
   // saved, now trying to load, using good password
 
-  let Storage2 = new AppStorage();
+  let Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   let loadResult = await Storage2.loadFromDisk('password');
@@ -64,7 +225,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 
   // now trying to load, using bad password
 
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('passwordBAD');
@@ -74,7 +235,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   // now, trying case with adding data after decrypt.
   // saveToDisk should be handled correctly
 
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
@@ -89,7 +250,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
   await Storage2.saveToDisk();
   // saved to encrypted storage after load. next load should be successfull
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
@@ -110,13 +271,13 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   await Storage2.saveToDisk();
   // now, will try to load & decrypt with real password and with fake password
   // real:
-  let Storage3 = new AppStorage();
+  let Storage3 = new BlueApp();
   loadResult = await Storage3.loadFromDisk('password');
   assert.ok(loadResult);
   assert.strictEqual(Storage3.wallets.length, 2);
   assert.strictEqual(Storage3.wallets[0].getLabel(), 'testlabel');
   // fake:
-  Storage3 = new AppStorage();
+  Storage3 = new BlueApp();
   loadResult = await Storage3.loadFromDisk('fakePassword');
   assert.ok(loadResult);
   assert.strictEqual(Storage3.wallets.length, 1);
@@ -124,8 +285,8 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 });
 
 it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load storage works', async () => {
-  /** @type {AppStorage} */
-  const Storage = new AppStorage();
+  /** @type {BlueApp} */
+  const Storage = new BlueApp();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -140,7 +301,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
 
   // saved, now trying to load, using good password
 
-  let Storage2 = new AppStorage();
+  let Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   let loadResult = await Storage2.loadFromDisk('password');
@@ -150,7 +311,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
 
   // now trying to load, using bad password
 
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('passwordBAD');
@@ -160,7 +321,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   // now, trying case with adding data after decrypt.
   // saveToDisk should be handled correctly
 
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
@@ -175,7 +336,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
   await Storage2.saveToDisk();
   // saved to encrypted storage after load. next load should be successfull
-  Storage2 = new AppStorage();
+  Storage2 = new BlueApp();
   isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
@@ -196,13 +357,13 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   await Storage2.saveToDisk();
   // now, will try to load & decrypt with real password and with fake password
   // real:
-  let Storage3 = new AppStorage();
+  let Storage3 = new BlueApp();
   loadResult = await Storage3.loadFromDisk('password');
   assert.ok(loadResult);
   assert.strictEqual(Storage3.wallets.length, 2);
   assert.strictEqual(Storage3.wallets[0].getLabel(), 'testlabel');
   // fake:
-  Storage3 = new AppStorage();
+  Storage3 = new BlueApp();
   loadResult = await Storage3.loadFromDisk('fakePassword');
   assert.ok(loadResult);
   assert.strictEqual(Storage3.wallets.length, 1);
@@ -210,7 +371,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
 
   // now will decrypt storage. label of wallet should be testlabel
 
-  const Storage4 = new AppStorage();
+  const Storage4 = new BlueApp();
   isEncrypted = await Storage4.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage4.loadFromDisk('password');
@@ -218,7 +379,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   const decryptStorageResult = await Storage4.decryptStorage('password');
   assert.ok(decryptStorageResult);
 
-  const Storage5 = new AppStorage();
+  const Storage5 = new BlueApp();
   isEncrypted = await Storage5.storageIsEncrypted();
   assert.strictEqual(isEncrypted, false);
   const storage5loadResult = await Storage5.loadFromDisk();
@@ -229,8 +390,8 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
 });
 
 it('can decrypt storage that is second in a list of buckets; and isPasswordInUse() works', async () => {
-  /** @type {AppStorage} */
-  const Storage = new AppStorage();
+  /** @type {BlueApp} */
+  const Storage = new BlueApp();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -257,7 +418,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   // now will decrypt storage. will try to decrypt FAKE storage (second in the list) while
   // currently decrypted is the MAIN (non-fake) storage. this should throw an exception
 
-  const Storage4 = new AppStorage();
+  const Storage4 = new BlueApp();
   isEncrypted = await Storage4.storageIsEncrypted();
   assert.ok(isEncrypted);
   let loadResult = await Storage4.loadFromDisk('password');
@@ -276,7 +437,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   // storage, purging other buckets. this should be possible since if user wants to shoot himsel in the foot
   // he should be able to do it.
 
-  const Storage5 = new AppStorage();
+  const Storage5 = new BlueApp();
   isEncrypted = await Storage5.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage5.loadFromDisk('fakePassword');
@@ -289,7 +450,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
 
   // now we will decrypt storage. label of wallet should be testlabel
 
-  const Storage6 = new AppStorage();
+  const Storage6 = new BlueApp();
   isEncrypted = await Storage6.storageIsEncrypted();
   assert.ok(isEncrypted);
   loadResult = await Storage6.loadFromDisk('fakePassword');
@@ -297,7 +458,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   const decryptStorageResult = await Storage6.decryptStorage('fakePassword');
   assert.ok(decryptStorageResult);
 
-  const Storage7 = new AppStorage();
+  const Storage7 = new BlueApp();
   isEncrypted = await Storage7.storageIsEncrypted();
   assert.strictEqual(isEncrypted, false);
   const storage5loadResult = await Storage7.loadFromDisk();
@@ -306,6 +467,6 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
 });
 
 it('Appstorage - hashIt() works', async () => {
-  const storage = new AppStorage();
+  const storage = new BlueApp();
   assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');
 });

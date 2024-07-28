@@ -1,25 +1,27 @@
-import React, { useState, useEffect, useRef, useContext, useCallback, useMemo } from 'react';
-import { Image, Text, TouchableOpacity, View, I18nManager, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { AbstractWallet, HDSegwitBech32Wallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
-import Biometric from '../class/biometrics';
-import loc, { formatBalance } from '../loc';
-import { BlueStorageContext } from '../blue_modules/storage-context';
-import ToolTipMenu from './TooltipMenu';
-import { BluePrivateBalance } from '../BlueComponents';
+import { TWallet } from '../class/wallets/types';
+import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
+import { BlurredBalanceView } from './BlurredBalanceView';
+import { useSettings } from '../hooks/context/useSettings';
+import { ToolTipMenuProps } from './types';
+import ToolTipMenu from './TooltipMenu';
 
 interface TransactionsNavigationHeaderProps {
-  wallet: AbstractWallet;
+  wallet: TWallet;
   onWalletUnitChange?: (wallet: any) => void;
   navigation: {
     navigate: (route: string, params?: any) => void;
     goBack: () => void;
   };
-  onManageFundsPressed?: (id: string) => void; // Add a type definition for this prop
+  onManageFundsPressed?: (id?: string) => void;
+  onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
   actionKeys: {
     CopyToClipboard: 'copyToClipboard';
     WalletBalanceVisibility: 'walletBalanceVisibility';
@@ -29,20 +31,17 @@ interface TransactionsNavigationHeaderProps {
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
-  // @ts-ignore: Ugh
   wallet: initialWallet,
-  // @ts-ignore: Ugh
   onWalletUnitChange,
-  // @ts-ignore: Ugh
   navigation,
-  // @ts-ignore: Ugh
   onManageFundsPressed,
+  onWalletBalanceVisibilityChange,
 }) => {
   const [wallet, setWallet] = useState(initialWallet);
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
+  const { preferredFiatCurrency } = useSettings();
 
-  const { preferredFiatCurrency, saveToDisk } = useContext(BlueStorageContext);
-  const menuRef = useRef(null);
+  const menuRef = useRef<ToolTipMenuProps>(null);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (wallet.type === LightningCustodianWallet.type) {
@@ -64,40 +63,26 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     verifyIfWalletAllowsOnchainAddress();
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
-  const handleCopyPress = () => {
+  const handleCopyPress = useCallback(() => {
     const value = formatBalance(wallet.getBalance(), wallet.getPreferredBalanceUnit());
     if (value) {
       Clipboard.setString(value);
     }
-  };
+  }, [wallet]);
 
-  const updateWalletVisibility = (w: AbstractWallet, newHideBalance: boolean) => {
-    w.hideBalance = newHideBalance;
-    return w;
-  };
+  const handleBalanceVisibility = useCallback(() => {
+    onWalletBalanceVisibilityChange?.(!wallet.hideBalance);
+  }, [onWalletBalanceVisibilityChange, wallet.hideBalance]);
 
-  const handleBalanceVisibility = async () => {
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled && wallet.hideBalance) {
-      if (!(await Biometric.unlockWithBiometrics())) {
-        return navigation.goBack();
-      }
-    }
-
-    const updatedWallet = updateWalletVisibility(wallet, !wallet.hideBalance);
-    setWallet(updatedWallet);
-    saveToDisk();
-  };
-
-  const updateWalletWithNewUnit = (w: AbstractWallet, newPreferredUnit: BitcoinUnit) => {
+  const updateWalletWithNewUnit = (w: TWallet, newPreferredUnit: BitcoinUnit) => {
     w.preferredBalanceUnit = newPreferredUnit;
     return w;
   };
 
   const changeWalletBalanceUnit = () => {
-    // @ts-ignore: Ugh
-    menuRef.current?.dismissMenu();
+    if (menuRef.current?.dismissMenu) {
+      menuRef.current.dismissMenu();
+    }
     let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
@@ -108,43 +93,92 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
     const updatedWallet = updateWalletWithNewUnit(wallet, newWalletPreferredUnit);
     setWallet(updatedWallet);
     onWalletUnitChange?.(updatedWallet);
   };
 
-  const handleManageFundsPressed = () => {
-    onManageFundsPressed?.(actionKeys.Refill);
-  };
+  const handleManageFundsPressed = useCallback(
+    (actionKeyID?: string) => {
+      if (onManageFundsPressed) {
+        onManageFundsPressed(actionKeyID);
+      }
+    },
+    [onManageFundsPressed],
+  );
 
-  const handleOnPaymentCodeButtonPressed = () => {
-    navigation.navigate('PaymentCodeRoot', {
-      screen: 'PaymentCode',
-      params: { paymentCode: (wallet as HDSegwitBech32Wallet).getBIP47PaymentCode() },
-    });
-  };
+  const onPressMenuItem = useCallback(
+    (id: string) => {
+      if (id === 'walletBalanceVisibility') {
+        handleBalanceVisibility();
+      } else if (id === 'copyToClipboard') {
+        handleCopyPress();
+      }
+    },
+    [handleBalanceVisibility, handleCopyPress],
+  );
 
-  const onPressMenuItem = (id: string) => {
-    if (id === 'walletBalanceVisibility') {
-      handleBalanceVisibility();
-    } else if (id === 'copyToClipboard') {
-      handleCopyPress();
-    }
-  };
+  const toolTipActions = useMemo(() => {
+    return [
+      {
+        id: actionKeys.Refill,
+        text: loc.lnd.refill,
+        icon: actionIcons.Refill,
+      },
+      {
+        id: actionKeys.RefillWithExternalWallet,
+        text: loc.lnd.refill_external,
+        icon: actionIcons.RefillWithExternalWallet,
+      },
+    ];
+  }, []);
 
   const balance = useMemo(() => {
     const hideBalance = wallet.hideBalance;
     const balanceUnit = wallet.getPreferredBalanceUnit();
-    const balanceFormatted = formatBalance(wallet.getBalance(), balanceUnit, true);
-    return !hideBalance && balanceFormatted?.toString();
+    const balanceFormatted =
+      balanceUnit === BitcoinUnit.LOCAL_CURRENCY
+        ? formatBalance(wallet.getBalance(), balanceUnit, true)
+        : formatBalanceWithoutSuffix(wallet.getBalance(), balanceUnit, true);
+    return !hideBalance && balanceFormatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.hideBalance, wallet.getPreferredBalanceUnit()]);
+
+  const toolTipWalletBalanceActions = useMemo(() => {
+    return wallet.hideBalance
+      ? [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_show,
+            icon: {
+              iconValue: 'eye',
+            },
+          },
+        ]
+      : [
+          {
+            id: 'walletBalanceVisibility',
+            text: loc.transactions.details_balance_hide,
+            icon: {
+              iconValue: 'eye.slash',
+            },
+          },
+          {
+            id: 'copyToClipboard',
+            text: loc.transactions.details_copy,
+            icon: {
+              iconValue: 'doc.on.doc',
+            },
+          },
+        ];
+  }, [wallet.hideBalance]);
 
   return (
     <LinearGradient
       colors={WalletGradient.gradientsFor(wallet.type)}
       style={styles.lineaderGradient}
-      // @ts-ignore: Ugh
       {...WalletGradient.linearGradientProps(wallet.type)}
     >
       <Image
@@ -161,103 +195,60 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         style={styles.chainIcon}
       />
 
-      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel}>
+      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
         {wallet.getLabel()}
       </Text>
-      <ToolTipMenu
-        enableAndroidRipple={false}
-        onPress={changeWalletBalanceUnit}
-        ref={menuRef}
-        title={`${loc.wallets.balance} (${
-          wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-            ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
-            : wallet.getPreferredBalanceUnit()
-        })`}
-        onPressMenuItem={onPressMenuItem}
-        actions={
-          wallet.hideBalance
-            ? [
-                {
-                  id: 'walletBalanceVisibility',
-                  text: loc.transactions.details_balance_show,
-                  icon: {
-                    iconType: 'SYSTEM',
-                    iconValue: 'eye',
-                  },
-                },
-              ]
-            : [
-                {
-                  id: 'walletBalanceVisibility',
-                  text: loc.transactions.details_balance_hide,
-                  icon: {
-                    iconType: 'SYSTEM',
-                    iconValue: 'eye.slash',
-                  },
-                },
-                {
-                  id: 'copyToClipboard',
-                  text: loc.transactions.details_copy,
-                  icon: {
-                    iconType: 'SYSTEM',
-                    iconValue: 'doc.on.doc',
-                  },
-                },
-              ]
-        }
-      >
-        <View style={styles.walletBalance}>
-          {wallet.hideBalance ? (
-            <BluePrivateBalance />
-          ) : (
-            <Text
-              testID="WalletBalance"
-              // @ts-ignore: Ugh
-              key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={styles.walletBalance}
-            >
-              {balance}
-            </Text>
-          )}
-        </View>
-      </ToolTipMenu>
+      <View style={styles.walletBalanceAndUnitContainer}>
+        <ToolTipMenu
+          isMenuPrimaryAction
+          isButton
+          enableAndroidRipple={false}
+          buttonStyle={styles.walletBalance}
+          onPressMenuItem={onPressMenuItem}
+          actions={toolTipWalletBalanceActions}
+        >
+          <View style={styles.walletBalance}>
+            {wallet.hideBalance ? (
+              <BlurredBalanceView />
+            ) : (
+              <View>
+                <Text
+                  testID="WalletBalance"
+                  // @ts-ignore: Ugh
+                  key={balance} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                  numberOfLines={1}
+                  minimumFontScale={0.5}
+                  adjustsFontSizeToFit
+                  style={styles.walletBalanceText}
+                >
+                  {balance}
+                </Text>
+              </View>
+            )}
+          </View>
+        </ToolTipMenu>
+        <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
+          <Text style={styles.walletPreferredUnitText}>
+            {wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
+              ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD)
+              : wallet.getPreferredBalanceUnit()}
+          </Text>
+        </TouchableOpacity>
+      </View>
       {wallet.type === LightningCustodianWallet.type && allowOnchainAddress && (
         <ToolTipMenu
           isMenuPrimaryAction
           isButton
           onPressMenuItem={handleManageFundsPressed}
-          actions={[
-            {
-              id: actionKeys.Refill,
-              text: loc.lnd.refill,
-              icon: actionIcons.Refill,
-            },
-            {
-              id: actionKeys.RefillWithExternalWallet,
-              text: loc.lnd.refill_external,
-              icon: actionIcons.RefillWithExternalWallet,
-            },
-          ]}
+          actions={toolTipActions}
           buttonStyle={styles.manageFundsButton}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
       )}
-
-      {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
-        <TouchableOpacity accessibilityRole="button" onPress={handleOnPaymentCodeButtonPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.bip47.payment_code}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
       {wallet.type === MultisigHDWallet.type && (
-        <TouchableOpacity accessibilityRole="button" onPress={handleManageFundsPressed}>
-          <View style={styles.manageFundsButton}>
-            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
-          </View>
+        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
+          <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
         </TouchableOpacity>
       )}
     </LinearGradient>
@@ -282,13 +273,11 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: '#fff',
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+    marginBottom: 10,
   },
   walletBalance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    color: '#fff',
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+    flexShrink: 1,
+    marginRight: 6,
   },
   manageFundsButton: {
     marginTop: 14,
@@ -306,34 +295,52 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     padding: 12,
   },
+  walletBalanceAndUnitContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 10, // Ensure there's some padding to the right
+  },
+  walletBalanceText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 36,
+    flexShrink: 1, // Allow the text to shrink if there's not enough space
+  },
+  walletPreferredUnitView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 8,
+    minHeight: 35,
+    minWidth: 65,
+  },
+  walletPreferredUnitText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });
 
 export const actionKeys = {
   CopyToClipboard: 'copyToClipboard',
   WalletBalanceVisibility: 'walletBalanceVisibility',
   Refill: 'refill',
-  RefillWithExternalWallet: 'qrcode',
+  RefillWithExternalWallet: 'refillWithExternalWallet',
 };
 
 export const actionIcons = {
   Eye: {
-    iconType: 'SYSTEM',
     iconValue: 'eye',
   },
   EyeSlash: {
-    iconType: 'SYSTEM',
     iconValue: 'eye.slash',
   },
   Clipboard: {
-    iconType: 'SYSTEM',
     iconValue: 'doc.on.doc',
   },
   Refill: {
-    iconType: 'SYSTEM',
     iconValue: 'goforward.plus',
   },
   RefillWithExternalWallet: {
-    iconType: 'SYSTEM',
     iconValue: 'qrcode',
   },
 };

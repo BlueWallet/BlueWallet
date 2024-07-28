@@ -1,21 +1,22 @@
 import assert from 'assert';
+
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import {
-  HDSegwitElectrumSeedP2WPKHWallet,
-  HDLegacyBreadwalletWallet,
-  HDSegwitBech32Wallet,
-  HDLegacyElectrumSeedP2PKHWallet,
-  LegacyWallet,
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitP2SHWallet,
-  WatchOnlyWallet,
   HDAezeedWallet,
-  SLIP39SegwitP2SHWallet,
+  HDLegacyBreadwalletWallet,
+  HDLegacyElectrumSeedP2PKHWallet,
+  HDLegacyP2PKHWallet,
+  HDSegwitBech32Wallet,
+  HDSegwitElectrumSeedP2WPKHWallet,
+  HDSegwitP2SHWallet,
+  LegacyWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
   SLIP39SegwitBech32Wallet,
+  SLIP39SegwitP2SHWallet,
+  WatchOnlyWallet,
 } from '../../class';
 import startImport from '../../class/wallet-import';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 const fs = require('fs');
 
 jest.setTimeout(90 * 1000);

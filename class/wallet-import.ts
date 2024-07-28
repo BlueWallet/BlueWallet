@@ -1,6 +1,7 @@
-import wif from 'wif';
 import bip38 from 'bip38';
+import wif from 'wif';
 
+import loc from '../loc';
 import {
   HDAezeedWallet,
   HDLegacyBreadwalletWallet,
@@ -12,17 +13,16 @@ import {
   LegacyWallet,
   LightningCustodianWallet,
   MultisigHDWallet,
+  SegwitBech32Wallet,
+  SegwitP2SHWallet,
   SLIP39LegacyP2PKHWallet,
   SLIP39SegwitBech32Wallet,
   SLIP39SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
   WatchOnlyWallet,
 } from '.';
-import type { TWallet } from './wallets/types';
-import loc from '../loc';
 import bip39WalletFormats from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
+import type { TWallet } from './wallets/types';
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 export const validateBip32 = (path: string) => path.match(/^(m\/)?(\d+'?\/)*\d+'?$/) !== null;
@@ -369,40 +369,37 @@ const startImport = (
       yield { wallet: aezeed2 }; // not fetching txs or balances, fuck it, yolo, life is too short
     }
 
-    // if it is multi-line string, then it is probably SLIP39 wallet
-    // each line - one share
+    // Let's try SLIP39
     yield { progress: 'SLIP39' };
-    if (text.includes('\n')) {
-      const s1 = new SLIP39SegwitP2SHWallet();
-      s1.setSecret(text);
+    const s1 = new SLIP39SegwitP2SHWallet();
+    s1.setSecret(text);
 
-      if (s1.validateMnemonic()) {
-        yield { progress: 'SLIP39 p2wpkh-p2sh' };
-        if (password) {
-          s1.setPassphrase(password);
-        }
-        if (await s1.wasEverUsed()) {
-          yield { wallet: s1 };
-        }
-
-        yield { progress: 'SLIP39 p2pkh' };
-        const s2 = new SLIP39LegacyP2PKHWallet();
-        if (password) {
-          s2.setPassphrase(password);
-        }
-        s2.setSecret(text);
-        if (await s2.wasEverUsed()) {
-          yield { wallet: s2 };
-        }
-
-        yield { progress: 'SLIP39 p2wpkh' };
-        const s3 = new SLIP39SegwitBech32Wallet();
-        s3.setSecret(text);
-        if (password) {
-          s3.setPassphrase(password);
-        }
-        yield { wallet: s3 };
+    if (s1.validateMnemonic()) {
+      yield { progress: 'SLIP39 p2wpkh-p2sh' };
+      if (password) {
+        s1.setPassphrase(password);
       }
+      if (await s1.wasEverUsed()) {
+        yield { wallet: s1 };
+      }
+
+      yield { progress: 'SLIP39 p2pkh' };
+      const s2 = new SLIP39LegacyP2PKHWallet();
+      if (password) {
+        s2.setPassphrase(password);
+      }
+      s2.setSecret(text);
+      if (await s2.wasEverUsed()) {
+        yield { wallet: s2 };
+      }
+
+      yield { progress: 'SLIP39 p2wpkh' };
+      const s3 = new SLIP39SegwitBech32Wallet();
+      s3.setSecret(text);
+      if (password) {
+        s3.setPassphrase(password);
+      }
+      yield { wallet: s3 };
     }
 
     // is it BC-UR payload with multiple accounts?

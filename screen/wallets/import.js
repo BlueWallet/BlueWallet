@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { Platform, View, Keyboard, StyleSheet, Switch, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, Switch, TouchableWithoutFeedback, View } from 'react-native';
+
 import {
   BlueButtonLink,
   BlueDoneAndDismissKeyboardInputAccessory,
@@ -9,14 +10,13 @@ import {
   BlueSpacing20,
   BlueText,
 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { requestCameraAuthorization } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const WalletsImport = () => {
   const navigation = useNavigation();
@@ -24,11 +24,11 @@ const WalletsImport = () => {
   const route = useRoute();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
-  const { isAdvancedModeEnabled } = useContext(BlueStorageContext);
+  const scannedData = route?.params?.scannedData ?? '';
+  const { isAdvancedModeEnabled } = useSettings();
   const [importText, setImportText] = useState(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
   const [, setSpeedBackdoor] = useState(0);
-  const [isAdvancedModeEnabledRender, setIsAdvancedModeEnabledRender] = useState(false);
   const [searchAccounts, setSearchAccounts] = useState(false);
   const [askPassphrase, setAskPassphrase] = useState(false);
   const { enableBlur, disableBlur } = usePrivacy();
@@ -60,20 +60,31 @@ const WalletsImport = () => {
 
   useEffect(() => {
     enableBlur();
-    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true));
-    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsToolbarVisibleForAndroid(false));
+
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>
+      setIsToolbarVisibleForAndroid(true),
+    );
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () =>
+      setIsToolbarVisibleForAndroid(false),
+    );
     return () => {
-      Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
-      Keyboard.removeAllListeners(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide');
+      showSubscription.remove();
+      hideSubscription.remove();
       disableBlur();
     };
   }, [disableBlur, enableBlur]);
 
   useEffect(() => {
-    isAdvancedModeEnabled().then(setIsAdvancedModeEnabledRender);
     if (triggerImport) importButtonPressed();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [triggerImport]);
+
+  useEffect(() => {
+    if (scannedData) {
+      onBarScanned(scannedData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedData]);
 
   const importButtonPressed = () => {
     const textToImport = onBlur();
@@ -99,7 +110,6 @@ const WalletsImport = () => {
         screen: 'ScanQRCode',
         params: {
           launchedBy: route.name,
-          onBarScanned,
           showFileImportButton: true,
         },
       }),
@@ -117,7 +127,7 @@ const WalletsImport = () => {
 
   const renderOptionsAndImportButton = (
     <>
-      {isAdvancedModeEnabledRender && (
+      {isAdvancedModeEnabled && (
         <>
           <View style={styles.row}>
             <BlueText>{loc.wallets.import_passphrase}</BlueText>
@@ -190,7 +200,5 @@ const WalletsImport = () => {
     </SafeArea>
   );
 };
-
-WalletsImport.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_title }));
 
 export default WalletsImport;

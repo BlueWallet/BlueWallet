@@ -1,28 +1,28 @@
-import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, LayoutAnimation, StyleSheet, View } from 'react-native';
 import IdleTimerManager from 'react-native-idle-timer';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import WalletToImport from '../../components/WalletToImport';
-import loc from '../../loc';
 import { HDSegwitBech32Wallet } from '../../class';
 import startImport from '../../class/wallet-import';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import prompt from '../../helpers/prompt';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import WalletToImport from '../../components/WalletToImport';
+import prompt from '../../helpers/prompt';
+import loc from '../../loc';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ImportWalletDiscovery = () => {
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const route = useRoute();
   const { importText, askPassphrase, searchAccounts } = route.params;
   const task = useRef();
-  const { addAndSaveWallet } = useContext(BlueStorageContext);
+  const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState(true);
   const [wallets, setWallets] = useState([]);
   const [password, setPassword] = useState();
@@ -189,7 +189,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-ImportWalletDiscovery.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.wallets.import_discovery_title }));
 
 export default ImportWalletDiscovery;

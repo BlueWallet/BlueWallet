@@ -1,19 +1,18 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { View, StyleSheet, ScrollView, BackHandler } from 'react-native';
-
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import { useTheme } from '../../components/themes';
+import React, { useCallback, useEffect, useState } from 'react';
+import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
 import usePrivacy from '../../hooks/usePrivacy';
+import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const PleaseBackupLNDHub = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { walletID } = useRoute().params;
   const wallet = wallets.find(w => w.getID() === walletID);
   const navigation = useNavigation();
@@ -63,21 +62,12 @@ const PleaseBackupLNDHub = () => {
         </View>
         <BlueSpacing20 />
         <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
-        <BlueCopyTextToClipboard text={wallet.getSecret()} />
+        <CopyTextToClipboard text={wallet.getSecret()} />
         <BlueSpacing20 />
         <Button onPress={pop} title={loc.pleasebackup.ok_lnd} />
       </ScrollView>
     </SafeArea>
   );
 };
-
-PleaseBackupLNDHub.navigationOptions = navigationStyle(
-  {
-    gestureEnabled: false,
-    swipeEnabled: false,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, headerTitle: loc.pleasebackup.title }),
-);
 
 export default PleaseBackupLNDHub;

@@ -1,18 +1,18 @@
-const BlueElectrum = require('../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
 
-export const NetworkTransactionFeeType = Object.freeze({
-  FAST: 'Fast',
-  MEDIUM: 'MEDIUM',
-  SLOW: 'SLOW',
-  CUSTOM: 'CUSTOM',
-});
+export enum NetworkTransactionFeeType {
+  FAST = 'Fast',
+  MEDIUM = 'MEDIUM',
+  SLOW = 'SLOW',
+  CUSTOM = 'CUSTOM',
+}
 
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  private fastestFee: number;
-  private mediumFee: number;
-  private slowFee: number;
+  public fastestFee: number;
+  public mediumFee: number;
+  public slowFee: number;
 
   constructor(fastestFee = 2, mediumFee = 1, slowFee = 1) {
     this.fastestFee = fastestFee;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Avatar } from 'react-native-elements';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Avatar } from '@rneui/themed';
 
 import loc from '../loc';
 

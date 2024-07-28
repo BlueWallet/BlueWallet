@@ -1,14 +1,15 @@
+import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
 
-const bitcoin = require('bitcoinjs-lib');
-const assert = require('assert');
+let importedSuccessfully = false;
 
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
  * before anything else.
  * we dont clean it up as we expect other test suites to do clean install of the app
  */
-
 beforeAll(async () => {
   if (!process.env.HD_MNEMONIC_BIP84) {
     console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -18,8 +19,9 @@ beforeAll(async () => {
   await device.launchApp({ delete: true });
 
   console.log('before all - importing bip48...');
-  await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
+  await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
   console.log('...imported!');
+  importedSuccessfully = true;
   await device.pressBack();
   await sleep(15000);
 }, 1200_000);
@@ -34,6 +36,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -183,6 +187,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -256,6 +262,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -325,6 +333,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -368,6 +378,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -402,7 +414,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // XPUB
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.id('XPub')).tap();
-    await expect(element(by.id('BlueCopyTextToClipboard'))).toBeVisible();
+    await expect(element(by.id('CopyTextToClipboard'))).toBeVisible();
     await device.pressBack();
 
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
@@ -417,6 +429,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     await device.launchApp({
@@ -453,6 +467,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -469,11 +485,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Save')).tap();
     await element(by.text('OK')).tap();
 
-    // back to wallet screen
-    await device.pressBack();
-    await device.pressBack();
-
-    // open CoinControl
+    // Terminate and reopen the app to confirm the note is persisted
+    await device.launchApp({ newInstance: true });
+    await yo('WalletsList');
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('SendButton')).tap();
     await element(by.id('advancedOptionsMenuButton')).tap();
     await element(by.id('CoinControl')).tap();
@@ -486,7 +501,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('test1')).atIndex(0).tap();
     await element(by.id('OutputMemo')).replaceText('test2');
     await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
-    await device.pressBack(); // closing modal
+    await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 

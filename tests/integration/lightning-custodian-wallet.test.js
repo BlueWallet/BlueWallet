@@ -1,5 +1,6 @@
 import assert from 'assert';
 import Frisbee from 'frisbee';
+
 import { LightningCustodianWallet } from '../../class';
 
 jest.setTimeout(200 * 1000);

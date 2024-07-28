@@ -1,14 +1,8 @@
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import b58 from 'bs58check';
 import createHash from 'create-hash';
-import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
-type WalletStatics = {
-  type: string;
-  typeReadable: string;
-  segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)';
-  derivationPath?: string;
-};
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 
 type WalletWithPassphrase = AbstractWallet & { getPassphrase: () => string };
 type UtxoMetadata = {
@@ -17,8 +11,12 @@ type UtxoMetadata = {
 };
 
 export class AbstractWallet {
-  static type = 'abstract';
-  static typeReadable = 'abstract';
+  static readonly type = 'abstract';
+  static readonly typeReadable = 'abstract';
+  // @ts-ignore: override
+  public readonly type = AbstractWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = AbstractWallet.typeReadable;
 
   static fromJson(obj: string): AbstractWallet {
     const obj2 = JSON.parse(obj);
@@ -31,8 +29,6 @@ export class AbstractWallet {
     return temp;
   }
 
-  type: string;
-  typeReadable: string;
   segwitType?: 'p2wpkh' | 'p2sh(p2wpkh)';
   _derivationPath?: string;
   label: string;
@@ -50,14 +46,9 @@ export class AbstractWallet {
   _hideTransactionsInWalletsList: boolean;
   _utxoMetadata: Record<string, UtxoMetadata>;
   use_with_hardware_wallet: boolean;
-  masterFingerprint: number | false;
+  masterFingerprint: number;
 
   constructor() {
-    const Constructor = this.constructor as unknown as WalletStatics;
-
-    this.type = Constructor.type;
-    this.typeReadable = Constructor.typeReadable;
-    this.segwitType = Constructor.segwitType;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -73,7 +64,7 @@ export class AbstractWallet {
     this._hideTransactionsInWalletsList = false;
     this._utxoMetadata = {};
     this.use_with_hardware_wallet = false;
-    this.masterFingerprint = false;
+    this.masterFingerprint = 0;
   }
 
   /**
@@ -161,6 +152,10 @@ export class AbstractWallet {
 
   allowSend(): boolean {
     return true;
+  }
+
+  allowSilentPaymentSend(): boolean {
+    return false;
   }
 
   allowRBF(): boolean {
@@ -257,7 +252,7 @@ export class AbstractWallet {
         parsedSecret = JSON.parse(newSecret);
       }
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
-        let masterFingerprint: number | false = false;
+        let masterFingerprint: number = 0;
         if (parsedSecret.keystore.ckcc_xfp) {
           // It is a ColdCard Hardware Wallet
           masterFingerprint = Number(parsedSecret.keystore.ckcc_xfp);
@@ -374,7 +369,7 @@ export class AbstractWallet {
 
   /**
    *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String}>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address

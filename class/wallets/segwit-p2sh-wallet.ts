@@ -1,6 +1,7 @@
 import * as bitcoin from 'bitcoinjs-lib';
 import { CoinSelectTarget } from 'coinselect';
 import { ECPairFactory } from 'ecpair';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { LegacyWallet } from './legacy-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
@@ -21,9 +22,13 @@ function pubkeyToP2shSegwitAddress(pubkey: Buffer): string | false {
 }
 
 export class SegwitP2SHWallet extends LegacyWallet {
-  static type = 'segwitP2SH';
-  static typeReadable = 'SegWit (P2SH)';
-  static segwitType = 'p2sh(p2wpkh)';
+  static readonly type = 'segwitP2SH';
+  static readonly typeReadable = 'SegWit (P2SH)';
+  // @ts-ignore: override
+  public readonly type = SegwitP2SHWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = SegwitP2SHWallet.typeReadable;
+  public readonly segwitType = 'p2sh(p2wpkh)';
 
   static witnessToAddress(witness: string): string | false {
     try {
@@ -75,7 +80,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
 
   /**
    *
-   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
+   * @param utxos {Array.<{vout: Number, value: Number, txid: String, address: String, txhex: String, }>} List of spendable utxos
    * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address
@@ -98,7 +103,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
     for (const u of utxos) {
       u.script = { length: 50 };
     }
-    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate, changeAddress);
+    const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;

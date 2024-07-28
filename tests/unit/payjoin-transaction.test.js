@@ -1,6 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
+
 import { HDSegwitBech32Wallet } from '../../class';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 
@@ -9,10 +10,8 @@ const utxos = [
     height: 666,
     value: 100000,
     address: 'bc1q2j76s63hx6ue4hfklhtkny4fx822kzw2ycyn5r',
-    txId: '8e8c982479c18b4331748c97c424891a4a474a61e5fdf6ac442c47cd44f13614',
     vout: 0,
     txid: '8e8c982479c18b4331748c97c424891a4a474a61e5fdf6ac442c47cd44f13614',
-    amount: 100000,
     wif: '',
     confirmations: 666,
   },

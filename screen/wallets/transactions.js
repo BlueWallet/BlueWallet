@@ -1,42 +1,48 @@
-import React, { useEffect, useState, useCallback, useContext, useRef } from 'react';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  findNodeHandle,
   FlatList,
+  I18nManager,
   InteractionManager,
+  LayoutAnimation,
   PixelRatio,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  I18nManager,
-  findNodeHandle,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Chain } from '../../models/bitcoinUnits';
-import { BlueAlertWalletExportReminder } from '../../BlueComponents';
-import WalletGradient from '../../class/wallet-gradient';
-import navigationStyle from '../../components/navigationStyle';
-import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
-import ActionSheet from '../ActionSheet';
-import loc from '../../loc';
-import { FContainer, FButton } from '../../components/FloatButtons';
-import { BlueStorageContext, WalletTransactionsStatus } from '../../blue_modules/storage-context';
-import { isDesktop } from '../../blue_modules/environment';
-import BlueClipboard from '../../blue_modules/clipboard';
-import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { TransactionListItem } from '../../components/TransactionListItem';
-import presentAlert from '../../components/Alert';
-import PropTypes from 'prop-types';
-import { scanQrHelper } from '../../helpers/scan-qr';
-import { useTheme } from '../../components/themes';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { Icon } from '@rneui/themed';
 
-const fs = require('../../blue_modules/fs');
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import BlueClipboard from '../../blue_modules/clipboard';
+import { isDesktop } from '../../blue_modules/environment';
+import * as fs from '../../blue_modules/fs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import WalletGradient from '../../class/wallet-gradient';
+import presentAlert, { AlertType } from '../../components/Alert';
+import { FButton, FContainer } from '../../components/FloatButtons';
+import LNNodeBar from '../../components/LNNodeBar';
+import navigationStyle from '../../components/navigationStyle';
+import { useTheme } from '../../components/themes';
+import { TransactionListItem } from '../../components/TransactionListItem';
+import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
+import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
+import ActionSheet from '../ActionSheet';
+import { useStorage } from '../../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
+import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -51,7 +57,8 @@ const WalletTransactions = ({ navigation }) => {
     walletTransactionUpdateStatus,
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
-  } = useContext(BlueStorageContext);
+  } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const [isLoading, setIsLoading] = useState(false);
   const { walletID } = useRoute().params;
   const { name } = useRoute();
@@ -62,19 +69,13 @@ const WalletTransactions = ({ navigation }) => {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [limit, setLimit] = useState(15);
   const [pageSize, setPageSize] = useState(20);
-  const { setParams, setOptions, navigate } = useNavigation();
+  const { setParams, setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
   const walletActionButtonsRef = useRef();
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
       color: colors.foregroundColor,
-    },
-    browserButton2: {
-      backgroundColor: colors.lightButton,
-    },
-    marketpalceText1: {
-      color: colors.cta2,
     },
     list: {
       backgroundColor: colors.background,
@@ -137,6 +138,8 @@ const WalletTransactions = ({ navigation }) => {
     setSelectedWalletID(wallet.getID());
     setDataSource([...getTransactionsSliced(limit)]);
     setOptions({
+      headerBackTitle: wallet.getLabel(),
+      headerBackTitleVisible: true,
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(wallet.type),
         borderBottomWidth: 0,
@@ -229,7 +232,7 @@ const WalletTransactions = ({ navigation }) => {
       console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
     } catch (err) {
       noErr = false;
-      presentAlert({ message: err.message });
+      presentAlert({ message: err.message, type: AlertType.Toast });
       setIsLoading(false);
       setTimeElapsed(prev => prev + 1);
     }
@@ -264,35 +267,12 @@ const WalletTransactions = ({ navigation }) => {
 
     return (
       <View style={styles.flex}>
-        <View style={styles.listHeader}>{wallet.chain === Chain.OFFCHAIN && renderLappBrowserButton()}</View>
-
         <View style={styles.listHeaderTextRow}>
           <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
         </View>
       </View>
     );
   };
-
-  const renderLappBrowserButton = () => {
-    return (
-      <TouchableOpacity
-        accessibilityRole="button"
-        onPress={() => {
-          navigate('LappBrowserRoot', {
-            screen: 'LappBrowser',
-            params: {
-              walletID,
-              url: 'https://duckduckgo.com',
-            },
-          });
-        }}
-        style={[styles.browserButton2, stylesHook.browserButton2]}
-      >
-        <Text style={[styles.marketpalceText1, stylesHook.marketpalceText1]}>{loc.wallets.list_ln_browser}</Text>
-      </TouchableOpacity>
-    );
-  };
-
   const onWalletSelect = async selectedWallet => {
     if (selectedWallet) {
       navigate('WalletTransactions', {
@@ -309,7 +289,7 @@ const WalletTransactions = ({ navigation }) => {
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return presentAlert({ message: Err.message });
+          return presentAlert({ message: Err.message, type: AlertType.Toast });
         }
       }
       navigate('SendDetailsRoot', {
@@ -418,7 +398,7 @@ const WalletTransactions = ({ navigation }) => {
             choosePhoto();
             break;
           case 2:
-            scanQrHelper(navigate, name, true).then(data => onBarCodeRead(data));
+            scanQrHelper(name, true).then(data => onBarCodeRead(data));
             break;
           case 3:
             if (!isClipboardEmpty) {
@@ -434,7 +414,7 @@ const WalletTransactions = ({ navigation }) => {
     navigate('ViewEditMultisigCosignersRoot', {
       screen: 'ViewEditMultisigCosigners',
       params: {
-        walletId: wallet.getID(),
+        walletID,
       },
     });
   };
@@ -448,14 +428,12 @@ const WalletTransactions = ({ navigation }) => {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
     } else if (id === actionKeys.RefillWithExternalWallet) {
-      if (wallet.getUserHasSavedExport()) {
-        navigate('ReceiveDetailsRoot', {
-          screen: 'ReceiveDetails',
-          params: {
-            walletID: wallet.getID(),
-          },
-        });
-      }
+      navigate('ReceiveDetailsRoot', {
+        screen: 'ReceiveDetails',
+        params: {
+          walletID,
+        },
+      });
     }
   };
 
@@ -471,11 +449,12 @@ const WalletTransactions = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      InteractionManager.runAfterInteractions(() => {
+      const task = InteractionManager.runAfterInteractions(() => {
         setReloadTransactionsMenuActionFunction(() => refreshTransactions);
       });
       return () => {
-        setReloadTransactionsMenuActionFunction(undefined);
+        task.cancel();
+        setReloadTransactionsMenuActionFunction(() => {});
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
@@ -495,6 +474,20 @@ const WalletTransactions = ({ navigation }) => {
             saveToDisk();
           })
         }
+        onWalletBalanceVisibilityChange={async isShouldBeVisible => {
+          const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+
+          if (wallet.hideBalance && isBiometricsEnabled) {
+            const unlocked = await unlockWithBiometrics();
+            if (!unlocked) {
+              throw new Error('Biometrics failed');
+            }
+          }
+
+          wallet.hideBalance = isShouldBeVisible;
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+          await saveToDisk();
+        }}
         onManageFundsPressed={id => {
           if (wallet.type === MultisigHDWallet.type) {
             navigateToViewEditCosigners();
@@ -502,27 +495,38 @@ const WalletTransactions = ({ navigation }) => {
             if (wallet.getUserHasSavedExport()) {
               onManageFundsPressed({ id });
             } else {
-              BlueAlertWalletExportReminder({
-                onSuccess: async () => {
+              presentWalletExportReminder()
+                .then(async () => {
                   wallet.setUserHasSavedExport(true);
                   await saveToDisk();
                   onManageFundsPressed({ id });
-                },
-                onFailure: () =>
+                })
+                .catch(() => {
                   navigate('WalletExportRoot', {
                     screen: 'WalletExport',
                     params: {
                       walletID: wallet.getID(),
                     },
-                  }),
-              });
+                  });
+                });
             }
           }
         }}
       />
       <View style={[styles.list, stylesHook.list]}>
+        {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+          <WatchOnlyWarning
+            disabled={isLoading}
+            handleDismiss={() => {
+              wallet.isWatchOnlyWarningVisible = false;
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
+              saveToDisk();
+            }}
+          />
+        )}
         <FlatList
           getItemLayout={getItemLayout}
+          updateCellsBatchingPeriod={30}
           ListHeaderComponent={renderListHeaderComponent}
           onEndReachedThreshold={0.3}
           onEndReached={async () => {
@@ -555,6 +559,8 @@ const WalletTransactions = ({ navigation }) => {
           initialNumToRender={10}
           removeClippedSubviews
           contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+          maxToRenderPerBatch={15}
+          windowSize={25}
         />
       </View>
 
@@ -615,6 +621,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       </TouchableOpacity>
     ),
     title: '',
+    headerBackTitleStyle: { fontSize: 0 },
     headerStyle: {
       backgroundColor: WalletGradient.headerColorFor(route.params.walletType),
       borderBottomWidth: 0,
@@ -623,7 +630,7 @@ WalletTransactions.navigationOptions = navigationStyle({}, (options, { theme, na
       shadowOffset: { height: 0, width: 0 },
     },
     headerTintColor: '#FFFFFF',
-    headerBackTitleVisible: false,
+    headerBackTitleVisible: true,
   };
 });
 
@@ -648,17 +655,9 @@ const styles = StyleSheet.create({
   activityIndicator: {
     marginVertical: 20,
   },
-  listHeader: {
-    marginLeft: 16,
-    marginRight: 16,
-    marginVertical: 16,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
   listHeaderTextRow: {
     flex: 1,
-    marginHorizontal: 16,
+    margin: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -667,20 +666,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     fontSize: 24,
-  },
-  browserButton2: {
-    borderRadius: 9,
-    minHeight: 49,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    alignSelf: 'auto',
-    flexGrow: 1,
-    marginHorizontal: 4,
-  },
-  marketpalceText1: {
-    fontSize: 18,
   },
   list: {
     flex: 1,

@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
-import { useTheme } from './themes';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Icon } from '@rneui/themed';
+
+import { useTheme } from './themes';
 
 type IconProps = {
   name: string;
@@ -14,6 +15,7 @@ type SecondButtonProps = {
   disabled?: boolean;
   icon?: IconProps;
   title?: string;
+  onPress?: () => void;
 };
 
 export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((props, ref) => {
@@ -25,13 +27,25 @@ export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((pro
     fontColor = colors.buttonDisabledTextColor;
   }
 
-  return (
-    <TouchableOpacity accessibilityRole="button" style={[styles.button, { backgroundColor }]} {...props} ref={ref}>
-      <View style={styles.view}>
-        {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
-        {props.title && <Text style={[styles.text, { color: fontColor }]}>{props.title}</Text>}
-      </View>
+  const buttonView = (
+    <View style={styles.view}>
+      {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+      {props.title && <Text style={[styles.text, { color: fontColor }]}>{props.title}</Text>}
+    </View>
+  );
+
+  return props.onPress ? (
+    <TouchableOpacity
+      disabled={props.disabled}
+      accessibilityRole="button"
+      style={[styles.button, { backgroundColor }]}
+      {...props}
+      ref={ref}
+    >
+      {buttonView}
     </TouchableOpacity>
+  ) : (
+    <View style={[styles.button, { backgroundColor }]}>{buttonView}</View>
   );
 });
 

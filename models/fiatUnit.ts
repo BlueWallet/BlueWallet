@@ -4,6 +4,7 @@ export const FiatUnitSource = {
   Coinbase: 'Coinbase',
   CoinDesk: 'CoinDesk',
   CoinGecko: 'CoinGecko',
+  Kraken: 'Kraken',
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
   Exir: 'Exir',
@@ -73,6 +74,23 @@ const RateExtractors = {
 
     rate = Number(rate);
     if (!(rate >= 0)) throw new Error(`Could not update rate from Bitstamp for ${ticker}: data is wrong`);
+    return rate;
+  },
+  Kraken: async (ticker: string): Promise<number> => {
+    let json;
+    try {
+      const res = await fetch(`https://api.kraken.com/0/public/Ticker?pair=XXBTZ${ticker.toUpperCase()}`);
+      json = await res.json();
+    } catch (e: any) {
+      throw new Error(`Could not update rate from Kraken for ${ticker}: ${e.message}`);
+    }
+
+    let rate = json?.result?.[`XXBTZ${ticker.toUpperCase()}`]?.c?.[0];
+
+    if (!rate) throw new Error(`Could not update rate from Kraken for ${ticker}: data is wrong`);
+
+    rate = Number(rate);
+    if (!(rate >= 0)) throw new Error(`Could not update rate from Kraken for ${ticker}: data is wrong`);
     return rate;
   },
   BNR: async (): Promise<number> => {
@@ -164,20 +182,25 @@ const RateExtractors = {
   },
 } as const;
 
-type FiatUnit = {
-  [key: string]: {
-    endPointKey: string;
-    symbol: string;
-    locale: string;
-    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp';
-  };
+export type TFiatUnit = {
+  endPointKey: string;
+  symbol: string;
+  locale: string;
+  country: string;
+  source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp' | 'Kraken';
 };
-export const FiatUnit = untypedFiatUnit as FiatUnit;
+
+export type TFiatUnits = {
+  [key: string]: TFiatUnit;
+};
+
+export const FiatUnit = untypedFiatUnit as TFiatUnits;
 
 export type FiatUnitType = {
   endPointKey: string;
   symbol: string;
   locale: string;
+  country: string;
   source: keyof typeof FiatUnitSource;
 };
 

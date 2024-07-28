@@ -1,21 +1,19 @@
-import React, { useState, useContext, useCallback, useMemo } from 'react';
-import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
-
-import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-
-import navigationStyle from '../../components/navigationStyle';
-import Lnurl from '../../class/lnurl';
-import { Chain } from '../../models/bitcoinUnits';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import selectWallet from '../../helpers/select-wallet';
+import React, { useCallback, useMemo, useState } from 'react';
+import { I18nManager, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from '@rneui/themed';
 import URL from 'url';
-import { SuccessView } from '../send/success';
-import { useTheme } from '../../components/themes';
+import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
+import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import selectWallet from '../../helpers/select-wallet';
+import loc from '../../loc';
+import { Chain } from '../../models/bitcoinUnits';
+import { SuccessView } from '../send/success';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const AuthState = {
   USER_PROMPT: 0,
@@ -25,7 +23,7 @@ const AuthState = {
 };
 
 const LnurlAuth = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const { name } = useRoute();
   const { walletID, lnurl } = useRoute().params;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [wallets, walletID]);
@@ -175,6 +173,4 @@ const styles = StyleSheet.create({
 
 LnurlAuth.navigationOptions = navigationStyle({
   title: '',
-  closeButton: true,
-  closeButtonFunc: ({ navigation }) => navigation.getParent().popToTop(),
 });

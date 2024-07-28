@@ -1,36 +1,37 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Text,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  View,
-  TouchableOpacity,
+  I18nManager,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
-  I18nManager,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { Icon } from '@rneui/themed';
 
-import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import AddressInput from '../../components/AddressInput';
-import AmountInput from '../../components/AmountInput';
-import Lnurl from '../../class/lnurl';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import Biometric from '../../class/biometrics';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import presentAlert from '../../components/Alert';
-import { useTheme } from '../../components/themes';
-import Button from '../../components/Button';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import SafeArea from '../../components/SafeArea';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueCard, BlueDismissKeyboardInputAccessory, BlueLoading } from '../../BlueComponents';
+import Lnurl from '../../class/lnurl';
+import AddressInput from '../../components/AddressInput';
+import presentAlert from '../../components/Alert';
+import AmountInput from '../../components/AmountInput';
+import Button from '../../components/Button';
+import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ScanLndInvoice = () => {
-  const { wallets, fetchAndSaveWalletTransactions } = useContext(BlueStorageContext);
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { walletID, uri, invoice } = useRoute().params;
   const name = useRoute().name;
@@ -63,12 +64,11 @@ const ScanLndInvoice = () => {
   });
 
   useEffect(() => {
-    console.log('scanLndInvoice useEffect');
-    Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
-    Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
+    const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
+    const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
     return () => {
-      Keyboard.removeAllListeners('keyboardDidShow');
-      Keyboard.removeAllListeners('keyboardDidHide');
+      showSubscription.remove();
+      hideSubscription.remove();
     };
   }, []);
 
@@ -168,10 +168,10 @@ const ScanLndInvoice = () => {
       return null;
     }
 
-    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
-      if (!(await Biometric.unlockWithBiometrics())) {
+      if (!(await unlockWithBiometrics())) {
         return;
       }
     }
@@ -223,7 +223,7 @@ const ScanLndInvoice = () => {
 
   const processTextForInvoice = text => {
     if (
-      text.toLowerCase().startsWith('lnb') ||
+      (text && text.toLowerCase().startsWith('lnb')) ||
       text.toLowerCase().startsWith('lightning:lnb') ||
       Lnurl.isLnurl(text) ||
       Lnurl.isLightningAddress(text)
@@ -323,7 +323,7 @@ const ScanLndInvoice = () => {
                   text = text.trim();
                   setDestination(text);
                 }}
-                onBarScanned={processInvoice}
+                onBarScanned={data => processTextForInvoice(data.data)}
                 address={destination}
                 isLoading={isLoading}
                 placeholder={loc.lnd.placeholder}
@@ -367,19 +367,6 @@ const ScanLndInvoice = () => {
 };
 
 export default ScanLndInvoice;
-ScanLndInvoice.navigationOptions = navigationStyle(
-  {
-    closeButton: true,
-    headerBackVisible: false,
-  },
-  opts => ({ ...opts, title: loc.send.header, statusBarStyle: 'light' }),
-);
-
-ScanLndInvoice.initialParams = {
-  uri: undefined,
-  walletID: undefined,
-  invoice: undefined,
-};
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

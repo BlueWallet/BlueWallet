@@ -1,11 +1,10 @@
-import React, { useMemo, useState, useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from 'react-native-elements';
 import {
   ActivityIndicator,
   FlatList,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   PixelRatio,
   Platform,
@@ -16,20 +15,20 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
-import loc, { formatBalance } from '../../loc';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import BottomModal from '../../components/BottomModal';
-import { FContainer, FButton } from '../../components/FloatButtons';
 import debounce from '../../blue_modules/debounce';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { useTheme } from '../../components/themes';
+import { BlueSpacing10, BlueSpacing20 } from '../../BlueComponents';
+import BottomModal from '../../components/BottomModal';
 import Button from '../../components/Button';
+import { FButton, FContainer } from '../../components/FloatButtons';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const FrozenBadge = () => {
   const { colors } = useTheme();
@@ -62,7 +61,7 @@ const OutputList = ({
   onDeSelect,
 }) => {
   const { colors } = useTheme();
-  const { txMetadata } = useContext(BlueStorageContext);
+  const { txMetadata } = useStorage();
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
@@ -85,11 +84,13 @@ const OutputList = ({
 
   return (
     <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
-      <Avatar
-        rounded
-        overlayContainerStyle={oStyles.avatar}
+      <RNElementsListItem.CheckBox
+        checkedColor="#0070FF"
+        iconType="octaicon"
+        checkedIcon="check"
+        uncheckedColor="white"
+        checked={selected}
         onPress={selected ? onDeSelect : onSelect}
-        icon={selected ? { name: 'check' } : undefined}
       />
       <RNElementsListItem.Content>
         <RNElementsListItem.Title style={oStyles.amount}>{amount}</RNElementsListItem.Title>
@@ -124,14 +125,14 @@ OutputList.propTypes = {
 
 const OutputModal = ({ item: { address, txid, value, vout, confirmations = 0 }, balanceUnit = BitcoinUnit.BTC, oMemo }) => {
   const { colors } = useTheme();
-  const { txMetadata } = useContext(BlueStorageContext);
+  const { txMetadata } = useStorage();
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const fullId = `${txid}:${vout}`;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
   const oStyles = StyleSheet.create({
-    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
+    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
     tranContainer: { paddingLeft: 20 },
@@ -193,12 +194,15 @@ const mStyles = StyleSheet.create({
   },
   buttonContainer: {
     height: 45,
+    marginBottom: 36,
+    marginHorizontal: 24,
   },
 });
 
+const transparentBackground = { backgroundColor: 'transparent' };
 const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
   const { colors } = useTheme();
-  const { txMetadata, saveToDisk } = useContext(BlueStorageContext);
+  const { txMetadata, saveToDisk } = useStorage();
   const [memo, setMemo] = useState(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
   const onMemoChange = value => setMemo(value);
   const switchValue = useMemo(() => ({ value: frozen, onValueChange: value => setFrozen(value) }), [frozen, setFrozen]);
@@ -233,11 +237,12 @@ const OutputModalContent = ({ output, wallet, onUseCoin, frozen, setFrozen }) =>
         ]}
         onChangeText={onMemoChange}
       />
-      <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} />
-      <BlueSpacing20 />
-      <View style={mStyles.buttonContainer}>
-        <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => onUseCoin([output])} />
-      </View>
+      <ListItem
+        title={loc.cc.freezeLabel}
+        containerStyle={transparentBackground}
+        Component={TouchableWithoutFeedback}
+        switch={switchValue}
+      />
       <BlueSpacing20 />
     </>
   );
@@ -253,10 +258,11 @@ OutputModalContent.propTypes = {
 
 const CoinControl = () => {
   const { colors } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useExtendedNavigation();
   const { width } = useWindowDimensions();
+  const bottomModalRef = useRef(null);
   const { walletID, onUTXOChoose } = useRoute().params;
-  const { wallets, saveToDisk, sleep } = useContext(BlueStorageContext);
+  const { wallets, saveToDisk, sleep } = useStorage();
   const wallet = wallets.find(w => w.getID() === walletID);
   // sort by height ascending, txid , vout ascending
   const utxo = wallet.getUtxo(true).sort((a, b) => a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout);
@@ -322,7 +328,8 @@ const CoinControl = () => {
 
   const handleChoose = item => setOutput(item);
 
-  const handleUseCoin = u => {
+  const handleUseCoin = async u => {
+    await bottomModalRef.current?.dismiss();
     setOutput(null);
     navigation.pop();
     onUTXOChoose(u);
@@ -385,6 +392,12 @@ const CoinControl = () => {
     return <OutputModalContent output={output} wallet={wallet} onUseCoin={handleUseCoin} frozen={oFrozen} setFrozen={setOFrozen} />;
   };
 
+  useEffect(() => {
+    if (output) {
+      bottomModalRef.current?.present();
+    }
+  }, [output]);
+
   if (loading) {
     return (
       <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
@@ -402,17 +415,22 @@ const CoinControl = () => {
       )}
 
       <BottomModal
-        isVisible={Boolean(output)}
+        ref={bottomModalRef}
         onClose={() => {
           Keyboard.dismiss();
           setOutput(false);
         }}
+        backgroundColor={colors.elevated}
+        footer={
+          <View style={mStyles.buttonContainer}>
+            <Button testID="UseCoin" title={loc.cc.use_coin} onPress={() => handleUseCoin([output])} />
+          </View>
+        }
+        footerDefaultMargins
+        contentContainerStyle={[styles.modalContent, styles.modalMinHeight]}
       >
-        <KeyboardAvoidingView enabled={!Platform.isPad} behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={[styles.modalContent, { backgroundColor: colors.elevated }]}>{output && renderOutputModalContent()}</View>
-        </KeyboardAvoidingView>
+        {output && renderOutputModalContent()}
       </BottomModal>
-
       <FlatList
         ListHeaderComponent={tipCoins}
         data={utxo}
@@ -453,11 +471,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 22,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
   },
+  modalMinHeight: Platform.OS === 'android' ? { minHeight: 500 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
@@ -474,7 +489,5 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '225deg' }],
   },
 });
-
-CoinControl.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.cc.header }));
 
 export default CoinControl;

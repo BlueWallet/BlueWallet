@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native-elements';
 import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Text } from '@rneui/themed';
+
 import { encodeUR } from '../blue_modules/ur';
-import QRCodeComponent from './QRCodeComponent';
-import { BlueCurrentTheme } from '../components/themes';
 import { BlueSpacing20 } from '../BlueComponents';
+import { BlueCurrentTheme } from '../components/themes';
 import loc from '../loc';
+import QRCodeComponent from './QRCodeComponent';
 
 const { height, width } = Dimensions.get('window');
 
@@ -41,7 +42,7 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
   fragments: string[] = [];
 
   componentDidMount() {
-    const { value, capacity = 200, hideControls = true } = this.props;
+    const { value, capacity = 175, hideControls = true } = this.props;
     try {
       this.fragments = encodeUR(value, capacity);
       this.setState(

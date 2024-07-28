@@ -1,31 +1,32 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import {
   ActivityIndicator,
-  Platform,
-  View,
-  TextInput,
-  TouchableOpacity,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
   ScrollView,
   StyleSheet,
-  KeyboardAvoidingView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Text } from 'react-native-elements';
-
-import { BlueCard, BlueReplaceFeeSuggestions, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import { BlueCurrentTheme } from '../../components/themes';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import loc from '../../loc';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import Notifications from '../../blue_modules/notifications';
-import presentAlert from '../../components/Alert';
-import Button from '../../components/Button';
+import PropTypes from 'prop-types';
+import { Text } from '@rneui/themed';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import Notifications from '../../blue_modules/notifications';
+import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueComponents';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import presentAlert, { AlertType } from '../../components/Alert';
+import Button from '../../components/Button';
+import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
-const BlueElectrum = require('../../blue_modules/BlueElectrum');
+import { BlueCurrentTheme } from '../../components/themes';
+import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
+import { popToTop } from '../../NavigationService';
+import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 
 const styles = StyleSheet.create({
   root: {
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
 });
 
 export default class CPFP extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   constructor(props) {
     super(props);
     let txid;
@@ -100,7 +101,7 @@ export default class CPFP extends Component {
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         this.setState({ isLoading: false });
-        presentAlert({ message: error.message });
+        presentAlert({ message: error.message, type: AlertType.Toast });
       }
     });
   };
@@ -109,7 +110,7 @@ export default class CPFP extends Component {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     Notifications.majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
+    this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
   }
 
   async componentDidMount() {
@@ -167,7 +168,7 @@ export default class CPFP extends Component {
           <BlueCard style={styles.center}>
             <BlueText>{text}</BlueText>
             <BlueSpacing20 />
-            <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+            <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
             <BlueSpacing />
             <Button
               disabled={this.state.newFeeRate <= this.state.feeRate}

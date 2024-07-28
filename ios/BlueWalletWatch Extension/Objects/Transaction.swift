@@ -8,7 +8,9 @@
 
 import Foundation
 
-class Transaction: NSObject, NSCoding {
+class Transaction: NSObject, NSSecureCoding {
+  static var supportsSecureCoding: Bool = true
+
   static let identifier: String = "Transaction"
   
   let time: String

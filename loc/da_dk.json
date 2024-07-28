@@ -36,7 +36,6 @@
     "details_create": "Opret",
     "details_label": "Beskrivelse",
     "details_setAmount": "Modtag med beløb",
-    "details_share": "del",
     "header": "Modtag"
   },
   "send": {
@@ -84,7 +83,8 @@
     "details_show_in_block_explorer": "Vis i block-explorer",
     "details_title": "Transaktion",
     "details_to": "Til",
-    "list_title": "transaktioner"
+    "list_title": "transaktioner",
+    "transaction": "Transaktion"
   },
   "wallets": {
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
@@ -117,7 +117,6 @@
   },
   "multisig": {
     "confirm": "Bekræft",
-    "share": "del",
     "create": "Opret",
     "ms_help_title5": "Enable advanced mode"
   },

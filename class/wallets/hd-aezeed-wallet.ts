@@ -2,6 +2,7 @@ import { CipherSeed } from 'aezeed';
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import b58 from 'bs58check';
+
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 
@@ -18,10 +19,14 @@ const bip32 = BIP32Factory(ecc);
  * @see https://github.com/lightningnetwork/lnd/blob/master/keychain/derivation.go
  */
 export class HDAezeedWallet extends AbstractHDElectrumWallet {
-  static type = 'HDAezeedWallet';
-  static typeReadable = 'HD Aezeed';
-  static segwitType = 'p2wpkh';
-  static derivationPath = "m/84'/0'/0'";
+  static readonly type = 'HDAezeedWallet';
+  static readonly typeReadable = 'HD Aezeed';
+  public readonly segwitType = 'p2wpkh';
+  static readonly derivationPath = "m/84'/0'/0'";
+  // @ts-ignore: override
+  public readonly type = HDAezeedWallet.type;
+  // @ts-ignore: override
+  public readonly typeReadable = HDAezeedWallet.typeReadable;
 
   private _entropyHex?: string;
 

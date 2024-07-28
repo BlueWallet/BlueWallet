@@ -1,18 +1,18 @@
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, InteractionManager, View } from 'react-native';
 import Share from 'react-native-share';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
-import { AbstractWallet } from '../../class';
-import Biometric from '../../class/biometrics';
+import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SafeArea from '../../components/SafeArea';
-import HandoffComponent from '../../components/handoff';
 import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
+import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
 export type RootStackParamList = {
@@ -23,10 +23,10 @@ export type RootStackParamList = {
 };
 
 const WalletXpub: React.FC = () => {
-  const { wallets } = useContext(BlueStorageContext);
+  const { wallets } = useStorage();
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
-  const wallet = wallets.find((w: AbstractWallet) => w.getID() === walletID);
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
@@ -44,16 +44,9 @@ const WalletXpub: React.FC = () => {
       enableBlur();
       const task = InteractionManager.runAfterInteractions(async () => {
         if (wallet) {
-          const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-          if (isBiometricsEnabled) {
-            if (!(await Biometric.unlockWithBiometrics())) {
-              return navigation.goBack();
-            }
-          }
           const walletXpub = wallet.getXpub();
           if (xpub !== walletXpub) {
-            navigation.setParams({ xpub: walletXpub });
+            navigation.setParams({ xpub: walletXpub || undefined });
           }
 
           setIsLoading(false);
@@ -100,9 +93,9 @@ const WalletXpub: React.FC = () => {
             <QRCodeComponent value={xpub} size={qrCodeSize} />
 
             <BlueSpacing20 />
-            <BlueCopyTextToClipboard text={xPubText} />
+            {xPubText && <CopyTextToClipboard text={xPubText} />}
           </View>
-          <HandoffComponent title={loc.wallets.xpub_title} type={HandoffComponent.activityTypes.Xpub} userInfo={{ xpub: xPubText }} />
+          <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>
             <Button onPress={handleShareButtonPressed} title={loc.receive.details_share} />
           </View>

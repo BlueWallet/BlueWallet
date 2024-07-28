@@ -1,12 +1,13 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { BlueCopyTextToClipboard, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
-import navigationStyle from '../../components/navigationStyle';
-import loc from '../../loc';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import { useTheme } from '../../components/themes';
 import SafeArea from '../../components/SafeArea';
+import { useTheme } from '../../components/themes';
+import loc from '../../loc';
 
 const LNDViewAdditionalInvoicePreImage = () => {
   // state = { walletInfo: undefined };
@@ -27,7 +28,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
           <QRCodeComponent value={preImageData} size={300} logoSize={90} />
         </View>
         <BlueSpacing20 />
-        <BlueCopyTextToClipboard text={preImageData} />
+        <CopyTextToClipboard text={preImageData} />
       </View>
     </SafeArea>
   );
@@ -47,5 +48,3 @@ const styles = StyleSheet.create({
 });
 
 export default LNDViewAdditionalInvoicePreImage;
-
-LNDViewAdditionalInvoicePreImage.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.lndViewInvoice.additional_info }));
