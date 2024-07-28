@@ -27,12 +27,12 @@ Community: [telegram group](https://t.me/bluewallet)
 
 ## BUILD & RUN IT
 
-Please refer to the engines field in package.json file for the minimum required versions of Node and npm. It is preferred that you use an even-numbered version of Node as these are LTS versions.
+Please refer to the engines field in package.json file for the minimum required versions of Node and yarn. It is preferred that you use an even-numbered version of Node as these are LTS versions.
 
-To view the version of Node and npm in your environment, run the following in your console:
+To view the version of Node and yarn in your environment, run the following in your console:
 
 ```
-node --version && npm --version
+node --version && yarn --version
 ```
 
 * In your console:
@@ -40,10 +40,10 @@ node --version && npm --version
 ```
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
-npm install
+yarn
 ```
 
-Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
+Please make sure that your console is running the most stable versions of node (even-numbered versions).
 
 * To run on Android:
 
@@ -69,7 +69,7 @@ The above command will build the app and install it. Once you launch the app it 
 
 ```
 npx pod-install
-npm start
+yarn start
 ```
 
 In another terminal window within the BlueWallet folder:
@@ -83,7 +83,7 @@ npx react-native run-ios
 
 ```
 npx pod-install
-npm start
+yarn start
 ```
 
 Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/target BlueWallet-NoLDK. Click Run.
@@ -91,7 +91,7 @@ Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/targe
 ## TESTS
 
 ```bash
-npm run test
+yarn test
 ```
 
 
