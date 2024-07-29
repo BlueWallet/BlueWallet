@@ -4570,7 +4570,7 @@ __metadata:
     react-native-haptic-feedback: 2.2.0
     react-native-idle-timer: "github:BlueWallet/react-native-idle-timer#7300b637c465c86e8db874c442e687950111da40"
     react-native-image-picker: 7.1.2
-    react-native-ios-context-menu: "github:BlueWallet/react-native-ios-context-menu#v1.15.3"
+    react-native-ios-context-menu: "github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
     react-native-keychain: 8.2.0
     react-native-linear-gradient: 2.8.3
     react-native-localize: 3.2.0
@@ -11799,7 +11799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-ios-context-menu@github:BlueWallet/react-native-ios-context-menu#v1.15.3":
+"react-native-ios-context-menu@github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e":
   version: 1.15.3
   resolution: "react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
   dependencies:
