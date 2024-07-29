@@ -123,26 +123,6 @@ platform :ios do
     cocoapods
   end
 
-  desc "Install Yarn dependencies with retry logic"
-  lane :install_yarn_dependencies do
-    attempts = 0
-    max_attempts = 2
-    begin
-      attempts += 1
-      UI.message("Attempting to install Yarn dependencies (Attempt ##{attempts})...")
-      sh("yarn install")
-    rescue => exception
-      if attempts < max_attempts
-        UI.message("Yarn install failed with error: #{exception.message}. Cleaning cache and retrying...")
-        sh("yarn cache clean")
-        retry
-      else
-        UI.error("Yarn install failed after #{max_attempts} attempts. Error: #{exception.message}")
-        raise exception
-      end
-    end
-  end
-
   desc "Build the application"
   lane :build_app_lane do
     UI.message("Building the application...")
@@ -215,8 +195,6 @@ platform :ios do
     unless File.directory?("Pods")
       install_pods
     end
-
-    install_yarn_dependencies
 
     build_app_lane
     upload_to_testflight_lane
