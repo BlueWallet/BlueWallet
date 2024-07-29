@@ -28,7 +28,6 @@ import { LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../
 import WalletGradient from '../../class/wallet-gradient';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import LNNodeBar from '../../components/LNNodeBar';
 import navigationStyle from '../../components/navigationStyle';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';

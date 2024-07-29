@@ -19,13 +19,7 @@ import {
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-import {
-  BlueApp,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  SegwitP2SHWallet,
-} from '../../class';
+import { BlueApp, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
@@ -120,7 +114,7 @@ const WalletsAdd: React.FC = () => {
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, wallets } = useStorage();
+  const { addWallet, saveToDisk } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {
