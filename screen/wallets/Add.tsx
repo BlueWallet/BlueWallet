@@ -19,17 +19,9 @@ import {
 import A from '../../blue_modules/analytics';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
-import {
-  BlueApp,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  LightningLdkWallet,
-  SegwitP2SHWallet,
-} from '../../class';
+import { BlueApp, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, SegwitP2SHWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import { LdkButton } from '../../components/LdkButton';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import WalletButton from '../../components/WalletButton';
@@ -44,7 +36,6 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
-  LDK = 'LDK',
 }
 
 interface State {
@@ -119,12 +110,11 @@ const WalletsAdd: React.FC = () => {
   const selectedIndex = state.selectedIndex;
   const label = state.label;
   const selectedWalletType = state.selectedWalletType;
-  const backdoorPressed = state.backdoorPressed;
   const entropy = state.entropy;
   const entropyButtonText = state.entropyButtonText;
   //
   const colorScheme = useColorScheme();
-  const { addWallet, saveToDisk, wallets } = useStorage();
+  const { addWallet, saveToDisk } = useStorage();
   const { isAdvancedModeEnabled } = useSettings();
   const { navigate, goBack, setOptions } = useNavigation();
   const stylesHook = {
@@ -259,33 +249,7 @@ const WalletsAdd: React.FC = () => {
       setIsLoading(false);
       // @ts-ignore: Return later to update
       navigate('WalletsAddMultisig', { walletLabel: label.trim().length > 0 ? label : loc.multisig.default_label });
-    } else if (selectedWalletType === ButtonSelected.LDK) {
-      setIsLoading(false);
-      createLightningLdkWallet();
     }
-  };
-
-  const createLightningLdkWallet = async () => {
-    const foundLdk = wallets.find(w => w.type === LightningLdkWallet.type);
-    if (foundLdk) {
-      return presentAlert({ message: 'LDK wallet already exists' });
-    }
-    setIsLoading(true);
-    const wallet = new LightningLdkWallet();
-    wallet.setLabel(label || loc.wallets.details_title);
-
-    await wallet.generate();
-    await wallet.init();
-    setIsLoading(false);
-    addWallet(wallet);
-    await saveToDisk();
-
-    A(A.ENUM.CREATED_WALLET);
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    // @ts-ignore: Return later to update
-    navigate('PleaseBackupLdk', {
-      walletID: wallet.getID(),
-    });
   };
 
   const createLightningWallet = async () => {
@@ -386,12 +350,6 @@ const WalletsAdd: React.FC = () => {
     setSelectedWalletType(ButtonSelected.OFFCHAIN);
   };
 
-  const handleOnLdkButtonPressed = async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    Keyboard.dismiss();
-    setSelectedWalletType(ButtonSelected.LDK);
-  };
-
   return (
     <ScrollView style={stylesHook.root} testID="ScrollView">
       <BlueSpacing20 />
@@ -424,15 +382,6 @@ const WalletsAdd: React.FC = () => {
             onPress={handleOnLightningButtonPressed}
             size={styles.button}
           />
-          {backdoorPressed > 10 ? (
-            <LdkButton
-              active={selectedWalletType === ButtonSelected.LDK}
-              onPress={handleOnLdkButtonPressed}
-              style={styles.button}
-              subtext={LightningLdkWallet.getPackageVersion()}
-              text="LDK"
-            />
-          ) : null}
           <WalletButton
             buttonType="Vault"
             testID="ActivateVaultButton"

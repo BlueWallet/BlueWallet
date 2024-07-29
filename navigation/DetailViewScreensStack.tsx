@@ -7,7 +7,6 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
-import LdkInfo from '../screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from '../screen/lnd/lndViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -25,7 +24,6 @@ import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/details';
 import GenerateWord from '../screen/wallets/generateWord';
-import LdkViewLogs from '../screen/wallets/ldkViewLogs';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
@@ -52,7 +50,6 @@ import {
   ToolsComponent,
 } from './LazyLoadSettingsStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
-import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
 import ReorderWalletsStackRoot from './ReorderWalletsStack';
@@ -117,19 +114,6 @@ const DetailViewStackScreensStack = () => {
         options={WalletTransactions.navigationOptions(theme)}
       />
       <DetailViewStack.Screen
-        name="LDKOpenChannelRoot"
-        component={LDKOpenChannelRoot}
-        options={navigationStyle({
-          title: loc.lnd.new_channel,
-          headerLargeTitle: true,
-          statusBarStyle: 'auto',
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerBackVisible: false,
-          gestureEnabled: false,
-        })(theme)}
-      />
-      <DetailViewStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
-      <DetailViewStack.Screen
         name="WalletDetails"
         component={WalletDetails}
         options={navigationStyle({
@@ -138,7 +122,6 @@ const DetailViewStackScreensStack = () => {
           headerRight: () => SaveButton,
         })(theme)}
       />
-      <DetailViewStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
       <DetailViewStack.Screen
         name="TransactionDetails"
         component={TransactionDetails}

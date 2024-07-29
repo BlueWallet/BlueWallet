@@ -99,10 +99,7 @@ export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
   WalletsList: undefined;
   WalletTransactions: { walletID: string; walletType: string };
-  LDKOpenChannelRoot: undefined;
-  LdkInfo: undefined;
   WalletDetails: { walletID: string };
-  LdkViewLogs: undefined;
   TransactionDetails: { transactionId: string };
   TransactionStatus: { hash?: string; walletID?: string };
   CPFP: { transactionId: string };
