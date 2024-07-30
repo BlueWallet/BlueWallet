@@ -125,6 +125,8 @@
     "assert": "2.1.0",
     "base-x": "4.0.0",
     "bc-bech32": "file:blue_modules/bc-bech32",
+    "bc-ur": "file:blue_modules/bc-ur",
+    "react-native-bw-file-access": "file:blue_modules/react-native-bw-file-access",
     "bech32": "2.0.0",
     "bignumber.js": "9.1.1",
     "bip21": "2.0.3",
@@ -200,9 +202,6 @@
     "stream-browserify": "3.0.0",
     "url": "0.11.3",
     "wif": "2.0.6"
-  },
-  "resolutions": {
-    "bc-bech32": "file:blue_modules/bc-bech32"
   },
   "react-native": {
     "crypto": "react-native-crypto",
