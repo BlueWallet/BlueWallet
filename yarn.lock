@@ -2743,18 +2743,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/babel-plugin-codegen@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/babel-plugin-codegen@npm:0.74.84"
+"@react-native/babel-plugin-codegen@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/babel-plugin-codegen@npm:0.74.86"
   dependencies:
-    "@react-native/codegen": 0.74.84
-  checksum: b2ada55a80546162fee02129f4e7610a8a24780531ea67d198dbbb64d5c6ae29044a7af542a3f41d390296ef988d53d0304d5f6d17ab03c493d3f0ab440efa11
+    "@react-native/codegen": 0.74.86
+  checksum: 9f1ce5f8caafddac8521fe937147b05149b2a9bbdd58adf59a89c18e5bbaa61570723c5402991136d1c77fc47b4a2d2ae8b324dd2c7029a4603b6628f3ae1b67
   languageName: node
   linkType: hard
 
-"@react-native/babel-preset@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/babel-preset@npm:0.74.84"
+"@react-native/babel-preset@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/babel-preset@npm:0.74.86"
   dependencies:
     "@babel/core": ^7.20.0
     "@babel/plugin-proposal-async-generator-functions": ^7.0.0
@@ -2796,18 +2796,18 @@ __metadata:
     "@babel/plugin-transform-typescript": ^7.5.0
     "@babel/plugin-transform-unicode-regex": ^7.0.0
     "@babel/template": ^7.0.0
-    "@react-native/babel-plugin-codegen": 0.74.84
+    "@react-native/babel-plugin-codegen": 0.74.86
     babel-plugin-transform-flow-enums: ^0.0.2
     react-refresh: ^0.14.0
   peerDependencies:
     "@babel/core": "*"
-  checksum: 5cdc7a56b165e1a03c8cc24bf5d8fd32bf987cd889aa958a82aa828e5fdb651d517a033b16be33f4fa26b9b685dfb805df644bdccc8067fb9fca2bfa82a417b6
+  checksum: a3b4b47fbc13f5a15ba3a3cf45bf51ce13af0449192d0d469dde25d8bf3c80354fc4cb5c2afe7a2bbcec250284b79f02e4c7a23cda3f034d2ad03b4a983d3999
   languageName: node
   linkType: hard
 
-"@react-native/codegen@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/codegen@npm:0.74.84"
+"@react-native/codegen@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/codegen@npm:0.74.86"
   dependencies:
     "@babel/parser": ^7.20.0
     glob: ^7.1.1
@@ -2818,7 +2818,7 @@ __metadata:
     nullthrows: ^1.1.1
   peerDependencies:
     "@babel/preset-env": ^7.1.6
-  checksum: d44d2e2d833dd92012cb947e7d815f47892b7b612eed99a19fbf3a3c0cdebbcc72ef9eef3dd538f7603910275344b0a0bdfcf9864a0a913a5b6401b382d07166
+  checksum: 1417f0e86a04c2bdcc9807a3495cf4f6c557cf382113eed42330d3c3e31fd9a7774759550771c219d485bec0697ae54a518f099d2e4d995740339c4fc9c978e3
   languageName: node
   linkType: hard
 
@@ -2877,10 +2877,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/js-polyfills@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/js-polyfills@npm:0.74.84"
-  checksum: 00faaa28900c63d2ab3f65418ad2b35bef45d9643b6352a8d395db4562090a562c7a1ad55da36917e837032c2861efaee4d75353b48532619cb998d0a4da1807
+"@react-native/js-polyfills@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/js-polyfills@npm:0.74.86"
+  checksum: 03e0cc36f6924b5b2b59afc4e3556f2fa919e60b7389a789a2e067e5f1be0cfdf08ec89540823aee58846bca80bc8958fe9dafb78b4a810fd81660727e58e4bc
   languageName: node
   linkType: hard
 
@@ -2891,29 +2891,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-native/metro-babel-transformer@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/metro-babel-transformer@npm:0.74.84"
+"@react-native/metro-babel-transformer@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/metro-babel-transformer@npm:0.74.86"
   dependencies:
     "@babel/core": ^7.20.0
-    "@react-native/babel-preset": 0.74.84
+    "@react-native/babel-preset": 0.74.86
     hermes-parser: 0.19.1
     nullthrows: ^1.1.1
   peerDependencies:
     "@babel/core": "*"
-  checksum: 142c85cc6916aa28fb4fc1c6943397bf4ba4eb4bce86d9fad9afc394b87d99972ce1e47db43615aad6cc99c1c85a32fca7a9873bc0819972c181d221f54b2609
+  checksum: d2eb7671fb931c33e32ed5d70d12bcd6f9415e905e42eb64eec74b802e2f73a80d332fa0e7ccd3f3b75a71c5fa2a47fe7cfb38a7e2b8813734c6e47b4ea533f0
   languageName: node
   linkType: hard
 
-"@react-native/metro-config@npm:0.74.84":
-  version: 0.74.84
-  resolution: "@react-native/metro-config@npm:0.74.84"
+"@react-native/metro-config@npm:0.74.86":
+  version: 0.74.86
+  resolution: "@react-native/metro-config@npm:0.74.86"
   dependencies:
-    "@react-native/js-polyfills": 0.74.84
-    "@react-native/metro-babel-transformer": 0.74.84
+    "@react-native/js-polyfills": 0.74.86
+    "@react-native/metro-babel-transformer": 0.74.86
     metro-config: ^0.80.3
     metro-runtime: ^0.80.3
-  checksum: fcad7e0e4a304fb90e7d74bd008e245d5f45fa59fbb94aabb3feb87aec96372d5881fdb082c79bd4e3aaca583025de7207c8ffc3e0c1e9c415034c357e8e21f7
+  checksum: 06b5603e82681836c28dd7f28a7317a673c79352a2e04dfd89526afedab6fd6abc3c74560d959851a07215c608613c982daeb387eea836422e5691cb8b88fc60
   languageName: node
   linkType: hard
 
@@ -4487,7 +4487,7 @@ __metadata:
     "@react-native-community/push-notification-ios": 1.11.0
     "@react-native-menu/menu": 1.1.2
     "@react-native/eslint-config": 0.74.75
-    "@react-native/metro-config": 0.74.84
+    "@react-native/metro-config": 0.74.86
     "@react-navigation/drawer": 6.7.2
     "@react-navigation/native": 6.1.18
     "@react-navigation/native-stack": 6.11.0
