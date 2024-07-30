@@ -201,6 +201,9 @@
     "url": "0.11.3",
     "wif": "2.0.6"
   },
+  "resolutions": {
+    "bc-bech32": "file:blue_modules/bc-bech32"
+  },
   "react-native": {
     "crypto": "react-native-crypto",
     "net": "react-native-tcp-socket",
