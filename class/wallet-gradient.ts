@@ -8,7 +8,6 @@ import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-s
 import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
 import { LegacyWallet } from './wallets/legacy-wallet';
 import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet'; // Missing import
-import { LightningLdkWallet } from './wallets/lightning-ldk-wallet';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
@@ -26,7 +25,6 @@ export default class WalletGradient {
   static defaultGradients: string[] = ['#B770F6', '#9013FE'];
   static lightningCustodianWallet: string[] = ['#F1AA07', '#FD7E37']; // Corrected property with missing colors
   static aezeedWallet: string[] = ['#8584FF', '#5351FB'];
-  static ldkWallet: string[] = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
     const { colors } = useTheme();
@@ -67,9 +65,6 @@ export default class WalletGradient {
         break;
       case HDAezeedWallet.type:
         gradient = WalletGradient.aezeedWallet;
-        break;
-      case LightningLdkWallet.type:
-        gradient = WalletGradient.ldkWallet;
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
@@ -130,9 +125,6 @@ export default class WalletGradient {
         break;
       case HDAezeedWallet.type:
         gradient = WalletGradient.aezeedWallet;
-        break;
-      case LightningLdkWallet.type:
-        gradient = WalletGradient.ldkWallet;
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;

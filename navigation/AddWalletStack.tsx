@@ -11,7 +11,6 @@ import {
   ImportWalletComponent,
   ImportWalletDiscoveryComponent,
   PleaseBackupComponent,
-  PleaseBackupLdkComponent,
   PleaseBackupLNDHubComponent,
   ProvideEntropyComponent,
   WalletsAddMultisigComponent,
@@ -27,7 +26,6 @@ export type AddWalletStackParamList = {
   ImportCustomDerivationPath: undefined;
   PleaseBackup: undefined;
   PleaseBackupLNDHub: undefined;
-  PleaseBackupLdk: undefined;
   ProvideEntropy: undefined;
   WalletsAddMultisig: {
     walletLabel: string;
@@ -86,15 +84,6 @@ const AddWalletStack = () => {
         name="PleaseBackupLNDHub"
         component={PleaseBackupLNDHubComponent}
         options={navigationStyle({ gestureEnabled: false, headerBackVisible: false, title: loc.pleasebackup.title })(theme)}
-      />
-      <Stack.Screen
-        name="PleaseBackupLdk"
-        component={PleaseBackupLdkComponent}
-        options={navigationStyle({
-          title: loc.pleasebackup.title,
-          gestureEnabled: false,
-          headerBackVisible: false,
-        })(theme)}
       />
       <Stack.Screen
         name="ProvideEntropy"
