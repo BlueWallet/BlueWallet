@@ -133,7 +133,7 @@ desc "Increment build number"
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
-      export_method: "app-store-connect",
+      export_method: "app-store",
       include_bitcode: false,
       configuration: "Release",
       skip_profile_detection: true,
