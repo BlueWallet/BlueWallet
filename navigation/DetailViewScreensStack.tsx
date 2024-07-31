@@ -230,11 +230,7 @@ const DetailViewStackScreensStack = () => {
       />
 
       <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
-      <DetailViewStack.Screen
-        name="SendDetailsRoot"
-        component={SendDetailsStack}
-        options={navigationStyle({ headerShown: false, presentation: isDesktop ? 'fullScreenModal' : 'modal' })(theme)}
-      />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
