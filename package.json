@@ -172,7 +172,7 @@
     "react-native-ios-context-menu": "github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e",
     "react-native-keychain": "8.2.0",
     "react-native-linear-gradient": "2.8.3",
-    "react-native-localize": "3.2.0",
+    "react-native-localize": "3.2.1",
     "react-native-obscure": "github:BlueWallet/react-native-obscure#f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb",
     "react-native-permissions": "4.1.5",
     "react-native-privacy-snapshot": "github:BlueWallet/react-native-privacy-snapshot#529e4627d93f67752a27e82a040ff7b64dca0783",
