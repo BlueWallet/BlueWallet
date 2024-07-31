@@ -217,7 +217,7 @@ const SelectFeeModal = forwardRef<BottomModalHandle, SelectFeeModalProps>(
             <Text style={[styles.feeModalLabel, stylesHook.feeModalLabel]}>{loc.send.insert_custom_fee}</Text>
             <View style={styles.optionsContent} />
             <TextInput
-              style={[styles.feeModalLabel, stylesHook.feeModalLabel]}
+              style={[styles.feeModalLabel, stylesHook.feeModalLabel, styles.customFeeTextInput]}
               keyboardType="numeric"
               placeholder={loc.send.create_fee}
               value={customFee}
@@ -276,6 +276,15 @@ const styles = StyleSheet.create({
   feeModalLabel: {
     fontSize: 22,
     fontWeight: '600',
+  },
+  customFeeTextInput: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#9aa0aa',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 8,
+    marginVertical: 8,
+    fontSize: 16,
   },
   feeModalTime: {
     borderRadius: 5,
