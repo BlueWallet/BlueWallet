@@ -10,7 +10,7 @@ on:
 
 jobs:
   buildAndPackage:
-    runs-on: ubuntu-latest  # Use ubuntu-latest for Flatpak support
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
@@ -77,6 +77,10 @@ jobs:
       - name: Install Flatpak and Flatpak Builder
         run: |
           sudo apt-get install -y flatpak flatpak-builder
+
+      - name: Add Flathub Remote
+        run: |
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
       - name: Set up Flatpak environment
         run: |
