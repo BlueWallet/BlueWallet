@@ -210,5 +210,5 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
-  ReorderWallets: undefined;
+  ManageWallets: undefined;
 };

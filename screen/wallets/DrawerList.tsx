@@ -124,7 +124,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 
   const handleLongPress = useCallback(() => {
     if (state.wallets.length > 1) {
-      navigation.navigate('ReorderWallets');
+      navigation.navigate('ManageWallets');
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }

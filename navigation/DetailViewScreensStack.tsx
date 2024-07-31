@@ -52,7 +52,6 @@ import {
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ReorderWalletsStackRoot from './ReorderWalletsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
 import ScanQRCodeStackRoot from './ScanQRCodeStack';
 import SendDetailsStack from './SendDetailsStack';
@@ -63,6 +62,7 @@ import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
+import ManageWallets from '../screen/wallets/ManageWallets';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -362,13 +362,15 @@ const DetailViewStackScreensStack = () => {
         }}
       />
       <DetailViewStack.Screen
-        name="ReorderWallets"
-        component={ReorderWalletsStackRoot}
-        options={{
-          headerShown: false,
+        name="ManageWallets"
+        component={ManageWallets}
+        options={navigationStyle({
+          headerBackVisible: false,
+          headerLargeTitle: true,
           gestureEnabled: false,
           presentation: 'modal',
-        }}
+          title: loc.wallets.manage_title,
+        })(theme)}
       />
     </DetailViewStack.Navigator>
   );
