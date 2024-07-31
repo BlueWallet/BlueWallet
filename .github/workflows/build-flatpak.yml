@@ -111,7 +111,7 @@ jobs:
                   {
                     "type": "archive",
                     "url": "https://github.com/waydroid/waydroid/archive/refs/heads/main.zip",
-                    "sha256": "sha256-of-the-file"
+                    "sha256": "Failed to download sources: module waydroid: "6e7d62be87a89ea6ffeda98e6a4b1e0b251ad1d945557c07492aad883e82a638"
                   },
                   {
                     "type": "file",
