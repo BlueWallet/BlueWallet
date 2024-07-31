@@ -42,15 +42,24 @@ jobs:
         run: yarn install
 
       - name: Generate Build Number based on timestamp
+        id: generate_build_number
         run: |
           NEW_BUILD_NUMBER=$(date +%s)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+
+      - name: Extract Version Name
+        id: extract_version_name
+        run: |
+          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "::set-output name=version_name::$VERSION_NAME"
 
       - name: Build APK
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ steps.generate_build_number.outputs.build_number }}
         run: |
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh
@@ -59,8 +68,8 @@ jobs:
         uses: actions/upload-artifact@v2
         if: success()
         with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-*.apk
+          name: BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).apk
+          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).apk
 
   buildFlatpak:
     runs-on: ubuntu-latest
@@ -73,7 +82,7 @@ jobs:
       - name: Download APK Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.apk
+          name: BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).apk
 
       - name: Install Flatpak and Flatpak Builder
         run: |
@@ -128,10 +137,10 @@ jobs:
       - name: Package Flatpak
         run: |
           flatpak build-export repo build-dir
-          flatpak build-bundle repo BlueWallet-${{ env.NEW_BUILD_NUMBER }}.flatpak io.bluewallet.bluewallet
+          flatpak build-bundle repo BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).flatpak io.bluewallet.bluewallet
 
       - name: Upload Flatpak Artifact
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet-flatpak
-          path: BlueWallet-${{ env.NEW_BUILD_NUMBER }}.flatpak
+          path: BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).flatpak
