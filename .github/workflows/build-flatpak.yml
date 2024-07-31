@@ -88,8 +88,9 @@ jobs:
 
       - name: Create Flatpak Project Directory
         run: |
-          mkdir bluewallet-flatpak
-          mv ./android/app/build/outputs/apk/release/BlueWallet-*.apk bluewallet-flatpak/BlueWallet.apk
+          mkdir -p bluewallet-flatpak
+          cp ./android/app/build/outputs/apk/release/BlueWallet-*.apk bluewallet-flatpak/BlueWallet.apk
+
       - name: Create Flatpak Manifest
         run: |
           cat <<EOF > bluewallet-flatpak/manifest.json
@@ -105,7 +106,7 @@ jobs:
                 "buildsystem": "simple",
                 "build-commands": [
                   "mkdir -p /app/waydroid",
-                  "install -Dm644 /app/BlueWallet.apk /app/waydroid/BlueWallet.apk"
+                  "install -Dm644 BlueWallet.apk /app/waydroid/BlueWallet.apk"
                 ],
                 "sources": [
                   {
