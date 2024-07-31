@@ -91,44 +91,44 @@ jobs:
           mkdir -p bluewallet-flatpak
           cp ./android/app/build/outputs/apk/release/BlueWallet-*.apk bluewallet-flatpak/BlueWallet.apk
 
-      - name: Create Flatpak Manifest
-        run: |
-          cat <<EOF > bluewallet-flatpak/manifest.json
-          {
-            "app-id": "io.bluewallet.bluewallet",
-            "runtime": "org.freedesktop.Platform",
-            "runtime-version": "21.08",
-            "sdk": "org.freedesktop.Sdk",
-            "command": "/app/bin/waydroid",  # Adjust this path based on where the binary is installed
-            "modules": [
-              {
-                "name": "waydroid",
-                "buildsystem": "cmake",
-                "sources": [
-                  {
-                    "type": "git",
-                    "url": "https://github.com/waydroid/waydroid.git",
-                    "branch": "main"
-                  }
-                ]
-              },
-              {
-                "name": "bluewallet-apk",
-                "buildsystem": "simple",
-                "build-commands": [
-                  "mkdir -p /app/waydroid",
-                  "install -Dm644 BlueWallet.apk /app/waydroid/BlueWallet.apk"
-                ],
-                "sources": [
-                  {
-                    "type": "file",
-                    "path": "BlueWallet.apk"
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
+          - name: Create Flatpak Manifest
+          run: |
+            cat <<EOF > bluewallet-flatpak/manifest.json
+            {
+              "app-id": "io.bluewallet.bluewallet",
+              "runtime": "org.freedesktop.Platform",
+              "runtime-version": "21.08",
+              "sdk": "org.freedesktop.Sdk",
+              "command": "/app/bin/waydroid",  # Adjust this path based on where the binary is installed
+              "modules": [
+                {
+                  "name": "waydroid",
+                  "buildsystem": "cmake",
+                  "sources": [
+                    {
+                      "type": "git",
+                      "url": "https://github.com/waydroid/waydroid.git",
+                      "branch": "main"
+                    }
+                  ]
+                },
+                {
+                  "name": "bluewallet-apk",
+                  "buildsystem": "simple",
+                  "build-commands": [
+                    "mkdir -p /app/waydroid",
+                    "install -Dm644 BlueWallet.apk /app/waydroid/BlueWallet.apk"
+                  ],
+                  "sources": [
+                    {
+                      "type": "file",
+                      "path": "BlueWallet.apk"
+                    }
+                  ]
+                }
+              ]
+            }
+            EOF
 
       - name: Build Flatpak
         run: |
