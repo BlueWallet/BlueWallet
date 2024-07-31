@@ -78,13 +78,13 @@ jobs:
         run: |
           sudo apt-get install -y flatpak flatpak-builder
 
-      - name: Add Flathub Remote
+      - name: Add Flathub Remote for User
         run: |
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-      - name: Set up Flatpak environment
+      - name: Set up Flatpak environment for User
         run: |
-          flatpak install -y flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08
+          flatpak --user install -y flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08
 
       - name: Create Flatpak Project Directory
         run: |
