@@ -1,12 +1,13 @@
 name: BuildReleaseApkAndPackageAsFlatpak
 
 on:
+  pull_request:
+    branches:
+      - master
   push:
     branches:
       - master
-  pull_request:
-    branches:
-    - master
+
 jobs:
   buildAndPackage:
     runs-on: ubuntu-latest
@@ -37,9 +38,12 @@ jobs:
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh
 
-      - name: Set up Flatpak and Flatpak Builder
+      - name: Install Flatpak and Flatpak Builder
         run: |
+          sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08
 
       - name: Create Flatpak Project Directory
         run: |
