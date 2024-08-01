@@ -13,8 +13,11 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout project
+      - name: Checkout BlueWallet repository (master branch)
         uses: actions/checkout@v3
+        with:
+          repository: BlueWallet/BlueWallet
+          ref: master
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -62,7 +65,7 @@ jobs:
             - name: waydroid
               buildsystem: simple
               build-commands:
-                - git clone https://github.com/waydroid/waydroid.git
+                - git clone https://github.com/waydroid/waydroid.git -b main
                 - mkdir -p /app/waydroid
                 - cp -r waydroid/* /app/waydroid/
               sources:
