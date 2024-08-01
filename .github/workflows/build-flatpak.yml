@@ -1,9 +1,6 @@
 name: BuildReleaseApkAndPackageAsFlatpak
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
@@ -15,76 +12,32 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
 
-      - name: Specify node version
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Use yarn caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.yarn/berry/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Use specific Java version for sdkmanager to work
+      - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
 
-      - name: Install node_modules
+      - name: Install dependencies
         run: yarn install
-
-      - name: Install Android SDK dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d $ANDROID_HOME/cmdline-tools
-          mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/tools
-          yes | $ANDROID_HOME/cmdline-tools/tools/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/tools/bin/sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
-
-      - name: Generate Build Number based on timestamp
-        id: generate_build_number
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-
-      - name: Extract Version Name
-        id: extract_version_name
-        run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
 
       - name: Build APK
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ steps.generate_build_number.outputs.build_number }}
         run: |
           chmod +x ./scripts/build-release-apk.sh
           ./scripts/build-release-apk.sh
 
-      - name: Install Flatpak and Flatpak Builder
+      - name: Set up Flatpak and Flatpak Builder
         run: |
           sudo apt-get install -y flatpak flatpak-builder
-
-      - name: Add Flathub Remote for User
-        run: |
-          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-      - name: Set up Flatpak environment for User
-        run: |
-          flatpak --user install -y flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08
 
       - name: Create Flatpak Project Directory
         run: |
@@ -93,51 +46,53 @@ jobs:
 
       - name: Create Flatpak Manifest
         run: |
-            cat <<EOF > bluewallet-flatpak/manifest.json
-            {
-              "app-id": "io.bluewallet.bluewallet",
-              "runtime": "org.freedesktop.Platform",
-              "runtime-version": "21.08",
-              "sdk": "org.freedesktop.Sdk",
-              "command": "/app/bin/waydroid",
-              "modules": [
-                {
-                  "name": "waydroid",
-                  "buildsystem": "cmake",
-                  "sources": [
-                    {
-                      "type": "git",
-                      "url": "https://github.com/waydroid/waydroid.git",
-                      "branch": "main"
-                    }
-                  ]
-                },
-                {
-                  "name": "bluewallet-apk",
-                  "buildsystem": "simple",
-                  "build-commands": [
-                    "mkdir -p /app/waydroid",
-                    "install -Dm644 BlueWallet.apk /app/waydroid/BlueWallet.apk"
-                  ],
-                  "sources": [
-                    {
-                      "type": "file",
-                      "path": "BlueWallet.apk"
-                    }
-                  ]
-                }
-              ]
-            }
-            EOF
+          cat <<EOF > bluewallet-flatpak/manifest.yml
+          app-id: io.bluewallet.bluewallet
+          runtime: org.freedesktop.Platform
+          runtime-version: '21.08'
+          sdk: org.freedesktop.Sdk
+          command: /app/bin/run-apk
+          modules:
+            - name: waydroid
+              buildsystem: simple
+              build-commands:
+                - git clone https://github.com/waydroid/waydroid.git
+                - mkdir -p /app/waydroid
+                - cp -r waydroid/* /app/waydroid/
+              sources:
+                - type: git
+                  url: https://github.com/waydroid/waydroid.git
+                  branch: main
+
+            - name: run-apk
+              buildsystem: simple
+              build-commands:
+                - mkdir -p /app/bin
+                - echo '#!/bin/bash' > /app/bin/run-apk
+                - echo 'waydroid init' >> /app/bin/run-apk
+                - echo 'waydroid-container' >> /app/bin/run-apk
+                - echo 'adb install /app/bluewallet/BlueWallet.apk' >> /app/bin/run-apk
+                - echo 'adb shell am start -n io.bluewallet.bluewallet/.MainActivity' >> /app/bin/run-apk
+                - chmod +x /app/bin/run-apk
+
+            - name: bluewallet-apk
+              buildsystem: simple
+              build-commands:
+                - mkdir -p /app/bluewallet
+                - install -Dm644 BlueWallet.apk /app/bluewallet/BlueWallet.apk
+              sources:
+                - type: file
+                  path: BlueWallet.apk
+          EOF
 
       - name: Build Flatpak
         run: |
-          flatpak-builder --user --install --force-clean build-dir bluewallet-flatpak/manifest.json
+          flatpak-builder --user --install --force-clean build-dir bluewallet-flatpak/manifest.yml
 
       - name: Package Flatpak
         run: |
           flatpak build-export repo build-dir
-          flatpak build-bundle repo BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).flatpak io.bluewallet.bluewallet
+          flatpak build-bundle repo BlueWallet-${{ github.sha }}.flatpak io.bluewallet.bluewallet
 
       - name: Upload APK and Flatpak Artifacts
         uses: actions/upload-artifact@v2
@@ -145,4 +100,4 @@ jobs:
           name: BlueWallet-Artifacts
           path: |
             ./android/app/build/outputs/apk/release/BlueWallet-*.apk
-            BlueWallet-${{ steps.extract_version_name.outputs.version_name }}(${{ steps.generate_build_number.outputs.build_number }}).flatpak
+            BlueWallet-${{ github.sha }}.flatpak
