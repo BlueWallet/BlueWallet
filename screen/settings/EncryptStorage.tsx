@@ -139,14 +139,12 @@ const EncryptStorage = () => {
   };
 
   const renderPasscodeExplanation = () => {
-    return (
-      Platform.OS === 'android' && Platform.Version >= 30 ? (
-        <>
-          <BlueText />
-          <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
-        </>
-      ) : null
-    );
+    return Platform.OS === 'android' && Platform.Version >= 30 ? (
+      <>
+        <BlueText />
+        <BlueText>{loc.formatString(loc.settings.biometrics_fail, { type: deviceBiometricType! })}</BlueText>
+      </>
+    ) : null;
   };
 
   return (
