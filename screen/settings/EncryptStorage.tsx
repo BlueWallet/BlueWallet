@@ -19,8 +19,6 @@ enum ActionType {
   SetDeviceBiometricCapable = 'SET_DEVICE_BIOMETRIC_CAPABLE',
   SetCurrentLoadingSwitch = 'SET_CURRENT_LOADING_SWITCH',
   SetModalType = 'SET_MODAL_TYPE',
-  SetIsSuccess = 'SET_IS_SUCCESS',
-  ResetState = 'RESET_STATE',
 }
 
 interface Action {
@@ -34,7 +32,6 @@ interface State {
   deviceBiometricCapable: boolean;
   currentLoadingSwitch: string | null;
   modalType: keyof typeof MODAL_TYPES;
-  isSuccess: boolean;
 }
 
 const initialState: State = {
@@ -43,7 +40,6 @@ const initialState: State = {
   deviceBiometricCapable: false,
   currentLoadingSwitch: null,
   modalType: MODAL_TYPES.ENTER_PASSWORD,
-  isSuccess: false,
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -58,10 +54,6 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, currentLoadingSwitch: action.payload };
     case ActionType.SetModalType:
       return { ...state, modalType: action.payload };
-    case ActionType.SetIsSuccess:
-      return { ...state, isSuccess: action.payload };
-    case ActionType.ResetState:
-      return initialState;
     default:
       return state;
   }
@@ -97,7 +89,6 @@ const EncryptStorage = () => {
   }, [initializeState]);
 
   const handleDecryptStorage = async () => {
-    dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: 'decrypt' });
     dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.ENTER_PASSWORD });
     promptRef.current?.present();
   };
@@ -156,10 +147,6 @@ const EncryptStorage = () => {
         </>
       ) : null
     );
-  };
-
-  const onModalDismiss = () => {
-    initializeState(); // Reinitialize state on modal dismiss to refresh the UI
   };
 
   return (
@@ -222,6 +209,7 @@ const EncryptStorage = () => {
             try {
               await encryptStorage(password);
               await saveToDisk();
+              dispatch({ type: ActionType.SetModalType, payload: MODAL_TYPES.SUCCESS });
               success = true;
             } catch (error) {
               presentAlert({ title: loc.errors.error, message: (error as Error).message });
@@ -233,17 +221,18 @@ const EncryptStorage = () => {
               await saveToDisk();
               success = true;
             } catch (error) {
-              presentAlert({ message: loc._.bad_password });
               success = false;
             }
           }
+          dispatch({ type: ActionType.SetLoading, payload: false });
+          dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
+          initializeState();
           return success;
         }}
         onConfirmationFailure={() => {
           dispatch({ type: ActionType.SetLoading, payload: false });
           dispatch({ type: ActionType.SetCurrentLoadingSwitch, payload: null });
         }}
-        onDismiss={onModalDismiss}
       />
     </ScrollView>
   );

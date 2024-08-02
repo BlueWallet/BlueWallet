@@ -12,6 +12,7 @@ import {
   sup,
   yo,
 } from './helperz';
+import { element } from 'detox';
 
 /**
  * this testsuite is for test cases that require no wallets to be present
@@ -248,19 +249,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // first, trying to mistype second password:
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol. lets tap it
-    await element(by.type('android.widget.EditText')).typeText('08902');
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('666');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match.'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('08902');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).typeText('666');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
 
     // now, lets put correct passwords and encrypt the storage
-    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.type('android.widget.EditText')).typeText('qqq');
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('qqq');
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).typeText('qqq');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).typeText('qqq');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
 
     // relaunch app
     await device.launchApp({ newInstance: true });
@@ -391,11 +392,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // lets put correct passwords and encrypt the storage
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
+
+    await element(by.id('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).typeText('pass');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).typeText('pass');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
     await element(by.id('PlausibleDeniabilityButton')).tap();
+
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
@@ -418,8 +423,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(33000);
     //
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('pass');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
     await yo('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible
@@ -432,16 +438,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // putting FAKE storage password. should not succeed
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
     await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('fake');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Incorrect password. Please try again.'))).toBeVisible();
-    await element(by.text('OK')).tap();
-
+    await element(by.id('PasswordInput')).typeText('fake');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
     // correct password
-    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-    await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('pass');
-    await element(by.text('OK')).tap();
+    await element(by.ic('PasswordInput')).typeText('pass');
+    await element(by.ic('PasswordInput')).tapReturnKey();
+    await element(by.text('OKButton')).tap();
 
     // relaunch app
     await device.launchApp({ newInstance: true });

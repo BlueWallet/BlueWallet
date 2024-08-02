@@ -17,6 +17,7 @@ type SecondButtonProps = {
   title?: string;
   onPress?: () => void;
   loading?: boolean;
+  testID?: string;
 };
 
 export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((props, ref) => {
@@ -41,6 +42,7 @@ export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((pro
     <TouchableOpacity
       disabled={props.disabled || props.loading}
       accessibilityRole="button"
+      testID={props.testID}
       style={[styles.button, { backgroundColor }]}
       {...props}
       ref={ref}
