@@ -4583,7 +4583,7 @@ __metadata:
     react-native-fs: 2.20.0
     react-native-gesture-handler: 2.18.1
     react-native-handoff: "github:BlueWallet/react-native-handoff#31d005f93d31099d0e564590a3bbd052b8a02b39"
-    react-native-haptic-feedback: 2.2.0
+    react-native-haptic-feedback: 2.3.0
     react-native-idle-timer: "github:BlueWallet/react-native-idle-timer#7300b637c465c86e8db874c442e687950111da40"
     react-native-image-picker: 7.1.2
     react-native-ios-context-menu: "github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
@@ -11795,12 +11795,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-haptic-feedback@npm:2.2.0":
-  version: 2.2.0
-  resolution: "react-native-haptic-feedback@npm:2.2.0"
+"react-native-haptic-feedback@npm:2.3.0":
+  version: 2.3.0
+  resolution: "react-native-haptic-feedback@npm:2.3.0"
   peerDependencies:
     react-native: ">=0.60.0"
-  checksum: e7ce6b303a799dc7fd1c5851379b555b65052c3ef7fefe836c7881f125e4057134462554a996762e67ecc7f01e82e45dc3bcad17cc232b53511006160d5f98ed
+  checksum: 67dfb96d05917b2271de50772a769a7b77741ea0bfed9cfbc90ace169912f9ba21de9e1ae824ba32bd4431e78d92b36bb40a010a464990df6b0072f74660a864
   languageName: node
   linkType: hard
 
