@@ -34,7 +34,7 @@
     "help2": "Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko misliš da je potrebno da izgleda uvjerljivo.",
     "password_should_not_match": "Lozinka za fejk spremnik treba biti drugačija od lozinke za oriđi spremnik",
     "passwords_do_not_match": "Lozinke ne pašu, pokušaj ponovo",
-    "retype_password": "Ponovi lozinku",
+    "confirm_password": "Ponovi lozinku",
     "success": "Uspjeh",
     "title": "Fejk volet"
   },
@@ -81,7 +81,7 @@
     "password_explain": "Upiši lozinku koja će dekriptirati spremnik.",
     "passwords_do_not_match": "Lozinke su različite",
     "plausible_deniability": "Fejk volet...",
-    "retype_password": "Ponovi lozinku",
+    "confirm_password": "Ponovi lozinku",
     "save": "Spremi"
   },
   "transactions": {

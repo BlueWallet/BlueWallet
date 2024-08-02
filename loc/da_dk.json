@@ -28,7 +28,7 @@
     "help2": "Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle småbeløb så det ser troværdigt ud.",
     "password_should_not_match": "Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager",
     "passwords_do_not_match": "Adgangskoden er ikke den samme, prøv igen",
-    "retype_password": "Indtast adgangskoden igen",
+    "confirm_password": "Indtast adgangskoden igen",
     "success": "Succes",
     "title": "Sandsynlig benægtelse"
   },
@@ -73,7 +73,7 @@
     "password_explain": "Indtast den adgangskode du vil bruge til at kryptere lageret",
     "passwords_do_not_match": "Adgangskoden er ikke den samme",
     "plausible_deniability": "Sandsynlig benægtelse...",
-    "retype_password": "Gentag adgangskoden",
+    "confirm_password": "Gentag adgangskoden",
     "save": "save"
   },
   "transactions": {

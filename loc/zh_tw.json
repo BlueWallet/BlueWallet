@@ -65,7 +65,7 @@
     "help2": "新的儲存空間具備完整的功能，你可以存入少量的金額在裏面。",
     "password_should_not_match": "此密碼已被使用，請用另一個密碼。",
     "passwords_do_not_match": "密碼不匹配，請再試一遍。",
-    "retype_password": "重新輸入密碼",
+    "confirm_password": "重新輸入密碼",
     "success": "成功",
     "title": "合理推諉"
   },
@@ -223,7 +223,7 @@
     "privacy_quickactions": "錢包捷徑",
     "privacy_clipboard_explanation": "如果在剪貼簿中找到地址或賬單，請提供捷徑。",
     "push_notifications": "推送通知",
-    "retype_password": "再次輸入密碼",
+    "confirm_password": "再次輸入密碼",
     "selfTest": "自行測試",
     "save": "儲存",
     "saved": "已儲存",

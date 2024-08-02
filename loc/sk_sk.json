@@ -64,7 +64,7 @@
     "help": "Za určitých okolností môžete byť donútení k prezradeniu hesla. K zaisteniu bezpečnosti vaších prostriedkov, BlueWallet môže vytvořiť ďalšie zašifrované úložiská s rozdielným heslom. V prípade potreby môžete toto heslo dať tretej strane. Pokiaľ bude zadané do BlueWallet, odomkne nové \"falošné\" úložisko. Toto bude vyzerať hodnoverne, ale udrží vaše pravé hlavné úložisko v bezpečí.",
     "help2": "Nové úložisko bude plne funkčné, môžete naň uložiť minimálnu čiastku, aby vyzeralo uveriteľnejšie.",
     "password_should_not_match": "Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku",
-    "retype_password": "Heslo znovu",
+    "confirm_password": "Heslo znovu",
     "success": "Úspech",
     "title": "Plausible deniability..."
   },
@@ -160,7 +160,7 @@
     "plausible_deniability": "Plausible deniability...",
     "privacy_system_settings": "Systémové nastavenia",
     "push_notifications": "Push notifikácie",
-    "retype_password": "Heslo znovu",
+    "confirm_password": "Heslo znovu",
     "save": "Uložiť",
     "saved": "Uložené"
   },

@@ -53,7 +53,7 @@ const PlausibleDeniability: React.FC = () => {
         dispatch({ type: SET_LOADING, payload: false });
         return;
       }
-      const p2 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.retype_password);
+      const p2 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.confirm_password);
       if (p1 !== p2) {
         dispatch({ type: SET_LOADING, payload: false });
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
