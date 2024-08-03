@@ -2369,13 +2369,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lodev09/react-native-true-sheet@https://github.com/BlueWallet/react-native-true-sheet.git#commit=730a84b0261ef2dd2e7e9adadba7f260c7f76726":
+"@lodev09/react-native-true-sheet@github:BlueWallet/react-native-true-sheet#v0.12.4":
   version: 0.12.4
-  resolution: "@lodev09/react-native-true-sheet@https://github.com/BlueWallet/react-native-true-sheet.git#commit=730a84b0261ef2dd2e7e9adadba7f260c7f76726"
+  resolution: "@lodev09/react-native-true-sheet@https://github.com/BlueWallet/react-native-true-sheet.git#commit=1364066003dde0099ca741980b02dc83e3f9a6d3"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 5b2b1aee1d623be6ec7cd1fb10a056e23b2b867f08b04acd2cde97dc41d18690cf08603bfbe12c3ef3a79bda40d908cd0e209a4c5d2e8281fcee47100ecd43bf
+  checksum: 23c6c606f7580ce493d1ff35a4e74c303e4d25ca4dbb3b0b18727a4d125561efa375051956671411783df00db37f5a34b497c8fc1855ab40b24c2aa9a740ed7a
   languageName: node
   linkType: hard
 
@@ -2910,7 +2910,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remobile/react-native-qrcode-local-image@https://github.com/BlueWallet/react-native-qrcode-local-image.git#commit=31b0113110fbafcf5a5f3ca4183a563550f5c352":
+"@remobile/react-native-qrcode-local-image@github:BlueWallet/react-native-qrcode-local-image#v1.0.4":
   version: 1.0.4
   resolution: "@remobile/react-native-qrcode-local-image@https://github.com/BlueWallet/react-native-qrcode-local-image.git#commit=31b0113110fbafcf5a5f3ca4183a563550f5c352"
   checksum: 25ae153c0f75641b5a93816ebddb7cb2ea96718848cbcfebef8ce47be5f4410796177381385d4708a047282af8f34e27bfc42217299d1661a8bdda95b114a6e4
@@ -2991,7 +2991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@spsina/bip47@https://github.com/BlueWallet/bip47.git#commit=f4b8047c7efbe382c268b3074a4956698087f984":
+"@spsina/bip47@github:BlueWallet/bip47#f4b8047c7efbe382c268b3074a4956698087f984":
   version: 1.0.1
   resolution: "@spsina/bip47@https://github.com/BlueWallet/bip47.git#commit=f4b8047c7efbe382c268b3074a4956698087f984"
   dependencies:
@@ -4403,7 +4403,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bip38@https://github.com/BlueWallet/bip38.git#commit=7ec4b1932b98eaaff16c5a26765a26466958e6b4":
+"bip38@github:BlueWallet/bip38#7ec4b1932b98eaaff16c5a26765a26466958e6b4":
   version: 3.1.1
   resolution: "bip38@https://github.com/BlueWallet/bip38.git#commit=7ec4b1932b98eaaff16c5a26765a26466958e6b4"
   dependencies:
@@ -4533,7 +4533,7 @@ __metadata:
     "@bugsnag/source-maps": 2.3.3
     "@jest/reporters": 27.5.1
     "@keystonehq/bc-ur-registry": 0.6.4
-    "@lodev09/react-native-true-sheet": "https://github.com/BlueWallet/react-native-true-sheet.git#commit=730a84b0261ef2dd2e7e9adadba7f260c7f76726"
+    "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#v0.12.4"
     "@ngraveio/bc-ur": 1.1.12
     "@noble/secp256k1": 1.6.3
     "@react-native-async-storage/async-storage": 1.24.0
@@ -4544,10 +4544,10 @@ __metadata:
     "@react-navigation/drawer": 6.7.2
     "@react-navigation/native": 6.1.18
     "@react-navigation/native-stack": 6.11.0
-    "@remobile/react-native-qrcode-local-image": "https://github.com/BlueWallet/react-native-qrcode-local-image.git#commit=31b0113110fbafcf5a5f3ca4183a563550f5c352"
+    "@remobile/react-native-qrcode-local-image": "github:BlueWallet/react-native-qrcode-local-image#v1.0.4"
     "@rneui/base": 4.0.0-rc.8
     "@rneui/themed": 4.0.0-rc.8
-    "@spsina/bip47": "https://github.com/BlueWallet/bip47.git#commit=f4b8047c7efbe382c268b3074a4956698087f984"
+    "@spsina/bip47": "github:BlueWallet/bip47#f4b8047c7efbe382c268b3074a4956698087f984"
     "@tsconfig/react-native": 3.0.2
     "@types/bip38": 3.1.2
     "@types/bs58check": 2.1.0
@@ -4568,7 +4568,7 @@ __metadata:
     bignumber.js: 9.1.1
     bip21: 2.0.3
     bip32: 3.0.1
-    bip38: "https://github.com/BlueWallet/bip38.git#commit=7ec4b1932b98eaaff16c5a26765a26466958e6b4"
+    bip38: "github:BlueWallet/bip38#7ec4b1932b98eaaff16c5a26765a26466958e6b4"
     bip39: 3.1.0
     bitcoinjs-lib: 6.1.6
     bitcoinjs-message: 2.2.0
@@ -4580,7 +4580,7 @@ __metadata:
     detox: 20.25.1
     ecpair: 2.0.1
     ecurve: 1.0.6
-    electrum-client: "https://github.com/BlueWallet/rn-electrum-client.git#commit=1bfe3cc4249d5440b816baac942b0cfa921eebf9"
+    electrum-client: "github:BlueWallet/rn-electrum-client#1bfe3cc4249d5440b816baac942b0cfa921eebf9"
     electrum-mnemonic: 2.0.0
     eslint: 8.57.0
     eslint-config-prettier: 9.1.0
@@ -4607,30 +4607,30 @@ __metadata:
     process: 0.11.10
     prop-types: 15.8.1
     react: 18.2.0
-    react-localization: "https://github.com/BlueWallet/react-localization.git#commit=ae7969a8998128aebf1169f931fb22587dc5f874"
+    react-localization: "github:BlueWallet/react-localization#ae7969a8998128aebf1169f931fb22587dc5f874"
     react-native: 0.72.14
     react-native-biometrics: 3.0.1
-    react-native-blue-crypto: "https://github.com/BlueWallet/react-native-blue-crypto.git#commit=3cb5442425bd835e185284fbc62e84b7155bc441"
+    react-native-blue-crypto: "github:BlueWallet/react-native-blue-crypto#3cb5442425bd835e185284fbc62e84b7155bc441"
     react-native-camera-kit: 13.0.0
     react-native-crypto: 2.2.0
     react-native-default-preference: 1.4.4
     react-native-device-info: 11.1.0
-    react-native-document-picker: "https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315"
-    react-native-draggable-flatlist: "https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d"
+    react-native-document-picker: "github:BlueWallet/react-native-document-picker#v9.3.0"
+    react-native-draggable-flatlist: "github:BlueWallet/react-native-draggable-flatlist#v4.0.1"
     react-native-fs: 2.20.0
     react-native-gesture-handler: 2.18.1
-    react-native-handoff: "https://github.com/BlueWallet/react-native-handoff.git#commit=31d005f93d31099d0e564590a3bbd052b8a02b39"
+    react-native-handoff: "github:BlueWallet/react-native-handoff#v0.0.4"
     react-native-haptic-feedback: 2.3.0
-    react-native-idle-timer: "https://github.com/BlueWallet/react-native-idle-timer.git#commit=7300b637c465c86e8db874c442e687950111da40"
+    react-native-idle-timer: "github:BlueWallet/react-native-idle-timer#v2.2.3"
     react-native-image-picker: 7.1.2
-    react-native-ios-context-menu: "https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
+    react-native-ios-context-menu: "github:BlueWallet/react-native-ios-context-menu#v1.15.3"
     react-native-keychain: 8.2.0
     react-native-linear-gradient: 2.8.3
     react-native-localize: 3.2.1
-    react-native-obscure: "https://github.com/BlueWallet/react-native-obscure.git#commit=f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb"
+    react-native-obscure: "github:BlueWallet/react-native-obscure#v0.0.3"
     react-native-permissions: 4.1.5
-    react-native-privacy-snapshot: "https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783"
-    react-native-prompt-android: "https://github.com/BlueWallet/react-native-prompt-android.git#commit=ed168d66fed556bc2ed07cf498770f058b78a376"
+    react-native-privacy-snapshot: "github:BlueWallet/react-native-privacy-snapshot#v1.0.0"
+    react-native-prompt-android: "github:BlueWallet/react-native-prompt-android#v1.0.0"
     react-native-push-notification: 8.1.1
     react-native-qrcode-svg: 6.3.1
     react-native-quick-actions: 0.3.13
@@ -4639,7 +4639,7 @@ __metadata:
     react-native-reanimated: 3.14.0
     react-native-safe-area-context: 4.10.8
     react-native-screens: 3.33.0
-    react-native-secure-key-store: "https://github.com/BlueWallet/react-native-secure-key-store.git#commit=2076b4849e88aa0a78e08bfbb4ce3923e0925cbc"
+    react-native-secure-key-store: "github:BlueWallet/react-native-secure-key-store#v2.0.8"
     react-native-share: 10.2.1
     react-native-svg: 13.14.1
     react-native-tcp-socket: 6.2.0
@@ -4650,8 +4650,8 @@ __metadata:
     realm: 12.12.1
     rn-nodeify: 10.3.0
     scryptsy: 2.1.0
-    silent-payments: "https://github.com/BlueWallet/SilentPayments.git#commit=7ac4d17b85dc875a3ebb072883dd1d92ac286d98"
-    slip39: "https://github.com/BlueWallet/slip39-js.git#commit=d316ee6a929ab645fe5462ef1c91720eb66889c8"
+    silent-payments: "github:BlueWallet/SilentPayments#7ac4d17b85dc875a3ebb072883dd1d92ac286d98"
+    slip39: "github:BlueWallet/slip39-js#d316ee6a929ab645fe5462ef1c91720eb66889c8"
     stream-browserify: 3.0.0
     ts-jest: 29.1.1
     typescript: 5.1.6
@@ -6195,7 +6195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electrum-client@https://github.com/BlueWallet/rn-electrum-client.git#commit=1bfe3cc4249d5440b816baac942b0cfa921eebf9":
+"electrum-client@github:BlueWallet/rn-electrum-client#1bfe3cc4249d5440b816baac942b0cfa921eebf9":
   version: 3.1.0
   resolution: "electrum-client@https://github.com/BlueWallet/rn-electrum-client.git#commit=1bfe3cc4249d5440b816baac942b0cfa921eebf9"
   checksum: d69053fc00b71bc6bda72342c4f6ccd956c1f1575638e76fcb8f1fc3a43bfb00ce33338cd399be24e13cfced8c881000b8bd1a2b40afefbbe4a650e998236ef5
@@ -11451,7 +11451,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-localization@https://github.com/BlueWallet/react-localization.git#commit=ae7969a8998128aebf1169f931fb22587dc5f874":
+"react-localization@github:BlueWallet/react-localization#ae7969a8998128aebf1169f931fb22587dc5f874":
   version: 1.0.19
   resolution: "react-localization@https://github.com/BlueWallet/react-localization.git#commit=ae7969a8998128aebf1169f931fb22587dc5f874"
   dependencies:
@@ -11471,7 +11471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-blue-crypto@https://github.com/BlueWallet/react-native-blue-crypto.git#commit=3cb5442425bd835e185284fbc62e84b7155bc441":
+"react-native-blue-crypto@github:BlueWallet/react-native-blue-crypto#3cb5442425bd835e185284fbc62e84b7155bc441":
   version: 1.0.0
   resolution: "react-native-blue-crypto@https://github.com/BlueWallet/react-native-blue-crypto.git#commit=3cb5442425bd835e185284fbc62e84b7155bc441"
   peerDependencies:
@@ -11531,9 +11531,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315":
+"react-native-document-picker@github:BlueWallet/react-native-document-picker#v9.3.0":
   version: 9.3.0
-  resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315"
+  resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=49c1867678b587901d7df3b3fc1aa9bdf2bbb26b"
   dependencies:
     invariant: ^2.2.4
   peerDependencies:
@@ -11547,16 +11547,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-draggable-flatlist@https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d":
+"react-native-draggable-flatlist@github:BlueWallet/react-native-draggable-flatlist#v4.0.1":
   version: 4.0.1
-  resolution: "react-native-draggable-flatlist@https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d"
+  resolution: "react-native-draggable-flatlist@https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=c47ac4eb1a09adcfed5f4d5e0aca70586d993d98"
   dependencies:
     "@babel/preset-typescript": ^7.17.12
   peerDependencies:
     react-native: ">=0.64.0"
     react-native-gesture-handler: ">=2.0.0"
     react-native-reanimated: ">=2.8.0"
-  checksum: 5ea3939d4d7ff71070fdc9ddee5565b7ec607ac48f4a756094b0e5e9039dd940e35576cd698404457ee542811cc3e8cac595652dc53d2f35934b1f916a7f30e1
+  checksum: e6af14c63ae058eb3f60e999730303e0ca031af5d8a8436462b12b98a58ff970226adc0bf9e1623d0993bdc58a30eee212716187b6375a4c5548ba2b86179d72
   languageName: node
   linkType: hard
 
@@ -11591,7 +11591,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-handoff@https://github.com/BlueWallet/react-native-handoff.git#commit=31d005f93d31099d0e564590a3bbd052b8a02b39":
+"react-native-handoff@github:BlueWallet/react-native-handoff#v0.0.4":
   version: 0.0.3
   resolution: "react-native-handoff@https://github.com/BlueWallet/react-native-handoff.git#commit=31d005f93d31099d0e564590a3bbd052b8a02b39"
   peerDependencies:
@@ -11610,7 +11610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-idle-timer@https://github.com/BlueWallet/react-native-idle-timer.git#commit=7300b637c465c86e8db874c442e687950111da40":
+"react-native-idle-timer@github:BlueWallet/react-native-idle-timer#v2.2.3":
   version: 2.2.2
   resolution: "react-native-idle-timer@https://github.com/BlueWallet/react-native-idle-timer.git#commit=7300b637c465c86e8db874c442e687950111da40"
   checksum: b5781ff5c11a49607b0f48195aa01948b5b883d08c63525844b3b7be0c58d00efc7079559532bed5dcd1efc025800be5f4b35f06a288398300afdda469555d2f
@@ -11627,9 +11627,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e":
+"react-native-ios-context-menu@github:BlueWallet/react-native-ios-context-menu#v1.15.3":
   version: 1.15.3
-  resolution: "react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
+  resolution: "react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=c590e2634710b0ed27669b0be5f7e0187fc27ff0"
   dependencies:
     "@dominicstop/ts-event-emitter": ^1.1.0
   peerDependencies:
@@ -11670,7 +11670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-obscure@https://github.com/BlueWallet/react-native-obscure.git#commit=f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb":
+"react-native-obscure@github:BlueWallet/react-native-obscure#v0.0.3":
   version: 0.0.3
   resolution: "react-native-obscure@https://github.com/BlueWallet/react-native-obscure.git#commit=f4b83b4a261e39b1f5ed4a45ac5bcabc8a59eadb"
   peerDependencies:
@@ -11693,7 +11693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-privacy-snapshot@https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783":
+"react-native-privacy-snapshot@github:BlueWallet/react-native-privacy-snapshot#v1.0.0":
   version: 1.0.0
   resolution: "react-native-privacy-snapshot@https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783"
   peerDependencies:
@@ -11703,10 +11703,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-prompt-android@https://github.com/BlueWallet/react-native-prompt-android.git#commit=ed168d66fed556bc2ed07cf498770f058b78a376":
+"react-native-prompt-android@github:BlueWallet/react-native-prompt-android#v1.0.0":
   version: 1.0.0
-  resolution: "react-native-prompt-android@https://github.com/BlueWallet/react-native-prompt-android.git#commit=ed168d66fed556bc2ed07cf498770f058b78a376"
-  checksum: 000ebfd225f92f3a8953c3bebba77cc1c6e4317e2b874bb6abe8fb4311babf452d29989f3fe004086432f684417c71b0bec562961ede1bb87bc34d816f4c0c12
+  resolution: "react-native-prompt-android@https://github.com/BlueWallet/react-native-prompt-android.git#commit=7eae9e24cd8f3bf28f727eeb81794199306fdd30"
+  checksum: 31b079cd3ad20ac16b35cde406265bb664df7d17192cef829fd011b371cd62757e510cf50b67edb123f1ec99bc2f3914dcae373e28ea0426b1421f58a653f3c2
   languageName: node
   linkType: hard
 
@@ -11813,7 +11813,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-secure-key-store@https://github.com/BlueWallet/react-native-secure-key-store.git#commit=2076b4849e88aa0a78e08bfbb4ce3923e0925cbc":
+"react-native-secure-key-store@github:BlueWallet/react-native-secure-key-store#v2.0.8":
   version: 2.0.10
   resolution: "react-native-secure-key-store@https://github.com/BlueWallet/react-native-secure-key-store.git#commit=2076b4849e88aa0a78e08bfbb4ce3923e0925cbc"
   checksum: 4f9192ef98084b1b9ee516e4a91db4855e1707b029c79b9e346ad0bf77597090c35b2dd5187b24390f90cddc1b27c87861813af71db2ced91ac2b94b57f1c743
@@ -12701,7 +12701,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"silent-payments@https://github.com/BlueWallet/SilentPayments.git#commit=7ac4d17b85dc875a3ebb072883dd1d92ac286d98":
+"silent-payments@github:BlueWallet/SilentPayments#7ac4d17b85dc875a3ebb072883dd1d92ac286d98":
   version: 1.0.0
   resolution: "silent-payments@https://github.com/BlueWallet/SilentPayments.git#commit=7ac4d17b85dc875a3ebb072883dd1d92ac286d98"
   dependencies:
@@ -12771,7 +12771,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"slip39@https://github.com/BlueWallet/slip39-js.git#commit=d316ee6a929ab645fe5462ef1c91720eb66889c8":
+"slip39@github:BlueWallet/slip39-js#d316ee6a929ab645fe5462ef1c91720eb66889c8":
   version: 0.1.9
   resolution: "slip39@https://github.com/BlueWallet/slip39-js.git#commit=d316ee6a929ab645fe5462ef1c91720eb66889c8"
   checksum: d34e1b45d356780f428cb1df6953545dbfb2b08399832fd92fda7bda48b8fc4c34afc9b51afc07d2119d41101f74b65885579239e97a99c7ff24e6219527ab35
