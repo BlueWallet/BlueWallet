@@ -11533,7 +11533,7 @@ __metadata:
 
 "react-native-document-picker@github:BlueWallet/react-native-document-picker#v9.3.0":
   version: 9.3.0
-  resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=49c1867678b587901d7df3b3fc1aa9bdf2bbb26b"
+  resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=028ec01c827336621f1213c04ef60a3ad8833884"
   dependencies:
     invariant: ^2.2.4
   peerDependencies:
@@ -11543,7 +11543,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-windows:
       optional: true
-  checksum: b2337e62a7f62b703353fa2b8b7aff9dff437d3e51932413426a6ecb6f4a95d87f3ff287b7b13d52b9dfb254429885f2b980335a10e052b0645a29b6a5da0872
+  checksum: 07cd10b91dd8286d13d07f8eb333bffd1e828bb766a1cd88b0529c1459082a0aa927d6bcb061002215326deefa6d129034212c24c2c22d4ea2573133a7a185c0
   languageName: node
   linkType: hard
 
