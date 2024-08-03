@@ -1,7 +1,7 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
-import { useTheme } from './themes';
+import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { SecondButton } from './SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -18,6 +18,7 @@ interface PromptPasswordConfirmationModalProps {
   modalType: ModalType;
   onConfirmationSuccess: (password: string) => Promise<boolean>;
   onConfirmationFailure: () => void;
+  onDismiss?: () => void;
 }
 
 export interface PromptPasswordConfirmationModalHandle {
@@ -26,7 +27,7 @@ export interface PromptPasswordConfirmationModalHandle {
 }
 
 const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationModalHandle, PromptPasswordConfirmationModalProps>(
-  ({ modalType, onConfirmationSuccess, onConfirmationFailure }, ref) => {
+  ({ modalType, onConfirmationSuccess, onConfirmationFailure, onDismiss }, ref) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +70,10 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           passwordInputRef.current?.focus();
         }
       },
-      dismiss: async () => modalRef.current?.dismiss(),
+      dismiss: async () => {
+        await modalRef.current?.dismiss();
+        onDismiss?.(); // Call onDismiss if provided after modal dismisses
+      },
     }));
 
     const resetState = () => {
@@ -166,6 +170,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         } else {
           handleShakeAnimation();
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          onConfirmationFailure();
         }
       }
     };
@@ -196,13 +201,13 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       <BottomModal
         ref={modalRef}
         showCloseButton={false}
-        onDismiss={handleCancel}
+        onDismiss={onDismiss || handleCancel}
         grabber={false}
         sizes={[350]}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
         footer={
-          (!isSuccess && (
+          !isSuccess && (
             <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
               <View style={styles.feeModalFooter}>
                 <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
@@ -216,11 +221,10 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                 />
               </View>
             </Animated.View>
-          )) ||
-          null
+          ) || undefined
         }
       >
-        {!isSuccess && (
+        {!isSuccess && modalType !== MODAL_TYPES.SUCCESS && (
           <Animated.View style={animatedViewStyle}>
             <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
               {modalType === MODAL_TYPES.CREATE_PASSWORD ? loc.settings.password_explain : loc._.enter_password}
@@ -233,6 +237,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                   secureTextEntry
                   placeholder="Password"
                   value={password}
+                  selectTextOnFocus
                   onChangeText={setPassword}
                   style={[styles.input, stylesHook.input]}
                   autoFocus
@@ -247,6 +252,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                     secureTextEntry
                     placeholder="Confirm Password"
                     value={confirmPassword}
+                    selectTextOnFocus
                     onChangeText={setConfirmPassword}
                     style={[styles.input, stylesHook.input]}
                     onSubmitEditing={handleSubmit} // Handle Enter key as OK
@@ -265,7 +271,23 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           >
             <View style={styles.successContainer}>
               <View style={styles.circle}>
-                <Text style={styles.checkmark}>✔️</Text>
+                <Animated.Text
+                  style={[
+                    styles.checkmark,
+                    {
+                      transform: [
+                        {
+                          scale: scaleAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.8, 1],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  ✔️
+                </Animated.Text>
               </View>
             </View>
           </Animated.View>
@@ -299,7 +321,6 @@ const styles = StyleSheet.create({
     width: '100%', // Ensure full width
   },
   input: {
-    borderWidth: 1,
     borderRadius: 4,
     padding: 8,
     marginVertical: 8,
