@@ -495,7 +495,8 @@ PODS:
     - React
   - RNRate (1.2.12):
     - React-Core
-  - RNReactNativeHapticFeedback (2.2.0):
+  - RNReactNativeHapticFeedback (2.3.0):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNReanimated (3.14.0):
     - RCT-Folly (= 2021.07.22.00)
@@ -846,7 +847,7 @@ SPEC CHECKSUMS:
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
-  RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
+  RNReactNativeHapticFeedback: 5eee8b6c8f2b1595f4441e884d4c353c18eb7003
   RNReanimated: e71a1d6bb6427f45ea57c5e23f99030129b6db62
   RNScreens: 01092d6104b707ddd6258dadefc9997a9f523c35
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
