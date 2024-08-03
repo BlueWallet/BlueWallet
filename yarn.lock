@@ -4615,7 +4615,7 @@ __metadata:
     react-native-crypto: 2.2.0
     react-native-default-preference: 1.4.4
     react-native-device-info: 11.1.0
-    react-native-document-picker: "github:BlueWallet/react-native-document-picker#v9.3.0"
+    react-native-document-picker: 9.3.0
     react-native-draggable-flatlist: "github:BlueWallet/react-native-draggable-flatlist#v4.0.1"
     react-native-fs: 2.20.0
     react-native-gesture-handler: 2.18.1
@@ -9410,7 +9410,7 @@ __metadata:
 "localized-strings@github:BlueWallet/localized-strings#178351a7297336618d9ee87277f8e3af9ab7285d":
   version: 0.2.4
   resolution: "localized-strings@https://github.com/BlueWallet/localized-strings.git#commit=178351a7297336618d9ee87277f8e3af9ab7285d"
-  checksum: 53ad132a7f4f0655d69e110ea64d33f5929d8587eaf7fecfdad6199298d1ff8d27c125806dc424528c80a8057b0e8bc91c029e2ec4009868e62e4a2b4b0e64a5
+  checksum: a17257d712e5896103d915b7722ca7620128f8d52c4620d43c3677836fd96086e32cecf4796ac5a219d05fe5267eecb5371cf31e21174a9abd2446f3bb1effb9
   languageName: node
   linkType: hard
 
@@ -11531,9 +11531,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-document-picker@github:BlueWallet/react-native-document-picker#v9.3.0":
+"react-native-document-picker@npm:9.3.0":
   version: 9.3.0
-  resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=028ec01c827336621f1213c04ef60a3ad8833884"
+  resolution: "react-native-document-picker@npm:9.3.0"
   dependencies:
     invariant: ^2.2.4
   peerDependencies:
@@ -11543,7 +11543,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-windows:
       optional: true
-  checksum: 07cd10b91dd8286d13d07f8eb333bffd1e828bb766a1cd88b0529c1459082a0aa927d6bcb061002215326deefa6d129034212c24c2c22d4ea2573133a7a185c0
+  checksum: 622c9bd3a17b7b92ff6b13571ccf2a916dd2477f2aa8c22b79e4b204156742ba95680dea912ee5ee56718f13c537107f5937e5bcf88d93cdf2142d508dc16351
   languageName: node
   linkType: hard
 
@@ -11556,7 +11556,7 @@ __metadata:
     react-native: ">=0.64.0"
     react-native-gesture-handler: ">=2.0.0"
     react-native-reanimated: ">=2.8.0"
-  checksum: e6af14c63ae058eb3f60e999730303e0ca031af5d8a8436462b12b98a58ff970226adc0bf9e1623d0993bdc58a30eee212716187b6375a4c5548ba2b86179d72
+  checksum: 817ee0e7a7aa5a08c94eb8642036ef3abf75bd21980c490144d36ab87d5597a8451e4af0327a179448f56e46454278f3472b76b2fa53ec457a8c2381b0607f69
   languageName: node
   linkType: hard
 
@@ -11635,7 +11635,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: e85712d48d07e2b829ac41b018c392ab6c306f7d83ecfac18e755030122ed36e85cb051fd34940fa48241d39338485468f4843920b45148c0e4ac3bdce194b3a
+  checksum: 431a2aa635223c7702814418b9388abbe1c495a37d20c389f60ea3a79a9605668f7f007fee399cc985ae0e1a9a3ebab384e3cc7b5fe02f0e40634ba3f0c6cb72
   languageName: node
   linkType: hard
 
@@ -11699,7 +11699,7 @@ __metadata:
   peerDependencies:
     react: ^16.13.1
     react-native: ^0.62.0
-  checksum: ea42528589060b8a47cf79666251ee9adca0aae9414c619d9791bcccc98a4333ca430e3218f533ee3c9febb8a9dc2a609fa1dbe48eed8e75396e564158103d17
+  checksum: a406a9b37a23cbb96f6e3906a4216ba1b69a4fd3e19fabd60bc5a38a82cd9c8a687c69c1da2ff2c6251f0c5ff1beb3d262d10a279dc6cc9fcbb2437e55b8ebec
   languageName: node
   linkType: hard
 
