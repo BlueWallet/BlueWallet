@@ -3230,6 +3230,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react@npm:*":
+  version: 18.3.3
+  resolution: "@types/react@npm:18.3.3"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: c63d6a78163244e2022b01ef79b0baec4fe4da3475dc4a90bb8accefad35ef0c43560fd0312e5974f92a0f1108aa4d669ac72d73d66396aa060ea03b5d2e3873
+  languageName: node
+  linkType: hard
+
 "@types/react@npm:18.2.16":
   version: 18.2.16
   resolution: "@types/react@npm:18.2.16"
