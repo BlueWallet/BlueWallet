@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies with Bundler
         run: bundle install
       - name: Install node_modules
-        run: yarn install --immutable
+        run: yarn install --immutable --check-cache
       - name: Install CocoaPods Dependencies
         run: |
           gem install cocoapods

@@ -46,7 +46,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean; yarn install --immutable; yarn start --reset-cache",
+    "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean; yarn install --immutable --check-cache; yarn start --reset-cache",
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && yarn && cd ios && pod update && cd ..; yarn start --reset-cache",
     "releasenotes2json": "./scripts/release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "branch2json": "./scripts/current-branch.sh > current-branch.json",
