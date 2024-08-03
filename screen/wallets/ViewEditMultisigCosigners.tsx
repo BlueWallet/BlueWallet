@@ -31,7 +31,7 @@ import {
 } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
-import BottomModal from '../../components/BottomModal';
+import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtohType,
@@ -68,9 +68,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number | false>(false);
-  const [isProvideMnemonicsModalVisible, setIsProvideMnemonicsModalVisible] = useState(false);
-  const [isMnemonicsModalVisible, setIsMnemonicsModalVisible] = useState(false);
-  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+  const shareModalRef = useRef<BottomModalHandle>(null);
+  const provideMnemonicsModalRef = useRef<BottomModalHandle>(null);
+  const mnemonicsModalRef = useRef<BottomModalHandle>(null);
   const [importText, setImportText] = useState('');
   const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
   const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
@@ -91,9 +91,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
     },
     textDestination: {
       color: colors.foregroundColor,
-    },
-    modalContent: {
-      backgroundColor: colors.elevated,
     },
     exportButton: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
@@ -164,10 +161,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
   );
 
   const saveFileButtonAfterOnPress = () => {
-    setIsShareModalVisible(false);
+    shareModalRef.current?.dismiss();
   };
 
   const onSave = async () => {
+    dismissAllModals();
     if (!wallet) {
       throw new Error('Wallet is undefined');
     }
@@ -224,65 +222,63 @@ const ViewEditMultisigCosigners: React.FC = () => {
     }, [walletID]),
   );
 
-  const hideMnemonicsModal = () => {
-    Keyboard.dismiss();
-    setIsMnemonicsModalVisible(false);
-  };
-
   const renderMnemonicsModal = () => {
     return (
-      <BottomModal isVisible={isMnemonicsModalVisible} onClose={hideMnemonicsModal} coverScreen={false}>
-        <View style={[styles.newKeyModalContent, stylesHook.modalContent]}>
-          <View style={styles.itemKeyUnprovidedWrapper}>
-            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
-            </View>
-            <View style={styles.vaultKeyTextWrapper}>
-              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-              </Text>
-            </View>
+      <BottomModal
+        ref={mnemonicsModalRef}
+        footerDefaultMargins
+        backgroundColor={colors.elevated}
+        contentContainerStyle={styles.newKeyModalContent}
+        footer={
+          <>
+            <Button
+              title={loc.multisig.share}
+              onPress={() => {
+                shareModalRef.current?.present();
+              }}
+            />
+            <BlueSpacing20 />
+          </>
+        }
+      >
+        <View style={styles.itemKeyUnprovidedWrapper}>
+          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
           </View>
-          <BlueSpacing20 />
-          {vaultKeyData.xpub.length > 1 && (
-            <>
-              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
-              <BlueSpacing10 />
-              <SquareEnumeratedWords
-                contentAlign={SquareEnumeratedWordsContentAlign.left}
-                entries={[vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path]}
-                appendNumber={false}
-              />
-            </>
-          )}
-          {vaultKeyData.seed.length > 1 && (
-            <>
-              <BlueSpacing20 />
-              <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
-              <BlueSpacing10 />
-              <SquareEnumeratedWords
-                contentAlign={SquareEnumeratedWordsContentAlign.left}
-                entries={vaultKeyData.seed.split(' ')}
-                appendNumber
-              />
-              {vaultKeyData.passphrase.length > 1 && (
-                <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
-              )}
-            </>
-          )}
-          <BlueSpacing20 />
-          <Button
-            title={loc.multisig.share}
-            onPress={() => {
-              setIsMnemonicsModalVisible(false);
-              setTimeout(() => {
-                setIsShareModalVisible(true);
-              }, 1000);
-            }}
-          />
-          <BlueSpacing20 />
-          <Button title={loc.send.success_done} onPress={() => setIsMnemonicsModalVisible(false)} />
+          <View style={styles.vaultKeyTextWrapper}>
+            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+            </Text>
+          </View>
         </View>
+        <BlueSpacing20 />
+        {vaultKeyData.xpub.length > 1 && (
+          <>
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
+            <BlueSpacing10 />
+            <SquareEnumeratedWords
+              contentAlign={SquareEnumeratedWordsContentAlign.left}
+              entries={[vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path]}
+              appendNumber={false}
+            />
+          </>
+        )}
+        {vaultKeyData.seed.length > 1 && (
+          <>
+            <BlueSpacing20 />
+            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
+            <BlueSpacing10 />
+            <SquareEnumeratedWords
+              contentAlign={SquareEnumeratedWordsContentAlign.left}
+              entries={vaultKeyData.seed.split(' ')}
+              appendNumber
+            />
+            {vaultKeyData.passphrase.length > 1 && (
+              <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
+            )}
+          </>
+        )}
+        {renderShareModal()}
       </BottomModal>
     );
   };
@@ -346,7 +342,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                     setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
                     setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path))[0]);
                     setExportFilename('bw-cosigner-' + fp + '.json');
-                    setIsMnemonicsModalVisible(true);
+                    mnemonicsModalRef.current?.present();
                   },
                 }}
                 dashes={MultipleStepsListItemDashType.topAndBottom}
@@ -360,7 +356,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
                   setCurrentlyEditingCosignerNum(el.index + 1);
-                  setIsProvideMnemonicsModalVisible(true);
+                  provideMnemonicsModalRef.current?.present();
                 },
               }}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.top : MultipleStepsListItemDashType.topAndBottom}
@@ -389,7 +385,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
                       passphrase: passphrase ?? '',
                       isLoading: false,
                     });
-                    setIsMnemonicsModalVisible(true);
+                    mnemonicsModalRef.current?.present();
                     const fp = wallet.getFingerprint(keyIndex);
                     const path = wallet.getCustomDerivationPathForCosigner(keyIndex);
                     if (!path) {
@@ -407,7 +403,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
             )}
 
             <MultipleStepsListItem
-              useActionSheet
               actionSheetOptions={{
                 options: [loc._.cancel, loc.multisig.confirm],
                 title: loc._.seed,
@@ -451,6 +446,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
+  const dismissAllModals = () => {
+    provideMnemonicsModalRef.current?.dismiss();
+    shareModalRef.current?.dismiss();
+    mnemonicsModalRef.current?.dismiss();
+  };
   const handleUseMnemonicPhrase = async () => {
     let passphrase;
     if (askPassphrase) {
@@ -485,7 +485,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setWallet(wallet);
-    setIsProvideMnemonicsModalVisible(false);
+    provideMnemonicsModalRef.current?.dismiss();
     setIsSaveButtonDisabled(false);
     setImportText('');
     setAskPassphrase(false);
@@ -509,75 +509,83 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const scanOrOpenFile = async () => {
-    setIsProvideMnemonicsModalVisible(false);
-    const scanned = await scanQrHelper(route.name, true);
+    await provideMnemonicsModalRef.current?.dismiss();
+    const scanned = await scanQrHelper(route.name, true, undefined);
     setImportText(String(scanned));
-    setIsProvideMnemonicsModalVisible(true);
+    provideMnemonicsModalRef.current?.present();
   };
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
-    setIsProvideMnemonicsModalVisible(false);
+    provideMnemonicsModalRef.current?.dismiss();
     setImportText('');
     setAskPassphrase(false);
   };
 
-  const hideShareModal = () => {
-    setIsShareModalVisible(false);
-  };
+  const hideShareModal = () => {};
 
   const renderProvideMnemonicsModal = () => {
     return (
-      <BottomModal avoidKeyboard isVisible={isProvideMnemonicsModalVisible} onClose={hideProvideMnemonicsModal} coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={120}>
-          <View style={[styles.modalContent, stylesHook.modalContent]}>
-            <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-            <BlueSpacing20 />
-            <BlueFormMultiInput value={importText} onChangeText={setImportText} />
-            {isAdvancedModeEnabled && (
-              <>
-                <BlueSpacing10 />
-                <View style={styles.row}>
-                  <BlueText>{loc.wallets.import_passphrase}</BlueText>
-                  <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
-                </View>
-              </>
-            )}
-            <BlueSpacing20 />
+      <BottomModal
+        onClose={hideProvideMnemonicsModal}
+        ref={provideMnemonicsModalRef}
+        contentContainerStyle={styles.newKeyModalContent}
+        backgroundColor={colors.elevated}
+        footerDefaultMargins
+        footer={
+          <>
             {isLoading ? (
               <ActivityIndicator />
             ) : (
               <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
             )}
-            <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
-          </View>
-        </KeyboardAvoidingView>
+            <>
+              <BlueButtonLink ref={openScannerButtonRef} disabled={isLoading} onPress={scanOrOpenFile} title={loc.wallets.import_scan_qr} />
+              <BlueSpacing20 />
+            </>
+          </>
+        }
+      >
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        <BlueSpacing20 />
+        <BlueFormMultiInput value={importText} onChangeText={setImportText} />
+        {isAdvancedModeEnabled && (
+          <>
+            <BlueSpacing10 />
+            <View style={styles.row}>
+              <BlueText>{loc.wallets.import_passphrase}</BlueText>
+              <Switch testID="AskPassphrase" value={askPassphrase} onValueChange={setAskPassphrase} />
+            </View>
+          </>
+        )}
       </BottomModal>
     );
   };
 
   const renderShareModal = () => {
     return (
-      <BottomModal isVisible={isShareModalVisible} onClose={hideShareModal} doneButton coverScreen={false}>
-        <KeyboardAvoidingView enabled={!isTablet} behavior={Platform.OS === 'ios' ? 'position' : undefined}>
-          <View style={[styles.modalContent, stylesHook.modalContent, styles.alignItemsCenter]}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>
-              {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-            </Text>
-            <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-            <BlueSpacing20 />
-            <View style={styles.squareButtonWrapper}>
-              <SaveFileButton
-                style={[styles.exportButton, stylesHook.exportButton]}
-                fileContent={exportString}
-                fileName={exportFilename}
-                afterOnPress={saveFileButtonAfterOnPress}
-              >
-                <SquareButton title={loc.multisig.share} />
-              </SaveFileButton>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
+      <BottomModal
+        ref={shareModalRef}
+        onClose={hideShareModal}
+        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter, styles.shareModalHeight]}
+        backgroundColor={colors.elevated}
+        footerDefaultMargins
+        footer={
+          <SaveFileButton
+            style={[styles.exportButton, stylesHook.exportButton]}
+            fileContent={exportString}
+            fileName={exportFilename}
+            afterOnPress={saveFileButtonAfterOnPress}
+          >
+            <SquareButton title={loc.multisig.share} />
+          </SaveFileButton>
+        }
+      >
+        <Text style={[styles.headerText, stylesHook.textDestination]}>
+          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+        </Text>
+        <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
+        <BlueSpacing20 />
       </BottomModal>
     );
   };
@@ -643,8 +651,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       {renderProvideMnemonicsModal()}
 
-      {renderShareModal()}
-
       {renderMnemonicsModal()}
     </View>
   );
@@ -661,20 +667,12 @@ const styles = StyleSheet.create({
   vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
   newKeyModalContent: {
     paddingHorizontal: 22,
-    paddingVertical: 32,
-    justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    paddingTop: 32,
+    minHeight: 370,
   },
   modalContent: {
     padding: 22,
     justifyContent: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    backgroundColor: 'white',
-    minHeight: 400,
   },
   vaultKeyCircleSuccess: {
     width: 42,
@@ -686,14 +684,14 @@ const styles = StyleSheet.create({
   exportButton: {
     height: 48,
     borderRadius: 8,
-    flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 16,
+    marginBottom: 32,
   },
   headerText: { fontSize: 15, color: '#13244D' },
   mainBlock: { marginHorizontal: 16 },
-  alignItemsCenter: { alignItems: 'center' },
-  squareButtonWrapper: { height: 50, width: 250 },
+  alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
+  shareModalHeight: { minHeight: 450 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',

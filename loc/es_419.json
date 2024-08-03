@@ -52,37 +52,19 @@
     "network": "Error de red"
   },
   "lnd": {
-    "active": "Activo",
-    "inactive": "Inactivo",
-    "channels": "Canales",
-    "no_channels": "Sin canales",
-    "claim_balance": "Reclamar saldo {balance}",
-    "close_channel": "Cerrar canal",
-    "new_channel": "Nuevo canal",
     "errorInvoiceExpired": "Factura caducada.",
-    "force_close_channel": "¿Forzar el cierre del canal?",
     "expired": "Expirado",
-    "node_alias": "Alias del nodo",
     "expiresIn": "Expira en {time} minutos",
     "payButton": "Pagar",
     "payment": "Pago",
     "placeholder": "Factura o dirección",
-    "open_channel": "Abrir canal",
-    "funding_amount_placeholder": "Importe de financiación, por ejemplo, 0,001",
-    "opening_channnel_for_from": "Abrir canal para la billetera {forWalletLabel}, por la financiación de {fromWalletLabel}",
-    "are_you_sure_open_channel": "¿Estás seguro de que quieres abrir este canal?",
     "potentialFee": "Tasas potenciales: {fee}",
-    "remote_host": "Host remoto",
     "refill": "Recarga",
-    "reconnect_peer": "Reconectar a los pares",
     "refill_create": "Para continuar, crea una billetera Bitcoin para recargar.",
     "refill_external": "Recarga con billetera externa",
     "refill_lnd_balance": "Recargar el saldo de la billetera Lightning",
     "sameWalletAsInvoiceError": "No puedes pagar una factura con la misma billetera que usaste para crearla.",
-    "title": "Manejar fondos",
-    "can_send": "Puede enviar",
-    "can_receive": "Puede recibir",
-    "view_logs": "Ver registros"
+    "title": "Manejar fondos"
   },
   "lndViewInvoice": {
     "additional_info": "Información adicional",
@@ -654,7 +636,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

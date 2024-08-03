@@ -22,27 +22,27 @@ jobs:
       with:
         node-version: 20
 
-    - name: Use npm caches
+    - name: Use yarn caches
       uses: actions/cache@v4
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        path: ~/.yarn/berry/cache
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-npm-
+          ${{ runner.os }}-yarn-
 
     - name: Use node_modules caches
       id: cache-nm
       uses: actions/cache@v4
       with:
         path: node_modules
-        key: ${{ runner.os }}-nm-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-nm-${{ hashFiles('yarn.lock') }}
 
     - name: Install node_modules
       if: steps.cache-nm.outputs.cache-hit != 'true'
-      run: npm install
+      run: yarn
 
     - name: Run tests
-      run: npm test || npm test || npm test || npm test
+      run: yarn test || yarn test || yarn test || yarn test
       env:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
@@ -66,9 +66,7 @@ jobs:
     - name: Free Disk Space
       uses: jlumbroso/free-disk-space@main
       with:
-        # this might remove tools that are actually needed,
-        # if set to "true" but frees about 6 GB
-        tool-cache: false
+        tool-cache: true
         android: false
         dotnet: true
         haskell: true
@@ -76,15 +74,15 @@ jobs:
         docker-images: true
         swap-storage: true
 
-    - name: npm and gradle caches in /mnt
+    - name: yarn and gradle caches in /mnt
       run: |
-        rm -rf ~/.npm
+        rm -rf ~/.yarn
         rm -rf ~/.gradle
-        sudo mkdir -p /mnt/.npm
+        sudo mkdir -p /mnt/.yarn
         sudo mkdir -p /mnt/.gradle
-        sudo chown -R runner /mnt/.npm
+        sudo chown -R runner /mnt/.yarn
         sudo chown -R runner /mnt/.gradle
-        ln -s /mnt/.npm /home/runner/
+        ln -s /mnt/.yarn /home/runner/
         ln -s /mnt/.gradle /home/runner/
 
     - name: Create artifacts directory on /mnt
@@ -107,16 +105,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Use npm caches
+    - name: Use yarn caches
       uses: actions/cache@v4
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+        path: ~/.yarn/berry/cache
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
-          ${{ runner.os }}-npm-
+          ${{ runner.os }}-yarn-
 
     - name: Install node_modules
-      run: npm install || npm install
+      run: yarn || yarn
 
     - name: Use specific Java version for sdkmanager to work
       uses: actions/setup-java@v4
@@ -131,7 +129,7 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Build
-      run: npm run e2e:release-build
+      run: yarn e2e:release-build
 
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
@@ -141,7 +139,7 @@ jobs:
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test --  --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 3 --artifacts-location /mnt/artifacts
+        script: yarn e2e:release-test --record-videos all --record-logs all --take-screenshots all --headless -d 200000 -R 5 --artifacts-location /mnt/artifacts
 
     - uses: actions/upload-artifact@v4
       if: failure()

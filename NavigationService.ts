@@ -2,9 +2,9 @@ import { createNavigationContainerRef, NavigationAction, ParamListBase, StackAct
 
 export const navigationRef = createNavigationContainerRef<ParamListBase>();
 
-export function navigate(name: string, params?: ParamListBase) {
+export function navigate(name: string, params?: ParamListBase, options?: { merge: boolean }) {
   if (navigationRef.isReady()) {
-    navigationRef.current?.navigate(name, params);
+    navigationRef.current?.navigate({ name, params, merge: options?.merge });
   }
 }
 
@@ -12,6 +12,10 @@ export function dispatch(action: NavigationAction) {
   if (navigationRef.isReady()) {
     navigationRef.current?.dispatch(action);
   }
+}
+
+export function navigateToWalletsList() {
+  navigate('WalletsList');
 }
 
 export function reset() {

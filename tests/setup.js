@@ -78,6 +78,8 @@ jest.mock('react-native-default-preference', () => {
   };
 });
 
+jest.mock('@lodev09/react-native-true-sheet');
+
 jest.mock('react-native-fs', () => {
   return {
     mkdir: jest.fn(),
@@ -127,9 +129,6 @@ jest.mock('react-native-fs', () => {
 jest.mock('react-native-document-picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
-
-jest.mock('rn-ldk/lib/module', () => ({}));
-jest.mock('rn-ldk/src/index', () => ({}));
 
 const realmInstanceMock = {
   create: function () {},

@@ -330,7 +330,7 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
-  - react-native-document-picker (9.1.1):
+  - react-native-document-picker (9.3.0):
     - React-Core
   - react-native-idle-timer (2.2.2):
     - React-Core
@@ -464,10 +464,8 @@ PODS:
     - React-perflogger (= 0.72.14)
   - ReactNativeCameraKit (13.0.0):
     - React-Core
-  - RealmJS (12.11.1):
+  - RealmJS (12.12.1):
     - React
-  - rn-ldk (0.8.4):
-    - React-Core
   - RNCAsyncStorage (1.24.0):
     - React-Core
   - RNCClipboard (1.14.1):
@@ -480,14 +478,14 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.17.1):
+  - RNGestureHandler (2.18.1):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNHandoff (0.0.3):
     - React
   - RNKeychain (8.2.0):
     - React-Core
-  - RNLocalize (3.2.0):
+  - RNLocalize (3.2.1):
     - React-Core
   - RNPermissions (4.1.5):
     - React-Core
@@ -497,13 +495,14 @@ PODS:
     - React
   - RNRate (1.2.12):
     - React-Core
-  - RNReactNativeHapticFeedback (2.2.0):
+  - RNReactNativeHapticFeedback (2.3.0):
+    - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNReanimated (3.14.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - ReactCommon/turbomodule/core
-  - RNScreens (3.32.0):
+  - RNScreens (3.33.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
     - React-RCTImage
@@ -517,6 +516,9 @@ PODS:
   - RNWatch (1.1.0):
     - React
   - SocketRocket (0.6.1)
+  - TrueSheet (0.12.4):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -578,7 +580,6 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit`)
   - RealmJS (from `../node_modules/realm`)
-  - rn-ldk (from `../node_modules/rn-ldk`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
@@ -600,6 +601,7 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
+  - "TrueSheet (from `../node_modules/@lodev09/react-native-true-sheet`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -723,8 +725,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera-kit"
   RealmJS:
     :path: "../node_modules/realm"
-  rn-ldk:
-    :path: "../node_modules/rn-ldk"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
@@ -767,6 +767,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
+  TrueSheet:
+    :path: "../node_modules/@lodev09/react-native-true-sheet"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -802,7 +804,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
-  react-native-document-picker: 3599b238843369026201d2ef466df53f77ae0452
+  react-native-document-picker: 5b97e24a7f1a1e4a50a72c540a043f32d29a70a2
   react-native-idle-timer: ee2053f2cd458f6fef1db7bebe5098ca281cce07
   react-native-image-picker: 1889c342e6a4ba089ff11ae0c3bf5cc30a3134d0
   react-native-ios-context-menu: e529171ba760a1af7f2ef0729f5a7f4d226171c5
@@ -830,32 +832,32 @@ SPEC CHECKSUMS:
   React-utils: 22a77b05da25ce49c744faa82e73856dcae1734e
   ReactCommon: ff94462e007c568d8cdebc32e3c97af86ec93bb5
   ReactNativeCameraKit: 9d46a5d7dd544ca64aa9c03c150d2348faf437eb
-  RealmJS: ecd23895a68689ce2c048d28df3d699cf76cedb7
-  rn-ldk: 0d8749d98cc5ce67302a32831818c116b67f7643
+  RealmJS: f4f6d27b325b1c1b402eb0aa5ee79e9d5f603293
   RNCAsyncStorage: ec53e44dc3e75b44aa2a9f37618a49c3bc080a7a
   RNCClipboard: 0a720adef5ec193aa0e3de24c3977222c7e52a37
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
   RNDefaultPreference: 08bdb06cfa9188d5da97d4642dac745218d7fb31
   RNDeviceInfo: b899ce37a403a4dea52b7cb85e16e49c04a5b88e
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 53f1b8fcdf62b349da820ef4616abeed04cde85c
+  RNGestureHandler: 9e0d0a46b7af6d21fbe3343912502afa8baf755e
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: bfe3d12bf4620fe488771c414530bf16e88f3678
-  RNLocalize: b77875884750cb6a58cd6865863fe2ba2729b72b
+  RNLocalize: 4f22418187ecd5ca693231093ff1d912d1b3c9bc
   RNPermissions: 9fa74223844f437bc309e112994859dc47194829
   RNPrivacySnapshot: 71919dde3c6a29dd332115409c2aec564afee8f4
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: ef3bcff84f39bb1d1e41c5593d3eea4aab2bd73a
-  RNReactNativeHapticFeedback: ec56a5f81c3941206fd85625fa669ffc7b4545f9
+  RNReactNativeHapticFeedback: 5eee8b6c8f2b1595f4441e884d4c353c18eb7003
   RNReanimated: e71a1d6bb6427f45ea57c5e23f99030129b6db62
-  RNScreens: ad1c105ac9107cf1a613bf80889485458eb20bd7
+  RNScreens: 01092d6104b707ddd6258dadefc9997a9f523c35
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
   RNSVG: af3907ac5d4fa26a862b75a16d8f15bc74f2ceda
   RNVectorIcons: 32462e7c7e58fe457474fc79c4d7de3f0ef08d70
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  TrueSheet: 3ba036b4f20ea78a2953fcf7949e8a60dd63d3f6
   Yoga: c32e0be1a17f8f1f0e633a3122f7666441f52c82
 
-PODFILE CHECKSUM: f19eea438501edfe85fb2fa51d40ba1b57540758
+PODFILE CHECKSUM: f6f6fbdfa280f2c07d8569ee5cb4ca320636ebf4
 
 COCOAPODS: 1.15.2

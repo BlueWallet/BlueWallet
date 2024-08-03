@@ -71,7 +71,11 @@ const ScanQRCode: React.FC = () => {
         const data = decoder.toString();
         decoder = null; // nullify for future use (?)
         if (launchedBy) {
-          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
         }
         onBarScanned && onBarScanned({ data });
       } else {
@@ -127,9 +131,15 @@ const ScanQRCode: React.FC = () => {
           }
         }
         if (launchedBy) {
-          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
         }
         onBarScanned && onBarScanned({ data });
+      } else {
+        setAnimatedQRCodeData(animatedQRCodeData);
       }
     } catch (error) {
       console.warn(error);
@@ -186,11 +196,15 @@ const ScanQRCode: React.FC = () => {
     try {
       const hex = Base43.decode(ret.data);
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
-
+      const data = Buffer.from(hex, 'hex').toString('base64');
       if (launchedBy) {
-        navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
+        let merge = true;
+        if (typeof onBarScanned !== 'function') {
+          merge = false;
+        }
+        navigation.navigate({ name: launchedBy, params: { scannedData: data }, merge });
       }
-      onBarScanned && onBarScanned({ data: Buffer.from(hex, 'hex').toString('base64') });
+      onBarScanned && onBarScanned({ data });
       return;
     } catch (_) {}
 
@@ -198,9 +212,13 @@ const ScanQRCode: React.FC = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
+          let merge = true;
+          if (typeof onBarScanned !== 'function') {
+            merge = false;
+          }
+          navigation.navigate({ name: launchedBy, params: { scannedData: ret.data }, merge });
         }
-        onBarScanned && onBarScanned({ data: ret.data });
+        onBarScanned && onBarScanned(ret.data);
       } catch (e) {
         console.log(e);
       }
@@ -251,7 +269,11 @@ const ScanQRCode: React.FC = () => {
 
   const dismiss = (): void => {
     if (launchedBy) {
-      navigation.navigate(launchedBy as keyof ScanQRCodeParamsList, {});
+      let merge = true;
+      if (typeof onBarScanned !== 'function') {
+        merge = false;
+      }
+      navigation.navigate({ name: launchedBy, params: {}, merge });
     } else {
       navigation.goBack();
     }
