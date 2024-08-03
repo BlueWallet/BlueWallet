@@ -45,6 +45,13 @@
   "engines": {
     "node": ">=20"
   },
+  "resolutions": {
+    "react-native-draggable-flatlist": "https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d",
+    "react-native-ios-context-menu": "https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e",
+    "localized-strings": "https://github.com/BlueWallet/localized-strings.git#commit=178351a7297336618d9ee87277f8e3af9ab7285d",
+    "react-native-privacy-snapshot": "https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783",
+    "react-native-document-picker": "https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315"
+  },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; yarn cache clean; yarn install; yarn start --reset-cache",
     "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && yarn && cd ios && pod update && cd ..; yarn start --reset-cache",

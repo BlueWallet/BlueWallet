@@ -9408,7 +9408,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"localized-strings@github:BlueWallet/localized-strings#178351a7297336618d9ee87277f8e3af9ab7285d":
+"localized-strings@https://github.com/BlueWallet/localized-strings.git#commit=178351a7297336618d9ee87277f8e3af9ab7285d":
   version: 0.2.4
   resolution: "localized-strings@https://github.com/BlueWallet/localized-strings.git#commit=178351a7297336618d9ee87277f8e3af9ab7285d"
   checksum: a17257d712e5896103d915b7722ca7620128f8d52c4620d43c3677836fd96086e32cecf4796ac5a219d05fe5267eecb5371cf31e21174a9abd2446f3bb1effb9
@@ -11725,7 +11725,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-document-picker@github:BlueWallet/react-native-document-picker#ba9299e01be6d0ddaa5f1b491406481a5ad0f315":
+"react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315":
   version: 9.3.0
   resolution: "react-native-document-picker@https://github.com/BlueWallet/react-native-document-picker.git#commit=ba9299e01be6d0ddaa5f1b491406481a5ad0f315"
   dependencies:
@@ -11741,7 +11741,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-draggable-flatlist@github:BlueWallet/react-native-draggable-flatlist#3061e3055cbe0a9c7665b9c4b90912c30f668a3d":
+"react-native-draggable-flatlist@https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d":
   version: 4.0.1
   resolution: "react-native-draggable-flatlist@https://github.com/BlueWallet/react-native-draggable-flatlist.git#commit=3061e3055cbe0a9c7665b9c4b90912c30f668a3d"
   dependencies:
@@ -11821,7 +11821,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-ios-context-menu@github:BlueWallet/react-native-ios-context-menu#e5c1217cd220bfab6e6d9a7c65838545082e3f8e":
+"react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e":
   version: 1.15.3
   resolution: "react-native-ios-context-menu@https://github.com/BlueWallet/react-native-ios-context-menu.git#commit=e5c1217cd220bfab6e6d9a7c65838545082e3f8e"
   dependencies:
@@ -11887,7 +11887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-privacy-snapshot@github:BlueWallet/react-native-privacy-snapshot#529e4627d93f67752a27e82a040ff7b64dca0783":
+"react-native-privacy-snapshot@https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783":
   version: 1.0.0
   resolution: "react-native-privacy-snapshot@https://github.com/BlueWallet/react-native-privacy-snapshot.git#commit=529e4627d93f67752a27e82a040ff7b64dca0783"
   peerDependencies:
