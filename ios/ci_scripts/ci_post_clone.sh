@@ -23,7 +23,7 @@ echo "Configuration complete."
 
 # Install dependencies using yarn
 echo "===== Running yarn install ====="
-yarn install | tee yarn-install-log.txt
+yarn install --immutable | tee yarn-install-log.txt
 echo "yarn install complete. Full log output in yarn-install-log.txt"
 
 echo "===== Running pod install ====="
