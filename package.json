@@ -202,9 +202,10 @@
     "url": "0.11.4",
     "wif": "2.0.6"
   },
-  "packageManager": "yarn@3.6.4",
   "react-native": {
     "crypto": "react-native-crypto",
+    "net": "react-native-tcp-socket",
+    "tls": "react-native-tcp-socket",
     "path": "path-browserify",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
