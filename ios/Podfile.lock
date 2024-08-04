@@ -556,7 +556,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-ios-context-menu (from `../node_modules/react-native-ios-context-menu`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
-  - react-native-qrcode-local-image (from `../node_modules/react-native-qrcode-local-image`)
+  - "react-native-qrcode-local-image (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
@@ -678,7 +678,7 @@ EXTERNAL SOURCES:
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
   react-native-qrcode-local-image:
-    :path: "../node_modules/react-native-qrcode-local-image"
+    :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
