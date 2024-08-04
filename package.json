@@ -200,7 +200,7 @@
     "url": "0.11.4",
     "wif": "2.0.6"
   },
-  "packageManager": "yarn@4.4.0",
+  "packageManager": "yarn@3.6.4",
   "react-native": {
     "crypto": "react-native-crypto",
     "path": "path-browserify",
