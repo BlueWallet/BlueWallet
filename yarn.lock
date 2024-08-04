@@ -4322,8 +4322,8 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bip32@npm:3.0.1":
-  version: 3.0.1
+"bip32@npm:3.0.1, bip32@npm:^3.0.1":
+  version: 3.1.0
   resolution: "bip32@npm:3.0.1"
   dependencies:
     "@types/node": "npm:10.12.18"
@@ -4348,20 +4348,6 @@ __metadata:
     typeforce: "npm:^1.11.5"
     wif: "npm:^2.0.6"
   checksum: 10/9d71a946722c302b080771ab22dc83a0d7337a29845f80715c9d258cddaf42bb42b35ab49c3498e5cc60b27c1864397d6bdac713c9726ecf72c04f07b4cb5d40
-  languageName: node
-  linkType: hard
-
-"bip32@npm:^3.0.1":
-  version: 3.1.0
-  resolution: "bip32@npm:3.1.0"
-  dependencies:
-    bs58check: "npm:^2.1.1"
-    create-hash: "npm:^1.2.0"
-    create-hmac: "npm:^1.1.7"
-    ripemd160: "npm:^2.0.2"
-    typeforce: "npm:^1.11.5"
-    wif: "npm:^2.0.6"
-  checksum: 10/6cdad901d25959e21835fe7b43066fc2498548962aa07ce438860b7420a7a93ceec3a9b34ddee68bbc568a68b9d96029338dbea1eadb548651b06d800a14fc3d
   languageName: node
   linkType: hard
 
@@ -12553,7 +12539,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ripemd160@npm:^2.0.0, ripemd160@npm:^2.0.1, ripemd160@npm:^2.0.2":
+"ripemd160@npm:^2.0.0, ripemd160@npm:^2.0.1":
   version: 2.0.2
   resolution: "ripemd160@npm:2.0.2"
   dependencies:
