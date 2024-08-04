@@ -18,7 +18,6 @@ interface PromptPasswordConfirmationModalProps {
   modalType: ModalType;
   onConfirmationSuccess: (password: string) => Promise<boolean>;
   onConfirmationFailure: () => void;
-  onDismiss?: () => void;
 }
 
 export interface PromptPasswordConfirmationModalHandle {
@@ -27,16 +26,18 @@ export interface PromptPasswordConfirmationModalHandle {
 }
 
 const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationModalHandle, PromptPasswordConfirmationModalProps>(
-  ({ modalType, onConfirmationSuccess, onConfirmationFailure, onDismiss }, ref) => {
+  ({ modalType, onConfirmationSuccess, onConfirmationFailure }, ref) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [showExplanation, setShowExplanation] = useState(true); // State to toggle between explanation and password input for CREATE_PASSWORD
     const modalRef = useRef<BottomModalHandle>(null);
     const fadeOutAnimation = useRef(new Animated.Value(1)).current;
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const shakeAnimation = useRef(new Animated.Value(0)).current;
+    const explanationOpacity = useRef(new Animated.Value(1)).current; // New animated value for opacity
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
@@ -64,7 +65,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       present: async () => {
         resetState();
         modalRef.current?.present();
-        if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
+        if (modalType === MODAL_TYPES.CREATE_PASSWORD && !showExplanation) {
           passwordInputRef.current?.focus();
         } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           passwordInputRef.current?.focus();
@@ -72,7 +73,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       },
       dismiss: async () => {
         await modalRef.current?.dismiss();
-        onDismiss?.(); // Call onDismiss if provided after modal dismisses
+        resetState();
       },
     }));
 
@@ -85,26 +86,46 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       fadeInAnimation.setValue(0);
       scaleAnimation.setValue(1);
       shakeAnimation.setValue(0);
+      explanationOpacity.setValue(1);
+      if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
+        setShowExplanation(true);
+      }
     };
+
+    useEffect(() => {
+      resetState();
+    }, [modalType]);
 
     const handleShakeAnimation = () => {
       Animated.sequence([
         Animated.timing(shakeAnimation, {
           toValue: 10,
-          duration: 100,
-          easing: Easing.bounce,
+          duration: 150,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: -10,
+          duration: 150,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 5,
           duration: 100,
-          easing: Easing.bounce,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: -5,
+          duration: 100,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: 0,
           duration: 100,
-          easing: Easing.bounce,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ]).start(() => {
@@ -175,21 +196,22 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       }
     };
 
+    const handleTransitionToCreatePassword = () => {
+      Animated.timing(explanationOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowExplanation(false);
+        explanationOpacity.setValue(1); // Reset opacity for when transitioning back
+        passwordInputRef.current?.focus();
+      });
+    };
+
     const handleCancel = async () => {
-      resetState();
       onConfirmationFailure();
       await modalRef.current?.dismiss();
     };
-
-    useEffect(() => {
-      resetState();
-      if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
-        passwordInputRef.current?.focus();
-      } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
-        passwordInputRef.current?.focus();
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [modalType]);
 
     const animatedViewStyle: Animated.WithAnimatedObject<ViewStyle> = {
       opacity: fadeOutAnimation,
@@ -201,65 +223,82 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       <BottomModal
         ref={modalRef}
         showCloseButton={false}
-        onDismiss={onDismiss || handleCancel}
+        onDismiss={resetState}
         grabber={false}
-        sizes={[350]}
+        sizes={[370]}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
         footer={
-          !isSuccess && (
-            <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
-              <View style={styles.feeModalFooter}>
-                <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
-                <View style={styles.feeModalFooterSpacing} />
-                <SecondButton
-                  title={isLoading ? '' : loc._.ok}
-                  onPress={handleSubmit}
-                  testID="OKButton"
-                  loading={isLoading}
-                  disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
-                />
-              </View>
-            </Animated.View>
-          ) || undefined
+          !isSuccess ? (
+            showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? null : (
+              <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
+                <View style={styles.feeModalFooter}>
+                  <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
+                  <View style={styles.feeModalFooterSpacing} />
+                  <SecondButton
+                    title={isLoading ? '' : loc._.ok}
+                    onPress={handleSubmit}
+                    testID="OKButton"
+                    loading={isLoading}
+                    disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
+                  />
+                </View>
+              </Animated.View>
+            )
+          ) : null
         }
       >
-        {!isSuccess && modalType !== MODAL_TYPES.SUCCESS && (
+        {!isSuccess && (
           <Animated.View style={animatedViewStyle}>
-            <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
-              {modalType === MODAL_TYPES.CREATE_PASSWORD ? loc.settings.password_explain : loc._.enter_password}
-            </Text>
-            <View style={styles.inputContainer}>
-              <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-                <TextInput
-                  testID="PasswordInput"
-                  ref={passwordInputRef}
-                  secureTextEntry
-                  placeholder="Password"
-                  value={password}
-                  selectTextOnFocus
-                  onChangeText={setPassword}
-                  style={[styles.input, stylesHook.input]}
-                  autoFocus
-                  onSubmitEditing={handleSubmit} // Handle Enter key as OK
-                />
+            {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
+              <Animated.View style={{ opacity: explanationOpacity }}>
+                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
+                <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  {loc.settings.encrypt_storage_explanation_description_line1}
+                </Text>
+                <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                  {loc.settings.encrypt_storage_explanation_description_line2}
+                </Text>
+                <View style={styles.feeModalFooter} />
+                <SecondButton title={loc.settings.i_understand} onPress={handleTransitionToCreatePassword} disabled={isLoading} />
               </Animated.View>
-              {modalType === MODAL_TYPES.CREATE_PASSWORD && (
-                <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-                  <TextInput
-                    testID="ConfirmPasswordInput"
-                    ref={confirmPasswordInputRef}
-                    secureTextEntry
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    selectTextOnFocus
-                    onChangeText={setConfirmPassword}
-                    style={[styles.input, stylesHook.input]}
-                    onSubmitEditing={handleSubmit} // Handle Enter key as OK
-                  />
-                </Animated.View>
-              )}
-            </View>
+            )}
+            {(modalType === MODAL_TYPES.ENTER_PASSWORD || (modalType === MODAL_TYPES.CREATE_PASSWORD && !showExplanation)) && (
+              <>
+                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
+                  {modalType === MODAL_TYPES.CREATE_PASSWORD ? loc.settings.password_explain : loc._.enter_password}
+                </Text>
+                <View style={styles.inputContainer}>
+                  <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+                    <TextInput
+                      testID="PasswordInput"
+                      ref={passwordInputRef}
+                      secureTextEntry
+                      placeholder="Password"
+                      value={password}
+                      onChangeText={setPassword}
+                      style={[styles.input, stylesHook.input]}
+                      autoFocus
+                      onSubmitEditing={handleSubmit} // Handle Enter key as OK
+                    />
+                  </Animated.View>
+                  {modalType === MODAL_TYPES.CREATE_PASSWORD && (
+                    <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
+                      <TextInput
+                        testID="ConfirmPasswordInput"
+                        ref={confirmPasswordInputRef}
+                        secureTextEntry
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        style={[styles.input, stylesHook.input]}
+                        onSubmitEditing={handleSubmit} // Handle Enter key as OK
+                      />
+                    </Animated.View>
+                  )}
+                </View>
+              </>
+            )}
           </Animated.View>
         )}
         {isSuccess && (
@@ -278,7 +317,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       transform: [
                         {
                           scale: scaleAnimation.interpolate({
-                            inputRange: [0, 1],
+                            inputRange: [0.8, 1],
                             outputRange: [0.8, 1],
                           }),
                         },
@@ -331,6 +370,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '600',
     marginBottom: 16,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 16,
+    marginBottom: 12,
     textAlign: 'center',
   },
   successContainer: {
