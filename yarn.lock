@@ -2910,13 +2910,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remobile/react-native-qrcode-local-image@github:BlueWallet/react-native-qrcode-local-image#v1.0.4":
-  version: 1.0.4
-  resolution: "@remobile/react-native-qrcode-local-image@https://github.com/BlueWallet/react-native-qrcode-local-image.git#commit=31b0113110fbafcf5a5f3ca4183a563550f5c352"
-  checksum: 25ae153c0f75641b5a93816ebddb7cb2ea96718848cbcfebef8ce47be5f4410796177381385d4708a047282af8f34e27bfc42217299d1661a8bdda95b114a6e4
-  languageName: node
-  linkType: hard
-
 "@rneui/base@npm:4.0.0-rc.8":
   version: 4.0.0-rc.8
   resolution: "@rneui/base@npm:4.0.0-rc.8"
@@ -4544,7 +4537,6 @@ __metadata:
     "@react-navigation/drawer": 6.7.2
     "@react-navigation/native": 6.1.18
     "@react-navigation/native-stack": 6.11.0
-    "@remobile/react-native-qrcode-local-image": "github:BlueWallet/react-native-qrcode-local-image#v1.0.4"
     "@rneui/base": 4.0.0-rc.8
     "@rneui/themed": 4.0.0-rc.8
     "@spsina/bip47": "github:BlueWallet/bip47#f4b8047c7efbe382c268b3074a4956698087f984"
@@ -4632,6 +4624,7 @@ __metadata:
     react-native-privacy-snapshot: "github:BlueWallet/react-native-privacy-snapshot#v1.0.0"
     react-native-prompt-android: "github:BlueWallet/react-native-prompt-android#v1.0.0"
     react-native-push-notification: 8.1.1
+    react-native-qrcode-local-image: "github:BlueWallet/react-native-qrcode-local-image#v1.0.4"
     react-native-qrcode-svg: 6.3.1
     react-native-quick-actions: 0.3.13
     react-native-randombytes: 3.6.1
@@ -11717,6 +11710,13 @@ __metadata:
     "@react-native-community/push-notification-ios": ^1.10.1
     react-native: ">=0.33"
   checksum: 64d500c1163eaa4eee549e6e2f8204cac643f91ae918a227e9d93f8261afdebbdaa7ba5d12da0039155cbf6a599032dd15be4ebe53737cbeeadec4469893f00d
+  languageName: node
+  linkType: hard
+
+"react-native-qrcode-local-image@github:BlueWallet/react-native-qrcode-local-image#v1.0.4":
+  version: 1.0.4
+  resolution: "react-native-qrcode-local-image@https://github.com/BlueWallet/react-native-qrcode-local-image.git#commit=31b0113110fbafcf5a5f3ca4183a563550f5c352"
+  checksum: 3ea346d9f9ea02bd92300070e6d4dffede6cb4fd6afcb6ee2700d55582527eff185d49df541f51782f3e26dde01f0a9e328788cdd0b02153e5f7e7bcf6f0d47f
   languageName: node
   linkType: hard
 

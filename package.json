@@ -4,7 +4,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "github:BlueWallet/BlueWallet.git"
+    "url": "https://github.com/BlueWallet/BlueWallet.git"
   },
   "devDependencies": {
     "@babel/core": "7.25.2",
@@ -116,7 +116,6 @@
     "@react-navigation/drawer": "6.7.2",
     "@react-navigation/native": "6.1.18",
     "@react-navigation/native-stack": "6.11.0",
-    "@remobile/react-native-qrcode-local-image": "github:BlueWallet/react-native-qrcode-local-image#v1.0.4",
     "@rneui/base": "4.0.0-rc.8",
     "@rneui/themed": "4.0.0-rc.8",
     "@spsina/bip47": "github:BlueWallet/bip47#f4b8047c7efbe382c268b3074a4956698087f984",
@@ -177,6 +176,7 @@
     "react-native-privacy-snapshot": "github:BlueWallet/react-native-privacy-snapshot#v1.0.0",
     "react-native-prompt-android": "github:BlueWallet/react-native-prompt-android#v1.0.0",
     "react-native-push-notification": "8.1.1",
+    "react-native-qrcode-local-image": "github:BlueWallet/react-native-qrcode-local-image#v1.0.4",
     "react-native-qrcode-svg": "6.3.1",
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.6.1",
