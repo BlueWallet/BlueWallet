@@ -112,7 +112,7 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
@@ -1179,7 +1179,7 @@ const SendDetails = () => {
     feeLabel: {
       color: colors.feeText,
     },
-  
+
     feeRow: {
       backgroundColor: colors.feeLabel,
     },
@@ -1468,13 +1468,13 @@ const SendDetails = () => {
           </TouchableOpacity>
           {renderCreateButton()}
           <SelectFeeModal
-        ref={feeModalRef}
-        networkTransactionFees={networkTransactionFees}
-        feePrecalc={feePrecalc}
-        feeRate={feeRate}
-        setCustomFee={setCustomFee}
-        setFeePrecalc={setFeePrecalc}
-      />
+            ref={feeModalRef}
+            networkTransactionFees={networkTransactionFees}
+            feePrecalc={feePrecalc}
+            feeRate={feeRate}
+            setCustomFee={setCustomFee}
+            setFeePrecalc={setFeePrecalc}
+          />
           {renderOptionsModal()}
         </KeyboardAvoidingView>
       </View>
