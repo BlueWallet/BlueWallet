@@ -19,7 +19,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
@@ -36,11 +35,10 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
+import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
-import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -95,7 +93,7 @@ const SendDetails = () => {
   const optionsModalRef = useRef<BottomModalHandle>(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
-  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean>(false);
+  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean | undefined>(false);
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
   const [units, setUnits] = useState<BitcoinUnit[]>([]);
   const [transactionMemo, setTransactionMemo] = useState<string>('');
@@ -131,15 +129,11 @@ const SendDetails = () => {
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
 
-  useEffect(() => {
-    console.log('send/details - useEffect');
-    if (wallet) {
-      setHeaderRightOptions();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
+  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
+    setIsTransactionReplaceable(value);
+  };
 
-  // keyboad effects
+  // keyboard effects
   useEffect(() => {
     const _keyboardDidShow = () => {
       setWalletSelectionOrCoinsSelectedHidden(true);
@@ -235,8 +229,7 @@ const SendDetails = () => {
     } else {
       setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams, addresses, routeParams, setParams]);
 
   useEffect(() => {
     // check if we have a suitable wallet
@@ -278,7 +271,7 @@ const SendDetails = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setNetworkTransactionFeesIsLoading(false);
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [navigation, routeParams.walletID, wallets]);
 
   // change header and reset state on wallet change
   useEffect(() => {
@@ -288,7 +281,7 @@ const SendDetails = () => {
     // reset other values
     setUtxo(null);
     setChangeAddress(null);
-    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf);
+    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf ? true : undefined);
 
     // update wallet UTXO
     wallet
@@ -298,7 +291,8 @@ const SendDetails = () => {
         setDumb(v => !v);
       })
       .catch(e => console.log('fetchUtxo error', e));
-  }, [wallet]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet]);
 
   // recalc fees in effect so we don't block render
   useEffect(() => {
@@ -381,7 +375,7 @@ const SendDetails = () => {
 
     setFeePrecalc(newFeePrecalc);
     setFrozenBlance(frozen);
-  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb, feePrecalc]);
 
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
@@ -685,15 +679,44 @@ const SendDetails = () => {
     if (newWallet) {
       setWallet(newWallet);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.walletID]);
+  }, [routeParams.walletID, wallets]);
+
+  const importQrTransactionOnBarScanned = useCallback(
+    (ret: any) => {
+      navigation.getParent()?.getParent()?.dispatch(popAction);
+      if (!wallet) return;
+      if (!ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        // we dont support it in this flow
+      } else {
+        feeModalRef.current?.dismiss();
+        optionsModalRef.current?.dismiss();
+        // psbt base64?
+
+        // we construct PSBT object and pass to next screen
+        // so user can do smth with it:
+        const psbt = bitcoin.Psbt.fromBase64(ret.data);
+
+        navigation.navigate('PsbtWithHardwareWallet', {
+          memo: transactionMemo,
+          fromWallet: wallet,
+          psbt,
+        });
+        setIsLoading(false);
+      }
+    },
+    [navigation, popAction, transactionMemo, wallet],
+  );
 
   /**
    * same as `importTransaction`, but opens camera instead.
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = () => {
+  const importQrTransaction = useCallback(() => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -709,34 +732,7 @@ const SendDetails = () => {
         },
       });
     });
-  };
-
-  const importQrTransactionOnBarScanned = (ret: any) => {
-    navigation.getParent()?.getParent()?.dispatch(popAction);
-    if (!wallet) return;
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-    } else {
-      feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
-      // psbt base64?
-
-      // we construct PSBT object and pass to next screen
-      // so user can do smth with it:
-      const psbt = bitcoin.Psbt.fromBase64(ret.data);
-
-      navigation.navigate('PsbtWithHardwareWallet', {
-        memo: transactionMemo,
-        fromWallet: wallet,
-        psbt,
-      });
-      setIsLoading(false);
-    }
-  };
+  }, [importQrTransactionOnBarScanned, navigation, wallet?.type]);
 
   /**
    * watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
@@ -746,7 +742,7 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importTransaction = async () => {
+  const importTransaction = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
@@ -798,7 +794,7 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  };
+  }, [navigation, optionsModalRef, transactionMemo, wallet]);
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
@@ -821,53 +817,59 @@ const SendDetails = () => {
     });
   };
 
-  const _importTransactionMultisig = async (base64arg: string | false) => {
-    await optionsModalRef.current?.dismiss();
-    try {
-      const base64 = base64arg || (await fs.openSignedTransaction());
-      if (!base64) return;
-      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+  const _importTransactionMultisig = useCallback(
+    async (base64arg: string | false) => {
+      await optionsModalRef.current?.dismiss();
+      try {
+        const base64 = base64arg || (await fs.openSignedTransaction());
+        if (!base64) return;
+        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-      if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
-        setIsLoading(true);
-        await sleep(100);
-        (wallet as MultisigHDWallet).cosignPsbt(psbt);
-        setIsLoading(false);
-        await sleep(100);
+        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+          setIsLoading(true);
+          await sleep(100);
+          (wallet as MultisigHDWallet).cosignPsbt(psbt);
+          setIsLoading(false);
+          await sleep(100);
+        }
+
+        if (wallet) {
+          navigation.navigate('PsbtMultisig', {
+            memo: transactionMemo,
+            psbtBase64: psbt.toBase64(),
+            walletID: wallet.getID(),
+          });
+        }
+      } catch (error: any) {
+        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
       }
+      setIsLoading(false);
+    },
+    [navigation, sleep, transactionMemo, wallet],
+  );
 
-      if (wallet) {
-        navigation.navigate('PsbtMultisig', {
-          memo: transactionMemo,
-          psbtBase64: psbt.toBase64(),
-          walletID: wallet.getID(),
-        });
-      }
-    } catch (error: any) {
-      presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
-    }
-    setIsLoading(false);
-  };
-
-  const importTransactionMultisig = () => {
+  const importTransactionMultisig = useCallback(() => {
     return _importTransactionMultisig(false);
-  };
+  }, [_importTransactionMultisig]);
 
-  const onBarScanned = (ret: any) => {
-    navigation.getParent()?.dispatch(popAction);
-    if (!ret.data) ret = { data: ret };
-    if (ret.data.toUpperCase().startsWith('UR')) {
-      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-      // this looks like NOT base64, so maybe its transaction's hex
-      // we dont support it in this flow
-    } else {
-      // psbt base64?
-      return _importTransactionMultisig(ret.data);
-    }
-  };
+  const onBarScanned = useCallback(
+    (ret: any) => {
+      navigation.getParent()?.dispatch(popAction);
+      if (!ret.data) ret = { data: ret };
+      if (ret.data.toUpperCase().startsWith('UR')) {
+        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+        // this looks like NOT base64, so maybe its transaction's hex
+        // we dont support it in this flow
+      } else {
+        // psbt base64?
+        return _importTransactionMultisig(ret.data);
+      }
+    },
+    [_importTransactionMultisig, navigation, popAction],
+  );
 
-  const importTransactionMultisigScanQr = async () => {
+  const importTransactionMultisigScanQr = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
@@ -878,20 +880,19 @@ const SendDetails = () => {
         },
       });
     });
-  };
+  }, [navigation, onBarScanned]);
 
-  const handleAddRecipient = async () => {
+  const handleAddRecipient = useCallback(async () => {
     console.debug('handleAddRecipient');
-    await optionsModalRef.current?.dismiss();
     setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
     await sleep(200); // wait for animation
     scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
     scrollView.current?.flashScrollIndicators();
-  };
+  }, [addresses.length, sleep]);
 
-  const handleRemoveRecipient = async () => {
+  const handleRemoveRecipient = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -904,25 +905,24 @@ const SendDetails = () => {
     await sleep(200); // wait for animation
     scrollView.current?.flashScrollIndicators();
     if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
-  };
+  }, [addresses.length, sleep]);
 
-  const handleCoinControl = async () => {
+  const handleCoinControl = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
     });
-  };
+  }, [navigation, wallet]);
 
-  const handleInsertContact = async () => {
+  const handleInsertContact = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
-  };
+  }, [navigation, wallet]);
 
-  const handlePsbtSign = async () => {
-    await optionsModalRef.current?.dismiss();
+  const handlePsbtSign = useCallback(async () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
@@ -962,37 +962,9 @@ const SendDetails = () => {
       showAnimatedQr: true,
       psbt,
     });
-  };
+  }, [name, navigation, wallet]);
 
-  // Header Right Button
-
-  const headerRightOnPress = (id: string) => {
-    if (id === SendDetails.actionKeys.AddRecipient) {
-      handleAddRecipient();
-    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
-      handleRemoveRecipient();
-    } else if (id === SendDetails.actionKeys.SignPSBT) {
-      handlePsbtSign();
-    } else if (id === SendDetails.actionKeys.SendMax) {
-      onUseAllPressed();
-    } else if (id === SendDetails.actionKeys.AllowRBF) {
-      onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
-    } else if (id === SendDetails.actionKeys.ImportTransaction) {
-      importTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
-      importQrTransaction();
-    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
-      importTransactionMultisig();
-    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
-      importTransactionMultisigScanQr();
-    } else if (id === SendDetails.actionKeys.CoinControl) {
-      handleCoinControl();
-    } else if (id === SendDetails.actionKeys.InsertContact) {
-      handleInsertContact();
-    }
-  };
-
-  const headerRightActions = () => {
+  const headerRightActions = useCallback(() => {
     const actions: Action[] & Action[][] = [];
     if (isEditable) {
       if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
@@ -1006,8 +978,8 @@ const SendDetails = () => {
 
         actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
       }
-      if (wallet?.type === HDSegwitBech32Wallet.type) {
-        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
+      if (wallet?.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined) {
+        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuState: !!isTransactionReplaceable }]);
       }
       const transactionActions = [];
       if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
@@ -1059,67 +1031,9 @@ const SendDetails = () => {
     actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
 
     return actions;
-  };
-  const setHeaderRightOptions = () => {
-    navigation.setOptions({
-      headerRight: Platform.select({
-        // eslint-disable-next-line react/no-unstable-nested-components
-        ios: () => (
-          <ToolTipMenu
-            disabled={isLoading}
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={headerRightOnPress}
-            // @ts-ignore idk how to fix
-            actions={headerRightActions()}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-          </ToolTipMenu>
-        ),
-        // eslint-disable-next-line react/no-unstable-nested-components
-        default: () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.more}
-            disabled={isLoading}
-            style={styles.advancedOptions}
-            onPress={() => {
-              optionsModalRef.current?.present();
-            }}
-            testID="advancedOptionsMenuButton"
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ),
-      }),
-    });
-  };
+  }, [isEditable, wallet, isTransactionReplaceable, addresses, balance]);
 
-  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
-    setIsTransactionReplaceable(value);
-  };
-
-  //
-
-  // because of https://github.com/facebook/react-native/issues/21718 we use
-  // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
-  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
-  const onUseAllPressed = async () => {
+  const onUseAllPressed = useCallback(async () => {
     await optionsModalRef.current?.dismiss();
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
@@ -1153,6 +1067,74 @@ const SendDetails = () => {
       ],
       { cancelable: false },
     );
+  }, [frozenBalance]);
+
+  const HeaderRightButton = useMemo(() => {
+    const headerRightOnPress = (id: string) => {
+      if (id === SendDetails.actionKeys.AddRecipient) {
+        handleAddRecipient();
+      } else if (id === SendDetails.actionKeys.RemoveRecipient) {
+        handleRemoveRecipient();
+      } else if (id === SendDetails.actionKeys.SignPSBT) {
+        handlePsbtSign();
+      } else if (id === SendDetails.actionKeys.SendMax) {
+        onUseAllPressed();
+      } else if (id === SendDetails.actionKeys.AllowRBF) {
+        onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
+      } else if (id === SendDetails.actionKeys.ImportTransaction) {
+        importTransaction();
+      } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
+        importQrTransaction();
+      } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
+        importTransactionMultisig();
+      } else if (id === SendDetails.actionKeys.CoSignTransaction) {
+        importTransactionMultisigScanQr();
+      } else if (id === SendDetails.actionKeys.CoinControl) {
+        handleCoinControl();
+      } else if (id === SendDetails.actionKeys.InsertContact) {
+        handleInsertContact();
+      }
+    };
+    return (
+      <ToolTipMenu disabled={isLoading} isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
+      </ToolTipMenu>
+    );
+  }, [
+    colors.foregroundColor,
+    handleAddRecipient,
+    handleCoinControl,
+    handleInsertContact,
+    handlePsbtSign,
+    handleRemoveRecipient,
+    headerRightActions,
+    importQrTransaction,
+    importTransaction,
+    importTransactionMultisig,
+    importTransactionMultisigScanQr,
+    isLoading,
+    isTransactionReplaceable,
+    onUseAllPressed,
+  ]);
+
+  //
+
+  // because of https://github.com/facebook/react-native/issues/21718 we use
+  // onScroll for android and onMomentumScrollEnd for iOS
+  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
+  };
+
+  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
@@ -1192,60 +1174,6 @@ const SendDetails = () => {
     const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
     const totalWithFee = totalAmount + (feePrecalc.current || 0);
     return totalWithFee;
-  };
-
-  const renderOptionsModal = () => {
-    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
-
-    return (
-      <BottomModal ref={optionsModalRef} backgroundColor={colors.modal} contentContainerStyle={styles.optionsContent}>
-        {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
-          <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
-        )}
-        {isEditable && (
-          <ListItem
-            testID="sendMaxButton"
-            disabled={balance === 0 || isSendMaxUsed}
-            title={loc.send.details_adv_full}
-            onPress={onUseAllPressed}
-          />
-        )}
-        {wallet?.type === HDSegwitBech32Wallet.type && isEditable && (
-          <ListItem
-            title={loc.send.details_adv_fee_bump}
-            Component={TouchableWithoutFeedback}
-            switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
-          />
-        )}
-        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-          <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
-        )}
-        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-          <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
-        )}
-        {wallet?.type === MultisigHDWallet.type && isEditable && (
-          <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
-        )}
-        {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-          <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
-        )}
-        {isEditable && (
-          <>
-            <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
-            <ListItem
-              testID="RemoveRecipient"
-              title={loc.send.details_add_rec_rem}
-              disabled={addresses.length < 2}
-              onPress={handleRemoveRecipient}
-            />
-          </>
-        )}
-        <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
-        {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
-          <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
-        )}
-      </BottomModal>
-    );
   };
 
   const renderCreateButton = () => {
@@ -1406,6 +1334,21 @@ const SendDetails = () => {
     );
   };
 
+  const setHeaderRightOptions = useCallback(() => {
+    // Header Right Button
+
+    navigation.setOptions({
+      headerRight: () => HeaderRightButton,
+    });
+  }, [HeaderRightButton, navigation]);
+
+  useEffect(() => {
+    console.log('send/details - useEffect');
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
+
   if (isLoading || !wallet) {
     return (
       <View style={[styles.loading, stylesHook.loading]}>
@@ -1475,7 +1418,6 @@ const SendDetails = () => {
             setCustomFee={setCustomFee}
             setFeePrecalc={setFeePrecalc}
           />
-          {renderOptionsModal()}
         </KeyboardAvoidingView>
       </View>
       <BlueDismissKeyboardInputAccessory />
@@ -1538,11 +1480,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 8,
   },
-
-  optionsContent: {
-    padding: 22,
-  },
-
   createButton: {
     marginVertical: 16,
     marginHorizontal: 16,

@@ -7,7 +7,7 @@ export interface Action {
     iconValue: string;
   };
   menuTitle?: string;
-  menuStateOn?: boolean;
+  menuState?: 'mixed' | boolean | undefined;
   disabled?: boolean;
   displayInline?: boolean;
 }
