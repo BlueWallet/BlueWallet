@@ -89,11 +89,6 @@ android/app/.project
 android/app/.classpath
 android/.settings/org.eclipse.buildship.core.prefs
 android/.project
-
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+android/.settings/org.eclipse.buildship.core.prefs
+android/app/.classpath
+android/app/.project
