@@ -6112,7 +6112,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ecpair@npm:2.0.1":
+"ecpair@npm:2.0.1, ecpair@npm:^2.0.1":
   version: 2.0.1
   resolution: "ecpair@npm:2.0.1"
   dependencies:
@@ -6120,17 +6120,6 @@ __metadata:
     typeforce: "npm:^1.18.0"
     wif: "npm:^2.0.6"
   checksum: 10/7ed94a385ae31fe49dd2f5b8d714c1db70cc7168079d839bfa1f75f56c04786d906beb5855a85901f679a9263c1ff6243486a7dab55d9310a834374a8b9d7a55
-  languageName: node
-  linkType: hard
-
-"ecpair@npm:^2.0.1":
-  version: 2.1.0
-  resolution: "ecpair@npm:2.1.0"
-  dependencies:
-    randombytes: "npm:^2.1.0"
-    typeforce: "npm:^1.18.0"
-    wif: "npm:^2.0.6"
-  checksum: 10/06a9dfe50ac4528e6f61ce709218baf3261b28ce2ae05273c590a1e9646481699e36df97ca1dbe5c0ffc91753da543b8778f4341db24dc6c74e9046fcb975b3e
   languageName: node
   linkType: hard
 
