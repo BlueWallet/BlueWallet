@@ -161,7 +161,7 @@
     "react-native-crypto": "2.2.0",
     "react-native-default-preference": "1.4.4",
     "react-native-device-info": "11.1.0",
-    "react-native-document-picker": "github:BlueWallet/react-native-document-picker#ba9299e01be6d0ddaa5f1b491406481a5ad0f315",
+    "react-native-document-picker": "github:BlueWallet/document-picker#ba9299e01be6d0ddaa5f1b491406481a5ad0f315",
     "react-native-draggable-flatlist": "github:BlueWallet/react-native-draggable-flatlist#3061e3055cbe0a9c7665b9c4b90912c30f668a3d",
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.18.1",
