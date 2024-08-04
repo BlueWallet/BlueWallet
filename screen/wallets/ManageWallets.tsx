@@ -127,7 +127,9 @@ const ManageWallets: React.FC = () => {
   }, [wallets, txMetadata]);
 
   const handleClose = useCallback(() => {
-    const walletOrder = state.order.filter(item => item.type === ItemType.WalletSection).map(item => item.data);
+    // Filter out only wallet items from the order array
+    const walletOrder = state.order.filter((item): item is WalletItem => item.type === ItemType.WalletSection).map(item => item.data);
+
     setWalletsWithNewOrder(walletOrder);
     goBack();
   }, [goBack, setWalletsWithNewOrder, state.order]);
