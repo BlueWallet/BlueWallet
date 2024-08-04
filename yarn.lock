@@ -9411,7 +9411,7 @@ __metadata:
 "localized-strings@github:BlueWallet/localized-strings#178351a7297336618d9ee87277f8e3af9ab7285d":
   version: 0.2.4
   resolution: "localized-strings@https://github.com/BlueWallet/localized-strings.git#commit=178351a7297336618d9ee87277f8e3af9ab7285d"
-  checksum: a17257d712e5896103d915b7722ca7620128f8d52c4620d43c3677836fd96086e32cecf4796ac5a219d05fe5267eecb5371cf31e21174a9abd2446f3bb1effb9
+  checksum: 5affea6f1f26df44848e9c12bd68991bc467dd450c83479eadbf33c34693acedc2bd2800689b0ec1ee9b00427ff0e0e0fe7f795d1fc5643f74106ddfba7d6e7e
   languageName: node
   linkType: hard
 
@@ -11737,7 +11737,7 @@ __metadata:
   peerDependenciesMeta:
     react-native-windows:
       optional: true
-  checksum: 5f21b79552d32459209a9d016ca0e814f877d9055c9a36dae49a410608ca00b75f88fcc208a3224083e4896e23e99b553af9824f6ee5ce3a748cd0f1aebf1694
+  checksum: 4fd700976d23f9504a32fecd1cb32bc4095e995d57ab8152f2ea429aa001118a6797ea64fa590b0efd90d2ab5e6e6b34df1f739ecbd2909da15ae67035d0e8f1
   languageName: node
   linkType: hard
 
@@ -11750,7 +11750,7 @@ __metadata:
     react-native: ">=0.64.0"
     react-native-gesture-handler: ">=2.0.0"
     react-native-reanimated: ">=2.8.0"
-  checksum: dccbf471102400961215efa4e26f4c4fa4ef301337713e3b415c14c6d65892107dae2fce4f949f74873d0542701682acff336ca6d3466bdf3334f71d967d5704
+  checksum: 1021139164eb5cdd52d2cdcc002a368372e697a1853a67cd105a317a0b3780534ef8f975480fbae23cf22a63e47ac978100e24b921ec9179f5fe2f2bfc00545d
   languageName: node
   linkType: hard
 
@@ -11829,7 +11829,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 431a2aa635223c7702814418b9388abbe1c495a37d20c389f60ea3a79a9605668f7f007fee399cc985ae0e1a9a3ebab384e3cc7b5fe02f0e40634ba3f0c6cb72
+  checksum: 7e7edd41816bb17c8edccb153fccc045b5c79690b2dc1305910c184323886db4b115c80a1899ec2e1b1f376fda3bf52c2747d491a1407c27aed2b115aae0fb86
   languageName: node
   linkType: hard
 
@@ -11893,7 +11893,7 @@ __metadata:
   peerDependencies:
     react: ^16.13.1
     react-native: ^0.62.0
-  checksum: a406a9b37a23cbb96f6e3906a4216ba1b69a4fd3e19fabd60bc5a38a82cd9c8a687c69c1da2ff2c6251f0c5ff1beb3d262d10a279dc6cc9fcbb2437e55b8ebec
+  checksum: ad65217702c372a3a30c906d4a527643a19a7ba0bc8d87724aadcf8405bf9a1d2678a725085665dc20a32c30d1743886332af928bfce853a67de44afb27b338c
   languageName: node
   linkType: hard
 
