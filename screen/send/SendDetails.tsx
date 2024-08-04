@@ -90,7 +90,6 @@ const SendDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
-  const optionsModalRef = useRef<BottomModalHandle>(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
   const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean | undefined>(false);
@@ -384,7 +383,6 @@ const SendDetails = () => {
       setDumb(v => !v);
       return () => {
         feeModalRef.current?.dismiss();
-        optionsModalRef.current?.dismiss();
       };
     }, []),
   );
@@ -608,7 +606,6 @@ const SendDetails = () => {
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
       // @ts-ignore idk how to fix FIXME?
 
       navigation.navigate(routeParams.launchedBy, { psbt });
@@ -616,7 +613,6 @@ const SendDetails = () => {
 
     if (wallet?.type === WatchOnlyWallet.type) {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -632,7 +628,6 @@ const SendDetails = () => {
 
     if (wallet?.type === MultisigHDWallet.type) {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -658,7 +653,6 @@ const SendDetails = () => {
       recipients = outputs;
     }
     feeModalRef.current?.dismiss();
-    optionsModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -693,7 +687,6 @@ const SendDetails = () => {
         // we dont support it in this flow
       } else {
         feeModalRef.current?.dismiss();
-        optionsModalRef.current?.dismiss();
         // psbt base64?
 
         // we construct PSBT object and pass to next screen
@@ -723,7 +716,6 @@ const SendDetails = () => {
 
     requestCameraAuthorization().then(() => {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -743,7 +735,6 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importTransaction = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -794,7 +785,7 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  }, [navigation, optionsModalRef, transactionMemo, wallet]);
+  }, [navigation, transactionMemo, wallet]);
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
@@ -819,7 +810,6 @@ const SendDetails = () => {
 
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
-      await optionsModalRef.current?.dismiss();
       try {
         const base64 = base64arg || (await fs.openSignedTransaction());
         if (!base64) return;
@@ -870,7 +860,6 @@ const SendDetails = () => {
   );
 
   const importTransactionMultisigScanQr = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -893,7 +882,6 @@ const SendDetails = () => {
   }, [addresses.length, sleep]);
 
   const handleRemoveRecipient = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
@@ -908,7 +896,6 @@ const SendDetails = () => {
   }, [addresses.length, sleep]);
 
   const handleCoinControl = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
@@ -917,7 +904,6 @@ const SendDetails = () => {
   }, [navigation, wallet]);
 
   const handleInsertContact = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   }, [navigation, wallet]);
@@ -1034,7 +1020,6 @@ const SendDetails = () => {
   }, [isEditable, wallet, isTransactionReplaceable, addresses, balance]);
 
   const onUseAllPressed = useCallback(async () => {
-    await optionsModalRef.current?.dismiss();
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
@@ -1059,9 +1044,7 @@ const SendDetails = () => {
         },
         {
           text: loc._.cancel,
-          onPress: () => {
-            optionsModalRef.current?.present();
-          },
+          onPress: () => {},
           style: 'cancel',
         },
       ],
@@ -1216,7 +1199,6 @@ const SendDetails = () => {
             style={styles.selectTouch}
             onPress={() => {
               feeModalRef.current?.dismiss();
-              optionsModalRef.current?.dismiss();
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
