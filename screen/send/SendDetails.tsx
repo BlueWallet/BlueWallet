@@ -128,11 +128,15 @@ const SendDetails = () => {
     return initialFee;
   }, [customFee, feePrecalc, networkTransactionFees]);
 
-  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
-    setIsTransactionReplaceable(value);
-  };
+  useEffect(() => {
+    console.log('send/details - useEffect');
+    if (wallet) {
+      setHeaderRightOptions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading]);
 
-  // keyboard effects
+  // keyboad effects
   useEffect(() => {
     const _keyboardDidShow = () => {
       setWalletSelectionOrCoinsSelectedHidden(true);
@@ -228,7 +232,8 @@ const SendDetails = () => {
     } else {
       setAddresses([{ address: '', key: String(Math.random()) } as IPaymentDestinations]); // key is for the FlatList
     }
-  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams, addresses, routeParams, setParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
 
   useEffect(() => {
     // check if we have a suitable wallet
@@ -270,7 +275,7 @@ const SendDetails = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setNetworkTransactionFeesIsLoading(false);
       });
-  }, [navigation, routeParams.walletID, wallets]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // change header and reset state on wallet change
   useEffect(() => {
@@ -281,7 +286,6 @@ const SendDetails = () => {
     setUtxo(null);
     setChangeAddress(null);
     setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf ? true : undefined);
-
     // update wallet UTXO
     wallet
       .fetchUtxo()
@@ -290,8 +294,7 @@ const SendDetails = () => {
         setDumb(v => !v);
       })
       .catch(e => console.log('fetchUtxo error', e));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet]);
+  }, [wallet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // recalc fees in effect so we don't block render
   useEffect(() => {
@@ -374,7 +377,7 @@ const SendDetails = () => {
 
     setFeePrecalc(newFeePrecalc);
     setFrozenBlance(frozen);
-  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb, feePrecalc]);
+  }, [wallet, networkTransactionFees, utxo, addresses, feeRate, dumb]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
@@ -606,6 +609,7 @@ const SendDetails = () => {
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
       feeModalRef.current?.dismiss();
+
       // @ts-ignore idk how to fix FIXME?
 
       navigation.navigate(routeParams.launchedBy, { psbt });
@@ -613,6 +617,7 @@ const SendDetails = () => {
 
     if (wallet?.type === WatchOnlyWallet.type) {
       feeModalRef.current?.dismiss();
+
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -628,6 +633,7 @@ const SendDetails = () => {
 
     if (wallet?.type === MultisigHDWallet.type) {
       feeModalRef.current?.dismiss();
+
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -673,49 +679,22 @@ const SendDetails = () => {
     if (newWallet) {
       setWallet(newWallet);
     }
-  }, [routeParams.walletID, wallets]);
-
-  const importQrTransactionOnBarScanned = useCallback(
-    (ret: any) => {
-      navigation.getParent()?.getParent()?.dispatch(popAction);
-      if (!wallet) return;
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
-        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-        // this looks like NOT base64, so maybe its transaction's hex
-        // we dont support it in this flow
-      } else {
-        feeModalRef.current?.dismiss();
-        // psbt base64?
-
-        // we construct PSBT object and pass to next screen
-        // so user can do smth with it:
-        const psbt = bitcoin.Psbt.fromBase64(ret.data);
-
-        navigation.navigate('PsbtWithHardwareWallet', {
-          memo: transactionMemo,
-          fromWallet: wallet,
-          psbt,
-        });
-        setIsLoading(false);
-      }
-    },
-    [navigation, popAction, transactionMemo, wallet],
-  );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeParams.walletID]);
 
   /**
    * same as `importTransaction`, but opens camera instead.
    *
    * @returns {Promise<void>}
    */
-  const importQrTransaction = useCallback(() => {
+  const importQrTransaction = () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
     requestCameraAuthorization().then(() => {
       feeModalRef.current?.dismiss();
+
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -724,7 +703,34 @@ const SendDetails = () => {
         },
       });
     });
-  }, [importQrTransactionOnBarScanned, navigation, wallet?.type]);
+  };
+
+  const importQrTransactionOnBarScanned = (ret: any) => {
+    navigation.getParent()?.getParent()?.dispatch(popAction);
+    if (!wallet) return;
+    if (!ret.data) ret = { data: ret };
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      // we dont support it in this flow
+    } else {
+      feeModalRef.current?.dismiss();
+
+      // psbt base64?
+
+      // we construct PSBT object and pass to next screen
+      // so user can do smth with it:
+      const psbt = bitcoin.Psbt.fromBase64(ret.data);
+
+      navigation.navigate('PsbtWithHardwareWallet', {
+        memo: transactionMemo,
+        fromWallet: wallet,
+        psbt,
+      });
+      setIsLoading(false);
+    }
+  };
 
   /**
    * watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
@@ -734,7 +740,7 @@ const SendDetails = () => {
    *
    * @returns {Promise<void>}
    */
-  const importTransaction = useCallback(async () => {
+  const importTransaction = async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -785,7 +791,7 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  }, [navigation, transactionMemo, wallet]);
+  };
 
   const askCosignThisTransaction = async () => {
     return new Promise(resolve => {
@@ -808,59 +814,53 @@ const SendDetails = () => {
     });
   };
 
-  const _importTransactionMultisig = useCallback(
-    async (base64arg: string | false) => {
-      try {
-        const base64 = base64arg || (await fs.openSignedTransaction());
-        if (!base64) return;
-        const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
+  const _importTransactionMultisig = async (base64arg: string | false) => {
+    try {
+      const base64 = base64arg || (await fs.openSignedTransaction());
+      if (!base64) return;
+      const psbt = bitcoin.Psbt.fromBase64(base64); // if it doesnt throw - all good, its valid
 
-        if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
-          setIsLoading(true);
-          await sleep(100);
-          (wallet as MultisigHDWallet).cosignPsbt(psbt);
-          setIsLoading(false);
-          await sleep(100);
-        }
-
-        if (wallet) {
-          navigation.navigate('PsbtMultisig', {
-            memo: transactionMemo,
-            psbtBase64: psbt.toBase64(),
-            walletID: wallet.getID(),
-          });
-        }
-      } catch (error: any) {
-        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+      if ((wallet as MultisigHDWallet)?.howManySignaturesCanWeMake() > 0 && (await askCosignThisTransaction())) {
+        setIsLoading(true);
+        await sleep(100);
+        (wallet as MultisigHDWallet).cosignPsbt(psbt);
+        setIsLoading(false);
+        await sleep(100);
       }
-      setIsLoading(false);
-    },
-    [navigation, sleep, transactionMemo, wallet],
-  );
 
-  const importTransactionMultisig = useCallback(() => {
+      if (wallet) {
+        navigation.navigate('PsbtMultisig', {
+          memo: transactionMemo,
+          psbtBase64: psbt.toBase64(),
+          walletID: wallet.getID(),
+        });
+      }
+    } catch (error: any) {
+      presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+    }
+    setIsLoading(false);
+  };
+
+  const importTransactionMultisig = () => {
     return _importTransactionMultisig(false);
-  }, [_importTransactionMultisig]);
+  };
 
-  const onBarScanned = useCallback(
-    (ret: any) => {
-      navigation.getParent()?.dispatch(popAction);
-      if (!ret.data) ret = { data: ret };
-      if (ret.data.toUpperCase().startsWith('UR')) {
-        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
-      } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
-        // this looks like NOT base64, so maybe its transaction's hex
-        // we dont support it in this flow
-      } else {
-        // psbt base64?
-        return _importTransactionMultisig(ret.data);
-      }
-    },
-    [_importTransactionMultisig, navigation, popAction],
-  );
+  const onBarScanned = (ret: any) => {
+    navigation.getParent()?.dispatch(popAction);
+    if (!ret.data) ret = { data: ret };
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+    } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      // we dont support it in this flow
+    } else {
+      // psbt base64?
+      return _importTransactionMultisig(ret.data);
+    }
+  };
 
-  const importTransactionMultisigScanQr = useCallback(async () => {
-    requestCameraAuthorization().then(() => {
+  const importTransactionMultisigScanQr = async () => {
+    await requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -869,19 +869,19 @@ const SendDetails = () => {
         },
       });
     });
-  }, [navigation, onBarScanned]);
+  };
 
-  const handleAddRecipient = useCallback(async () => {
+  const handleAddRecipient = async () => {
     console.debug('handleAddRecipient');
-    setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
+    await setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
     await sleep(200); // wait for animation
     scrollView.current?.scrollToEnd();
     if (addresses.length === 0) return;
     scrollView.current?.flashScrollIndicators();
-  }, [addresses.length, sleep]);
+  };
 
-  const handleRemoveRecipient = useCallback(async () => {
+  const handleRemoveRecipient = async () => {
     const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
@@ -893,22 +893,22 @@ const SendDetails = () => {
     await sleep(200); // wait for animation
     scrollView.current?.flashScrollIndicators();
     if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
-  }, [addresses.length, sleep]);
+  };
 
-  const handleCoinControl = useCallback(async () => {
+  const handleCoinControl = async () => {
     if (!wallet) return;
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
       onUTXOChoose: (u: CreateTransactionUtxo[]) => setUtxo(u),
     });
-  }, [navigation, wallet]);
+  };
 
-  const handleInsertContact = useCallback(async () => {
+  const handleInsertContact = async () => {
     if (!wallet) return;
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
-  }, [navigation, wallet]);
+  };
 
-  const handlePsbtSign = useCallback(async () => {
+  const handlePsbtSign = async () => {
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
@@ -948,9 +948,37 @@ const SendDetails = () => {
       showAnimatedQr: true,
       psbt,
     });
-  }, [name, navigation, wallet]);
+  };
 
-  const headerRightActions = useCallback(() => {
+  // Header Right Button
+
+  const headerRightOnPress = (id: string) => {
+    if (id === SendDetails.actionKeys.AddRecipient) {
+      handleAddRecipient();
+    } else if (id === SendDetails.actionKeys.RemoveRecipient) {
+      handleRemoveRecipient();
+    } else if (id === SendDetails.actionKeys.SignPSBT) {
+      handlePsbtSign();
+    } else if (id === SendDetails.actionKeys.SendMax) {
+      onUseAllPressed();
+    } else if (id === SendDetails.actionKeys.AllowRBF) {
+      onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
+    } else if (id === SendDetails.actionKeys.ImportTransaction) {
+      importTransaction();
+    } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
+      importQrTransaction();
+    } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
+      importTransactionMultisig();
+    } else if (id === SendDetails.actionKeys.CoSignTransaction) {
+      importTransactionMultisigScanQr();
+    } else if (id === SendDetails.actionKeys.CoinControl) {
+      handleCoinControl();
+    } else if (id === SendDetails.actionKeys.InsertContact) {
+      handleInsertContact();
+    }
+  };
+
+  const headerRightActions = () => {
     const actions: Action[] & Action[][] = [];
     if (isEditable) {
       if (wallet?.allowBIP47() && wallet?.isBIP47Enabled()) {
@@ -1017,10 +1045,52 @@ const SendDetails = () => {
     actions.push({ id: SendDetails.actionKeys.CoinControl, text: loc.cc.header, icon: SendDetails.actionIcons.CoinControl });
 
     return actions;
-  }, [isEditable, wallet, isTransactionReplaceable, addresses, balance]);
+  };
 
-  const onUseAllPressed = useCallback(async () => {
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+  const setHeaderRightOptions = () => {
+    navigation.setOptions({
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerRight: () => (
+        <ToolTipMenu
+          disabled={isLoading}
+          isButton
+          isMenuPrimaryAction
+          onPressMenuItem={headerRightOnPress}
+          actions={headerRightActions()}
+          testID="advancedOptionsMenuButton"
+        >
+          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
+        </ToolTipMenu>
+      ),
+    });
+  };
+
+  const onReplaceableFeeSwitchValueChanged = (value: boolean) => {
+    setIsTransactionReplaceable(value);
+  };
+
+  //
+
+  // because of https://github.com/facebook/react-native/issues/21718 we use
+  // onScroll for android and onMomentumScrollEnd for iOS
+  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
+  };
+
+  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
+    const contentOffset = e.nativeEvent.contentOffset;
+    const viewSize = e.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    scrollIndex.current = index;
+  };
+
+  const onUseAllPressed = async () => {
+    await triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
       loc.send.details_adv_full,
@@ -1050,74 +1120,6 @@ const SendDetails = () => {
       ],
       { cancelable: false },
     );
-  }, [frozenBalance]);
-
-  const HeaderRightButton = useMemo(() => {
-    const headerRightOnPress = (id: string) => {
-      if (id === SendDetails.actionKeys.AddRecipient) {
-        handleAddRecipient();
-      } else if (id === SendDetails.actionKeys.RemoveRecipient) {
-        handleRemoveRecipient();
-      } else if (id === SendDetails.actionKeys.SignPSBT) {
-        handlePsbtSign();
-      } else if (id === SendDetails.actionKeys.SendMax) {
-        onUseAllPressed();
-      } else if (id === SendDetails.actionKeys.AllowRBF) {
-        onReplaceableFeeSwitchValueChanged(!isTransactionReplaceable);
-      } else if (id === SendDetails.actionKeys.ImportTransaction) {
-        importTransaction();
-      } else if (id === SendDetails.actionKeys.ImportTransactionQR) {
-        importQrTransaction();
-      } else if (id === SendDetails.actionKeys.ImportTransactionMultsig) {
-        importTransactionMultisig();
-      } else if (id === SendDetails.actionKeys.CoSignTransaction) {
-        importTransactionMultisigScanQr();
-      } else if (id === SendDetails.actionKeys.CoinControl) {
-        handleCoinControl();
-      } else if (id === SendDetails.actionKeys.InsertContact) {
-        handleInsertContact();
-      }
-    };
-    return (
-      <ToolTipMenu disabled={isLoading} isButton isMenuPrimaryAction onPressMenuItem={headerRightOnPress} actions={headerRightActions()}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-      </ToolTipMenu>
-    );
-  }, [
-    colors.foregroundColor,
-    handleAddRecipient,
-    handleCoinControl,
-    handleInsertContact,
-    handlePsbtSign,
-    handleRemoveRecipient,
-    headerRightActions,
-    importQrTransaction,
-    importTransaction,
-    importTransactionMultisig,
-    importTransactionMultisigScanQr,
-    isLoading,
-    isTransactionReplaceable,
-    onUseAllPressed,
-  ]);
-
-  //
-
-  // because of https://github.com/facebook/react-native/issues/21718 we use
-  // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
-  const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
   };
 
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
@@ -1199,6 +1201,7 @@ const SendDetails = () => {
             style={styles.selectTouch}
             onPress={() => {
               feeModalRef.current?.dismiss();
+
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
@@ -1315,21 +1318,6 @@ const SendDetails = () => {
       </View>
     );
   };
-
-  const setHeaderRightOptions = useCallback(() => {
-    // Header Right Button
-
-    navigation.setOptions({
-      headerRight: () => HeaderRightButton,
-    });
-  }, [HeaderRightButton, navigation]);
-
-  useEffect(() => {
-    console.log('send/details - useEffect');
-    if (wallet) {
-      setHeaderRightOptions();
-    }
-  }, [colors, wallet, isTransactionReplaceable, balance, addresses, isEditable, isLoading, setHeaderRightOptions]);
 
   if (isLoading || !wallet) {
     return (
