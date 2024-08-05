@@ -39,13 +39,7 @@
     "network": "Памылка Сеткі"
   },
   "lnd": {
-    "inactive": "Неактыўны",
-    "channels": "Каналы",
-    "no_channels": "Няма каналаў",
-    "close_channel": "Зачыніць канал",
-    "new_channel": "Новы канал",
-    "expired": "Скончыўся",
-    "open_channel": "Адкрыць Канал"
+    "expired": "Скончыўся"
   },
   "plausibledeniability": {
     "success": "Посьпех"

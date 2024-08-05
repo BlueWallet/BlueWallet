@@ -43,7 +43,6 @@ import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
 import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
-import prompt from '../../helpers/prompt';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -58,6 +57,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
+import SelectFeeModal from '../../components/SelectFeeModal';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -112,7 +112,7 @@ const SendDetails = () => {
   const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
+  const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
@@ -1164,24 +1164,7 @@ const SendDetails = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    feeModalItemActive: {
-      backgroundColor: colors.feeActive,
-    },
-    feeModalLabel: {
-      color: colors.successColor,
-    },
-    feeModalTime: {
-      backgroundColor: colors.successColor,
-    },
-    feeModalTimeText: {
-      color: colors.background,
-    },
-    feeModalValue: {
-      color: colors.successColor,
-    },
-    feeModalCustomText: {
-      color: colors.buttonAlternativeTextColor,
-    },
+
     selectLabel: {
       color: colors.buttonTextColor,
     },
@@ -1196,12 +1179,7 @@ const SendDetails = () => {
     feeLabel: {
       color: colors.feeText,
     },
-    feeModalItemDisabled: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    feeModalItemTextDisabled: {
-      color: colors.buttonDisabledTextColor,
-    },
+
     feeRow: {
       backgroundColor: colors.feeLabel,
     },
@@ -1214,108 +1192,6 @@ const SendDetails = () => {
     const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
     const totalWithFee = totalAmount + (feePrecalc.current || 0);
     return totalWithFee;
-  };
-
-  const renderFeeSelectionModal = () => {
-    const nf = networkTransactionFees;
-    const options = [
-      {
-        label: loc.send.fee_fast,
-        time: loc.send.fee_10m,
-        fee: feePrecalc.fastestFee,
-        rate: nf.fastestFee,
-        active: Number(feeRate) === nf.fastestFee,
-      },
-      {
-        label: loc.send.fee_medium,
-        time: loc.send.fee_3h,
-        fee: feePrecalc.mediumFee,
-        rate: nf.mediumFee,
-        active: Number(feeRate) === nf.mediumFee,
-        disabled: nf.mediumFee === nf.fastestFee,
-      },
-      {
-        label: loc.send.fee_slow,
-        time: loc.send.fee_1d,
-        fee: feePrecalc.slowFee,
-        rate: nf.slowFee,
-        active: Number(feeRate) === nf.slowFee,
-        disabled: nf.slowFee === nf.mediumFee || nf.slowFee === nf.fastestFee,
-      },
-    ];
-
-    return (
-      <BottomModal
-        ref={feeModalRef}
-        backgroundColor={colors.modal}
-        contentContainerStyle={[styles.modalContent, styles.modalContentMinHeight]}
-        footerDefaultMargins
-        footer={
-          <View style={styles.feeModalFooter}>
-            <TouchableOpacity
-              testID="feeCustom"
-              accessibilityRole="button"
-              onPress={async () => {
-                await feeModalRef.current?.dismiss();
-                let error = loc.send.fee_satvbyte;
-                while (true) {
-                  let fee: number | string;
-
-                  try {
-                    fee = await prompt(loc.send.create_fee, error, true, 'numeric');
-                  } catch (_) {
-                    return;
-                  }
-
-                  if (!/^\d+$/.test(fee)) {
-                    error = loc.send.details_fee_field_is_not_valid;
-                    continue;
-                  }
-
-                  if (Number(fee) < 1) fee = '1';
-                  fee = Number(fee).toString(); // this will remove leading zeros if any
-                  setCustomFee(fee);
-                  return;
-                }
-              }}
-            >
-              <Text style={[styles.feeModalCustomText, stylesHook.feeModalCustomText]}>{loc.send.fee_custom}</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      >
-        <View style={styles.paddingTop80}>
-          {options.map(({ label, time, fee, rate, active, disabled }) => (
-            <TouchableOpacity
-              accessibilityRole="button"
-              key={label}
-              disabled={disabled}
-              onPress={() => {
-                setFeePrecalc(fp => ({ ...fp, current: fee }));
-                feeModalRef.current?.dismiss();
-                setCustomFee(rate.toString());
-              }}
-              style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActive]}
-            >
-              <View style={styles.feeModalRow}>
-                <Text style={[styles.feeModalLabel, disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalLabel]}>
-                  {label}
-                </Text>
-                <View style={[styles.feeModalTime, disabled ? stylesHook.feeModalItemDisabled : stylesHook.feeModalTime]}>
-                  <Text style={stylesHook.feeModalTimeText}>~{time}</Text>
-                </View>
-              </View>
-              <View style={styles.feeModalRow}>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>{fee && formatFee(fee)}</Text>
-                <Text style={disabled ? stylesHook.feeModalItemTextDisabled : stylesHook.feeModalValue}>
-                  {rate} {loc.units.sat_vbyte}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </BottomModal>
-    );
   };
 
   const renderOptionsModal = () => {
@@ -1591,7 +1467,14 @@ const SendDetails = () => {
             )}
           </TouchableOpacity>
           {renderCreateButton()}
-          {renderFeeSelectionModal()}
+          <SelectFeeModal
+            ref={feeModalRef}
+            networkTransactionFees={networkTransactionFees}
+            feePrecalc={feePrecalc}
+            feeRate={feeRate}
+            setCustomFee={setCustomFee}
+            setFeePrecalc={setFeePrecalc}
+          />
           {renderOptionsModal()}
         </KeyboardAvoidingView>
       </View>
@@ -1655,40 +1538,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 8,
   },
-  modalContent: {
-    margin: 22,
-  },
-  modalContentMinHeight: Platform.OS === 'android' ? { minHeight: 400 } : {},
-  paddingTop80: { paddingTop: 80 },
+
   optionsContent: {
     padding: 22,
   },
-  feeModalItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 10,
-  },
-  feeModalItemActive: {
-    borderRadius: 8,
-  },
-  feeModalRow: {
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  feeModalLabel: {
-    fontSize: 22,
-    fontWeight: '600',
-  },
-  feeModalTime: {
-    borderRadius: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-  },
-  feeModalCustomText: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
+
   createButton: {
     marginVertical: 16,
     marginHorizontal: 16,
@@ -1722,9 +1576,7 @@ const styles = StyleSheet.create({
     marginRight: 18,
     marginVertical: 8,
   },
-  feeModalFooter: {
-    paddingVertical: 50,
-  },
+
   memo: {
     flexDirection: 'row',
     borderWidth: 1,

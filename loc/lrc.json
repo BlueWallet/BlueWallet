@@ -26,27 +26,15 @@
     "network": "ختا شبکه"
   },
   "lnd": {
-    "active": "فعال",
-    "inactive": "قیر فعال",
-    "channels": "تورگیا",
-    "no_channels": "بؽ تورگه",
-    "claim_balance": "تسویه مۉجۊدی {balance}",
-    "close_channel": "بستن تورگه",
-    "new_channel": "تورگه نۊ",
     "errorInvoiceExpired": "سۊرت هساو مونقزی بیه.",
-    "force_close_channel": "بستن اجباری تورگه؟",
     "expired": "مونقزی بیه",
-    "node_alias": "نوم موستعار گره",
     "payButton": "پرداخت",
     "payment": "پرداخت",
     "placeholder": "سۊرت هساو یا آدرس",
-    "open_channel": "واز کردن تورگه",
     "potentialFee": "کارمزد ائتمالی: {fee}",
     "refill": "پور کردن",
     "refill_external": "پور کردن وا کیف پیلٛ خارجی",
-    "refill_lnd_balance": "پور کردن مۉجۊدی کیف پیلٛ لایتنینگ",
-    "can_send": "مؽتونه کلٛ بکه",
-    "can_receive": "مؽتونه بگره"
+    "refill_lnd_balance": "پور کردن مۉجۊدی کیف پیلٛ لایتنینگ"
   },
   "lndViewInvoice": {
     "additional_info": "دونسمنیا بؽشتر",

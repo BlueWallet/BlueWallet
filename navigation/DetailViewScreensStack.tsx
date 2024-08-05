@@ -7,7 +7,6 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
-import LdkInfo from '../screen/lnd/ldkInfo';
 import LNDViewAdditionalInvoiceInformation from '../screen/lnd/lndViewAdditionalInvoiceInformation';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -25,7 +24,6 @@ import TransactionStatus from '../screen/transactions/TransactionStatus';
 import WalletAddresses from '../screen/wallets/WalletAddresses';
 import WalletDetails from '../screen/wallets/details';
 import GenerateWord from '../screen/wallets/generateWord';
-import LdkViewLogs from '../screen/wallets/ldkViewLogs';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletTransactions from '../screen/wallets/transactions';
 import WalletsList from '../screen/wallets/WalletsList';
@@ -52,10 +50,8 @@ import {
   ToolsComponent,
 } from './LazyLoadSettingsStack';
 import PaymentCodesListComponent from './LazyLoadPaymentCodeStack';
-import LDKOpenChannelRoot from './LDKOpenChannelStack';
 import LNDCreateInvoiceRoot from './LNDCreateInvoiceStack';
 import ReceiveDetailsStackRoot from './ReceiveDetailsStack';
-import ReorderWalletsStackRoot from './ReorderWalletsStack';
 import ScanLndInvoiceRoot from './ScanLndInvoiceStack';
 import ScanQRCodeStackRoot from './ScanQRCodeStack';
 import SendDetailsStack from './SendDetailsStack';
@@ -66,6 +62,7 @@ import WalletXpubStackRoot from './WalletXpubStack';
 import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
+import ManageWallets from '../screen/wallets/ManageWallets';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -117,19 +114,6 @@ const DetailViewStackScreensStack = () => {
         options={WalletTransactions.navigationOptions(theme)}
       />
       <DetailViewStack.Screen
-        name="LDKOpenChannelRoot"
-        component={LDKOpenChannelRoot}
-        options={navigationStyle({
-          title: loc.lnd.new_channel,
-          headerLargeTitle: true,
-          statusBarStyle: 'auto',
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerBackVisible: false,
-          gestureEnabled: false,
-        })(theme)}
-      />
-      <DetailViewStack.Screen name="LdkInfo" component={LdkInfo} options={LdkInfo.navigationOptions(theme)} />
-      <DetailViewStack.Screen
         name="WalletDetails"
         component={WalletDetails}
         options={navigationStyle({
@@ -138,7 +122,6 @@ const DetailViewStackScreensStack = () => {
           headerRight: () => SaveButton,
         })(theme)}
       />
-      <DetailViewStack.Screen name="LdkViewLogs" component={LdkViewLogs} options={LdkViewLogs.navigationOptions(theme)} />
       <DetailViewStack.Screen
         name="TransactionDetails"
         component={TransactionDetails}
@@ -247,11 +230,7 @@ const DetailViewStackScreensStack = () => {
       />
 
       <DetailViewStack.Screen name="AddWalletRoot" component={AddWalletStack} options={NavigationFormModalOptions} />
-      <DetailViewStack.Screen
-        name="SendDetailsRoot"
-        component={SendDetailsStack}
-        options={navigationStyle({ headerShown: false, presentation: isDesktop ? 'fullScreenModal' : 'modal' })(theme)}
-      />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={SendDetailsStack} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={NavigationDefaultOptions} />
       <DetailViewStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemStackRoot} options={NavigationDefaultOptions} />
@@ -379,13 +358,15 @@ const DetailViewStackScreensStack = () => {
         }}
       />
       <DetailViewStack.Screen
-        name="ReorderWallets"
-        component={ReorderWalletsStackRoot}
-        options={{
-          headerShown: false,
+        name="ManageWallets"
+        component={ManageWallets}
+        options={navigationStyle({
+          headerBackVisible: false,
+          headerLargeTitle: true,
           gestureEnabled: false,
           presentation: 'modal',
-        }}
+          title: loc.wallets.manage_title,
+        })(theme)}
       />
     </DetailViewStack.Navigator>
   );

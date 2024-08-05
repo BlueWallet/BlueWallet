@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Clipboard from '@react-native-clipboard/clipboard';
 import { I18nManager, Image, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet, LightningLdkWallet, MultisigHDWallet } from '../class';
+import { LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { TWallet } from '../class/wallets/types';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../loc';
@@ -184,7 +184,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       <Image
         source={(() => {
           switch (wallet.type) {
-            case LightningLdkWallet.type:
             case LightningCustodianWallet.type:
               return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
             case MultisigHDWallet.type:
@@ -231,7 +230,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
             {wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD)
+              ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
               : wallet.getPreferredBalanceUnit()}
           </Text>
         </TouchableOpacity>
@@ -246,16 +245,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
         </ToolTipMenu>
-      )}
-      {wallet.type === LightningLdkWallet.type && (
-        <TouchableOpacity
-          style={styles.manageFundsButton}
-          accessibilityRole="button"
-          accessibilityLabel={loc.lnd.title}
-          onPress={() => handleManageFundsPressed()}
-        >
-          <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-        </TouchableOpacity>
       )}
       {wallet.type === MultisigHDWallet.type && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>

@@ -48,35 +48,18 @@
     "network": "خطای شبکه"
   },
   "lnd": {
-    "active": "فعال",
-    "inactive": "غیرفعال",
-    "channels": "کانال‌ها",
-    "no_channels": "بدون کانال",
-    "claim_balance": "تسویهٔ موجودی {balance}",
-    "close_channel": "بستن کانال",
-    "new_channel": "کانال جدید",
-    "force_close_channel": "بستن اجباری کانال؟",
     "expired": "منقضی‌شده",
-    "node_alias": "نام مستعار گره",
     "expiresIn": "تا {time} دقیقهٔ دیگر منقضی می‌شود",
     "payButton": "پرداخت",
     "payment": "پرداخت",
     "placeholder": "صورت‌حساب یا آدرس",
-    "open_channel": "بازکردن کانال",
-    "opening_channnel_for_from": "درحال بازکردن کانال برای کیف پول {forWalletLabel}، با تأمین وجه از {fromWalletLabel}",
-    "are_you_sure_open_channel": "آیا از بازکردن این کانال اطمینان دارید؟",
     "potentialFee": "کارمزد احتمالی: {fee}",
-    "remote_host": "میزبان راه‌دور",
     "refill": "پرکردن",
-    "reconnect_peer": "اتصال مجدد به همتا",
     "refill_create": "جهت ادامه، لطفاً یک کیف پول بیت‌کوین جهت پرکردن ایجاد کنید.",
     "refill_external": "پرکردن با کیف پول خارجی",
     "refill_lnd_balance": "پرکردن موجودی کیف پول لایتنینگ",
     "sameWalletAsInvoiceError": "شما نمی‌توانید صورت‌حسابی را با همان کیف پولی که برای ایجاد آن استفاده کرده‌اید بپردازید.",
-    "title": "مدیریت دارایی",
-    "can_send": "می‌تواند ارسال کند",
-    "can_receive": "می‌تواند دریافت کند",
-    "view_logs": "مشاهدهٔ رخدادها"
+    "title": "مدیریت دارایی"
   },
   "lndViewInvoice": {
     "additional_info": "اطلاعات بیشتر",
@@ -434,7 +417,6 @@
     "list_tryagain": "دوباره امتحان کنید",
     "no_ln_wallet_error": "قبل از پرداخت یک صورت‌حساب لایتنینگ، ابتدا باید یک کیف پول لایتنینگ اضافه کنید.",
     "looks_like_bip38": "این به کلید خصوصی محافظت‌شده با گذرواژه (BIP38) شباهت دارد.",
-    "reorder_title": "بازچینی کیف پول‌ها",
     "please_continue_scanning": "لطفاً به اسکن‌کردن ادامه دهید.",
     "select_no_bitcoin": "هیچ کیف پول بیت‌کوینی درحال‌حاضر دردسترس نیست.",
     "select_no_bitcoin_exp": "یک کیف پول بیت‌کوین برای پرکردن کیف پول‌های لایتنینگ نیاز است. لطفاً یکی بسازید یا وارد کنید.",
@@ -444,8 +426,7 @@
     "warning_do_not_disclose": "هشدار! فاش نکنید.",
     "add_ln_wallet_first": "ابتدا باید یک کیف پول لایتنینگ اضافه کنید.",
     "identity_pubkey": "هویت/کلید عمومی",
-    "xpub_title": "کلید XPUB کیف پول",
-    "search_wallets": "جستجوی کیف‌پول‌ها"
+    "xpub_title": "کلید XPUB کیف پول"
   },
   "multisig": {
     "multisig_vault": "گاوصندوق",

@@ -11,18 +11,18 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || yarn
+      - run: test -d node_modules || npm i
 
       - save_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: yarn tslint && yarn lint
+          command: npm run tslint && npm run lint
 
   unit:
     docker:
@@ -34,18 +34,18 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || yarn
+      - run: test -d node_modules || npm i
 
       - save_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: yarn unit
+          command: npm run unit
 
 
   integration:
@@ -63,18 +63,18 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: test -d node_modules || yarn
+      - run: test -d node_modules || npm i
 
       - save_cache:
-          key: node_modules-{{ checksum "yarn.lock" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
       # run tests!
       - run:
-          command: yarn jest || yarn jest || yarn jest || yarn jest
+          command: npm run jest || npm run jest || npm run jest || npm run jest
 
 # Orchestrate our job run sequence
 workflows:

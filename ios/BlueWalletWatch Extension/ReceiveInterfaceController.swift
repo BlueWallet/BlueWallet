@@ -43,7 +43,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     }
 
     private func setupView() {
-      if receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue) {
+      if receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue) {
             presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
         } else {
             setupQRCode()
@@ -92,7 +92,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     }
 
     private func isCreatingInvoice() -> Bool {
-      return receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue || wallet?.type == WalletGradient.LightningLDK.rawValue)
+      return receiveMethod == .CreateInvoice && (wallet?.type == WalletGradient.LightningCustodial.rawValue)
     }
 
     override func didDeactivate() {
