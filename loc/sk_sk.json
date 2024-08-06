@@ -33,22 +33,15 @@
     "network": "Sieťová chyba"
   },
   "lnd": {
-    "active": "Aktívne",
-    "inactive": "Neaktívne",
-    "channels": "Kanály",
-    "close_channel": "Zatvoriť kanál",
-    "new_channel": "Nový kanál",
     "expired": "Expirovaná",
     "expiresIn": "Vyprší za {time} minút",
     "payButton": "Zaplatiť",
-    "open_channel": "Otvoriť kanál",
     "refill": "Doplniť",
     "refill_create": "Pre pokračovanie, prosím, vytvorte si Bitcoinovú peňaženku",
     "refill_external": "Doplniť z externej peňaženky",
     "refill_lnd_balance": "Doplniť zostatok na Lightning peňaženke",
     "sameWalletAsInvoiceError": "Faktúra sa nedá uhradiť s rovnakou peňaženkou ako tá, ktorá ju vytvorila.",
-    "title": "spravovať zostatok",
-    "can_send": "Môže poslať"
+    "title": "spravovať zostatok"
   },
   "lndViewInvoice": {
     "additional_info": "Doplňujúce informácie",
@@ -236,7 +229,6 @@
     "list_long_scan": "Skenovať QR kód",
     "list_title": "peňaženky",
     "list_tryagain": "Skúste znovu",
-    "reorder_title": "Zoradiť peňaženky",
     "select_no_bitcoin": "Žiadne Bitcoinové peňaženky nie sú k dispozícii.",
     "select_wallet": "Vyberte peňaženku",
     "xpub_copiedToClipboard": "Skopírované do schránky.",

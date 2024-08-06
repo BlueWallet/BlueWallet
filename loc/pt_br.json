@@ -52,37 +52,19 @@
     "network": "Erro na rede"
   },
   "lnd": {
-    "active": "Ativo",
-    "inactive": "Inativo",
-    "channels": "Canais",
-    "no_channels": "Nenhum canal",
-    "claim_balance": "Reinvindicar saldo {balance}",
-    "close_channel": "Fechar canal",
-    "new_channel": "Novo canal",
     "errorInvoiceExpired": "Fatura expirada",
-    "force_close_channel": "Forçar fechamento do canal?",
     "expired": "Expirada",
-    "node_alias": "Apelido do nó",
     "expiresIn": "Expira em {time} minutos",
     "payButton": "Pagar",
     "payment": "Pagamento",
     "placeholder": "Fatura ou endereço",
-    "open_channel": "Abrir canal",
-    "funding_amount_placeholder": "Quantidade financiamento, exemplo: 0.001",
-    "opening_channnel_for_from": "Abrindo canal para carteira {forWalletLabel}, com financiamento de {fromWalletLabel}",
-    "are_you_sure_open_channel": "Tem certeza que deseja abrir esse canal?",
     "potentialFee": "Taxa potencial: {fee}",
-    "remote_host": "Hospedeiro remoto",
     "refill": "Recarregar",
-    "reconnect_peer": "Reconectar par",
     "refill_create": "Para continuar, por favor, crie uma carteira Bitcoin para recarregar.",
     "refill_external": "Recarregar com uma carteira externa",
     "refill_lnd_balance": "Recarregar a carteira Lightning",
     "sameWalletAsInvoiceError": "Você não pode pagar um boleto com a mesma carteira que o criou.",
-    "title": "Administrar fundos",
-    "can_send": "Pode enviar",
-    "can_receive": "Pode receber",
-    "view_logs": "Ver logs"
+    "title": "Administrar fundos"
   },
   "lndViewInvoice": {
     "additional_info": "Informação adicional",
@@ -475,7 +457,6 @@
     "list_tryagain": "Tente novamente",
     "no_ln_wallet_error": "Antes de pagar uma fatura Lightning, você deve primeiro adicionar uma carteira Lightning.",
     "looks_like_bip38": "Parece que esta é uma chave privada protegida por senha (BIP38)",
-    "reorder_title": "Reordenar Carteiras",
     "please_continue_scanning": "Por favor, continue a leitura.",
     "select_no_bitcoin": "Não há carteiras Bitcoin disponíveis no momento.",
     "select_no_bitcoin_exp": "É necessário ter uma carteira Bitcoin para recarregar as carteiras Lightning. Por favor, crie ou importe uma.",
@@ -485,8 +466,7 @@
     "warning_do_not_disclose": "Cuidado! Não divulgue.",
     "add_ln_wallet_first": "Primeiro você deve adicionar uma carteira Lightning.",
     "identity_pubkey": "Identificar chave pública",
-    "xpub_title": "XPUB da Carteira",
-    "search_wallets": "Procurar Carteiras"
+    "xpub_title": "XPUB da Carteira"
   },
   "multisig": {
     "multisig_vault": "Cofre",

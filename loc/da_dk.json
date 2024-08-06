@@ -111,7 +111,6 @@
     "list_create_a_wallet": "Tilføj en tegnebog",
     "list_empty_txs1": "Dine transaktioner vil blive vist her,",
     "list_latest_transaction": "seneste transaktion",
-    "reorder_title": "Ændre rækkefølgen af wallets",
     "select_wallet": "Vælg wallet",
     "xpub_copiedToClipboard": "Kopieret til udklipsholder."
   },
