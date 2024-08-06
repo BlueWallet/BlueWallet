@@ -106,7 +106,7 @@
     "@babel/preset-env": "7.25.3",
     "@bugsnag/react-native": "7.25.0",
     "@bugsnag/source-maps": "2.3.3",
-    "@keystonehq/bc-ur-registry": "0.6.4",
+    "@keystonehq/bc-ur-registry": "0.7.0",
     "@lodev09/react-native-true-sheet": "github:BlueWallet/react-native-true-sheet#730a84b0261ef2dd2e7e9adadba7f260c7f76726",
     "@ngraveio/bc-ur": "1.1.12",
     "@remobile/react-native-qrcode-local-image": "github:BlueWallet/react-native-qrcode-local-image#31b0113110fbafcf5a5f3ca4183a563550f5c352",
