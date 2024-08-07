@@ -52,37 +52,19 @@
     "network": "Netzwerkfehler"
   },
   "lnd": {
-    "active": "Aktiv",
-    "inactive": "Inaktiv",
-    "channels": "Kanäle",
-    "no_channels": "Keine Kanäle",
-    "claim_balance": "Saldo von {balance} beanspruchen",
-    "close_channel": "Kanal schließen",
-    "new_channel": "Neuer Kanal",
     "errorInvoiceExpired": "Rechnung verfallen.",
-    "force_close_channel": "Kanal zwangsweise schließen?",
     "expired": "Abgelaufen",
-    "node_alias": "Knoten-Alias",
     "expiresIn": "Läuft in {time} Minuten ab",
     "payButton": "Zahlen",
     "payment": "Zahlung",
     "placeholder": "Rechnung oder Adresse",
-    "open_channel": "Kanal öffnen",
-    "funding_amount_placeholder": "Finanzierungsbetrag, z.B. 0.001",
-    "opening_channnel_for_from": "Kanal für Wallet {forWalletLabel} finanziert durch Wallet {fromWalletLabel} eröffnen.",
-    "are_you_sure_open_channel": "Diesen Kanal definitiv eröffnen?",
     "potentialFee": "Geschätzte Gebühr: {fee}",
-    "remote_host": "Entfernter Rechner",
     "refill": "Aufladen",
-    "reconnect_peer": "Erneut zu Peer verbinden",
     "refill_create": "Bitte eine Bitcoin Wallet erstellen um fortzufahren",
     "refill_external": "Mit externem Wallet aufladen",
     "refill_lnd_balance": "Lade deine Lightning Wallet auf",
     "sameWalletAsInvoiceError": "Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.",
-    "title": "Beträge verwalten",
-    "can_send": "Kann senden",
-    "can_receive": "Kann empfangen",
-    "view_logs": "Protokolle anzeigen"
+    "title": "Beträge verwalten"
   },
   "lndViewInvoice": {
     "additional_info": "Weiterführende Informationen",
@@ -475,7 +457,6 @@
     "list_tryagain": "Nochmal versuchen",
     "no_ln_wallet_error": "Vor Bezahlung einer Lightning Rechnung zuerst ein Lightning Wallet eröffnen.",
     "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
-    "reorder_title": "Wallets neu ordnen",
     "please_continue_scanning": "Bitte Scanvorgang fortsetzten",
     "select_no_bitcoin": "Es sind momentan keine Bitcoin Wallets verfügbar.",
     "select_no_bitcoin_exp": "Eine Bitcoin Wallet ist Voraussetzung dafür, um eine Lightning Wallet zu befüllen. Bitte erstelle oder importiere eines.",
@@ -485,8 +466,7 @@
     "warning_do_not_disclose": "Warnung! Nicht veröffentlichen",
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
     "identity_pubkey": "Pubkey-Identität",
-    "xpub_title": "Wallet xPub",
-    "search_wallets": "Wallets suchen"
+    "xpub_title": "Wallet xPub"
   },
   "multisig": {
     "multisig_vault": "Tresor",

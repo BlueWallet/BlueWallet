@@ -24,8 +24,7 @@
   "lnd": {
     "expiresIn": "Мерзімі {time} минутта аяқталады",
     "payButton": "Төлем жасау",
-    "refill": "Қайта толтыру",
-    "can_send": "Жібере алу"
+    "refill": "Қайта толтыру"
   },
   "lndViewInvoice": {
     "sats": "сат."

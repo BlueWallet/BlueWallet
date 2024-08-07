@@ -27,12 +27,12 @@ Community: [telegram group](https://t.me/bluewallet)
 
 ## BUILD & RUN IT
 
-Please refer to the engines field in package.json file for the minimum required versions of Node and yarn. It is preferred that you use an even-numbered version of Node as these are LTS versions.
+Please refer to the engines field in package.json file for the minimum required versions of Node and npm. It is preferred that you use an even-numbered version of Node as these are LTS versions.
 
-To view the version of Node and yarn in your environment, run the following in your console:
+To view the version of Node and npm in your environment, run the following in your console:
 
 ```
-node --version && yarn --version
+node --version && npm --version
 ```
 
 * In your console:
@@ -40,10 +40,10 @@ node --version && yarn --version
 ```
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
-yarn
+npm install
 ```
 
-Please make sure that your console is running the most stable versions of node (even-numbered versions).
+Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
 * To run on Android:
 
@@ -69,7 +69,7 @@ The above command will build the app and install it. Once you launch the app it 
 
 ```
 npx pod-install
-yarn start
+npm start
 ```
 
 In another terminal window within the BlueWallet folder:
@@ -83,7 +83,7 @@ npx react-native run-ios
 
 ```
 npx pod-install
-yarn start
+npm start
 ```
 
 Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/target BlueWallet. Click Run.
@@ -91,7 +91,7 @@ Open ios/BlueWallet.xcworkspace. Once the project loads, select the scheme/targe
 ## TESTS
 
 ```bash
-yarn test
+npm run test
 ```
 
 

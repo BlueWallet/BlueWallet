@@ -43,13 +43,10 @@
     "network": "Erro da rede"
   },
   "lnd": {
-    "new_channel": "Novo canal",
     "expired": "Expirado",
     "expiresIn": "Expira em {time} minutos",
     "payButton": "Paga",
     "placeholder": "Fatura ou endereço",
-    "open_channel": "Abrir canal",
-    "are_you_sure_open_channel": "Tem a certeza de que quer abrir este canal?",
     "potentialFee": "Taxa provável: {fee}",
     "refill": "Carregar",
     "refill_create": "Para continuar, crie uma carteira Bitcoin para recarregar.",
@@ -349,7 +346,6 @@
     "list_long_scan": "Leia o código QR",
     "list_title": "carteiras",
     "list_tryagain": "Tente novamente",
-    "reorder_title": "Reordenar Wallets",
     "select_no_bitcoin": "No momento, não há carteiras Bitcoin disponíveis.",
     "select_no_bitcoin_exp": "Uma carteira Bitcoin é necessária para recarregar as carteiras Lightning. Por favor, crie ou importe uma.",
     "select_wallet": "Seleccione uma Wallet",

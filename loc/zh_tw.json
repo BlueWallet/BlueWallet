@@ -44,9 +44,7 @@
     "refill_external": "用外部錢包增值",
     "refill_lnd_balance": "給閃電錢包增值",
     "sameWalletAsInvoiceError": "你不能用建立賬單的錢包去支付該賬單",
-    "title": "管理資金",
-    "can_send": "能傳送",
-    "can_receive": "能接收"
+    "title": "管理資金"
   },
   "lndViewInvoice": {
     "additional_info": "附加信息",
@@ -333,7 +331,6 @@
     "list_tryagain": "再試一次",
     "no_ln_wallet_error": "在繳付閃電賬單之前，必須先添加一個閃電錢包。",
     "looks_like_bip38": "這看起來像是受密碼保護的私鑰（BIP38）。",
-    "reorder_title": "重新排列錢包",
     "please_continue_scanning": "請繼續掃描。",
     "select_no_bitcoin": "當前沒有可用的比特幣錢包。",
     "select_no_bitcoin_exp": "需要一個比特幣錢包來為閃電錢包增值，請建立或導入一個。",
