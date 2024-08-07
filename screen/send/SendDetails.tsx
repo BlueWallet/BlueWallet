@@ -882,7 +882,6 @@ const SendDetails = () => {
   };
 
   const handleRemoveRecipient = async () => {
-    const last = scrollIndex.current === addresses.length - 1;
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setAddresses(addrs => {
       addrs.splice(scrollIndex.current, 1);
@@ -892,7 +891,10 @@ const SendDetails = () => {
     if (addresses.length === 0) return;
     await sleep(200); // wait for animation
     scrollView.current?.flashScrollIndicators();
-    if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
+    if (Platform.OS === 'android') {
+      scrollView.current?.scrollToEnd();
+      scrollView.current?.scrollToEnd(); // fix white screen on android
+    }
   };
 
   const handleCoinControl = async () => {
