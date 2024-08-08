@@ -36,7 +36,6 @@ function WatchConnectivity() {
       messagesListener();
       messagesListenerActive.current = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, isReachable, isInstalled]);
 
   useEffect(() => {
@@ -54,7 +53,6 @@ function WatchConnectivity() {
         }
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized, wallets, isReachable, isInstalled]);
 
   useEffect(() => {

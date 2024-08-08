@@ -9,5 +9,5 @@
 import Foundation
 
 enum ReceiveType {
-  case Address, PaymentCode
+  case Address, PaymentCode, XPub
 }
