@@ -84,7 +84,7 @@
     "help2": "Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää pieniä summia siellä, jotta se näyttää uskottavalta.",
     "password_should_not_match": "Salasana on käytössä. Ole hyvä, ja kokeile toista salasanaa.",
     "passwords_do_not_match": "Salasana ei täsmää, yritä uudelleen.",
-    "retype_password": "Salasana uudelleen",
+    "confirm_password": "Salasana uudelleen",
     "success": "Onnistui",
     "title": "Uskottava Kiistettävyys"
   },
@@ -293,7 +293,7 @@
     "privacy_do_not_track_explanation": "Suorituskyky- ja luotettavuustietoja ei lähtetä analysoitavaksi.",
     "push_notifications": "Push-ilmoitukset",
     "rate": "Vaihtokurssi",
-    "retype_password": "Salasana uudelleen",
+    "confirm_password": "Salasana uudelleen",
     "selfTest": "Itsetestaus ",
     "save": "Tallenna",
     "saved": "Tallennettu",

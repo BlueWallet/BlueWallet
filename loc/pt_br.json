@@ -85,7 +85,7 @@
     "help2": "Essa nova interface é completamente funcional e você pode inclusive manter nela um valor mínimo para que pareça mais real.",
     "password_should_not_match": "Esta senha já está sendo usada. Por favor, tente uma senha diferente.",
     "passwords_do_not_match": "As senhas não coincidem. Por favor, tente outra vez.",
-    "retype_password": "Inserir senha novamente",
+    "confirm_password": "Inserir senha novamente",
     "success": "Sucesso",
     "title": "Negação plausível"
   },
@@ -303,7 +303,7 @@
     "privacy_do_not_track_explanation": "Informações de confiabilidade e desempenho não serão enviadas para análise.",
     "push_notifications": "Notificações push",
     "rate": "Taxa",
-    "retype_password": "Inserir senha novamente",
+    "confirm_password": "Inserir senha novamente",
     "selfTest": "Autoteste",
     "save": "Salvar",
     "saved": "Salvo",

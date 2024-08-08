@@ -67,7 +67,7 @@
     "help2": "Noul spațiu de stocare va fi complet funcțional, și poți păstra o cantitate minimă pentru a părea mai credibil. ",
     "password_should_not_match": "Parola este deja în folosință. Încearcă o parolă diferită.",
     "passwords_do_not_match": "Parolele nu sunt identice. Încearcă din nou.",
-    "retype_password": "Re-introdu parola",
+    "confirm_password": "Re-introdu parola",
     "success": "Succes",
     "title": "Negare plauzibilă"
   },
@@ -247,7 +247,7 @@
     "privacy_do_not_track": "Dezactivează Analytics",
     "push_notifications": "Notificări push",
     "rate": "Rata",
-    "retype_password": "Scrie parola din nou",
+    "confirm_password": "Scrie parola din nou",
     "selfTest": "Auto-test",
     "save": "Salvează",
     "saved": "Salvat",

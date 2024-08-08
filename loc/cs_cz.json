@@ -85,7 +85,7 @@
     "help2": "Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.",
     "password_should_not_match": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti.",
     "passwords_do_not_match": "Hesla se neshodují. Zkuste to prosím znovu.",
-    "retype_password": "Zadejte heslo znovu",
+    "confirm_password": "Zadejte heslo znovu",
     "success": "Úspěch",
     "title": "Věrohodná popiratelnost"
   },
@@ -305,7 +305,7 @@
     "privacy_do_not_track_explanation": "Informace o výkonu a spolehlivosti nebudou odesílány k analýze.",
     "push_notifications": "Push oznámení",
     "rate": "Kurz",
-    "retype_password": "Zadejte heslo znovu",
+    "confirm_password": "Zadejte heslo znovu",
     "selfTest": "Autotest",
     "save": "Uložit",
     "saved": "Uloženo",

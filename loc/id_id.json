@@ -77,7 +77,7 @@
     "help2": "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
     "password_should_not_match": "Password for fake storage should not match password for your main storage",
     "passwords_do_not_match": "Kata sandi tidak cocok, coba lagi",
-    "retype_password": "Ketik ulang kata sandi",
+    "confirm_password": "Ketik ulang kata sandi",
     "success": "Sukses",
     "title": "Penyangkalan yang Masuk Akal"
   },
@@ -252,7 +252,7 @@
     "privacy_system_settings": "Pengaturan sistem",
     "privacy_quickactions": "Jalan Pintas Dompet",
     "privacy_do_not_track": "Nonaktifkan Analitik",
-    "retype_password": "Ulangi kata sandi",
+    "confirm_password": "Ulangi kata sandi",
     "save": "simpan",
     "saved": "Tersimpan",
     "total_balance": "Total saldo",

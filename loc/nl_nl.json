@@ -80,7 +80,7 @@
     "help2": "De nieuwe opslag zal volledig functioneel zijn en u kunt er een minimum aantal munten opslaan zodat het geloofwaardig lijkt.",
     "password_should_not_match": "Wachtwoord is momenteel in gebruik. Probeer een ander wachtwoord.",
     "passwords_do_not_match": "Wachtwoorden komen niet overeen, probeer het opnieuw",
-    "retype_password": "Herhaal wachtwoord",
+    "confirm_password": "Herhaal wachtwoord",
     "success": "Succes",
     "title": "Plausibele ontkenning"
   },
@@ -266,7 +266,7 @@
     "privacy_do_not_track_explanation": "Informatie over de prestatie en betrouwbaarheid zal niet worden opgegeven voor analyse.",
     "push_notifications": "Push notificaties",
     "rate": "Rate",
-    "retype_password": "Geef nogmaals het wachtwoord op",
+    "confirm_password": "Geef nogmaals het wachtwoord op",
     "selfTest": "Zelf-Test",
     "save": "Opslaan",
     "saved": "Opgeslagen",

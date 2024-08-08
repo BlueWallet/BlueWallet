@@ -85,7 +85,7 @@
     "help2": "Der zweite Speicher ist funktional identisch. Zahle auf die darin angelegten Wallet ein Minimalbetrag ein, um die Täuschung glaubhafter zu machen.",
     "password_should_not_match": "Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen",
     "passwords_do_not_match": "Passwörter stimmen nicht überein. Bitte erneut versuchen.",
-    "retype_password": "Passwort wiederholen",
+    "confirm_password": "Passwort wiederholen",
     "success": "Erfolg!",
     "title": "Glaubhafte Täuschung"
   },
@@ -303,7 +303,7 @@
     "privacy_do_not_track_explanation": "Leistungs- und Zuverlässigkeitsinformationen nicht zur Analyse einreichen.",
     "push_notifications": "Push-Meldungen",
     "rate": "Kurs",
-    "retype_password": "Passwort wiederholen",
+    "confirm_password": "Passwort wiederholen",
     "selfTest": "Selbsttest",
     "save": "Speichern",
     "saved": "Gespeichert",

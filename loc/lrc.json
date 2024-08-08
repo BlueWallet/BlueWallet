@@ -47,7 +47,7 @@
   "plausibledeniability": {
     "password_should_not_match": "رزم ها وه کار مؽره. یه رزم هنی نه وه کار بیر.",
     "passwords_do_not_match": "رزمیات چی یک نؽسن، دۏورته امتهانشو بکو.",
-    "retype_password": "رزمن دۏورته هؽل بکو",
+    "confirm_password": "رزمن دۏورته هؽل بکو",
     "success": "مۏوفق بی"
   },
   "pleasebackup": {
@@ -121,7 +121,7 @@
     "privacy_read_clipboard": "ونن ویرگه",
     "privacy_system_settings": "سامونیا دسگا",
     "rate": "نرخ",
-    "retype_password": "رزمن دۏورته هؽل بکو",
+    "confirm_password": "رزمن دۏورته هؽل بکو",
     "widgets": "اوزارکیا",
     "tools": "اوزاریا"
   },

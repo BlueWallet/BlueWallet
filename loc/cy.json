@@ -52,7 +52,7 @@
     "create_password_explanation": "Ni ddyliai'r cyfrinair ar gyfer y storfa ffug fod yr un cyfrinair ag ar gyfer y brif storfa",
     "password_should_not_match": "Mae'r cyfrinair yn cael ei ddefnyddio'n barod. Tria gyfrinair gwahanol.",
     "passwords_do_not_match": "Cyfrineiriau ddim yn gweddu. Tria eto.",
-    "retype_password": "Ail-deipio'r cyfrinair",
+    "confirm_password": "Ail-deipio'r cyfrinair",
     "success": "Llwyddiant"
   },
   "pleasebackup": {
@@ -134,7 +134,7 @@
     "password_explain": "Creu'r cyfrinair y byddi'n defnyddio i ddadgryptio'r storfa.",
     "passwords_do_not_match": "Cyfrineiriau ddim yn cyfateb.",
     "privacy": "Prefiatrwydd",
-    "retype_password": "Ail-deipio cyfrinair",
+    "confirm_password": "Ail-deipio cyfrinair",
     "save": "Safio",
     "saved": "Wedi Safio",
     "total_balance": "Balans Llawn"

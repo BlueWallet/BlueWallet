@@ -64,7 +64,7 @@
     "help2": "Simpanan baharu itu akan berfungsi secara penuh, dan anda boleh menyimpan sedikit jumlah minimum di sana agar ia kelihatan tulen.",
     "password_should_not_match": "Kata laluan sudah dalam penggunaan. Sila cuba kata laluan lain.",
     "passwords_do_not_match": "Kata laluan tidak sepadan. Sila cuba lagi.",
-    "retype_password": "Ulang taip kata laluan.",
+    "confirm_password": "Ulang taip kata laluan.",
     "success": "Berjaya",
     "title": "Penafian Munasabah"
   },
@@ -241,7 +241,7 @@
     "privacy_do_not_track": "Lumpuhkan Penyelidik",
     "privacy_do_not_track_explanation": "Maklumat pencapaian dan keandalan tidak akan dihantar untuk kaji selidik.",
     "push_notifications": "Pemberitahuan Pacu",
-    "retype_password": "Ulang taip kata laluan",
+    "confirm_password": "Ulang taip kata laluan",
     "selfTest": "Swaujian",
     "save": "Simpan",
     "saved": "Disimpan",

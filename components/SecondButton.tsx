@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Icon } from '@rneui/themed';
 
 import { useTheme } from './themes';
@@ -16,6 +16,8 @@ type SecondButtonProps = {
   icon?: IconProps;
   title?: string;
   onPress?: () => void;
+  loading?: boolean;
+  testID?: string;
 };
 
 export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((props, ref) => {
@@ -27,7 +29,9 @@ export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((pro
     fontColor = colors.buttonDisabledTextColor;
   }
 
-  const buttonView = (
+  const buttonView = props.loading ? (
+    <ActivityIndicator size="small" color={colors.buttonTextColor} />
+  ) : (
     <View style={styles.view}>
       {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
       {props.title && <Text style={[styles.text, { color: fontColor }]}>{props.title}</Text>}
@@ -36,8 +40,9 @@ export const SecondButton = forwardRef<TouchableOpacity, SecondButtonProps>((pro
 
   return props.onPress ? (
     <TouchableOpacity
-      disabled={props.disabled}
+      disabled={props.disabled || props.loading}
       accessibilityRole="button"
+      testID={props.testID}
       style={[styles.button, { backgroundColor }]}
       {...props}
       ref={ref}

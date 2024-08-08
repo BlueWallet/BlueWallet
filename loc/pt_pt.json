@@ -73,7 +73,7 @@
     "help2": "Este novo armazenamento é completamente funcional, e pode guardar um valor minímo para parecer mais real.",
     "password_should_not_match": "Password para armazenamento FALSO não deve coincidir com a password principal",
     "passwords_do_not_match": "Passwords não coincidem, tente novamente",
-    "retype_password": "Inserir password novamente",
+    "confirm_password": "Inserir password novamente",
     "success": "Sucesso",
     "title": "Negação plausível"
   },
@@ -232,7 +232,7 @@
     "privacy_system_settings": "Configurações do Sistema",
     "privacy_quickactions": "Atalhos da Carteira",
     "push_notifications": "Notificações via push",
-    "retype_password": "Inserir password novamente",
+    "confirm_password": "Inserir password novamente",
     "save": "Guardar",
     "saved": "Guardado",
     "total_balance": "Saldo Total",

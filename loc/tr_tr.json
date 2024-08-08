@@ -65,7 +65,7 @@
     "help": "Bazı koşullar altında, şifrenizi açıklamanız gerekebilir. Paralarınızı güvende tutmak için, BlueWallet başka bir şifre ile şifreli depolama alanı yaratabilir. Baskı altında, Bu şifreyi 3. bir tarafa söyleyebilirsiniz. Girilirse BlueWallet, yeni 'sahte' bir depolamanın kilidini açacaktır. Bu 3. şahıslara normal görünecektir, ancak paraların olduğu ana depolama alanınızı gizlice saklamaya devam edecektir.",
     "help2": "Yeni depolama alanı tamamen işlevsel olacak ve ufak bir miktar tutarsanız daha inanılır görünecektir.",
     "password_should_not_match": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır",
-    "retype_password": "Şifrenizi yeniden yazın",
+    "confirm_password": "Şifrenizi yeniden yazın",
     "success": "Başarılı",
     "title": "Makul Ret"
   },
@@ -162,7 +162,7 @@
     "privacy_system_settings": "Sistem Ayarları",
     "privacy_quickactions": "Cüzdan Kısayolları",
     "push_notifications": "Bildirimler",
-    "retype_password": "Şifrenizi yeniden girin",
+    "confirm_password": "Şifrenizi yeniden girin",
     "save": "Kaydet",
     "saved": "Kaydedildi",
     "total_balance": "Bakiye"

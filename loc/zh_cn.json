@@ -66,7 +66,7 @@
     "help2": "新的储存空间具备完整的功能，你可以存入少量的金额在里面。",
     "password_should_not_match": "此密码已被使用，请用另一个密码。",
     "passwords_do_not_match": "密码不匹配，请再试一遍。",
-    "retype_password": "重输密码",
+    "confirm_password": "重输密码",
     "success": "成功",
     "title": "合理推诿"
   },
@@ -227,7 +227,7 @@
     "privacy_quickactions": "钱包捷径",
     "privacy_clipboard_explanation": "如果在剪贴板中找到地址或发票，请提供捷径。",
     "push_notifications": "推送通知",
-    "retype_password": "再次输入密码",
+    "confirm_password": "再次输入密码",
     "selfTest": "自行测试",
     "save": "保存",
     "saved": "已保存",

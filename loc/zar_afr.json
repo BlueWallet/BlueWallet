@@ -74,7 +74,7 @@
     "help2": "Fop berging is heeltemal funksioneel",
     "password_should_not_match": "Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.",
     "passwords_do_not_match": "Wagwoorde vergelyk nie, probeer weer",
-    "retype_password": "Hervoer wagwoord",
+    "confirm_password": "Hervoer wagwoord",
     "success": "Sukses",
     "title": "Geloofwaardige Ontkenbaarheid"
   },
@@ -157,7 +157,7 @@
     "password_explain": "Skep die wagwoord wat jy sal gebruik om jou berging te de-enkripteer",
     "passwords_do_not_match": "Wagwoorde stem nie oor een nie",
     "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
-    "retype_password": "Hervoer wagwoord",
+    "confirm_password": "Hervoer wagwoord",
     "save": "stoor"
   },
   "notifications": {

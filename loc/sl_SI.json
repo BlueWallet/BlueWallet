@@ -69,7 +69,7 @@
     "help2": "Nova shramba bo popolnoma uporabna, za večjo verodostojnost lahko tam hranite manjši znesek.",
     "password_should_not_match": "Geslo je trenutno v uporabi. Prosimo, poskusite z drugim geslom.",
     "passwords_do_not_match": "Gesli se ne ujemata, prosimo poskusite ponovno.",
-    "retype_password": "Ponovno vpišite geslo",
+    "confirm_password": "Ponovno vpišite geslo",
     "success": "Uspešno",
     "title": "Verodostojno Zanikanje"
   },
@@ -263,7 +263,7 @@
     "privacy_do_not_track_explanation": "Informacije o zmogljivosti in zanesljivosti ne bodo poslane v analizo.",
     "push_notifications": "Potisna obvestila",
     "rate": "Tečaj",
-    "retype_password": "Ponovno vpišite geslo",
+    "confirm_password": "Ponovno vpišite geslo",
     "selfTest": "Samotestiranje",
     "save": "Shrani",
     "saved": "Shranjeno",
