@@ -101,7 +101,7 @@ MIT
 
 ## WANT TO CONTRIBUTE?
 
-Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
+Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/issues), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
 ## Translations
 
