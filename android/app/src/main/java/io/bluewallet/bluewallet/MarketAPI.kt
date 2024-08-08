@@ -10,21 +10,14 @@ import java.net.URL
 object MarketAPI {
 
     private const val TAG = "MarketAPI"
-    private const val HARD_CODED_JSON = "{\n" +
-            "    \"USD\": {\n" +
-            "        \"endPointKey\": \"USD\",\n" +
-            "        \"locale\": \"en-US\",\n" +
-            "        \"source\": \"Kraken\",\n" +
-            "        \"symbol\": \"$\",\n" +
-            "        \"country\": \"United States (US Dollar)\"\n" +
-            "    }\n" +
-            "}"
-    
+
     var baseUrl: String? = null
 
     fun fetchPrice(context: Context, currency: String): String? {
         return try {
-            val json = JSONObject(HARD_CODED_JSON)
+            // Load the JSON data from the assets
+            val fiatUnitsJson = context.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
+            val json = JSONObject(fiatUnitsJson)
             val currencyInfo = json.getJSONObject(currency)
             val source = currencyInfo.getString("source")
             val endPointKey = currencyInfo.getString("endPointKey")
