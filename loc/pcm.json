@@ -10,11 +10,7 @@
     "success": "You correct"
   },
   "lnd": {
-    "are_you_sure_open_channel": "You sure say you wan open this channel?",
-    "refill_create": "To proceed like this so, abeg create Bitcoin wallet wey you go refill am with",
-    "can_send": "You fit send",
-    "can_receive": "You fit receive",
-    "view_logs": "run shadow your logs"
+    "refill_create": "To proceed like this so, abeg create Bitcoin wallet wey you go refill am with"
   },
   "lndViewInvoice": {
     "please_pay_between_and": "Abeg pay between {min} and {max}",

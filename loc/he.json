@@ -52,37 +52,19 @@
     "network": "שגיאת רשת"
   },
   "lnd": {
-    "active": "פעיל",
-    "inactive": "לא פעיל",
-    "channels": "ערוצים",
-    "no_channels": "אין ערוצים",
-    "claim_balance": "מאזן דרישה {balance}",
-    "close_channel": "סגירת ערוץ",
-    "new_channel": "ערוץ חדש",
     "errorInvoiceExpired": "חשבונית פגה",
-    "force_close_channel": "כפיית סגירת ערוץ?",
     "expired": "פג",
-    "node_alias": "כינוי צומת",
     "expiresIn": "פג בעוד {time} דקות",
     "payButton": "תשלום",
     "payment": "תשלום",
     "placeholder": "חשבונית או כתובת",
-    "open_channel": "פתיחת ערוץ",
-    "funding_amount_placeholder": "סכום מימון, לדוגמה, 0.001",
-    "opening_channnel_for_from": "פתיחת ערוץ עבור ארנק {forWalletLabel}, בעמצאות מימון מארנק {fromWalletLabel}",
-    "are_you_sure_open_channel": "האם אתם בטוחים שברצונכם לפתוח ערוץ זה?",
     "potentialFee": "עמלה פוטנציאלית: {fee}",
-    "remote_host": "מארח מרוחק",
     "refill": "טעינה",
-    "reconnect_peer": "התחברות מחדש לעמית",
     "refill_create": "כדי להמשיך, אנא צרו ארנק ביטקוין כדי לטעון באמצעותו.",
     "refill_external": "טעינה בעזרת ארנק חיצוני",
     "refill_lnd_balance": "מלאו את יתרת ארנק הברק",
     "sameWalletAsInvoiceError": "לא ניתן לשלם חשבונית עם אותו הארנק שיצר אותה.",
-    "title": "ניהול כספים",
-    "can_send": "ניתן לשלוח",
-    "can_receive": "ניתן לקבל",
-    "view_logs": "צפייה ביומנים"
+    "title": "ניהול כספים"
   },
   "lndViewInvoice": {
     "additional_info": "מידע נוסף",
@@ -473,7 +455,6 @@
     "list_tryagain": "נסו שוב",
     "no_ln_wallet_error": "לפני תשלום חשבונית ברק, עלייך להוסיף ארנק ברק.",
     "looks_like_bip38": "זה נראה כמו מפתח פרטי מוגן בסיסמה (BIP38)",
-    "reorder_title": "ארגון ארנקים מחדש ",
     "please_continue_scanning": "אנא המשיכו בסריקה.",
     "select_no_bitcoin": "אין ארנקי ביטקוין זמינים.",
     "select_no_bitcoin_exp": "דרוש ארנק ביטקוין בכדי לטעון את ארנקי הברק. צרו או יבאו אחד.",
@@ -483,8 +464,7 @@
     "warning_do_not_disclose": "אזהרה! אין לחשוף.",
     "add_ln_wallet_first": "עלייך להוסיף ארנק ברק קודם.",
     "identity_pubkey": "מפתח זהות ציבורי",
-    "xpub_title": "מפתח צפייה של הארנק",
-    "search_wallets": "חיפוש ארנקים"
+    "xpub_title": "מפתח צפייה של הארנק"
   },
   "multisig": {
     "multisig_vault": "כספת",

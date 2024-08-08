@@ -40,8 +40,6 @@
     "network": "网络错误"
   },
   "lnd": {
-    "active": "激活",
-    "inactive": "无效",
     "expired": "已过期",
     "payButton": "支付",
     "refill": "充值",
@@ -340,7 +338,6 @@
     "list_tryagain": "再试一次",
     "no_ln_wallet_error": "在支付闪电账单之前，必须先添加一个闪电钱包。",
     "looks_like_bip38": "这看起来像是受密码保护的私钥（BIP38）。",
-    "reorder_title": "重新排列钱包",
     "please_continue_scanning": "请继续扫描。",
     "select_no_bitcoin": "当前没有可用的比特币钱包。",
     "select_no_bitcoin_exp": "需要一个比特币钱包来为闪电钱包充值。 请创建或导入一个。",

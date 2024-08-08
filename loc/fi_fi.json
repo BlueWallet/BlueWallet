@@ -51,37 +51,19 @@
     "network": "Verkkovirhe"
   },
   "lnd": {
-    "active": "Aktiivinen",
-    "inactive": "Passiivinen",
-    "channels": "Kanavat",
-    "no_channels": "Ei kanavia",
-    "claim_balance": "Lunasta saldo {balance}",
-    "close_channel": "Sulje kanava",
-    "new_channel": "Uusi kanava",
     "errorInvoiceExpired": "Lasku vanheni.",
-    "force_close_channel": "Pakota kanavan sulku?",
     "expired": "Erääntynyt",
-    "node_alias": "Solmun lempinimi",
     "expiresIn": "Vanhenee {time} minuutissa",
     "payButton": "Maksa",
     "payment": "Maksu",
     "placeholder": "Lasku",
-    "open_channel": "Avaa kanava",
-    "funding_amount_placeholder": "Rahoitettava määrä, esimerkiksi 0.001",
-    "opening_channnel_for_from": "Ota rahoitus {fromWalletLabel}:sta kanavan avaamiseksi lompakkoon {forWalletLabel}",
-    "are_you_sure_open_channel": "Oletko varma että haluat avata tämän kanavan?",
     "potentialFee": "Mahdollinen siirtokulu: {fee}",
-    "remote_host": "Etäpalvelin",
     "refill": "Täytä",
-    "reconnect_peer": "Palauta yhteys naapuriin",
     "refill_create": "Jatka luomalla Bitcoin-lompakko, jolla voit täyttää sen.",
     "refill_external": "Täytä ulkoisella lompakolla",
     "refill_lnd_balance": "Täytä Salamalompakon saldoa",
     "sameWalletAsInvoiceError": "Et voi maksaa laskua samalla lompakolla, jolla se on luotu.",
-    "title": "hallinnoi varoja",
-    "can_send": "Lähetettävissä",
-    "can_receive": "Vastaanotettavissa",
-    "view_logs": "Näytä lokitiedot"
+    "title": "hallinnoi varoja"
   },
   "lndViewInvoice": {
     "additional_info": "Lisäinformaatio",
@@ -460,7 +442,6 @@
     "list_tryagain": "Yritä uudelleen",
     "no_ln_wallet_error": "Ennen kuin maksat Salamalaskun, sinun on ensin lisättävä Salamalompakko.",
     "looks_like_bip38": "Tämä näyttää salasanalla suojatulta yksityiseltä avaimelta (BIP38)",
-    "reorder_title": "Järjestele Lompakot",
     "please_continue_scanning": "Jatka skannausta",
     "select_no_bitcoin": "Bitcoin-lompakkoa ei tällä hetkellä ole saatavana.",
     "select_no_bitcoin_exp": "Bitcoin-lompakkoa vaaditaan Salamalompakkojen täyttämiseksi. Luo tai tuo yksi.",
@@ -470,8 +451,7 @@
     "warning_do_not_disclose": "Varoitus! Älä paljasta",
     "add_ln_wallet_first": "Sinun on ensin lisättävä Salamalompakko.",
     "identity_pubkey": "Tunnus Pubkey",
-    "xpub_title": "lompakon XPUB",
-    "search_wallets": "Etsi lompakoista"
+    "xpub_title": "lompakon XPUB"
   },
   "multisig": {
     "multisig_vault": "Vault",

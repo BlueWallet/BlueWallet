@@ -40,29 +40,13 @@
     "network": "Ağ Hatası"
   },
   "lnd": {
-    "active": "Aktif",
-    "inactive": "Inaktif",
-    "channels": "Kanallar",
-    "no_channels": "Kanal yok",
-    "claim_balance": "Talep balansı (balans)",
-    "close_channel": "Kanalı kapa",
-    "new_channel": "Yeni kanal",
-    "force_close_channel": "Kanalı kapamaya zorla",
     "expired": "Süresi doldu",
-    "node_alias": "Node mahlası",
     "expiresIn": "{time} dakika içerisinde sona erer",
     "payButton": "Öde",
-    "open_channel": "Kanal aç",
-    "opening_channnel_for_from": "{fromWalletLabel} tarafından fonlanan kanal {forWalletLabel} için aılıyor",
-    "are_you_sure_open_channel": "Bu kanalı açmak istediğinizden emin misiniz?",
     "refill": "Yükle",
-    "reconnect_peer": "Eş'e tekrar bağlan",
     "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
     "sameWalletAsInvoiceError": "Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.",
-    "title": "Bakiyeleri Yönet",
-    "can_send": "Gönderebilir",
-    "can_receive": "Alabilir",
-    "view_logs": "Logları gör"
+    "title": "Bakiyeleri Yönet"
   },
   "lndViewInvoice": {
     "additional_info": "Ek Bilgi",
@@ -225,7 +209,6 @@
     "list_empty_txs1": "İşlemleriniz burada görünür,",
     "list_latest_transaction": "en son işlem",
     "list_title": "cüzdanlar",
-    "reorder_title": "Cüzdanları Sırala",
     "select_wallet": "Cüzdan Seç",
     "xpub_copiedToClipboard": "Panoya kopyalandı",
     "xpub_title": "cüzdan XPUB"
