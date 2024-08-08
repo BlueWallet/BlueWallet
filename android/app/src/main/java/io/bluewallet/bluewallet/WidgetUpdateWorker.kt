@@ -139,7 +139,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
             "Yadio" -> "https://api.yadio.io/json/$endPointKey"
             "YadioConvert" -> "https://api.yadio.io/convert/1/BTC/$endPointKey"
             "Exir" -> "https://api.exir.io/v1/ticker?symbol=btc-irt"
-            "wazirx" -> "https://api.wazirx.com/api/v2/tickers/btcinr"
+            "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
             "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
             "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/buy"
             "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
@@ -155,7 +155,7 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
             "CoinGecko" -> json.getJSONObject("bitcoin").getString(endPointKey.lowercase())
             "Coinbase" -> json.getJSONObject("data").getString("amount")
             "Bitstamp" -> json.getString("last")
-            "wazirx" -> json.getJSONObject("ticker").getString("buy")
+            "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
             "Exir" -> json.getString("last")
             "Yadio", "YadioConvert" -> json.getJSONObject(endPointKey).getString("price")
             else -> throw IllegalArgumentException("Unsupported source: $source")

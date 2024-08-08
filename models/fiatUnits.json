@@ -149,7 +149,7 @@
     "INR": {
         "endPointKey": "INR",
         "locale": "hi-IN",
-        "source": "wazirx",
+        "source": "coinpaprika",
         "symbol": "₹",
         "country": "India (Indian Rupee)"
     },
