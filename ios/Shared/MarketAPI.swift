@@ -25,8 +25,8 @@ class MarketAPI {
            return "https://api.yadio.io/convert/1/BTC/\(endPointKey)"
        case "Exir":
            return "https://api.exir.io/v1/ticker?symbol=btc-irt"
-       case "wazirx":
-           return "https://api.wazirx.com/api/v2/tickers/btcinr"
+       case "coinpaprika":
+           return "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
        case "Bitstamp":
            return "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
        case "Coinbase":
@@ -102,17 +102,19 @@ class MarketAPI {
               completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
           }
           
-      case "wazirx":
-          if let tickerDict = json["ticker"] as? [String: Any],
-             let rateString = tickerDict["buy"] as? String,
-             let rateDouble = Double(rateString) {
-              let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-              latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-              completion(latestRateDataStore, nil)
-          } else {
-              completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
-          }
-
+     case "coinpaprika":
+    if let quotesDict = json["quotes"] as? [String: Any],
+       let inrDict = quotesDict["INR"] as? [String: Any],
+       let rateDouble = inrDict["price"] as? Double {
+        
+        let rateString = String(rateDouble)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        completion(latestRateDataStore, nil)
+    } else {
+        completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
+    }
       case "Coinbase":
           if let data = json["data"] as? [String: Any],
              let rateString = data["amount"] as? String,
