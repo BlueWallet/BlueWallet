@@ -1,0 +1,112 @@
+name: BuildReleaseApkAndPackageAsFlatpak
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+
+jobs:
+  buildAndPackage:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout BlueWallet repository (master branch)
+        uses: actions/checkout@v3
+        with:
+          repository: BlueWallet/BlueWallet
+          ref: master
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build APK
+        env:
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x ./scripts/build-release-apk.sh
+          ./scripts/build-release-apk.sh
+
+      - name: Install Flatpak and Flatpak Builder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak --user install -y flathub org.freedesktop.Platform//21.08 org.freedesktop.Sdk//21.08
+
+      - name: Create Flatpak Project Directory
+        run: |
+          mkdir -p bluewallet-flatpak
+          cp ./android/app/build/outputs/apk/release/BlueWallet-*.apk bluewallet-flatpak/BlueWallet.apk
+
+      - name: Create Flatpak Manifest
+        run: |
+          cat <<EOF > bluewallet-flatpak/manifest.yml
+          app-id: io.bluewallet.bluewallet
+          runtime: org.freedesktop.Platform
+          runtime-version: '21.08'
+          sdk: org.freedesktop.Sdk
+          command: /app/bin/run-apk
+          modules:
+            - name: waydroid
+              buildsystem: simple
+              build-commands:
+                - git clone https://github.com/waydroid/waydroid.git -b main
+                - mkdir -p /app/waydroid
+                - cp -r waydroid/* /app/waydroid/
+              sources:
+                - type: git
+                  url: https://github.com/waydroid/waydroid.git
+                  branch: main
+
+            - name: run-apk
+              buildsystem: simple
+              build-commands:
+                - mkdir -p /app/bin
+                - echo '#!/bin/bash' > /app/bin/run-apk
+                - echo 'waydroid init' >> /app/bin/run-apk
+                - echo 'waydroid-container' >> /app/bin/run-apk
+                - echo 'adb install /app/bluewallet/BlueWallet.apk' >> /app/bin/run-apk
+                - echo 'adb shell am start -n io.bluewallet.bluewallet/.MainActivity' >> /app/bin/run-apk
+                - chmod +x /app/bin/run-apk
+
+            - name: bluewallet-apk
+              buildsystem: simple
+              build-commands:
+                - mkdir -p /app/bluewallet
+                - install -Dm644 BlueWallet.apk /app/bluewallet/BlueWallet.apk
+              sources:
+                - type: file
+                  path: BlueWallet.apk
+          EOF
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --user --install --force-clean build-dir bluewallet-flatpak/manifest.yml
+
+      - name: Package Flatpak
+        run: |
+          flatpak build-export repo build-dir
+          flatpak build-bundle repo BlueWallet-${{ github.sha }}.flatpak io.bluewallet.bluewallet
+
+      - name: Upload APK and Flatpak Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet-Artifacts
+          path: |
+            ./android/app/build/outputs/apk/release/BlueWallet-*.apk
+            BlueWallet-${{ github.sha }}.flatpak
