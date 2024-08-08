@@ -871,28 +871,40 @@ const SendDetails = () => {
     });
   };
 
-  const handleAddRecipient = async () => {
-    console.debug('handleAddRecipient');
-    await setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
+  const handleAddRecipient = () => {
+    setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
-    await sleep(200); // wait for animation
-    scrollView.current?.scrollToEnd();
-    if (addresses.length === 0) return;
-    scrollView.current?.flashScrollIndicators();
+    // Wait for the state to update before scrolling
+    setTimeout(() => {
+      scrollIndex.current = addresses.length; // New index is at the end of the list
+      scrollView.current?.scrollToIndex({
+        index: scrollIndex.current,
+        animated: true,
+      });
+    }, 0);
   };
 
-  const handleRemoveRecipient = async () => {
-    const last = scrollIndex.current === addresses.length - 1;
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setAddresses(addrs => {
-      addrs.splice(scrollIndex.current, 1);
-      return [...addrs];
-    });
+  const handleRemoveRecipient = () => {
+    if (addresses.length > 1) {
+      const newAddresses = [...addresses];
+      newAddresses.splice(scrollIndex.current, 1);
 
-    if (addresses.length === 0) return;
-    await sleep(200); // wait for animation
-    scrollView.current?.flashScrollIndicators();
-    if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
+      // Adjust the current index if the last item was removed
+      const newIndex = scrollIndex.current >= newAddresses.length ? newAddresses.length - 1 : scrollIndex.current;
+
+      setAddresses(newAddresses);
+
+      // Wait for the state to update before scrolling
+      setTimeout(() => {
+        scrollView.current?.scrollToIndex({
+          index: newIndex,
+          animated: true,
+        });
+      }, 0);
+
+      // Update the scroll index reference
+      scrollIndex.current = newIndex;
+    }
   };
 
   const handleCoinControl = async () => {
@@ -1069,20 +1081,7 @@ const SendDetails = () => {
     setIsTransactionReplaceable(value);
   };
 
-  //
-
-  // because of https://github.com/facebook/react-native/issues/21718 we use
-  // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
     const index = Math.floor(contentOffset.x / viewSize.width);
@@ -1319,6 +1318,12 @@ const SendDetails = () => {
     );
   };
 
+  const getItemLayout = (_: any, index: number) => ({
+    length: width,
+    offset: width * index,
+    index,
+  });
+
   if (isLoading || !wallet) {
     return (
       <View style={[styles.loading, stylesHook.loading]}>
@@ -1340,11 +1345,11 @@ const SendDetails = () => {
             pagingEnabled
             removeClippedSubviews={false}
             onMomentumScrollBegin={Keyboard.dismiss}
-            onMomentumScrollEnd={handleRecipientsScrollEnds}
             onScroll={handleRecipientsScroll}
-            scrollEventThrottle={200}
+            scrollEventThrottle={16}
             scrollIndicatorInsets={styles.scrollViewIndicator}
             contentContainerStyle={styles.scrollViewContent}
+            getItemLayout={getItemLayout}
           />
           <View style={[styles.memo, stylesHook.memo]}>
             <TextInput

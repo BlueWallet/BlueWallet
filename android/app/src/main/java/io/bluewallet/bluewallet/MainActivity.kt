@@ -6,6 +6,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 
 class MainActivity : ReactActivity() {
 
@@ -28,12 +29,7 @@ class MainActivity : ReactActivity() {
      * Returns the instance of the [ReactActivityDelegate]. Here we use a util class [DefaultReactActivityDelegate]
      * which allows you to easily enable Fabric and Concurrent React (aka React 18) with two boolean flags.
      */
-    override fun createReactActivityDelegate(): ReactActivityDelegate {
-        return DefaultReactActivityDelegate(
-            this,
-            mainComponentName,
-            // If you opted-in for the New Architecture, we enable the Fabric Renderer.
-            DefaultNewArchitectureEntryPoint.fabricEnabled
-        )
-    }
+
+    override fun createReactActivityDelegate(): ReactActivityDelegate =
+        DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 }
