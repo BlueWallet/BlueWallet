@@ -1,7 +1,7 @@
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { NavigationProp, ParamListBase, useIsFocused } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { FlatList, InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
+import { InteractionManager, LayoutAnimation, StyleSheet, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { TWallet } from '../../class/wallets/types';
@@ -83,7 +83,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   };
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const walletsCarousel = useRef<FlatList<TWallet>>(null);
+  const walletsCarousel = useRef(null);
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
@@ -103,7 +103,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   }, [wallets, isFocused]);
 
   const handleClick = useCallback(
-    (item: TWallet) => {
+    (item?: TWallet) => {
       if (item?.getID) {
         const walletID = item.getID();
         const walletType = item.type;
@@ -124,7 +124,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
 
   const handleLongPress = useCallback(() => {
     if (state.wallets.length > 1) {
-      navigation.navigate('ReorderWallets');
+      navigation.navigate('ManageWallets');
     } else {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     }
@@ -144,8 +144,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
     >
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
       <WalletsCarousel
-        // @ts-ignore: refactor later
-        data={state.wallets.concat(false as any)}
+        data={state.wallets}
         extraData={[state.wallets]}
         onPress={handleClick}
         handleLongPress={handleLongPress}

@@ -1,6 +1,6 @@
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, AppState, InteractionManager, ScrollView, StyleSheet, View, LayoutChangeEvent } from 'react-native';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -12,10 +12,13 @@ import usePrivacy from '../../hooks/usePrivacy';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
+import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
 
-const WalletExport = () => {
+type RouteProps = RouteProp<WalletExportStackParamList, 'WalletExport'>;
+
+const WalletExport: React.FC = () => {
   const { wallets, saveToDisk } = useStorage();
-  const { walletID } = useRoute().params;
+  const { walletID } = useRoute<RouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const { goBack } = useNavigation();
   const { colors } = useTheme();
@@ -78,18 +81,15 @@ const WalletExport = () => {
     );
 
   // for SLIP39 we need to show all shares
-  let secrets = wallet.getSecret();
-  if (typeof secrets === 'string') {
-    secrets = [secrets];
-  }
+  const secrets: string[] = (typeof wallet.getSecret() === 'string' ? [wallet.getSecret()] : wallet.getSecret()) as string[];
 
-  const onLayout = e => {
+  const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;
-    setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+    setQRCodeSize(height > width ? width - 40 : width / 1.8);
   };
 
   return (
-    <SafeArea style={[styles.root, stylesHook.root]} onLayout={onLayout}>
+    <SafeArea style={stylesHook.root} onLayout={onLayout}>
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="WalletExportScroll">
         <View>
           <BlueText style={[styles.type, stylesHook.type]}>{wallet.typeReadable}</BlueText>
@@ -103,20 +103,18 @@ const WalletExport = () => {
         <BlueSpacing20 />
         {secrets.map(s => (
           <React.Fragment key={s}>
-            <QRCodeComponent isMenuAvailable={false} value={wallet.getSecret()} size={qrCodeSize} logoSize={70} />
-            {wallet.type !== WatchOnlyWallet.type && (
-              <BlueText style={[styles.warning, stylesHook.warning]}>{loc.wallets.warning_do_not_disclose}</BlueText>
-            )}
+            <QRCodeComponent isMenuAvailable={false} value={s} size={qrCodeSize} logoSize={70} />
+            {wallet.type !== WatchOnlyWallet.type && <BlueText style={stylesHook.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>}
             <BlueSpacing20 />
             {wallet.type === LightningCustodianWallet.type || wallet.type === WatchOnlyWallet.type ? (
-              <CopyTextToClipboard text={wallet.getSecret()} />
+              <CopyTextToClipboard text={s} />
             ) : (
               <BlueText style={[styles.secret, styles.secretWritingDirection, stylesHook.secret]} testID="Secret">
-                {wallet.getSecret()}
+                {s}
               </BlueText>
             )}
             {wallet.type === WatchOnlyWallet.type && (
-              <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: wallet.getSecret() }} />
+              <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: s }} />
             )}
           </React.Fragment>
         ))}

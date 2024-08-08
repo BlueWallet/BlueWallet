@@ -81,10 +81,6 @@ const SelectWallet: React.FC = () => {
     }
   };
 
-  const handleLongPress = (item: TWallet) => {
-    // place holder. remove once WalletsCarousel is TSX
-  };
-
   if (isLoading) {
     return (
       <View style={[styles.loading, stylesHook.loading]}>
@@ -102,17 +98,7 @@ const SelectWallet: React.FC = () => {
       </SafeArea>
     );
   } else {
-    return (
-      <WalletsCarousel
-        // @ts-ignore: refactor later
-        data={data}
-        onPress={onPress}
-        handleLongPress={handleLongPress}
-        ref={walletsCarousel}
-        testID="WalletsList"
-        horizontal={false}
-      />
-    );
+    return <WalletsCarousel data={data} onPress={onPress} ref={walletsCarousel} testID="WalletsList" horizontal={false} />;
   }
 };
 

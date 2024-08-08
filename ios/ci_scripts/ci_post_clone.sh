@@ -6,19 +6,19 @@ brew install cocoapods
 echo "CocoaPods installation complete."
 
 echo "===== Installing Node.js ====="
-brew install node@18
+brew install node@20
 echo "Node.js installation complete."
 
-# Configure environment to use node@18
-echo "Configuring environment to use node@18..."
-echo 'export PATH="/usr/local/opt/node@18/bin:$PATH"' >> ~/.zshrc
-export PATH="/usr/local/opt/node@18/bin:$PATH"
+# Configure environment to use node@20
+echo "Configuring environment to use node@20..."
+echo 'export PATH="/usr/local/opt/node@20/bin:$PATH"' >> ~/.zshrc
+export PATH="/usr/local/opt/node@20/bin:$PATH"
 
-echo 'export LDFLAGS="-L/usr/local/opt/node@18/lib"' >> ~/.zshrc
-export LDFLAGS="-L/usr/local/opt/node@18/lib"
+echo 'export LDFLAGS="-L/usr/local/opt/node@20/lib"' >> ~/.zshrc
+export LDFLAGS="-L/usr/local/opt/node@20/lib"
 
-echo 'export CPPFLAGS="-I/usr/local/opt/node@18/include"' >> ~/.zshrc
-export CPPFLAGS="-I/usr/local/opt/node@18/include"
+echo 'export CPPFLAGS="-I/usr/local/opt/node@20/include"' >> ~/.zshrc
+export CPPFLAGS="-I/usr/local/opt/node@20/include"
 echo "Configuration complete."
 
 # Install dependencies using npm

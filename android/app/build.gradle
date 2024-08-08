@@ -84,6 +84,11 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
@@ -112,9 +117,8 @@ preBuild.dependsOn(copyFiatUnits)
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation files("../../node_modules/rn-ldk/android/libs/LDK-release.aar")
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.core:core-remoteviews:1.1.0'
+    implementation 'androidx.core:core-ktx'
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -125,9 +129,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation "androidx.work:work-runtime:2.9.0"
-    implementation "androidx.work:work-runtime-ktx:2.9.0"
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 

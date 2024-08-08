@@ -88,8 +88,8 @@ const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: '443' };
 export const hardcodedPeers: Peer[] = [
   { host: 'mainnet.foundationdevices.com', ssl: '50002' },
-  { host: 'bitcoin.lukechilds.co', ssl: '50002' },
-  { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
+  // { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+  // { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
   { host: 'electrum1.bluewallet.io', ssl: '443' },
   { host: 'electrum.acinq.co', ssl: '50002' },
   { host: 'electrum.bitaroo.net', ssl: '50002' },
@@ -887,7 +887,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
       const tx = ret[txid];
       // dont cache immature txs, but only for 'verbose', since its fully decoded tx jsons. non-verbose are just plain
       // strings txhex
-      if (verbose && typeof tx !== 'string' && (!tx.confirmations || tx.confirmations < 7)) {
+      if (verbose && typeof tx !== 'string' && (!tx?.confirmations || tx.confirmations < 7)) {
         continue;
       }
 

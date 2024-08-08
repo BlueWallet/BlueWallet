@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Linking, Platform, StyleSheet, TextInput, View } from 'react-native';
 
@@ -23,6 +23,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hex',
@@ -31,12 +32,10 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-interface SuccessScreenProps {
-  tx: string;
-}
+type RouteProps = RouteProp<DetailViewStackParamList, 'Broadcast'>;
 
 const Broadcast: React.FC = () => {
-  const { name } = useRoute();
+  const { name, params } = useRoute<RouteProps>();
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
   const { colors } = useTheme();
@@ -49,6 +48,14 @@ const Broadcast: React.FC = () => {
       backgroundColor: colors.inputBackgroundColor,
     },
   });
+
+  useEffect(() => {
+    const scannedData = params?.scannedData;
+    if (scannedData) {
+      handleScannedData(scannedData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.scannedData]);
 
   const handleUpdateTxHex = (nextValue: string) => setTxHex(nextValue.trim());
 
@@ -81,10 +88,7 @@ const Broadcast: React.FC = () => {
     }
   };
 
-  const handleQRScan = async () => {
-    const scannedData = await scanQrHelper(name);
-    if (!scannedData) return;
-
+  const handleScannedData = (scannedData: string) => {
     if (scannedData.indexOf('+') === -1 && scannedData.indexOf('=') === -1 && scannedData.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       return handleUpdateTxHex(scannedData);
@@ -95,6 +99,10 @@ const Broadcast: React.FC = () => {
       const validTx = bitcoin.Psbt.fromBase64(scannedData).extractTransaction();
       return handleUpdateTxHex(validTx.toHex());
     } catch (e) {}
+  };
+
+  const handleQRScan = () => {
+    scanQrHelper(name, true, undefined, false);
   };
 
   let status;
@@ -159,7 +167,7 @@ const Broadcast: React.FC = () => {
   );
 };
 
-const SuccessScreen: React.FC<SuccessScreenProps> = ({ tx }) => {
+const SuccessScreen: React.FC<{ tx: string }> = ({ tx }) => {
   if (!tx) {
     return null;
   }

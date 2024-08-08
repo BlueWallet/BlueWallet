@@ -49,37 +49,19 @@
     "network": "Ошибка сети"
   },
   "lnd": {
-    "active": "Активный",
-    "inactive": "Неактивный",
-    "channels": "Каналы",
-    "no_channels": "Нет каналов",
-    "claim_balance": "Требовать баланс {balance}",
-    "close_channel": "Закрыть канал",
-    "new_channel": "Новый канал",
     "errorInvoiceExpired": "Инвойс просрочен.",
-    "force_close_channel": "Закрыть канал принудительно?",
     "expired": "Истекший",
-    "node_alias": "Псевдоним ноды",
     "expiresIn": "Истекает через {time} мин",
     "payButton": "Оплатить",
     "payment": "Платеж",
     "placeholder": "Инвойс",
-    "open_channel": "Открыть Канал",
-    "funding_amount_placeholder": "Количество для пополнения, например 0.001",
-    "opening_channnel_for_from": "Открытие канала для кошелька {forWalletLabel} средствами из {fromWalletLabel}",
-    "are_you_sure_open_channel": "Вы уверены, что хотите открыть этот канал?",
     "potentialFee": "Примерная комиссия: {fee}",
-    "remote_host": "Удалённый хост",
     "refill": "Пополнить",
-    "reconnect_peer": "Переподключиться",
     "refill_create": "Чтобы продолжить, пожалуйста, создайте биткоин-кошелёк для пополнения.",
     "refill_external": "Пополнить с помощью внешнего кошелька",
     "refill_lnd_balance": "Пополнить баланс кошелька Lightning",
     "sameWalletAsInvoiceError": "Ты не можешь оплатить Инвойс тем же кошельком, который ты использовал для его создания.",
-    "title": "Мои средства",
-    "can_send": "Может Отправлять",
-    "can_receive": "Может Получать",
-    "view_logs": "Посмотреть Логи"
+    "title": "Мои средства"
   },
   "lndViewInvoice": {
     "additional_info": "Дополнительная информация",
@@ -449,7 +431,6 @@
     "list_tryagain": "Попробовать еще раз",
     "no_ln_wallet_error": "Прежде чем оплачивать Лайтнинг-инвойсы, нужно добавить Лайтнинг-кошелёк.",
     "looks_like_bip38": "Это похоже на закрытый ключ, защищенный паролем (BIP38)",
-    "reorder_title": "Отсортировать кошельки",
     "please_continue_scanning": "Продолжайте сканировать",
     "select_no_bitcoin": "В настоящее время нет доступных кошельков Bitcoin.",
     "select_no_bitcoin_exp": "Кошелёк Bitcoin необходим для пополнения кошельков Lightning. Пожалуйста, создайте или импортируйте его.",
@@ -459,8 +440,7 @@
     "warning_do_not_disclose": "Внимание! Не разглашать",
     "add_ln_wallet_first": "Сначала добавьте Лайтнинг-кошелёк.",
     "identity_pubkey": "Identity Pubkey",
-    "xpub_title": "XPUB кошелька",
-    "search_wallets": "Поиск Кошельков"
+    "xpub_title": "XPUB кошелька"
   },
   "multisig": {
     "multisig_vault": "Хранилище",

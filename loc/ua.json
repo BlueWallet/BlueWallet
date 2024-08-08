@@ -48,32 +48,15 @@
     "network": "Помилка Мережі"
   },
   "lnd": {
-    "active": "Активний",
-    "inactive": "Неактивний",
-    "channels": "Канали",
-    "no_channels": "Немає каналів",
-    "claim_balance": "Баланс вимоги {баланс}",
-    "close_channel": "Закрити канал",
-    "new_channel": "Новий канал",
-    "force_close_channel": "Примусово закрити канал?",
     "expired": "Термін дії закінчився",
-    "node_alias": "Псевдонім вузла",
     "expiresIn": "Закінчується через {час} хвилин",
     "payButton": "Оплатити",
     "placeholder": "Рахунок або адреса",
-    "open_channel": "Відкрити Канал",
-    "opening_channnel_for_from": "Відкриття каналу для гаманця {forWalletLabel}, за рахунок фінансування з {fromWalletLabel}",
-    "are_you_sure_open_channel": "Ви впевнені, що хочете відкрити цей канал?",
-    "remote_host": "Віддалений хост",
     "refill": "Поповнити",
-    "reconnect_peer": "Перепідключити одноранговий",
     "refill_create": "Щоб продовжити, будь ласка, створіть біткоїн-гаманець для поповнення.",
     "refill_external": "Поповнити з зовнішнього гаманця",
     "refill_lnd_balance": "Збільшити баланс Lightning гаманця",
-    "title": "Мої Кошти",
-    "can_send": "Можна Надіслати",
-    "can_receive": "Можна Отримати",
-    "view_logs": "Переглянути Логи"
+    "title": "Мої Кошти"
   },
   "lndViewInvoice": {
     "additional_info": "Додаткова Інформація",

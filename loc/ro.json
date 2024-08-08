@@ -40,28 +40,14 @@
     "network": "Eroare de rețea"
   },
   "lnd": {
-    "active": "Activ",
-    "inactive": "Inactiv",
-    "channels": "Canale",
-    "no_channels": "Niciun canal",
-    "claim_balance": "Revendică sold {balance}",
-    "close_channel": "Închide canal",
-    "new_channel": "Canal nou",
-    "force_close_channel": "Forțează închiderea canalului?",
     "expired": "Expirat",
-    "node_alias": "Alias nod",
     "expiresIn": "Expiră în {time} minute",
     "payButton": "Plătește",
-    "open_channel": "Deschide canal",
-    "are_you_sure_open_channel": "Sigur vrei să deschizi acest canal?",
     "refill": "Reumple",
     "refill_create": "Pentru a continua, creează un portofel Bitcoin cu care să reumpli.",
     "refill_external": "Reumple cu Portofel Extern",
     "refill_lnd_balance": "Reumple balanța portofelului Lightning",
-    "title": "Administrează fondurile",
-    "can_send": "Poate trimite",
-    "can_receive": "Poate primi",
-    "view_logs": "Vezi jurnalele"
+    "title": "Administrează fondurile"
   },
   "lndViewInvoice": {
     "additional_info": "Informații suplimentare",
@@ -382,7 +368,6 @@
     "list_tryagain": "Încearcă din nou",
     "no_ln_wallet_error": "Înainte de a plăti o factură Lightning, trebuie mai întîi să adaugi un portofel Lightning.",
     "looks_like_bip38": "Aceasta arată ca o cheie privată protejată de o parolă (BIP38).",
-    "reorder_title": "Reordonează portofelele",
     "please_continue_scanning": "Continuă scanarea.",
     "select_no_bitcoin": "Nu e niciun portofel Bitcoin disponibil.",
     "select_no_bitcoin_exp": "E necesar un portofel Bitcoin pentru a re-umple portofelele Lightning. Creează sau importă unul.",

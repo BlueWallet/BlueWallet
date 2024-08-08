@@ -27,8 +27,8 @@ class BitcoinPriceWidget : AppWidgetProvider() {
         WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.WORK_NAME)
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent:Intent) {
         super.onReceive(context, intent)
         Log.d("BitcoinPriceWidget", "onReceive called with action: ${intent.action}")
-    }
-}
+        }
+        }

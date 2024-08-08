@@ -24,7 +24,6 @@ import {
   HDAezeedWallet,
   HDSegwitBech32Wallet,
   LegacyWallet,
-  LightningLdkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -113,7 +112,6 @@ const WalletDetails = () => {
   const { walletID } = useRoute().params;
   const [isLoading, setIsLoading] = useState(false);
   const [backdoorPressed, setBackdoorPressed] = useState(0);
-  const [backdoorBip47Pressed, setBackdoorBip47Pressed] = useState(0);
   const wallet = useRef(wallets.find(w => w.getID() === walletID)).current;
   const [walletName, setWalletName] = useState(wallet.getLabel());
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
@@ -132,7 +130,6 @@ const WalletDetails = () => {
       return null;
     }
   }, [wallet]);
-  const [lightningWalletInfo, setLightningWalletInfo] = useState({});
   const [isToolTipMenuVisible, setIsToolTipMenuVisible] = useState(false);
 
   const onMenuWillShow = () => setIsToolTipMenuVisible(true);
@@ -165,11 +162,6 @@ const WalletDetails = () => {
       color: isToolTipMenuVisible ? colors.buttonDisabledTextColor : '#d0021b',
     },
   });
-  useEffect(() => {
-    if (wallet.type === LightningLdkWallet.type) {
-      wallet.getInfo().then(setLightningWalletInfo);
-    }
-  }, [wallet]);
 
   const handleSave = useCallback(() => {
     setIsLoading(true);
@@ -287,11 +279,6 @@ const WalletDetails = () => {
         address: wallet.getAllExternalAddresses()[0], // works for both single address and HD wallets
       },
     });
-  const navigateToLdkViewLogs = () => {
-    navigate('LdkViewLogs', {
-      walletID,
-    });
-  };
 
   const navigateToAddresses = () =>
     navigate('WalletAddresses', {
@@ -480,18 +467,6 @@ const WalletDetails = () => {
               <Text style={[styles.textLabel1, stylesHook.textLabel1]}>{loc.wallets.details_type.toLowerCase()}</Text>
               <Text style={[styles.textValue, stylesHook.textValue]}>{wallet.typeReadable}</Text>
 
-              {wallet.type === LightningLdkWallet.type && (
-                <>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.identity_pubkey}</Text>
-                  {lightningWalletInfo?.identityPubkey ? (
-                    <>
-                      <BlueText>{lightningWalletInfo.identityPubkey}</BlueText>
-                    </>
-                  ) : (
-                    <ActivityIndicator />
-                  )}
-                </>
-              )}
               {wallet.type === MultisigHDWallet.type && (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_multisig_type}</Text>
@@ -528,7 +503,7 @@ const WalletDetails = () => {
                   {loc.transactions.list_title.toLowerCase()}
                 </Text>
                 <View style={styles.hardware}>
-                  <BlueText onPress={() => setBackdoorBip47Pressed(prevState => prevState + 1)}>{loc.wallets.details_display}</BlueText>
+                  <BlueText>{loc.wallets.details_display}</BlueText>
                   <Switch
                     disabled={isToolTipMenuVisible}
                     value={hideTransactionsInWalletsList}
@@ -543,7 +518,7 @@ const WalletDetails = () => {
                 <BlueText>{wallet.getTransactions().length}</BlueText>
               </>
 
-              {backdoorBip47Pressed >= 10 && wallet.allowBIP47() ? (
+              {wallet.allowBIP47() ? (
                 <>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
                   <View style={styles.hardware}>
@@ -656,17 +631,6 @@ const WalletDetails = () => {
                       onPress={navigateToSignVerify}
                       testID="SignVerify"
                       title={loc.addresses.sign_title}
-                    />
-                  </>
-                )}
-                {wallet.type === LightningLdkWallet.type && (
-                  <>
-                    <BlueSpacing20 />
-                    <SecondButton
-                      disabled={isToolTipMenuVisible}
-                      onPress={navigateToLdkViewLogs}
-                      testID="LdkLogs"
-                      title={loc.lnd.view_logs}
                     />
                   </>
                 )}

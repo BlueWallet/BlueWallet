@@ -36,28 +36,16 @@
     "network": "Σφάλμα δικτύου"
   },
   "lnd": {
-    "active": "Ενεργό",
-    "inactive": "Ανενεργό",
-    "channels": "Κανάλια",
-    "no_channels": "Δεν υπάρχουν κανάλια",
-    "close_channel": "Κλείσιμο καναλιού",
-    "new_channel": "Νέο κανάλι",
     "errorInvoiceExpired": "Το τιμολόγιο έληξε",
     "expired": "Έληξε",
-    "node_alias": "Ψευδώνυμο κόμβου",
     "expiresIn": "Λήγει σε {time} λεπτά",
     "payButton": "Πληρωμή",
     "payment": "Πληρωμή",
     "placeholder": "Τιμολόγιο ή διεύθυνση",
-    "open_channel": "Άνοιγμα καναλιού",
-    "are_you_sure_open_channel": "Είσαι βέβαιος ότι θέλεις να ανοίξεις αυτό το κανάλι;",
-    "remote_host": "Απομακρυσμένος υπολογιστής",
     "refill": "Γέμισμα πορτοφολιού",
     "refill_lnd_balance": "Γέμισε το πορτοφόλι Lightning",
     "sameWalletAsInvoiceError": "Δεν μπορείς να εξοφλήσεις ένα τιμολόγιο από το ίδιο πορτοφόλι με το οποίο δημιουργήθηκε.",
-    "title": "Διαχείριση χρημάτων",
-    "can_send": "Μπορεί να αποσταλεί",
-    "can_receive": "Μπορεί να ληφθεί"
+    "title": "Διαχείριση χρημάτων"
   },
   "lndViewInvoice": {
     "additional_info": "Επιπρόσθετη πληροφορία",
@@ -314,7 +302,6 @@
     "list_long_scan": "Σάρωση QR Code",
     "list_title": "Πορτοφόλια",
     "list_tryagain": "Προσπαθήστε ξανά",
-    "reorder_title": "Αναδιάταξη των πορτοφολιών",
     "select_wallet": "Επιλογή πορτοφολιού",
     "xpub_copiedToClipboard": "Αντιγράφηκε στο πρόχειρο",
     "xpub_title": "XPUB του πορτοφολιού"

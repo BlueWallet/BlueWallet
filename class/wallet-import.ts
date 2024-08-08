@@ -12,7 +12,6 @@ import {
   HDSegwitP2SHWallet,
   LegacyWallet,
   LightningCustodianWallet,
-  LightningLdkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -181,17 +180,6 @@ const startImport = (
       await lnd.fetchPendingTransactions();
       await lnd.fetchBalance();
       yield { wallet: lnd };
-    }
-
-    // is it LDK?
-    yield { progress: 'lightning' };
-    if (text.startsWith('ldk://')) {
-      const ldk = new LightningLdkWallet();
-      ldk.setSecret(text);
-      if (ldk.valid()) {
-        await ldk.init();
-        yield { wallet: ldk };
-      }
     }
 
     // check bip39 wallets
