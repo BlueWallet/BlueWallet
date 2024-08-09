@@ -458,7 +458,9 @@ export class BlueApp {
           case LegacyWallet.type:
           default:
             unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
-            break;
+            console.log('Unrecognized wallet. Importing as LegacyWallet...')
+            console.debug(tempObj)
+            continue;
         }
 
         try {
@@ -478,7 +480,7 @@ export class BlueApp {
       if (realm) realm.close();
       return true;
     } else {
-      return false; // failed loading data or loading/decryptin data
+      return false; // failed loading data or loading/decrypting data
     }
   }
 
