@@ -1399,7 +1399,7 @@ PODS:
     - Yoga
   - RNShare (10.2.1):
     - React-Core
-  - RNSVG (15.3.0):
+  - RNSVG (15.5.0):
     - React-Core
   - RNVectorIcons (10.1.0):
     - DoubleConversion
@@ -1835,13 +1835,13 @@ SPEC CHECKSUMS:
   RNReanimated: 45553a3ae29a75a76269595f8554d07d4090e392
   RNScreens: aa943ad421c3ced3ef5a47ede02b0cbfc43a012e
   RNShare: 0fad69ae2d71de9d1f7b9a43acf876886a6cb99c
-  RNSVG: a48668fd382115bc89761ce291a81c4ca5f2fd2e
+  RNSVG: b986585e367f4a49d8aa43065066cc9c290b3d9b
   RNVectorIcons: 2a2f79274248390b80684ea3c4400bd374a15c90
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   TrueSheet: 88ab6c4f590ed26ebab1b7ba0740a0c7af1e1e5d
   Yoga: 950bbfd7e6f04790fdb51149ed51df41f329fcc8
 
-PODFILE CHECKSUM: f4b92cf20b98d2e838f3c373d1340dd601c4ee28
+PODFILE CHECKSUM: edeeee286bcd83aa972eda6087a61695e7f612d8
 
 COCOAPODS: 1.15.2
