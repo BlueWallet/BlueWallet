@@ -1,17 +1,20 @@
 package io.bluewallet.bluewallet
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import androidx.work.*
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import org.json.JSONObject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
@@ -21,17 +24,20 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         const val REPEAT_INTERVAL_MINUTES = 15L
 
         fun scheduleWork(context: Context) {
-            val workRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
-                REPEAT_INTERVAL_MINUTES, TimeUnit.MINUTES
+            val workRequest = androidx.work.PeriodicWorkRequestBuilder<WidgetUpdateWorker>(
+                REPEAT_INTERVAL_MINUTES, java.util.concurrent.TimeUnit.MINUTES
             ).build()
-            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            androidx.work.WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE,
+                androidx.work.ExistingPeriodicWorkPolicy.REPLACE,
                 workRequest
             )
             Log.d(TAG, "Scheduling work for widget updates, will run every $REPEAT_INTERVAL_MINUTES minutes")
         }
     }
+
+    private val sharedPref: SharedPreferences = applicationContext.getSharedPreferences("group.io.bluewallet.bluewallet", Context.MODE_PRIVATE)
+    private val widgetDataPref: SharedPreferences = applicationContext.getSharedPreferences("widget_data", Context.MODE_PRIVATE)
 
     override fun doWork(): Result {
         Log.d(TAG, "Widget update worker running")
@@ -41,116 +47,127 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
         val views = RemoteViews(applicationContext.packageName, R.layout.widget_layout)
 
-        val sharedPref = applicationContext.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
-        val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
-        val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", "en-US")
-        val previousPrice = sharedPref.getString("previous_price", null)
+        // Set up an intent to launch the app when the widget is tapped
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        views.setOnClickPendingIntent(R.id.widget_layout, pendingIntent)
+
+        // Show the loading indicator
+        views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+        views.setViewVisibility(R.id.price_value, View.GONE)
+        views.setViewVisibility(R.id.last_updated_label, View.GONE)
+        views.setViewVisibility(R.id.last_updated_time, View.GONE)
+        views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+        appWidgetManager.updateAppWidget(appWidgetIds, views)
+
+        // Get the preferred currency
+        val preferredCurrency = sharedPref.getString("preferredCurrency", "USD") ?: "USD"
+        val lastSavedCurrency = widgetDataPref.getString("last_saved_currency", null)
+
+        // Check if preferredCurrency has changed
+        if (lastSavedCurrency != null && lastSavedCurrency != preferredCurrency) {
+            Log.d(TAG, "preferredCurrency changed from $lastSavedCurrency to $preferredCurrency, clearing cache.")
+            clearCache(widgetDataPref)
+        }
+
+        val currencyInfo = getCurrencyInfo(preferredCurrency)
+        val previousPrice = widgetDataPref.getString("previous_price", null)
 
         val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date())
 
         fetchPrice(preferredCurrency) { fetchedPrice, error ->
-            handlePriceResult(
-                appWidgetManager, appWidgetIds, views, sharedPref,
-                fetchedPrice, previousPrice, currentTime, preferredCurrencyLocale, error
-            )
+            if (fetchedPrice != null) {
+                displayFetchedPrice(views, fetchedPrice, previousPrice, currentTime, currencyInfo)
+                savePrice(widgetDataPref, fetchedPrice, currentTime, currencyInfo)
+            } else {
+                displayError(views, previousPrice, currentTime, currencyInfo)
+            }
+            appWidgetManager.updateAppWidget(appWidgetIds, views)
         }
 
         return Result.success()
     }
 
-    private fun handlePriceResult(
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray,
-        views: RemoteViews,
-        sharedPref: SharedPreferences,
-        fetchedPrice: String?,
-        previousPrice: String?,
-        currentTime: String,
-        preferredCurrencyLocale: String?,
-        error: String?
-    ) {
-        val isPriceFetched = fetchedPrice != null
-        val isPriceCached = previousPrice != null
-
-        if (error != null || !isPriceFetched) {
-            Log.e(TAG, "Error fetching price: $error")
-            if (!isPriceCached) {
-                showLoadingError(views)
-            } else {
-                displayCachedPrice(views, previousPrice, currentTime, preferredCurrencyLocale)
-            }
-        } else {
-            displayFetchedPrice(
-                views, fetchedPrice!!, previousPrice, currentTime, preferredCurrencyLocale
-            )
-            savePrice(sharedPref, fetchedPrice)
-        }
-
-        appWidgetManager.updateAppWidget(appWidgetIds, views)
-    }
-
-    private fun showLoadingError(views: RemoteViews) {
-        views.apply {
-            setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-            setViewVisibility(R.id.price_value, View.GONE)
-            setViewVisibility(R.id.last_updated_label, View.GONE)
-            setViewVisibility(R.id.last_updated_time, View.GONE)
-            setViewVisibility(R.id.price_arrow_container, View.GONE)
+    private fun getCurrencyInfo(currency: String): CurrencyInfo {
+        return try {
+            val fiatUnitsJson = applicationContext.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
+            val json = JSONObject(fiatUnitsJson)
+            val currencyInfo = json.getJSONObject(currency)
+            val symbol = currencyInfo.getString("symbol")
+            val locale = currencyInfo.getString("locale")
+            CurrencyInfo(symbol, locale)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching currency info", e)
+            CurrencyInfo("$", "en-US")
         }
     }
 
-    private fun displayCachedPrice(
-        views: RemoteViews,
-        previousPrice: String?,
-        currentTime: String,
-        preferredCurrencyLocale: String?
-    ) {
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag(preferredCurrencyLocale!!)).apply {
-            maximumFractionDigits = 0
-        }
-
-        views.apply {
-            setViewVisibility(R.id.loading_indicator, View.GONE)
-            setTextViewText(R.id.price_value, currencyFormat.format(previousPrice?.toDouble()?.toInt()))
-            setTextViewText(R.id.last_updated_time, currentTime)
-            setViewVisibility(R.id.price_value, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_time, View.VISIBLE)
-            setViewVisibility(R.id.price_arrow_container, View.GONE)
-        }
-    }
+    private data class CurrencyInfo(val symbol: String, val locale: String)
 
     private fun displayFetchedPrice(
         views: RemoteViews,
         fetchedPrice: String,
         previousPrice: String?,
         currentTime: String,
-        preferredCurrencyLocale: String?
+        currencyInfo: CurrencyInfo
     ) {
-        val currentPrice = fetchedPrice.toDouble().let { it.toInt() } // Remove cents
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.forLanguageTag(preferredCurrencyLocale!!)).apply {
-            maximumFractionDigits = 0
-        }
+        val currentPrice = fetchedPrice.toDouble()
+        val formattedPrice = formatPrice(currentPrice, currencyInfo)
 
         views.apply {
             setViewVisibility(R.id.loading_indicator, View.GONE)
-            setTextViewText(R.id.price_value, currencyFormat.format(currentPrice))
+            setTextViewText(R.id.price_value, formattedPrice)
             setTextViewText(R.id.last_updated_time, currentTime)
             setViewVisibility(R.id.price_value, View.VISIBLE)
             setViewVisibility(R.id.last_updated_label, View.VISIBLE)
             setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+            setViewVisibility(R.id.warning_icon, View.GONE)
 
             if (previousPrice != null) {
+                val formattedPreviousPrice = formatPrice(previousPrice.toDouble(), currencyInfo)
                 setViewVisibility(R.id.price_arrow_container, View.VISIBLE)
-                setTextViewText(R.id.previous_price, currencyFormat.format(previousPrice.toDouble().toInt()))
+                setTextViewText(R.id.previous_price, formattedPreviousPrice)
                 setImageViewResource(
                     R.id.price_arrow,
-                    if (currentPrice > previousPrice.toDouble().toInt()) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                    if (currentPrice > previousPrice.toDouble()) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
                 )
             } else {
                 setViewVisibility(R.id.price_arrow_container, View.GONE)
             }
         }
+    }
+
+    private fun displayError(
+        views: RemoteViews,
+        previousPrice: String?,
+        currentTime: String,
+        currencyInfo: CurrencyInfo
+    ) {
+        views.apply {
+            setViewVisibility(R.id.loading_indicator, View.GONE)
+            setTextViewText(R.id.price_value, "Error fetching price")
+            setViewVisibility(R.id.price_value, View.VISIBLE)
+            setTextViewText(R.id.last_updated_time, currentTime)
+            setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+            setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+            setViewVisibility(R.id.warning_icon, View.VISIBLE)
+
+            if (previousPrice != null) {
+                val formattedPreviousPrice = formatPrice(previousPrice.toDouble(), currencyInfo)
+                setViewVisibility(R.id.price_arrow_container, View.GONE)
+                setTextViewText(R.id.previous_price, formattedPreviousPrice)
+            } else {
+                setViewVisibility(R.id.price_arrow_container, View.GONE)
+            }
+        }
+    }
+
+    private fun formatPrice(amount: Double, currencyInfo: CurrencyInfo): String {
+        val numberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag(currencyInfo.locale))
+        numberFormat.maximumFractionDigits = 0 // No cents
+        val formattedAmount = numberFormat.format(amount)
+    
+        return "${currencyInfo.symbol} $formattedAmount"
     }
 
     private fun fetchPrice(currency: String?, callback: (String?, String?) -> Unit) {
@@ -162,7 +179,18 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Wor
         }
     }
 
-    private fun savePrice(sharedPref: SharedPreferences, price: String) {
-        sharedPref.edit().putString("previous_price", price).apply()
+    private fun savePrice(widgetDataPref: SharedPreferences, price: String, currentTime: String, currencyInfo: CurrencyInfo) {
+        widgetDataPref.edit().apply {
+            putString("previous_price", price)
+            putString("last_updated_time", currentTime)
+            putString("current_price", price)
+            putString("last_saved_currency", currencyInfo.symbol)
+            apply()
+        }
+    }
+
+    private fun clearCache(widgetDataPref: SharedPreferences) {
+        widgetDataPref.edit().clear().apply()
+        Log.d(TAG, "Cache cleared")
     }
 }
