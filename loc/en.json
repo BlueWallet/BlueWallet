@@ -78,14 +78,10 @@
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",
-    "create_password": "Create a password",
     "create_password_explanation": "Password for the fake storage should not match the password for your main storage.",
     "help": "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, BlueWallet can create another encrypted storage with a different password. Under pressure, you may disclose this password to a third party. If entered in BlueWallet, it will unlock a new “fake” storage. This will seem legit to the third party, but it will secretly keep your main storage with coins safe.",
     "help2": "The new storage will be fully functional, and you can store some minimum amounts there so that it looks more believable.",
     "password_should_not_match": "Password is currently in use. Please try a different password.",
-    "passwords_do_not_match": "Passwords do not match. Please try again.",
-    "confirm_password": "Confirm password",
-    "success": "Success",
     "title": "Plausible Deniability"
   },
   "pleasebackup": {
@@ -295,8 +291,7 @@
     "notifications": "Notifications",
     "open_link_in_explorer": "Open link in explorer",
     "password": "Password",
-    "password_explain": "Enter the password you will use to unlock your wallets.",
-    "passwords_do_not_match": "Passwords do not match.",
+    "password_explain": "Enter the password you will use to unlock your storage.",
     "plausible_deniability": "Plausible Deniability",
     "privacy": "Privacy",
     "privacy_read_clipboard": "Read Clipboard",
@@ -308,7 +303,6 @@
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
     "push_notifications": "Push Notifications",
     "rate": "Rate",
-    "confirm_password": "Confirm password",
     "selfTest": "Self-Test",
     "save": "Save",
     "saved": "Saved",

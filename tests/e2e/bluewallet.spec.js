@@ -249,6 +249,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // first, trying to mistype second password:
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol. lets tap it
+    await element(by.id('IUnderstandButton')).tap();
+
     await element(by.id('PasswordInput')).typeText('08902');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).typeText('666');
@@ -296,36 +298,36 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
     await expect(element(by.text('Password for the fake storage should not match the password for your main storage.'))).toBeVisible();
+    await element(by.text('IUnderstandButton')).tap();
 
     // trying MAIN password: should fail, obviously
-    await element(by.type('android.widget.EditText')).typeText('qqq');
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('qqq');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).typeText('qqq');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.text('OKButton')).tap();
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // trying new password, but will mistype
-    await element(by.id('CreateFakeStorageButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Re-type password'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Passwords do not match. Please try again.'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.text('OKButton')).tap();
 
     // trying new password
     await element(by.id('CreateFakeStorageButton')).tap();
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Re-type password'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage'); // retyping
-    await element(by.text('OK')).tap();
-
-    await expect(element(by.text('Success'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).clearText();
+    await element(by.type('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('mPasswordInput')).tapReturnKey();
+    await element(by.type('ConfirmPasswordInput')).typeText('passwordForFakeStorage'); // retyping
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.text('OKButton')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -401,16 +403,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await element(by.id('PlausibleDeniabilityButton')).tap();
 
-
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await element(by.type('android.widget.EditText')).typeText('fake');
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Re-type password'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
-    await element(by.text('OK')).tap();
-    await expect(element(by.text('Success'))).toBeVisible();
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('fake');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.type('ConfirmPasswordInput')).typeText('fake'); // retyping
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -442,8 +440,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     // correct password
-    await element(by.ic('PasswordInput')).typeText('pass');
-    await element(by.ic('PasswordInput')).tapReturnKey();
+    await element(by.ic('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).typeText('pass');
+    await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.text('OKButton')).tap();
 
     // relaunch app

@@ -1,14 +1,16 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { SecondButton } from './SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import { popToTop } from '../NavigationService';
 
 export const MODAL_TYPES = {
   ENTER_PASSWORD: 'ENTER_PASSWORD',
   CREATE_PASSWORD: 'CREATE_PASSWORD',
+  CREATE_FAKE_STORAGE: 'CREATE_FAKE_STORAGE',
   SUCCESS: 'SUCCESS',
 } as const;
 
@@ -31,7 +33,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [showExplanation, setShowExplanation] = useState(true); // State to toggle between explanation and password input for CREATE_PASSWORD
+    const [showExplanation, setShowExplanation] = useState(true); // State to toggle between explanation and password input for CREATE_PASSWORD and CREATE_FAKE_STORAGE
     const modalRef = useRef<BottomModalHandle>(null);
     const fadeOutAnimation = useRef(new Animated.Value(1)).current;
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
@@ -65,7 +67,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       present: async () => {
         resetState();
         modalRef.current?.present();
-        if (modalType === MODAL_TYPES.CREATE_PASSWORD && !showExplanation) {
+        if (modalType === MODAL_TYPES.CREATE_PASSWORD || (modalType === MODAL_TYPES.CREATE_FAKE_STORAGE && !showExplanation)) {
           passwordInputRef.current?.focus();
         } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           passwordInputRef.current?.focus();
@@ -87,13 +89,14 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       scaleAnimation.setValue(1);
       shakeAnimation.setValue(0);
       explanationOpacity.setValue(1);
-      if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
+      if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
         setShowExplanation(true);
       }
     };
 
     useEffect(() => {
       resetState();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [modalType]);
 
     const handleShakeAnimation = () => {
@@ -156,17 +159,19 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }).start(() => {
-          setTimeout(() => {
-            modalRef.current?.dismiss();
+          setTimeout(async () => {
+            await modalRef.current?.dismiss();
+            popToTop();
           }, 1000);
         });
       });
     };
 
     const handleSubmit = async () => {
+      Keyboard.dismiss();
       setIsLoading(true);
       let success = false;
-      if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
+      if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
         if (password === confirmPassword && password) {
           success = await onConfirmationSuccess(password);
           if (success) {
@@ -230,7 +235,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         contentContainerStyle={styles.modalContent}
         footer={
           !isSuccess ? (
-            showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? null : (
+            showExplanation && (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) ? null : (
               <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
                 <View style={styles.feeModalFooter}>
                   <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
@@ -240,7 +245,11 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                     onPress={handleSubmit}
                     testID="OKButton"
                     loading={isLoading}
-                    disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
+                    disabled={
+                      isLoading ||
+                      !password ||
+                      (modalType === (MODAL_TYPES.CREATE_PASSWORD || MODAL_TYPES.CREATE_FAKE_STORAGE) && !confirmPassword)
+                    }
                   />
                 </View>
               </Animated.View>
@@ -250,23 +259,39 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       >
         {!isSuccess && (
           <Animated.View style={animatedViewStyle}>
-            {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
+            {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
-                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
-                <Text style={[styles.description, stylesHook.feeModalCustomText]}>
-                  {loc.settings.encrypt_storage_explanation_description_line1}
+                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
+                  {modalType === MODAL_TYPES.CREATE_PASSWORD
+                    ? loc.settings.encrypt_storage_explanation_headline
+                    : loc.plausibledeniability.title}
                 </Text>
                 <Text style={[styles.description, stylesHook.feeModalCustomText]}>
-                  {loc.settings.encrypt_storage_explanation_description_line2}
+                  {modalType === MODAL_TYPES.CREATE_PASSWORD
+                    ? loc.settings.encrypt_storage_explanation_description_line1
+                    : loc.plausibledeniability.create_password_explanation}
                 </Text>
+                {modalType === MODAL_TYPES.CREATE_PASSWORD && (
+                  <Text style={[styles.description, stylesHook.feeModalCustomText]}>
+                    {loc.settings.encrypt_storage_explanation_description_line2}
+                  </Text>
+                )}
                 <View style={styles.feeModalFooter} />
-                <SecondButton title={loc.settings.i_understand} onPress={handleTransitionToCreatePassword} disabled={isLoading} />
+                <SecondButton
+                  title={loc.settings.i_understand}
+                  onPress={handleTransitionToCreatePassword}
+                  disabled={isLoading}
+                  testID="IUnderstandButton"
+                />
               </Animated.View>
             )}
-            {(modalType === MODAL_TYPES.ENTER_PASSWORD || (modalType === MODAL_TYPES.CREATE_PASSWORD && !showExplanation)) && (
+            {(modalType === MODAL_TYPES.ENTER_PASSWORD ||
+              ((modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && !showExplanation)) && (
               <>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
-                  {modalType === MODAL_TYPES.CREATE_PASSWORD ? loc.settings.password_explain : loc._.enter_password}
+                  {modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE
+                    ? loc.settings.password_explain
+                    : loc._.enter_password}
                 </Text>
                 <View style={styles.inputContainer}>
                   <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
@@ -282,7 +307,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       onSubmitEditing={handleSubmit} // Handle Enter key as OK
                     />
                   </Animated.View>
-                  {modalType === MODAL_TYPES.CREATE_PASSWORD && (
+                  {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
                     <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
                       <TextInput
                         testID="ConfirmPasswordInput"
