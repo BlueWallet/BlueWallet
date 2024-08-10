@@ -491,6 +491,9 @@ const ManageWallets: React.FC = () => {
           onChangeOrder={onChangeOrder}
           onDragBegin={onDragBegin}
           onRelease={onRelease}
+          activationDistance={10}
+          delayLongPress={150}
+          useNativeDriver={true}
           onDragEnd={onDragEnd}
           containerStyle={styles.root}
           ListHeaderComponent={renderHeader}
@@ -499,10 +502,6 @@ const ManageWallets: React.FC = () => {
           data={state.tempOrder.filter((item): item is TransactionItem => item.type === ItemType.TransactionSection)}
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
-          onChangeOrder={onChangeOrder}
-          onDragBegin={onDragBegin}
-          onRelease={onRelease}
-          onDragEnd={onDragEnd}
           containerStyle={styles.root}
           ListHeaderComponent={renderHeader}
         />
