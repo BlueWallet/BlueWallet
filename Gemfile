@@ -4,5 +4,5 @@ source "https://rubygems.org"
 ruby "3.1.6"
 gem 'rubyzip', '2.3.2'
 gem "cocoapods", "1.15.2"
-gem "activesupport", ">= 6.1.7.3", "< 7.1.4"
+gem "activesupport", ">= 6.1.7.3", "< 7.2.1"
 gem "fastlane"
