@@ -491,7 +491,6 @@ const ManageWallets: React.FC = () => {
           onChangeOrder={onChangeOrder}
           onDragBegin={onDragBegin}
           onRelease={onRelease}
-          activationDistance={10}
           delayLongPress={150}
           useNativeDriver={true}
           onDragEnd={onDragEnd}
@@ -503,6 +502,7 @@ const ManageWallets: React.FC = () => {
           keyExtractor={keyExtractor}
           renderItem={renderWalletItem}
           containerStyle={styles.root}
+          useNativeDriver={true}
           ListHeaderComponent={renderHeader}
         />
       </NestableScrollContainer>
