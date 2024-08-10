@@ -8,7 +8,7 @@ export const FiatUnitSource = {
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
   Exir: 'Exir',
-  wazirx: 'wazirx',
+  coinpaprika: 'coinpaprika',
   Bitstamp: 'Bitstamp',
   BNR: 'BNR',
 } as const;
@@ -165,20 +165,24 @@ const RateExtractors = {
     return rate;
   },
 
-  wazirx: async (ticker: string): Promise<number> => {
+  coinpaprika: async (ticker: string): Promise<number> => {
     let json;
     try {
-      const res = await fetch(`https://api.wazirx.com/api/v2/tickers/btcinr`);
+      const res = await fetch('https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR');
       json = await res.json();
     } catch (e: any) {
       throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
     }
-    let rate = json?.ticker?.buy;
+
+    const rate = json?.quotes?.INR?.price;
     if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
 
-    rate = Number(rate);
-    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
-    return rate;
+    const parsedRate = Number(rate);
+    if (isNaN(parsedRate) || parsedRate <= 0) {
+      throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    }
+
+    return parsedRate;
   },
 } as const;
 
@@ -187,7 +191,7 @@ export type TFiatUnit = {
   symbol: string;
   locale: string;
   country: string;
-  source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp' | 'Kraken';
+  source: 'CoinDesk' | 'Yadio' | 'Exir' | 'coinpaprika' | 'Bitstamp' | 'Kraken';
 };
 
 export type TFiatUnits = {

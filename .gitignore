@@ -20,7 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-ios/.xcode.env.local
+**/.xcode.env.local
 *.hprof
 .cxx/
 *.keystore
@@ -70,7 +70,7 @@ release-notes.txt
 current-branch.json
 
 # Ruby / CocoaPods
-/ios/Pods/
+**/Pods/
 /vendor/bundle/
 ios/BlueWallet.xcodeproj/xcuserdata/
 

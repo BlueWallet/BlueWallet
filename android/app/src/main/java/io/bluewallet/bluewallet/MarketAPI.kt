@@ -10,21 +10,14 @@ import java.net.URL
 object MarketAPI {
 
     private const val TAG = "MarketAPI"
-    private const val HARD_CODED_JSON = "{\n" +
-            "    \"USD\": {\n" +
-            "        \"endPointKey\": \"USD\",\n" +
-            "        \"locale\": \"en-US\",\n" +
-            "        \"source\": \"Kraken\",\n" +
-            "        \"symbol\": \"$\",\n" +
-            "        \"country\": \"United States (US Dollar)\"\n" +
-            "    }\n" +
-            "}"
-    
+
     var baseUrl: String? = null
 
     fun fetchPrice(context: Context, currency: String): String? {
         return try {
-            val json = JSONObject(HARD_CODED_JSON)
+            // Load the JSON data from the assets
+            val fiatUnitsJson = context.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
+            val json = JSONObject(fiatUnitsJson)
             val currencyInfo = json.getJSONObject(currency)
             val source = currencyInfo.getString("source")
             val endPointKey = currencyInfo.getString("endPointKey")
@@ -66,7 +59,7 @@ object MarketAPI {
                 "Yadio" -> "https://api.yadio.io/json/$endPointKey"
                 "YadioConvert" -> "https://api.yadio.io/convert/1/BTC/$endPointKey"
                 "Exir" -> "https://api.exir.io/v1/ticker?symbol=btc-irt"
-                "wazirx" -> "https://api.wazirx.com/api/v2/tickers/btcinr"
+                "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
                 "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/buy"
                 "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
@@ -86,7 +79,7 @@ object MarketAPI {
                 "CoinGecko" -> json.getJSONObject("bitcoin").getString(endPointKey.lowercase())
                 "Exir" -> json.getString("last")
                 "Bitstamp" -> json.getString("last")
-                "wazirx" -> json.getJSONObject("ticker").getString("buy")
+                "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
                 "Coinbase" -> json.getJSONObject("data").getString("amount")
                 "Kraken" -> json.getJSONObject("result").getJSONObject("XXBTZ${endPointKey.uppercase()}").getJSONArray("c").getString(0)
                 else -> null

@@ -19,7 +19,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
@@ -36,11 +35,10 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import AmountInput from '../../components/AmountInput';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
+import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import InputAccessoryAllFunds from '../../components/InputAccessoryAllFunds';
-import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { requestCameraAuthorization, scanQrHelper } from '../../helpers/scan-qr';
@@ -92,10 +90,9 @@ const SendDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const feeModalRef = useRef<BottomModalHandle>(null);
-  const optionsModalRef = useRef<BottomModalHandle>(null);
   const [walletSelectionOrCoinsSelectedHidden, setWalletSelectionOrCoinsSelectedHidden] = useState(false);
   const [isAmountToolbarVisibleForAndroid, setIsAmountToolbarVisibleForAndroid] = useState(false);
-  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean>(false);
+  const [isTransactionReplaceable, setIsTransactionReplaceable] = useState<boolean | undefined>(false);
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([]);
   const [units, setUnits] = useState<BitcoinUnit[]>([]);
   const [transactionMemo, setTransactionMemo] = useState<string>('');
@@ -288,8 +285,7 @@ const SendDetails = () => {
     // reset other values
     setUtxo(null);
     setChangeAddress(null);
-    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf);
-
+    setIsTransactionReplaceable(wallet.type === HDSegwitBech32Wallet.type && !routeParams.noRbf ? true : undefined);
     // update wallet UTXO
     wallet
       .fetchUtxo()
@@ -390,7 +386,6 @@ const SendDetails = () => {
       setDumb(v => !v);
       return () => {
         feeModalRef.current?.dismiss();
-        optionsModalRef.current?.dismiss();
       };
     }, []),
   );
@@ -614,7 +609,7 @@ const SendDetails = () => {
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
+
       // @ts-ignore idk how to fix FIXME?
 
       navigation.navigate(routeParams.launchedBy, { psbt });
@@ -622,7 +617,7 @@ const SendDetails = () => {
 
     if (wallet?.type === WatchOnlyWallet.type) {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
+
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
@@ -638,7 +633,7 @@ const SendDetails = () => {
 
     if (wallet?.type === MultisigHDWallet.type) {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
+
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
         psbtBase64: psbt.toBase64(),
@@ -664,7 +659,6 @@ const SendDetails = () => {
       recipients = outputs;
     }
     feeModalRef.current?.dismiss();
-    optionsModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -700,7 +694,7 @@ const SendDetails = () => {
 
     requestCameraAuthorization().then(() => {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
+
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -722,7 +716,7 @@ const SendDetails = () => {
       // we dont support it in this flow
     } else {
       feeModalRef.current?.dismiss();
-      optionsModalRef.current?.dismiss();
+
       // psbt base64?
 
       // we construct PSBT object and pass to next screen
@@ -747,7 +741,6 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importTransaction = async () => {
-    await optionsModalRef.current?.dismiss();
     if (wallet?.type !== WatchOnlyWallet.type) {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
@@ -822,7 +815,6 @@ const SendDetails = () => {
   };
 
   const _importTransactionMultisig = async (base64arg: string | false) => {
-    await optionsModalRef.current?.dismiss();
     try {
       const base64 = base64arg || (await fs.openSignedTransaction());
       if (!base64) return;
@@ -868,8 +860,7 @@ const SendDetails = () => {
   };
 
   const importTransactionMultisigScanQr = async () => {
-    await optionsModalRef.current?.dismiss();
-    requestCameraAuthorization().then(() => {
+    await requestCameraAuthorization().then(() => {
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
         params: {
@@ -880,34 +871,43 @@ const SendDetails = () => {
     });
   };
 
-  const handleAddRecipient = async () => {
-    console.debug('handleAddRecipient');
-    await optionsModalRef.current?.dismiss();
-    setAddresses(addrs => [...addrs, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
+  const handleAddRecipient = () => {
+    setAddresses(prevAddresses => [...prevAddresses, { address: '', key: String(Math.random()) } as IPaymentDestinations]);
 
-    await sleep(200); // wait for animation
-    scrollView.current?.scrollToEnd();
-    if (addresses.length === 0) return;
-    scrollView.current?.flashScrollIndicators();
+    // Wait for the state to update before scrolling
+    setTimeout(() => {
+      scrollIndex.current = addresses.length; // New index is at the end of the list
+      scrollView.current?.scrollToIndex({
+        index: scrollIndex.current,
+        animated: true,
+      });
+    }, 0);
   };
 
-  const handleRemoveRecipient = async () => {
-    await optionsModalRef.current?.dismiss();
-    const last = scrollIndex.current === addresses.length - 1;
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setAddresses(addrs => {
-      addrs.splice(scrollIndex.current, 1);
-      return [...addrs];
-    });
+  const handleRemoveRecipient = () => {
+    if (addresses.length > 1) {
+      const newAddresses = [...addresses];
+      newAddresses.splice(scrollIndex.current, 1);
 
-    if (addresses.length === 0) return;
-    await sleep(200); // wait for animation
-    scrollView.current?.flashScrollIndicators();
-    if (last && Platform.OS === 'android') scrollView.current?.scrollToEnd(); // fix white screen on android
+      // Adjust the current index if the last item was removed
+      const newIndex = scrollIndex.current >= newAddresses.length ? newAddresses.length - 1 : scrollIndex.current;
+
+      setAddresses(newAddresses);
+
+      // Wait for the state to update before scrolling
+      setTimeout(() => {
+        scrollView.current?.scrollToIndex({
+          index: newIndex,
+          animated: true,
+        });
+      }, 0);
+
+      // Update the scroll index reference
+      scrollIndex.current = newIndex;
+    }
   };
 
   const handleCoinControl = async () => {
-    await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('CoinControl', {
       walletID: wallet?.getID(),
@@ -916,13 +916,11 @@ const SendDetails = () => {
   };
 
   const handleInsertContact = async () => {
-    await optionsModalRef.current?.dismiss();
     if (!wallet) return;
     navigation.navigate('PaymentCodeList', { walletID: wallet.getID() });
   };
 
   const handlePsbtSign = async () => {
-    await optionsModalRef.current?.dismiss();
     setIsLoading(true);
     await new Promise(resolve => setTimeout(resolve, 100)); // sleep for animations
 
@@ -1006,8 +1004,8 @@ const SendDetails = () => {
 
         actions.push([{ id: SendDetails.actionKeys.SendMax, text: loc.send.details_adv_full, disabled: balance === 0 || isSendMaxUsed }]);
       }
-      if (wallet?.type === HDSegwitBech32Wallet.type) {
-        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuStateOn: isTransactionReplaceable }]);
+      if (wallet?.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined) {
+        actions.push([{ id: SendDetails.actionKeys.AllowRBF, text: loc.send.details_adv_fee_bump, menuState: !!isTransactionReplaceable }]);
       }
       const transactionActions = [];
       if (wallet?.type === WatchOnlyWallet.type && wallet.isHd()) {
@@ -1060,38 +1058,22 @@ const SendDetails = () => {
 
     return actions;
   };
+
   const setHeaderRightOptions = () => {
     navigation.setOptions({
-      headerRight: Platform.select({
-        // eslint-disable-next-line react/no-unstable-nested-components
-        ios: () => (
-          <ToolTipMenu
-            disabled={isLoading}
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={headerRightOnPress}
-            // @ts-ignore idk how to fix
-            actions={headerRightActions()}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
-          </ToolTipMenu>
-        ),
-        // eslint-disable-next-line react/no-unstable-nested-components
-        default: () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.more}
-            disabled={isLoading}
-            style={styles.advancedOptions}
-            onPress={() => {
-              optionsModalRef.current?.present();
-            }}
-            testID="advancedOptionsMenuButton"
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </TouchableOpacity>
-        ),
-      }),
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerRight: () => (
+        <ToolTipMenu
+          disabled={isLoading}
+          isButton
+          isMenuPrimaryAction
+          onPressMenuItem={headerRightOnPress}
+          actions={headerRightActions()}
+          testID="advancedOptionsMenuButton"
+        >
+          <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} style={styles.advancedOptions} />
+        </ToolTipMenu>
+      ),
     });
   };
 
@@ -1099,28 +1081,14 @@ const SendDetails = () => {
     setIsTransactionReplaceable(value);
   };
 
-  //
-
-  // because of https://github.com/facebook/react-native/issues/21718 we use
-  // onScroll for android and onMomentumScrollEnd for iOS
-  const handleRecipientsScrollEnds = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'android') return; // for android we use handleRecipientsScroll
-    const contentOffset = e.nativeEvent.contentOffset;
-    const viewSize = e.nativeEvent.layoutMeasurement;
-    const index = Math.floor(contentOffset.x / viewSize.width);
-    scrollIndex.current = index;
-  };
-
   const handleRecipientsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (Platform.OS === 'ios') return; // for iOS we use handleRecipientsScrollEnds
     const contentOffset = e.nativeEvent.contentOffset;
     const viewSize = e.nativeEvent.layoutMeasurement;
     const index = Math.floor(contentOffset.x / viewSize.width);
     scrollIndex.current = index;
   };
 
-  const onUseAllPressed = async () => {
-    await optionsModalRef.current?.dismiss();
+  const onUseAllPressed = () => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
     Alert.alert(
@@ -1145,9 +1113,7 @@ const SendDetails = () => {
         },
         {
           text: loc._.cancel,
-          onPress: () => {
-            optionsModalRef.current?.present();
-          },
+          onPress: () => {},
           style: 'cancel',
         },
       ],
@@ -1194,60 +1160,6 @@ const SendDetails = () => {
     return totalWithFee;
   };
 
-  const renderOptionsModal = () => {
-    const isSendMaxUsed = addresses.some(element => element.amount === BitcoinUnit.MAX);
-
-    return (
-      <BottomModal ref={optionsModalRef} backgroundColor={colors.modal} contentContainerStyle={styles.optionsContent}>
-        {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
-          <ListItem testID="InsertContactButton" title={loc.send.details_insert_contact} onPress={handleInsertContact} />
-        )}
-        {isEditable && (
-          <ListItem
-            testID="sendMaxButton"
-            disabled={balance === 0 || isSendMaxUsed}
-            title={loc.send.details_adv_full}
-            onPress={onUseAllPressed}
-          />
-        )}
-        {wallet?.type === HDSegwitBech32Wallet.type && isEditable && (
-          <ListItem
-            title={loc.send.details_adv_fee_bump}
-            Component={TouchableWithoutFeedback}
-            switch={{ value: isTransactionReplaceable, onValueChange: onReplaceableFeeSwitchValueChanged }}
-          />
-        )}
-        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-          <ListItem title={loc.send.details_adv_import} onPress={importTransaction} />
-        )}
-        {wallet?.type === WatchOnlyWallet.type && wallet.isHd() && (
-          <ListItem testID="ImportQrTransactionButton" title={loc.send.details_adv_import_qr} onPress={importQrTransaction} />
-        )}
-        {wallet?.type === MultisigHDWallet.type && isEditable && (
-          <ListItem title={loc.send.details_adv_import} onPress={importTransactionMultisig} />
-        )}
-        {wallet?.type === MultisigHDWallet.type && wallet.howManySignaturesCanWeMake() > 0 && isEditable && (
-          <ListItem title={loc.multisig.co_sign_transaction} onPress={importTransactionMultisigScanQr} />
-        )}
-        {isEditable && (
-          <>
-            <ListItem testID="AddRecipient" title={loc.send.details_add_rec_add} onPress={handleAddRecipient} />
-            <ListItem
-              testID="RemoveRecipient"
-              title={loc.send.details_add_rec_rem}
-              disabled={addresses.length < 2}
-              onPress={handleRemoveRecipient}
-            />
-          </>
-        )}
-        <ListItem testID="CoinControl" title={loc.cc.header} onPress={handleCoinControl} />
-        {(wallet as MultisigHDWallet)?.allowCosignPsbt() && isEditable && (
-          <ListItem testID="PsbtSign" title={loc.send.psbt_sign} onPress={handlePsbtSign} />
-        )}
-      </BottomModal>
-    );
-  };
-
   const renderCreateButton = () => {
     const totalWithFee = calculateTotalAmount();
     const isDisabled = totalWithFee === 0 || totalWithFee > balance || balance === 0 || isLoading || addresses.length === 0;
@@ -1288,7 +1200,7 @@ const SendDetails = () => {
             style={styles.selectTouch}
             onPress={() => {
               feeModalRef.current?.dismiss();
-              optionsModalRef.current?.dismiss();
+
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
@@ -1406,6 +1318,12 @@ const SendDetails = () => {
     );
   };
 
+  const getItemLayout = (_: any, index: number) => ({
+    length: width,
+    offset: width * index,
+    index,
+  });
+
   if (isLoading || !wallet) {
     return (
       <View style={[styles.loading, stylesHook.loading]}>
@@ -1427,11 +1345,11 @@ const SendDetails = () => {
             pagingEnabled
             removeClippedSubviews={false}
             onMomentumScrollBegin={Keyboard.dismiss}
-            onMomentumScrollEnd={handleRecipientsScrollEnds}
             onScroll={handleRecipientsScroll}
-            scrollEventThrottle={200}
+            scrollEventThrottle={16}
             scrollIndicatorInsets={styles.scrollViewIndicator}
             contentContainerStyle={styles.scrollViewContent}
+            getItemLayout={getItemLayout}
           />
           <View style={[styles.memo, stylesHook.memo]}>
             <TextInput
@@ -1475,7 +1393,6 @@ const SendDetails = () => {
             setCustomFee={setCustomFee}
             setFeePrecalc={setFeePrecalc}
           />
-          {renderOptionsModal()}
         </KeyboardAvoidingView>
       </View>
       <BlueDismissKeyboardInputAccessory />
@@ -1538,11 +1455,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 8,
   },
-
-  optionsContent: {
-    padding: 22,
-  },
-
   createButton: {
     marginVertical: 16,
     marginHorizontal: 16,
