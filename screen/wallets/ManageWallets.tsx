@@ -456,10 +456,11 @@ const ManageWallets: React.FC = () => {
   const onRelease = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   }, []);
-
   const onDragEnd = useCallback(
-    ({ data }: { data: TWallet[] }) => {
-      dispatch({ type: SET_INITIAL_ORDER, payload: { wallets: data, txMetadata: state.txMetadata } });
+    ({ data }: { data: Item[] }) => {
+      const updatedWallets = data.filter((item): item is WalletItem => item.type === ItemType.WalletSection).map(item => item.data);
+
+      dispatch({ type: SET_INITIAL_ORDER, payload: { wallets: updatedWallets, txMetadata: state.txMetadata } });
     },
     [state.txMetadata],
   );
