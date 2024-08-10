@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import { Icon, ListItem } from '@rneui/base';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
@@ -70,6 +70,12 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 }) => {
   const { colors } = useTheme();
 
+  const onPress = useCallback(() => {
+    if (item.type === ItemType.WalletSection) {
+      navigateToWallet(item.data);
+    }
+  }, [item, navigateToWallet]);
+
   if (item.type === ItemType.WalletSection) {
     return (
       <ListItem.Swipeable
@@ -86,7 +92,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
             item={item.data}
             handleLongPress={isDraggingDisabled ? undefined : drag}
             isActive={isActive}
-            onPress={() => navigateToWallet(item.data)}
+            onPress={onPress}
             searchQuery={state.searchQuery}
             renderHighlightedText={renderHighlightedText}
           />
