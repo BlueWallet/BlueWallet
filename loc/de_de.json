@@ -43,7 +43,8 @@
   "entropy": {
     "save": "Speichern",
     "title": "Entropie",
-    "undo": "Zurück"
+    "undo": "Zurück",
+    "amountOfEntropy": "{bits} von {limit} Bits"
   },
   "errors": {
     "broadcast": "Übertragung fehlgeschlagen",
@@ -51,37 +52,19 @@
     "network": "Netzwerkfehler"
   },
   "lnd": {
-    "active": "Aktiv",
-    "inactive": "Inaktiv",
-    "channels": "Kanäle",
-    "no_channels": "Keine Kanäle",
-    "claim_balance": "Saldo von {balance} beanspruchen",
-    "close_channel": "Kanal schließen",
-    "new_channel": "Neuer Kanal",
     "errorInvoiceExpired": "Rechnung verfallen.",
-    "force_close_channel": "Kanal zwangsweise schließen?",
     "expired": "Abgelaufen",
-    "node_alias": "Knoten-Alias",
     "expiresIn": "Läuft in {time} Minuten ab",
     "payButton": "Zahlen",
     "payment": "Zahlung",
     "placeholder": "Rechnung oder Adresse",
-    "open_channel": "Kanal öffnen",
-    "funding_amount_placeholder": "Finanzierungsbetrag, z.B. 0.001",
-    "opening_channnel_for_from": "Kanal für Wallet {forWalletLabel} finanziert durch Wallet {fromWalletLabel} eröffnen.",
-    "are_you_sure_open_channel": "Diesen Kanal definitiv eröffnen?",
     "potentialFee": "Geschätzte Gebühr: {fee}",
-    "remote_host": "Entfernter Rechner",
     "refill": "Aufladen",
-    "reconnect_peer": "Erneut zu Peer verbinden",
     "refill_create": "Bitte eine Bitcoin Wallet erstellen um fortzufahren",
     "refill_external": "Mit externem Wallet aufladen",
     "refill_lnd_balance": "Lade deine Lightning Wallet auf",
     "sameWalletAsInvoiceError": "Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.",
-    "title": "Beträge verwalten",
-    "can_send": "Kann senden",
-    "can_receive": "Kann empfangen",
-    "view_logs": "Protokolle anzeigen"
+    "title": "Beträge verwalten"
   },
   "lndViewInvoice": {
     "additional_info": "Weiterführende Informationen",
@@ -126,7 +109,8 @@
     "maxSatsFull": "Der größtmögliche Betrag ist {max} sats oder {currency}",
     "minSats": "Der kleinstmögliche Betrag ist {min} sats",
     "minSatsFull": "Der kleinstmögliche Betrag ist {min} sats oder {currency}",
-    "qrcode_for_the_address": "QR-Code für die Adresse"
+    "qrcode_for_the_address": "QR-Code für die Adresse",
+    "bip47_explanation": "Zahlungscodes sind eine universelle Adresse. Sie vermeiden die Offenlegung der Wallet-Adressen, werden aber nicht durch alle Dienste unterstützt."
   },
   "send": {
     "provided_address_is_invoice": "Diese Adresse ist für eine Lightning-Rechnung. Um diese Rechnung zu zahlen ist ein Lightning Wallet zu verwenden.",
@@ -148,6 +132,7 @@
     "create_to": "An",
     "create_tx_size": "Transaktionsgröße",
     "create_verify": "Verifiziere auf coinb.in",
+    "details_insert_contact": "Kontakt einfügen",
     "details_add_rec_add": "Empfänger hinzufügen",
     "details_add_rec_rem": "Empfänger entfernen",
     "details_address": "Adresse",
@@ -213,6 +198,9 @@
     "success_done": "Fertig",
     "txSaved": "Die Transaktionsdatei ({filePath}) wurde im Download-Ordner gespeichert.",
     "file_saved_at_path": "Die Datei ({fileName}) wurde im Download-Ordner gespeichert.",
+    "cant_send_to_silentpayment_adress": "Diese Wallet kann nicht an Stille Zahlung Adressen senden",
+    "cant_send_to_bip47": "Dieses Wallet kann nicht an BIP47 Zahlungscodes senden",
+    "cant_find_bip47_notification": "Diesen Zahlungscode zuerst zu den Kontakten hinzufügen ",
     "problem_with_psbt": "PSBT-Problem"
   },
   "settings": {
@@ -237,7 +225,7 @@
     "biometrics_no_longer_available": "Die Geräteeinstellungen stimmen nicht mehr mit den App Sicherheitseinstellungen überein. Um die Änderungen zu übernehmen, die Biometrie oder den Passcode einrichten, dann die App neu starten.",
     "biom_10times": "Sie haben 10 Mal versucht, Ihr Passwort einzugeben. Möchten Sie Ihren Speicher zurücksetzen? Dadurch werden alle Wallets entfernt und Ihr Speicher entschlüsselt.",
     "biom_conf_identity": "Bitte deine Identität bestätigen.",
-    "biom_no_passcode": "Dein Gerät verfügt über keinen Passcode. Um fortzufahren, diesen in den Geräteeinstellungen zuerst konfigurieren.",
+    "biom_no_passcode": "Um fortzufahren müssen auf dem Gerät entweder ein Sicherheitscode oder biometrische Daten aktiviert sein. Dies lässt sich in der App \"Einstellungen\" vornehmen.",
     "biom_remove_decrypt": "Alle Deine Wallets werden entfernt und der Speicher wird entschlüsselt. Bist du sicher, dass du fortfahren möchten?",
     "currency": "Währung",
     "currency_source": "Die Preisangaben stammen von",
@@ -367,6 +355,7 @@
     "eta_1d": "In ca. 1 Tag verbucht.",
     "view_wallet": "{walletLabel} anzeigen",
     "list_title": "Transaktionen",
+    "transaction": "Transaktion",
     "open_url_error": "Der Standardbrowser kann die URL nicht öffnen. Bitte diesen ggf. ändern, um es erneut zu versuchen.",
     "rbf_explain": "BlueWallet ersetzt die aktuelle Transaktion zur schnelleren Überweisung durch eine Transaktion mit höherer Gebühr. Dieses Verfahren wird 'RBF - Replace By Fee' genannt.",
     "rbf_title": "TRX-Gebühr erhöhen (RBF)",
@@ -382,6 +371,8 @@
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Einfache und leistungsstarke Bitcoin Wallet",
     "add_create": "Erstellen",
+    "add_entropy": "Entropie",
+    "add_entropy_bytes": "{bytes} Bytes Entropie",
     "add_entropy_generated": "{gen} Bytes an generierter Entropie ",
     "add_entropy_provide": "Entropie selbst erzeugen",
     "add_entropy_remain": "{gen} Bytes an generierter Entropie. Die restlichen {rem} Bytes werden vom Zufallsgenerator des Systems ergänzt.",
@@ -395,6 +386,10 @@
     "add_title": "Wallet hinzufügen",
     "add_wallet_name": "Wallet Name",
     "add_wallet_type": "Typ",
+    "add_wallet_seed_length": "Seedlänge",
+    "add_wallet_seed_length_message": "Länge der Seed-Phrase für diese Wallet wählen.",
+    "add_wallet_seed_length_12": "12 Wörter",
+    "add_wallet_seed_length_24": "24 Wörter",
     "clipboard_bitcoin": "Willst Du die Bitcoin Adresse in der Zwischenablage für eine Transaktion verwenden?",
     "clipboard_lightning": "Willst Du die Lightning Rechnung in der Zwischenablage für eine Transaktion verwenden?",
     "details_address": "Adresse",
@@ -416,6 +411,7 @@
     "details_show_xpub": "Wallet xPub zeigen",
     "details_show_addresses": "Adressen anzeigen",
     "details_title": "Wallet",
+    "wallets": "Wallets",
     "details_type": "Typ",
     "details_use_with_hardware_wallet": "Hardware Wallet nutzen",
     "details_wallet_updated": "Wallet aktualisiert",
@@ -461,7 +457,6 @@
     "list_tryagain": "Nochmal versuchen",
     "no_ln_wallet_error": "Vor Bezahlung einer Lightning Rechnung zuerst ein Lightning Wallet eröffnen.",
     "looks_like_bip38": "Passwortgeschützter Privatschlüssel (BIP38) erkannt.",
-    "reorder_title": "Wallets neu ordnen",
     "please_continue_scanning": "Bitte Scanvorgang fortsetzten",
     "select_no_bitcoin": "Es sind momentan keine Bitcoin Wallets verfügbar.",
     "select_no_bitcoin_exp": "Eine Bitcoin Wallet ist Voraussetzung dafür, um eine Lightning Wallet zu befüllen. Bitte erstelle oder importiere eines.",
@@ -471,8 +466,7 @@
     "warning_do_not_disclose": "Warnung! Nicht veröffentlichen",
     "add_ln_wallet_first": "Bitte zuerst ein Lightning-Wallet hinzufügen.",
     "identity_pubkey": "Pubkey-Identität",
-    "xpub_title": "Wallet xPub",
-    "search_wallets": "Wallets suchen"
+    "xpub_title": "Wallet xPub"
   },
   "multisig": {
     "multisig_vault": "Tresor",
@@ -622,7 +616,7 @@
     "pay_this_contact": "An diesen Kontakt zahlen",
     "rename_contact": "Kontakt umbenennen",
     "copy_payment_code": "Zahlungscode kopieren",
-    "copied": "Kopiert",
+    "hide_contact": "Kontakt ausblenden",
     "rename": "Umbenennen",
     "provide_name": "Neuer Kontaktnahme eingeben",
     "add_contact": "Kontakt hinzufügen",
@@ -631,7 +625,7 @@
     "notification_tx_unconfirmed": "Benachrichtigungstransaktion noch unbestätigt. Bitte warten",
     "failed_create_notif_tx": "On-Chain Transaktion konnte nicht in erstellt werden",
     "onchain_tx_needed": "On-Chain Transaktion benötigt.",
-    "notif_tx_sent" : "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
+    "notif_tx_sent": "Benachrichtigungstransaktion ist gesendet. Auf Bestätigung warten.",
     "notif_tx": "Benachrichtigungstransaktion",
     "not_found": "Zahlungscode nicht gefunden"
   }

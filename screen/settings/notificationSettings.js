@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
-import { Button as ButtonRNElements } from 'react-native-elements';
+import { Button as ButtonRNElements } from '@rneui/themed';
 
 import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';

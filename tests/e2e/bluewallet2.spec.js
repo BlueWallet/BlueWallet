@@ -3,12 +3,13 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { extractTextFromElementById, hashIt, helperImportWallet, sleep, yo } from './helperz';
 
+let importedSuccessfully = false;
+
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
  * before anything else.
  * we dont clean it up as we expect other test suites to do clean install of the app
  */
-
 beforeAll(async () => {
   if (!process.env.HD_MNEMONIC_BIP84) {
     console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -20,6 +21,7 @@ beforeAll(async () => {
   console.log('before all - importing bip48...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
   console.log('...imported!');
+  importedSuccessfully = true;
   await device.pressBack();
   await sleep(15000);
 }, 1200_000);
@@ -34,6 +36,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -183,6 +187,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -202,23 +208,23 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // lest add another two outputs
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
+    await element(by.text('Add Recipient')).tap();
     await yo('Transaction1'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).replaceText('0.0002\n');
 
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
+    await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
 
     // remove last output, check if second output is shown
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('RemoveRecipient')).tap();
+    await element(by.text('Remove Recipient')).tap();
     await yo('Transaction1');
 
     // adding it again
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
+    await element(by.text('Add Recipient')).tap();
     await yo('Transaction2'); // adding a recipient autoscrolls it to the last one
     await element(by.id('AddressInput').withAncestor(by.id('Transaction2'))).replaceText('bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction2'))).replaceText('0.0003\n');
@@ -227,7 +233,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('Transaction2')).swipe('right', 'fast', NaN, 0.2);
     await sleep(5000);
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('RemoveRecipient')).tap();
+    await element(by.text('Remove Recipient')).tap();
 
     // creating and verifying. tx should have 3 outputs
     if (process.env.TRAVIS) await sleep(5000);
@@ -256,6 +262,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -274,7 +282,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
     await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
@@ -293,7 +301,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await device.pressBack();
     await device.pressBack();
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('AddRecipient')).tap();
+    await element(by.text('Add Recipient')).tap();
     await yo('Transaction1');
     await element(by.id('AddressInput').withAncestor(by.id('Transaction1'))).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput').withAncestor(by.id('Transaction1'))).typeText('0.0001\n');
@@ -325,6 +333,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -332,7 +342,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('SendButton')).tap();
 
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('PsbtSign')).tap();
+    await element(by.text('Sign a transaction')).tap();
 
     // tapping 5 times invisible button is a backdoor:
     for (let c = 0; c <= 5; c++) {
@@ -368,6 +378,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -417,6 +429,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
 
     await device.launchApp({
@@ -453,6 +467,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+
     await device.launchApp({ newInstance: true });
     // go inside the wallet
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -469,14 +485,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Save')).tap();
     await element(by.text('OK')).tap();
 
-    // back to wallet screen
-    await device.pressBack();
-    await device.pressBack();
-
-    // open CoinControl
+    // Terminate and reopen the app to confirm the note is persisted
+    await device.launchApp({ newInstance: true });
+    await yo('WalletsList');
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('SendButton')).tap();
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('CoinControl')).tap();
+    await element(by.text('Coin Control')).tap();
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
       .withTimeout(300 * 1000);
@@ -486,7 +501,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('test1')).atIndex(0).tap();
     await element(by.id('OutputMemo')).replaceText('test2');
     await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
-    await device.pressBack(); // closing modal
+    await element(by.id('ModalDoneButton')).tap();
     await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 
@@ -495,7 +510,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
@@ -524,7 +539,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('advancedOptionsMenuButton')).tap();
-    await element(by.id('sendMaxButton')).tap();
+    await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:
     await element(by.id('chooseFee')).tap();

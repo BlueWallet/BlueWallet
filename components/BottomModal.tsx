@@ -1,83 +1,130 @@
-import React from 'react';
-import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
-import Modal from 'react-native-modal';
+import React, { forwardRef, useImperativeHandle, useRef, ReactElement, ComponentType, JSXElementConstructor, ReactNode } from 'react';
+import { SheetSize, SizeInfo, TrueSheet, TrueSheetProps } from '@lodev09/react-native-true-sheet';
+import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, Image } from 'react-native';
 
-import { BlueSpacing10 } from '../BlueComponents';
-import loc from '../loc';
-import Button from './Button';
-import { useTheme } from './themes';
+interface BottomModalProps extends TrueSheetProps {
+  children?: React.ReactNode;
+  onClose?: () => void;
+  name?: string;
+  isGrabberVisible?: boolean;
+  sizes?: SheetSize[] | undefined;
+  footer?: ReactElement | ComponentType<any>;
+  footerDefaultMargins?: boolean | number;
+  onPresent?: () => void;
+  onSizeChange?: (size: SizeInfo) => void;
+  showCloseButton?: boolean;
+}
+
+export interface BottomModalHandle {
+  present: () => Promise<void>;
+  dismiss: () => Promise<void>;
+}
 
 const styles = StyleSheet.create({
-  root: {
-    justifyContent: 'flex-end',
-    margin: 0,
+  footerContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  hasDoneButton: {
-    padding: 16,
-    paddingBottom: 24,
+  buttonContainer: {
+    position: 'absolute',
+    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    top: 20,
+    right: 20,
+    zIndex: 10,
   },
 });
 
-interface BottomModalProps {
-  children?: React.ReactNode;
-  onBackButtonPress?: () => void;
-  onBackdropPress?: () => void;
-  onClose: () => void;
-  windowHeight?: number;
-  windowWidth?: number;
-  doneButton?: boolean;
-  avoidKeyboard?: boolean;
-  allowBackdropPress?: boolean;
-  isVisible: boolean;
-  coverScreen?: boolean;
-}
-
-const BottomModal: React.FC<BottomModalProps> = ({
-  onBackButtonPress,
-  onBackdropPress,
-  onClose,
-  windowHeight,
-  windowWidth,
-  doneButton,
-  isVisible,
-  avoidKeyboard = false,
-  allowBackdropPress = true,
-  coverScreen = true,
-  ...props
-}) => {
-  const { height: valueWindowHeight, width: valueWindowWidth } = useWindowDimensions();
-  const handleBackButtonPress = onBackButtonPress ?? onClose;
-  const handleBackdropPress = allowBackdropPress ? onBackdropPress ?? onClose : undefined;
-  const { colors } = useTheme();
-  const stylesHook = StyleSheet.create({
-    hasDoneButton: {
-      backgroundColor: colors.elevated,
+const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
+  (
+    {
+      name,
+      onClose,
+      onPresent,
+      onSizeChange,
+      showCloseButton = true,
+      isGrabberVisible = true,
+      sizes = ['auto'],
+      footer,
+      footerDefaultMargins,
+      children,
+      ...props
     },
-  });
+    ref,
+  ) => {
+    const trueSheetRef = useRef<TrueSheet>(null);
 
-  return (
-    <Modal
-      style={styles.root}
-      deviceHeight={windowHeight ?? valueWindowHeight}
-      deviceWidth={windowWidth ?? valueWindowWidth}
-      onBackButtonPress={handleBackButtonPress}
-      onBackdropPress={handleBackdropPress}
-      isVisible={isVisible}
-      coverScreen={coverScreen}
-      {...props}
-      accessibilityViewIsModal
-      avoidKeyboard={avoidKeyboard}
-      useNativeDriverForBackdrop={Platform.OS === 'android'}
-    >
-      {props.children}
-      {doneButton && (
-        <View style={[styles.hasDoneButton, stylesHook.hasDoneButton]}>
-          <Button title={loc.send.input_done} onPress={onClose} testID="ModalDoneButton" />
-          <BlueSpacing10 />
-        </View>
-      )}
-    </Modal>
-  );
-};
+    useImperativeHandle(ref, () => ({
+      present: async () => {
+        Keyboard.dismiss();
+        if (trueSheetRef.current?.present) {
+          await trueSheetRef.current.present();
+        } else {
+          return Promise.resolve();
+        }
+      },
+      dismiss: async () => {
+        Keyboard.dismiss();
+        if (trueSheetRef.current?.dismiss) {
+          await trueSheetRef.current.dismiss();
+        } else {
+          return Promise.resolve();
+        }
+      },
+    }));
+
+    const dismiss = () => {
+      trueSheetRef.current?.dismiss();
+    };
+
+    const renderTopRightButton = () =>
+      showCloseButton ? (
+        <TouchableOpacity style={styles.buttonContainer} onPress={dismiss} testID="ModalDoneButton">
+          <Image source={require('../img/close.png')} width={20} height={20} />
+        </TouchableOpacity>
+      ) : null;
+
+    const renderFooter = (): ReactElement<any, string | JSXElementConstructor<any>> | ComponentType<unknown> | undefined => {
+      // Footer is not working correctly on Android yet.
+      if (!footer) return undefined;
+
+      if (React.isValidElement(footer)) {
+        return footerDefaultMargins ? <View style={styles.footerContainer}>{footer}</View> : footer;
+      } else if (typeof footer === 'function') {
+        // Render the footer component dynamically
+        const FooterComponent = footer as ComponentType<any>;
+        return <FooterComponent />;
+      }
+
+      return undefined;
+    };
+
+    const FooterComponent = Platform.OS !== 'android' && renderFooter();
+
+    return (
+      <TrueSheet
+        ref={trueSheetRef}
+        cornerRadius={24}
+        sizes={sizes}
+        onDismiss={onClose}
+        onPresent={onPresent}
+        onSizeChange={onSizeChange}
+        grabber={isGrabberVisible}
+        // Footer is not working correctly on Android yet.
+        FooterComponent={FooterComponent as ReactElement}
+        {...props}
+        blurTint="regular"
+      >
+        {children}
+        {renderTopRightButton()}
+        {Platform.OS === 'android' && (renderFooter() as ReactNode)}
+      </TrueSheet>
+    );
+  },
+);
 
 export default BottomModal;

@@ -1,13 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueSpacing20, BlueText } from '../../BlueComponents';
-import { useSettings } from '../../components/Context/SettingsContext';
 import ListItem, { PressableWrapper } from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const styles = StyleSheet.create({
   root: {
@@ -55,7 +54,6 @@ const GeneralSettings: React.FC = () => {
       {Platform.OS === 'ios' ? (
         <>
           <ListItem
-            hideChevron
             title={loc.settings.general_continuity}
             Component={PressableWrapper}
             switch={{ onValueChange: onHandOffUseEnabledChange, value: isHandOffUseEnabled }}

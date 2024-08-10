@@ -1,9 +1,7 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
-
 import debounce from '../../blue_modules/debounce';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueFormLabel, BlueSpacing20, BlueTextCentered } from '../../BlueComponents';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet } from '../../class';
 import { validateBip32 } from '../../class/wallet-import';
@@ -13,6 +11,7 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import WalletToImport from '../../components/WalletToImport';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const WRONG_PATH = 'WRONG_PATH';
 const WALLET_FOUND = 'WALLET_FOUND';
@@ -27,7 +26,7 @@ const ImportCustomDerivationPath = () => {
   const route = useRoute();
   const importText = route.params.importText;
   const password = route.params.password;
-  const { addAndSaveWallet } = useContext(BlueStorageContext);
+  const { addAndSaveWallet } = useStorage();
   const [path, setPath] = useState("m/84'/0'/0'");
   const [wallets, setWallets] = useState({});
   const [used, setUsed] = useState({});

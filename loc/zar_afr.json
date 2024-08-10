@@ -5,6 +5,7 @@
     "continue": "Gaan voort",
     "clipboard": "Knipbord",
     "discard_changes": "Verwerp veranderinge?",
+    "discard_changes_explain": "Jy het veranderinge wat nie gestoor is nie. Is jy seker jy wil  die skerm verlaat?",
     "enter_password": "Sleutel wagwoord in",
     "never": "Nooit",
     "of": "{number} van {total}",
@@ -15,7 +16,9 @@
     "save": "Berg",
     "seed": "Saad",
     "success": "Sukses",
-    "wallet_key": "Beursie sleutel"
+    "wallet_key": "Beursie sleutel",
+    "more": "Meer",
+    "enter_amount": "Sit die bedrag in"
   },
   "alert": {
     "default": "Aandag"
@@ -32,7 +35,8 @@
   "entropy": {
     "save": "Berg",
     "title": "Entropie",
-    "undo": "Ontdoen"
+    "undo": "Ontdoen",
+    "amountOfEntropy": "{bits} van {limit} bits"
   },
   "errors": {
     "broadcast": "Sending het misluk.",
@@ -40,33 +44,27 @@
     "network": "Netwerk Vout"
   },
   "lnd": {
-    "active": "Aktief",
-    "inactive": "Onaktief",
-    "channels": "Kanale",
-    "no_channels": "Geen kanale",
-    "claim_balance": "Eis balaans {balance}",
-    "close_channel": "Sluit kanaal",
-    "new_channel": "Nuwe kanaal",
-    "force_close_channel": "Dwing kanaal sluiting?",
+    "errorInvoiceExpired": "Faktuur het verval.",
     "expired": "Verval",
-    "node_alias": "Knoop-punt noem naam",
     "expiresIn": "Verval in {time} minute",
     "payButton": "Betaal",
-    "open_channel": "Open Kanaal",
-    "opening_channnel_for_from": "Skep kanaal vir beursie {forWalletLabel}, deur befondsing vanaf {fromWalletLabel}",
-    "are_you_sure_open_channel": "Is jy seker jy wil hierdie kanaal oop maak?",
+    "payment": "Betaling",
+    "placeholder": "Faktuur of adres",
     "refill": "Herlaai",
     "refill_create": "Om voort te gaan, skep asb 'n Bitcoin beursie om vondse mee aan te vul.",
     "refill_external": "Vul aan met Eksterne Beursie",
     "refill_lnd_balance": "Herlaai Lightning beursie",
     "sameWalletAsInvoiceError": "U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.",
-    "title": "bestuur fondse",
-    "can_send": "Kan Stuur",
-    "can_receive": "Kan Ontvang",
-    "view_logs": "Sien Aktiwiteits Register"
+    "title": "bestuur fondse"
   },
   "lndViewInvoice": {
-    "open_direct_channel": "Open direkte kanaal met hierdie knoop-punt:"
+    "additional_info": "Bykomende Inligting",
+    "lightning_invoice": "Lightning Faktuur",
+    "open_direct_channel": "Open direkte kanaal met hierdie knoop-punt:",
+    "please_pay_between_and": "Betaal asseblief tussen {min} en {max}",
+    "please_pay": "Betaal asseblief",
+    "sats": "sats.",
+    "wasnt_paid_and_expired": "Die faktuur was nie betaal nie en het verval."
   },
   "plausibledeniability": {
     "create_fake_storage": "Skep fantasie berging wagwoord",
@@ -80,11 +78,27 @@
     "success": "Sukses",
     "title": "Geloofwaardige Ontkenbaarheid"
   },
+  "pleasebackup": {
+    "ask": "Het jy jou beursie se terugval frase gestoor? Dié terugval frase is nodig om jou fondse terug te kry indien jy jou toestel verloor. Sonder die terugval frase sal al jou fondse permanent verlore wees. ",
+    "ask_no": "Nee, ek het nie. ",
+    "ask_yes": "Ja, ek het. ",
+    "ok": "OK, ek het dit neergeskryf.",
+    "ok_lnd": "OK, ek het dit gestoor.",
+    "text": "Vat asseblief ñ oomblik om die woorde op ñ stuk papier neer te skryf.\nDit is jou terugval woorde wat jy gebruik om jou beursie terug te kry. ",
+    "text_lnd": "Stoor asseblief die beursie se rugsteun. Dit gaan jou toelaat om jou beursie teug te kry indien jy hom verloor. ",
+    "title": "Jou beursie is geskep."
+  },
   "receive": {
     "details_create": "Skep",
     "details_label": "Beskrywing",
     "details_setAmount": "Bedrag ontvang",
-    "header": "Ontvang"
+    "details_share": "Deel...",
+    "header": "Ontvang",
+    "maxSats": "Die maksimum bedrag is {max} sats",
+    "maxSatsFull": "Die maksimum bedrag is {max} sats of {currency}",
+    "minSats": "Die Minimale bedrag is {min} sats",
+    "minSatsFull": "Die minimum bedrag is {min} sats of {currency}",
+    "qrcode_for_the_address": "QR Code vir die adres"
   },
   "send": {
     "broadcastButton": "Saai uit",
@@ -99,22 +113,42 @@
     "create_this_is_hex": "Hierdie is die transaksie hex, geteken en gereed om na die netwerk uitgesaai te word.",
     "create_to": "Aan",
     "create_tx_size": "TX groote",
+    "create_verify": "Verifieer op coinb.in",
     "details_address": "adres",
     "details_address_field_is_not_valid": "Adres is ongeldig",
     "details_amount_field_is_not_valid": "Bedrag is ongeldig",
     "details_create": "Skep",
     "details_fee_field_is_not_valid": "Fooi spasie is ongeldig",
+    "details_next": "Volgende",
     "details_note_placeholder": "persoonlike notas",
     "details_scan": "Skandeer",
     "details_total_exceeds_balance": "Die bedrag is meer as die beskikbare balans.",
+    "dynamic_next": "Volgende",
+    "dynamic_prev": "Vorige",
+    "dynamic_start": "Begin",
+    "dynamic_stop": "Stop",
+    "fee_10m": "10m",
+    "fee_1d": "1d",
+    "fee_3h": "3h",
+    "fee_fast": "Vinnig",
+    "fee_medium": "Medium",
+    "fee_replace_minvb": "Die totale fooi (satoshi per vByte) wat jy wil betaal, moet meer wees as {min} sat/vByte.",
+    "fee_satvbyte": "in sat/vByte",
+    "fee_slow": "Stadig",
     "header": "Stuur",
+    "input_clear": "Maak skoon",
     "input_done": "Klaar",
+    "input_paste": "Plak",
+    "permission_camera_message": "Ons het jou toestemming nodig om jou kamera te gebruik. ",
+    "psbt_sign": "Teken ñ transaksie",
+    "permission_storage_later": "Vra my later. ",
     "success_done": "Klaar"
   },
   "settings": {
     "about": "info",
     "currency": "Geldeenheid",
     "electrum_clear_alert_cancel": "Kanselleer",
+    "electrum_clear": "Maak skoon",
     "general_adv_mode": "Enable advanced mode",
     "header": "instellings",
     "language": "Taal",
@@ -126,6 +160,9 @@
     "retype_password": "Hervoer wagwoord",
     "save": "stoor"
   },
+  "notifications": {
+    "ask_me_later": "Vra my later. "
+  },
   "transactions": {
     "cpfp_create": "Skep",
     "details_copy": "Kopieer",
@@ -133,11 +170,13 @@
     "details_show_in_block_explorer": "Wys in blok verkenner",
     "details_title": "Transaksie",
     "details_to": "Resultaat",
-    "list_title": "transaksies"
+    "list_title": "transaksies",
+    "transaction": "Transaksie"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
     "add_create": "Skep",
+    "add_entropy": "Entropie",
     "add_import_wallet": "Beursie Invoer",
     "add_lndhub_error": "Die voorgestelde knoop-punt se adres is 'n ongeldige LNDHub knoop-punt.",
     "add_lndhub_placeholder": "Jou Knoop-punt Adres",
@@ -152,6 +191,7 @@
     "details_save": "Berg",
     "details_show_xpub": "Wys beursie XPUB",
     "details_title": "Beursiet",
+    "wallets": "beursies",
     "details_type": "Tipe",
     "details_yes_delete": "Ja, vernietig",
     "export_title": "beursie uitvoer",
@@ -167,7 +207,6 @@
     "list_latest_transaction": "laaste transaksie",
     "list_title": "beursies",
     "no_ln_wallet_error": "Voordat jy 'n Lightning faktuur betaal moet jy eers 'n Lightning beursie aanwys.",
-    "reorder_title": "Herorganiseer Beursies",
     "select_wallet": "Kies Beursie",
     "xpub_copiedToClipboard": "Gestuur na klipbord.",
     "add_ln_wallet_first": "Jy moet eers 'n Lightning beursie byvoeg.",
@@ -176,7 +215,9 @@
   "multisig": {
     "confirm": "Bevestig",
     "header": "Stuur",
+    "share": "Deel...",
     "create": "Skep",
+    "co_sign_transaction": "Teken ñ transaksie",
     "ms_help_title5": "Enable advanced mode"
   },
   "addresses": {

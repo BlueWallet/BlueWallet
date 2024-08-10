@@ -25,8 +25,8 @@ class MarketAPI {
            return "https://api.yadio.io/convert/1/BTC/\(endPointKey)"
        case "Exir":
            return "https://api.exir.io/v1/ticker?symbol=btc-irt"
-       case "wazirx":
-           return "https://api.wazirx.com/api/v2/tickers/btcinr"
+       case "coinpaprika":
+           return "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
        case "Bitstamp":
            return "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
        case "Coinbase":
@@ -102,17 +102,19 @@ class MarketAPI {
               completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
           }
           
-      case "wazirx":
-          if let tickerDict = json["ticker"] as? [String: Any],
-             let rateString = tickerDict["buy"] as? String,
-             let rateDouble = Double(rateString) {
-              let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-              latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-              completion(latestRateDataStore, nil)
-          } else {
-              completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
-          }
-
+     case "coinpaprika":
+    if let quotesDict = json["quotes"] as? [String: Any],
+       let inrDict = quotesDict["INR"] as? [String: Any],
+       let rateDouble = inrDict["price"] as? Double {
+        
+        let rateString = String(rateDouble)
+        let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+        
+        latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+        completion(latestRateDataStore, nil)
+    } else {
+        completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
+    }
       case "Coinbase":
           if let data = json["data"] as? [String: Any],
              let rateString = data["amount"] as? String,
@@ -128,17 +130,22 @@ class MarketAPI {
           completion(nil, CurrencyError(errorDescription: "BNR data source is not yet implemented"))
           
       case "Kraken":
-          if let result = json["result"] as? [String: Any],
-             let tickerData = result["XXBTZ\(endPointKey.uppercased())"] as? [String: Any],
-             let c = tickerData["c"] as? [String],
-             let rateString = c.first,
-             let rateDouble = Double(rateString) {
-              let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-              latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-              completion(latestRateDataStore, nil)
-          } else {
-              completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
-          }
+           if let result = json["result"] as? [String: Any],
+              let tickerData = result["XXBTZ\(endPointKey.uppercased())"] as? [String: Any],
+              let c = tickerData["c"] as? [String],
+              let rateString = c.first,
+              let rateDouble = Double(rateString) {
+               let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
+               latestRateDataStore = WidgetDataStore(rate: rateString, lastUpdate: lastUpdatedString, rateDouble: rateDouble)
+               completion(latestRateDataStore, nil)
+           } else {
+               if let errorMessage = json["error"] as? [String] {
+                   completion(nil, CurrencyError(errorDescription: "Kraken API error: \(errorMessage.joined(separator: ", "))"))
+               } else {
+                   completion(nil, CurrencyError(errorDescription: "Data formatting error for source: \(source)"))
+               }
+           }
+
 
       default:
           completion(nil, CurrencyError(errorDescription: "Unsupported data source \(source)"))
@@ -178,30 +185,47 @@ class MarketAPI {
   }
   
   static func fetchPrice(currency: String, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
-         let currencyToFiatUnit = fiatUnit(currency: currency)
-         guard let source = currencyToFiatUnit?.source, let endPointKey = currencyToFiatUnit?.endPointKey else {
-             completion(nil, CurrencyError(errorDescription: "Invalid currency unit or endpoint."))
-             return
-         }
+      let currencyToFiatUnit = fiatUnit(currency: currency)
+      guard let source = currencyToFiatUnit?.source, let endPointKey = currencyToFiatUnit?.endPointKey else {
+          completion(nil, CurrencyError(errorDescription: "Invalid currency unit or endpoint."))
+          return
+      }
 
-         let urlString = buildURLString(source: source, endPointKey: endPointKey)
-         guard let url = URL(string: urlString) else {
-             completion(nil, CurrencyError(errorDescription: "Invalid URL."))
-             return
-         }
+      let urlString = buildURLString(source: source, endPointKey: endPointKey)
+      guard let url = URL(string: urlString) else {
+          completion(nil, CurrencyError(errorDescription: "Invalid URL."))
+          return
+      }
 
-         URLSession.shared.dataTask(with: url) { data, response, error in
-             guard let data = data, error == nil else {
-                 completion(nil, error ?? CurrencyError(errorDescription: "Network error or data not found."))
-                 return
-             }
+      fetchData(url: url, source: source, endPointKey: endPointKey, completion: completion)
+  }
 
-             if source == "BNR" {
-                 handleBNRData(data: data, completion: completion)
-             } else {
-                 handleDefaultData(data: data, source: source, endPointKey: endPointKey, completion: completion)
-             }
-         }.resume()
-     }
+  private static func fetchData(url: URL, source: String, endPointKey: String, retries: Int = 3, completion: @escaping ((WidgetDataStore?, Error?) -> Void)) {
+      URLSession.shared.dataTask(with: url) { data, response, error in
+          if let error = error {
+              if retries > 0 {
+                  fetchData(url: url, source: source, endPointKey: endPointKey, retries: retries - 1, completion: completion)
+              } else {
+                  completion(nil, error)
+              }
+              return
+          }
 
+          guard let data = data else {
+              if retries > 0 {
+                  fetchData(url: url, source: source, endPointKey: endPointKey, retries: retries - 1, completion: completion)
+              } else {
+                  completion(nil, CurrencyError(errorDescription: "Data not found."))
+              }
+              return
+          }
+
+          if source == "BNR" {
+              handleBNRData(data: data, completion: completion)
+          } else {
+              handleDefaultData(data: data, source: source, endPointKey: endPointKey, completion: completion)
+          }
+      }.resume()
+  }
+  
 }

@@ -1,10 +1,10 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy, Suspense } from 'react';
-
 import { isHandset } from '../blue_modules/environment';
-import { useStorage } from '../blue_modules/storage-context';
 import UnlockWith from '../screen/UnlockWith';
 import { LazyLoadingIndicator } from './LazyLoadingIndicator';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { useStorage } from '../hooks/context/useStorage';
 
 const DetailViewScreensStack = lazy(() => import('./DetailViewScreensStack'));
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -18,18 +18,18 @@ export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
 };
-export const NavigationDefaultOptionsForDesktop: NativeStackNavigationOptions = { headerShown: false, presentation: 'fullScreenModal' };
 export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
-const UnlockStack = createNativeStackNavigator();
+const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
 
 const UnlockRoot = () => {
   return (
-    <UnlockStack.Navigator screenOptions={{ headerShown: false, animationTypeForReplace: 'push' }}>
-      <UnlockStack.Screen name="UnlockWithScreen" component={UnlockWith} />
-    </UnlockStack.Navigator>
+    <DetailViewStack.Navigator screenOptions={{ headerShown: false, animationTypeForReplace: 'push' }}>
+      <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
+    </DetailViewStack.Navigator>
   );
 };
+
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
 
@@ -51,3 +51,4 @@ const MainRoot = () => {
 };
 
 export default MainRoot;
+export { DetailViewStack }; // Exporting the navigator to use it in DetailViewScreensStack

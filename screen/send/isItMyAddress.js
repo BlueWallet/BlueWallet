@@ -1,8 +1,6 @@
-import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import navigationStyle from '../../components/navigationStyle';
@@ -10,11 +8,13 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 const IsItMyAddress = () => {
   /** @type {AbstractWallet[]} */
-  const wallets = useContext(BlueStorageContext).wallets;
-  const { navigate } = useNavigation();
+  const { wallets } = useStorage();
+  const { navigate } = useExtendedNavigation();
   const { name } = useRoute();
   const { colors } = useTheme();
   const scanButtonRef = useRef();

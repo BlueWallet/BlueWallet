@@ -1,12 +1,10 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useLayoutEffect, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
-
+import { Icon } from '@rneui/themed';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { useStorage } from '../../blue_modules/storage-context';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Transaction } from '../../class/wallets/types';
@@ -19,6 +17,9 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { useStorage } from '../../hooks/context/useStorage';
+import { HandOffActivityType } from '../../components/types';
+import HeaderRightButton from '../../components/HeaderRightButton';
 
 enum ButtonStatus {
   Possible,
@@ -104,12 +105,6 @@ const TransactionStatus = () => {
     iconRoot: {
       backgroundColor: colors.success,
     },
-    detailsText: {
-      color: colors.buttonTextColor,
-    },
-    details: {
-      backgroundColor: colors.lightButton,
-    },
   });
 
   // Dispatch Calls
@@ -148,22 +143,27 @@ const TransactionStatus = () => {
 
   //
 
-  useLayoutEffect(() => {
+  const navigateToTransactionDetails = useCallback(() => {
+    navigate('TransactionDetails', { hash, walletID });
+  }, [hash, navigate, walletID]);
+
+  const DetailsButton = useMemo(
+    () => (
+      <HeaderRightButton
+        testID="TransactionDetailsButton"
+        disabled={false}
+        title={loc.send.create_details}
+        onPress={navigateToTransactionDetails}
+      />
+    ),
+    [navigateToTransactionDetails],
+  );
+
+  useEffect(() => {
     setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          testID="TransactionDetailsButton"
-          style={[styles.details, stylesHook.details]}
-          onPress={navigateToTransactionDetials}
-        >
-          <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: () => DetailsButton,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, tx]);
+  }, [DetailsButton, colors, hash, setOptions]);
 
   useEffect(() => {
     if (wallet.current) {
@@ -366,9 +366,6 @@ const TransactionStatus = () => {
       wallet: wallet.current,
     });
   };
-  const navigateToTransactionDetials = () => {
-    navigate('TransactionDetails', { hash: tx.hash, walletID });
-  };
 
   const renderCPFP = () => {
     if (isCPFPPossible === ButtonStatus.Unknown) {
@@ -480,7 +477,7 @@ const TransactionStatus = () => {
     <SafeArea>
       <HandOffComponent
         title={loc.transactions.details_title}
-        type={HandOffComponent.activityTypes.ViewInBlockExplorer}
+        type={HandOffActivityType.ViewInBlockExplorer}
         url={`https://mempool.space/tx/${tx.hash}`}
       />
 
@@ -646,16 +643,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     textAlign: 'center',
-  },
-  details: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 80,
-    borderRadius: 8,
-    height: 34,
-  },
-  detailsText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
 });

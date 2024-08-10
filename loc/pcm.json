@@ -10,11 +10,7 @@
     "success": "You correct"
   },
   "lnd": {
-    "are_you_sure_open_channel": "You sure say you wan open this channel?",
-    "refill_create": "To proceed like this so, abeg create Bitcoin wallet wey you go refill am with",
-    "can_send": "You fit send",
-    "can_receive": "You fit receive",
-    "view_logs": "run shadow your logs"
+    "refill_create": "To proceed like this so, abeg create Bitcoin wallet wey you go refill am with"
   },
   "lndViewInvoice": {
     "please_pay_between_and": "Abeg pay between {min} and {max}",
@@ -51,7 +47,6 @@
     "about_sm_twitter": "Follow us for Twitter na",
     "biom_10times": "Na like 10 times you don enter password, You go like reset your storage? This one go comot all your wallets and e go decrypt your storage.",
     "biom_conf_identity": "Abeg confirm who you be.",
-    "biom_no_passcode": "Your device no get passcode. Like this so, abeg put passcode for the app settings.",
     "currency_fetch_error": "Error dey as we dey find rate for the currency you select. ",
     "default_info": "Normal info",
     "default_title": "As you launch",

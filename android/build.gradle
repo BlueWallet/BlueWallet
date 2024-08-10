@@ -3,19 +3,16 @@
 buildscript {
     ext {
         minSdkVersion = 24
-        supportLibVersion = "28.0.0"
         buildToolsVersion = "34.0.0"
-        compileSdkVersion = 33
-        targetSdkVersion = 33
+        compileSdkVersion = 34
+        targetSdkVersion = 34
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "21.1.0"
-
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
-        kotlin_version = '1.9.23'
-        kotlinVersion = '1.9.20'
+        ndkVersion = "26.1.10909125"
+        kotlin_version = '1.9.25'
+        kotlinVersion = '1.9.25'
     }
     repositories {
         google()
@@ -23,11 +20,10 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
-        classpath("com.bugsnag:bugsnag-android-gradle-plugin:5.+")
-        classpath 'com.google.gms:google-services:4.4.1'  // Google Services plugin
-    	classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-
+	    classpath 'com.google.gms:google-services:4.4.2'  // Google Services plugin
+        classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.+")
     }
 }
 
@@ -36,11 +32,7 @@ allprojects {
         maven {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
-        jcenter() {
-            content {
-                includeModule("com.wei.android.lib", "fingerprintidentify")
-            }
-        }
+
             mavenCentral {
 	            // We don't want to fetch react-native from Maven Central as there are
 	            // older versions over there.
@@ -60,6 +52,11 @@ allprojects {
         google()
                 maven { url 'https://www.jitpack.io' }
     }
+     configurations.all {
+        resolutionStrategy {
+            force 'androidx.activity:activity:1.5.1'
+        }
+    }
 }
 
 subprojects {
@@ -67,7 +64,7 @@ subprojects {
         if (project.hasProperty("android")) {
             android {
                 buildToolsVersion "34.0.0"
-                compileSdkVersion 33
+                compileSdkVersion 34
                  defaultConfig {
                     minSdkVersion 24
                 }

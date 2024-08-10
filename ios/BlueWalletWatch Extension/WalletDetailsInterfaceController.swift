@@ -41,14 +41,14 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     walletNameLabel.setText(wallet.label)
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
     
-    let isLightningWallet = wallet.type == WalletGradient.LightningCustodial.rawValue || wallet.type == WalletGradient.LightningLDK.rawValue
+    let isLightningWallet = wallet.type == WalletGradient.LightningCustodial.rawValue
     createInvoiceButton.setHidden(!isLightningWallet)
     receiveButton.setHidden(wallet.receiveAddress.isEmpty)
     viewXPubButton.setHidden(!isXPubAvailable(wallet: wallet))
   }
   
   private func isXPubAvailable(wallet: Wallet) -> Bool {
-    return (wallet.type != WalletGradient.LightningCustodial.rawValue && wallet.type != WalletGradient.LightningLDK.rawValue) && !(wallet.xpub ?? "").isEmpty
+    return (wallet.type != WalletGradient.LightningCustodial.rawValue) && !(wallet.xpub ?? "").isEmpty
   }
   
   private func updateTransactionsTable(forWallet wallet: Wallet) {
@@ -111,13 +111,13 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   @IBAction func receiveMenuItemTapped() {
     guard let wallet = wallet else { return }
-    presentController(withName: ReceiveInterfaceController.identifier, context: (wallet, "receive"))
+    presentController(withName: ReceivePageInterfaceController.identifier, context: (wallet, ReceiveMethod.Onchain))
   }
   
   @IBAction func createInvoiceTapped() {
     if WatchDataSource.shared.companionWalletsInitialized {
       guard let wallet = wallet else { return }
-      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, "createInvoice"))
+      pushController(withName: ReceiveInterfaceController.identifier, context: (wallet.identifier, ReceiveMethod.CreateInvoice))
     } else {
       WKInterfaceDevice.current().play(.failure)
       presentAlert(withTitle: "Error", message: "Unable to create invoice. Please open BlueWallet on your iPhone and unlock your wallets.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
@@ -128,7 +128,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
     guard let wallet = wallet else { return nil }
-    return (wallet.identifier, "receive")
+    return (wallet.identifier, ReceiveMethod.Onchain)
   }
   
 }

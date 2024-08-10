@@ -4,7 +4,7 @@
  *
  * @param navigateFunc {function} Function that does navigatino should be passed from outside
  * @param currentScreenName {string} Current screen name, so we know to what screen to get back to
- * @param chainType {string} One of `Chain.` constant to be used to filter wallet pannels to show
+ * @param chainType {string} One of `Chain.` constant to be used to filter wallet panels to show
  * @param availableWallets {array} Wallets to be present in selector. If set, overrides `chainType`
  * @param noWalletExplanationText {string} Text that is displayed when there are no wallets to select from
  *

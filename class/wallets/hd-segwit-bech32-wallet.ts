@@ -50,4 +50,8 @@ export class HDSegwitBech32Wallet extends AbstractHDElectrumWallet {
   allowBIP47() {
     return true;
   }
+
+  allowSilentPaymentSend(): boolean {
+    return true;
+  }
 }

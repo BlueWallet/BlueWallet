@@ -4,3 +4,4 @@ include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 include ':detox'
 project(':detox').projectDir = new File(rootProject.projectDir, '../node_modules/detox/android/detox')
+

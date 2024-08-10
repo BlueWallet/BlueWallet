@@ -1,8 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
-
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
@@ -10,9 +8,11 @@ import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import CPFP from './CPFP';
+import { StorageContext } from '../../components/Context/StorageProvider';
+import { popToTop } from '../../NavigationService';
 
 export default class RBFCancel extends CPFP {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   async componentDidMount() {
     console.log('transactions/RBFCancel - componentDidMount');
     this.setState({
@@ -72,7 +72,7 @@ export default class RBFCancel extends CPFP {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { onDonePressed: () => this.props.navigation.popToTop(), amount: undefined });
+    this.props.navigation.navigate('Success', { onDonePressed: () => popToTop(), amount: undefined });
   }
 
   render() {
@@ -112,7 +112,6 @@ export default class RBFCancel extends CPFP {
 
 RBFCancel.propTypes = {
   navigation: PropTypes.shape({
-    popToTop: PropTypes.func,
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({

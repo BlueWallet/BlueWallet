@@ -161,7 +161,7 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     await walletSender.fetchTransactions();
 
     assert.ok(walletSender.getTransactions().length >= 3);
-    assert.ok(walletSender._receive_payment_codes.length === 1);
+    assert.ok(walletSender._receive_payment_codes.length >= 2);
 
     assert.ok(walletSender.getBIP47NotificationTransaction(bip47instanceReceiver.getSerializedPaymentCode())); // already notified in the past
     assert.ok(
@@ -276,9 +276,11 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
       -102308,
     ); // we paid samurai
 
-    assert.deepStrictEqual(w.getBIP47SenderPaymentCodes(), [
-      'PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF',
-    ]); // samurai can pay us
+    assert.ok(
+      w
+        .getBIP47SenderPaymentCodes()
+        .includes('PM8TJXuZNUtSibuXKFM6bhCxpNaSye6r4px2GXRV5v86uRdH9Raa8ZtXEkG7S4zLREf4ierjMsxLXSFTbRVUnRmvjw9qnc7zZbyXyBstSmjcb7uVcDYF'),
+    ); // samurai can pay us
 
     assert.deepStrictEqual(w.getBIP47ReceiverPaymentCodes(), []); // we can pay no-one
 

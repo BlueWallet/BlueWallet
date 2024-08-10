@@ -16,10 +16,8 @@ import {
   View,
 } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueStorageContext } from '../../blue_modules/storage-context';
 import {
   BlueButtonLink,
   BlueCard,
@@ -30,15 +28,16 @@ import {
   BlueText,
 } from '../../BlueComponents';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import presentAlert from '../../components/Alert';
+import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import { BlueCurrentTheme } from '../../components/themes';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import { StorageContext } from '../../components/Context/StorageProvider';
 
 export default class ElectrumSettings extends Component {
-  static contextType = BlueStorageContext;
+  static contextType = StorageContext;
   constructor(props) {
     super(props);
     const server = props?.route?.params?.server;
@@ -206,7 +205,7 @@ export default class ElectrumSettings extends Component {
         }
       } catch (error) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: error });
+        presentAlert({ message: error, type: AlertType.Toast });
       }
       this.setState({ isLoading: false });
     });

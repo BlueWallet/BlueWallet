@@ -19,7 +19,7 @@ class ViewQRCodefaceController: WKInterfaceController {
     }
   }
 
-  private var interfaceMode = InterfaceMode.Address
+  private var interfaceMode = ReceiveInterfaceMode.Address
   private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.Xpub.rawValue)
     
   override func awake(withContext context: Any?) {
