@@ -583,7 +583,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     const feeRate = 3;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);

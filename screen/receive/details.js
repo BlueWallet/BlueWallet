@@ -405,7 +405,11 @@ const ReceiveDetails = () => {
 
   return (
     <>
-      <ScrollView contentContainerStyle={[styles.root, stylesHook.root]} keyboardShouldPersistTaps="always">
+      <ScrollView
+        testID="ReceiveDetailsScrollView"
+        contentContainerStyle={[styles.root, stylesHook.root]}
+        keyboardShouldPersistTaps="always"
+      >
         {wallet?.allowBIP47() && wallet.isBIP47Enabled() && (
           <View style={styles.tabsContainer}>
             <SegmentedControl
