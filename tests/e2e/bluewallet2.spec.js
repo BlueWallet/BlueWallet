@@ -3,8 +3,6 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import { extractTextFromElementById, getSwitchValue, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
 
-let importedSuccessfully = false;
-
 /**
  * in this suite each test requires that there is one specific wallet present, thus, we import it
  * before anything else.
