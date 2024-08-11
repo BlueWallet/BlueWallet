@@ -220,15 +220,21 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       opacity: fadeOutAnimation,
       transform: [{ scale: scaleAnimation }],
       width: '100%',
+      paddingTop: 20,
     };
+
+    const onModalDismiss = () => {
+      resetState();
+      onConfirmationFailure();
+    }
 
     return (
       <BottomModal
         ref={modalRef}
-        showCloseButton={false}
-        onDismiss={resetState}
+        showCloseButton={showExplanation}
+        onDismiss={onModalDismiss}
         grabber={false}
-        sizes={[370]}
+        sizes={[400]}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
         footer={
@@ -367,7 +373,7 @@ const styles = StyleSheet.create({
     width: '100%', // Ensure modal content takes full width
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 370,
+    minHeight: 400,
   },
   feeModalFooter: {
     paddingBottom: 36,
