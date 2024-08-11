@@ -261,6 +261,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).typeText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
@@ -298,14 +299,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
     await expect(element(by.text('Password for the fake storage should not match the password for your main storage.'))).toBeVisible();
-    await element(by.text('IUnderstandButton')).tap();
+    await element(by.id('IUnderstandButton')).tap();
 
     // trying MAIN password: should fail, obviously
     await element(by.id('PasswordInput')).typeText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).typeText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await element(by.text('OKButton')).tap();
+    await element(by.id('OKButton')).tap();
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.text('OK')).tap();
@@ -316,18 +317,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).typeText('passwordForFakeStorageWithTypo'); // retyping with typo
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await element(by.text('OKButton')).tap();
+    await element(by.id('OKButton')).tap();
 
     // trying new password
-    await element(by.id('CreateFakeStorageButton')).tap();
     await element(by.id('PasswordInput')).clearText();
-    await element(by.type('PasswordInput')).typeText('passwordForFakeStorage');
-    await element(by.id('mPasswordInput')).tapReturnKey();
-    await element(by.type('ConfirmPasswordInput')).typeText('passwordForFakeStorage'); // retyping
+    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await element(by.id('ConfirmPasswordInput')).clearText();
+    await element(by.id('ConfirmPasswordInput')).typeText('passwordForFakeStorage'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await element(by.text('OKButton')).tap();
+    await element(by.id('OKButton')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -368,8 +370,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // correct password
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
     await element(by.text('OK')).tap();
-    await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
-    await element(by.text('OK')).tap();
+    await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('OKButton')).tap();
 
     await helperDeleteWallet('fake_wallet');
 
@@ -394,7 +396,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // lets encrypt the storage.
     // lets put correct passwords and encrypt the storage
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
-
+    await element(by.id('IUnderstandButton')).tap();
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
@@ -405,10 +407,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
+    await element(by.id('IUnderstandButton')).tap(); 
     await element(by.id('PasswordInput')).typeText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
-    await element(by.type('ConfirmPasswordInput')).typeText('fake'); // retyping
+    await element(by.id('ConfirmPasswordInput')).typeText('fake'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await element(by.id('OKButton')).tap();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -443,7 +447,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.ic('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
-    await element(by.text('OKButton')).tap();
+    await element(by.id('OKButton')).tap();
 
     // relaunch app
     await device.launchApp({ newInstance: true });
