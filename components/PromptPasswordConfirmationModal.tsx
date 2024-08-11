@@ -364,10 +364,10 @@ export default PromptPasswordConfirmationModal;
 const styles = StyleSheet.create({
   modalContent: {
     padding: 22,
+    width: '100%', // Ensure modal content takes full width
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
-    width: '100%', // Ensure modal content takes full width
+    minHeight: 370,
   },
   feeModalFooter: {
     paddingBottom: 36,
