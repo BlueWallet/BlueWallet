@@ -234,7 +234,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         showCloseButton={showExplanation}
         onDismiss={onModalDismiss}
         grabber={false}
-        sizes={[400]}
         backgroundColor={colors.modal}
         contentContainerStyle={styles.modalContent}
         footer={
@@ -373,7 +372,7 @@ const styles = StyleSheet.create({
     width: '100%', // Ensure modal content takes full width
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 400,
+    minHeight: 450,
   },
   feeModalFooter: {
     paddingBottom: 36,
