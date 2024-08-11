@@ -1,7 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { extractTextFromElementById, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
+import { extractTextFromElementById, getSwitchValue, hashIt, helperImportWallet, sleep, sup, yo } from './helperz';
 
 let importedSuccessfully = false;
 
@@ -52,7 +52,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
@@ -203,7 +203,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).replaceText(feeRate + '');
+    await element(by.type('android.widget.EditText')).replaceText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
     // lest add another two outputs
@@ -275,7 +275,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
     // first send MAX output
@@ -369,7 +369,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.TRAVIS && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it.only('payment code on receive screen', async () => {
+  it('payment codes & manage contacts', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_manage_contacts');
     if (process.env.TRAVIS) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
@@ -378,7 +378,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-    // if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
+    if (!importedSuccessfully) throw new Error('BIP84 was not imported during the setup');
 
     await device.launchApp({ newInstance: true });
 
@@ -387,15 +387,15 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // switch on BIP47 slider if its not switched
-    try {
-      await expect(element(by.id('BIP47Switch'))).toHaveToggleValue(true);
-    } catch (_) {
+    if (!(await getSwitchValue('BIP47Switch'))) {
+      await expect(element(by.text('Contacts'))).not.toBeVisible();
       await element(by.id('BIP47Switch')).tap();
       await expect(element(by.text('Contacts'))).toBeVisible();
+      await element(by.text('Save')).tap(); // automatically goes back 1 screen
+      await element(by.text('OK')).tap();
+    } else {
+      await device.pressBack();
     }
-
-    await element(by.text('Save')).tap();
-    await element(by.text('OK')).tap();
 
     // go to receive screen and check that payment code is there
 
@@ -445,7 +445,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await sup('On-chain transaction needed');
     await element(by.text('Cancel')).tap();
-    // await sleep(15000);
 
     // testing renaming contact:
     await element(by.id('ContactListItem0')).tap();
@@ -567,7 +566,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const feeRate = 2;
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText(feeRate + '');
+    await element(by.type('android.widget.EditText')).typeText(feeRate + '\n');
     await element(by.text('OK')).tap();
 
     if (process.env.TRAVIS) await sleep(5000);
@@ -640,7 +639,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.type('android.widget.EditText')).typeText('1\n');
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
@@ -669,7 +668,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // setting fee rate:
     await element(by.id('chooseFee')).tap();
     await element(by.id('feeCustom')).tap();
-    await element(by.type('android.widget.EditText')).typeText('1');
+    await element(by.type('android.widget.EditText')).typeText('1\n');
     await element(by.text('OK')).tap();
     if (process.env.TRAVIS) await sleep(5000);
     await element(by.id('CreateTransactionButton')).tap();
