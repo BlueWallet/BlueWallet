@@ -10,6 +10,7 @@ import PromptPasswordConfirmationModal, {
   PromptPasswordConfirmationModalHandle,
   MODAL_TYPES,
 } from '../components/PromptPasswordConfirmationModal';
+import { popToTop } from '../NavigationService';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -48,6 +49,7 @@ const PlausibleDeniability: React.FC = () => {
   const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
+    dispatch({ type: SET_LOADING, payload: true });
     dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
     promptRef.current?.present();
   };
@@ -70,8 +72,12 @@ const PlausibleDeniability: React.FC = () => {
       dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
 
       success = true;
+      setTimeout(() => {
+        popToTop();
+      }, 1500);
     } catch {
       success = false;
+      dispatch({ type: SET_LOADING, payload: false });
     }
 
     return success;
@@ -95,6 +101,7 @@ const PlausibleDeniability: React.FC = () => {
             testID="CreateFakeStorageButton"
             title={loc.plausibledeniability.create_fake_storage}
             onPress={handleOnCreateFakeStorageButtonPressed}
+            disabled={state.isLoading}
           />
         </BlueCard>
       )}

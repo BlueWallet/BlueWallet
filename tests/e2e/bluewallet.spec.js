@@ -407,7 +407,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await element(by.id('IUnderstandButton')).tap(); 
+    await element(by.id('IUnderstandButton')).tap();
     await element(by.id('PasswordInput')).typeText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).typeText('fake'); // retyping

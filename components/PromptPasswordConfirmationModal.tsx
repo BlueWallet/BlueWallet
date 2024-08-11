@@ -5,7 +5,6 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { SecondButton } from './SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { popToTop } from '../NavigationService';
 
 export const MODAL_TYPES = {
   ENTER_PASSWORD: 'ENTER_PASSWORD',
@@ -161,7 +160,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         }).start(() => {
           setTimeout(async () => {
             await modalRef.current?.dismiss();
-            popToTop();
           }, 1000);
         });
       });
