@@ -425,9 +425,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(33000);
     //
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
-    await element(by.id('PasswordInput')).typeText('pass');
-    await element(by.id('PasswordInput')).tapReturnKey();
-    await element(by.id('OKButton')).tap();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
     await yo('WalletsList');
 
     // previously created wallet IN MAIN STORAGE should be visible
