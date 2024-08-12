@@ -307,7 +307,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       onChangeText={setPassword}
                       style={[styles.input, stylesHook.input]}
                       autoFocus
-                      onSubmitEditing={handleSubmit} // Handle Enter key as OK
                     />
                   </Animated.View>
                   {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
@@ -320,7 +319,6 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
                         style={[styles.input, stylesHook.input]}
-                        onSubmitEditing={handleSubmit} // Handle Enter key as OK
                       />
                     </Animated.View>
                   )}
