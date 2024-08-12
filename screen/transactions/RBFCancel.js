@@ -4,7 +4,6 @@ import { ActivityIndicator, ScrollView, View } from 'react-native';
 import { BlueSpacing20, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import CPFP from './CPFP';
@@ -121,5 +120,3 @@ RBFCancel.propTypes = {
     }),
   }),
 };
-
-RBFCancel.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cancel_title }));

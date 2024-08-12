@@ -20,7 +20,6 @@ import { BlueCard, BlueSpacing, BlueSpacing20, BlueText } from '../../BlueCompon
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -251,4 +250,3 @@ CPFP.propTypes = {
     }),
   }),
 };
-CPFP.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.transactions.cpfp_title }));
