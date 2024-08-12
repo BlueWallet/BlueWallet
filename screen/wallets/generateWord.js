@@ -6,7 +6,6 @@ import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 
@@ -103,7 +102,6 @@ const GenerateWord = () => {
 };
 
 export default GenerateWord;
-GenerateWord.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.autofill_word.title }));
 
 const styles = StyleSheet.create({
   wrapper: {
