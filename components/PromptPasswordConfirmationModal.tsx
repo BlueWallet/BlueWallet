@@ -226,7 +226,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const onModalDismiss = () => {
       resetState();
       onConfirmationFailure();
-    }
+    };
 
     return (
       <BottomModal
