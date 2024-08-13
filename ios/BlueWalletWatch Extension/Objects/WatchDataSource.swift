@@ -1,125 +1,188 @@
-//
-//  WatchDataSource.swift
-//  BlueWalletWatch Extension
-//
-//  Created by Marcos Rodriguez on 3/20/19.
+import SwiftUI
+import SwiftData
+import Combine
 
-//
-
-
-import Foundation
-import WatchConnectivity
-import KeychainSwift
-
-class WatchDataSource: NSObject {
-  struct NotificationName {
-    static let dataUpdated = Notification.Name(rawValue: "Notification.WalletDataSource.Updated")
-  }
-  struct Notifications {
-    static let dataUpdated = Notification(name: NotificationName.dataUpdated)
-  }
-  
-  static let shared = WatchDataSource()
-  var wallets: [Wallet] = [Wallet]()
-  var companionWalletsInitialized = false
-  private let keychain = KeychainSwift()
-  let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue)
-  
-  
-  override init() {
-    super.init()
-    loadKeychainData()
-  }
-  
-  func loadKeychainData() {
-    if let existingData = keychain.getData(Wallet.identifier), let walletData = try? NSKeyedUnarchiver.unarchivedArrayOfObjects(ofClass: Wallet.self, from: existingData) {
-      guard walletData != self.wallets  else { return }
-      wallets = walletData
-      WatchDataSource.postDataUpdatedNotification()
-    }
-  }
-  
-  func processWalletsData(walletsInfo: [String: Any]) {
-    if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
-      wallets.removeAll();
-      for (index, entry) in walletsToProcess.enumerated() {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let transactions = entry["transactions"] as? [[String: Any]], let paymentCode = entry["paymentCode"] as? String  else {
-          continue
+// Extend the Wallet model to store balance in local currency
+extension Wallet {
+    var balanceInLocalCurrency: String {
+        let exchangeRate = WatchDataSource.shared.exchangeRate ?? 1.0
+        if let balanceInBTC = Double(balance.dropFirst()), wallet.preferredBalanceUnit == .LOCAL_CURRENCY {
+            return "\(balanceInBTC * exchangeRate)"
         }
-        
-        var transactionsProcessed = [Transaction]()
-        for transactionEntry in transactions {
-          guard let time = transactionEntry["time"] as? String, let memo = transactionEntry["memo"] as? String, let amount = transactionEntry["amount"] as? String, let type =  transactionEntry["type"] as? String else { continue }
-          let transaction = Transaction(time: time, memo: memo, type: type, amount: amount)
-          transactionsProcessed.append(transaction)
+        return balance
+    }
+}
+
+// Extend the WalletTransaction model to store amount in local currency
+extension WalletTransaction {
+    var amountInLocalCurrency: String {
+        let exchangeRate = WatchDataSource.shared.exchangeRate ?? 1.0
+        if let amountInBTC = Double(amount.dropFirst()), wallet.preferredBalanceUnit == .LOCAL_CURRENCY {
+            return "\(amountInBTC * exchangeRate)"
         }
-        let receiveAddress = entry["receiveAddress"] as? String ?? ""
-        let xpub = entry["xpub"] as? String ?? ""
-        let hideBalance = entry["hideBalance"] as? Bool ?? false
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed, identifier: index, xpub: xpub, hideBalance: hideBalance, paymentCode: paymentCode)
-        wallets.append(wallet)
-      }
-      
-      if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: false) {
-        keychain.set(walletsArchived, forKey: Wallet.identifier)
-      }
-      WatchDataSource.postDataUpdatedNotification()
+        return amount
     }
-  }
-  
-  static func postDataUpdatedNotification() {
-    NotificationCenter.default.post(Notifications.dataUpdated)
-  }
-  
-  static func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
-    guard WatchDataSource.shared.wallets.count > walletIdentifier  else {
-      responseHandler("")
-      return
+}
+
+@MainActor
+class WatchDataSource: ObservableObject {
+    static let shared = WatchDataSource()
+    @Published var wallets: [Wallet] = []
+    @Published var exchangeRate: Double?
+    var companionWalletsInitialized = false
+    private var context: ModelContext!
+
+    init() {
+        initializeModelContext()
+        fetchExchangeRate()
     }
-    WCSession.default.sendMessage(["request": "createInvoice", "walletIndex": walletIdentifier, "amount": amount, "description": description ?? ""], replyHandler: { (reply: [String : Any]) in
-      if let invoicePaymentRequest =  reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
-        responseHandler(invoicePaymentRequest)
-      } else {
-        responseHandler("")
-      }
-    }) { (error) in
-      print(error)
-      responseHandler("")
-      
+
+    private func initializeModelContext() {
+        do {
+            let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
+            self.context = ModelContext(container)
+            loadWallets()
+        } catch {
+            print("ModelContainer initialization failed: \(error). Deleting existing data.")
+            deleteExistingData()
+            do {
+                let container = try ModelContainer(for: Wallet.self, WalletTransaction.self, MarketData.self)
+                self.context = ModelContext(container)
+                loadWallets()
+            } catch {
+                fatalError("Re-initialization failed: \(error)")
+            }
+        }
     }
-  }
-  
-  static func toggleWalletHideBalance(walletIdentifier: Int, hideBalance: Bool, responseHandler: @escaping (_ invoice: String) -> Void) {
-    guard WatchDataSource.shared.wallets.count > walletIdentifier  else {
-      responseHandler("")
-      return
+
+    private func deleteExistingData() {
+        let fileManager = FileManager.default
+        if let url = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("default.store") {
+            do {
+                if fileManager.fileExists(atPath: url.path) {
+                    try fileManager.removeItem(at: url)
+                    print("Existing data deleted.")
+                }
+            } catch {
+                print("Failed to delete existing data: \(error)")
+            }
+        }
     }
-    WCSession.default.sendMessage(["message": "hideBalance", "walletIndex": walletIdentifier, "hideBalance": hideBalance], replyHandler: { (reply: [String : Any]) in
-      responseHandler("")
-    }) { (error) in
-      print(error)
-      responseHandler("")
-      
+
+    func loadWallets() {
+        Task {
+            do {
+                let fetchRequest = FetchDescriptor<Wallet>()
+                let fetchedWallets = try context.fetch(fetchRequest)
+                DispatchQueue.main.async {
+                    self.wallets = fetchedWallets
+                }
+            } catch {
+                print("Failed to fetch wallets: \(error)")
+            }
+        }
     }
-  }
-  
-  
-  func processData(data: [String: Any]) {
-      
-      if let preferredFiatCurrency = data["preferredFiatCurrency"] as? String, let  preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
-        groupUserDefaults?.set(preferredFiatCurrencyUnit.endPointKey, forKey: "preferredCurrency")
-        groupUserDefaults?.synchronize()
-        
-        // Create an instance of ExtensionDelegate and call updatePreferredFiatCurrency()
-        let extensionDelegate = ExtensionDelegate()
-        extensionDelegate.updatePreferredFiatCurrency()
-        
-      } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
-        companionWalletsInitialized = isWalletsInitialized
-        NotificationCenter.default.post(Notifications.dataUpdated)
-      } else {
-        WatchDataSource.shared.processWalletsData(walletsInfo: data)
-      }
-  }
-  
+
+    func initializeSampleData() {
+        do {
+            let sampleWallets = SampleData.createAllSampleWallets()
+            sampleWallets.forEach { wallet in
+                context.insert(wallet)
+            }
+            try context.save()
+        } catch {
+            print("Failed to insert sample data: \(error)")
+        }
+    }
+
+    func handleLightningInvoiceCreateRequest(walletIndex: Int, amount: Double, description: String?) async throws -> String {
+        let wallet = wallets[walletIndex]
+        // Assuming the wallet has a method to create an invoice.
+        let invoiceRequest = try wallet.createInvoice(amount: amount, description: description)
+        return invoiceRequest
+    }
+
+    func processWalletsData(walletsInfo: [String: Any]) {
+        Task {
+            var newWallets: [Wallet] = []
+            for entry in walletsInfo[WatchDataKeys.wallets.rawValue] as? [[String: Any]] ?? [] {
+                var wallet = Wallet(
+                    id: entry[WatchDataKeys.id.rawValue] as? UUID ?? UUID(),
+                    label: entry[WatchDataKeys.label.rawValue] as? String ?? "",
+                    balance: entry[WatchDataKeys.balance.rawValue] as? String ?? "",
+                    type: entry[WatchDataKeys.type.rawValue] as? WalletType ?? .SegwitNative,
+                    preferredBalanceUnit: entry[WatchDataKeys.preferredBalanceUnit.rawValue] as? BitcoinUnit ?? .BTC,
+                    receiveAddress: entry[WatchDataKeys.receiveAddress.rawValue] as? String ?? "",
+                    xpub: entry[WatchDataKeys.xpub.rawValue] as? String,
+                    hideBalance: entry[WatchDataKeys.hideBalance.rawValue] as? Bool ?? false,
+                    paymentCode: entry[WatchDataKeys.paymentCode.rawValue] as? String,
+                    createdAt: entry[WatchDataKeys.createdAt.rawValue] as? Date ?? Date()
+                )
+
+                let transactionsData = entry[WatchDataKeys.transactions.rawValue] as? [[String: Any]] ?? []
+                var newTransactions: [WalletTransaction] = []
+                for txData in transactionsData {
+                    let transaction = WalletTransaction(
+                        id: UUID(),
+                        time: txData[WatchDataKeys.time.rawValue] as? String ?? "",
+                        memo: txData[WatchDataKeys.memo.rawValue] as? String ?? "",
+                        amount: txData[WatchDataKeys.amount.rawValue] as? String ?? "",
+                        type: txData[WatchDataKeys.type.rawValue] as? WalletTransactionType ?? .Received,
+                        wallet: wallet
+                    )
+                    newTransactions.append(transaction)
+                }
+                wallet.addTransactions(newTransactions)
+                newWallets.append(wallet)
+            }
+            do {
+                try context.save()
+                DispatchQueue.main.async {
+                    self.wallets.append(contentsOf: newWallets)
+                }
+            } catch {
+                print("Failed to save wallets: \(error)")
+            }
+        }
+    }
+
+    func processData(data: [String: Any]) {
+        if let preferredFiatCurrency = data[WatchDataKeys.preferredFiatCurrency.rawValue] as? String, let preferredFiatCurrencyUnit = fiatUnit(currency: preferredFiatCurrency) {
+            Task {
+                let marketData = MarketData(nextBlock: "", sats: "", price: "", rate: 0, dateString: "", lastUpdate: nil)
+                do {
+                    context.insert(marketData)
+                    try context.save()
+                } catch {
+                    print("Failed to save market data: \(error)")
+                }
+            }
+        } else if let isWalletsInitialized = data[WatchDataKeys.isWalletsInitialized.rawValue] as? Bool {
+            companionWalletsInitialized = isWalletsInitialized
+        } else {
+            WatchDataSource.shared.processWalletsData(walletsInfo: data)
+        }
+    }
+
+    private func fetchExchangeRate() {
+        let preferredCurrency = Currency.getUserPreferredCurrency()
+        MarketAPI.fetchPrice(currency: preferredCurrency) { [weak self] dataStore, error in
+            guard let self = self else { return }
+            if let dataStore = dataStore {
+                DispatchQueue.main.async {
+                    self.exchangeRate = dataStore.rateDouble
+                }
+            } else {
+                print("Failed to fetch exchange rate: \(String(describing: error))")
+            }
+        }
+    }
+
+    func saveWalletChanges() {
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save wallet changes: \(error)")
+        }
+    }
 }
