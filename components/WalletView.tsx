@@ -167,10 +167,16 @@ const WalletView: React.FC<WalletViewProps> = ({
       balanceUnit === BitcoinUnit.LOCAL_CURRENCY
         ? formatBalance(walletState.getBalance(), balanceUnit, true)
         : formatBalanceWithoutSuffix(walletState.getBalance(), balanceUnit, true);
-    return !hideBalance && balanceFormatted;
+
+    if (hideBalance) return null;
+
+    if (type === 'Carousel' && balanceUnit !== BitcoinUnit.LOCAL_CURRENCY) {
+      return `${balanceFormatted} ${balanceUnit}`;
+    }
+
+    return balanceFormatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletState?.preferredBalanceUnit, walletState?.hideBalance, walletState?.balance]);
-
   const toolTipWalletBalanceActions = useMemo(() => {
     if (type === 'Header' && walletState) {
       return walletState.hideBalance
