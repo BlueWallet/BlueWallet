@@ -288,7 +288,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
           <Animated.View style={animatedViewStyle}>
             {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
-                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>? {loc.settings.encrypt_storage_explanation_headline}</Text>
+                <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
                 <Text style={[styles.description, stylesHook.feeModalCustomText]}>
                   {loc.settings.encrypt_storage_explanation_description_line1}
                 </Text>
