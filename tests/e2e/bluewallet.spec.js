@@ -453,7 +453,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     // correct password
-    await element(by.ic('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
