@@ -302,9 +302,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
-    await expect(element(by.text('Password for the fake storage should not match the password for your main storage.'))).toBeVisible();
-    await element(by.id('IUnderstandButton')).tap();
-    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // trying MAIN password: should fail, obviously
     await element(by.id('PasswordInput')).typeText('qqq');
@@ -419,8 +416,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
-    await element(by.id('IUnderstandButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.id('PasswordInput')).typeText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();

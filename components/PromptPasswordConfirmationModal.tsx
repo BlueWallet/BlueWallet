@@ -32,7 +32,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [showExplanation, setShowExplanation] = useState(true); // State to toggle between explanation and password input for CREATE_PASSWORD and CREATE_FAKE_STORAGE
+    const [showExplanation, setShowExplanation] = useState(modalType === MODAL_TYPES.CREATE_PASSWORD); // State to toggle between explanation and password input for CREATE_PASSWORD and CREATE_FAKE_STORAGE
     const modalRef = useRef<BottomModalHandle>(null);
     const fadeOutAnimation = useRef(new Animated.Value(1)).current;
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
@@ -88,9 +88,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       scaleAnimation.setValue(1);
       shakeAnimation.setValue(0);
       explanationOpacity.setValue(1);
-      if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
-        setShowExplanation(true);
-      }
+      setShowExplanation(modalType === MODAL_TYPES.CREATE_PASSWORD);
     };
 
     useEffect(() => {
@@ -238,7 +236,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
         contentContainerStyle={styles.modalContent}
         footer={
           !isSuccess ? (
-            showExplanation && (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) ? null : (
+            showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? null : (
               <Animated.View style={{ opacity: fadeOutAnimation, transform: [{ scale: scaleAnimation }] }}>
                 <View style={styles.feeModalFooter}>
                   <SecondButton testID="CancelButton" title={loc._.cancel} onPress={handleCancel} disabled={isLoading} />
@@ -248,11 +246,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                     onPress={handleSubmit}
                     testID="OKButton"
                     loading={isLoading}
-                    disabled={
-                      isLoading ||
-                      !password ||
-                      (modalType === (MODAL_TYPES.CREATE_PASSWORD || MODAL_TYPES.CREATE_FAKE_STORAGE) && !confirmPassword)
-                    }
+                    disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
                   />
                 </View>
               </Animated.View>
@@ -262,7 +256,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       >
         {!isSuccess && (
           <Animated.View style={animatedViewStyle}>
-            {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && showExplanation && (
+            {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
               <Animated.View style={{ opacity: explanationOpacity }}>
                 <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>
                   {modalType === MODAL_TYPES.CREATE_PASSWORD
