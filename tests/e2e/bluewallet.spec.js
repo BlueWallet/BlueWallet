@@ -376,6 +376,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
     await element(by.text('OK')).tap();
     await element(by.id('PasswordInput')).typeText('passwordForFakeStorage');
+    await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('OKButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
@@ -405,7 +406,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.id('IUnderstandButton')).tap();
     if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
-    await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).typeText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await element(by.id('ConfirmPasswordInput')).typeText('pass');
@@ -434,7 +434,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(33000);
     //
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it.'))).toBeVisible();
-    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.type('android.widget.EditText')).typeText('pass');
     await element(by.text('OK')).tap();
     await yo('WalletsList');
 

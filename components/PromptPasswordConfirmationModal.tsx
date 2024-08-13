@@ -1,10 +1,14 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, Easing, ViewStyle, Keyboard, Platform, UIManager } from 'react-native';
 import BottomModal, { BottomModalHandle } from './BottomModal';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { SecondButton } from './SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export const MODAL_TYPES = {
   ENTER_PASSWORD: 'ENTER_PASSWORD',
@@ -32,13 +36,13 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const [showExplanation, setShowExplanation] = useState(modalType === MODAL_TYPES.CREATE_PASSWORD); // State to toggle between explanation and password input for CREATE_PASSWORD and CREATE_FAKE_STORAGE
+    const [showExplanation, setShowExplanation] = useState(modalType === MODAL_TYPES.CREATE_PASSWORD); // State to toggle between explanation and password input for CREATE_PASSWORD
     const modalRef = useRef<BottomModalHandle>(null);
     const fadeOutAnimation = useRef(new Animated.Value(1)).current;
     const fadeInAnimation = useRef(new Animated.Value(0)).current;
     const scaleAnimation = useRef(new Animated.Value(1)).current;
     const shakeAnimation = useRef(new Animated.Value(0)).current;
-    const explanationOpacity = useRef(new Animated.Value(1)).current; // New animated value for opacity
+    const explanationOpacity = useRef(new Animated.Value(1)).current;
     const { colors } = useTheme();
     const passwordInputRef = useRef<TextInput>(null);
     const confirmPasswordInputRef = useRef<TextInput>(null);
@@ -100,31 +104,31 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       Animated.sequence([
         Animated.timing(shakeAnimation, {
           toValue: 10,
-          duration: 100,
+          duration: 80,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: -10,
-          duration: 100,
+          duration: 80,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: 5,
-          duration: 100,
+          duration: 80,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: -5,
-          duration: 100,
+          duration: 80,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: 0,
-          duration: 100,
+          duration: 80,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
@@ -135,30 +139,40 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
     };
 
     const handleSuccessAnimation = () => {
-      Animated.parallel([
-        Animated.timing(fadeOutAnimation, {
-          toValue: 0,
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnimation, {
-          toValue: 1.1,
-          duration: 300,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
+      // Step 1: Cross-fade current content out and success content in
+      Animated.timing(fadeOutAnimation, {
+        toValue: 0, // Fade out current content
+        duration: 300,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }).start(() => {
         setIsSuccess(true);
+
         Animated.timing(fadeInAnimation, {
-          toValue: 1,
-          duration: 500,
+          toValue: 1, // Fade in success content
+          duration: 300,
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }).start(() => {
-          setTimeout(async () => {
-            await modalRef.current?.dismiss();
-          }, 1000);
+          // Step 2: Perform any additional animations like scaling if necessary
+          Animated.timing(scaleAnimation, {
+            toValue: 1.1,
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }).start(() => {
+            Animated.timing(scaleAnimation, {
+              toValue: 1, // Return scale to normal size
+              duration: 300,
+              easing: Easing.out(Easing.ease),
+              useNativeDriver: true,
+            }).start(() => {
+              // Optional delay before dismissing the modal
+              setTimeout(async () => {
+                await modalRef.current?.dismiss();
+              }, 1000);
+            });
+          });
         });
       });
     };
@@ -167,32 +181,48 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       Keyboard.dismiss();
       setIsLoading(true);
       let success = false;
-      if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
-        if (password === confirmPassword && password) {
+
+      try {
+        if (modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
+          if (password === confirmPassword && password) {
+            success = await onConfirmationSuccess(password);
+            if (success) {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              handleSuccessAnimation();
+            } else {
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+              onConfirmationFailure();
+              if (!isSuccess) {
+                // Prevent shake animation if success is detected
+                handleShakeAnimation();
+              }
+            }
+          } else {
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            if (!isSuccess) {
+              // Prevent shake animation if success is detected
+              handleShakeAnimation();
+            }
+          }
+        } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
           success = await onConfirmationSuccess(password);
           if (success) {
             triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
             handleSuccessAnimation();
           } else {
             triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-            setIsLoading(false);
+            if (!isSuccess) {
+              // Prevent shake animation if success is detected
+              handleShakeAnimation();
+            }
             onConfirmationFailure();
           }
-        } else {
-          setIsLoading(false);
-          handleShakeAnimation();
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         }
-      } else if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
-        success = await onConfirmationSuccess(password);
-        setIsLoading(false);
+      } finally {
+        setIsLoading(false); // Ensure loading state is reset
         if (success) {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          handleSuccessAnimation();
-        } else {
-          handleShakeAnimation();
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-          onConfirmationFailure();
+          // Ensure shake animation is reset before starting the success animation
+          shakeAnimation.setValue(0);
         }
       }
     };
@@ -300,6 +330,8 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                       value={password}
                       onChangeText={setPassword}
                       style={[styles.input, stylesHook.input]}
+                      clearTextOnFocus
+                      clearButtonMode="while-editing"
                       autoFocus
                     />
                   </Animated.View>
@@ -311,6 +343,8 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
                         secureTextEntry
                         placeholder="Confirm Password"
                         value={confirmPassword}
+                        clearTextOnFocus
+                        clearButtonMode="while-editing"
                         onChangeText={setConfirmPassword}
                         style={[styles.input, stylesHook.input]}
                       />
@@ -400,7 +434,7 @@ const styles = StyleSheet.create({
   successContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    height: 100,
+    height: 80,
   },
   circle: {
     width: 60,
