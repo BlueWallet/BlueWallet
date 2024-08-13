@@ -7,6 +7,11 @@ const keys = {
   OpenInBlockExplorer: 'open_in_blockExplorer',
   CopyAmount: 'copyAmount',
   CopyNote: 'copyNote',
+  CopyToClipboard: 'copyToClipboard',
+  WalletBalanceDisplay: 'WalletBalanceDisplay',
+  WalletBalanceHide: 'WalletBalanceHide',
+  Refill: 'refill',
+  RefillWithExternalWallet: 'refillWithExternalWallet',
 };
 
 const icons = {
@@ -24,6 +29,12 @@ const icons = {
   },
   Note: {
     iconValue: 'note.text',
+  },
+  Refill: {
+    iconValue: 'goforward.plus',
+  },
+  RefillWithExternalWallet: {
+    iconValue: 'qrcode',
   },
 };
 
@@ -57,5 +68,30 @@ export const CommonToolTipActions = {
     id: keys.CopyNote,
     text: loc.transactions.details_copy_note,
     icon: icons.Clipboard,
+  },
+  CopyToClipboard: {
+    id: keys.CopyToClipboard,
+    text: loc.send.psbt_clipboard,
+    icon: icons.Clipboard,
+  },
+  WalletBalanceDisplay: {
+    id: keys.WalletBalanceDisplay,
+    text: loc.transactions.details_balance_show,
+    icon: icons.Eye,
+  },
+  WalletBalanceHide: {
+    id: keys.WalletBalanceHide,
+    text: loc.transactions.details_balance_hide,
+    icon: icons.EyeSlash,
+  },
+  Refill: {
+    id: keys.Refill,
+    text: loc.lnd.refill,
+    icon: icons.Refill,
+  },
+  RefillWithExternalWallet: {
+    id: keys.RefillWithExternalWallet,
+    text: loc.lnd.refill_external,
+    icon: icons.RefillWithExternalWallet,
   },
 };

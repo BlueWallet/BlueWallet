@@ -5,7 +5,6 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { useTheme } from '../../components/themes';
-import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -15,6 +14,7 @@ import { TTXMetadata } from '../../class';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
+import WalletView from '../../components/WalletView';
 
 enum ItemType {
   WalletSection = 'wallet',
@@ -260,10 +260,10 @@ const ManageWallets: React.FC = () => {
       } else if (item.type === ItemType.WalletSection) {
         return (
           <ScaleDecorator>
-            <WalletCarouselItem
-              item={item.data}
+            <WalletView
+              wallet={item.data}
+              type="Carousel"
               handleLongPress={isDraggingDisabled ? undefined : drag}
-              isActive={isActive}
               onPress={() => navigateToWallet(item.data)}
               customStyle={styles.padding16}
               searchQuery={state.searchQuery}

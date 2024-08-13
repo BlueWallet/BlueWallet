@@ -98,7 +98,9 @@ const SelectWallet: React.FC = () => {
       </SafeArea>
     );
   } else {
-    return <WalletsCarousel data={data} onPress={onPress} ref={walletsCarousel} testID="WalletsList" horizontal={false} />;
+    return (
+      <WalletsCarousel data={data} onPress={item => item && onPress(item)} ref={walletsCarousel} testID="WalletsList" horizontal={false} />
+    );
   }
 };
 

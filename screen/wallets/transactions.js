@@ -29,7 +29,6 @@ import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -40,6 +39,8 @@ import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
+import WalletView from '../../components/WalletView';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -417,14 +418,14 @@ const WalletTransactions = ({ navigation }) => {
   };
 
   const onManageFundsPressed = ({ id }) => {
-    if (id === actionKeys.Refill) {
+    if (id === CommonToolTipActions.Refill) {
       const availableWallets = [...wallets.filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
       if (availableWallets.length === 0) {
         presentAlert({ message: loc.lnd.refill_create });
       } else {
         navigate('SelectWallet', { onWalletSelect, chainType: Chain.ONCHAIN });
       }
-    } else if (id === actionKeys.RefillWithExternalWallet) {
+    } else if (id === CommonToolTipActions.RefillWithExternalWallet) {
       navigate('ReceiveDetailsRoot', {
         screen: 'ReceiveDetails',
         params: {
@@ -462,15 +463,30 @@ const WalletTransactions = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
-      <TransactionsNavigationHeader
+      <WalletView
+        type="Header"
         navigation={navigation}
         wallet={wallet}
-        onWalletUnitChange={passedWallet =>
-          InteractionManager.runAfterInteractions(async () => {
-            setItemPriceUnit(passedWallet.getPreferredBalanceUnit());
-            saveToDisk();
-          })
-        }
+        onWalletUnitChange={async unit => {
+          // Debugging: Log the value of unit
+          console.log('Received unit:', unit);
+
+          if (unit) {
+            // Ensure unit is defined
+            InteractionManager.runAfterInteractions(async () => {
+              // Update the wallet's preferred balance unit
+              wallet.preferredBalanceUnit = unit;
+
+              // Update the UI to reflect the new unit
+              setItemPriceUnit(unit);
+
+              // Save the changes to disk
+              await saveToDisk();
+            });
+          } else {
+            console.error('No unit provided for onWalletUnitChange');
+          }
+        }}
         onWalletBalanceVisibilityChange={async isShouldBeVisible => {
           const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
