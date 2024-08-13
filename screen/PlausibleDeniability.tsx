@@ -74,7 +74,7 @@ const PlausibleDeniability: React.FC = () => {
       success = true;
       setTimeout(() => {
         popToTop();
-      }, 1500);
+      }, 3000);
     } catch {
       success = false;
       dispatch({ type: SET_LOADING, payload: false });
