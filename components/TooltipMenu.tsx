@@ -46,6 +46,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
     return {
       id: action.id.toString(),
       title: action.text,
+      image: action.icon?.iconValue ? action.icon.iconValue : undefined,
       state: action.menuState === undefined ? undefined : ((action.menuState ? 'on' : 'off') as MenuState),
       attributes: { disabled: action.disabled },
     };
