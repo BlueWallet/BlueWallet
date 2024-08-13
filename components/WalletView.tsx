@@ -428,7 +428,8 @@ const styles = StyleSheet.create({
     paddingRight: 10, // Ensure there's some padding to the right
   },
   borderRadious0: {
-     borderRadius: 0 },
+    borderRadius: 0,
+  },
   walletBalanceText: {
     color: '#fff',
     fontWeight: 'bold',
