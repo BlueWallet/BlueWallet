@@ -6,7 +6,6 @@ import URL from 'url';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueSpacing40, BlueText } from '../../BlueComponents';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import selectWallet from '../../helpers/select-wallet';
@@ -169,8 +168,4 @@ const styles = StyleSheet.create({
   walletWrapLabel: {
     fontSize: 14,
   },
-});
-
-LnurlAuth.navigationOptions = navigationStyle({
-  title: '',
 });

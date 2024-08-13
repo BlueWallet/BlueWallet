@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { View } from 'react-native';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { isDesktop } from '../blue_modules/environment';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -63,6 +63,7 @@ import PlusIcon from '../components/icons/PlusIcon';
 import SettingsButton from '../components/icons/SettingsButton';
 import ExportMultisigCoordinationSetupStack from './ExportMultisigCoordinationSetupStack';
 import ManageWallets from '../screen/wallets/ManageWallets';
+import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -102,6 +103,7 @@ const DetailViewStackScreensStack = () => {
   }, [RightBarButtons, theme.colors.customHeader, theme.colors.navigationBarColor]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
+
   return (
     <DetailViewStack.Navigator
       initialRouteName="WalletsList"
@@ -111,7 +113,7 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="WalletTransactions"
         component={WalletTransactions}
-        options={WalletTransactions.navigationOptions(theme)}
+        options={({ route }) => getWalletTransactionsOptions({ route })}
       />
       <DetailViewStack.Screen
         name="WalletDetails"
@@ -152,10 +154,17 @@ const DetailViewStackScreensStack = () => {
           headerBackTitleVisible: true,
         })(theme)}
       />
-      <DetailViewStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions(theme)} />
-      <DetailViewStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions(theme)} />
-      <DetailViewStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions(theme)} />
-
+      <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
+      <DetailViewStack.Screen
+        name="RBFBumpFee"
+        component={RBFBumpFee}
+        options={navigationStyle({ title: loc.transactions.rbf_title })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="RBFCancel"
+        component={RBFCancel}
+        options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
+      />
       <DetailViewStack.Screen
         name="SelectWallet"
         component={SelectWallet}
@@ -188,8 +197,16 @@ const DetailViewStackScreensStack = () => {
         component={Broadcast}
         options={navigationStyle({ title: loc.send.create_broadcast })(theme)}
       />
-      <DetailViewStack.Screen name="IsItMyAddress" component={IsItMyAddress} options={IsItMyAddress.navigationOptions(theme)} />
-      <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={GenerateWord.navigationOptions(theme)} />
+      <DetailViewStack.Screen
+        name="IsItMyAddress"
+        component={IsItMyAddress}
+        options={navigationStyle({ title: loc.is_it_my_address.title })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="GenerateWord"
+        component={GenerateWord}
+        options={navigationStyle({ title: loc.autofill_word.title })(theme)}
+      />
       <DetailViewStack.Screen
         name="LnurlPay"
         component={LnurlPay}
@@ -214,7 +231,7 @@ const DetailViewStackScreensStack = () => {
           gestureEnabled: false,
         })(theme)}
       />
-      <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={LnurlAuth.navigationOptions(theme)} />
+      <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={navigationStyle({ title: '' })(theme)} />
       <DetailViewStack.Screen
         name="Success"
         component={Success}
@@ -377,5 +394,9 @@ export default DetailViewStackScreensStack;
 const styles = {
   width24: {
     width: 24,
+  },
+  walletDetails: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
 };

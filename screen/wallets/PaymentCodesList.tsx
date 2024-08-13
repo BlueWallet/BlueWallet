@@ -168,7 +168,7 @@ export default function PaymentCodesList() {
         if (!(await confirm(loc.wallets.details_are_you_sure))) {
           return;
         }
-        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label ?? '', hidden: true };
+        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label, hidden: true };
         setReload(Math.random());
         await saveToDisk();
         break;
@@ -191,12 +191,12 @@ export default function PaymentCodesList() {
     });
   };
 
-  const renderItem = (pc: string) => {
+  const renderItem = (pc: string, index: number) => {
     if (counterpartyMetadata?.[pc]?.hidden) return null; // hidden contact, do not render
 
     const color = createHash('sha256').update(pc).digest().toString('hex').substring(0, 6);
 
-    const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label ?? pc);
+    const displayName = shortenContactName(counterpartyMetadata?.[pc]?.label || pc);
 
     if (previousRouteName === 'SendDetails') {
       return (
@@ -204,7 +204,9 @@ export default function PaymentCodesList() {
           <View style={styles.contactRowContainer}>
             <View style={[styles.circle, { backgroundColor: '#' + color }]} />
             <View style={styles.contactRowBody}>
-              <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
+              <Text testID={`ContactListItem${index}`} style={[styles.contactRowNameText, { color: colors.labelText }]}>
+                {displayName}
+              </Text>
             </View>
           </View>
           <View style={styles.stick} />
@@ -222,7 +224,9 @@ export default function PaymentCodesList() {
         <View style={styles.contactRowContainer}>
           <View style={[styles.circle, { backgroundColor: '#' + color }]} />
           <View style={styles.contactRowBody}>
-            <Text style={[styles.contactRowNameText, { color: colors.labelText }]}>{displayName}</Text>
+            <Text testID={`ContactListItem${index}`} style={[styles.contactRowNameText, { color: colors.labelText }]}>
+              {displayName}
+            </Text>
           </View>
         </View>
         <View style={styles.stick} />
@@ -260,6 +264,7 @@ export default function PaymentCodesList() {
     if (cl.isAddressValid(newPc)) {
       // this is not a payment code but a regular onchain address. pretending its a payment code and adding it
       foundWallet.addBIP47Receiver(newPc);
+      await saveToDisk();
       setReload(Math.random());
       return;
     }
@@ -272,6 +277,7 @@ export default function PaymentCodesList() {
     if (cl.isBip352PaymentCodeValid(newPc)) {
       // ok its a SilentPayments code, notification tx is not needed, just add it to recipients:
       foundWallet.addBIP47Receiver(newPc);
+      await saveToDisk();
       setReload(Math.random());
       return;
     }
@@ -354,7 +360,11 @@ export default function PaymentCodesList() {
         <Text>Internal error</Text>
       ) : (
         <View style={styles.sectionListContainer}>
-          <SectionList sections={data} keyExtractor={(item, index) => item + index} renderItem={({ item }) => renderItem(item)} />
+          <SectionList
+            sections={data}
+            keyExtractor={(item, index) => item + index}
+            renderItem={({ item, index }) => renderItem(item, index)}
+          />
         </View>
       )}
 
