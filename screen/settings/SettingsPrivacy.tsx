@@ -92,7 +92,7 @@ const SettingsPrivacy: React.FC = () => {
 
   const onTemporaryScreenshotsValueChange = (value: boolean) => {
     setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-    setIsPrivacyBlurEnabledState(value);
+    setIsPrivacyBlurEnabledState(!value);
     setIsLoading(SettingsPrivacySection.None);
   };
 
@@ -145,17 +145,13 @@ const SettingsPrivacy: React.FC = () => {
         Component={TouchableWithoutFeedback}
         switch={{
           onValueChange: onTemporaryScreenshotsValueChange,
-          value: isPrivacyBlurEnabled,
+          value: !isPrivacyBlurEnabled,
           disabled: isLoading === SettingsPrivacySection.All,
         }}
       />
       <BlueCard>
         <BlueText>{loc.settings.privacy_temporary_screenshots_instructions}</BlueText>
       </BlueCard>
-
-      <BlueSpacing20 />
-      <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
-      <BlueSpacing20 />
       <ListItem
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
@@ -186,6 +182,9 @@ const SettingsPrivacy: React.FC = () => {
           </BlueCard>
         </>
       )}
+
+      <BlueSpacing20 />
+      <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
       <BlueSpacing20 />
     </ScrollView>
   );
