@@ -348,7 +348,7 @@ const WalletView: React.FC<WalletViewProps> = ({
   );
 
   const renderAddItem = () => (
-    <Pressable
+    <TouchableOpacity
       accessibilityRole="button"
       testID="CreateAWallet"
       onPress={() => onPress?.()}
@@ -361,7 +361,7 @@ const WalletView: React.FC<WalletViewProps> = ({
           <Text style={[styles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
         </View>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 
   if (type === 'Header') return renderHeader();
