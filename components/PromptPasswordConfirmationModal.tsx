@@ -100,13 +100,13 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
       Animated.sequence([
         Animated.timing(shakeAnimation, {
           toValue: 10,
-          duration: 150,
+          duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(shakeAnimation, {
           toValue: -10,
-          duration: 150,
+          duration: 100,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
