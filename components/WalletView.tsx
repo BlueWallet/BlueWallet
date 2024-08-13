@@ -5,13 +5,13 @@ import {
   Image,
   LayoutAnimation,
   Platform,
-  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
   ViewStyle,
+  Pressable,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -27,7 +27,6 @@ import { useIsLargeScreen } from '../hooks/useIsLargeScreen';
 import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import ToolTipMenu from './TooltipMenu';
-import { BlueSpacing10 } from '../BlueComponents';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { ToolTipMenuProps } from './types';
@@ -177,6 +176,7 @@ const WalletView: React.FC<WalletViewProps> = ({
     return balanceFormatted;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletState?.preferredBalanceUnit, walletState?.hideBalance, walletState?.balance]);
+
   const toolTipWalletBalanceActions = useMemo(() => {
     if (type === 'Header' && walletState) {
       return walletState.hideBalance
@@ -187,12 +187,8 @@ const WalletView: React.FC<WalletViewProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, walletState?.hideBalance]);
 
-  const renderHeader = () => (
-    <LinearGradient
-      colors={WalletGradient.gradientsFor(walletState?.type || 'default')}
-      style={styles.lineaderGradient}
-      {...WalletGradient.linearGradientProps(walletState?.type || 'default')}
-    >
+  const renderMainContent = () => (
+    <>
       <Image
         source={(() => {
           switch (walletState?.type) {
@@ -204,21 +200,13 @@ const WalletView: React.FC<WalletViewProps> = ({
               return I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
           }
         })()}
-        style={styles.chainIcon}
+        style={styles.image}
       />
-
-      <Text testID="WalletLabel" numberOfLines={1} style={styles.walletLabel} selectable>
+      <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, type === 'Header' && styles.headerLabel]} selectable>
         {walletState?.getLabel()}
       </Text>
       <View style={styles.walletBalanceAndUnitContainer}>
-        <ToolTipMenu
-          isMenuPrimaryAction
-          isButton
-          enableAndroidRipple={false}
-          buttonStyle={styles.walletBalance}
-          onPressMenuItem={onPressMenuItem}
-          actions={toolTipWalletBalanceActions}
-        >
+        {type === 'Carousel' ? (
           <View style={styles.walletBalance}>
             {walletState?.hideBalance ? (
               <BlurredBalanceView />
@@ -230,131 +218,151 @@ const WalletView: React.FC<WalletViewProps> = ({
               </View>
             )}
           </View>
-        </ToolTipMenu>
-        <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
-          <Text style={styles.walletPreferredUnitText}>
-            {walletState?.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
-              ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
-              : walletState?.getPreferredBalanceUnit()}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {walletState?.type === LightningCustodianWallet.type && allowOnchainAddress && (
-        <ToolTipMenu
-          isMenuPrimaryAction
-          isButton
-          onPressMenuItem={handleManageFundsPressed}
-          actions={toolTipActions}
-          buttonStyle={styles.manageFundsButton}
-        >
-          <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-        </ToolTipMenu>
-      )}
-      {walletState?.type === MultisigHDWallet.type && (
-        <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
-          <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
-        </TouchableOpacity>
-      )}
-    </LinearGradient>
-  );
-
-  const renderCarouselItem = () => (
-    <Animated.View
-      style={[
-        isLargeScreen || !horizontal ? [styles.rootLargeDevice, customStyle] : customStyle ?? { ...styles.root, width: itemWidth },
-        isSelectedWallet === false ? styles.dimmed : styles.normal,
-        { transform: [{ scale: scaleValue }] },
-      ]}
-    >
-      <Pressable
-        accessibilityRole="button"
-        testID={walletState?.getLabel()}
-        onPressIn={() => {
-          Animated.spring(scaleValue, {
-            toValue: 0.95,
-            useNativeDriver: true,
-            friction: 3,
-            tension: 100,
-          }).start();
-        }}
-        onPressOut={() => {
-          Animated.spring(scaleValue, {
-            toValue: 1.0,
-            useNativeDriver: true,
-            friction: 3,
-            tension: 100,
-          }).start();
-        }}
-        onLongPress={handleLongPress}
-        onPress={() => {
-          Animated.spring(scaleValue, {
-            toValue: 1.0,
-            useNativeDriver: true,
-            friction: 3,
-            tension: 100,
-          }).start();
-          onPress?.(walletState);
-        }}
-      >
-        <View style={[styles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
-          <LinearGradient colors={WalletGradient.gradientsFor(walletState?.type || 'default')} style={styles.grad}>
-            <Image
-              source={(() => {
-                switch (walletState?.type) {
-                  case LightningCustodianWallet.type:
-                    return I18nManager.isRTL ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-                  case MultisigHDWallet.type:
-                    return I18nManager.isRTL ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-                  default:
-                    return I18nManager.isRTL ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-                }
-              })()}
-              style={styles.image}
-            />
-            <Text numberOfLines={1} style={[styles.label, { color: colors.inverseForegroundColor }]}>
-              {renderHighlightedText && searchQuery
-                ? renderHighlightedText(walletState?.getLabel() || '', searchQuery)
-                : walletState?.getLabel()}
-            </Text>
-            <View style={styles.balanceContainer}>
+        ) : (
+          <ToolTipMenu
+            isMenuPrimaryAction
+            isButton
+            enableAndroidRipple={false}
+            buttonStyle={styles.walletBalance}
+            onPressMenuItem={onPressMenuItem}
+            actions={toolTipWalletBalanceActions}
+          >
+            <View style={styles.walletBalance}>
               {walletState?.hideBalance ? (
-                <>
-                  <BlueSpacing10 />
-                  <BlurredBalanceView />
-                </>
+                <BlurredBalanceView />
               ) : (
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                  style={[styles.balance, { color: colors.inverseForegroundColor }]}
-                >
-                  {balance}
-                </Text>
+                <View>
+                  <Text
+                    testID="WalletBalance"
+                    numberOfLines={1}
+                    minimumFontScale={0.5}
+                    adjustsFontSizeToFit
+                    style={styles.walletBalanceText}
+                  >
+                    {balance}
+                  </Text>
+                </View>
               )}
             </View>
-            <View style={styles.latestTxContainer}>
-              <Text numberOfLines={1} style={[styles.latestTx, { color: colors.inverseForegroundColor }]}>
-                {loc.wallets.list_latest_transaction}
-              </Text>
-              <Text numberOfLines={1} style={[styles.latestTxTime, { color: colors.inverseForegroundColor }]}>
-                {walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === walletState?.getID()
-                  ? loc.transactions.updating
-                  : walletState?.getBalance() !== 0 && walletState?.getLatestTransactionTime() === 0
-                    ? loc.wallets.pull_to_refresh
-                    : walletState?.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
-                      ? loc.transactions.pending
-                      : transactionTimeToReadable(walletState?.getLatestTransactionTime() || '')}
-              </Text>
-            </View>
-          </LinearGradient>
-        </View>
-      </Pressable>
-    </Animated.View>
+          </ToolTipMenu>
+        )}
+        {type === 'Header' && (
+          <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
+            <Text style={styles.walletPreferredUnitText}>
+              {walletState?.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY
+                ? preferredFiatCurrency?.endPointKey ?? FiatUnit.USD
+                : walletState?.getPreferredBalanceUnit()}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+      {type === 'Header' && (
+        <>
+          {walletState?.type === LightningCustodianWallet.type && allowOnchainAddress && (
+            <ToolTipMenu
+              isMenuPrimaryAction
+              isButton
+              onPressMenuItem={handleManageFundsPressed}
+              actions={toolTipActions}
+              buttonStyle={styles.manageFundsButton}
+            >
+              <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+            </ToolTipMenu>
+          )}
+          {walletState?.type === MultisigHDWallet.type && (
+            <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
+              <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+    </>
   );
 
+  const renderHeaderOrCarousel = () => {
+    const ContainerComponent = type === 'Header' ? View : Animated.View;
+
+    return (
+      <ContainerComponent
+        style={[
+          isLargeScreen || !horizontal ? [styles.rootLargeDevice, customStyle] : customStyle ?? { ...styles.root, width: itemWidth },
+          isSelectedWallet === false ? styles.dimmed : styles.normal,
+          type === 'Carousel' ? { transform: [{ scale: scaleValue }] } : {},
+        ]}
+      >
+        {type === 'Carousel' ? (
+          <Pressable
+            accessibilityRole="button"
+            testID={walletState?.getLabel()}
+            onPressIn={() => {
+              Animated.spring(scaleValue, {
+                toValue: 0.95,
+                useNativeDriver: true,
+                friction: 3,
+                tension: 100,
+              }).start();
+            }}
+            onPressOut={() => {
+              Animated.spring(scaleValue, {
+                toValue: 1.0,
+                useNativeDriver: true,
+                friction: 3,
+                tension: 100,
+              }).start();
+            }}
+            onLongPress={handleLongPress}
+            onPress={() => onPress?.(walletState)}
+          >
+            <View
+              style={[
+                styles.shadowContainer,
+                { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+                styles.carouselGradient,
+              ]}
+            >
+              <LinearGradient
+                colors={WalletGradient.gradientsFor(walletState?.type || 'default')}
+                style={styles.grad}
+                {...WalletGradient.linearGradientProps(walletState?.type || 'default')}
+              >
+                {renderMainContent()}
+                <View style={styles.latestTxContainer}>
+                  <Text numberOfLines={1} style={[styles.latestTx, { color: colors.inverseForegroundColor }]}>
+                    {loc.wallets.list_latest_transaction}
+                  </Text>
+                  <Text numberOfLines={1} style={[styles.latestTxTime, { color: colors.inverseForegroundColor }]}>
+                    {walletTransactionUpdateStatus === WalletTransactionsStatus.ALL ||
+                    walletTransactionUpdateStatus === walletState?.getID()
+                      ? loc.transactions.updating
+                      : walletState?.getBalance() !== 0 && walletState?.getLatestTransactionTime() === 0
+                        ? loc.wallets.pull_to_refresh
+                        : walletState?.getTransactions().find((tx: Transaction) => tx.confirmations === 0)
+                          ? loc.transactions.pending
+                          : transactionTimeToReadable(walletState?.getLatestTransactionTime() || '')}
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+          </Pressable>
+        ) : (
+          <View
+            style={[styles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }, styles.headerGradient]}
+          >
+            <LinearGradient
+              colors={WalletGradient.gradientsFor(walletState?.type || 'default')}
+              style={[styles.grad, styles.borderRadious0]}
+              {...WalletGradient.linearGradientProps(walletState?.type || 'default')}
+            >
+              {renderMainContent()}
+            </LinearGradient>
+          </View>
+        )}
+      </ContainerComponent>
+    );
+  };
+
   const renderAddItem = () => (
-    <TouchableOpacity
+    <Pressable
       accessibilityRole="button"
       testID="CreateAWallet"
       onPress={() => onPress?.()}
@@ -367,26 +375,22 @@ const WalletView: React.FC<WalletViewProps> = ({
           <Text style={[styles.buttonText, { color: colors.brandingColor }]}>{loc.wallets.list_create_a_button}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
-  if (type === 'Header') return renderHeader();
   if (type === 'Add') return renderAddItem();
-  return renderCarouselItem();
+  return renderHeaderOrCarousel();
 };
 
 const styles = StyleSheet.create({
-  lineaderGradient: {
-    padding: 15,
+  headerGradient: {
+    borderRadius: 0,
     minHeight: 140,
     justifyContent: 'center',
   },
-  chainIcon: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
+  carouselGradient: {
+    borderRadius: 12,
+    minHeight: 164,
   },
   walletLabel: {
     backgroundColor: 'transparent',
@@ -394,6 +398,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
     marginBottom: 10,
+  },
+  headerLabel: {
+    fontSize: 22, // Slightly larger font for header
   },
   walletBalance: {
     flexShrink: 1,
@@ -420,6 +427,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 10, // Ensure there's some padding to the right
   },
+  borderRadious0: {
+     borderRadius: 0 },
   walletBalanceText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -439,14 +448,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   root: { paddingRight: 20 },
-  rootLargeDevice: { marginVertical: 20 },
+  rootLargeDevice: { marginVertical: 0 },
   grad: {
     padding: 15,
     borderRadius: 12,
     minHeight: 164,
-  },
-  balanceContainer: {
-    height: 40,
   },
   image: {
     width: 99,
@@ -454,17 +460,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-  },
-  label: {
-    backgroundColor: 'transparent',
-    fontSize: 19,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  balance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   latestTx: {
     backgroundColor: 'transparent',
