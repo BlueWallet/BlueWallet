@@ -221,6 +221,8 @@
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
     "about_sm_twitter": "Siguenos en Twitter",
+    "privacy_temporary_screenshots": "Permitir capturas de pantalla",
+    "privacy_temporary_screenshots_instructions": "La protección contra capturas de pantalla se desactivará para esta sesión, permitiéndote hacer capturas de pantalla. Cuando cierres y vuelvas a abrir la aplicación, la protección volverá a activarse automáticamente.",
     "advanced_options": "Opciones Avanzadas",
     "biometrics": "Biometría",
     "biometrics_no_longer_available": "La configuración de tu dispositivo cambió y ya no coincide con la configuración de seguridad seleccionada en la aplicación. Vuelve a habilitar los datos biométricos o el código de acceso, luego reinicia la aplicación para aplicar estos cambios.",
