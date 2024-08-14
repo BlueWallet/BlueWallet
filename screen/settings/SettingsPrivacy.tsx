@@ -17,6 +17,7 @@ enum SettingsPrivacySection {
   ReadClipboard,
   QuickActions,
   Widget,
+  TemporaryScreenshots,
 }
 
 const SettingsPrivacy: React.FC = () => {
@@ -25,6 +26,7 @@ const SettingsPrivacy: React.FC = () => {
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
+    isPrivacyBlurEnabled,
     setIsPrivacyBlurEnabledState,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
@@ -36,7 +38,6 @@ const SettingsPrivacy: React.FC = () => {
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
 
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const [isPrivacyBlurEnabledTapped, setIsPrivacyBlurEnabledTapped] = useState<number>(0);
   const styleHooks = StyleSheet.create({
     root: {
       backgroundColor: colors.background,
@@ -89,13 +90,14 @@ const SettingsPrivacy: React.FC = () => {
     setIsLoading(SettingsPrivacySection.None);
   };
 
-  const openApplicationSettings = () => {
-    openSettings();
+  const onTemporaryScreenshotsValueChange = (value: boolean) => {
+    setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
+    setIsPrivacyBlurEnabledState(!value);
+    setIsLoading(SettingsPrivacySection.None);
   };
 
-  const onDisablePrivacyTapped = () => {
-    setIsPrivacyBlurEnabledState(!(isPrivacyBlurEnabledTapped >= 10));
-    setIsPrivacyBlurEnabledTapped(prev => prev + 1);
+  const openApplicationSettings = () => {
+    openSettings();
   };
 
   return (
@@ -117,7 +119,7 @@ const SettingsPrivacy: React.FC = () => {
         }}
       />
       <BlueCard>
-        <Pressable accessibilityRole="button" onPress={onDisablePrivacyTapped}>
+        <Pressable accessibilityRole="button">
           <BlueText>{loc.settings.privacy_clipboard_explanation}</BlueText>
         </Pressable>
       </BlueCard>
@@ -132,13 +134,24 @@ const SettingsPrivacy: React.FC = () => {
           testID: 'QuickActionsSwitch',
         }}
       />
-      {}
       <BlueCard>
         <BlueText>{loc.settings.privacy_quickactions_explanation}</BlueText>
         <BlueSpacing20 />
         {storageIsEncrypted && <BlueText>{loc.settings.encrypted_feature_disabled}</BlueText>}
       </BlueCard>
 
+      <ListItem
+        title={loc.settings.privacy_temporary_screenshots}
+        Component={TouchableWithoutFeedback}
+        switch={{
+          onValueChange: onTemporaryScreenshotsValueChange,
+          value: !isPrivacyBlurEnabled,
+          disabled: isLoading === SettingsPrivacySection.All,
+        }}
+      />
+      <BlueCard>
+        <BlueText>{loc.settings.privacy_temporary_screenshots_instructions}</BlueText>
+      </BlueCard>
       <ListItem
         title={loc.settings.privacy_do_not_track}
         Component={TouchableWithoutFeedback}
@@ -169,7 +182,6 @@ const SettingsPrivacy: React.FC = () => {
           </BlueCard>
         </>
       )}
-      <BlueSpacing20 />
 
       <BlueSpacing20 />
       <ListItem title={loc.settings.privacy_system_settings} chevron onPress={openApplicationSettings} testID="PrivacySystemSettings" />
