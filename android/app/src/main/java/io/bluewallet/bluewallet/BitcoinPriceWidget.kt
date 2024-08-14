@@ -3,7 +3,6 @@ package io.bluewallet.bluewallet
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.work.WorkManager
 
@@ -24,11 +23,13 @@ class BitcoinPriceWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
         Log.d("BitcoinPriceWidget", "onDisabled called")
+        clearCache(context)
         WorkManager.getInstance(context).cancelUniqueWork(WidgetUpdateWorker.WORK_NAME)
     }
 
-    override fun onReceive(context: Context, intent:Intent) {
-        super.onReceive(context, intent)
-        Log.d("BitcoinPriceWidget", "onReceive called with action: ${intent.action}")
-        }
-        }
+    private fun clearCache(context: Context) {
+        val sharedPref = context.getSharedPreferences("widget_prefs", Context.MODE_PRIVATE)
+        sharedPref.edit().clear().apply()
+        Log.d("BitcoinPriceWidget", "Cache cleared")
+    }
+}

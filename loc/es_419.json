@@ -21,7 +21,6 @@
     "close": "Cerrar",
     "change_input_currency": "Cambiar moneda de entrada",
     "refresh": "Actualizar",
-    "more": "Más",
     "pick_image": "Elegir imagen de la biblioteca",
     "pick_file": "Escoge un archivo",
     "enter_amount": "Ingresa la cantidad",
@@ -169,6 +168,7 @@
     "fee_1d": "1d",
     "fee_3h": "3h",
     "fee_custom": "Personalizado",
+    "insert_custom_fee": "Insertar tarifa personalizada",
     "fee_fast": "Rápido",
     "fee_medium": "Medio",
     "fee_replace_minvb": "La tasa de tarifa total (satoshi por vByte) que deseas pagar debe ser superior a {min} sat/vByte.",
@@ -221,6 +221,8 @@
     "about_sm_discord": "Servidor Discord",
     "about_sm_telegram": "Chat de Telegram ",
     "about_sm_twitter": "Siguenos en Twitter",
+    "privacy_temporary_screenshots": "Permitir capturas de pantalla",
+    "privacy_temporary_screenshots_instructions": "La protección contra capturas de pantalla se desactivará para esta sesión, permitiéndote hacer capturas de pantalla. Cuando cierres y vuelvas a abrir la aplicación, la protección volverá a activarse automáticamente.",
     "advanced_options": "Opciones Avanzadas",
     "biometrics": "Biometría",
     "biometrics_no_longer_available": "La configuración de tu dispositivo cambió y ya no coincide con la configuración de seguridad seleccionada en la aplicación. Vuelve a habilitar los datos biométricos o el código de acceso, luego reinicia la aplicación para aplicar estos cambios.",
@@ -466,7 +468,8 @@
     "list_tryagain": "Intenta otra vez",
     "no_ln_wallet_error": "Antes de pagar una factura Lightning, primero debes agregar una billetera Lightning.",
     "looks_like_bip38": "Esto parece una clave privada protegida por contraseña (BIP38).",
-    "reorder_title": "Reorganizar Billeteras",
+    "manage_title": "Administrar billeteras",
+    "no_results_found": "No se han encontrado resultados.",
     "please_continue_scanning": "Por favor continúa escaneando.",
     "select_no_bitcoin": "Actualmente no hay billeteras Bitcoin disponibles.",
     "select_no_bitcoin_exp": "Se requiere una billetera Bitcoin para recargar las billeteras Lightning. Por favor, crea o importa una.",
@@ -477,7 +480,7 @@
     "add_ln_wallet_first": "Primero debes agregar una billetera Lightning.",
     "identity_pubkey": "Identidad Pubkey",
     "xpub_title": "XPUB de la billetera",
-    "search_wallets": "Buscar billeteras"
+    "manage_wallets_search_placeholder": "Buscar billeteras, notas"
   },
   "multisig": {
     "multisig_vault": "Bóveda",

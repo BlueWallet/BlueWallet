@@ -22,18 +22,6 @@ workspace 'BlueWallet'
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 setup_permissions(['Camera', 'Notifications'])
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
-# flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
-
-flipper_config = FlipperConfiguration.disabled
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -44,13 +32,9 @@ end
 def configure_target()
   config = use_native_modules!
 
-  flags = get_default_flags()
-
   use_react_native!(
     # Specify the path directly if use_native_modules! does not provide it
     :path => config[:reactNativePath],
-    :hermes_enabled => true,
-    :fabric_enabled => flags[:fabric_enabled],
     :app_path => "#{Pod::Config.instance.installation_root}/.."
 
   )
@@ -65,7 +49,8 @@ end
 post_install do |installer|
   react_native_post_install(
     installer,
-    :mac_catalyst_enabled => true
+    :mac_catalyst_enabled => true,
+    # :ccache_enabled => true
   )
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
@@ -76,6 +61,5 @@ post_install do |installer|
         config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
       end
     end
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
   end
 end

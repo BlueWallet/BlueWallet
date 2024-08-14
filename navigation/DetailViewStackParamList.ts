@@ -4,9 +4,9 @@ import { SendDetailsParams } from './SendDetailsStackParamList';
 export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
   WalletsList: { scannedData?: string };
-  WalletTransactions: { walletID: string; walletType: string };
+  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { transactionId: string };
+  TransactionDetails: { transactionId: string; hash: string; walletID: string };
   TransactionStatus: { hash?: string; walletID?: string };
   CPFP: { transactionId: string };
   RBFBumpFee: { transactionId: string };

@@ -64,6 +64,10 @@ platform :ios do
     }
 
     platform = options[:platform] || "ios" # Default to iOS if not specified
+  
+    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
+    sh("git branch -D master || true")
+  
     target_to_app_identifier.each do |target, app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],

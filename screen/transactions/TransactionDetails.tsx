@@ -20,11 +20,6 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 
-interface TransactionDetailsProps {
-  route: RouteProp<{ params: { hash: string; walletID: string } }, 'params'>;
-  navigation: NativeStackNavigationProp<any>;
-}
-
 const actionKeys = {
   CopyToClipboard: 'copyToClipboard',
   GoToWallet: 'goToWallet',
@@ -62,10 +57,11 @@ const toolTipMenuActions = [
 ];
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionDetails'>;
+type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionDetails'>;
 
 const TransactionDetails = () => {
   const { setOptions, navigate } = useExtendedNavigation<NavigationProps>();
-  const { hash, walletID } = useRoute<TransactionDetailsProps['route']>().params;
+  const { hash, walletID } = useRoute<RouteProps>().params;
   const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useStorage();
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
@@ -143,7 +139,7 @@ const TransactionDetails = () => {
             // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
             // and load user-defined alias for the pc if any
 
-            setCounterpartyLabel(counterpartyMetadata ? (counterpartyMetadata[foundPaymentCode]?.label ?? '') : '');
+            setCounterpartyLabel(counterpartyMetadata ? counterpartyMetadata[foundPaymentCode]?.label ?? '' : '');
             setIsCounterpartyLabelVisible(true);
             setPaymentCode(foundPaymentCode);
           }

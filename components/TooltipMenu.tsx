@@ -36,7 +36,7 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
       actionKey: action.id.toString(),
       actionTitle: action.text,
       icon: action.icon?.iconValue ? ({ iconType: 'SYSTEM', iconValue: action.icon.iconValue } as IconConfig) : undefined,
-      state: action.menuStateOn ? ('on' as MenuState) : ('off' as MenuState),
+      state: action.menuState ?? undefined,
       attributes: action.disabled ? ['disabled'] : [],
     };
   }, []);
@@ -46,8 +46,8 @@ const ToolTipMenu = React.memo((props: ToolTipMenuProps, ref?: Ref<any>) => {
     return {
       id: action.id.toString(),
       title: action.text,
-      image: action.menuStateOn && Platform.OS === 'android' ? 'checkbox_on_background' : action.icon?.iconValue || undefined,
-      state: action.menuStateOn ? ('on' as MenuState) : undefined,
+      image: action.icon?.iconValue ? action.icon.iconValue : undefined,
+      state: action.menuState === undefined ? undefined : ((action.menuState ? 'on' : 'off') as MenuState),
       attributes: { disabled: action.disabled },
     };
   }, []);
