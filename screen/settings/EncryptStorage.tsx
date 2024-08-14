@@ -12,6 +12,7 @@ import PromptPasswordConfirmationModal, {
   MODAL_TYPES,
   PromptPasswordConfirmationModalHandle,
 } from '../../components/PromptPasswordConfirmationModal';
+import { popToTop } from '../../NavigationService';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -217,6 +218,7 @@ const EncryptStorage = () => {
             try {
               await decryptStorage(password);
               await saveToDisk();
+              popToTop();
               success = true;
             } catch (error) {
               success = false;
