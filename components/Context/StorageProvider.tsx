@@ -95,9 +95,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       setWallets(BlueApp.getWallets());
-      if (BlueApp.getWallets().length > 0) {
-        BlueElectrum.connectMain();
-      }
+      BlueElectrum.connectMain();
     }
   }, [walletsInitialized]);
 
