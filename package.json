@@ -11,7 +11,7 @@
     "@babel/runtime": "^7.20.0",
     "@jest/reporters": "^27.5.1",
     "@react-native/babel-preset": "^0.74.87",
-    "@react-native/eslint-config": "^0.74.87",
+    "@react-native/eslint-config": "^0.75.0",
     "@react-native/js-polyfills": "^0.74.87",
     "@react-native/metro-babel-transformer": "^0.74.87",
     "@react-native/typescript-config": "^0.74.87",
