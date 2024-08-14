@@ -44,6 +44,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   // await element(by.text('OK')).tap();
 
   // lets go inside wallet
+  if (process.env.TRAVIS) await sleep(5000);
   await element(by.text(expectedWalletLabel)).tap();
   // label might change in the future
   await expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
