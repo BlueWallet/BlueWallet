@@ -286,16 +286,6 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
 }
 
-type FlatListRefType = FlatList<any> & {
-  scrollToEnd(params?: { animated?: boolean | null }): void;
-  scrollToIndex(params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }): void;
-  scrollToItem(params: { animated?: boolean | null; item: TWallet; viewPosition?: number }): void;
-  scrollToOffset(params: { animated?: boolean | null; offset: number }): void;
-  recordInteraction(): void;
-  flashScrollIndicators(): void;
-  getNativeScrollRef(): View;
-};
-
 const cStyles = StyleSheet.create({
   content: {
     paddingTop: 16,
@@ -311,7 +301,7 @@ const cStyles = StyleSheet.create({
 
 const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle} />;
 
-const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
+const WalletsCarousel = forwardRef<FlatList, WalletsCarouselProps>((props, ref) => {
   const {
     horizontal,
     data,

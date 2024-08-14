@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
-import { AztecoRedeemComponent, SelectWalletComponent } from './LazyLoadAztecoRedeemStack';
+import { AztecoRedeemComponent } from './LazyLoadAztecoRedeemStack';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,13 +20,7 @@ const AztecoRedeemStackRoot = () => {
           statusBarStyle: 'auto',
         })(theme)}
       />
-      <Stack.Screen
-        name="SelectWallet"
-        component={SelectWalletComponent}
-        options={navigationStyle({
-          title: loc.wallets.select_wallet,
-        })(theme)}
-      />
+  
     </Stack.Navigator>
   );
 };

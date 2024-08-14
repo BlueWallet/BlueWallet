@@ -56,6 +56,7 @@ import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
+import SelectWalletModal from '../../components/SelectWalletModal';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -83,6 +84,7 @@ const SendDetails = () => {
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
+  const selectWalletModal = useRef()
   const popAction = StackActions.pop(1);
 
   // state
@@ -1200,8 +1202,7 @@ const SendDetails = () => {
             style={styles.selectTouch}
             onPress={() => {
               feeModalRef.current?.dismiss();
-
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+selectWalletModal.current?.present()
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -1213,7 +1214,7 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={styles.selectTouch}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
+              selectWalletModal.current?.present()
             }}
             disabled={!isEditable || isLoading}
           >
@@ -1404,6 +1405,7 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
+      <SelectWalletModal  ref={selectWalletModal} chainType={Chain.ONCHAIN} />
     </View>
   );
 };

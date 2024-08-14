@@ -166,11 +166,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
       />
       <DetailViewStack.Screen
-        name="SelectWallet"
-        component={SelectWallet}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <DetailViewStack.Screen
         name="LNDViewInvoice"
         component={LNDViewInvoice}
         options={navigationStyle({

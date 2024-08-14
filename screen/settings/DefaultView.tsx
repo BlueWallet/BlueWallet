@@ -83,7 +83,6 @@ const DefaultView: React.FC = () => {
   };
 
   const selectWallet = () => {
-    navigate('SelectWallet', { onWalletSelect: onWalletSelectValueChanged, onChainRequireSend: false });
   };
 
   const onWalletSelectValueChanged = async (wallet: TWallet) => {

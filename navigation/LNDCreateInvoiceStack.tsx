@@ -8,7 +8,6 @@ import {
   LNDViewAdditionalInvoiceInformationComponent,
   LNDViewAdditionalInvoicePreImageComponent,
   LNDViewInvoiceComponent,
-  SelectWalletComponent,
 } from './LazyLoadLNDCreateInvoiceStack';
 
 const Stack = createNativeStackNavigator();
@@ -28,11 +27,7 @@ const LNDCreateInvoiceRoot = () => {
           statusBarStyle: 'light',
         })(theme)}
       />
-      <Stack.Screen
-        name="SelectWallet"
-        component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
+
       <Stack.Screen
         name="LNDViewInvoice"
         component={LNDViewInvoiceComponent}

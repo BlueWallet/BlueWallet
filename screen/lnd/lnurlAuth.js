@@ -8,7 +8,6 @@ import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import selectWallet from '../../helpers/select-wallet';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';

@@ -11,7 +11,6 @@ import {
   PsbtMultisigComponent,
   PsbtMultisigQRCodeComponent,
   PsbtWithHardwareWalletComponent,
-  SelectWalletComponent,
   SendDetailsComponent,
   SuccessComponent,
 } from './LazyLoadSendDetailsStack';
@@ -69,11 +68,7 @@ const SendDetailsStack = () => {
         component={SuccessComponent}
         options={navigationStyle({ headerShown: false, gestureEnabled: false })(theme)}
       />
-      <Stack.Screen
-        name="SelectWallet"
-        component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
+
       <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
       <Stack.Screen
         name="PaymentCodeList"

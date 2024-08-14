@@ -249,7 +249,6 @@ const ScanLndInvoice = () => {
   };
 
   const naviageToSelectWallet = () => {
-    navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
   };
 
   const renderWalletSelectionButton = () => {
