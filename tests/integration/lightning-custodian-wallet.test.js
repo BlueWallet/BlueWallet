@@ -472,14 +472,11 @@ describe.skip('LightningCustodianWallet', () => {
       body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
     });
 
-    let json;
-    let invoice;
     const res = await response.json();
-    if (!json) {
-      invoice = json.message;
-    } else {
+    if (!res || !res.message) {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
     }
+    const invoice = res.message;
 
     // --> use to pay specific invoice
     // invoice =
@@ -583,15 +580,11 @@ describe.skip('LightningCustodianWallet', () => {
       body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
     });
 
-    let json;
-    let invoice;
     const res = await response.json();
-    if (!json) {
-      invoice = json.message;
-    } else {
+    if (!res || !res.message) {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
     }
-
+    const invoice = res.message;
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);
