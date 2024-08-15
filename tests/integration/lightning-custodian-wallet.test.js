@@ -475,7 +475,7 @@ describe.skip('LightningCustodianWallet', () => {
     let json;
     let invoice;
     const res = await response.json();
-    if (res && (json = res) && json.message) {
+    if (!json) {
       invoice = json.message;
     } else {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
@@ -586,7 +586,7 @@ describe.skip('LightningCustodianWallet', () => {
     let json;
     let invoice;
     const res = await response.json();
-    if (res && (json = res) && json.message) {
+    if (!json) {
       invoice = json.message;
     } else {
       throw new Error('tippin.me problem: ' + JSON.stringify(res));
