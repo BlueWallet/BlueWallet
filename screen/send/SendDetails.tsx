@@ -56,6 +56,7 @@ import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
 import { Action } from '../../components/types';
 import SelectFeeModal from '../../components/SelectFeeModal';
+import SendAmountWarning, { SendAmountWarningHandle } from '../../components/SendAmountWarningModal';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -111,6 +112,22 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxo ? utxo.reduce((prev, curr) => prev + curr.value, 0) : wallet?.getBalance() ?? 0;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
+
+  // This is for the SendAmountWarningModal
+  const [feePercentage, setFeePercentage] = useState(0);
+  const feeWarningRef = useRef<SendAmountWarningHandle>(null);
+
+  const calculateFeePercentage = () => {
+    const totalAmount = addresses.reduce((total, item) => total + Number(item.amountSats || 0), 0);
+    if (!feePrecalc.current || totalAmount === 0) return 0;
+    return (feePrecalc.current / totalAmount) * 100;
+  };
+
+  const handleProceed = async () => {
+    await feeWarningRef.current?.dismiss();
+    // Proceed with the transaction creation
+    createPsbtTransaction();
+  };
 
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
@@ -490,7 +507,6 @@ const SendDetails = () => {
   const createTransaction = async () => {
     assert(wallet, 'Internal error: wallet is not set');
     Keyboard.dismiss();
-    setIsLoading(true);
     const requestedSatPerByte = feeRate;
     for (const [index, transaction] of addresses.entries()) {
       let error;
@@ -559,7 +575,16 @@ const SendDetails = () => {
     }
 
     try {
-      await createPsbtTransaction();
+      const calculatedFeePercentage = calculateFeePercentage();
+      setFeePercentage(calculatedFeePercentage);
+      const threshold = 10; // 5% threshold, you can adjust this value
+
+      if (calculatedFeePercentage > threshold) {
+        await feeWarningRef.current?.present();
+      } else {
+        setIsLoading(true);
+        await createPsbtTransaction();
+      }
     } catch (Err: any) {
       setIsLoading(false);
       presentAlert({ title: loc.errors.error, message: Err.message });
@@ -569,6 +594,7 @@ const SendDetails = () => {
 
   const createPsbtTransaction = async () => {
     if (!wallet) return;
+    await feeWarningRef.current?.dismiss();
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
@@ -1404,6 +1430,12 @@ const SendDetails = () => {
       })}
 
       {renderWalletSelectionOrCoinsSelected()}
+      <SendAmountWarning
+        ref={feeWarningRef}
+        feePercentage={feePercentage}
+        onProceed={handleProceed}
+        onCancel={() => feeWarningRef.current?.dismiss()}
+      />
     </View>
   );
 };
