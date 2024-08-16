@@ -62,7 +62,7 @@
     "help2": "Новото хранилище ще бъде напълно функционално и може да държите минимални средства в него. Така ще изглежда като легитимен портфеил.",
     "password_should_not_match": "Моля, изберете различна парола.",
     "passwords_do_not_match": "Паролите не съвпадат. Моля, опитайте отново.",
-    "retype_password": "Повторете паролата",
+    "confirm_password": "Повторете паролата",
     "success": "Успех",
     "title": "Plausible Deniability"
   },
@@ -195,7 +195,7 @@
     "general": "Основно",
     "general_adv_mode": "Развирени Настройки",
     "plausible_deniability": "Plausible Deniability",
-    "retype_password": "Повторете паролата",
+    "confirm_password": "Повторете паролата",
     "save": "Запази"
   },
   "transactions": {

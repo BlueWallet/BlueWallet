@@ -84,7 +84,7 @@
     "help2": "El nuevo almacén será completamente funcional, y puedes almacenar cantidades mínimas para que sea mas creíble.",
     "password_should_not_match": "La contraseña está actualmente en uso. Intenta con una contraseña diferente.",
     "passwords_do_not_match": "Las contraseñas no coinciden, intenta nuevamente",
-    "retype_password": "Vuelve a escribir la contraseña",
+    "confirm_password": "Vuelve a escribir la contraseña",
     "success": "Éxito",
     "title": "Negación plausible"
   },
@@ -306,7 +306,7 @@
     "privacy_do_not_track_explanation": "La información de rendimiento y confiabilidad no se enviará para su análisis.",
     "push_notifications": "Notificaciones Push",
     "rate": "Tasa",
-    "retype_password": "Ingresa la contraseña nuevamente",
+    "confirm_password": "Ingresa la contraseña nuevamente",
     "selfTest": "Auto-Test",
     "save": "Guardar",
     "saved": "Guardado",

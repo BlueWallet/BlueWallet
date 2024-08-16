@@ -68,7 +68,7 @@
     "help2": "Den nye lagringen vil være fullt funksjonell, og du kan lagre noen minimumsbeløp der slik at den ser mer troverdig ut.",
     "password_should_not_match": "Passordet er i bruk. Prøv et annet passord.",
     "passwords_do_not_match": "Passordene stemmer ikke overens. Vennligst prøv igjen.",
-    "retype_password": "Skriv inn passordet på nytt",
+    "confirm_password": "Skriv inn passordet på nytt",
     "success": "Vellykket",
     "title": "Plausibel Fornektelse"
   },
@@ -259,7 +259,7 @@
     "privacy_do_not_track_explanation": "Informasjon om ytelse og pålitelighet vil ikke bli sendt inn for analyse.",
     "push_notifications": "Varslinger",
     "rate": "Rate",
-    "retype_password": "Skriv inn passordet på nytt",
+    "confirm_password": "Skriv inn passordet på nytt",
     "selfTest": "Selvtest",
     "save": "Lagre",
     "saved": "Lagret",

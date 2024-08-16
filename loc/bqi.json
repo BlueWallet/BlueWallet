@@ -79,7 +79,7 @@
     "create_password_explanation": "رزمی که سی جاگه زفت کردنی جعلی هڌ، نوا وا رزم جاگه زفت کردنی السی یه جۊر بۊ.",
     "password_should_not_match": "رزم هونی به کار اروه. یه رزم دیری نه به کار بگر.",
     "passwords_do_not_match": "رزمات جۊر یک نؽڌن، زه نۊ امتهانسۉ کو.",
-    "retype_password": "رزمنه زه نۊ هؽل کو",
+    "confirm_password": "رزمنه زه نۊ هؽل کو",
     "success": "سر ٱنجوم گرهڌ"
   },
   "pleasebackup": {
@@ -236,7 +236,7 @@
     "privacy_read_clipboard": "خوندن ویرگه",
     "privacy_system_settings": "سامووا دسگا",
     "rate": "نرخ",
-    "retype_password": "رزمنه زه نۊ هؽل کو",
+    "confirm_password": "رزمنه زه نۊ هؽل کو",
     "save": "زفت کردن",
     "saved": "زفت وابی",
     "widgets": "اوزارکا",
