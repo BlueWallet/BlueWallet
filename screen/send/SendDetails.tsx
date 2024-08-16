@@ -1138,9 +1138,6 @@ const SendDetails = () => {
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
-    loading: {
-      backgroundColor: colors.background,
-    },
     root: {
       backgroundColor: colors.elevated,
     },
@@ -1183,7 +1180,12 @@ const SendDetails = () => {
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <Button onPress={createTransaction} disabled={isDisabled} title={loc.send.details_next} testID="CreateTransactionButton" />
+          <Button
+            onPress={createTransaction}
+            disabled={isDisabled || isLoading}
+            title={loc.send.details_next}
+            testID="CreateTransactionButton"
+          />
         )}
       </View>
     );
@@ -1336,13 +1338,6 @@ const SendDetails = () => {
     index,
   });
 
-  if (isLoading || !wallet) {
-    return (
-      <View style={[styles.loading, stylesHook.loading]}>
-        <BlueLoading />
-      </View>
-    );
-  }
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
