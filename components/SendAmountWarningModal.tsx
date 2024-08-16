@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../components/themes';
 import BottomModal, { BottomModalHandle } from '../components/BottomModal';
 import loc from '../loc';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 
 export interface SendAmountWarningHandle {
   present: () => void;
@@ -22,6 +23,7 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
   useImperativeHandle(ref, () => ({
     present: () => {
       modalRef.current?.present();
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
     },
     dismiss: () => {
       modalRef.current?.dismiss();
@@ -36,14 +38,20 @@ const SendAmountWarning = forwardRef<SendAmountWarningHandle, SendAmountWarningP
       dismissible={false}
       footer={
         <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.buttonBackgroundColor }]} onPress={onProceed}>
+          <TouchableOpacity
+            testID="HighFeeWarningContinueButton"
+            style={[styles.button, { backgroundColor: colors.buttonBackgroundColor }]}
+            onPress={onProceed}
+          >
             <Text style={[styles.buttonText, { color: colors.buttonTextColor }]}>{loc._.continue}</Text>
           </TouchableOpacity>
         </View>
       }
     >
       <View style={styles.container}>
-        <Text style={[styles.title, { color: colors.foregroundColor }]}>{loc.send.high_fee_warning}</Text>
+        <Text testID="HighFeeWarningTitle" style={[styles.title, { color: colors.redText }]}>
+          {loc.send.high_fee_warning}
+        </Text>
         <Text style={[styles.message, { color: colors.labelText }]}>
           {loc.send.high_fee_warning_message_part1}
           <Text style={styles.feePercentage}>{`${feePercentage.toFixed(2)}%`}</Text>

@@ -401,9 +401,7 @@ const SendDetails = () => {
     useCallback(() => {
       setIsLoading(false);
       setDumb(v => !v);
-      return () => {
-        feeModalRef.current?.dismiss();
-      };
+      return () => {};
     }, []),
   );
 
@@ -634,7 +632,7 @@ const SendDetails = () => {
 
     if (tx && routeParams.launchedBy && psbt) {
       console.warn('navigating back to ', routeParams.launchedBy);
-      feeModalRef.current?.dismiss();
+      await feeModalRef.current?.dismiss();
 
       // @ts-ignore idk how to fix FIXME?
 
@@ -642,7 +640,7 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === WatchOnlyWallet.type) {
-      feeModalRef.current?.dismiss();
+      await feeModalRef.current?.dismiss();
 
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
@@ -658,7 +656,7 @@ const SendDetails = () => {
     }
 
     if (wallet?.type === MultisigHDWallet.type) {
-      feeModalRef.current?.dismiss();
+      await feeModalRef.current?.dismiss();
 
       navigation.navigate('PsbtMultisig', {
         memo: transactionMemo,
@@ -684,7 +682,7 @@ const SendDetails = () => {
       // (ez can be the case for single-address wallet when doing self-payment for consolidation)
       recipients = outputs;
     }
-    feeModalRef.current?.dismiss();
+    await feeModalRef.current?.dismiss();
 
     navigation.navigate('Confirm', {
       fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -718,8 +716,8 @@ const SendDetails = () => {
       return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
     }
 
-    requestCameraAuthorization().then(() => {
-      feeModalRef.current?.dismiss();
+    requestCameraAuthorization().then(async () => {
+      await feeModalRef.current?.dismiss();
 
       navigation.navigate('ScanQRCodeRoot', {
         screen: 'ScanQRCode',
@@ -731,7 +729,7 @@ const SendDetails = () => {
     });
   };
 
-  const importQrTransactionOnBarScanned = (ret: any) => {
+  const importQrTransactionOnBarScanned = async (ret: any) => {
     navigation.getParent()?.getParent()?.dispatch(popAction);
     if (!wallet) return;
     if (!ret.data) ret = { data: ret };
@@ -741,7 +739,7 @@ const SendDetails = () => {
       // this looks like NOT base64, so maybe its transaction's hex
       // we dont support it in this flow
     } else {
-      feeModalRef.current?.dismiss();
+      await feeModalRef.current?.dismiss();
 
       // psbt base64?
 
@@ -1224,9 +1222,7 @@ const SendDetails = () => {
           <TouchableOpacity
             accessibilityRole="button"
             style={styles.selectTouch}
-            onPress={() => {
-              feeModalRef.current?.dismiss();
-
+            onPress={async () => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN });
             }}
           >
