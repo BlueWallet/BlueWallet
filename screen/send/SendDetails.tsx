@@ -124,6 +124,7 @@ const SendDetails = () => {
   };
 
   const handleProceed = async () => {
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
     await feeWarningRef.current?.dismiss();
     // Proceed with the transaction creation
     createPsbtTransaction();
