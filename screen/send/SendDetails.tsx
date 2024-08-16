@@ -577,7 +577,7 @@ const SendDetails = () => {
     try {
       const calculatedFeePercentage = calculateFeePercentage();
       setFeePercentage(calculatedFeePercentage);
-      const threshold = 10; // 5% threshold, you can adjust this value
+      const threshold = 10; // 5% threshold
 
       if (calculatedFeePercentage > threshold) {
         await feeWarningRef.current?.present();
