@@ -19,18 +19,18 @@ export const MODAL_TYPES = {
 
 export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES];
 
-interface PromptPasswordConfirmationModalProps {
+interface PromptModalProps {
   modalType: ModalType;
   onConfirmationSuccess: (password: string) => Promise<boolean>;
   onConfirmationFailure: () => void;
 }
 
-export interface PromptPasswordConfirmationModalHandle {
+export interface PromptModalHandle {
   present: () => Promise<void>;
   dismiss: () => Promise<void>;
 }
 
-const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationModalHandle, PromptPasswordConfirmationModalProps>(
+const PromptModal = forwardRef<PromptModalHandle, PromptModalProps>(
   ({ modalType, onConfirmationSuccess, onConfirmationFailure }, ref) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -384,7 +384,7 @@ const PromptPasswordConfirmationModal = forwardRef<PromptPasswordConfirmationMod
   },
 );
 
-export default PromptPasswordConfirmationModal;
+export default PromptModal;
 
 const styles = StyleSheet.create({
   modalContent: {

@@ -8,10 +8,10 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
-import PromptPasswordConfirmationModal, {
+import PromptModal, {
   MODAL_TYPES,
-  PromptPasswordConfirmationModalHandle,
-} from '../../components/PromptPasswordConfirmationModal';
+  PromptModalHandle,
+} from '../../components/PromptModal';
 import { popToTop } from '../../NavigationService';
 
 enum ActionType {
@@ -66,7 +66,7 @@ const EncryptStorage = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate } = useExtendedNavigation();
   const { colors } = useTheme();
-  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
+  const promptRef = useRef<PromptModalHandle>(null);
 
   const styleHooks = StyleSheet.create({
     root: {
@@ -199,7 +199,7 @@ const EncryptStorage = () => {
           containerStyle={[styles.row, styleHooks.root]}
         />
       )}
-      <PromptPasswordConfirmationModal
+      <PromptModal
         ref={promptRef}
         modalType={state.modalType}
         onConfirmationSuccess={async (password: string) => {

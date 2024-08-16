@@ -6,10 +6,10 @@ import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
 import { useStorage } from '../hooks/context/useStorage';
-import PromptPasswordConfirmationModal, {
-  PromptPasswordConfirmationModalHandle,
+import PromptModal, {
+  PromptModalHandle,
   MODAL_TYPES,
-} from '../components/PromptPasswordConfirmationModal';
+} from '../components/PromptModal';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 // Action Types
@@ -47,7 +47,7 @@ const PlausibleDeniability: React.FC = () => {
   const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate } = useExtendedNavigation();
-  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
+  const promptRef = useRef<PromptModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
@@ -106,7 +106,7 @@ const PlausibleDeniability: React.FC = () => {
           />
         </BlueCard>
       )}
-      <PromptPasswordConfirmationModal
+      <PromptModal
         ref={promptRef}
         modalType={state.modalType}
         onConfirmationSuccess={handleConfirmationSuccess}
