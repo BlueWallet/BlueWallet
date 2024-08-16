@@ -85,7 +85,7 @@
     "help2": "新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことでダミーと疑われないようにすることが可能です。",
     "password_should_not_match": "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
     "passwords_do_not_match": "パスワードが一致しません。もう一度試してください。",
-    "retype_password": "パスワードの再入力",
+    "confirm_password": "パスワードの再入力",
     "success": "成功",
     "title": "隠匿設定"
   },
@@ -305,7 +305,7 @@
     "privacy_do_not_track_explanation": "パフォーマンスと信頼性の情報を分析のために送信しません。",
     "push_notifications": "プッシュ通知",
     "rate": "レート",
-    "retype_password": "パスワードの再入力",
+    "confirm_password": "パスワードの再入力",
     "selfTest": "セルフテスト",
     "save": "保存",
     "saved": "保存済",
