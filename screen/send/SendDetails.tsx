@@ -28,7 +28,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueDismissKeyboardInputAccessory, BlueLoading, BlueText } from '../../BlueComponents';
+import { BlueDismissKeyboardInputAccessory, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -1124,9 +1124,6 @@ const SendDetails = () => {
   const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
-    loading: {
-      backgroundColor: colors.background,
-    },
     root: {
       backgroundColor: colors.elevated,
     },
@@ -1324,13 +1321,6 @@ const SendDetails = () => {
     index,
   });
 
-  if (isLoading || !wallet) {
-    return (
-      <View style={[styles.loading, stylesHook.loading]}>
-        <BlueLoading />
-      </View>
-    );
-  }
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
@@ -1438,10 +1428,6 @@ SendDetails.actionIcons = {
 };
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
   root: {
     flex: 1,
     justifyContent: 'space-between',
