@@ -216,6 +216,46 @@ desc "Increment build number"
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
 end
+end
+
+desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_dev_profiles_catalyst do
+    match(
+      type: "development",
+      platform: "catalyst",
+      app_identifier: app_identifiers,
+      readonly: true
+    )
+  end
+
+  desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
+  lane :fetch_appstore_profiles_catalyst do
+    match(
+      type: "appstore",
+      platform: "catalyst",
+      app_identifier: app_identifiers,
+      readonly: true
+    )
+  end
+
+  desc "Setup provisioning profiles for Mac Catalyst"
+  lane :setup_catalyst_provisioning_profiles do
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "development",
+        platform: "catalyst",
+        app_identifier: app_identifier,
+        readonly: false,
+        force_for_new_devices: true
+      )
+
+      match(
+        type: "appstore",
+        platform: "catalyst",
+        app_identifier: app_identifier,
+        readonly: false
+      )
+    end
 
 desc "Update 'What's New' section in App Store Connect for all localizations"
   lane :update_release_notes do
