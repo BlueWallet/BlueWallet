@@ -9,6 +9,7 @@ import {
   getSavedUri,
   getStoredNotifications,
   isGroundControlUriValid,
+  isNotificationsEnabled,
   saveUri,
   setLevels,
   tryToObtainPermissions,
@@ -22,8 +23,8 @@ import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 
 const NotificationSettings = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNotificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isNotificationsEnabledSwitch, setNotificationsEnabledSwitch] = useState(false);
   const [isShowTokenInfo, setShowTokenInfo] = useState(0);
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [URI, setURI] = useState();
@@ -31,40 +32,50 @@ const NotificationSettings = () => {
   const { colors } = useTheme();
 
   const onNotificationsSwitch = async value => {
-    setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
       await cleanUserOptOutFlag();
+      console.warn('NotificationSettings - user is ENABLING notifications');
       if (await getPushToken()) {
+        console.warn('NotificationSettings - we already have a token, so we just need to reenable ALL level on groundcontrol');
         // we already have a token, so we just need to reenable ALL level on groundcontrol:
         await setLevels(true);
+
       } else {
+        console.warn('NotificationSettings - ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally');
         // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
         await tryToObtainPermissions();
       }
     } else {
+      console.warn('NotificationSettings - user is DISABLING notifications');
       // user is DISABLING notifications
       await setLevels(false);
     }
+    console.warn('NotificationSettings - isNotificationsEnabled: ', await isNotificationsEnabled());  
 
-    setNotificationsEnabled(await isNotificationsEnabled());
+    setNotificationsEnabledSwitch(await isNotificationsEnabled());
   };
 
   useEffect(() => {
     (async () => {
-      setNotificationsEnabled(await isNotificationsEnabled());
-      setURI(await getSavedUri());
-      setTokenInfo(
-        'token: ' +
-          JSON.stringify(await getPushToken()) +
-          ' permissions: ' +
-          JSON.stringify(await checkPermissions()) +
-          ' stored notifications: ' +
-          JSON.stringify(await getStoredNotifications()),
-      );
-      setIsLoading(false);
+      try {
+        setNotificationsEnabledSwitch(await isNotificationsEnabled());
+        setURI(await getSavedUri());
+        setTokenInfo(
+          'token: ' +
+            JSON.stringify(await getPushToken()) +
+            ' permissions: ' +
+            JSON.stringify(await checkPermissions()) +
+            ' stored notifications: ' +
+            JSON.stringify(await getStoredNotifications()),
+        );
+      } catch (e) {
+        console.debug('NotificationSettings - useEffect error: ', e);
+      } finally {
+        setIsLoading(false);
+      }
     })();
-  }, [isNotificationsEnabled]);
+  }, []);
 
   const stylesWithThemeHook = {
     root: {
@@ -109,7 +120,7 @@ const NotificationSettings = () => {
       <ListItem
         Component={TouchableWithoutFeedback}
         title={loc.settings.push_notifications}
-        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabled, testID: 'NotificationsSwitch' }}
+        switch={{ onValueChange: onNotificationsSwitch, value: isNotificationsEnabledSwitch, testID: 'NotificationsSwitch' }}
       />
       <BlueSpacing20 />
 

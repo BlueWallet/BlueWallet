@@ -11,6 +11,10 @@ import {
   getDeliveredNotifications,
   getStoredNotifications,
   removeAllDeliveredNotifications,
+  configureNotifications,
+  setApplicationIconBadgeNumber,
+  getPushToken,
+  postTokenConfig,
 } from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
@@ -108,6 +112,7 @@ const CompanionDelegates = () => {
 
     return false;
   }, [fetchAndSaveWalletTransactions, refreshAllWalletTransactions, wallets]);
+
   const handleOpenURL = useCallback(
     (event: { url: string }) => {
       DeeplinkSchemaMatch.navigationRouteFor(event, value => navigationRef.navigate(...value), {
@@ -202,7 +207,7 @@ const CompanionDelegates = () => {
         ...notification,
         ...notification.data,
         foreground: true,
-        type: notification.data.type,
+        type: notification.data.type, // Correctly assign the type field
       };
 
       await addNotification(payload);
@@ -224,6 +229,27 @@ const CompanionDelegates = () => {
   }, [handleOpenURL, handleAppStateChange, onNotificationReceived]);
 
   useEffect(() => {
+    const initializeNotifications = async () => {
+      try {
+        setApplicationIconBadgeNumber(0);
+
+        const token = await getPushToken();
+        if (!token) {
+          const notificationsConfigured = await configureNotifications({
+            onProcessNotifications: processPushNotifications,
+          });
+
+          if (notificationsConfigured) {
+            await postTokenConfig();
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing notifications:', error);
+      }
+    };
+
+    initializeNotifications();
+
     const subscriptions = addListeners();
 
     return () => {
@@ -231,8 +257,7 @@ const CompanionDelegates = () => {
       subscriptions.appStateSubscription?.remove();
       subscriptions.notificationSubscription?.remove();
     };
-  }, [addListeners]);
-
+  }, [addListeners, processPushNotifications]);
   return (
     <>
       <Suspense fallback={null}>

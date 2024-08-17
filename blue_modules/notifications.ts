@@ -10,11 +10,11 @@ import ActionSheet from '../screen/ActionSheet';
 import { groundControlUri } from './constants';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
-const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
+export const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let alreadyConfigured = false;
-let baseURI = groundControlUri;
+export let baseURI = groundControlUri;
 
 interface PushToken {
   token: string;
@@ -35,8 +35,9 @@ async function _setPushToken(token: PushToken): Promise<void> {
 
 async function getPushToken(): Promise<PushToken | null> {
   try {
-    const token = await AsyncStorage.getItem(PUSH_TOKEN);
-    return token ? JSON.parse(token) : null;
+    const token = (await AsyncStorage.getItem(PUSH_TOKEN)) as PushToken | null | undefined;
+    console.warn('getPushToken2222', token ?? null);
+    return token ?? null;
   } catch (_) {
     return null;
   }
@@ -68,7 +69,7 @@ const configureNotifications = async function (props: NotificationProps): Promis
       if (status === 'granted') {
         PushNotification.configure({
           onRegister: async function (token: { token: string }) {
-            console.log('TOKEN:', token);
+            console.debug('TOKEN:', token);
             alreadyConfigured = true;
             await _setPushToken({ token: token.token, os: Platform.OS });
             resolve(true);
@@ -77,7 +78,7 @@ const configureNotifications = async function (props: NotificationProps): Promis
             const payload = { ...notification, ...notification.data };
             if (notification.data?.data) Object.assign(payload, notification.data.data);
             delete payload.data;
-            console.log('got push notification', payload);
+            console.debug('got push notification', payload);
 
             await addNotification(payload);
 
@@ -86,8 +87,8 @@ const configureNotifications = async function (props: NotificationProps): Promis
             if (payload.foreground) props.onProcessNotifications();
           },
           onAction: function (notification: any) {
-            console.log('ACTION:', notification.action);
-            console.log('NOTIFICATION:', notification);
+            console.debug('ACTION:', notification.action);
+            console.debug('NOTIFICATION:', notification);
           },
           onRegistrationError: function (err: Error) {
             console.error(err.message, err);
@@ -225,9 +226,9 @@ async function unsubscribe(addresses: string[], hashes: string[], txids: string[
     }),
   });
 
-  console.log('Abandoning notifications Permissions...');
+  console.debug('Abandoning notifications Permissions...');
   PushNotification.abandonPermissions();
-  console.log('Abandoned notifications Permissions...');
+  console.debug('Abandoned notifications Permissions...');
   return response.json();
 }
 
@@ -240,6 +241,7 @@ async function getLevels(): Promise<any> {
   const pushToken = await getPushToken();
   if (!pushToken || !pushToken.token || !pushToken.os) return {};
 
+  console.warn('getLevel111', pushToken);
   let response;
   try {
     response = await Promise.race([
@@ -262,6 +264,8 @@ async function getLevels(): Promise<any> {
 
 async function isNotificationsEnabled(): Promise<boolean> {
   const levels = await getLevels();
+  console.debug('isNotificationsEnabled', levels);
+  console.warn  ('isNotificationsEnabled1', await getPushToken());
   return !!(await getPushToken()) && !!levels.level_all;
 }
 
@@ -332,9 +336,9 @@ async function setLevels(levelAll: boolean): Promise<void> {
         os: pushToken.os,
       }),
     });
-    console.log('Abandoning notifications Permissions...');
+    console.debug('Abandoning notifications Permissions...');
     PushNotification.abandonPermissions();
-    console.log('Abandoned notifications Permissions...');
+    console.debug('Abandoned notifications Permissions...');
   } catch (_) {}
 }
 
@@ -393,25 +397,6 @@ function setApplicationIconBadgeNumber(badges: number): void {
 function removeAllDeliveredNotifications(): void {
   PushNotification.removeAllDeliveredNotifications();
 }
-
-(async () => {
-  try {
-    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
-    if (baseUriStored) {
-      baseURI = baseUriStored;
-    }
-  } catch (_) {}
-
-  setApplicationIconBadgeNumber(0);
-
-  const props: NotificationProps = {
-    onProcessNotifications: () => {},
-  };
-
-  if (!(await getPushToken())) return;
-  await configureNotifications(props);
-  await postTokenConfig();
-})();
 
 export {
   getPushToken,
