@@ -455,13 +455,14 @@ export class BlueApp {
             unserializedWallet.init();
             break;
           }
+          case 'lightningLdk':
+            // since ldk wallets are deprecated and removed, we need to handle a case when such wallet still exists in storage
+            unserializedWallet = new HDSegwitBech32Wallet();
+            unserializedWallet.setSecret(tempObj.secret.replace('ldk://', ''));
+            break;
           case LegacyWallet.type:
           default:
             unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
-            if (tempObj.secret?.startsWith('ldk://')) {
-              const extractedSecret = tempObj.secret.replace('ldk://', '');
-              unserializedWallet.setSecret(extractedSecret);
-            }
             break;
         }
 
