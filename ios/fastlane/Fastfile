@@ -216,7 +216,6 @@ desc "Increment build number"
     already_built_flag = ".already_built_#{last_commit[:sha]}"
     File.write(already_built_flag, Time.now.to_s)
 end
-end
 
 desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
@@ -256,8 +255,9 @@ desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
         readonly: false
       )
     end
+  end
 
-desc "Update 'What's New' section in App Store Connect for all localizations"
+  desc "Update 'What's New' section in App Store Connect for all localizations"
   lane :update_release_notes do
     # Path to the release notes file
     # Make sure to edit it to remove any mention of non-Apple products
