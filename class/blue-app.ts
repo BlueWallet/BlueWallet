@@ -351,13 +351,12 @@ export class BlueApp {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
-    // Wrap inside a try so if anything goes wrong it won't block loadFromDisk from continuing
+    // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
     try {
       await this.moveRealmFilesToCacheDirectory();
     } catch (error: any) {
       console.warn('moveRealmFilesToCacheDirectory error:', error.message);
     }
-
     let dataRaw = await this.getItemWithFallbackToRealm('data');
     if (password) {
       dataRaw = this.decryptData(dataRaw, password);
@@ -366,7 +365,6 @@ export class BlueApp {
         this.cachedPassword = password;
       }
     }
-
     if (dataRaw !== null) {
       let realm;
       try {
@@ -374,104 +372,97 @@ export class BlueApp {
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
-
       const data: TBucketStorage = JSON.parse(dataRaw);
       if (!data.wallets) return false;
       const wallets = data.wallets;
-
       for (const key of wallets) {
-        // Deciding which type is wallet and instantiating correct object
+        // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
         let unserializedWallet: TWallet;
-
-        // Handle secret extraction and creation of a new BIP39 wallet if prefix is "ldk://"
-        if (tempObj.secret?.startsWith('ldk://')) {
-          const extractedSecret = tempObj.secret.replace('ldk://', '');
-          unserializedWallet = new LegacyWallet();
-          unserializedWallet.setSecret(extractedSecret);
-        } else {
-          // Continue with the existing wallet deserialization logic
-          switch (tempObj.type) {
-            case SegwitBech32Wallet.type:
-              unserializedWallet = SegwitBech32Wallet.fromJson(key) as unknown as SegwitBech32Wallet;
-              break;
-            case SegwitP2SHWallet.type:
-              unserializedWallet = SegwitP2SHWallet.fromJson(key) as unknown as SegwitP2SHWallet;
-              break;
-            case WatchOnlyWallet.type:
-              unserializedWallet = WatchOnlyWallet.fromJson(key) as unknown as WatchOnlyWallet;
-              unserializedWallet.init();
-              if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
-                continue;
-              }
-              break;
-            case HDLegacyP2PKHWallet.type:
-              unserializedWallet = HDLegacyP2PKHWallet.fromJson(key) as unknown as HDLegacyP2PKHWallet;
-              break;
-            case HDSegwitP2SHWallet.type:
-              unserializedWallet = HDSegwitP2SHWallet.fromJson(key) as unknown as HDSegwitP2SHWallet;
-              break;
-            case HDSegwitBech32Wallet.type:
-              unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
-              break;
-            case HDLegacyBreadwalletWallet.type:
-              unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;
-              break;
-            case HDLegacyElectrumSeedP2PKHWallet.type:
-              unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key) as unknown as HDLegacyElectrumSeedP2PKHWallet;
-              break;
-            case HDSegwitElectrumSeedP2WPKHWallet.type:
-              unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key) as unknown as HDSegwitElectrumSeedP2WPKHWallet;
-              break;
-            case MultisigHDWallet.type:
-              unserializedWallet = MultisigHDWallet.fromJson(key) as unknown as MultisigHDWallet;
-              break;
-            case HDAezeedWallet.type:
-              unserializedWallet = HDAezeedWallet.fromJson(key) as unknown as HDAezeedWallet;
-              // Migrate password to this.passphrase field
-              // Remove this code somewhere in year 2022
-              if (unserializedWallet.secret.includes(':')) {
-                const [mnemonic, passphrase] = unserializedWallet.secret.split(':');
-                unserializedWallet.secret = mnemonic;
-                unserializedWallet.passphrase = passphrase;
-              }
-              break;
-            case SLIP39SegwitP2SHWallet.type:
-              unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key) as unknown as SLIP39SegwitP2SHWallet;
-              break;
-            case SLIP39LegacyP2PKHWallet.type:
-              unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key) as unknown as SLIP39LegacyP2PKHWallet;
-              break;
-            case SLIP39SegwitBech32Wallet.type:
-              unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
-              break;
-            case LightningCustodianWallet.type: {
-              unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
-              let lndhub: false | any = false;
-              try {
-                lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
-              } catch (error) {
-                console.warn(error);
-              }
-
-              if (unserializedWallet.baseURI) {
-                unserializedWallet.setBaseURI(unserializedWallet.baseURI); // Not really necessary, just for the sake of readability
-                console.log('using saved uri for ln wallet:', unserializedWallet.baseURI);
-              } else if (lndhub) {
-                console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
-                unserializedWallet.setBaseURI(lndhub);
-              } else {
-                console.log('wallet does not have a baseURI. Continuing init...');
-              }
-              unserializedWallet.init();
-              break;
-            }
-            case LegacyWallet.type:
-            default:
-              unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
-              console.debug('Unrecognized wallet. Skipping...', unserializedWallet);
+        switch (tempObj.type) {
+          case SegwitBech32Wallet.type:
+            unserializedWallet = SegwitBech32Wallet.fromJson(key) as unknown as SegwitBech32Wallet;
+            break;
+          case SegwitP2SHWallet.type:
+            unserializedWallet = SegwitP2SHWallet.fromJson(key) as unknown as SegwitP2SHWallet;
+            break;
+          case WatchOnlyWallet.type:
+            unserializedWallet = WatchOnlyWallet.fromJson(key) as unknown as WatchOnlyWallet;
+            unserializedWallet.init();
+            if (unserializedWallet.isHd() && !unserializedWallet.isXpubValid()) {
               continue;
+            }
+            break;
+          case HDLegacyP2PKHWallet.type:
+            unserializedWallet = HDLegacyP2PKHWallet.fromJson(key) as unknown as HDLegacyP2PKHWallet;
+            break;
+          case HDSegwitP2SHWallet.type:
+            unserializedWallet = HDSegwitP2SHWallet.fromJson(key) as unknown as HDSegwitP2SHWallet;
+            break;
+          case HDSegwitBech32Wallet.type:
+            unserializedWallet = HDSegwitBech32Wallet.fromJson(key) as unknown as HDSegwitBech32Wallet;
+            break;
+          case HDLegacyBreadwalletWallet.type:
+            unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key) as unknown as HDLegacyBreadwalletWallet;
+            break;
+          case HDLegacyElectrumSeedP2PKHWallet.type:
+            unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key) as unknown as HDLegacyElectrumSeedP2PKHWallet;
+            break;
+          case HDSegwitElectrumSeedP2WPKHWallet.type:
+            unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key) as unknown as HDSegwitElectrumSeedP2WPKHWallet;
+            break;
+          case MultisigHDWallet.type:
+            unserializedWallet = MultisigHDWallet.fromJson(key) as unknown as MultisigHDWallet;
+            break;
+          case HDAezeedWallet.type:
+            unserializedWallet = HDAezeedWallet.fromJson(key) as unknown as HDAezeedWallet;
+            // migrate password to this.passphrase field
+            // remove this code somewhere in year 2022
+            if (unserializedWallet.secret.includes(':')) {
+              const [mnemonic, passphrase] = unserializedWallet.secret.split(':');
+              unserializedWallet.secret = mnemonic;
+              unserializedWallet.passphrase = passphrase;
+            }
+
+            break;
+          case SLIP39SegwitP2SHWallet.type:
+            unserializedWallet = SLIP39SegwitP2SHWallet.fromJson(key) as unknown as SLIP39SegwitP2SHWallet;
+            break;
+          case SLIP39LegacyP2PKHWallet.type:
+            unserializedWallet = SLIP39LegacyP2PKHWallet.fromJson(key) as unknown as SLIP39LegacyP2PKHWallet;
+            break;
+          case SLIP39SegwitBech32Wallet.type:
+            unserializedWallet = SLIP39SegwitBech32Wallet.fromJson(key) as unknown as SLIP39SegwitBech32Wallet;
+            break;
+          case LightningCustodianWallet.type: {
+            unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
+            let lndhub: false | any = false;
+            try {
+              lndhub = await AsyncStorage.getItem(BlueApp.LNDHUB);
+            } catch (error) {
+              console.warn(error);
+            }
+
+            if (unserializedWallet.baseURI) {
+              unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
+              console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
+            } else if (lndhub) {
+              console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
+              unserializedWallet.setBaseURI(lndhub);
+            } else {
+              console.log('wallet does not have a baseURI. Continuing init...');
+            }
+            unserializedWallet.init();
+            break;
           }
+          case LegacyWallet.type:
+          default:
+            unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
+            if (tempObj.secret?.startsWith('ldk://')) {
+              const extractedSecret = tempObj.secret.replace('ldk://', '');
+              unserializedWallet.setSecret(extractedSecret);
+            }
+            break;
         }
 
         try {
@@ -480,7 +471,7 @@ export class BlueApp {
           presentAlert({ message: error.message });
         }
 
-        // Done
+        // done
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
@@ -491,7 +482,7 @@ export class BlueApp {
       if (realm) realm.close();
       return true;
     } else {
-      return false; // Failed loading data or loading/decrypting data
+      return false; // failed loading data or loading/decryptin data
     }
   }
 
