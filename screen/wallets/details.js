@@ -18,7 +18,6 @@ import {
 } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Notifications from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import {
   HDAezeedWallet,
@@ -47,6 +46,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { popToTop } from '../../NavigationService';
 import { useRoute } from '@react-navigation/native';
+import { unsubscribe } from '../../blue_modules/notifications';
 
 const styles = StyleSheet.create({
   scrollViewContent: {
@@ -216,7 +216,7 @@ const WalletDetails = () => {
     try {
       externalAddresses = wallet.getAllExternalAddresses();
     } catch (_) {}
-    Notifications.unsubscribe(externalAddresses, [], []);
+    unsubscribe(externalAddresses, [], []);
     popToTop();
     deleteWallet(wallet);
     saveToDisk(true);

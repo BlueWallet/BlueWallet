@@ -68,7 +68,7 @@ class WatchDataSource: NSObject {
   }
   
   static func postDataUpdatedNotification() {
-    NotificationCenter.default.post(Notifications.dataUpdated)
+    NotificationCenter.default.post(dataUpdated)
   }
   
   static func requestLightningInvoice(walletIdentifier: Int, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
@@ -116,7 +116,7 @@ class WatchDataSource: NSObject {
         
       } else if let isWalletsInitialized = data["isWalletsInitialized"] as? Bool {
         companionWalletsInitialized = isWalletsInitialized
-        NotificationCenter.default.post(Notifications.dataUpdated)
+        NotificationCenter.default.post(dataUpdated)
       } else {
         WatchDataSource.shared.processWalletsData(walletsInfo: data)
       }

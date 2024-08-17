@@ -1,8 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { I18nManager, Linking, ScrollView, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { Button as ButtonRNElements } from '@rneui/themed';
-
-import Notifications from '../../blue_modules/notifications';
+import {
+  checkPermissions,
+  cleanUserOptOutFlag,
+  getDefaultUri,
+  getPushToken,
+  getSavedUri,
+  getStoredNotifications,
+  isGroundControlUriValid,
+  saveUri,
+  setLevels,
+  tryToObtainPermissions,
+} from '../../blue_modules/notifications';
 import { BlueCard, BlueLoading, BlueSpacing20, BlueText } from '../../BlueComponents';
 import presentAlert from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -24,37 +34,37 @@ const NotificationSettings = () => {
     setNotificationsEnabled(value); // so the slider is not 'jumpy'
     if (value) {
       // user is ENABLING notifications
-      await Notifications.cleanUserOptOutFlag();
-      if (await Notifications.getPushToken()) {
+      await cleanUserOptOutFlag();
+      if (await getPushToken()) {
         // we already have a token, so we just need to reenable ALL level on groundcontrol:
-        await Notifications.setLevels(true);
+        await setLevels(true);
       } else {
         // ok, we dont have a token. we need to try to obtain permissions, configure callbacks and save token locally:
-        await Notifications.tryToObtainPermissions();
+        await tryToObtainPermissions();
       }
     } else {
       // user is DISABLING notifications
-      await Notifications.setLevels(false);
+      await setLevels(false);
     }
 
-    setNotificationsEnabled(await Notifications.isNotificationsEnabled());
+    setNotificationsEnabled(await isNotificationsEnabled());
   };
 
   useEffect(() => {
     (async () => {
-      setNotificationsEnabled(await Notifications.isNotificationsEnabled());
-      setURI(await Notifications.getSavedUri());
+      setNotificationsEnabled(await isNotificationsEnabled());
+      setURI(await getSavedUri());
       setTokenInfo(
         'token: ' +
-          JSON.stringify(await Notifications.getPushToken()) +
+          JSON.stringify(await getPushToken()) +
           ' permissions: ' +
-          JSON.stringify(await Notifications.checkPermissions()) +
+          JSON.stringify(await checkPermissions()) +
           ' stored notifications: ' +
-          JSON.stringify(await Notifications.getStoredNotifications()),
+          JSON.stringify(await getStoredNotifications()),
       );
       setIsLoading(false);
     })();
-  }, []);
+  }, [isNotificationsEnabled]);
 
   const stylesWithThemeHook = {
     root: {
@@ -76,14 +86,14 @@ const NotificationSettings = () => {
     try {
       if (URI) {
         // validating only if its not empty. empty means use default
-        if (await Notifications.isGroundControlUriValid(URI)) {
-          await Notifications.saveUri(URI);
+        if (await isGroundControlUriValid(URI)) {
+          await saveUri(URI);
           presentAlert({ message: loc.settings.saved });
         } else {
           presentAlert({ message: loc.settings.not_a_valid_uri });
         }
       } else {
-        await Notifications.saveUri('');
+        await saveUri('');
         presentAlert({ message: loc.settings.saved });
       }
     } catch (error) {
@@ -123,7 +133,7 @@ const NotificationSettings = () => {
       <BlueCard>
         <View style={styles.uri}>
           <TextInput
-            placeholder={Notifications.getDefaultUri()}
+            placeholder={getDefaultUri()}
             value={URI}
             onChangeText={setURI}
             numberOfLines={1}
