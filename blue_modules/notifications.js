@@ -46,7 +46,7 @@ function Notifications(props) {
           PushNotification.configure({
             // (optional) Called when Token is generated (iOS and Android)
             onRegister: async function (token) {
-              console.log('TOKEN:', token);
+              console.debug('TOKEN:', token);
               alreadyConfigured = true;
               await _setPushToken(token);
               resolve(true);
@@ -65,7 +65,7 @@ function Notifications(props) {
               if (notification.data && notification.data.data) Object.assign(payload, notification.data.data);
               delete payload.data;
               // ^^^ weird, but sometimes payload data is not in `data` but in root level
-              console.log('got push notification', payload);
+              console.debug('got push notification', payload);
 
               await Notifications.addNotification(payload);
 
@@ -79,8 +79,8 @@ function Notifications(props) {
 
             // (optional) Called when Registered Action is pressed and invokeApp is false, if true onNotification will be called (Android)
             onAction: function (notification) {
-              console.log('ACTION:', notification.action);
-              console.log('NOTIFICATION:', notification);
+              console.debug('ACTION:', notification.action);
+              console.debug('NOTIFICATION:', notification);
 
               // process the action
             },
@@ -238,9 +238,9 @@ function Notifications(props) {
       }),
     });
 
-    console.log('Abandoning notifications Permissions...');
+    console.debug('Abandoning notifications Permissions...');
     PushNotification.abandonPermissions();
-    console.log('Abandoned notifications Permissions...');
+    console.debug('Abandoned notifications Permissions...');
     return response.json();
   };
 
@@ -316,9 +316,9 @@ function Notifications(props) {
           os: pushToken.os,
         }),
       });
-      console.log('Abandoning notifications Permissions...');
+      console.debug('Abandoning notifications Permissions...');
       PushNotification.abandonPermissions();
-      console.log('Abandoned notifications Permissions...');
+      console.debug('Abandoned notifications Permissions...');
     } catch (_) {}
   };
 
