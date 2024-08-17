@@ -394,7 +394,6 @@ function removeAllDeliveredNotifications(): void {
   PushNotification.removeAllDeliveredNotifications();
 }
 
-// on app launch (load module):
 (async () => {
   try {
     const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
@@ -406,9 +405,7 @@ function removeAllDeliveredNotifications(): void {
   setApplicationIconBadgeNumber(0);
 
   const props: NotificationProps = {
-    onProcessNotifications: () => {
-      // Default empty function; replace with actual logic if needed.
-    },
+    onProcessNotifications: () => {},
   };
 
   if (!(await getPushToken())) return;
