@@ -115,7 +115,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         // Footer is not working correctly on Android yet.
         FooterComponent={FooterComponent as ReactElement}
         {...props}
-        blurTint="regular"
       >
         {children}
         {renderTopRightButton()}
