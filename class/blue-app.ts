@@ -376,7 +376,7 @@ export class BlueApp {
       if (!data.wallets) return false;
       const wallets = data.wallets;
       for (const key of wallets) {
-        // deciding which type is wallet and instatiating correct object
+        // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
         let unserializedWallet: TWallet;
         switch (tempObj.type) {
@@ -455,6 +455,11 @@ export class BlueApp {
             unserializedWallet.init();
             break;
           }
+          case 'lightningLdk':
+            // since ldk wallets are deprecated and removed, we need to handle a case when such wallet still exists in storage
+            unserializedWallet = new HDSegwitBech32Wallet();
+            unserializedWallet.setSecret(tempObj.secret.replace('ldk://', ''));
+            break;
           case LegacyWallet.type:
           default:
             unserializedWallet = LegacyWallet.fromJson(key) as unknown as LegacyWallet;
