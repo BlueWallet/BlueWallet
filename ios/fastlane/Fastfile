@@ -84,17 +84,6 @@ platform :ios do
     end
   end
 
-  desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
-lane :fetch_dev_profiles_catalyst do
-  match(
-    type: "development",
-    platform: "catalyst",
-    app_identifier: app_identifiers,
-    readonly: true
-  )
-end
-
-
 desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
 lane :fetch_appstore_profiles_catalyst do
   match(
