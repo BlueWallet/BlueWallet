@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS)
+name: Build Release and Upload to TestFlight (iOS and Mac Catalyst)
 
 on:
   push:
@@ -70,7 +70,7 @@ jobs:
         working-directory: ./ios
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - name: Setup Provisioning Profiles
+      - name: Setup Provisioning Profiles (iOS)
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -80,6 +80,17 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           bundle exec fastlane ios setup_provisioning_profiles
+        working-directory: ./ios
+      - name: Setup Provisioning Profiles (Mac Catalyst)
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          bundle exec fastlane ios setup_catalyst_provisioning_profiles
         working-directory: ./ios
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
@@ -122,14 +133,22 @@ jobs:
       - name: Expected IPA file name
         run: |
           echo "IPA file name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa"
-      - name: Build App
+      - name: Build iOS App
         run: bundle exec fastlane ios build_app_lane
         working-directory: ./ios
-      - name: Upload IPA as Artifact
+      - name: Build Mac Catalyst App
+        run: bundle exec fastlane ios build_catalyst_app
+        working-directory: ./ios
+      - name: Upload IPA as Artifact (iOS)
         uses: actions/upload-artifact@v2
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
+      - name: Upload Mac Catalyst App as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
+          path: ./ios/build/BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
 
   testflight-upload:
     needs: build
@@ -159,14 +178,19 @@ jobs:
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
-      - name: Download IPA from Artifact
+      - name: Download IPA from Artifact (iOS)
         uses: actions/download-artifact@v2
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
+      - name: Download Mac Catalyst App from Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: BlueWallet-Catalyst.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).app
+          path: ./ios/build
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-      - name: Upload to TestFlight
+      - name: Upload to TestFlight (iOS)
         env: 
           APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -178,6 +202,19 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios upload_to_testflight_lane
+        working-directory: ./ios
+      - name: Upload to TestFlight (Mac Catalyst)
+        env: 
+          APP_STORE_CONNECT_API_KEY_PATH: $(pwd)/ios/appstore_api_key.p8
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios upload_catalyst_appstore
         working-directory: ./ios
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
