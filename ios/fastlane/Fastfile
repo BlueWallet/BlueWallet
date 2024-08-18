@@ -223,7 +223,7 @@ desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
         type: "development",
         platform: "catalyst",
         app_identifier: app_identifier,
-        readonly: false,
+        readonly: true,
         force_for_new_devices: true
       )
 
@@ -231,7 +231,7 @@ desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
         type: "appstore",
         platform: "catalyst",
         app_identifier: app_identifier,
-        readonly: false
+        readonly: true
       )
     end
   end
