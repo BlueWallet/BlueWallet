@@ -86,6 +86,22 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
       - name: Install CocoaPods Dependencies
         run: |
           gem install cocoapods
@@ -105,6 +121,23 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+      - name: Cache Ruby Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+      - name: Install dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
       - name: Setup Provisioning Profiles (Mac Catalyst)
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
