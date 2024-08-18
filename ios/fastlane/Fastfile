@@ -8,83 +8,7 @@ def app_identifiers
   ]
 end
 
-desc "Setup provisioning profiles"
-lane :setup_provisioning_profiles do |options|
-  platform = options[:platform] || "ios"
-  app_identifiers.each do |app_identifier|
-    match(
-      type: "development",
-      platform: platform,
-      app_identifier: app_identifier,
-      readonly: false,
-      force_for_new_devices: true
-    )
-
-    match(
-      type: "appstore",
-      platform: platform,
-      app_identifier: app_identifier,
-      readonly: false
-    )
-  end
-end
-
-def build_app_for_platform(platform)
-  UI.message("Building the #{platform.capitalize} application...")
-  
-  setup_provisioning_profiles(platform)
-  
-  build_app(
-    scheme: "BlueWallet",
-    workspace: "BlueWallet.xcworkspace",
-    configuration: "Release",
-    sdk: platform == "catalyst" ? "macosx" : nil,
-    export_method: "app-store",
-    include_bitcode: false,
-    export_options: {
-      signingStyle: "manual",
-      provisioningProfiles: {
-        'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
-        'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
-        'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
-        'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
-        'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
-      }
-    },
-    output_directory: "./build",
-    output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).#{platform == "catalyst" ? "app" : "ipa"}",
-    buildlog_path: "./build_logs"
-  )
-end
-
-def notarize_app(app_path)
-  UI.message("Notarizing the app...")
-
-  notarize(
-    username: ENV["AC_USERNAME"],
-    app_identifier: ENV["AC_APP_ID"],
-    primary_bundle_id: "io.bluewallet.bluewallet",
-    app_path: app_path,
-    developer_id: ENV["AC_DEVELOPER_ID"],
-    team_id: ENV["ITC_TEAM_ID"],
-    api_key_path: "appstore_api_key.json"
-  )
-
-  UI.message("App notarization complete.")
-end
-
-def create_dmg(app_name)
-  UI.message("Creating DMG for #{app_name}...")
-
-  dmg_path = "./build/#{app_name}.dmg"
-  sh("hdiutil create -volname '#{app_name}' -srcfolder './build/#{app_name}.app' -ov -format UDZO '#{dmg_path}'")
-  
-  UI.message("DMG created at #{dmg_path}.")
-  dmg_path
-end
-
 platform :ios do
-
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
     UI.message("Discarding all untracked changes before running any lane...")
@@ -100,7 +24,17 @@ platform :ios do
     register_devices(devices_file: csv_path)
 
     UI.message("Devices registered successfully.")
-    setup_provisioning_profiles("ios")
+
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "development", 
+        app_identifier: app_identifier,
+        readonly: false,
+        force_for_new_devices: true
+      )
+    end
+
+    UI.message("Development provisioning profiles updated.")
   end  
 
   desc "Create a temporary keychain"
@@ -115,6 +49,41 @@ platform :ios do
       lock_when_sleeps: true
     )
     UI.message("Temporary keychain created successfully.")
+  end
+
+  desc "Synchronize certificates and provisioning profiles for iOS and Catalyst"
+  lane :setup_provisioning_profiles do |options|
+    UI.message("Setting up provisioning profiles...")
+    platform = options[:platform] || "ios" # Default to iOS if not specified
+
+    app_identifiers.each do |app_identifier|
+      match(
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        git_url: ENV["GIT_URL"],
+        type: "development",
+        platform: platform,
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: false,
+        force_for_new_devices: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+
+      match(
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        git_url: ENV["GIT_URL"],
+        type: "appstore",
+        platform: platform,
+        app_identifier: app_identifier,
+        team_id: ENV["ITC_TEAM_ID"],
+        team_name: ENV["ITC_TEAM_NAME"],
+        readonly: true,
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+      )
+    end
   end
 
   desc "Clear derived data"
@@ -139,17 +108,63 @@ platform :ios do
     cocoapods
   end
 
-  desc "Build the iOS app"
-  lane :build_app_lane do
-    build_app_for_platform("ios")
+  desc "Build the iOS application"
+  lane :build_ios_app do
+    setup_provisioning_profiles(platform: "ios")
+
+    UI.message("Building the iOS application...")
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "BlueWallet.xcworkspace",
+      export_method: "app-store",
+      include_bitcode: false,
+      configuration: "Release",
+      skip_profile_detection: true,
+      include_symbols: true,
+      export_team_id: ENV["ITC_TEAM_ID"],
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+        }
+      },
+      xcargs: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) VERBOSE_LOGGING=1'",
+      output_directory: "./build",
+      output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+      buildlog_path: "./build_logs"
+    )
   end
 
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
-    app_path = build_app_for_platform("catalyst")
-    notarize_app(app_path)
-    dmg_path = create_dmg("BlueWallet")
-    Actions.lane_context[SharedValues::DMG_PATH] = dmg_path
+    setup_provisioning_profiles(platform: "catalyst")
+
+    UI.message("Building the Mac Catalyst application...")
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "BlueWallet.xcworkspace",
+      configuration: "Release",
+      sdk: "macosx",
+      export_method: "app-store",
+      include_bitcode: false,
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+        }
+      },
+      output_directory: "./build",
+      output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
+      buildlog_path: "./build_logs"
+    )
   end
 
   desc "Upload to TestFlight without Processing Wait"
@@ -163,13 +178,13 @@ platform :ios do
       upload_to_testflight(
         api_key_path: "appstore_api_key.json",
         ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-        skip_waiting_for_build_processing: true, # Do not wait for processing
+        skip_waiting_for_build_processing: true,
         changelog: changelog
       )
     rescue => exception
       attempts += 1
       if attempts <= max_attempts
-        wait_time = 180 # 3 minutes in seconds
+        wait_time = 180
         UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
         sleep(wait_time)
         retry
@@ -180,12 +195,11 @@ platform :ios do
     end
   end
 
-  desc "Deploy to TestFlight"
-  lane :deploy do
+  desc "Deploy iOS and Catalyst apps to TestFlight"
+  lane :deploy do |options|
     UI.message("Starting build process...")
 
     update_wwdr_certificate
-    setup_app_store_connect_api_key
     clear_derived_data_lane
     increment_build_number_lane
 
@@ -193,7 +207,8 @@ platform :ios do
       install_pods
     end
 
-    build_app_lane
+    build_ios_app
+    build_catalyst_app
     upload_to_testflight_lane
 
     delete_keychain(name: "temp_keychain")
@@ -255,5 +270,4 @@ platform :ios do
       automatic_release: false
     )
   end
-
 end
