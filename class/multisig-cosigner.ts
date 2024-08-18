@@ -3,15 +3,19 @@ import b58 from 'bs58check';
 
 import ecc from '../blue_modules/noble_ecc';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import assert from 'assert';
 const bip32 = BIP32Factory(ecc);
 
 export class MultisigCosigner {
-  constructor(data) {
+  private _data: string;
+  private _fp: string = '';
+  private _xpub: string = '';
+  private _path: string = '';
+  private _valid: boolean = false;
+  private _cosigners: any[];
+
+  constructor(data: string) {
     this._data = data;
-    this._fp = false;
-    this._xpub = false;
-    this._path = false;
-    this._valid = false;
     this._cosigners = [];
 
     // is it plain simple Zpub/Ypub/xpub?
@@ -70,6 +74,7 @@ export class MultisigCosigner {
 
         // a bit more logic here: according to the formal BIP48 spec, this xpub field _can_ start with 'xpub', but
         // the actual type of segwit can be inferred from the path
+        assert(this._xpub);
         if (
           this._xpub.startsWith('xpub') &&
           [MultisigHDWallet.PATH_NATIVE_SEGWIT, MultisigHDWallet.PATH_WRAPPED_SEGWIT].includes(this._path)
@@ -126,7 +131,7 @@ export class MultisigCosigner {
     }
   }
 
-  static isXpubValid(key) {
+  static isXpubValid(key: string) {
     let xpub;
 
     try {
@@ -139,7 +144,7 @@ export class MultisigCosigner {
     return false;
   }
 
-  static exportToJson(xfp, xpub, path) {
+  static exportToJson(xfp: string, xpub: string, path: string) {
     return JSON.stringify({
       xfp,
       xpub,

@@ -276,6 +276,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   horizontal?: boolean;
+  isFlatList?: boolean;
   selectedWallet?: string;
   onPress: (item: TWallet) => void;
   onNewWalletPress?: () => void;
@@ -313,15 +314,16 @@ const ListHeaderComponent: React.FC = () => <View style={cStyles.separatorStyle}
 
 const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
   const {
-    horizontal,
+    horizontal = true,
     data,
     handleLongPress,
     onPress,
     selectedWallet,
-    scrollEnabled,
+    scrollEnabled = true,
     onNewWalletPress,
     searchQuery,
     renderHighlightedText,
+    isFlatList = true,
   } = props;
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TWallet>) =>
@@ -382,14 +384,14 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const sliderHeight = 195;
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
 
-  return horizontal ? (
+  return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
       extraData={data}
       keyExtractor={(_, index) => index.toString()}
       showsVerticalScrollIndicator={false}
-      pagingEnabled
+      pagingEnabled={horizontal}
       disableIntervalMomentum={horizontal}
       snapToInterval={itemWidth}
       decelerationRate="fast"
