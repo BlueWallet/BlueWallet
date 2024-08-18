@@ -8,9 +8,9 @@ def app_identifiers
   ]
 end
 
-def setup_provisioning_profiles(platform)
-  UI.message("Setting up provisioning profiles for #{platform}...")
-  
+desc "Setup provisioning profiles"
+lane :setup_provisioning_profiles do |options|
+  platform = options[:platform] || "ios"
   app_identifiers.each do |app_identifier|
     match(
       type: "development",
@@ -27,8 +27,6 @@ def setup_provisioning_profiles(platform)
       readonly: false
     )
   end
-
-  UI.message("#{platform.capitalize} provisioning profiles set up successfully.")
 end
 
 def build_app_for_platform(platform)

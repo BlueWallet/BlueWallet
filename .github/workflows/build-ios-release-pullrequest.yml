@@ -71,6 +71,8 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Setup Provisioning Profiles (iOS)
+        run: bundle exec fastlane ios setup_provisioning_profiles platform:ios
+        working-directory: ./ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -78,10 +80,10 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane ios setup_provisioning_profiles platform:ios
-        working-directory: ./ios
+        
       - name: Setup Provisioning Profiles (Mac Catalyst)
+        run: bundle exec fastlane ios setup_provisioning_profiles platform:catalyst
+        working-directory: ./ios
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -89,9 +91,6 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          bundle exec fastlane ios setup_provisioning_profiles platform:catalyst
-        working-directory: ./ios
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
         uses: actions/cache@v2
