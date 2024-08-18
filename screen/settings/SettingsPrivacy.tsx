@@ -101,7 +101,7 @@ const SettingsPrivacy: React.FC = () => {
       console.debug('onTotalBalanceEnabledValueChange catch', e);
     }
     setIsLoading(SettingsPrivacySection.None);
-  }
+  };
 
   const onTemporaryScreenshotsValueChange = (value: boolean) => {
     setIsLoading(SettingsPrivacySection.TemporaryScreenshots);

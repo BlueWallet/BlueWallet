@@ -89,42 +89,42 @@ const TotalWalletsBalance: React.FC = () => {
     return [viewIn, CommonToolTipActions.HideBalance];
   }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
 
-  const onPressMenuItem = async (id: string) => {
-    console.warn(totalBalancePreferredUnit);
-    console.warn(id);
-
-    switch (id) {
-      case (CommonToolTipActions.ViewInFiat.id, CommonToolTipActions.ViewInBitcoin.id, CommonToolTipActions.ViewInSats.id):
-        switch (totalBalancePreferredUnit) {
-          case BitcoinUnit.BTC:
-            await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
-            break;
-          case BitcoinUnit.SATS:
-            await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
-            break;
-          case BitcoinUnit.LOCAL_CURRENCY:
-            await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
-            break;
-          default:
-            break;
-        }
-        
-        break;
-      case CommonToolTipActions.HideBalance.id:
-        console.debug('Hide balance');
-        setIsTotalBalanceEnabledStorage(false);
-        break;
-      default:
-        break;
-    }
-  };
+  const onPressMenuItem = useMemo(
+    () => async (id: string) => {
+      switch (id) {
+        case CommonToolTipActions.ViewInFiat.id:
+        case CommonToolTipActions.ViewInBitcoin.id:
+        case CommonToolTipActions.ViewInSats.id:
+          switch (totalBalancePreferredUnit) {
+            case BitcoinUnit.BTC:
+              await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
+              break;
+            case BitcoinUnit.SATS:
+              await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
+              break;
+            case BitcoinUnit.LOCAL_CURRENCY:
+              await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
+              break;
+            default:
+              break;
+          }
+          break;
+        case CommonToolTipActions.HideBalance.id:
+          console.debug('Hide balance');
+          setIsTotalBalanceEnabledStorage(false);
+          break;
+        default:
+          break;
+      }
+    },
+    [totalBalancePreferredUnit, setIsTotalBalanceEnabledStorage, setTotalBalancePreferredUnitStorage],
+  );
 
   return (
     <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <Text style={styles.balance}>
-          {totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY ? preferredFiatCurrency.symbol : null}
           {formattedBalance}{' '}
           {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={styles.currency}>{totalBalancePreferredUnit}</Text>}
         </Text>

@@ -479,8 +479,7 @@
     "add_ln_wallet_first": "You must first add a Lightning wallet.",
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Wallet XPUB",
-    "manage_wallets_search_placeholder": "Search wallets, memos",
-
+    "manage_wallets_search_placeholder": "Search wallets, memos"
   },
   "total_balance_view": {
     "view_in_bitcoin": "View in Bitcoin",

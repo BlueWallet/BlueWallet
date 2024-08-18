@@ -10,6 +10,8 @@ import { useTheme } from '../../components/themes';
 import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import TotalWalletsBalance from '../../components/TotalWalletsBalance';
+import { useSettings } from '../../hooks/context/useSettings';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -87,6 +89,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();
+  const { isTotalBalanceEnabled } = useSettings();
 
   const stylesHook = useMemo(
     () =>
@@ -143,6 +146,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
       showsVerticalScrollIndicator={false}
     >
       <Header leftText={loc.wallets.list_title} onNewWalletPress={onNewWalletPress} isDrawerList />
+      {isTotalBalanceEnabled && <TotalWalletsBalance />}
       <WalletsCarousel
         data={state.wallets}
         extraData={[state.wallets]}
