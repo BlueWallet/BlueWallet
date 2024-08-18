@@ -18,6 +18,7 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
+import NFCModal from '../../components/NFCModal';
 
 let decoder = false;
 
@@ -365,6 +366,7 @@ const ScanQRCode = () => {
           <Icon name="file-import" type="font-awesome-5" color="#ffffff" />
         </TouchableOpacity>
       )}
+      <NFCModal onBarScanned={onBarCodeRead} />
       {urTotal > 0 && (
         <View style={[styles.progressWrapper, stylesHook.progressWrapper]} testID="UrProgressBar">
           <BlueText>{loc.wallets.please_continue_scanning}</BlueText>

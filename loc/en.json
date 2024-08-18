@@ -150,6 +150,7 @@
     "details_note_placeholder": "Note to Self",
     "counterparty_label_placeholder": "Edit contact name",
     "details_scan": "Scan",
+    "details_nfc": "NFC",
     "details_scan_hint": "Double tap to scan or import a destination",
     "details_total_exceeds_balance": "The sending amount exceeds the available balance.",
     "details_total_exceeds_balance_frozen": "The sending amount exceeds the available balance. Please note that frozen coins are excluded.",
