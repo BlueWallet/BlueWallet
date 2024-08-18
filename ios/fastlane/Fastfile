@@ -1,7 +1,8 @@
+def app_identifiers
+  ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
+end
+
 platform :ios do
-  def app_identifiers
-    ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
-  end
 
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
@@ -49,26 +50,27 @@ platform :ios do
     UI.message("Temporary keychain created successfully.")
   end
 
-  desc "Fetch and cache provisioning profiles"
-  lane :fetch_and_cache_profiles do
+  desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
+  lane :setup_profiles do |options|
+    platform = options[:platform] || "ios"
+    type = options[:type] || "appstore"
+    
     app_identifiers.each do |app_identifier|
       match(
-        type: "appstore",
+        type: type,
+        platform: platform,
         app_identifier: app_identifier,
-        readonly: true,
         git_url: ENV["GIT_URL"],
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"],
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
-        skip_provisioning_profiles: false,
+        readonly: true,
+        skip_provisioning_profiles: true,
         skip_certificate_matching: true
       )
     end
-
-    # Cache the downloaded profiles
-    sh("tar -cvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/ .")
   end
 
   desc "Clear derived data"
@@ -97,16 +99,13 @@ platform :ios do
 
   desc "Build the iOS app"
   lane :build_ios_app do
-    # Extract cached provisioning profiles
-    sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
-    
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
       export_method: "app-store",
       include_bitcode: false,
       configuration: "Release",
-      skip_profile_detection: false,
+      skip_profile_detection: true,
       include_symbols: true,
       export_team_id: ENV["ITC_TEAM_ID"],
       export_options: {
@@ -128,9 +127,6 @@ platform :ios do
 
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
-    # Extract cached provisioning profiles
-    sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
-    
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",

@@ -83,13 +83,16 @@ jobs:
         working-directory: ./ios
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - name: Fetch and Cache Provisioning Profiles
-        run: bundle exec fastlane ios fetch_and_cache_profiles
-        working-directory: ./ios
+      - name: Setup Provisioning Profiles (iOS)
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios setup_profiles type:appstore platform:ios
+        working-directory: ./ios
 
   build_ios:
     runs-on: macos-14
@@ -127,13 +130,6 @@ jobs:
           gem install cocoapods
           bundle exec pod install
         working-directory: ./ios
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles/
-          key: ${{ runner.os }}-provisioning-${{ hashFiles('**/provisioning-profiles.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-
       - name: Build iOS App
         run: bundle exec fastlane ios build_ios_app
         working-directory: ./ios
@@ -174,13 +170,15 @@ jobs:
           gem install cocoapods
           bundle exec pod install
         working-directory: ./ios
-      - name: Restore Provisioning Profiles Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/Library/MobileDevice/Provisioning\ Profiles/
-          key: ${{ runner.os }}-provisioning-${{ hashFiles('**/provisioning-profiles.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-provisioning-
+      - name: Setup Provisioning Profiles (Mac Catalyst)
+        env:
+          GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          GIT_URL: ${{ secrets.GIT_URL }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: bundle exec fastlane ios setup_profiles type:appstore platform:catalyst
+        working-directory: ./ios
       - name: Build Mac Catalyst App
         run: bundle exec fastlane ios build_catalyst_app
         working-directory: ./ios
