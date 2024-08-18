@@ -27,16 +27,14 @@ platform :ios do
     UI.message("Temporary keychain created successfully.")
   end
 
-  desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
+  desc "Synchronize certificates and provisioning profiles for iOS"
   lane :setup_profiles do |options|
-    platform = options[:platform] || "ios"
-    
+    type = options[:type] || "development"
     app_identifiers.each do |app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
-        type: options[:type] || "development",
-        platform: platform,
+        type: type,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -130,10 +128,10 @@ platform :ios do
 
 end
 
-platform :catalyst do
+platform :mac do
 
   before_all do |lane, options|
-    UI.message("Setting up for all Catalyst lanes...")
+    UI.message("Setting up for all Mac Catalyst lanes...")
     sh("git clean -fd")
     sh("git checkout -- .")
   end
