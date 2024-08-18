@@ -25,5 +25,3 @@ type("appstore")
 force_for_new_devices(false)
 
 readonly(false)
-
-match_password(ENV["MATCH_PASSWORD"])

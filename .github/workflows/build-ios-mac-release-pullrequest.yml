@@ -75,6 +75,7 @@ jobs:
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios setup_profiles type:appstore platform:ios
         working-directory: ./ios
