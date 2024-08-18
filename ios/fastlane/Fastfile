@@ -11,6 +11,30 @@ platform :ios do
     sh("git checkout -- .")
   end
 
+  desc "Register new devices from a file"
+  lane :register_devices_from_txt do
+    UI.message("Registering new devices from file...")
+
+    csv_path = "../../devices.txt" # Update this with the actual path to your file
+
+    register_devices(
+      devices_file: csv_path
+    )
+
+    UI.message("Devices registered successfully.")
+
+    app_identifiers.each do |app_identifier|
+      match(
+        type: "development", 
+        app_identifier: app_identifier,
+        readonly: false, 
+        force_for_new_devices: true 
+      )
+    end
+
+    UI.message("Development provisioning profiles updated.")
+  end  
+
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
     UI.message("Creating a temporary keychain...")
@@ -27,14 +51,17 @@ platform :ios do
     UI.message("Temporary keychain created successfully.")
   end
 
-  desc "Synchronize certificates and provisioning profiles for iOS"
+  desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
   lane :setup_profiles do |options|
+    platform = options[:platform] || "ios"
     type = options[:type] || "development"
+    
     app_identifiers.each do |app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
         type: type,
+        platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
@@ -98,44 +125,6 @@ platform :ios do
     )
   end
 
-  desc "Upload iOS app to TestFlight"
-  lane :upload_ios_to_testflight do
-    attempts = 0
-    max_attempts = 3
-    begin
-      UI.message("Uploading iOS app to TestFlight...")
-      changelog = ENV["LATEST_COMMIT_MESSAGE"]
-  
-      upload_to_testflight(
-        api_key_path: "appstore_api_key.json",
-        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
-        skip_waiting_for_build_processing: true,
-        changelog: changelog
-      )
-    rescue => exception
-      attempts += 1
-      if attempts <= max_attempts
-        wait_time = 180 
-        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
-        sleep(wait_time)
-        retry
-      else
-        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
-        raise exception
-      end
-    end
-  end
-
-end
-
-platform :mac do
-
-  before_all do |lane, options|
-    UI.message("Setting up for all Mac Catalyst lanes...")
-    sh("git clean -fd")
-    sh("git checkout -- .")
-  end
-
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
     build_app(
@@ -161,16 +150,42 @@ platform :mac do
     )
   end
 
-  desc "Upload Mac Catalyst app to TestFlight"
+  desc "Upload iOS App to TestFlight"
+  lane :upload_ios_to_testflight do
+    attempts = 0
+    max_attempts = 3
+    begin
+      UI.message("Uploading iOS App to TestFlight...")
+      changelog = ENV["LATEST_COMMIT_MESSAGE"]
+  
+      upload_to_testflight(
+        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        skip_waiting_for_build_processing: true,
+        changelog: changelog
+      )
+    rescue => exception
+      attempts += 1
+      if attempts <= max_attempts
+        wait_time = 180 
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+        raise exception
+      end
+    end
+  end
+
+  desc "Upload Mac Catalyst App to TestFlight"
   lane :upload_catalyst_to_testflight do
     attempts = 0
     max_attempts = 3
     begin
-      UI.message("Uploading Mac Catalyst app to TestFlight...")
+      UI.message("Uploading Mac Catalyst App to TestFlight...")
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
   
       upload_to_testflight(
-        api_key_path: "appstore_api_key.json",
         ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
         skip_waiting_for_build_processing: true,
         changelog: changelog
