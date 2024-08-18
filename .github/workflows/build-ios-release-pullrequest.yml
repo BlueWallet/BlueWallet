@@ -147,8 +147,8 @@ jobs:
       - name: Upload Mac Catalyst App as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
-          path: ./ios/build/BlueWallet-Catalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
 
   testflight-upload:
     needs: build
@@ -186,7 +186,7 @@ jobs:
       - name: Download Mac Catalyst App from Artifact
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet-Catalyst.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).app
+          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).app
           path: ./ios/build
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json

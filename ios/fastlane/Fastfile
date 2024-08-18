@@ -236,6 +236,34 @@ desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
     end
   end
 
+
+  desc "Build the Mac Catalyst app"
+  lane :build_catalyst_app do
+    setup_catalyst_provisioning_profiles
+
+    build_app(
+      scheme: "BlueWallet",
+      workspace: "BlueWallet.xcworkspace",
+      configuration: "Release",
+      sdk: "macosx",
+      export_method: "app-store",
+      include_bitcode: false,
+      export_options: {
+        signingStyle: "manual",
+        provisioningProfiles: {
+          'io.bluewallet.bluewallet' => 'match AppStore io.bluewallet.bluewallet',
+          'io.bluewallet.bluewallet.watch' => 'match AppStore io.bluewallet.bluewallet.watch',
+          'io.bluewallet.bluewallet.watch.extension' => 'match AppStore io.bluewallet.bluewallet.watch.extension',
+          'io.bluewallet.bluewallet.Stickers' => 'match AppStore io.bluewallet.bluewallet.Stickers',
+          'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
+        }
+      },
+      output_directory: "./build",
+      output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
+      buildlog_path: "./build_logs"
+    )
+  end
+
   desc "Update 'What's New' section in App Store Connect for all localizations"
   lane :update_release_notes do
     # Path to the release notes file
