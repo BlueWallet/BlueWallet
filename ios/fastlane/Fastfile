@@ -54,6 +54,9 @@ platform :ios do
   lane :setup_profiles do |options|
     platform = options[:platform] || "ios"
     type = options[:type] || "appstore"
+
+    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
+    sh("git branch -D master || true")
     
     app_identifiers.each do |app_identifier|
       match(
@@ -66,8 +69,7 @@ platform :ios do
         keychain_password: ENV["KEYCHAIN_PASSWORD"],
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
-        readonly: false,
-        clone_branch_directly: true
+        readonly: true,
       )
     end
   end
@@ -143,7 +145,7 @@ platform :ios do
           'io.bluewallet.bluewallet.MarketWidget' => 'match AppStore io.bluewallet.bluewallet.MarketWidget'
         }
       },
-      output_directory: "./build",
+      output_directory: "./build-catalyst",
       output_name: "BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
       buildlog_path: "./build_logs"
     )
@@ -185,7 +187,7 @@ platform :ios do
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
   
       upload_to_testflight(
-        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
+        ipa: "./build-catalyst/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
         skip_waiting_for_build_processing: true,
         changelog: changelog
       )
