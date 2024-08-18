@@ -11,30 +11,6 @@ platform :ios do
     sh("git checkout -- .")
   end
 
-  desc "Register new devices from a file"
-  lane :register_devices_from_txt do
-    UI.message("Registering new devices from file...")
-
-    csv_path = "../../devices.txt" # Update this with the actual path to your file
-
-    register_devices(
-      devices_file: csv_path
-    )
-
-    UI.message("Devices registered successfully.")
-
-    app_identifiers.each do |app_identifier|
-      match(
-        type: "development", 
-        app_identifier: app_identifier,
-        readonly: false, 
-        force_for_new_devices: true 
-      )
-    end
-
-    UI.message("Development provisioning profiles updated.")
-  end  
-
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
     UI.message("Creating a temporary keychain...")
@@ -52,33 +28,20 @@ platform :ios do
   end
 
   desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
-  lane :setup_app_profiles do |options|
+  lane :setup_profiles do |options|
     platform = options[:platform] || "ios"
     
     app_identifiers.each do |app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
-        type: "development",
+        type: options[:type] || "development",
         platform: platform,
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
         readonly: false,
         force_for_new_devices: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
-      )
-      
-      match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
-        type: "appstore",
-        platform: platform,
-        app_identifier: app_identifier,
-        team_id: ENV["ITC_TEAM_ID"],
-        team_name: ENV["ITC_TEAM_NAME"],
-        readonly: false,
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
       )
@@ -137,6 +100,44 @@ platform :ios do
     )
   end
 
+  desc "Upload iOS app to TestFlight"
+  lane :upload_ios_to_testflight do
+    attempts = 0
+    max_attempts = 3
+    begin
+      UI.message("Uploading iOS app to TestFlight...")
+      changelog = ENV["LATEST_COMMIT_MESSAGE"]
+  
+      upload_to_testflight(
+        api_key_path: "appstore_api_key.json",
+        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        skip_waiting_for_build_processing: true,
+        changelog: changelog
+      )
+    rescue => exception
+      attempts += 1
+      if attempts <= max_attempts
+        wait_time = 180 
+        UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
+        sleep(wait_time)
+        retry
+      else
+        UI.error("Failed after #{max_attempts} attempts. Error: #{exception.message}")
+        raise exception
+      end
+    end
+  end
+
+end
+
+platform :catalyst do
+
+  before_all do |lane, options|
+    UI.message("Setting up for all Catalyst lanes...")
+    sh("git clean -fd")
+    sh("git checkout -- .")
+  end
+
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
     build_app(
@@ -162,17 +163,17 @@ platform :ios do
     )
   end
 
-  desc "Upload to TestFlight"
-  lane :upload_to_testflight_lane do
+  desc "Upload Mac Catalyst app to TestFlight"
+  lane :upload_catalyst_to_testflight do
     attempts = 0
     max_attempts = 3
     begin
-      UI.message("Uploading to TestFlight...")
+      UI.message("Uploading Mac Catalyst app to TestFlight...")
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
   
       upload_to_testflight(
         api_key_path: "appstore_api_key.json",
-        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
+        ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).app",
         skip_waiting_for_build_processing: true,
         changelog: changelog
       )
@@ -190,80 +191,4 @@ platform :ios do
     end
   end
 
-  desc "Deploy to TestFlight"
-  lane :deploy do |options|
-    UI.message("Starting build process...")
-
-    update_wwdr_certificate
-
-    setup_app_profiles
-    clear_derived_data_lane
-    increment_build_number_lane
-
-    unless File.directory?("Pods")
-      install_pods
-    end
-
-    build_ios_app
-    upload_to_testflight_lane
-
-    delete_keychain(name: "temp_keychain")
-
-    last_commit = last_git_commit
-    already_built_flag = ".already_built_#{last_commit[:sha]}"
-    File.write(already_built_flag, Time.now.to_s)
-  end
-
-  desc "Update 'What's New' section in App Store Connect for all localizations"
-  lane :update_release_notes do
-    release_notes_path = "../../release-notes.txt"
-    
-    unless File.exist?(release_notes_path)
-      UI.error("Release notes file does not exist at path: #{release_notes_path}")
-      next
-    end
-   
-    release_notes_text = File.read(release_notes_path)
-    UI.message("Release Notes Content:\n#{release_notes_text}")
-
-    app_version = get_version_number
-    UI.message("Version being updated: #{app_version}")
-
-    localized_release_notes = {
-      'en-US' => release_notes_text,
-      'ar-SA' => release_notes_text,
-      'zh-Hans' => release_notes_text,
-      'da' => release_notes_text,
-      'nl-NL' => release_notes_text,
-      'fi' => release_notes_text,
-      'fr-FR' => release_notes_text,
-      'de-DE' => release_notes_text,
-      'he' => release_notes_text,
-      'hu' => release_notes_text,
-      'it' => release_notes_text,
-      'pt-BR' => release_notes_text,
-      'pt-PT' => release_notes_text,
-      'ro' => release_notes_text,
-      'ru' => release_notes_text,
-      'es-MX' => release_notes_text,
-      'es-ES' => release_notes_text,
-      'sv' => release_notes_text,
-    }
-
-    localized_release_notes.each do |locale, notes|
-      UI.message("Setting release notes for #{locale}:\n#{notes}\n")
-    end
-
-    deliver(
-      app_identifier: app_identifiers.first,
-      app_version: app_version,
-      skip_metadata: true,
-      skip_screenshots: true,
-      skip_binary_upload: true,
-      force: true,
-      release_notes: localized_release_notes,
-      submit_for_review: false,
-      automatic_release: false
-    )
-  end
 end

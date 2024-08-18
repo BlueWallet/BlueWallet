@@ -1,4 +1,4 @@
-name: Build Release and Upload to TestFlight (iOS and Catalyst)
+name: Build Release and Upload to TestFlight (iOS & Catalyst)
 
 on:
   push:
@@ -11,9 +11,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
+  common_setup:
     runs-on: macos-14
-    timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
       project_version: ${{ steps.determine_marketing_version.outputs.project_version }}
@@ -23,11 +22,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Specify node version
+      - name: Set up node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4
       - name: Set up Ruby
@@ -39,18 +39,18 @@ jobs:
         run: bundle install
       - name: Install node_modules
         run: npm install
-      - name: Install CocoaPods Dependencies
+      - name: Generate Build Number based on timestamp
+        id: generate_build_number
         run: |
-          gem install cocoapods
-          bundle exec pod install
-        working-directory: ./ios
-      - name: Cache CocoaPods Pods
-        uses: actions/cache@v2
-        with:
-          path: ios/Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-      - name: Display release-notes.txt
-        run: cat release-notes.txt
+          NEW_BUILD_NUMBER=$(date +%s)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
+      - name: Determine Marketing Version
+        id: determine_marketing_version
+        run: |
+          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
+          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=project_version::$MARKETING_VERSION"
       - name: Get Latest Commit Message
         id: get_latest_commit_message
         run: |
@@ -65,7 +65,6 @@ jobs:
           git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${ACCESS_TOKEN} | base64)"
       - name: Create Temporary Keychain
         run: bundle exec fastlane ios create_temp_keychain
-        working-directory: ./ios
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Setup Provisioning Profiles (iOS)
@@ -76,9 +75,33 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane setup_app_profiles platform:ios
+        run: bundle exec fastlane ios setup_profiles type:appstore platform:ios
+
+  build_ios:
+    runs-on: macos-14
+    needs: common_setup
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Install CocoaPods Dependencies
+        run: |
+          gem install cocoapods
+          bundle exec pod install
         working-directory: ./ios
-      - name: Setup Provisioning Profiles (Catalyst)
+      - name: Build iOS App
+        run: bundle exec fastlane ios build_ios_app
+        env:
+          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
+
+  build_catalyst:
+    runs-on: macos-14
+    needs: common_setup
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Setup Provisioning Profiles (Mac Catalyst)
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -86,174 +109,36 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane setup_app_profiles platform:catalyst
-        working-directory: ./ios
-      - name: Generate Build Number based on timestamp
-        id: generate_build_number
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
-      - name: Determine Marketing Version
-        id: determine_marketing_version
-        run: |
-          MARKETING_VERSION=$(grep MARKETING_VERSION ios/BlueWallet.xcodeproj/project.pbxproj | awk -F '= ' '{print $2}' | tr -d ' ;' | head -1)
-          echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=project_version::$MARKETING_VERSION"
-
-  build_ios:
-    runs-on: macos-14
-    needs: setup
-    timeout-minutes: 180
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.setup.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Build iOS App
-        run: bundle exec fastlane ios build_ios_app
-        working-directory: ./ios
-      - name: Upload iOS IPA as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet.iOS.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-
-  build_mac_catalyst:
-    runs-on: macos-14
-    needs: setup
-    timeout-minutes: 180
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.setup.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Build Catalyst App
-        run: bundle exec fastlane ios build_catalyst_app
-        working-directory: ./ios
-      - name: Notarize Catalyst App
-        run: |
-          xcrun altool --notarize-app -f "./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app" --primary-bundle-id "io.bluewallet.bluewallet" -u ${{ secrets.APPLE_ID }} -p ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-        working-directory: ./ios
-      - name: Create DMG for Catalyst App
-        run: |
-          hdiutil create -volname BlueWallet -srcfolder "./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app" -ov -format UDZO "./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg"
-      - name: Upload Mac Catalyst DMG as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet.MacCatalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
+        run: bundle exec fastlane catalyst setup_profiles type:appstore platform:catalyst
+      - name: Build Mac Catalyst App
+        run: bundle exec fastlane catalyst build_catalyst_app
+        env:
+          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
 
   upload_ios_to_testflight:
-    needs: build_ios
     runs-on: macos-14
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.setup.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
+    needs: build_ios
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Download IPA from iOS Build
-        uses: actions/download-artifact@v2
-        with:
-          name: BlueWallet.iOS.${{ needs.setup.outputs.project_version }}(${{ needs.setup.outputs.new_build_number }}).ipa
-          path: ./ios/build
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-      - name: Upload iOS IPA to TestFlight
-        run: bundle exec fastlane ios upload_to_testflight_lane
-        working-directory: ./ios
-      - name: Post PR Comment (iOS)
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+      - name: Upload iOS to TestFlight
+        run: bundle exec fastlane ios upload_ios_to_testflight
         env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The iOS build ${buildNumber} has been uploaded to TestFlight.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
 
   upload_catalyst_to_testflight:
-    needs: build_mac_catalyst
     runs-on: macos-14
-    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
-    env:
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      NEW_BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-      PROJECT_VERSION: ${{ needs.setup.outputs.project_version }}
-      LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
+    needs: build_catalyst
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.1.6
-          bundler-cache: true
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Download DMG from Catalyst Build
-        uses: actions/download-artifact@v2
-        with:
-          name: BlueWallet.MacCatalyst.${{ needs.setup.outputs.project_version }}(${{ needs.setup.outputs.new_build_number }}).dmg
-          path: ./ios/build
-      - name: Create App Store Connect API Key JSON
-        run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
-      - name: Upload Mac Catalyst DMG to TestFlight
-        run: bundle exec fastlane ios upload_to_testflight_lane
-        working-directory: ./ios
-      - name: Post PR Comment (Catalyst)
-        if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+      - name: Upload Mac Catalyst to TestFlight
+        run: bundle exec fastlane catalyst upload_catalyst_to_testflight
         env:
-          BUILD_NUMBER: ${{ needs.setup.outputs.new_build_number }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.setup.outputs.latest_commit_message }}
-        with:
-          script: |
-            const buildNumber = process.env.BUILD_NUMBER;
-            const message = `The Mac Catalyst build ${buildNumber} has been uploaded to TestFlight.`;
-            const prNumber = context.payload.pull_request.number;
-            const repo = context.repo;
-            github.rest.issues.createComment({
-              ...repo,
-              issue_number: prNumber,
-              body: message,
-            });
+          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
