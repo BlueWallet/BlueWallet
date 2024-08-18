@@ -3,7 +3,6 @@ import { useRoute } from '@react-navigation/native';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 import { BlueButtonLink, BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
-import navigationStyle from '../../components/navigationStyle';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { requestCameraAuthorization } from '../../helpers/scan-qr';
@@ -138,7 +137,6 @@ const IsItMyAddress = () => {
 };
 
 export default IsItMyAddress;
-IsItMyAddress.navigationOptions = navigationStyle({}, opts => ({ ...opts, title: loc.is_it_my_address.title }));
 
 const styles = StyleSheet.create({
   wrapper: {

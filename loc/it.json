@@ -78,7 +78,7 @@
     "help2": "Il nuovo archivio sarà completamente funzionante, e puoi conservarci piccole quantità così sembrerà più credibile.",
     "password_should_not_match": "La password è attualmente in uso. Per favore prova con una password diversa.",
     "passwords_do_not_match": "Le password non corrispondono. Riprova.",
-    "retype_password": "Reinserisci la password",
+    "confirm_password": "Reinserisci la password",
     "success": "Fatto",
     "title": "Negazione Plausibile"
   },
@@ -273,7 +273,7 @@
     "privacy_do_not_track_explanation": "Le informazioni circa la performance e l'affidabilità non saranno inviati per l'analisi.",
     "push_notifications": "Notifiche Push",
     "rate": "Tariffa",
-    "retype_password": "Reinserisci password",
+    "confirm_password": "Reinserisci password",
     "selfTest": "Auto-Test",
     "save": "Salva",
     "saved": "Salvato",

@@ -77,7 +77,7 @@
     "help2": "El moneder \"false\" és completament funcional. Pot dipositar una quantitat mínima perquè sigui més creïble.",
     "password_should_not_match": "La contrasenya no pot ser la mateixa que la del seu moneder principal.",
     "passwords_do_not_match": "Les contrasenyes no coincideixin. Torni-ho a intentar",
-    "retype_password": "Tornar a escriure la contrasenya",
+    "confirm_password": "Tornar a escriure la contrasenya",
     "success": "Exit",
     "title": "Negació plausible"
   },
@@ -208,7 +208,7 @@
     "privacy": "Privacitat",
     "privacy_read_clipboard": "Llegir el portapapers",
     "privacy_system_settings": "Configuració del Sistema",
-    "retype_password": "Introdueix de nou la contrasenya contrasenya",
+    "confirm_password": "Introdueix de nou la contrasenya contrasenya",
     "save": "guardar",
     "saved": "Desat",
     "total_balance": "Saldo total",

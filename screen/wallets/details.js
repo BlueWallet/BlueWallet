@@ -117,6 +117,7 @@ const WalletDetails = () => {
   const [useWithHardwareWallet, setUseWithHardwareWallet] = useState(wallet.useWithHardwareWalletEnabled());
   const { isAdvancedModeEnabled } = useSettings();
   const [isBIP47Enabled, setIsBIP47Enabled] = useState(wallet.isBIP47Enabled());
+  const [isContactsVisible, setIsContactsVisible] = useState(wallet.allowBIP47() && wallet.isBIP47Enabled());
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState(!wallet.getHideTransactionsInWalletsList());
   const { goBack, setOptions, navigate } = useExtendedNavigation();
   const { colors } = useTheme();
@@ -134,6 +135,10 @@ const WalletDetails = () => {
 
   const onMenuWillShow = () => setIsToolTipMenuVisible(true);
   const onMenuWillHide = () => setIsToolTipMenuVisible(false);
+
+  useEffect(() => {
+    setIsContactsVisible(isBIP47Enabled);
+  }, [isBIP47Enabled]);
 
   useEffect(() => {
     if (isAdvancedModeEnabled && wallet.allowMasterFingerprint()) {
@@ -523,7 +528,7 @@ const WalletDetails = () => {
                   <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.bip47.payment_code}</Text>
                   <View style={styles.hardware}>
                     <BlueText>{loc.bip47.purpose}</BlueText>
-                    <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} />
+                    <Switch value={isBIP47Enabled} onValueChange={setIsBIP47Enabled} testID="BIP47Switch" />
                   </View>
                 </>
               ) : null}
@@ -563,9 +568,9 @@ const WalletDetails = () => {
             {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd())) && (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
-            {wallet.allowBIP47() && wallet.isBIP47Enabled() && (
+            {isContactsVisible ? (
               <ListItem disabled={isToolTipMenuVisible} onPress={navigateToContacts} title={loc.bip47.contacts} chevron />
-            )}
+            ) : null}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />

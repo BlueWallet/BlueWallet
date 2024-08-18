@@ -205,7 +205,9 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
     const onPress = useCallback(async () => {
       menuRef?.current?.dismissMenu?.();
       if (item.hash) {
-        pop();
+        if (renderHighlightedText) {
+          pop();
+        }
         navigate('TransactionStatus', { hash: item.hash, walletID });
       } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
         const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
@@ -239,7 +241,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = React.mem
           });
         }
       }
-    }, [item, wallets, navigate, walletID]);
+    }, [item, renderHighlightedText, navigate, walletID, wallets]);
 
     const handleOnExpandNote = useCallback(() => {
       setSubtitleNumberOfLines(0);

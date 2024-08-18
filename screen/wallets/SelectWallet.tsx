@@ -98,7 +98,11 @@ const SelectWallet: React.FC = () => {
       </SafeArea>
     );
   } else {
-    return <WalletsCarousel data={data} onPress={onPress} ref={walletsCarousel} testID="WalletsList" horizontal={false} />;
+    return (
+      <View style={styles.walletsCarousel}>
+        <WalletsCarousel data={data} scrollEnabled onPress={onPress} ref={walletsCarousel} testID="WalletsList" horizontal={false} />
+      </View>
+    );
   }
 };
 
@@ -119,5 +123,9 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
+  },
+  walletsCarousel: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 });

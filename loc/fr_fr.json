@@ -75,7 +75,7 @@
     "help2": "Le nouvel espace de stockage sera totalement fonctionnel, et vous pouvez même y stocker de petits montants pour le rendre plus crédible.",
     "password_should_not_match": "Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal",
     "passwords_do_not_match": "Vos mot de passe ne sont pas identiques, veillez ré-essayer",
-    "retype_password": "Confirmation du mot de passe",
+    "confirm_password": "Confirmation du mot de passe",
     "success": "Succès",
     "title": "Déni plausible"
   },
@@ -277,7 +277,7 @@
     "privacy_do_not_track_explanation": "Les informations de performance et de fiabilité ne seront pas soumises pour analyse.",
     "push_notifications": "Notifications push",
     "rate": "Taux",
-    "retype_password": "Re-saisir votre mot de passe",
+    "confirm_password": "Re-saisir votre mot de passe",
     "selfTest": "Auto-test",
     "save": "Enregistrer",
     "saved": "Enregistré",

@@ -75,7 +75,7 @@
     "help2": "Lưu trữ mới sẻ hoạt động hoàn toàn, và bạn có thể nạp một ít tiền tại đó để nó có vẻ đáng tin cậy.",
     "password_should_not_match": "Mật khẩu hiện đang được sử dụng. Vui lòng thử một mật khẩu khác.",
     "passwords_do_not_match": "Mật khẩu không phù hợp. Vui lòng thử lại.",
-    "retype_password": "Nhập lại mật khẩu",
+    "confirm_password": "Nhập lại mật khẩu",
     "success": "Thành công",
     "title": "Sự từ chối hợp lý "
   },
@@ -268,7 +268,7 @@
     "privacy_do_not_track_explanation": "Thông tin về hiệu suất và độ tin cậy không sẽ được gửi để phân tích.",
     "push_notifications": " Thông báo đẩy",
     "rate": "Tỷ lệ",
-    "retype_password": "Nhập lại mật khẩu",
+    "confirm_password": "Nhập lại mật khẩu",
     "selfTest": "Tự kiểm tra",
     "save": "Lưu",
     "saved": "Đã lưu",

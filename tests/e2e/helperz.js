@@ -12,6 +12,15 @@ export function sup(text, timeout = 33000) {
     .withTimeout(timeout);
 }
 
+export async function getSwitchValue(switchId) {
+  try {
+    await expect(element(by.id(switchId))).toHaveToggleValue(true);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await yo('WalletsList');
 

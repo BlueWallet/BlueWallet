@@ -5,10 +5,9 @@ import { Keyboard, StyleSheet, View, TouchableOpacity, Platform, Image } from 'r
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
   onClose?: () => void;
-  name?: string;
   isGrabberVisible?: boolean;
   sizes?: SheetSize[] | undefined;
-  footer?: ReactElement | ComponentType<any>;
+  footer?: ReactElement | ComponentType<any> | null;
   footerDefaultMargins?: boolean | number;
   onPresent?: () => void;
   onSizeChange?: (size: SizeInfo) => void;
@@ -42,7 +41,6 @@ const styles = StyleSheet.create({
 const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
   (
     {
-      name,
       onClose,
       onPresent,
       onSizeChange,
@@ -117,7 +115,6 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
         // Footer is not working correctly on Android yet.
         FooterComponent={FooterComponent as ReactElement}
         {...props}
-        blurTint="regular"
       >
         {children}
         {renderTopRightButton()}
