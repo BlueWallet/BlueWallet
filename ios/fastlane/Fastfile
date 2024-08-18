@@ -53,20 +53,21 @@ platform :ios do
   desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
   lane :setup_profiles do |options|
     platform = options[:platform] || "ios"
-    type = options[:type] || "development"
+    type = options[:type] || "appstore"
     
     app_identifiers.each do |app_identifier|
       match(
-        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
-        git_url: ENV["GIT_URL"],
         type: type,
         platform: platform,
         app_identifier: app_identifier,
+        git_url: ENV["GIT_URL"],
+        git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+        keychain_name: "temp_keychain",
+        keychain_password: ENV["KEYCHAIN_PASSWORD"],
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
-        keychain_name: "temp_keychain",
-        keychain_password: ENV["KEYCHAIN_PASSWORD"]
+        readonly: false,
+        clone_branch_directly: true
       )
     end
   end
