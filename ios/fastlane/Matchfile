@@ -8,8 +8,6 @@ app_identifier([
   "io.bluewallet.bluewallet.MarketWidget"
 ])
 
-username(ENV["APPLE_ID"])
-
 team_id(ENV["ITC_TEAM_ID"])
 
 git_branch("main")
@@ -22,6 +20,4 @@ shallow_clone(true)
 
 type("appstore")
 
-force_for_new_devices(false)
-
-readonly(false)
+readonly(true)
