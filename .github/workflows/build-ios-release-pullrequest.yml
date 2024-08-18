@@ -78,7 +78,7 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane setup_provisioning_profiles platform:ios
+        run: bundle exec fastlane setup_profiles platform:ios
         working-directory: ./ios
       - name: Setup Provisioning Profiles (Catalyst)
         env:
@@ -88,7 +88,7 @@ jobs:
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane setup_provisioning_profiles platform:catalyst
+        run: bundle exec fastlane setup_profiles platform:catalyst
         working-directory: ./ios
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles

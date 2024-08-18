@@ -52,7 +52,7 @@ platform :ios do
   end
 
   desc "Synchronize certificates and provisioning profiles for iOS and Catalyst"
-  lane :setup_provisioning_profiles do |options|
+  lane :setup_profiles do |options|
     UI.message("Setting up provisioning profiles...")
     platform = options[:platform] || "ios" # Default to iOS if not specified
 
@@ -85,7 +85,7 @@ platform :ios do
       )
     end
   end
-
+  
   desc "Clear derived data"
   lane :clear_derived_data_lane do
     UI.message("Clearing derived data...")
