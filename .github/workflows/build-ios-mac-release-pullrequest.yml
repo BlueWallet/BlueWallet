@@ -67,6 +67,7 @@ jobs:
         run: bundle exec fastlane ios create_temp_keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        working-directory: ./ios
       - name: Setup Provisioning Profiles (iOS)
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
@@ -76,7 +77,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane ios setup_profiles type:appstore platform:ios
-
+        working-directory: ./ios
   build_ios:
     runs-on: macos-14
     needs: common_setup
@@ -94,7 +95,7 @@ jobs:
           NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
           LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
-
+        working-directory: ./ios
   build_catalyst:
     runs-on: macos-14
     needs: common_setup
@@ -110,13 +111,14 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: bundle exec fastlane catalyst setup_profiles type:appstore platform:catalyst
+        working-directory: ./ios
       - name: Build Mac Catalyst App
         run: bundle exec fastlane catalyst build_catalyst_app
         env:
           NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
           LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
-
+        working-directory: ./ios
   upload_ios_to_testflight:
     runs-on: macos-14
     needs: build_ios
@@ -129,7 +131,7 @@ jobs:
           NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
           LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
-
+        working-directory: ./ios
   upload_catalyst_to_testflight:
     runs-on: macos-14
     needs: build_catalyst
@@ -142,3 +144,4 @@ jobs:
           NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
           LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
+        working-directory: ./ios
