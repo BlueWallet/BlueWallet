@@ -97,8 +97,12 @@ platform :ios do
 
   desc "Build the iOS app"
   lane :build_ios_app do
-    # Extract cached provisioning profiles
-    sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    # Extract cached provisioning profiles if available
+    if File.exist?("~/provisioning_profiles.tar.gz")
+      sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    else
+      UI.message("No cached provisioning profiles found, proceeding without extracting.")
+    end
     
     build_app(
       scheme: "BlueWallet",
@@ -128,8 +132,12 @@ platform :ios do
 
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
-    # Extract cached provisioning profiles
-    sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    # Extract cached provisioning profiles if available
+    if File.exist?("~/provisioning_profiles.tar.gz")
+      sh("tar -xvzf ~/provisioning_profiles.tar.gz -C ~/Library/MobileDevice/Provisioning\\ Profiles/")
+    else
+      UI.message("No cached provisioning profiles found, proceeding without extracting.")
+    end
     
     build_app(
       scheme: "BlueWallet",
