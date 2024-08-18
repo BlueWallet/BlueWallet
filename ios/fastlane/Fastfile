@@ -216,16 +216,6 @@ desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
     )
   end
 
-  desc "Fetch App Store certificates and provisioning profiles for Mac Catalyst"
-  lane :fetch_appstore_profiles_catalyst do
-    match(
-      type: "appstore",
-      platform: "catalyst",
-      app_identifier: app_identifiers,
-      readonly: true
-    )
-  end
-
   desc "Setup provisioning profiles for Mac Catalyst"
   lane :setup_catalyst_provisioning_profiles do
     app_identifiers.each do |app_identifier|
