@@ -1,4 +1,4 @@
-name: BuildReleaseArtifacts
+name: BuildAndroidReleaseArtifacts
 on:
   pull_request:
     branches:
@@ -8,68 +8,12 @@ on:
       - master
 
 jobs:
-  buildReleaseApk:
+  buildAndroidArtifacts:
     runs-on: macos-latest
 
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Specify node version
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Use npm caches
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
-      - name: Use specific Java version for sdkmanager to work
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Install node_modules
-        run: npm install --production
-
-      - name: Extract Version Name
-        id: version_name
-        run: |
-          VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-          echo "::set-output name=version_name::$VERSION_NAME"
-
-      - name: Generate Build Number based on timestamp
-        run: |
-          NEW_BUILD_NUMBER=$(date +%s)
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "::set-output name=
-          build_number::$NEW_BUILD_NUMBER"
-
-      - name: Build APK
-        env:
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: ./scripts/build-release-apk.sh apk
-
-      - name: Upload APK artifact
-        if: success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
-          path: ./android/app/build/outputs/apk/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).apk
-
-  buildReleaseAab:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        artifact_type: [apk, aab]
 
     steps:
       - name: Checkout project
@@ -113,16 +57,16 @@ jobs:
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "::set-output name=build_number::$NEW_BUILD_NUMBER"
 
-      - name: Build AAB
+      - name: Build ${{ matrix.artifact_type }}
         env:
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
-        run: ./scripts/build-release-apk.sh aab
+        run: ./scripts/build-release-apk.sh ${{ matrix.artifact_type }}
 
-      - name: Upload AAB artifact
+      - name: Upload ${{ matrix.artifact_type }} artifact
         if: success()
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).aab
-          path: ./android/app/build/outputs/bundle/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).aab
+          name: BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).${{ matrix.artifact_type }}
+          path: ./android/app/build/outputs/${{ matrix.artifact_type }}/release/BlueWallet-${{ env.VERSION_NAME }}(${{ env.NEW_BUILD_NUMBER }}).${{ matrix.artifact_type }}

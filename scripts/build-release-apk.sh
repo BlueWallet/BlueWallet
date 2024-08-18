@@ -17,21 +17,20 @@ sed -i'.original' "s/versionCode 1/versionCode $BUILD_NUMBER/g" app/build.gradle
 # Extract versionName from build.gradle
 VERSION_NAME=$(grep versionName app/build.gradle | awk '{print $2}' | tr -d '"')
 
+# Build and rename based on the input parameter (apk or aab)
 if [ "$1" == "apk" ]; then
-  # Build APK
   ./gradlew assembleRelease
-
-  # Rename the APK file to include the dynamic version and build number with parentheses
-  mv ./app/build/outputs/apk/release/app-release-unsigned.apk "./app/build/outputs/apk/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"
-
-  echo wheres waldo?
-  find $ANDROID_HOME | grep apksigner | grep -v jar
-
-  $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "./app/build/outputs/apk/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"
+  OUTPUT_DIR="./app/build/outputs/apk/release"
+  OUTPUT_FILE="app-release-unsigned.apk"
+  SIGNED_OUTPUT_FILE="BlueWallet-${VERSION_NAME}($BUILD_NUMBER).apk"
+  # Sign the APK
+  $ANDROID_HOME/build-tools/34.0.0/apksigner sign --ks ./bluewallet-release-key.keystore --ks-pass=pass:$KEYSTORE_PASSWORD "$OUTPUT_DIR/$SIGNED_OUTPUT_FILE"
 elif [ "$1" == "aab" ]; then
-  # Build AAB
   ./gradlew bundleRelease
-
-  # Rename the AAB file to include the dynamic version and build number with parentheses
-  mv ./app/build/outputs/bundle/release/app-release.aab "./app/build/outputs/bundle/release/BlueWallet-${VERSION_NAME}($BUILD_NUMBER).aab"
+  OUTPUT_DIR="./app/build/outputs/bundle/release"
+  OUTPUT_FILE="app-release.aab"
+  SIGNED_OUTPUT_FILE="BlueWallet-${VERSION_NAME}($BUILD_NUMBER).aab"
 fi
+
+# Rename the output file to include the dynamic version and build number with parentheses
+mv "$OUTPUT_DIR/$OUTPUT_FILE" "$OUTPUT_DIR/$SIGNED_OUTPUT_FILE"
