@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { color } from '@rneui/base';
 import { pad } from 'crypto-js';
-import loc from '../loc';
+import loc, { formatBalanceWithoutSuffix } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import ToolTipMenu from './TooltipMenu';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import { useSettings } from '../hooks/context/useSettings';
 
+export const TotalWalletsBalanceKey = 'TotalWalletsBalance';
 const TotalWalletsBalance: React.FC = () => {
-
   const { wallets } = useStorage();
-  
+  const { preferredFiatCurrency } = useSettings();
+
   // Calculate total balance from all wallets
   const totalBalance = wallets.reduce((prev, curr) => {
     if (!curr.hideBalance) {
@@ -17,13 +22,24 @@ const TotalWalletsBalance: React.FC = () => {
     return prev;
   }, 0);
 
+  const formattedBalance = formatBalanceWithoutSuffix(Number(totalBalance), BitcoinUnit.BTC, true);
+
+  const toolTipActions = useMemo(() => {
+    const viewInFiat = CommonToolTipActions.ViewInFiat;
+    viewInFiat.text = loc.formatString(loc.wallets.view_in_fiat, { currency: preferredFiatCurrency.endPointKey });
+
+    return [viewInFiat, CommonToolTipActions.HideBalance];
+  }, [preferredFiatCurrency]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-      <Text style={styles.balance}>
-        {totalBalance.toFixed(5)} <Text style={styles.currency}>BTC</Text>
-      </Text>
-    </View>
+    <ToolTipMenu actions={toolTipActions}>
+      <View style={styles.container}>
+        <Text style={styles.label}>{loc.wallets.total_balance}</Text>
+        <Text style={styles.balance}>
+          {formattedBalance} <Text style={styles.currency}>{BitcoinUnit.BTC}</Text>
+        </Text>
+      </View>
+    </ToolTipMenu>
   );
 };
 
