@@ -79,7 +79,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          bundle exec fastlane ios setup_provisioning_profiles
+          bundle exec fastlane ios setup_provisioning_profiles platform:ios
         working-directory: ./ios
       - name: Setup Provisioning Profiles (Mac Catalyst)
         env:
@@ -90,7 +90,7 @@ jobs:
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          bundle exec fastlane ios setup_catalyst_provisioning_profiles
+          bundle exec fastlane ios setup_provisioning_profiles platform:catalyst
         working-directory: ./ios
       - name: Cache Provisioning Profiles
         id: cache_provisioning_profiles
@@ -144,11 +144,11 @@ jobs:
         with:
           name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
-      - name: Upload Mac Catalyst App as Artifact
+      - name: Upload DMG as Artifact (Mac Catalyst)
         uses: actions/upload-artifact@v2
         with:
-          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
-          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).app
+          name: BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
+          path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
 
   testflight-upload:
     needs: build
@@ -183,10 +183,10 @@ jobs:
         with:
           name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).ipa
           path: ./ios/build
-      - name: Download Mac Catalyst App from Artifact
+      - name: Download DMG from Artifact (Mac Catalyst)
         uses: actions/download-artifact@v2
         with:
-          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).app
+          name: BlueWallet.${{ needs.build.outputs.project_version }}(${{ needs.build.outputs.new_build_number }}).dmg
           path: ./ios/build
       - name: Create App Store Connect API Key JSON
         run: echo '${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./ios/appstore_api_key.json
