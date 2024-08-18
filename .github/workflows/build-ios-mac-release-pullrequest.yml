@@ -83,6 +83,10 @@ jobs:
   build_ios:
     runs-on: macos-14
     needs: common_setup
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -110,18 +114,17 @@ jobs:
       - name: Build iOS App
         run: bundle exec fastlane ios build_ios_app
         working-directory: ./ios
-        env:
-          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
 
   build_catalyst:
     runs-on: macos-14
     needs: common_setup
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -150,35 +153,31 @@ jobs:
       - name: Build Mac Catalyst App
         run: bundle exec fastlane ios build_catalyst_app
         working-directory: ./ios
-        env:
-          NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.common_setup.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.common_setup.outputs.latest_commit_message }}
 
   upload_ios_to_testflight:
     runs-on: macos-14
     needs: build_ios
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.build_ios.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build_ios.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build_ios.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
       - name: Upload iOS to TestFlight
         run: bundle exec fastlane ios upload_ios_to_testflight
         working-directory: ./ios
-        env:
-          NEW_BUILD_NUMBER: ${{ needs.build_ios.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.build_ios.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build_ios.outputs.latest_commit_message }}
 
   upload_catalyst_to_testflight:
     runs-on: macos-14
     needs: build_catalyst
+    env:
+      NEW_BUILD_NUMBER: ${{ needs.build_catalyst.outputs.new_build_number }}
+      PROJECT_VERSION: ${{ needs.build_catalyst.outputs.project_version }}
+      LATEST_COMMIT_MESSAGE: ${{ needs.build_catalyst.outputs.latest_commit_message }}
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
       - name: Upload Mac Catalyst to TestFlight
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         working-directory: ./ios
-        env:
-          NEW_BUILD_NUMBER: ${{ needs.build_catalyst.outputs.new_build_number }}
-          PROJECT_VERSION: ${{ needs.build_catalyst.outputs.project_version }}
-          LATEST_COMMIT_MESSAGE: ${{ needs.build_catalyst.outputs.latest_commit_message }}
