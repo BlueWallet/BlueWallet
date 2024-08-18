@@ -35,11 +35,25 @@ jobs:
         with:
           ruby-version: 3.1.6
           bundler-cache: true
+      - name: Install node_modules
+        run: npm install
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install dependencies with Bundler
         run: bundle install
         working-directory: ./ios
-      - name: Install node_modules
-        run: npm install
+      - name: Cache CocoaPods
+        uses: actions/cache@v3
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
       - name: Generate Build Number based on timestamp
         id: generate_build_number
         run: |
@@ -95,17 +109,22 @@ jobs:
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
+      - name: Restore Node modules cache
+        uses: actions/cache@v3
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Install dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+            ${{ runner.os }}-node-
+      - name: Install node_modules
+        run: npm install
+      - name: Restore CocoaPods cache
+        uses: actions/cache@v3
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
       - name: Install CocoaPods Dependencies
         run: |
           gem install cocoapods
@@ -130,17 +149,27 @@ jobs:
         with:
           ruby-version: 3.1.6
           bundler-cache: true
-      - name: Cache Ruby Gems
-        uses: actions/cache@v2
+      - name: Restore Node modules cache
+        uses: actions/cache@v3
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-gems-
-      - name: Install dependencies with Bundler
+            ${{ runner.os }}-node-
+      - name: Install node_modules
+        run: npm install
+      - name: Restore CocoaPods cache
+        uses: actions/cache@v3
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-cocoapods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cocoapods-
+      - name: Install CocoaPods Dependencies
         run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          gem install cocoapods
+          bundle exec pod install
+        working-directory: ./ios
       - name: Setup Provisioning Profiles (Mac Catalyst)
         env:
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
