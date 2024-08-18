@@ -52,7 +52,7 @@ platform :ios do
   end
 
   desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
-  lane :setup_profiles do |options|
+  lane :setup_app_profiles do |options|
     platform = options[:platform] || "ios"
     
     app_identifiers.each do |app_identifier|
@@ -196,7 +196,7 @@ platform :ios do
 
     update_wwdr_certificate
 
-    setup_profiles
+    setup_app_profiles
     clear_derived_data_lane
     increment_build_number_lane
 
