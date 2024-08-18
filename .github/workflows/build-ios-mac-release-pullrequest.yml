@@ -71,7 +71,6 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       - name: Setup Provisioning Profiles (iOS)
         env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
@@ -107,16 +106,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Provisioning Profiles (Mac Catalyst)
         env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           GIT_URL: ${{ secrets.GIT_URL }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
           ITC_TEAM_NAME: ${{ secrets.ITC_TEAM_NAME }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: bundle exec fastlane mac setup_profiles type:appstore platform:mac
+        run: bundle exec fastlane ios setup_profiles type:appstore platform:catalyst
         working-directory: ./ios
       - name: Build Mac Catalyst App
-        run: bundle exec fastlane mac build_catalyst_app
+        run: bundle exec fastlane ios build_catalyst_app
         working-directory: ./ios
         env:
           NEW_BUILD_NUMBER: ${{ needs.common_setup.outputs.new_build_number }}
@@ -144,7 +142,7 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v4
       - name: Upload Mac Catalyst to TestFlight
-        run: bundle exec fastlane mac upload_catalyst_to_testflight
+        run: bundle exec fastlane ios upload_catalyst_to_testflight
         working-directory: ./ios
         env:
           NEW_BUILD_NUMBER: ${{ needs.build_catalyst.outputs.new_build_number }}

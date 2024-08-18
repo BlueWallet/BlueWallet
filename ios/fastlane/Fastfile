@@ -15,7 +15,7 @@ platform :ios do
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
 
-    csv_path = "../../devices.txt" # Update this with the actual path to your file
+    csv_path = "../../devices.txt"
 
     register_devices(
       devices_file: csv_path
