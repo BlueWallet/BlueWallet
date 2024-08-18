@@ -22,6 +22,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -106,6 +107,7 @@ const WalletsList: React.FC = () => {
     isElectrumDisabled,
     setReloadTransactionsMenuActionFunction,
   } = useStorage();
+  const { isTotalBalanceEnabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
@@ -258,19 +260,19 @@ const WalletsList: React.FC = () => {
   const renderWalletsCarousel = useCallback(() => {
     return (
       <>
-      <TotalWalletsBalance />
-      <WalletsCarousel
-        data={wallets}
-        extraData={[wallets]}
-        onPress={handleClick}
-        handleLongPress={handleLongPress}
-        onMomentumScrollEnd={onSnapToItem}
-        ref={walletsCarousel}
-        onNewWalletPress={handleClick}
-        testID="WalletsList"
-        horizontal
-        scrollEnabled={isFocused}
-      />
+        {isTotalBalanceEnabled && <TotalWalletsBalance />}
+        <WalletsCarousel
+          data={wallets}
+          extraData={[wallets]}
+          onPress={handleClick}
+          handleLongPress={handleLongPress}
+          onMomentumScrollEnd={onSnapToItem}
+          ref={walletsCarousel}
+          onNewWalletPress={handleClick}
+          testID="WalletsList"
+          horizontal
+          scrollEnabled={isFocused}
+        />
       </>
     );
   }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);

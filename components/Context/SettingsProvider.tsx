@@ -11,6 +11,8 @@ import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDevice
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
+import { getIsTotalBalanceViewEnabled, getTotalBalancePreferredUnit, setTotalBalanceViewEnabled, setTotalBalancePreferredUnit as setTotalBalancePreferredUnitFunction } from '../TotalWalletsBalance';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 interface SettingsContextType {
   preferredFiatCurrency: TFiatUnit;
@@ -33,6 +35,10 @@ interface SettingsContextType {
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
   isQuickActionsEnabled: boolean;
   setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
+  isTotalBalanceEnabled: boolean;
+  setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
+  totalBalancePreferredUnit: BitcoinUnit;
+  setTotalBalancePreferredUnitStorage?: (unit: BitcoinUnit) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -56,6 +62,10 @@ const defaultSettingsContext: SettingsContextType = {
   setIsClipboardGetContentEnabledStorage: async () => {},
   isQuickActionsEnabled: true,
   setIsQuickActionsEnabledStorage: async () => {},
+  isTotalBalanceEnabled: true,
+  setIsTotalBalanceEnabledStorage: async () => {},
+  totalBalancePreferredUnit: BitcoinUnit.BTC,
+  setTotalBalancePreferredUnitStorage: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -81,6 +91,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(false);
   // Quick Actions
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
+  // Total Balance
+  const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
+  const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
@@ -146,6 +159,20 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setDoNotTrackStorage(value ?? false);
       })
       .catch(error => console.error('Error fetching do not track settings:', error));
+
+    getIsTotalBalanceViewEnabled()
+      .then(value => {
+        console.debug('SettingsContext totalBalance:', value);
+        setIsTotalBalanceEnabledStorage(value);
+      })
+      .catch(error => console.error('Error fetching total balance settings:', error));
+
+      getTotalBalancePreferredUnit()
+      .then(unit => {
+        console.debug('SettingsContext totalBalancePreferredUnit:', unit);
+        setTotalBalancePreferredUnit(unit);
+      })
+      .catch(error => console.error('Error fetching total balance preferred unit:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -228,6 +255,16 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     [isPrivacyBlurEnabled],
   );
 
+  const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean) => {
+    setTotalBalanceViewEnabled(value);
+    setIsTotalBalanceEnabled(value);
+  }, []);
+
+  const setTotalBalancePreferredUnitStorage = useCallback(async (unit: BitcoinUnit) => {
+    await setTotalBalancePreferredUnit(unit);
+    setTotalBalancePreferredUnit(unit);
+  }, []);
+
   const value = useMemo(
     () => ({
       preferredFiatCurrency,
@@ -250,6 +287,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isTotalBalanceEnabled,
+      setIsTotalBalanceEnabledStorage,
+      totalBalancePreferredUnit,
+      setTotalBalancePreferredUnitStorage,
     }),
     [
       preferredFiatCurrency,
@@ -272,6 +313,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isTotalBalanceEnabled,
+      setIsTotalBalanceEnabledStorage,
+      totalBalancePreferredUnit,
+      setTotalBalancePreferredUnitStorage,
+
     ],
   );
 
