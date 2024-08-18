@@ -74,24 +74,20 @@ export const CommonToolTipActions = {
     text: loc.transactions.details_balance_hide,
     icon: icons.EyeSlash,
   },
-  ViewInCurrency: {
-    id: keys.ViewInCurrency,
-    text: loc.transactions.details_view_in_currency,
-    icon: icons.Eye,
-  },
   ViewInFiat: {
     id: keys.ViewInFiat,
-    text: loc.wallets.view_in_fiat,
+    text: loc.total_balance_view.view_in_fiat,
     icon: icons.ViewInFiat,
   },
+
   ViewInSats: {
     id: keys.ViewInSats,
-    text: loc.wallets.view_in_sats,
+    text: loc.total_balance_view.view_in_sats,
     icon: icons.ViewInBitcoin,
   },
   ViewInBitcoin: {
     id: keys.ViewInBitcoin,
-    text: loc.wallets.view_in_bitcoin,
+    text: loc.total_balance_view.view_in_bitcoin,
     icon: icons.ViewInBitcoin,
   },
 };

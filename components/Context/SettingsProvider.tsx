@@ -11,7 +11,12 @@ import { getEnabled as getIsDeviceQuickActionsEnabled, setEnabled as setIsDevice
 import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../WidgetCommunication';
 import { useStorage } from '../../hooks/context/useStorage';
-import { getIsTotalBalanceViewEnabled, getTotalBalancePreferredUnit, setTotalBalanceViewEnabled, setTotalBalancePreferredUnit as setTotalBalancePreferredUnitFunction } from '../TotalWalletsBalance';
+import {
+  getIsTotalBalanceViewEnabled,
+  getTotalBalancePreferredUnit,
+  setTotalBalanceViewEnabled,
+  setTotalBalancePreferredUnit,
+} from '../TotalWalletsBalance';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 interface SettingsContextType {
@@ -38,7 +43,7 @@ interface SettingsContextType {
   isTotalBalanceEnabled: boolean;
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
-  setTotalBalancePreferredUnitStorage?: (unit: BitcoinUnit) => Promise<void>;
+  setTotalBalancePreferredUnitStorage: (unit: BitcoinUnit) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -65,7 +70,7 @@ const defaultSettingsContext: SettingsContextType = {
   isTotalBalanceEnabled: true,
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
-  setTotalBalancePreferredUnitStorage: async () => {},
+  setTotalBalancePreferredUnitStorage: async (unit: BitcoinUnit) => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -93,7 +98,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
   // Total Balance
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
-  const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
+  const [totalBalancePreferredUnit, setTotalBalancePreferredUnitState] = useState<BitcoinUnit>(BitcoinUnit.BTC);
 
   const advancedModeStorage = useAsyncStorage(BlueApp.ADVANCED_MODE_ENABLED);
   const languageStorage = useAsyncStorage(STORAGE_KEY);
@@ -167,7 +172,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       })
       .catch(error => console.error('Error fetching total balance settings:', error));
 
-      getTotalBalancePreferredUnit()
+    getTotalBalancePreferredUnit()
       .then(unit => {
         console.debug('SettingsContext totalBalancePreferredUnit:', unit);
         setTotalBalancePreferredUnit(unit);
@@ -262,7 +267,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setTotalBalancePreferredUnitStorage = useCallback(async (unit: BitcoinUnit) => {
     await setTotalBalancePreferredUnit(unit);
-    setTotalBalancePreferredUnit(unit);
+    setTotalBalancePreferredUnitState(unit);
   }, []);
 
   const value = useMemo(
@@ -317,7 +322,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
       setTotalBalancePreferredUnitStorage,
-
     ],
   );
 

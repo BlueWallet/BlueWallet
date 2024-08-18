@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, LayoutAnimation } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
@@ -7,7 +7,7 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import DefaultPreference from 'react-native-default-preference';
-import { GROUP_IO_BLUEWALLET, setPreferredCurrency } from '../blue_modules/currency';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
 export const setTotalBalanceViewEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -59,33 +59,56 @@ const TotalWalletsBalance: React.FC = () => {
     return prev;
   }, 0);
 
-  const formattedBalance = formatBalanceWithoutSuffix(Number(totalBalance), totalBalancePreferredUnit, true);
+  const formattedBalance = useMemo(
+    () => formatBalanceWithoutSuffix(Number(totalBalance), totalBalancePreferredUnit, true),
+    [totalBalance, totalBalancePreferredUnit],
+  );
 
   const toolTipActions = useMemo(() => {
-    const viewInFiat = CommonToolTipActions.ViewInFiat;
-    viewInFiat.text = loc.formatString(loc.wallets.view_in_fiat, { currency: preferredFiatCurrency.endPointKey });
+    let viewIn =
+      totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY
+        ? CommonToolTipActions.ViewInFiat
+        : totalBalancePreferredUnit === BitcoinUnit.BTC
+          ? CommonToolTipActions.ViewInSats
+          : CommonToolTipActions.ViewInBitcoin;
+    switch (totalBalancePreferredUnit) {
+      case BitcoinUnit.SATS:
+        viewIn = CommonToolTipActions.ViewInFiat;
+        viewIn.text = loc.formatString(loc.total_balance_view.view_in_fiat, { currency: preferredFiatCurrency.endPointKey });
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        viewIn = CommonToolTipActions.ViewInBitcoin;
+        break;
+      case BitcoinUnit.BTC:
+        viewIn = CommonToolTipActions.ViewInSats;
+        break;
+      default:
+        break;
+    }
 
-    return [viewInFiat, CommonToolTipActions.HideBalance];
-  }, [preferredFiatCurrency]);
+    return [viewIn, CommonToolTipActions.HideBalance];
+  }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
 
   const onPressMenuItem = async (id: string) => {
+    console.warn(totalBalancePreferredUnit);
+    console.warn(id);
+
     switch (id) {
-      case CommonToolTipActions.ViewInFiat.id:
-        console.debug('View in fiat');
+      case (CommonToolTipActions.ViewInFiat.id, CommonToolTipActions.ViewInBitcoin.id, CommonToolTipActions.ViewInSats.id):
         switch (totalBalancePreferredUnit) {
           case BitcoinUnit.BTC:
-            await setTotalBalancePreferredUnit(BitcoinUnit.SATS);
+            await setTotalBalancePreferredUnitStorage(BitcoinUnit.SATS);
             break;
           case BitcoinUnit.SATS:
-            await setTotalBalancePreferredUnit(BitcoinUnit.LOCAL_CURRENCY);
+            await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            await setTotalBalancePreferredUnit(BitcoinUnit.BTC);
+            await setTotalBalancePreferredUnitStorage(BitcoinUnit.BTC);
             break;
           default:
             break;
         }
-
+        
         break;
       case CommonToolTipActions.HideBalance.id:
         console.debug('Hide balance');
@@ -101,7 +124,9 @@ const TotalWalletsBalance: React.FC = () => {
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <Text style={styles.balance}>
-          {formattedBalance} <Text style={styles.currency} />
+          {totalBalancePreferredUnit === BitcoinUnit.LOCAL_CURRENCY ? preferredFiatCurrency.symbol : null}
+          {formattedBalance}{' '}
+          {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={styles.currency}>{totalBalancePreferredUnit}</Text>}
         </Text>
       </View>
     </ToolTipMenu>
