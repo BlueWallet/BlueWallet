@@ -54,9 +54,6 @@ platform :ios do
   lane :setup_profiles do |options|
     platform = options[:platform] || "ios"
     type = options[:type] || "appstore"
-
-    # Remove local master branch if it exists (Exit status: 128 - 'fatal: a branch named 'master' already exists')
-    sh("git branch -D master || true")
     
     app_identifiers.each do |app_identifier|
       match(
@@ -70,6 +67,8 @@ platform :ios do
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
         readonly: true,
+        skip_provisioning_profiles: true,
+        skip_certificate_matching: true
       )
     end
   end
