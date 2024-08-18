@@ -11,7 +11,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Common steps to run before the builds
   setup:
     runs-on: macos-14
     timeout-minutes: 180
@@ -69,7 +68,7 @@ jobs:
         working-directory: ./ios
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      - name: Setup Provisioning Profiles
+      - name: Setup Provisioning Profiles (iOS)
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
@@ -102,7 +101,6 @@ jobs:
           echo "PROJECT_VERSION=$MARKETING_VERSION" >> $GITHUB_ENV
           echo "::set-output name=project_version::$MARKETING_VERSION"
 
-  # iOS build job
   build_ios:
     runs-on: macos-14
     needs: setup
@@ -126,7 +124,6 @@ jobs:
           name: BlueWallet.iOS.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).ipa
 
-  # Mac Catalyst build job
   build_mac_catalyst:
     runs-on: macos-14
     needs: setup
@@ -157,7 +154,6 @@ jobs:
           name: BlueWallet.MacCatalyst.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
           path: ./ios/build/BlueWallet.${{env.PROJECT_VERSION}}(${{env.NEW_BUILD_NUMBER}}).dmg
 
-  # Upload to TestFlight for iOS
   upload_ios_to_testflight:
     needs: build_ios
     runs-on: macos-14
@@ -210,7 +206,6 @@ jobs:
               body: message,
             });
 
-  # Upload to TestFlight for Mac Catalyst
   upload_catalyst_to_testflight:
     needs: build_mac_catalyst
     runs-on: macos-14

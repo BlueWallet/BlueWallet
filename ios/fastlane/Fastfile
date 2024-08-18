@@ -1,14 +1,9 @@
 def app_identifiers
-  [
-    "io.bluewallet.bluewallet", 
-    "io.bluewallet.bluewallet.watch", 
-    "io.bluewallet.bluewallet.watch.extension", 
-    "io.bluewallet.bluewallet.Stickers", 
-    "io.bluewallet.bluewallet.MarketWidget"
-  ]
+  ["io.bluewallet.bluewallet", "io.bluewallet.bluewallet.watch", "io.bluewallet.bluewallet.watch.extension", "io.bluewallet.bluewallet.Stickers", "io.bluewallet.bluewallet.MarketWidget"]
 end
 
 platform :ios do
+
   before_all do |lane, options|
     UI.message("Setting up for all lanes...")
     UI.message("Discarding all untracked changes before running any lane...")
@@ -19,9 +14,12 @@ platform :ios do
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
+
     csv_path = "../../devices.txt" # Update this with the actual path to your file
 
-    register_devices(devices_file: csv_path)
+    register_devices(
+      devices_file: csv_path
+    )
 
     UI.message("Devices registered successfully.")
 
@@ -29,8 +27,8 @@ platform :ios do
       match(
         type: "development", 
         app_identifier: app_identifier,
-        readonly: false,
-        force_for_new_devices: true
+        readonly: false, 
+        force_for_new_devices: true 
       )
     end
 
@@ -40,6 +38,7 @@ platform :ios do
   desc "Create a temporary keychain"
   lane :create_temp_keychain do
     UI.message("Creating a temporary keychain...")
+  
     create_keychain(
       name: "temp_keychain",
       password: ENV["KEYCHAIN_PASSWORD"],
@@ -48,14 +47,14 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
+  
     UI.message("Temporary keychain created successfully.")
   end
 
-  desc "Synchronize certificates and provisioning profiles for iOS and Catalyst"
+  desc "Synchronize certificates and provisioning profiles for iOS or Catalyst"
   lane :setup_profiles do |options|
-    UI.message("Setting up provisioning profiles...")
-    platform = options[:platform] || "ios" # Default to iOS if not specified
-
+    platform = options[:platform] || "ios"
+    
     app_identifiers.each do |app_identifier|
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
@@ -70,7 +69,7 @@ platform :ios do
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
       )
-
+      
       match(
         git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
         git_url: ENV["GIT_URL"],
@@ -79,13 +78,13 @@ platform :ios do
         app_identifier: app_identifier,
         team_id: ENV["ITC_TEAM_ID"],
         team_name: ENV["ITC_TEAM_NAME"],
-        readonly: true,
+        readonly: false,
         keychain_name: "temp_keychain",
         keychain_password: ENV["KEYCHAIN_PASSWORD"]
       )
     end
   end
-  
+
   desc "Clear derived data"
   lane :clear_derived_data_lane do
     UI.message("Clearing derived data...")
@@ -95,10 +94,12 @@ platform :ios do
   desc "Increment build number"
   lane :increment_build_number_lane do
     UI.message("Incrementing build number to current timestamp...")
+    
     increment_build_number(
       xcodeproj: "BlueWallet.xcodeproj", 
       build_number: ENV["NEW_BUILD_NUMBER"]
     )
+  
     UI.message("Build number set to: #{ENV['NEW_BUILD_NUMBER']}")
   end
 
@@ -108,11 +109,8 @@ platform :ios do
     cocoapods
   end
 
-  desc "Build the iOS application"
+  desc "Build the iOS app"
   lane :build_ios_app do
-    setup_provisioning_profiles(platform: "ios")
-
-    UI.message("Building the iOS application...")
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
@@ -141,9 +139,6 @@ platform :ios do
 
   desc "Build the Mac Catalyst app"
   lane :build_catalyst_app do
-    setup_provisioning_profiles(platform: "catalyst")
-
-    UI.message("Building the Mac Catalyst application...")
     build_app(
       scheme: "BlueWallet",
       workspace: "BlueWallet.xcworkspace",
@@ -167,14 +162,14 @@ platform :ios do
     )
   end
 
-  desc "Upload to TestFlight without Processing Wait"
+  desc "Upload to TestFlight"
   lane :upload_to_testflight_lane do
     attempts = 0
     max_attempts = 3
     begin
-      UI.message("Uploading to TestFlight without processing wait...")
+      UI.message("Uploading to TestFlight...")
       changelog = ENV["LATEST_COMMIT_MESSAGE"]
-
+  
       upload_to_testflight(
         api_key_path: "appstore_api_key.json",
         ipa: "./build/BlueWallet.#{ENV['PROJECT_VERSION']}(#{ENV['NEW_BUILD_NUMBER']}).ipa",
@@ -184,7 +179,7 @@ platform :ios do
     rescue => exception
       attempts += 1
       if attempts <= max_attempts
-        wait_time = 180
+        wait_time = 180 
         UI.message("Attempt ##{attempts} failed with error: #{exception.message}. Waiting #{wait_time} seconds before trying again...")
         sleep(wait_time)
         retry
@@ -195,11 +190,13 @@ platform :ios do
     end
   end
 
-  desc "Deploy iOS and Catalyst apps to TestFlight"
+  desc "Deploy to TestFlight"
   lane :deploy do |options|
     UI.message("Starting build process...")
 
     update_wwdr_certificate
+
+    setup_profiles
     clear_derived_data_lane
     increment_build_number_lane
 
@@ -208,7 +205,6 @@ platform :ios do
     end
 
     build_ios_app
-    build_catalyst_app
     upload_to_testflight_lane
 
     delete_keychain(name: "temp_keychain")
@@ -226,7 +222,7 @@ platform :ios do
       UI.error("Release notes file does not exist at path: #{release_notes_path}")
       next
     end
-
+   
     release_notes_text = File.read(release_notes_path)
     UI.message("Release Notes Content:\n#{release_notes_text}")
 
