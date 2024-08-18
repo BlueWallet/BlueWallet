@@ -21,6 +21,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
+import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -256,6 +257,8 @@ const WalletsList: React.FC = () => {
 
   const renderWalletsCarousel = useCallback(() => {
     return (
+      <>
+      <TotalWalletsBalance />
       <WalletsCarousel
         data={wallets}
         extraData={[wallets]}
@@ -268,6 +271,7 @@ const WalletsList: React.FC = () => {
         horizontal
         scrollEnabled={isFocused}
       />
+      </>
     );
   }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
 
