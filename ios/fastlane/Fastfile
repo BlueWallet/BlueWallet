@@ -113,7 +113,6 @@ platform :ios do
       include_symbols: true,
       export_team_id: ENV["ITC_TEAM_ID"],
       clean: false,
-      team_name: "Bluewallet Services, S. R. L.",
       export_options: {
         signingStyle: "manual",
         provisioningProfiles: {
