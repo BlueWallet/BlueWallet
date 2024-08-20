@@ -1380,6 +1380,7 @@ const SendDetails = () => {
           feeRate={feeRate}
           setCustomFee={setCustomFee}
           setFeePrecalc={setFeePrecalc}
+          feeUnit={feeUnit || BitcoinUnit.BTC}
         />
       </View>
       <BlueDismissKeyboardInputAccessory />
