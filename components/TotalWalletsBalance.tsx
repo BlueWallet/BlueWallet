@@ -32,6 +32,7 @@ export const getIsTotalBalanceViewEnabled = async (): Promise<boolean> => {
 export const setTotalBalancePreferredUnit = async (unit: BitcoinUnit) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(TotalWalletsBalancePreferredUnit, unit);
+  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when changing unit
 };
 
 export const getTotalBalancePreferredUnit = async (): Promise<BitcoinUnit> => {
@@ -92,6 +93,7 @@ const TotalWalletsBalance: React.FC = () => {
 
   const onPressMenuItem = useMemo(
     () => async (id: string) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // Add animation when pressing a menu item
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
         case CommonToolTipActions.ViewInBitcoin.id:
