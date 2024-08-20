@@ -8,6 +8,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import DefaultPreference from 'react-native-default-preference';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import Clipboard from '@react-native-clipboard/clipboard';
 
 export const setTotalBalanceViewEnabled = async (value: boolean) => {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -86,7 +87,7 @@ const TotalWalletsBalance: React.FC = () => {
         break;
     }
 
-    return [viewIn, CommonToolTipActions.HideBalance];
+    return [viewIn, CommonToolTipActions.CopyAmount, CommonToolTipActions.HideBalance];
   }, [preferredFiatCurrency.endPointKey, totalBalancePreferredUnit]);
 
   const onPressMenuItem = useMemo(
@@ -113,11 +114,14 @@ const TotalWalletsBalance: React.FC = () => {
           console.debug('Hide balance');
           setIsTotalBalanceEnabledStorage(false);
           break;
+        case CommonToolTipActions.CopyAmount.id:
+          Clipboard.setString(formattedBalance.toString());
+          break;
         default:
           break;
       }
     },
-    [totalBalancePreferredUnit, setIsTotalBalanceEnabledStorage, setTotalBalancePreferredUnitStorage],
+    [totalBalancePreferredUnit, setIsTotalBalanceEnabledStorage, formattedBalance, setTotalBalancePreferredUnitStorage],
   );
 
   return (
