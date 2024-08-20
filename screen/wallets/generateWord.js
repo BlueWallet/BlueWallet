@@ -1,12 +1,11 @@
 import { useTheme } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { BlueCard, BlueSpacing10, BlueSpacing20, BlueText } from '../../BlueComponents';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
-import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 
 const GenerateWord = () => {
@@ -53,51 +52,51 @@ const GenerateWord = () => {
   };
 
   return (
-    <SafeArea style={styles.blueArea}>
-      <KeyboardAvoidingView
-        enabled={!Platform.isPad}
-        behavior={Platform.OS === 'ios' ? 'position' : null}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.wrapper}>
-          <BlueCard style={styles.mainCard}>
-            <View style={[styles.input, stylesHooks.input]}>
-              <TextInput
-                style={styles.text}
-                maxHeight={100}
-                minHeight={100}
-                maxWidth="100%"
-                minWidth="100%"
-                multiline
-                editable
-                placeholder={loc.autofill_word.enter}
-                placeholderTextColor="#81868e"
-                value={mnemonic}
-                onChangeText={handleUpdateMnemonic}
-                testID="MnemonicInput"
-              />
-            </View>
+    <ScrollView
+      style={styles.blueArea}
+      keyboardShouldPersistTaps="handled"
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View style={styles.wrapper}>
+        <BlueCard style={styles.mainCard}>
+          <View style={[styles.input, stylesHooks.input]}>
+            <TextInput
+              style={styles.text}
+              maxHeight={100}
+              minHeight={100}
+              maxWidth="100%"
+              minWidth="100%"
+              multiline
+              editable
+              placeholder={loc.autofill_word.enter}
+              placeholderTextColor="#81868e"
+              value={mnemonic}
+              onChangeText={handleUpdateMnemonic}
+              testID="MnemonicInput"
+            />
+          </View>
 
-            <BlueSpacing10 />
-            <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-            <BlueSpacing20 />
-            <BlueText style={styles.center} testID="Result">
-              {result}
-            </BlueText>
-            <BlueSpacing20 />
-            <View>
-              <Button
-                disabled={mnemonic.trim().length === 0}
-                title={loc.autofill_word.generate_word}
-                onPress={checkMnemonic}
-                testID="GenerateWord"
-              />
-            </View>
-            <BlueSpacing20 />
-          </BlueCard>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeArea>
+          <BlueSpacing10 />
+          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+          <BlueSpacing20 />
+          <BlueText style={styles.center} testID="Result">
+            {result}
+          </BlueText>
+          <BlueSpacing20 />
+          <View>
+            <Button
+              disabled={mnemonic.trim().length === 0}
+              title={loc.autofill_word.generate_word}
+              onPress={checkMnemonic}
+              testID="GenerateWord"
+            />
+          </View>
+          <BlueSpacing20 />
+        </BlueCard>
+      </View>
+    </ScrollView>
   );
 };
 
