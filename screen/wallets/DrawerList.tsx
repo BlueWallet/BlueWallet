@@ -151,6 +151,7 @@ const DrawerList: React.FC<DrawerListProps> = memo(({ navigation }) => {
         ref={walletsCarousel}
         horizontal={false}
         isFlatList={false}
+        onNewWalletPress={handleClick}
         testID="WalletsList"
         selectedWallet={selectedWalletID}
         scrollEnabled={state.isFocused}
