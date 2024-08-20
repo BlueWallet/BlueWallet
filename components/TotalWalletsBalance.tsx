@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, LayoutAnimation } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, LayoutAnimation, View } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -127,15 +127,20 @@ const TotalWalletsBalance: React.FC = () => {
   );
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
-      <View style={styles.container}>
-        <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-        <Text style={styles.balance}>
-          {formattedBalance}{' '}
-          {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={styles.currency}>{totalBalancePreferredUnit}</Text>}
-        </Text>
-      </View>
-    </ToolTipMenu>
+    (wallets.length > 1 && (
+      <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
+        <View style={styles.container}>
+          <Text style={styles.label}>{loc.wallets.total_balance}</Text>
+          <TouchableOpacity onPress={() => onPressMenuItem(CommonToolTipActions.ViewInBitcoin.id)}>
+            <Text style={styles.balance}>
+              {formattedBalance}{' '}
+              {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={styles.currency}>{totalBalancePreferredUnit}</Text>}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ToolTipMenu>
+    )) ||
+    null
   );
 };
 

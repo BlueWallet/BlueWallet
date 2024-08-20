@@ -23,7 +23,7 @@ enum SettingsPrivacySection {
 
 const SettingsPrivacy: React.FC = () => {
   const { colors } = useTheme();
-  const { isStorageEncrypted } = useStorage();
+  const { isStorageEncrypted, wallets } = useStorage();
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
@@ -158,7 +158,7 @@ const SettingsPrivacy: React.FC = () => {
         switch={{
           onValueChange: onTotalBalanceEnabledValueChange,
           value: isTotalBalanceEnabled,
-          disabled: isLoading === SettingsPrivacySection.All,
+          disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
           testID: 'TotalBalanceSwitch',
         }}
       />
