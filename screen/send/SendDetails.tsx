@@ -10,7 +10,6 @@ import {
   FlatList,
   I18nManager,
   Keyboard,
-  KeyboardAvoidingView,
   LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -50,7 +49,6 @@ import { TOptions } from 'bip21';
 import assert from 'assert';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { isTablet } from '../../blue_modules/environment';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -1324,66 +1322,65 @@ const SendDetails = () => {
   return (
     <View style={[styles.root, stylesHook.root]} onLayout={e => setWidth(e.nativeEvent.layout.width)}>
       <View>
-        <KeyboardAvoidingView enabled={!isTablet} behavior="position">
-          <FlatList
-            keyboardShouldPersistTaps="always"
-            scrollEnabled={addresses.length > 1}
-            data={addresses}
-            renderItem={renderBitcoinTransactionInfoFields}
-            horizontal
-            ref={scrollView}
-            pagingEnabled
-            removeClippedSubviews={false}
-            onMomentumScrollBegin={Keyboard.dismiss}
-            onScroll={handleRecipientsScroll}
-            scrollEventThrottle={16}
-            scrollIndicatorInsets={styles.scrollViewIndicator}
-            contentContainerStyle={styles.scrollViewContent}
-            getItemLayout={getItemLayout}
+        <FlatList
+          keyboardShouldPersistTaps="always"
+          scrollEnabled={addresses.length > 1}
+          data={addresses}
+          renderItem={renderBitcoinTransactionInfoFields}
+          horizontal
+          ref={scrollView}
+          automaticallyAdjustKeyboardInsets
+          pagingEnabled
+          removeClippedSubviews={false}
+          onMomentumScrollBegin={Keyboard.dismiss}
+          onScroll={handleRecipientsScroll}
+          scrollEventThrottle={16}
+          scrollIndicatorInsets={styles.scrollViewIndicator}
+          contentContainerStyle={styles.scrollViewContent}
+          getItemLayout={getItemLayout}
+        />
+        <View style={[styles.memo, stylesHook.memo]}>
+          <TextInput
+            onChangeText={setTransactionMemo}
+            placeholder={loc.send.details_note_placeholder}
+            placeholderTextColor="#81868e"
+            value={transactionMemo}
+            numberOfLines={1}
+            style={styles.memoText}
+            editable={!isLoading}
+            onSubmitEditing={Keyboard.dismiss}
+            /* @ts-ignore marcos fixme */
+            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
           />
-          <View style={[styles.memo, stylesHook.memo]}>
-            <TextInput
-              onChangeText={setTransactionMemo}
-              placeholder={loc.send.details_note_placeholder}
-              placeholderTextColor="#81868e"
-              value={transactionMemo}
-              numberOfLines={1}
-              style={styles.memoText}
-              editable={!isLoading}
-              onSubmitEditing={Keyboard.dismiss}
-              /* @ts-ignore marcos fixme */
-              inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-            />
-          </View>
-          <TouchableOpacity
-            testID="chooseFee"
-            accessibilityRole="button"
-            onPress={() => feeModalRef.current?.present()}
-            disabled={isLoading}
-            style={styles.fee}
-          >
-            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+        </View>
+        <TouchableOpacity
+          testID="chooseFee"
+          accessibilityRole="button"
+          onPress={() => feeModalRef.current?.present()}
+          disabled={isLoading}
+          style={styles.fee}
+        >
+          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-            {networkTransactionFeesIsLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
-                <Text style={stylesHook.feeValue}>
-                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          {renderCreateButton()}
-          <SelectFeeModal
-            ref={feeModalRef}
-            networkTransactionFees={networkTransactionFees}
-            feePrecalc={feePrecalc}
-            feeRate={feeRate}
-            setCustomFee={setCustomFee}
-            setFeePrecalc={setFeePrecalc}
-          />
-        </KeyboardAvoidingView>
+          {networkTransactionFeesIsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <View style={[styles.feeRow, stylesHook.feeRow]}>
+              <Text style={stylesHook.feeValue}>
+                {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        {renderCreateButton()}
+        <SelectFeeModal
+          ref={feeModalRef}
+          networkTransactionFees={networkTransactionFees}
+          feePrecalc={feePrecalc}
+          feeRate={feeRate}
+          setCustomFee={setCustomFee}
+          setFeePrecalc={setFeePrecalc}
+        />
       </View>
       <BlueDismissKeyboardInputAccessory />
       {Platform.select({

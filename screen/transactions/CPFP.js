@@ -1,15 +1,5 @@
 import React, { Component } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import { Text } from '@rneui/themed';
@@ -161,22 +151,20 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <KeyboardAvoidingView enabled={!Platform.isPad} behavior="position">
-        <SafeArea style={styles.root}>
+      <SafeArea style={styles.root}>
+        <BlueSpacing />
+        <BlueCard style={styles.center}>
+          <BlueText>{text}</BlueText>
+          <BlueSpacing20 />
+          <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
           <BlueSpacing />
-          <BlueCard style={styles.center}>
-            <BlueText>{text}</BlueText>
-            <BlueSpacing20 />
-            <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
-            <BlueSpacing />
-            <Button
-              disabled={this.state.newFeeRate <= this.state.feeRate}
-              onPress={() => this.createTransaction()}
-              title={loc.transactions.cpfp_create}
-            />
-          </BlueCard>
-        </SafeArea>
-      </KeyboardAvoidingView>
+          <Button
+            disabled={this.state.newFeeRate <= this.state.feeRate}
+            onPress={() => this.createTransaction()}
+            title={loc.transactions.cpfp_create}
+          />
+        </BlueCard>
+      </SafeArea>
     );
   }
 
